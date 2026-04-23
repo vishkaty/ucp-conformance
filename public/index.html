@@ -90,6 +90,32 @@ section.alt{background:var(--bg)}
 .step h4{font-size:15px;font-weight:700;margin-bottom:8px}
 .step p{font-size:13px;color:var(--muted);line-height:1.6}
 
+/* CLI */
+.cli-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.cli-step{margin-bottom:24px}
+.cli-step h4{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cli-step h4 .cli-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700}
+.cli-step p{font-size:13px;color:#52525b;line-height:1.6;margin-bottom:10px}
+.cli-step p code{background:#f4f4f5;padding:1px 5px;border-radius:3px;font-size:12px;font-family:'SF Mono',Menlo,monospace}
+.terminal{background:#0f0f11;border-radius:10px;padding:16px 18px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.7;color:#e5e7eb;overflow-x:auto;border:1px solid #1f1f23;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.terminal .dim{color:#6b7280}
+.terminal .prompt{color:#818cf8;user-select:none}
+.terminal .cmd{color:#f3f4f6}
+.terminal .arg{color:#a5f3fc}
+.terminal .comment{color:#6b7280;font-style:italic}
+.terminal .ok{color:#34d399}
+.terminal-header{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#18181b;border-radius:10px 10px 0 0;border:1px solid #27272a;border-bottom:none}
+.terminal-header .dot{width:11px;height:11px;border-radius:50%}
+.terminal-header .dot.r{background:#ef4444}.terminal-header .dot.y{background:#f59e0b}.terminal-header .dot.g{background:#10b981}
+.terminal-header .title{margin-left:8px;font-size:11px;color:#71717a;font-family:-apple-system,sans-serif}
+.terminal-wrap .terminal{border-radius:0 0 10px 10px;border-top:none}
+.cli-options{background:var(--bg);border-radius:10px;padding:18px 20px;border:1px solid var(--border);font-size:12px}
+.cli-options h5{font-size:12px;font-weight:700;margin-bottom:10px;color:var(--dark);text-transform:uppercase;letter-spacing:0.5px}
+.cli-options table{width:100%;border-collapse:collapse}
+.cli-options td{padding:4px 0;vertical-align:top}
+.cli-options td:first-child{font-family:'SF Mono',Menlo,monospace;color:var(--accent);font-weight:600;padding-right:14px;white-space:nowrap;font-size:11px}
+.cli-options td:last-child{color:#52525b;font-size:12px;line-height:1.5}
+
 /* CTA */
 .cta{background:linear-gradient(145deg,#0f0f11,#1a1a2e);padding:72px 24px;text-align:center}
 .cta h2{font-size:30px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-0.5px}
@@ -113,6 +139,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
   .version-grid{grid-template-columns:1fr}
   .module-grid{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr;gap:16px}
+  .cli-grid{grid-template-columns:1fr;gap:18px}
 }
 </style>
 </head>
@@ -126,6 +153,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
   </div>
   <div class="nav-links">
     <a href="https://ucp.dev" target="_blank">Spec</a>
+    <a href="#cli">CLI</a>
     <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank">GitHub</a>
     <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">Official Suite</a>
     <a href="tool" class="btn-nav">Launch Tool &rarr;</a>
@@ -268,6 +296,81 @@ footer .copy{font-size:11px;color:#a1a1aa}
         <div class="step-num">3</div>
         <h4>Review &amp; Compare</h4>
         <p>See pass/fail per test with expandable API logs. Save reports, download evidence, and compare runs to track progress.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLI -->
+<section id="cli">
+  <div class="section-inner">
+    <div class="section-label">Command Line</div>
+    <div class="section-title">Run From Your Terminal or CI</div>
+    <div class="section-desc">The <code style="background:#f4f4f5;padding:1px 6px;border-radius:4px;font-size:13px;font-family:'SF Mono',Menlo,monospace">spck</code> CLI runs the same 42 conformance tests from your shell. Pipe results into CI/CD, sync to your spck.dev account, or run offline &mdash; no account required.</div>
+    <div class="cli-grid">
+      <div>
+        <div class="cli-step">
+          <h4><span class="cli-num">1</span> Install</h4>
+          <p>Requires Python 3.7+. Zero runtime dependencies.</p>
+          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
+          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">pip install spck</span>
+<span class="dim">or run directly without installing:</span>
+<span class="prompt">$</span> <span class="cmd">curl -O</span> <span class="arg">https://raw.githubusercontent.com/vishkaty/ucp-conformance/main/cli/spck.py</span>
+<span class="prompt">$</span> <span class="cmd">python3 spck.py --help</span></div></div>
+        </div>
+        <div class="cli-step">
+          <h4><span class="cli-num">2</span> Run tests</h4>
+          <p>No account needed. Pass your UCP server base URL and the merchant domain.</p>
+          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
+          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--merchant</span> store.example.com
+
+<span class="dim">spck v1.0.0 &mdash; UCP Conformance Testing CLI</span>
+<span class="dim">Server:</span> https://api.example.com
+<span class="dim">Merchant:</span> store.example.com
+
+<span class="dim">Discovering server...</span>
+  Version: 2026-04-08
+  Capabilities: 6
+  Payment: gpay
+
+<span class="dim">--- A. protocol_test ---</span>
+  <span class="ok">&#x2713; PASS</span>  test_discovery (0ms)
+  <span class="ok">&#x2713; PASS</span>  test_discovery_urls (0ms)
+  <span class="comment">...</span>
+
+<span class="ok">Results: 34 passed, 0 failed, 0 skipped</span></div></div>
+        </div>
+        <div class="cli-step">
+          <h4><span class="cli-num">3</span> Sync to your account (optional)</h4>
+          <p>Create an API key under <strong>Settings &rarr; API Keys</strong> in the web tool, then pass <code>--key</code> to upload results to your <strong>My Reports</strong> tab.</p>
+          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
+          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--key</span> spck_your_key <span class="arg">--save-key</span> <span class="arg">--server</span> ... <span class="arg">--merchant</span> ...
+<span class="dim"># key saved to ~/.spck &mdash; omit --key on future runs</span>
+
+<span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--merchant</span> store.example.com <span class="arg">--json</span> <span class="cmd">&gt;</span> results.json</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="cli-options">
+          <h5>Common options</h5>
+          <table>
+            <tr><td>--server</td><td>UCP server base URL <em>(required)</em></td></tr>
+            <tr><td>--merchant</td><td>Merchant domain <em>(required)</em></td></tr>
+            <tr><td>--key</td><td>API key from spck.dev to sync reports</td></tr>
+            <tr><td>--save-key</td><td>Persist <code>--key</code> to <code>~/.spck</code></td></tr>
+            <tr><td>--version</td><td><code>auto</code>, <code>2026-04-08</code>, <code>2026-01-23</code>, <code>2026-01-11</code></td></tr>
+            <tr><td>--host-header</td><td>Header for merchant routing (default <code>x-firmly-host</code>)</td></tr>
+            <tr><td>--headers</td><td>Extra headers, e.g. <code>K1=V1,K2=V2</code></td></tr>
+            <tr><td>--token</td><td>Payment test token (default <code>tok_visa</code>)</td></tr>
+            <tr><td>--json</td><td>Emit JSON to stdout (good for CI)</td></tr>
+            <tr><td>--verbose</td><td>Show full request/response per test</td></tr>
+          </table>
+        </div>
+        <div style="margin-top:16px;padding:14px 16px;background:#fafaff;border:1px solid #e0e7ff;border-radius:10px;font-size:12px;color:#3f3f46;line-height:1.7">
+          <strong style="color:var(--accent)">Use in CI/CD</strong><br>
+          Exit code is non-zero on failures. Pair <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">--json</code> with your CI's artifact upload to preserve evidence per run.
+        </div>
+        <p style="margin-top:14px;font-size:12px;color:var(--muted)">Full reference &mdash; <a href="https://github.com/vishkaty/ucp-conformance/tree/main/cli" target="_blank">cli/README.md on GitHub</a></p>
       </div>
     </div>
   </div>
