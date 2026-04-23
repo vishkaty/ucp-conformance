@@ -90,6 +90,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .header-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
 .header-row input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:monospace}
 .header-row button{padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:var(--red)}
+/* Compare */
+.compare-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+.compare-box h3{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--accent)}
+.compare-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;font-size:11px}
+.compare-grid .col-header{font-weight:600;padding:6px 8px;background:#f4f4f5;border:1px solid var(--border)}
+.compare-grid .col-vs{display:flex;align-items:center;justify-content:center;font-weight:600;color:#a1a1aa;background:#f9f9f9;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.compare-grid .cell{padding:4px 8px;border:1px solid #f4f4f5}
+.compare-grid .cell.better{background:#dcfce7;color:var(--green)}
+.compare-grid .cell.worse{background:#fee2e2;color:var(--red)}
+.compare-grid .cell.same{background:#fff}
+.compare-grid .cell.new-pass{background:#dcfce7}
+.compare-grid .cell.new-fail{background:#fee2e2}
 /* Admin */
 .admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .admin-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
@@ -136,9 +148,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <!-- Test Tab -->
   <div class="tab-content active" id="tab-test">
     <div class="config"><h2>Server</h2>
-      <div class="config-grid">
+      <div class="config-grid three">
         <div><label>Server Base URL</label><input id="cfg-base" value="https://api.firmly.work"/></div>
         <div><label>Merchant Domain</label><input id="cfg-domain" value="staging.luma.gift"/></div>
+        <div><label>Spec Version</label><select id="cfg-version"><option value="auto" selected>Auto-detect</option><option value="2026-04-08">2026-04-08</option><option value="2026-01-23">2026-01-23</option><option value="2026-01-11">2026-01-11</option><option value="all">All versions</option></select></div>
       </div>
       <div class="discovered" id="discovered">
         <div class="label">Auto-discovered from server</div>
@@ -166,7 +179,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   </div>
   <!-- Reports Tab -->
   <div class="tab-content" id="tab-reports">
-    <div class="config"><h2>Saved Reports</h2><p style="font-size:12px;color:#71717a;margin-bottom:12px">Reports saved for 90 days. Only visible to you.</p><div id="report-list"></div></div>
+    <div class="config"><h2>Saved Reports</h2>
+      <p style="font-size:12px;color:#71717a;margin-bottom:8px">Every test run is auto-saved. Reports kept for 90 days. Only visible to you.</p>
+      <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
+        <label style="font-size:11px;color:#71717a">Compare:</label>
+        <select id="compare-a" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px"><option value="">Select run A...</option></select>
+        <span style="font-size:11px;color:#a1a1aa">vs</span>
+        <select id="compare-b" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px"><option value="">Select run B...</option></select>
+        <button class="btn btn-outline btn-sm" onclick="compareRuns()">Compare</button>
+      </div>
+      <div id="compare-result" style="display:none"></div>
+      <div id="report-list"></div>
+    </div>
   </div>
   <!-- Settings Tab -->
   <div class="tab-content" id="tab-settings">
@@ -295,7 +319,41 @@ async function verifyOtp(){const email=document.getElementById('auth-email').val
 async function logout(){try{await fetch(API_BASE+'/api/auth/logout',{method:'POST',headers:{Authorization:'Bearer '+authToken}})}catch{}localStorage.removeItem('ucp_token');authToken=null;document.getElementById('header-user').style.display='none';showAuth()}
 
 // ── Reports ──
-async function loadReports(){const el=document.getElementById('report-list');if(!authToken){el.innerHTML='<p style="color:#a1a1aa;font-size:12px;text-align:center;padding:20px">Sign in to view</p>';return}try{const r=await fetch(API_BASE+'/api/reports',{headers:{Authorization:'Bearer '+authToken}});const{reports}=await r.json();if(!reports?.length){el.innerHTML='<p style="color:#a1a1aa;font-size:12px;text-align:center;padding:20px">No reports yet</p>';return}el.innerHTML=reports.map(r=>`<div class="report-item"><div><strong>${r.config?.domain||'?'}</strong> v${r.config?.version||'?'}<div class="report-meta">${new Date(r.date).toLocaleDateString()} — ${r.summary?.pass||0}/${r.summary?.total||0} passed</div></div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="viewReport('${r.id}')">View</button><button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteReport('${r.id}')">Delete</button></div></div>`).join('')}catch(e){el.innerHTML='<p style="color:var(--red)">'+e.message+'</p>'}}
+async function loadReports(){
+  const el=document.getElementById('report-list');
+  const selA=document.getElementById('compare-a');
+  const selB=document.getElementById('compare-b');
+  document.getElementById('compare-result').style.display='none';
+  if(!authToken){el.innerHTML='<p style="color:#a1a1aa;font-size:12px;text-align:center;padding:20px">Sign in to view</p>';return}
+  try{
+    const r=await fetch(API_BASE+'/api/reports',{headers:{Authorization:'Bearer '+authToken}});
+    const{reports}=await r.json();
+    if(!reports?.length){el.innerHTML='<p style="color:#a1a1aa;font-size:12px;text-align:center;padding:20px">No reports yet. Run tests to create one.</p>';selA.innerHTML='<option value="">No reports</option>';selB.innerHTML='<option value="">No reports</option>';return}
+    // Populate compare selectors
+    const opts=reports.map(r=>`<option value="${r.id}">${new Date(r.date).toLocaleString()} — ${r.config?.domain||'?'} v${r.config?.version||'?'} (${r.summary?.pass||0}/${r.summary?.total||0})</option>`).join('');
+    selA.innerHTML='<option value="">Select run A...</option>'+opts;
+    selB.innerHTML='<option value="">Select run B...</option>'+opts;
+    // Report list
+    el.innerHTML=reports.map(r=>{
+      const p=r.summary?.pass||0,f=r.summary?.fail||0,t=r.summary?.total||0;
+      const color=f===0?'var(--green)':f>0?'var(--red)':'var(--orange)';
+      return`<div class="report-item">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <strong>${r.config?.domain||'?'}</strong>
+            <span class="badge" style="background:${f===0?'#dcfce7':'#fee2e2'};color:${color}">${p}/${t}</span>
+            <span style="font-size:10px;color:#a1a1aa">v${r.config?.version||'?'}</span>
+          </div>
+          <div class="report-meta">${new Date(r.date).toLocaleString()}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="viewReportInline('${r.id}')">View</button>
+          <button class="btn btn-outline btn-sm" onclick="viewReport('${r.id}')">JSON</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteReport('${r.id}')">Delete</button>
+        </div>
+      </div>`}).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--red)">'+e.message+'</p>'}
+}
 async function saveReport(){if(!authToken)return alert('Sign in first');try{const r=await fetch(API_BASE+'/api/reports',{method:'POST',headers:{Authorization:'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion||'unknown',product:sessionData.productId||'auto'},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},deviations,tests:testResults.map(t=>({name:t.name,module:t.module,status:t.status,detail:t.detail,ms:t.ms})),api_log:apiLog})});if(!r.ok)throw new Error((await r.json()).error);document.getElementById('run-status').textContent+=' | Saved'}catch(e){alert('Save failed: '+e.message)}}
 async function viewReport(id){const r=await fetch(API_BASE+'/api/reports/'+id,{headers:{Authorization:'Bearer '+authToken}});const{report}=await r.json();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)]));a.download='report-'+id.slice(0,8)+'.json';a.click()}
 async function deleteReport(id){if(!confirm('Delete?'))return;await fetch(API_BASE+'/api/reports/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+authToken}});loadReports()}
@@ -429,7 +487,12 @@ async function runTests(){
   try{
     // Phase 1: Discovery
     const ucp=await discover();
-    const V=ucp.version;
+    const versionCfg=cfg('version');
+    let versions;
+    if(versionCfg==='auto')versions=[ucp.version];
+    else if(versionCfg==='all')versions=sessionData.supportedVersions?.length?sessionData.supportedVersions:['2026-04-08'];
+    else versions=[versionCfg];
+    const V=versions[0]; // primary version for catalog discovery
     document.getElementById('run-status').textContent='Searching catalog...';
 
     // Phase 2: Find a product
@@ -443,11 +506,15 @@ async function runTests(){
     showDiscovered();
     document.getElementById('run-status').textContent='Running tests...';
 
-    // Phase 3: Run tests
-    const tests=getTests(V);
-    totalTests=tests.length;
-    [...new Set(tests.map(t=>t.m))].forEach(m=>renderModuleHeader(m));
-    for(const t of tests)await runTest(t.n,t.m,t.fn);
+    // Phase 3: Run tests for all selected versions
+    let allTests=[];
+    for(const ver of versions){
+      const tests=getTests(ver);
+      allTests.push(...tests.map(t=>({...t,module:versions.length>1?'['+ver+'] '+t.m:t.m,name:t.n,fn:t.fn})));
+    }
+    totalTests=allTests.length;
+    [...new Set(allTests.map(t=>t.module))].forEach(m=>renderModuleHeader(m));
+    for(const t of allTests)await runTest(t.name,t.module,t.fn);
 
     if(deviations.length){document.getElementById('deviations').classList.add('visible');const tb=document.getElementById('dev-table');deviations.forEach((d,i)=>{const r=tb.insertRow();r.innerHTML='<td>'+(i+1)+'</td><td>'+d.area+'</td><td>'+d.spec+'</td><td>'+d.server+'</td><td>'+d.severity+'</td>'})}
   }catch(e){
@@ -459,6 +526,11 @@ async function runTests(){
   document.getElementById('run-status').textContent=(fail===0?'✓':'✗')+' '+pass+' passed, '+fail+' failed, '+skip+' skipped';
   document.getElementById('progress-bar').style.display='none';
   document.getElementById('progress-text').style.display='none';
+
+  // Auto-save report
+  if(authToken){
+    try{await saveReport();document.getElementById('run-status').textContent+=' | Auto-saved'}catch{}
+  }
 }
 
 // ── UI ──
@@ -470,6 +542,90 @@ function updateSummary(){document.getElementById('summary').className='summary v
 function updateProgress(){document.getElementById('progress-fill').style.width=Math.round(currentTest/totalTests*100)+'%';document.getElementById('progress-text').textContent=currentTest+'/'+totalTests}
 function downloadLog(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({date:new Date().toISOString(),config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},discovered:{product:sessionData.productId,handler:sessionData.paymentHandler,capabilities:sessionData.capabilities},deviations,tests:testResults,api_log:apiLog},null,2)]));a.download='ucp-conformance-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function downloadReport(){let md='# UCP Conformance Report\n\n**Date**: '+new Date().toISOString()+'\n**Server**: '+cfg('base')+' / '+cfg('domain')+'\n**Version**: '+(sessionData.specVersion||'?')+'\n**Product**: '+(sessionData.productId||'?')+' ('+(sessionData.productTitle||'')+')'+'\n**Result**: '+pass+'/'+(pass+fail+skip)+' passed\n\n---\n\n';for(const r of testResults){md+='## ['+r.status.toUpperCase()+'] '+r.module+' / '+r.name+' ('+r.ms+'ms)\n'+r.detail+'\n';for(const c of r.apiCalls){md+='\n**'+c.method+' '+c.url+'**\n';if(c.request_body)md+='```json\n'+JSON.stringify(c.request_body,null,2)+'\n```\n';md+='Response ('+c.response_status+', '+c.elapsed_ms+'ms):\n```json\n'+JSON.stringify(c.response_body,null,2).slice(0,2000)+'\n```\n'}md+='\n---\n\n'}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md]));a.download='ucp-report-'+new Date().toISOString().slice(0,10)+'.md';a.click()}
+
+// ── Report Viewer & Compare ──
+async function viewReportInline(id){
+  try{
+    const r=await fetch(API_BASE+'/api/reports/'+id,{headers:{Authorization:'Bearer '+authToken}});
+    const{report}=await r.json();
+    const el=document.getElementById('compare-result');
+    const tests=report.tests||[];
+    el.style.display='block';
+    el.innerHTML=`<div class="compare-box"><h3>Report: ${new Date(report.date).toLocaleString()} — ${report.config?.domain} v${report.config?.version}</h3>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px">
+        <span style="color:var(--green);font-weight:600">${report.summary?.pass||0} passed</span>
+        <span style="color:var(--red);font-weight:600">${report.summary?.fail||0} failed</span>
+        <span style="color:var(--orange);font-weight:600">${report.summary?.skip||0} skipped</span>
+        <span style="color:#a1a1aa">${report.summary?.api_calls||0} API calls</span>
+      </div>
+      <table class="admin-table"><thead><tr><th>Module</th><th>Test</th><th>Status</th><th>Detail</th><th>Time</th></tr></thead>
+      <tbody>${tests.map(t=>`<tr><td>${t.module}</td><td>${t.name}</td><td><span class="badge ${t.status==='pass'?'badge-pass':'badge-fail'}">${t.status}</span></td><td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis">${t.detail||''}</td><td>${t.ms||0}ms</td></tr>`).join('')}</tbody></table>
+    </div>`;
+  }catch(e){alert('Error: '+e.message)}
+}
+
+async function compareRuns(){
+  const idA=document.getElementById('compare-a').value;
+  const idB=document.getElementById('compare-b').value;
+  if(!idA||!idB){alert('Select two runs to compare');return}
+  if(idA===idB){alert('Select two different runs');return}
+  try{
+    const[rA,rB]=await Promise.all([
+      fetch(API_BASE+'/api/reports/'+idA,{headers:{Authorization:'Bearer '+authToken}}).then(r=>r.json()),
+      fetch(API_BASE+'/api/reports/'+idB,{headers:{Authorization:'Bearer '+authToken}}).then(r=>r.json())
+    ]);
+    const a=rA.report,b=rB.report;
+    const testsA=Object.fromEntries((a.tests||[]).map(t=>[t.module+'/'+t.name,t]));
+    const testsB=Object.fromEntries((b.tests||[]).map(t=>[t.module+'/'+t.name,t]));
+    const allKeys=[...new Set([...Object.keys(testsA),...Object.keys(testsB)])].sort();
+
+    const el=document.getElementById('compare-result');
+    el.style.display='block';
+
+    // Summary comparison
+    const sA=a.summary||{},sB=b.summary||{};
+    const passChg=((sB.pass||0)-(sA.pass||0));
+    const failChg=((sB.fail||0)-(sA.fail||0));
+
+    let html=`<div class="compare-box"><h3>Comparison</h3>
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:0;margin-bottom:16px">
+        <div style="padding:8px;background:#f4f4f5;border-radius:4px 0 0 4px;font-size:11px;text-align:center">
+          <strong>Run A</strong><br>${new Date(a.date).toLocaleString()}<br>${a.config?.domain} v${a.config?.version}<br>
+          <span style="color:var(--green);font-weight:600">${sA.pass||0}</span> / <span style="color:var(--red)">${sA.fail||0}</span> / <span style="color:var(--orange)">${sA.skip||0}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;background:#f9f9f9;font-weight:700;color:#a1a1aa">vs</div>
+        <div style="padding:8px;background:#f4f4f5;border-radius:0 4px 4px 0;font-size:11px;text-align:center">
+          <strong>Run B</strong><br>${new Date(b.date).toLocaleString()}<br>${b.config?.domain} v${b.config?.version}<br>
+          <span style="color:var(--green);font-weight:600">${sB.pass||0}</span> / <span style="color:var(--red)">${sB.fail||0}</span> / <span style="color:var(--orange)">${sB.skip||0}</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;font-size:12px">
+        ${passChg>0?'<span style="color:var(--green)">+'+passChg+' more passing</span>':passChg<0?'<span style="color:var(--red)">'+passChg+' fewer passing</span>':'<span style="color:#a1a1aa">Same pass count</span>'}
+        ${failChg<0?' &middot; <span style="color:var(--green)">'+Math.abs(failChg)+' fewer failures</span>':failChg>0?' &middot; <span style="color:var(--red)">+'+failChg+' more failures</span>':''}
+      </div>`;
+
+    // Test-by-test comparison
+    html+=`<table class="admin-table"><thead><tr><th>Test</th><th>Run A</th><th>Run B</th><th>Change</th></tr></thead><tbody>`;
+    let improved=0,regressed=0,unchanged=0,newTests=0;
+    for(const key of allKeys){
+      const tA=testsA[key],tB=testsB[key];
+      const sA2=tA?.status||'—',sB2=tB?.status||'—';
+      let change='',cls='';
+      if(!tA&&tB){change='NEW';cls='';newTests++}
+      else if(sA2===sB2){change='—';cls='same';unchanged++}
+      else if(sA2==='fail'&&sB2==='pass'){change='FIXED';cls='better';improved++}
+      else if(sA2==='pass'&&sB2==='fail'){change='REGRESSED';cls='worse';regressed++}
+      else if(sA2==='skip'&&sB2==='pass'){change='NOW PASSING';cls='better';improved++}
+      else{change=sA2+'→'+sB2;unchanged++}
+      const name=key.split('/').pop();
+      html+=`<tr><td style="font-size:10px">${name}</td><td><span class="badge ${sA2==='pass'?'badge-pass':sA2==='fail'?'badge-fail':''}">${sA2}</span></td><td><span class="badge ${sB2==='pass'?'badge-pass':sB2==='fail'?'badge-fail':''}">${sB2}</span></td><td class="cell ${cls}" style="font-weight:600;font-size:10px">${change}</td></tr>`;
+    }
+    html+=`</tbody></table>`;
+    html+=`<div style="margin-top:10px;font-size:11px;color:#71717a">Summary: ${improved} improved, ${regressed} regressed, ${unchanged} unchanged, ${newTests} new</div>`;
+    html+=`</div>`;
+    el.innerHTML=html;
+  }catch(e){alert('Compare error: '+e.message)}
+}
 
 // ── Admin ──
 async function loadAdmin(){
