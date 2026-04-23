@@ -26,6 +26,10 @@ export async function onRequest(context) {
     if (path === '/api/auth/me' && request.method === 'GET') return await me(request, env);
     if (path === '/api/auth/logout' && request.method === 'POST') return await logout(request, env);
 
+    // Settings
+    if (path === '/api/settings' && request.method === 'POST') return await saveSettings(request, env);
+    if (path === '/api/settings' && request.method === 'GET') return await getSettings(request, env);
+
     // Reports
     if (path === '/api/reports' && request.method === 'POST') return await saveReport(request, env);
     if (path === '/api/reports' && request.method === 'GET') return await listReports(request, env);
@@ -150,6 +154,23 @@ async function deleteReport(request, env, id) {
   const idx = (await env.REPORTS.get(`index:${s.userId}`, 'json') || []).filter(x => x.id !== id);
   await env.REPORTS.put(`index:${s.userId}`, JSON.stringify(idx));
   return json({ ok: true });
+}
+
+// ── Settings ──
+
+async function saveSettings(request, env) {
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'Not authenticated' }, 401);
+  const settings = await request.json();
+  await env.USERS.put(`settings:${s.userId}`, JSON.stringify(settings));
+  return json({ ok: true });
+}
+
+async function getSettings(request, env) {
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'Not authenticated' }, 401);
+  const settings = await env.USERS.get(`settings:${s.userId}`, 'json') || { headers: {}, defaultBase: '', defaultDomain: '' };
+  return json({ settings });
 }
 
 // ── Helpers ──
