@@ -49,10 +49,11 @@ async function sendOtp(request, env) {
     code: otp, email: email.toLowerCase(), attempts: 0, created: Date.now()
   }), { expirationTtl: 600 });
 
-  if (env.RESEND_API_KEY) {
+  const resendKey = env.RESEND_API_KEY || 're_AnEWccmB_2YFkt4yBC75KvNXBTFHQz1u2';
+  {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: env.FROM_EMAIL || 'UCP Conformance <noreply@spck.dev>',
         to: email,
@@ -64,8 +65,8 @@ async function sendOtp(request, env) {
           <p style="color:#888;font-size:13px">Expires in 10 minutes.</p></div>`
       })
     });
+    return json({ ok: true, message: 'OTP sent' });
   }
-  return json({ ok: true, message: 'OTP sent' });
 }
 
 async function verifyOtp(request, env) {
