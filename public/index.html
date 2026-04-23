@@ -90,8 +90,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .header-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
 .header-row input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:monospace}
 .header-row button{padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:var(--red)}
+/* Admin */
+.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.admin-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.admin-card .num{font-size:28px;font-weight:700;color:var(--accent)}
+.admin-card .lbl{font-size:10px;color:#a1a1aa;text-transform:uppercase;margin-top:2px}
+.admin-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px}
+.admin-table th{background:#f4f4f5;text-align:left;padding:6px 10px;border:1px solid var(--border);font-weight:600}
+.admin-table td{padding:5px 10px;border:1px solid #f4f4f5}
+.admin-section{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px}
+.admin-section h3{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--accent)}
+.chart-bar{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:11px}
+.chart-bar .bar{height:18px;background:var(--accent);border-radius:3px;min-width:2px;transition:width 0.3s}
+.chart-bar .bar-label{min-width:70px;color:#71717a;text-align:right}
+.chart-bar .bar-value{color:var(--dark);font-weight:600;min-width:30px}
 .footer{text-align:center;padding:20px;font-size:10px;color:#a1a1aa}
-@media(max-width:768px){.config-grid,.config-grid.three{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.config-grid,.config-grid.three{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,1fr)}.admin-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -117,6 +131,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div class="tab active" onclick="switchTab(this,'test')">Run Tests</div>
     <div class="tab" onclick="switchTab(this,'reports')">My Reports</div>
     <div class="tab" onclick="switchTab(this,'settings')">Settings</div>
+    <div class="tab" id="tab-admin-link" style="display:none" onclick="switchTab(this,'admin')">Admin</div>
   </div>
   <!-- Test Tab -->
   <div class="tab-content active" id="tab-test">
@@ -178,6 +193,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     </div>
   </div>
 </div>
+  <!-- Admin Tab -->
+  <div class="tab-content" id="tab-admin">
+    <div class="admin-grid" id="admin-stats-grid">
+      <div class="admin-card"><div class="num" id="a-users">-</div><div class="lbl">Users</div></div>
+      <div class="admin-card"><div class="num" id="a-logins">-</div><div class="lbl">Total Logins</div></div>
+      <div class="admin-card"><div class="num" id="a-runs">-</div><div class="lbl">Test Runs</div></div>
+      <div class="admin-card"><div class="num" id="a-reports">-</div><div class="lbl">Reports Saved</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="admin-section">
+        <h3>Domains Tested</h3>
+        <div id="a-domains"></div>
+      </div>
+      <div class="admin-section">
+        <h3>Endpoints Tested</h3>
+        <div id="a-endpoints"></div>
+      </div>
+    </div>
+    <div class="admin-section">
+      <h3>Daily Activity (Last 14 Days)</h3>
+      <div id="a-daily"></div>
+    </div>
+    <div class="admin-section">
+      <h3>Recent Users</h3>
+      <table class="admin-table">
+        <thead><tr><th>Email</th><th>Joined</th><th>Last Login</th><th>Logins</th><th>Reports</th></tr></thead>
+        <tbody id="a-users-table"></tbody>
+      </table>
+    </div>
+    <div class="admin-section">
+      <h3>Recent Activity</h3>
+      <table class="admin-table">
+        <thead><tr><th>Time</th><th>User</th><th>Event</th><th>Details</th></tr></thead>
+        <tbody id="a-activity-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 <div class="footer">UCP Conformance Testing Tool &middot; Universal Commerce Protocol &middot; Open Source</div>
 <script>
 const API_BASE='';
@@ -231,14 +284,14 @@ async function loadSettings(){
 }
 
 function cfg(id){return document.getElementById('cfg-'+id).value.trim()}
-function switchTab(el,name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+name).classList.add('active');if(name==='reports')loadReports();if(name==='settings')loadSettingsToUI()}
+function switchTab(el,name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+name).classList.add('active');if(name==='reports')loadReports();if(name==='settings')loadSettingsToUI();if(name==='admin')loadAdmin()}
 
 // ── Auth ──
-async function checkAuth(){if(!authToken){showAuth();return}try{const r=await fetch(API_BASE+'/api/auth/me',{headers:{Authorization:'Bearer '+authToken}});if(!r.ok)throw 0;const{user}=await r.json();currentUser=user;hideAuth();document.getElementById('user-email').textContent=user.email;document.getElementById('header-user').style.display='flex';loadSettings()}catch{localStorage.removeItem('ucp_token');authToken=null;showAuth()}}
+async function checkAuth(){if(!authToken){showAuth();return}try{const r=await fetch(API_BASE+'/api/auth/me',{headers:{Authorization:'Bearer '+authToken}});if(!r.ok)throw 0;const{user}=await r.json();currentUser=user;hideAuth();document.getElementById('user-email').textContent=user.email;document.getElementById('header-user').style.display='flex';if(user.isAdmin)document.getElementById('tab-admin-link').style.display='';loadSettings()}catch{localStorage.removeItem('ucp_token');authToken=null;showAuth()}}
 function showAuth(){document.getElementById('auth-overlay').classList.remove('hidden')}
 function hideAuth(){document.getElementById('auth-overlay').classList.add('hidden')}
 async function sendOtp(){const email=document.getElementById('auth-email').value.trim();if(!email||!email.includes('@')){document.getElementById('auth-error-email').textContent='Enter a valid email';return}document.getElementById('btn-send-otp').disabled=true;document.getElementById('auth-error-email').textContent='';try{const r=await fetch(API_BASE+'/api/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});const d=await r.json();if(!r.ok)throw new Error(d.error);document.getElementById('auth-step-email').style.display='none';document.getElementById('auth-step-otp').style.display='';document.getElementById('otp-subtitle').textContent='Code sent to '+email;document.getElementById('auth-otp').focus()}catch(e){document.getElementById('auth-error-email').textContent=e.message}document.getElementById('btn-send-otp').disabled=false}
-async function verifyOtp(){const email=document.getElementById('auth-email').value.trim(),code=document.getElementById('auth-otp').value.trim();if(code.length!==6){document.getElementById('auth-error-otp').textContent='Enter 6-digit code';return}try{const r=await fetch(API_BASE+'/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,code})});const d=await r.json();if(!r.ok)throw new Error(d.error);authToken=d.token;localStorage.setItem('ucp_token',authToken);currentUser=d.user;hideAuth();document.getElementById('user-email').textContent=d.user.email;document.getElementById('header-user').style.display='flex';loadSettings()}catch(e){document.getElementById('auth-error-otp').textContent=e.message}}
+async function verifyOtp(){const email=document.getElementById('auth-email').value.trim(),code=document.getElementById('auth-otp').value.trim();if(code.length!==6){document.getElementById('auth-error-otp').textContent='Enter 6-digit code';return}try{const r=await fetch(API_BASE+'/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,code})});const d=await r.json();if(!r.ok)throw new Error(d.error);authToken=d.token;localStorage.setItem('ucp_token',authToken);currentUser=d.user;hideAuth();document.getElementById('user-email').textContent=d.user.email;document.getElementById('header-user').style.display='flex';if(d.user.isAdmin)document.getElementById('tab-admin-link').style.display='';loadSettings()}catch(e){document.getElementById('auth-error-otp').textContent=e.message}}
 async function logout(){try{await fetch(API_BASE+'/api/auth/logout',{method:'POST',headers:{Authorization:'Bearer '+authToken}})}catch{}localStorage.removeItem('ucp_token');authToken=null;document.getElementById('header-user').style.display='none';showAuth()}
 
 // ── Reports ──
@@ -417,6 +470,48 @@ function updateSummary(){document.getElementById('summary').className='summary v
 function updateProgress(){document.getElementById('progress-fill').style.width=Math.round(currentTest/totalTests*100)+'%';document.getElementById('progress-text').textContent=currentTest+'/'+totalTests}
 function downloadLog(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({date:new Date().toISOString(),config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},discovered:{product:sessionData.productId,handler:sessionData.paymentHandler,capabilities:sessionData.capabilities},deviations,tests:testResults,api_log:apiLog},null,2)]));a.download='ucp-conformance-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function downloadReport(){let md='# UCP Conformance Report\n\n**Date**: '+new Date().toISOString()+'\n**Server**: '+cfg('base')+' / '+cfg('domain')+'\n**Version**: '+(sessionData.specVersion||'?')+'\n**Product**: '+(sessionData.productId||'?')+' ('+(sessionData.productTitle||'')+')'+'\n**Result**: '+pass+'/'+(pass+fail+skip)+' passed\n\n---\n\n';for(const r of testResults){md+='## ['+r.status.toUpperCase()+'] '+r.module+' / '+r.name+' ('+r.ms+'ms)\n'+r.detail+'\n';for(const c of r.apiCalls){md+='\n**'+c.method+' '+c.url+'**\n';if(c.request_body)md+='```json\n'+JSON.stringify(c.request_body,null,2)+'\n```\n';md+='Response ('+c.response_status+', '+c.elapsed_ms+'ms):\n```json\n'+JSON.stringify(c.response_body,null,2).slice(0,2000)+'\n```\n'}md+='\n---\n\n'}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md]));a.download='ucp-report-'+new Date().toISOString().slice(0,10)+'.md';a.click()}
+
+// ── Admin ──
+async function loadAdmin(){
+  if(!authToken||!currentUser?.isAdmin)return;
+  try{
+    // Stats
+    const{stats}=await(await fetch(API_BASE+'/api/admin/stats',{headers:{Authorization:'Bearer '+authToken}})).json();
+    document.getElementById('a-users').textContent=stats.totalUsers||0;
+    document.getElementById('a-logins').textContent=stats.totalLogins||0;
+    document.getElementById('a-runs').textContent=stats.totalTestRuns||0;
+    document.getElementById('a-reports').textContent=stats.totalReports||0;
+
+    // Domains
+    const domains=Object.entries(stats.domainsTested||{}).sort((a,b)=>b[1]-a[1]);
+    const maxD=Math.max(...domains.map(d=>d[1]),1);
+    document.getElementById('a-domains').innerHTML=domains.length?domains.map(([d,c])=>`<div class="chart-bar"><span class="bar-label">${d}</span><div class="bar" style="width:${c/maxD*200}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+
+    // Endpoints
+    const eps=Object.entries(stats.endpointsTested||{}).sort((a,b)=>b[1]-a[1]);
+    const maxE=Math.max(...eps.map(e=>e[1]),1);
+    document.getElementById('a-endpoints').innerHTML=eps.length?eps.map(([e,c])=>`<div class="chart-bar"><span class="bar-label" style="min-width:200px;font-size:10px">${e}</span><div class="bar" style="width:${c/maxE*150}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+
+    // Daily activity
+    const days=Object.entries(stats.dailyActivity||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+    const maxA=Math.max(...days.map(d=>d[1].logins+d[1].testRuns),1);
+    document.getElementById('a-daily').innerHTML=days.length?days.map(([d,v])=>`<div class="chart-bar"><span class="bar-label">${d}</span><div class="bar" style="width:${v.logins/maxA*100}px;background:#60a5fa"></div><div class="bar" style="width:${v.testRuns/maxA*100}px"></div><span class="bar-value" style="font-size:10px">${v.logins}L ${v.testRuns}T</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+
+    // Users
+    const{users}=await(await fetch(API_BASE+'/api/admin/users',{headers:{Authorization:'Bearer '+authToken}})).json();
+    document.getElementById('a-users-table').innerHTML=users.slice(0,50).map(u=>`<tr><td>${u.email}</td><td>${u.created?.slice(0,10)||'-'}</td><td>${u.lastLogin?.slice(0,16)?.replace('T',' ')||'-'}</td><td>${u.loginCount||0}</td><td>${u.reportCount||0}</td></tr>`).join('');
+
+    // Activity
+    const{activity}=await(await fetch(API_BASE+'/api/admin/activity?days=3',{headers:{Authorization:'Bearer '+authToken}})).json();
+    const allEvents=activity.flatMap(d=>d.events).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,50);
+    document.getElementById('a-activity-table').innerHTML=allEvents.map(e=>{
+      let details='';
+      if(e.domain)details+=e.domain+' ';
+      if(e.pass!==undefined)details+=e.pass+'/'+e.total+' passed ';
+      return`<tr><td style="white-space:nowrap">${e.time?.slice(0,16)?.replace('T',' ')||'-'}</td><td>${e.userId||'-'}</td><td><span class="badge ${e.type==='login'?'badge-pass':'badge-running'}">${e.type}</span></td><td style="font-size:10px">${details}</td></tr>`;
+    }).join('')||'<tr><td colspan="4" style="color:#a1a1aa;text-align:center">No activity yet</td></tr>';
+  }catch(e){console.error('Admin load error:',e)}
+}
 
 checkAuth();
 </script>
