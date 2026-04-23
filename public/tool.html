@@ -162,6 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
         <button class="btn btn-outline btn-sm" id="btn-save" onclick="saveReport()" style="display:none">Save Report</button>
         <button class="btn btn-outline btn-sm" id="btn-download" onclick="downloadLog()" style="display:none">Download Log</button>
         <button class="btn btn-outline btn-sm" id="btn-report" onclick="downloadReport()" style="display:none">Download Report</button>
+        <button class="btn btn-outline btn-sm" id="btn-pdf" onclick="downloadPDF()" style="display:none">Download PDF</button>
         <span class="status" id="run-status"></span>
       </div>
     </div>
@@ -479,7 +480,7 @@ async function runTests(){
   document.getElementById('deviations').classList.remove('visible');
   document.getElementById('discovered').classList.remove('visible');
   document.getElementById('btn-run').disabled=true;
-  ['btn-save','btn-download','btn-report'].forEach(b=>document.getElementById(b).style.display='none');
+  ['btn-save','btn-download','btn-report','btn-pdf'].forEach(b=>document.getElementById(b).style.display='none');
   document.getElementById('run-status').textContent='Discovering server...';
   document.getElementById('progress-bar').style.display='block';
   document.getElementById('progress-text').style.display='block';
@@ -522,7 +523,7 @@ async function runTests(){
   }
 
   document.getElementById('btn-run').disabled=false;
-  ['btn-save','btn-download','btn-report'].forEach(b=>document.getElementById(b).style.display='');
+  ['btn-save','btn-download','btn-report','btn-pdf'].forEach(b=>document.getElementById(b).style.display='');
   document.getElementById('run-status').textContent=(fail===0?'✓':'✗')+' '+pass+' passed, '+fail+' failed, '+skip+' skipped';
   document.getElementById('progress-bar').style.display='none';
   document.getElementById('progress-text').style.display='none';
@@ -542,6 +543,58 @@ function updateSummary(){document.getElementById('summary').className='summary v
 function updateProgress(){document.getElementById('progress-fill').style.width=Math.round(currentTest/totalTests*100)+'%';document.getElementById('progress-text').textContent=currentTest+'/'+totalTests}
 function downloadLog(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({date:new Date().toISOString(),config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},discovered:{product:sessionData.productId,handler:sessionData.paymentHandler,capabilities:sessionData.capabilities},deviations,tests:testResults,api_log:apiLog},null,2)]));a.download='ucp-conformance-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function downloadReport(){let md='# UCP Conformance Report\n\n**Date**: '+new Date().toISOString()+'\n**Server**: '+cfg('base')+' / '+cfg('domain')+'\n**Version**: '+(sessionData.specVersion||'?')+'\n**Product**: '+(sessionData.productId||'?')+' ('+(sessionData.productTitle||'')+')'+'\n**Result**: '+pass+'/'+(pass+fail+skip)+' passed\n\n---\n\n';for(const r of testResults){md+='## ['+r.status.toUpperCase()+'] '+r.module+' / '+r.name+' ('+r.ms+'ms)\n'+r.detail+'\n';for(const c of r.apiCalls){md+='\n**'+c.method+' '+c.url+'**\n';if(c.request_body)md+='```json\n'+JSON.stringify(c.request_body,null,2)+'\n```\n';md+='Response ('+c.response_status+', '+c.elapsed_ms+'ms):\n```json\n'+JSON.stringify(c.response_body,null,2).slice(0,2000)+'\n```\n'}md+='\n---\n\n'}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md]));a.download='ucp-report-'+new Date().toISOString().slice(0,10)+'.md';a.click()}
+
+// ── PDF Download ──
+function downloadPDF(){
+  // Build a print-friendly HTML document
+  const date=new Date().toISOString();
+  const ver=sessionData.specVersion||cfg('version');
+  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>UCP Conformance Report</title>
+<style>
+body{font-family:-apple-system,sans-serif;font-size:11px;color:#18181b;max-width:800px;margin:0 auto;padding:24px}
+h1{font-size:20px;border-bottom:2px solid #5b5bd6;padding-bottom:6px;margin-bottom:12px}
+h2{font-size:14px;color:#5b5bd6;margin-top:24px;border-bottom:1px solid #e4e4e7;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:10px}
+th{background:#f5f0ff;text-align:left;padding:5px 8px;border:1px solid #ddd;font-weight:600}
+td{padding:4px 8px;border:1px solid #eee}
+pre{background:#f4f4f5;padding:8px;border-radius:4px;font-size:9px;overflow-wrap:break-word;white-space:pre-wrap}
+.pass{color:#16a34a;font-weight:700}.fail{color:#dc2626;font-weight:700}.skip{color:#ea580c;font-weight:700}
+@media print{body{padding:0}h1{font-size:16px}h2{font-size:12px}}
+</style></head><body>`;
+  html+=`<h1>UCP Conformance Report</h1>`;
+  html+=`<p><strong>Date:</strong> ${date}<br><strong>Server:</strong> ${cfg('base')} / ${cfg('domain')}<br><strong>Version:</strong> ${ver}<br><strong>Result:</strong> ${pass}/${pass+fail+skip} passed, ${fail} failed, ${skip} skipped<br><strong>API Calls:</strong> ${apiLog.length}</p>`;
+  // Summary table
+  html+=`<h2>Test Results</h2><table><tr><th>Module</th><th>Test</th><th>Status</th><th>Detail</th><th>Time</th></tr>`;
+  for(const t of testResults){
+    html+=`<tr><td>${t.module}</td><td>${t.name}</td><td class="${t.status}">${t.status.toUpperCase()}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${t.detail||''}</td><td>${t.ms}ms</td></tr>`;
+  }
+  html+=`</table>`;
+  // Deviations
+  if(deviations.length){
+    html+=`<h2>Detected Deviations</h2><table><tr><th>#</th><th>Area</th><th>Spec</th><th>Server</th><th>Severity</th></tr>`;
+    deviations.forEach((d,i)=>{html+=`<tr><td>${i+1}</td><td>${d.area}</td><td>${d.spec}</td><td>${d.server}</td><td>${d.severity}</td></tr>`});
+    html+=`</table>`;
+  }
+  // API calls per test
+  html+=`<h2>API Call Log</h2>`;
+  for(const t of testResults){
+    if(!t.apiCalls?.length)continue;
+    html+=`<h3 style="font-size:11px;margin-top:12px">${t.module} / ${t.name} <span class="${t.status}">[${t.status.toUpperCase()}]</span></h3>`;
+    for(const c of t.apiCalls){
+      html+=`<p style="margin:4px 0 2px;font-weight:600;font-size:10px">${c.method} ${c.url}</p>`;
+      if(c.request_body)html+=`<pre>${JSON.stringify(c.request_body,null,2)}</pre>`;
+      const resp=JSON.stringify(c.response_body,null,2);
+      html+=`<p style="font-size:10px;color:#71717a">Response: HTTP ${c.response_status} (${c.elapsed_ms}ms)</p><pre>${resp.length>1500?resp.slice(0,1500)+'\\n...truncated':resp}</pre>`;
+    }
+  }
+  html+=`<hr style="margin-top:24px"><p style="font-size:9px;color:#a1a1aa">Generated by UCP Conformance Testing Tool &mdash; spck.dev</p></body></html>`;
+
+  // Open in new window and trigger print
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>win.print(),500);
+}
 
 // ── Report Viewer & Compare ──
 async function viewReportInline(id){
