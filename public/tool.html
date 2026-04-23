@@ -49,7 +49,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .progress-text{font-size:11px;color:#a1a1aa;text-align:right;display:none}
 .summary{background:#fff;border-radius:8px;padding:16px 20px;margin-bottom:16px;border:1px solid var(--border);display:none}
 .summary.visible{display:block}
-.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;text-align:center}
+.summary-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;text-align:center}
 .summary-item .number{font-size:26px;font-weight:700}
 .summary-item .label{font-size:10px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.5px}
 .n-green{color:var(--green)}.n-red{color:var(--red)}.n-orange{color:var(--orange)}.n-accent{color:var(--accent)}
@@ -63,7 +63,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .module-header h3{font-size:12px;font-weight:600}
 .badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600}
 .badge-pass{background:#dcfce7;color:var(--green)}.badge-fail{background:#fee2e2;color:var(--red)}
+.badge-deviation{background:#fef3c7;color:#92400e}.badge-adjusted{background:#e0e7ff;color:#3730a3}
 .badge-running{background:#e0e7ff;color:var(--accent)}
+.test-icon.deviation{background:#fef3c7;color:#92400e}
+.test-icon.adjusted{background:#e0e7ff;color:#3730a3}
+.test-tag{display:inline-block;font-size:9px;font-weight:600;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.test-tag.tag-deviation{background:#fef3c7;color:#92400e}
+.test-tag.tag-adjusted{background:#e0e7ff;color:#3730a3}
+.test-note{font-size:10px;color:#92400e;margin-top:2px;font-style:italic}
 .module-body{display:none;border-top:1px solid #f4f4f5}.module-body.open{display:block}
 .test-row{padding:8px 14px;border-bottom:1px solid #f9f9f9;display:flex;align-items:flex-start;gap:8px;font-size:12px}
 .test-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
@@ -174,6 +181,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="summary-item"><div class="number n-green" id="sum-pass">0</div><div class="label">Passed</div></div>
       <div class="summary-item"><div class="number n-red" id="sum-fail">0</div><div class="label">Failed</div></div>
       <div class="summary-item"><div class="number n-orange" id="sum-skip">0</div><div class="label">Skipped</div></div>
+      <div class="summary-item"><div class="number" style="color:#92400e" id="sum-deviation">0</div><div class="label">Deviations</div></div>
+      <div class="summary-item"><div class="number" style="color:#3730a3" id="sum-adjusted">0</div><div class="label">Adjusted</div></div>
       <div class="summary-item"><div class="number n-accent" id="sum-api">0</div><div class="label">API Calls</div></div>
     </div></div>
     <div id="results"></div>
@@ -476,8 +485,10 @@ async function completeSession(V,s){
 }
 
 // ── Tests ──
+// flags: 'deviation' = server deviates from spec, 'adjusted' = test modified from official suite
+// note: explains what differs
 function getTests(V){return[
-{m:'A. protocol_test',n:'test_discovery',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('No discovery');if(u.version!==V)throw new Error('Version '+u.version);if(!u.services?.['dev.ucp.shopping']?.some(s=>s.transport==='rest'))throw new Error('No REST');return`v${u.version}, ${Object.keys(u.capabilities||{}).length} caps`}},
+{m:'A. protocol_test',n:'test_discovery',flags:'adjusted',note:'Official suite expects flat profile (version at root). Firmly nests under ucp envelope (2026-04-08 format).',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('No discovery');if(u.version!==V)throw new Error('Version '+u.version);if(!u.services?.['dev.ucp.shopping']?.some(s=>s.transport==='rest'))throw new Error('No REST');return`v${u.version}, ${Object.keys(u.capabilities||{}).length} caps`}},
 {m:'A. protocol_test',n:'test_discovery_urls',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('SKIP:No discovery');for(const s of u.services['dev.ucp.shopping'])if(!s.endpoint||!s.schema)throw new Error('Missing URL');return'All URLs present'}},
 {m:'A. protocol_test',n:'test_version_negotiation',fn:async()=>{if(!sessionData.discovery)throw new Error('SKIP:No discovery');const sv=sessionData.discovery.ucp.supported_versions||{};if(!sv[V])throw new Error(V+' not supported');return'Supports: '+Object.keys(sv).join(', ')}},
 {m:'A. protocol_test',n:'test_discovery_error',fn:async()=>{const saved=getSettingsHeaders();const blank={};Object.keys(saved).forEach(k=>blank[k]='');const{data}=await http('GET',cfg('base')+'/.well-known/ucp',null,blank);if(!(data.messages||[]).some(m=>m.code==='merchant_not_found'))throw new Error('Expected error');return'Error for missing host'}},
@@ -485,8 +496,8 @@ function getTests(V){return[
 {m:'B. checkout_lifecycle',n:'test_get',fn:async()=>{if(!sessionData.sid)throw new Error('SKIP:No session');const{status,data}=await http('GET',ep(V)+'/checkout-sessions/'+sessionData.sid);if(status!==200)throw new Error('HTTP '+status);return'status='+data.status}},
 {m:'B. checkout_lifecycle',n:'test_update',fn:async()=>{if(!sessionData.sid)throw new Error('SKIP:No session');const{status,data}=await http('PUT',ep(V)+'/checkout-sessions/'+sessionData.sid,{buyer:{email:'lc@t.com',first_name:'J',last_name:'D',phone_number:'+12125551234'},fulfillment:{methods:[{id:'s1',type:'shipping',destinations:[{id:'d1',address:{street_address:'123 Main',address_locality:'New York',address_region:'NY',postal_code:'10001',address_country:'US',first_name:'J',last_name:'D',phone_number:'+12125551234'}}]}]}});if(status!==200)throw new Error('HTTP '+status);return'status='+data.status}},
 {m:'B. checkout_lifecycle',n:'test_cancel',fn:async()=>{const d=await createSession(V);const{status,data}=await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');if(status!==200||data.status!=='canceled')throw new Error('HTTP '+status);return'canceled'}},
-{m:'B. checkout_lifecycle',n:'test_complete',fn:async()=>{const{sid}=await readySession(V);const{status,data}=await completeSession(V,sid);if(status!==200||data.status!=='completed'||!data.order?.id)throw new Error('HTTP '+status);sessionData.completedSid=sid;return'Order #'+data.order.id}},
-{m:'B. checkout_lifecycle',n:'test_cancel_idempotent',fn:async()=>{const d=await createSession(V);await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');const{status}=await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');if(status===200){deviations.push({area:'Double-cancel',spec:'SHOULD return 409',server:'Returns 200',severity:'Low'});return'HTTP 200 (spec says 409)'}return'HTTP '+status}},
+{m:'B. checkout_lifecycle',n:'test_complete',flags:'adjusted',note:'Uses PUT-only flow (2x PUT to select shipping). Official suite uses PATCH. Server requires nested address, destination/method IDs, and buyer phone — all optional per spec.',fn:async()=>{const{sid}=await readySession(V);const{status,data}=await completeSession(V,sid);if(status!==200||data.status!=='completed'||!data.order?.id)throw new Error('HTTP '+status);sessionData.completedSid=sid;return'Order #'+data.order.id}},
+{m:'B. checkout_lifecycle',n:'test_cancel_idempotent',flags:'deviation',note:'Spec says SHOULD return 409 on double-cancel. Server returns 200 (idempotent). Functionally equivalent but conformance suite would flag.',fn:async()=>{const d=await createSession(V);await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');const{status}=await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');if(status===200){deviations.push({area:'Double-cancel',spec:'SHOULD return 409',server:'Returns 200',severity:'Low'});return'HTTP 200 (spec says 409)'}return'HTTP '+status}},
 {m:'B. checkout_lifecycle',n:'test_no_update_canceled',fn:async()=>{const d=await createSession(V);await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');const{status}=await http('PUT',ep(V)+'/checkout-sessions/'+d.id,{buyer:{email:'x@x',first_name:'X',last_name:'X',phone_number:'+1'}});if(status===200)throw new Error('Should reject');return'HTTP '+status}},
 {m:'B. checkout_lifecycle',n:'test_no_complete_canceled',fn:async()=>{const d=await createSession(V);await http('POST',ep(V)+'/checkout-sessions/'+d.id+'/cancel');const{status}=await completeSession(V,d.id);if(status===200)throw new Error('Should reject');return'HTTP '+status}},
 {m:'B. checkout_lifecycle',n:'test_complete_idempotent',fn:async()=>{if(!sessionData.completedSid)throw new Error('SKIP:No completed');const{status}=await completeSession(V,sessionData.completedSid);if(status===200)throw new Error('Should reject');return'HTTP '+status}},
@@ -495,14 +506,14 @@ function getTests(V){return[
 {m:'C. fulfillment_test',n:'test_shipping_options',fn:async()=>{const d=await createSession(V);const{data}=await http('PUT',ep(V)+'/checkout-sessions/'+d.id,{buyer:{email:'f@t.com',first_name:'J',last_name:'D',phone_number:'+12125551234'},fulfillment:{methods:[{id:'s1',type:'shipping',destinations:[{id:'d1',address:{street_address:'123 Main',address_locality:'New York',address_region:'NY',postal_code:'10001',address_country:'US',first_name:'J',last_name:'D',phone_number:'+12125551234'}}]}]}});const opts=data.fulfillment?.methods?.[0]?.groups?.[0]?.options;if(!opts?.length)throw new Error('No options');return opts.length+' options'}},
 {m:'C. fulfillment_test',n:'test_tax',fn:async()=>{const{data}=await readySession(V);const tax=data.totals?.find(t=>t.type==='tax');if(!tax)throw new Error('No tax');return'Tax: $'+(tax.amount/100).toFixed(2)}},
 {m:'C. fulfillment_test',n:'test_totals',fn:async()=>{const{data}=await readySession(V);const t=Object.fromEntries(data.totals.map(x=>[x.type,x.amount]));if(t.total!==t.subtotal+(t.tax||0)+(t.fulfillment||0))throw new Error('Mismatch');return t.subtotal+'+'+(t.tax||0)+'+'+(t.fulfillment||0)+'='+t.total}},
-{m:'D. idempotency_test',n:'test_create_idempotency',fn:async()=>{const b={currency:'USD',line_items:[{item:{id:sessionData.productId,title:'T'},quantity:1}]};const{data:d1}=await http('POST',ep(V)+'/checkout-sessions',b);const{data:d2}=await http('POST',ep(V)+'/checkout-sessions',b);if(!d1.id||!d2.id)throw new Error('No IDs');return d1.id===d2.id?'Idempotent':'Separate sessions (no idem key via browser)'}},
+{m:'D. idempotency_test',n:'test_create_idempotency',flags:'adjusted',note:'Idempotency-Key header not sent from browser (CORS restriction). Test verifies endpoint accepts multiple creates. Full idempotency tested via CLI with header support.',fn:async()=>{const b={currency:'USD',line_items:[{item:{id:sessionData.productId,title:'T'},quantity:1}]};const{data:d1}=await http('POST',ep(V)+'/checkout-sessions',b);const{data:d2}=await http('POST',ep(V)+'/checkout-sessions',b);if(!d1.id||!d2.id)throw new Error('No IDs');return d1.id===d2.id?'Idempotent':'Separate sessions (no idem key via browser)'}},
 {m:'E. business_logic_test',n:'test_totals_on_create',fn:async()=>{const d=await createSession(V);const t=Object.fromEntries(d.totals.map(x=>[x.type,x.amount]));if(!t.subtotal)throw new Error('Missing');return'sub='+t.subtotal+', total='+t.total}},
 {m:'E. business_logic_test',n:'test_buyer_persistence',fn:async()=>{const d=await createSession(V);await http('PUT',ep(V)+'/checkout-sessions/'+d.id,{buyer:{email:'p@t.com',first_name:'A',last_name:'S',phone_number:'+12125559999'},fulfillment:{methods:[{id:'s1',type:'shipping',destinations:[{id:'d1',address:{street_address:'789 Elm',address_locality:'Chicago',address_region:'IL',postal_code:'60601',address_country:'US',first_name:'A',last_name:'S',phone_number:'+12125559999'}}]}]}});const{data:d2}=await http('GET',ep(V)+'/checkout-sessions/'+d.id);if(d2.buyer?.email!=='p@t.com')throw new Error('Not persisted');return d2.buyer.email}},
 {m:'F. validation_test',n:'test_product_not_found',fn:async()=>{const{status,data}=await http('POST',ep(V)+'/checkout-sessions',{currency:'USD',line_items:[{item:{id:'NONEXISTENT_'+Date.now(),title:'X'},quantity:1}]});if(status<400&&!(data.messages||[]).some(m=>m.type==='error'))throw new Error('No error');return'HTTP '+status}},
 {m:'F. validation_test',n:'test_complete_without_fulfillment',fn:async()=>{const d=await createSession(V);const{status}=await completeSession(V,d.id);if(status!==409)throw new Error('Expected 409');return'HTTP 409'}},
 {m:'F. validation_test',n:'test_error_structure',fn:async()=>{const d=await createSession(V);const{data}=await completeSession(V,d.id);const m=data.messages?.[0];if(!m?.type||!m?.code||!m?.content||!m?.severity)throw new Error('Bad');return m.type+'/'+m.code+'/'+m.severity}},
 {m:'F. validation_test',n:'test_404_session',fn:async()=>{const{status}=await http('GET',ep(V)+'/checkout-sessions/00000000-0000-0000-0000-000000000000');if(status!==404)throw new Error('Expected 404');return'HTTP 404'}},
-{m:'G. invalid_input_test',n:'test_missing_currency',fn:async()=>{const{status}=await http('POST',ep(V)+'/checkout-sessions',{line_items:[{item:{id:sessionData.productId},quantity:1}]});if(status===400){deviations.push({area:'Currency',spec:'Optional',server:'Required (400)',severity:'Low'});return'HTTP 400 (required)'}return'HTTP '+status+' (optional)'}},
+{m:'G. invalid_input_test',n:'test_missing_currency',flags:'deviation',note:'Spec marks currency as ucp_request:"omit" (server determines). Server requires it and returns 400 without it. Workaround: always send currency.',fn:async()=>{const{status}=await http('POST',ep(V)+'/checkout-sessions',{line_items:[{item:{id:sessionData.productId},quantity:1}]});if(status===400){deviations.push({area:'Currency',spec:'Optional (server determines)',server:'Required — returns 400 without it',severity:'Low'});return'HTTP 400 (required)'}return'HTTP '+status+' (optional)'}},
 {m:'G. invalid_input_test',n:'test_invalid_merchant',fn:async()=>{const{status}=await http('POST',cfg('base')+'/api/'+V+'/ucp/rest/domain/fake.xyz.invalid/checkout-sessions',{currency:'USD',line_items:[{item:{id:'X'},quantity:1}]});if(status<400)throw new Error('Expected error');return'HTTP '+status}},
 {m:'H. card_credential_test',n:'test_gpay_visa',fn:async()=>{const{sid}=await readySession(V,null,'v@t.com');const h=sessionData.paymentHandler||'gpay';const{status,data}=await http('POST',ep(V)+'/checkout-sessions/'+sid+'/complete',{payment:{instruments:[{id:'g',handler_id:h,type:'google_pay',selected:true,credential:{type:'PAYMENT_GATEWAY',token:'tok_visa'},billing_address:{street_address:'123 Main',address_locality:'New York',address_region:'NY',postal_code:'10001',address_country:'US'}}]}});if(status!==200||data.status!=='completed')throw new Error('HTTP '+status);return'Order #'+data.order.id}},
 {m:'H. card_credential_test',n:'test_gpay_mastercard',fn:async()=>{const{sid}=await readySession(V,null,'m@t.com');const h=sessionData.paymentHandler||'gpay';const{status,data}=await http('POST',ep(V)+'/checkout-sessions/'+sid+'/complete',{payment:{instruments:[{id:'g',handler_id:h,type:'google_pay',selected:true,credential:{type:'PAYMENT_GATEWAY',token:'tok_mastercard'},billing_address:{street_address:'456 Oak',address_locality:'Los Angeles',address_region:'CA',postal_code:'90001',address_country:'US'}}]}});if(status!==200||data.status!=='completed')throw new Error('HTTP '+status);return'Order #'+data.order.id}},
@@ -514,7 +525,7 @@ function getTests(V){return[
 ]}
 
 // ── Runner ──
-async function runTest(name,module,fn){currentTest++;updateProgress();const ls=apiLog.length,t0=performance.now();let st='pass',detail='',ms=0;try{detail=await fn()||'';ms=Math.round(performance.now()-t0);pass++}catch(e){ms=Math.round(performance.now()-t0);if(e.message?.startsWith('SKIP:')){st='skip';detail=e.message.slice(5);skip++}else{st='fail';detail=e.message;fail++}}const r={name,module,status:st,detail,ms,apiCalls:apiLog.slice(ls)};testResults.push(r);renderTest(r)}
+async function runTest(name,module,fn,flags,note){currentTest++;updateProgress();const ls=apiLog.length,t0=performance.now();let st='pass',detail='',ms=0;try{detail=await fn()||'';ms=Math.round(performance.now()-t0);pass++}catch(e){ms=Math.round(performance.now()-t0);if(e.message?.startsWith('SKIP:')){st='skip';detail=e.message.slice(5);skip++}else{st='fail';detail=e.message;fail++}}const r={name,module,status:st,detail,ms,flags:flags||null,note:note||null,apiCalls:apiLog.slice(ls)};testResults.push(r);renderTest(r)}
 
 async function runTests(){
   apiLog=[];testResults=[];sessionData={};deviations=[];pass=fail=skip=currentTest=0;
@@ -554,11 +565,11 @@ async function runTests(){
     let allTests=[];
     for(const ver of versions){
       const tests=getTests(ver);
-      allTests.push(...tests.map(t=>({...t,module:versions.length>1?'['+ver+'] '+t.m:t.m,name:t.n,fn:t.fn})));
+      allTests.push(...tests.map(t=>({...t,module:versions.length>1?'['+ver+'] '+t.m:t.m,name:t.n,fn:t.fn,flags:t.flags||null,note:t.note||null})));
     }
     totalTests=allTests.length;
     [...new Set(allTests.map(t=>t.module))].forEach(m=>renderModuleHeader(m));
-    for(const t of allTests)await runTest(t.name,t.module,t.fn);
+    for(const t of allTests)await runTest(t.name,t.module,t.fn,t.flags,t.note);
 
     if(deviations.length){document.getElementById('deviations').classList.add('visible');const tb=document.getElementById('dev-table');deviations.forEach((d,i)=>{const r=tb.insertRow();r.innerHTML='<td>'+(i+1)+'</td><td>'+d.area+'</td><td>'+d.spec+'</td><td>'+d.server+'</td><td>'+d.severity+'</td>'})}
   }catch(e){
@@ -579,10 +590,34 @@ async function runTests(){
 
 // ── UI ──
 function renderModuleHeader(m){const k=m.replace(/\W/g,'_'),el=document.getElementById('results'),d=document.createElement('div');d.className='module';d.innerHTML='<div class="module-header" onclick="this.nextElementSibling.classList.toggle(\'open\')"><h3>'+m+'</h3><span class="badge badge-running" id="badge-'+k+'">...</span></div><div class="module-body" id="body-'+k+'"></div>';el.appendChild(d)}
-function renderTest(r){const k=r.module.replace(/\W/g,'_'),body=document.getElementById('body-'+k),icon=r.status==='pass'?'✓':r.status==='fail'?'✗':'—',lid='log-'+k+'-'+r.name.replace(/\W/g,''),d=document.createElement('div');d.className='test-row';d.innerHTML='<div class="test-icon '+r.status+'">'+icon+'</div><div style="flex:1"><div style="font-weight:500">'+r.name+'</div><div class="test-detail">'+r.detail+'</div>'+(r.apiCalls.length?'<div class="test-toggle" onclick="document.getElementById(\''+lid+'\').style.display=document.getElementById(\''+lid+'\').style.display===\'none\'?\'block\':\'none\'">Show '+r.apiCalls.length+' API call(s)</div>':'')+'<div class="api-log" id="'+lid+'" style="display:none">'+fmtCalls(r.apiCalls)+'</div></div><div class="test-time">'+r.ms+'ms</div>';body.appendChild(d);const b=document.getElementById('badge-'+k),ts=testResults.filter(t=>t.module===r.module),p=ts.filter(t=>t.status==='pass').length,f=ts.filter(t=>t.status==='fail').length;b.className='badge '+(f?'badge-fail':'badge-pass');b.textContent=p+'/'+ts.length;updateSummary()}
+function renderTest(r){
+  const k=r.module.replace(/\W/g,'_'),body=document.getElementById('body-'+k);
+  const iconCls=r.flags==='deviation'?'deviation':r.flags==='adjusted'?'adjusted':r.status;
+  const icon=r.status==='pass'?'✓':r.status==='fail'?'✗':'—';
+  const lid='log-'+k+'-'+r.name.replace(/\W/g,'');
+  const tag=r.flags==='deviation'?'<span class="test-tag tag-deviation">DEVIATION</span>':r.flags==='adjusted'?'<span class="test-tag tag-adjusted">ADJUSTED</span>':'';
+  const noteHtml=r.note?'<div class="test-note">'+r.note+'</div>':'';
+  const d=document.createElement('div');d.className='test-row';
+  d.innerHTML='<div class="test-icon '+iconCls+'">'+icon+'</div><div style="flex:1"><div style="font-weight:500">'+r.name+tag+'</div><div class="test-detail">'+r.detail+'</div>'+noteHtml+(r.apiCalls.length?'<div class="test-toggle" onclick="document.getElementById(\''+lid+'\').style.display=document.getElementById(\''+lid+'\').style.display===\'none\'?\'block\':\'none\'">Show '+r.apiCalls.length+' API call(s)</div>':'')+'<div class="api-log" id="'+lid+'" style="display:none">'+fmtCalls(r.apiCalls)+'</div></div><div class="test-time">'+r.ms+'ms</div>';
+  body.appendChild(d);
+  const b=document.getElementById('badge-'+k),ts=testResults.filter(t=>t.module===r.module),p=ts.filter(t=>t.status==='pass').length,f=ts.filter(t=>t.status==='fail').length;
+  const hasDeviation=ts.some(t=>t.flags==='deviation'),hasAdjusted=ts.some(t=>t.flags==='adjusted');
+  b.className='badge '+(f?'badge-fail':hasDeviation?'badge-deviation':hasAdjusted?'badge-adjusted':'badge-pass');
+  b.textContent=p+'/'+ts.length+(hasDeviation?' *':hasAdjusted?' ~':'');
+  updateSummary()
+}
 function fmtCalls(calls){return calls.map(c=>{const sc=c.response_status>=200&&c.response_status<300?'status-2xx':'status-4xx';let req=c.request_body?'\n'+syn(JSON.stringify(c.request_body,null,2)):'';let resp=syn(JSON.stringify(c.response_body,null,2));if(resp.length>3000)resp=resp.slice(0,3000)+'\n...';return'<span class="method">'+c.method+'</span> <span class="url">'+c.url+'</span>'+req+'\n\n<span class="'+sc+'">HTTP '+c.response_status+'</span> ('+c.elapsed_ms+'ms)\n'+resp}).join('\n\n'+'-'.repeat(50)+'\n\n')}
 function syn(j){return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?)/g,m=>'<span class="'+(/:$/.test(m)?'key':/^"/.test(m)?'string':'number')+'">'+m+'</span>')}
-function updateSummary(){document.getElementById('summary').className='summary visible';document.getElementById('sum-total').textContent=pass+fail+skip;document.getElementById('sum-pass').textContent=pass;document.getElementById('sum-fail').textContent=fail;document.getElementById('sum-skip').textContent=skip;document.getElementById('sum-api').textContent=apiLog.length}
+function updateSummary(){
+  document.getElementById('summary').className='summary visible';
+  document.getElementById('sum-total').textContent=pass+fail+skip;
+  document.getElementById('sum-pass').textContent=pass;
+  document.getElementById('sum-fail').textContent=fail;
+  document.getElementById('sum-skip').textContent=skip;
+  document.getElementById('sum-deviation').textContent=testResults.filter(t=>t.flags==='deviation').length;
+  document.getElementById('sum-adjusted').textContent=testResults.filter(t=>t.flags==='adjusted').length;
+  document.getElementById('sum-api').textContent=apiLog.length;
+}
 function updateProgress(){document.getElementById('progress-fill').style.width=Math.round(currentTest/totalTests*100)+'%';document.getElementById('progress-text').textContent=currentTest+'/'+totalTests}
 function downloadLog(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({date:new Date().toISOString(),config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},discovered:{product:sessionData.productId,handler:sessionData.paymentHandler,capabilities:sessionData.capabilities},deviations,tests:testResults,api_log:apiLog},null,2)]));a.download='ucp-conformance-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function downloadReport(){let md='# UCP Conformance Report\n\n**Date**: '+new Date().toISOString()+'\n**Server**: '+cfg('base')+' / '+cfg('domain')+'\n**Version**: '+(sessionData.specVersion||'?')+'\n**Product**: '+(sessionData.productId||'?')+' ('+(sessionData.productTitle||'')+')'+'\n**Result**: '+pass+'/'+(pass+fail+skip)+' passed\n\n---\n\n';for(const r of testResults){md+='## ['+r.status.toUpperCase()+'] '+r.module+' / '+r.name+' ('+r.ms+'ms)\n'+r.detail+'\n';for(const c of r.apiCalls){md+='\n**'+c.method+' '+c.url+'**\n';if(c.request_body)md+='```json\n'+JSON.stringify(c.request_body,null,2)+'\n```\n';md+='Response ('+c.response_status+', '+c.elapsed_ms+'ms):\n```json\n'+JSON.stringify(c.response_body,null,2).slice(0,2000)+'\n```\n'}md+='\n---\n\n'}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md]));a.download='ucp-report-'+new Date().toISOString().slice(0,10)+'.md';a.click()}
@@ -607,9 +642,15 @@ pre{background:#f4f4f5;padding:8px;border-radius:4px;font-size:9px;overflow-wrap
   html+=`<h1>UCP Conformance Report</h1>`;
   html+=`<p><strong>Date:</strong> ${date}<br><strong>Server:</strong> ${cfg('base')} / ${cfg('domain')}<br><strong>Version:</strong> ${ver}<br><strong>Result:</strong> ${pass}/${pass+fail+skip} passed, ${fail} failed, ${skip} skipped<br><strong>API Calls:</strong> ${apiLog.length}</p>`;
   // Summary table
-  html+=`<h2>Test Results</h2><table><tr><th>Module</th><th>Test</th><th>Status</th><th>Detail</th><th>Time</th></tr>`;
+  const devCount=testResults.filter(t=>t.flags==='deviation').length;
+  const adjCount=testResults.filter(t=>t.flags==='adjusted').length;
+  const cleanCount=testResults.filter(t=>t.status==='pass'&&!t.flags).length;
+  html+=`<p style="margin:12px 0;font-size:12px"><strong>Classification:</strong> ${cleanCount} clean pass, ${devCount} pass with spec deviation, ${adjCount} pass with test adjustment</p>`;
+  html+=`<h2>Test Results</h2><table><tr><th>Module</th><th>Test</th><th>Status</th><th>Classification</th><th>Detail</th><th>Time</th></tr>`;
   for(const t of testResults){
-    html+=`<tr><td>${t.module}</td><td>${t.name}</td><td class="${t.status}">${t.status.toUpperCase()}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${t.detail||''}</td><td>${t.ms}ms</td></tr>`;
+    const cls=t.flags==='deviation'?'<span style="color:#92400e;font-weight:600">DEVIATION</span>':t.flags==='adjusted'?'<span style="color:#3730a3;font-weight:600">ADJUSTED</span>':'<span style="color:#16a34a">CLEAN</span>';
+    html+=`<tr><td>${t.module}</td><td>${t.name}</td><td class="${t.status}">${t.status.toUpperCase()}</td><td>${cls}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;font-size:10px">${t.detail||''}</td><td>${t.ms}ms</td></tr>`;
+    if(t.note)html+=`<tr><td colspan="6" style="font-size:10px;color:#92400e;padding:2px 8px 6px;border-top:none;font-style:italic">↳ ${t.note}</td></tr>`;
   }
   html+=`</table>`;
   // Deviations
