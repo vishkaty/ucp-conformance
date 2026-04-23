@@ -21,6 +21,11 @@ export async function onRequest(context) {
     if (path === '/api/auth/me' && request.method === 'GET') return await me(request, env);
     if (path === '/api/auth/logout' && request.method === 'POST') return await logout(request, env);
 
+    // API Keys
+    if (path === '/api/keys' && request.method === 'POST') return await createApiKey(request, env);
+    if (path === '/api/keys' && request.method === 'GET') return await listApiKeys(request, env);
+    if (path.match(/^\/api\/keys\/[^/]+$/) && request.method === 'DELETE') return await deleteApiKey(request, env, path.split('/').pop());
+
     // Settings
     if (path === '/api/settings' && request.method === 'POST') return await saveSettings(request, env);
     if (path === '/api/settings' && request.method === 'GET') return await getSettings(request, env);
@@ -176,6 +181,49 @@ async function deleteReport(request, env, id) {
   return json({ ok: true });
 }
 
+// ── API Keys ──
+
+async function createApiKey(request, env) {
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'Not authenticated' }, 401);
+  const { name } = await request.json();
+  const key = 'spck_' + crypto.randomUUID().replace(/-/g, '');
+  const keyData = { key, name: name || 'CLI Key', userId: s.userId, created: new Date().toISOString() };
+  // Store key -> userId mapping (no expiry)
+  await env.SESSIONS.put(`apikey:${key}`, JSON.stringify({ userId: s.userId }));
+  // Store in user's key list
+  const listKey = `apikeys:${s.userId}`;
+  const keys = await env.USERS.get(listKey, 'json') || [];
+  keys.push({ key: key.slice(0, 10) + '...', name: keyData.name, created: keyData.created, id: key.slice(-8) });
+  await env.USERS.put(listKey, JSON.stringify(keys));
+  return json({ ok: true, key, name: keyData.name });
+}
+
+async function listApiKeys(request, env) {
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'Not authenticated' }, 401);
+  const keys = await env.USERS.get(`apikeys:${s.userId}`, 'json') || [];
+  return json({ keys });
+}
+
+async function deleteApiKey(request, env, keyId) {
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'Not authenticated' }, 401);
+  const listKey = `apikeys:${s.userId}`;
+  const keys = await env.USERS.get(listKey, 'json') || [];
+  // Find the full key by last 8 chars
+  const entry = keys.find(k => k.id === keyId);
+  if (!entry) return json({ error: 'Key not found' }, 404);
+  // Delete from sessions
+  const allKeys = await env.SESSIONS.list({ prefix: 'apikey:spck_', limit: 100 });
+  for (const k of allKeys.keys) {
+    if (k.name.endsWith(keyId)) { await env.SESSIONS.delete(k.name); break; }
+  }
+  const updated = keys.filter(k => k.id !== keyId);
+  await env.USERS.put(listKey, JSON.stringify(updated));
+  return json({ ok: true });
+}
+
 // ── Settings ──
 
 async function saveSettings(request, env) {
@@ -288,6 +336,17 @@ async function adminActivity(request, env) {
 // ── Helpers ──
 
 function getToken(req) { const a = req.headers.get('Authorization') || ''; return a.startsWith('Bearer ') ? a.slice(7) : null; }
-async function getSession(req, env) { const t = getToken(req); return t ? await env.SESSIONS.get(`session:${t}`, 'json') : null; }
+async function getSession(req, env) {
+  const t = getToken(req); if (!t) return null;
+  // Try session token first
+  const session = await env.SESSIONS.get(`session:${t}`, 'json');
+  if (session) return session;
+  // Try API key (spck_...)
+  if (t.startsWith('spck_')) {
+    const apiKey = await env.SESSIONS.get(`apikey:${t}`, 'json');
+    if (apiKey) return apiKey;
+  }
+  return null;
+}
 function json(data, status = 200) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...cors() } }); }
 function cors() { return { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Max-Age': '86400' }; }

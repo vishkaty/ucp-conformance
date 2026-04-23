@@ -211,6 +211,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
         <div id="custom-headers"></div>
         <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="addHeaderRow()">+ Add Header</button>
       </div>
+      <div class="settings-section" style="margin-top:16px">
+        <h3>API Keys (CLI)</h3>
+        <p style="font-size:11px;color:#71717a;margin-bottom:8px">Use API keys to run tests from the command line. Install: <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px;font-size:10px">pip install spck</code></p>
+        <div id="api-keys-list" style="margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="new-key-name" placeholder="Key name (e.g., CI/CD)" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px"/>
+          <button class="btn btn-outline btn-sm" onclick="createApiKey()">Create Key</button>
+        </div>
+        <div id="new-key-display" style="display:none;margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;font-size:11px">
+          <strong style="color:#16a34a">Key created!</strong> Copy it now — it won't be shown again.<br>
+          <code id="new-key-value" style="display:block;margin-top:6px;padding:6px 8px;background:#fff;border-radius:4px;font-family:monospace;font-size:12px;user-select:all"></code>
+          <p style="margin-top:6px;color:#71717a;font-size:10px">Usage: <code>spck --key YOUR_KEY --server https://... --merchant ...</code></p>
+        </div>
+      </div>
       <div style="margin-top:16px">
         <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
         <span class="status" id="settings-status" style="font-size:12px;color:#71717a;margin-left:8px"></span>
@@ -297,6 +311,33 @@ async function saveSettings(){
     if(userSettings.defaultDomain)document.getElementById('cfg-domain').value=userSettings.defaultDomain;
   }catch(e){document.getElementById('settings-status').textContent='Error: '+e.message}
 }
+async function createApiKey(){
+  if(!authToken)return;
+  const name=document.getElementById('new-key-name').value.trim()||'CLI Key';
+  try{
+    const r=await fetch(API_BASE+'/api/keys',{method:'POST',headers:{Authorization:'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({name})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error);
+    document.getElementById('new-key-display').style.display='block';
+    document.getElementById('new-key-value').textContent=d.key;
+    document.getElementById('new-key-name').value='';
+    loadApiKeys();
+  }catch(e){alert('Error: '+e.message)}
+}
+async function loadApiKeys(){
+  if(!authToken)return;
+  try{
+    const r=await fetch(API_BASE+'/api/keys',{headers:{Authorization:'Bearer '+authToken}});
+    const{keys}=await r.json();
+    const el=document.getElementById('api-keys-list');
+    if(!keys?.length){el.innerHTML='<p style="color:#a1a1aa;font-size:11px">No API keys yet</p>';return}
+    el.innerHTML=keys.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f4f4f5;font-size:11px"><div><code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">${k.key}</code> <span style="color:#71717a">${k.name} &middot; ${new Date(k.created).toLocaleDateString()}</span></div><button class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 8px" onclick="deleteApiKey('${k.id}')">Delete</button></div>`).join('');
+  }catch{}
+}
+async function deleteApiKey(id){
+  if(!confirm('Delete this API key?'))return;
+  await fetch(API_BASE+'/api/keys/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+authToken}});
+  loadApiKeys();
+}
 async function loadSettings(){
   if(!authToken)return;
   try{
@@ -304,6 +345,7 @@ async function loadSettings(){
     if(r.ok){const d=await r.json();userSettings=d.settings||{headers:{},defaultBase:'',defaultDomain:''}}
   }catch{}
   loadSettingsToUI();
+  loadApiKeys();
   if(userSettings.defaultBase)document.getElementById('cfg-base').value=userSettings.defaultBase;
   if(userSettings.defaultDomain)document.getElementById('cfg-domain').value=userSettings.defaultDomain;
 }
