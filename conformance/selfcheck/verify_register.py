@@ -31,17 +31,25 @@ def parse_source(src: str):
     lines = [int(n) for n in re.findall(r"L(\d+)", anchor)]
     return repo, path, lines
 
-def load_file(repo: str, path: str):
-    f = VENDOR / repo / path
+# the "ucp" repo prefix resolves to a different vendored tree per spec version
+VERSION_TREE = {
+    "2026-04-08": "ucp",
+    "2026-01-23": "ucp-2026-01-23",
+    "2026-01-11": "ucp-2026-01-11",
+}
+
+def load_file(repo: str, path: str, ucp_dir: str = "ucp"):
+    root = ucp_dir if repo == "ucp" else repo
+    f = VENDOR / root / path
     if not f.exists():
         return None
     return f.read_text(encoding="utf-8", errors="replace").splitlines()
 
-def check_row(row):
+def check_row(row, ucp_dir="ucp"):
     src = row.get("source", "")
     quote = row.get("quote", "")
     repo, path, lines = parse_source(src)
-    flines = load_file(repo, path)
+    flines = load_file(repo, path, ucp_dir)
     if flines is None:
         return ("FILE_MISSING", f"{repo}:{path}")
     nfile = norm("\n".join(flines))
@@ -67,11 +75,12 @@ def main(argv):
         vdir = REQ_DIR / ver
         if not vdir.is_dir():
             continue
+        ucp_dir = VERSION_TREE.get(ver, "ucp")
         for af in sorted(vdir.glob("*.json")):
             data = json.loads(af.read_text())
             for row in data.get("rows", []):
                 total += 1
-                status, detail = check_row(row)
+                status, detail = check_row(row, ucp_dir)
                 if status == "OK":
                     ok += 1
                 elif status == "LINE_OFF":
