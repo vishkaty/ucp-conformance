@@ -43,11 +43,85 @@ def chk_rest_endpoint(r):
     host = u.hostname or ""
     return CLEAN if (u.scheme == "https" or host in LOOPBACK) else DEVIATION
 
+# ---- stateful checkout-lifecycle + idempotency helpers ---------------------
+import uuid  # noqa: E402
+
+STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
+               "complete_in_progress", "completed", "canceled"}
+
+def _ucp_headers(idem=None):
+    return {"UCP-Agent": 'profile="https://example.com/platform"',
+            "request-signature": "test",
+            "idempotency-key": idem or str(uuid.uuid4()),
+            "request-id": str(uuid.uuid4())}
+
+def _create_payload(quantity=1, item_id="bouquet_roses"):
+    return {"id": str(uuid.uuid4()), "currency": "USD",
+            "line_items": [{"id": "line_item_123", "quantity": quantity,
+                            "item": {"id": item_id, "price": 1000}, "totals": []}],
+            "payment": {"instruments": [], "handlers": [
+                {"id": "google_pay", "name": "google.pay", "version": "2026-01-23",
+                 "spec": "https://example.com/spec", "config_schema": "https://example.com/schema",
+                 "instrument_schemas": ["https://example.com/instrument_schema"], "config": {}}]},
+            "fulfillment": {"methods": [{"id": "method_1", "type": "shipping",
+                "destinations": [{"id": "dest_1", "address_country": "US"}],
+                "line_item_ids": ["line_item_123"], "selected_destination_id": "dest_1",
+                "groups": [{"id": "group_1", "line_item_ids": ["line_item_123"],
+                            "selected_option_id": "std-ship"}]}]},
+            "status": "incomplete", "ucp": {"version": "2026-01-23"},
+            "totals": [], "links": []}
+
+def _create(base, idem=None, quantity=1):
+    return fetch(base, "/checkout-sessions", "POST", _create_payload(quantity),
+                 _ucp_headers(idem))
+
+def f_create(base):
+    return _create(base)
+
+def f_get(base):
+    r = _create(base)
+    cid = (r.json or {}).get("id")
+    return fetch(base, f"/checkout-sessions/{cid}", "GET", None, _ucp_headers())
+
+def f_cancel(base):
+    r = _create(base)
+    cid = (r.json or {}).get("id")
+    return fetch(base, f"/checkout-sessions/{cid}/cancel", "POST", None, _ucp_headers())
+
+def f_idem_conflict(base):
+    k = str(uuid.uuid4())
+    _create(base, idem=k, quantity=1)              # first body
+    return _create(base, idem=k, quantity=2)        # SAME key, DIFFERENT body -> must 409
+
+# ---- stateful predicates ---------------------------------------------------
+def chk_create(r):       # CHK-001
+    if r.status not in (200, 201) or not isinstance(r.json, dict): return DEVIATION
+    return CLEAN if r.json.get("id") and r.json.get("status") in STATUS_ENUM else DEVIATION
+
+def chk_get(r):          # CHK-002
+    if r.status != 200 or not isinstance(r.json, dict): return DEVIATION
+    return CLEAN if r.json.get("id") and r.json.get("status") in STATUS_ENUM else DEVIATION
+
+def chk_cancel(r):       # CHK-005
+    if r.status != 200 or not isinstance(r.json, dict): return DEVIATION
+    return CLEAN if r.json.get("status") == "canceled" else DEVIATION
+
+def chk_idem_409(r):     # IDM-004
+    return CLEAN if r.status == 409 else DEVIATION
+
 CHECKS = [
     Check("disc.profile_200", ["DISC-013"], "MUST", _discovery, chk_profile_ok,
           ["status:404", "status:500", "drop:version", "corrupt-json", "empty"]),
     Check("disc.rest_endpoint", ["DISC-007"], "MUST", _discovery, chk_rest_endpoint,
           ["drop:services", "set:services={}", "corrupt-json", "status:500"]),
+    Check("checkout.create", ["CHK-001"], "MUST", f_create, chk_create,
+          ["status:500", "drop:id", "drop:status", "set:status=\"bogus\"", "empty"]),
+    Check("checkout.get", ["CHK-002"], "MUST", f_get, chk_get,
+          ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"]),
+    Check("checkout.cancel", ["CHK-005"], "MUST", f_cancel, chk_cancel,
+          ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"]),
+    Check("idempotency.conflict_409", ["IDM-004"], "MUST", f_idem_conflict, chk_idem_409,
+          ["status:200", "status:201"]),
 ]
 
 SCOPE_STAMP = {
