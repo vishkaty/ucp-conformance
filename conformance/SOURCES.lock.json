@@ -1,0 +1,45 @@
+{
+  "_about": "Pinned sources of truth for the UCP conformance tester. NEVER test against main/feature branches; pin by the SHAs below. Regenerate intentionally and review the diff. See docs/spec-coverage.md for methodology.",
+  "generated_context": "Resolved 2026-06-30 via `gh api repos/Universal-Commerce-Protocol/<repo>/commits/<ref>`.",
+  "spec": {
+    "repo": "Universal-Commerce-Protocol/ucp",
+    "versions": {
+      "2026-04-08": {
+        "tag": "v2026-04-08",
+        "commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+        "commit_date": "2026-05-22T16:07:22Z",
+        "note": "Tag commit is dated 2026-05-22, NOT 2026-04-08 — release/2026-04-08 received post-date cherry-picks (attribution, identity-linking OAuth rework, selected_options->options, profile-schema fixes). 'What 04-08 contains' = this tagged artifact, not a clean date-cut."
+      },
+      "2026-01-23": { "tag": "v2026-01-23", "commit": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05", "commit_date": "2026-01-23T22:46:40Z" },
+      "2026-01-11": { "tag": "v2026-01-11", "commit": "806a5b74d3a5a918206844ea980450233b38664e", "commit_date": "2026-01-23T17:55:22Z" }
+    }
+  },
+  "official_conformance_suite": {
+    "repo": "Universal-Commerce-Protocol/conformance",
+    "ref": "main",
+    "commit": "948e7d227a7d126fc4b86aff5de33475c3a3184c",
+    "commit_date": "2026-06-23T09:20:31Z",
+    "note": "SIGNAL, NOT ORACLE. This suite is pinned to SPEC version 2026-01-23 (its protocol_test asserts version 2026-01-23 and asserts HTTP 400 for incompatible-version where the 2026-04-08 spec maps to 422). It provides NO oracle for any 2026-04-08-introduced requirement. No release tags exist; pinned to a main SHA which can drift."
+  },
+  "schema_validator": {
+    "repo": "Universal-Commerce-Protocol/ucp-schema",
+    "ref": "main",
+    "commit": "115ae8369e5db20d29aee896eb689b781f513999",
+    "commit_date": "2026-06-30T15:57:18Z",
+    "note": "Rust CLI (`cargo install ucp-schema`). Used as the schema-validation ORACLE. No release tags; pinned to main SHA. Does NOT cover prose-only invariants (totals sums, lookup dedup, line-item retention) — those are separate coded checks."
+  },
+  "reference_sample_server": {
+    "repo": "Universal-Commerce-Protocol/samples",
+    "ref": "main",
+    "commit": "74e66deedc8270482f198a76c5ed1e6ff270814e",
+    "commit_date": "2026-06-17T16:02:03Z",
+    "note": "Flower Shop reference merchant (samples/rest/python/server) — the KNOWN-COMPLIANT target for self-validation. A no-op test passes against this server, which is why every check also needs a negative fixture (mutation proxy)."
+  },
+  "toolchain": {
+    "python": "3.12.8 (present)",
+    "node": "v22.14.0 (present)",
+    "gh": "2.95.0 (present)",
+    "cargo": "REQUIRED for ucp-schema oracle (Phase 0d) — NOT yet installed",
+    "uv": "REQUIRED to run the official conformance suite + Flower Shop server (Phase 0d/0e) — NOT yet installed"
+  }
+}

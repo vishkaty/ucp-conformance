@@ -1,0 +1,90 @@
+{
+  "_area": "discovery-and-profile",
+  "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "rows": [
+    {
+      "id": "DISC-001",
+      "requirement": "Business profile MUST be served over HTTPS.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L1053",
+      "quote": "Profiles **MUST** be served over HTTPS.",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Profile is the business well-known profile document."
+    },
+    {
+      "id": "DISC-002",
+      "requirement": "Profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview.md#L1054",
+      "quote": "Profile endpoints **MUST NOT** use redirects (3xx).",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "Companion impl rule at overview.md#L1099: 'Implementations MUST NOT follow redirects (3xx) on profile fetches.' Browser fetch auto-follows redirects opaquely -> CLI-only to assert no-redirect."
+    },
+    {
+      "id": "DISC-003",
+      "requirement": "Profile responses MUST send Cache-Control with public and max-age>=60, and MUST NOT use private/no-store/no-cache.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L1055-L1057",
+      "quote": "Profile responses **MUST** include a `Cache-Control` header with `public` and `max-age` of at least 60 seconds. Profiles **MUST NOT** be served with `private`, `no-store`, or `no-cache` directives.",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "Reading response headers cross-origin is CORS-restricted in browser -> CLI-only."
+    },
+    {
+      "id": "DISC-004",
+      "requirement": "Implementations MUST reject profile URLs not served over HTTPS.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L1098",
+      "quote": "Implementations **MUST** reject profile URLs not served over HTTPS.",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "Tester-side behavior we also implement in our own profile fetcher."
+    },
+    {
+      "id": "DISC-005",
+      "requirement": "service endpoint MUST be a valid HTTPS URL.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L147",
+      "quote": "`endpoint` **MUST** be a valid URL with scheme (https)",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Official suite protocol_test asserts a non-null rest endpoint."
+    },
+    {
+      "id": "DISC-006",
+      "requirement": "Platforms MUST include their profile URI in every request.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L622",
+      "quote": "Platforms **MUST** include their profile URI in [every request via the UCP-Agent mechanism]",
+      "versions": ["2026-04-08"],
+      "transport": ["rest"],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it. Distinct from the 01-23/suite header set (request-signature/request-id are NOT 04-08 spec headers)."
+    }
+  ]
+}
