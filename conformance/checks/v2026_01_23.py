@@ -71,8 +71,8 @@ def _create_payload(quantity=1, item_id="bouquet_roses"):
             "status": "incomplete", "ucp": {"version": "2026-01-23"},
             "totals": [], "links": []}
 
-def _create(base, idem=None, quantity=1):
-    return fetch(base, "/checkout-sessions", "POST", _create_payload(quantity),
+def _create(base, idem=None, quantity=1, item_id="bouquet_roses"):
+    return fetch(base, "/checkout-sessions", "POST", _create_payload(quantity, item_id),
                  _ucp_headers(idem))
 
 def f_create(base):
@@ -109,6 +109,11 @@ def chk_cancel(r):       # CHK-005
 def chk_idem_409(r):     # IDM-004
     return CLEAN if r.status == 409 else DEVIATION
 
+def f_out_of_stock(base):  return _create(base, item_id="gardenias")     # seeded out-of-stock
+def f_nonexistent(base):   return _create(base, item_id="pink_wumpus")   # seeded non-existent
+def chk_http_400(r):       # VAL-001 / VAL-003 (validation failures MUST 400)
+    return CLEAN if r.status == 400 else DEVIATION
+
 CHECKS = [
     Check("disc.profile_200", ["DISC-013"], "MUST", _discovery, chk_profile_ok,
           ["status:404", "status:500", "drop:version", "corrupt-json", "empty"]),
@@ -121,6 +126,10 @@ CHECKS = [
     Check("checkout.cancel", ["CHK-005"], "MUST", f_cancel, chk_cancel,
           ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"]),
     Check("idempotency.conflict_409", ["IDM-004"], "MUST", f_idem_conflict, chk_idem_409,
+          ["status:200", "status:201"]),
+    Check("validation.out_of_stock", ["VAL-001"], "MUST", f_out_of_stock, chk_http_400,
+          ["status:200", "status:201"]),
+    Check("validation.nonexistent_product", ["VAL-003"], "MUST", f_nonexistent, chk_http_400,
           ["status:200", "status:201"]),
 ]
 
