@@ -58,7 +58,8 @@ async function sendOtp(request, env) {
     code: otp, email: email.toLowerCase(), attempts: 0, created: Date.now()
   }), { expirationTtl: 600 });
 
-  const resendKey = env.RESEND_API_KEY || 're_AnEWccmB_2YFkt4yBC75KvNXBTFHQz1u2';
+  const resendKey = env.RESEND_API_KEY;
+  if (!resendKey) return json({ error: 'Email delivery not configured' }, 500);
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
@@ -242,6 +243,12 @@ async function getSettings(request, env) {
 // ── Analytics Tracking ──
 
 async function trackEvent(env, type, userId, meta = {}) {
+  // Defense-in-depth: clamp length and strip control/angle chars from user-supplied
+  // values before they are stored and later rendered in the admin dashboard.
+  const clean = (s, n) => String(s == null ? "" : s).replace(/[\x00-\x1f<>]/g, "").slice(0, n);
+  if (meta.domain != null) meta.domain = clean(meta.domain, 120);
+  if (meta.base != null) meta.base = clean(meta.base, 200);
+
   const now = new Date();
   const dayKey = now.toISOString().slice(0, 10); // 2026-04-23
 
