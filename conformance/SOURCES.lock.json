@@ -33,13 +33,19 @@
     "ref": "main",
     "commit": "74e66deedc8270482f198a76c5ed1e6ff270814e",
     "commit_date": "2026-06-17T16:02:03Z",
-    "note": "Flower Shop reference merchant (samples/rest/python/server) — the KNOWN-COMPLIANT target for self-validation. A no-op test passes against this server, which is why every check also needs a negative fixture (mutation proxy)."
+    "note": "Flower Shop reference merchant (samples/rest/python/server) — the KNOWN-COMPLIANT target for self-validation. Serves spec version 2026-01-23 (confirmed: /.well-known/ucp ucp.version=2026-01-23). This is why 2026-01-23 is the oracle-backed primary; 2026-04-08 has no reference server and is validated via synthetic fixtures. A no-op test passes against this server, which is why every check also needs a negative fixture (mutation proxy). Run on port 8182; sim endpoints gated by --simulation_secret."
+  },
+  "reference_sdk": {
+    "repo": "Universal-Commerce-Protocol/python-sdk",
+    "ref": "main",
+    "commit": "298c2958faec9065fae1891018a3342e46fc2215",
+    "note": "Required by the Flower Shop server (editable dep at ../../../../python-sdk). Vendored at .vendor/python-sdk. No release tags; pinned to a main SHA."
   },
   "toolchain": {
     "python": "3.12.8 (present)",
     "node": "v22.14.0 (present)",
     "gh": "2.95.0 (present)",
-    "cargo": "REQUIRED for ucp-schema oracle (Phase 0d) — NOT yet installed",
-    "uv": "REQUIRED to run the official conformance suite + Flower Shop server (Phase 0d/0e) — NOT yet installed"
+    "cargo": "INSTALLED via rustup (used to build the ucp-schema oracle, Phase 0d)",
+    "uv": "INSTALLED 0.11.26 (runs the Flower Shop server + official suite, Phase 0e)"
   }
 }
