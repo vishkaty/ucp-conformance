@@ -58,7 +58,8 @@ async function sendOtp(request, env) {
     code: otp, email: email.toLowerCase(), attempts: 0, created: Date.now()
   }), { expirationTtl: 600 });
 
-  const resendKey = env.RESEND_API_KEY || 're_AnEWccmB_2YFkt4yBC75KvNXBTFHQz1u2';
+  const resendKey = env.RESEND_API_KEY;
+  if (!resendKey) return json({ error: 'Email delivery not configured' }, 500);
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
