@@ -242,6 +242,12 @@ async function getSettings(request, env) {
 // ── Analytics Tracking ──
 
 async function trackEvent(env, type, userId, meta = {}) {
+  // Defense-in-depth: clamp length and strip control/angle chars from user-supplied
+  // values before they are stored and later rendered in the admin dashboard.
+  const clean = (s, n) => String(s == null ? "" : s).replace(/[\x00-\x1f<>]/g, "").slice(0, n);
+  if (meta.domain != null) meta.domain = clean(meta.domain, 120);
+  if (meta.base != null) meta.base = clean(meta.base, 200);
+
   const now = new Date();
   const dayKey = now.toISOString().slice(0, 10); // 2026-04-23
 

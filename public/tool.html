@@ -301,6 +301,8 @@ let authToken=localStorage.getItem('ucp_token'),currentUser=null;
 let apiLog=[],testResults=[],sessionData={},deviations=[];
 let totalTests=0,currentTest=0,pass=0,fail=0,skip=0;
 let userSettings={headers:{},defaultBase:'',defaultDomain:''};
+// ── Security: HTML-escape untrusted (user/server-supplied) values before innerHTML/document.write ──
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 // ── Settings ──
 function loadSettingsToUI(){
@@ -314,7 +316,7 @@ function loadSettingsToUI(){
 function addHeaderRow(key,val){
   const el=document.getElementById('custom-headers');
   const row=document.createElement('div');row.className='header-row';
-  row.innerHTML=`<input placeholder="Header name" value="${key||''}"/><input placeholder="Value (use \${domain} for merchant)" value="${val||''}"/><button onclick="this.parentElement.remove()">x</button>`;
+  row.innerHTML=`<input placeholder="Header name" value="${esc(key)}"/><input placeholder="Value (use \${domain} for merchant)" value="${esc(val)}"/><button onclick="this.parentElement.remove()">x</button>`;
   el.appendChild(row);
 }
 function getSettingsHeaders(){
@@ -354,7 +356,7 @@ async function loadApiKeys(){
     const{keys}=await r.json();
     const el=document.getElementById('api-keys-list');
     if(!keys?.length){el.innerHTML='<p style="color:#a1a1aa;font-size:11px">No API keys yet</p>';return}
-    el.innerHTML=keys.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f4f4f5;font-size:11px"><div><code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">${k.key}</code> <span style="color:#71717a">${k.name} &middot; ${new Date(k.created).toLocaleDateString()}</span></div><button class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 8px" onclick="deleteApiKey('${k.id}')">Delete</button></div>`).join('');
+    el.innerHTML=keys.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f4f4f5;font-size:11px"><div><code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">${esc(k.key)}</code> <span style="color:#71717a">${esc(k.name)} &middot; ${new Date(k.created).toLocaleDateString()}</span></div><button class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 8px" onclick="deleteApiKey('${esc(k.id)}')">Delete</button></div>`).join('');
   }catch{}
 }
 async function deleteApiKey(id){
@@ -397,7 +399,7 @@ async function loadReports(){
     const{reports}=await r.json();
     if(!reports?.length){el.innerHTML='<p style="color:#a1a1aa;font-size:12px;text-align:center;padding:20px">No reports yet. Run tests to create one.</p>';selA.innerHTML='<option value="">No reports</option>';selB.innerHTML='<option value="">No reports</option>';return}
     // Populate compare selectors
-    const opts=reports.map(r=>`<option value="${r.id}">${new Date(r.date).toLocaleString()} — ${r.config?.domain||'?'} v${r.config?.version||'?'} (${r.summary?.pass||0}/${r.summary?.total||0})</option>`).join('');
+    const opts=reports.map(r=>`<option value="${esc(r.id)}">${new Date(r.date).toLocaleString()} — ${esc(r.config?.domain||'?')} v${esc(r.config?.version||'?')} (${r.summary?.pass||0}/${r.summary?.total||0})</option>`).join('');
     selA.innerHTML='<option value="">Select run A...</option>'+opts;
     selB.innerHTML='<option value="">Select run B...</option>'+opts;
     // Report list
@@ -407,20 +409,20 @@ async function loadReports(){
       return`<div class="report-item">
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px">
-            <strong>${r.config?.domain||'?'}</strong>
+            <strong>${esc(r.config?.domain||'?')}</strong>
             <span class="badge" style="background:${f===0?'#dcfce7':'#fee2e2'};color:${color}">${p}/${t}</span>
-            <span style="font-size:10px;color:#a1a1aa">v${r.config?.version||'?'}</span>
+            <span style="font-size:10px;color:#a1a1aa">v${esc(r.config?.version||'?')}</span>
           </div>
           <div class="report-meta">${new Date(r.date).toLocaleString()}</div>
         </div>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-sm" onclick="viewReportInline('${r.id}')">View</button>
-          <button class="btn btn-outline btn-sm" onclick="viewReport('${r.id}')">JSON</button>
-          <button class="btn btn-outline btn-sm" onclick="downloadPDFForReport('${r.id}')">PDF</button>
-          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteReport('${r.id}')">Delete</button>
+          <button class="btn btn-outline btn-sm" onclick="viewReportInline('${esc(r.id)}')">View</button>
+          <button class="btn btn-outline btn-sm" onclick="viewReport('${esc(r.id)}')">JSON</button>
+          <button class="btn btn-outline btn-sm" onclick="downloadPDFForReport('${esc(r.id)}')">PDF</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteReport('${esc(r.id)}')">Delete</button>
         </div>
       </div>`}).join('');
-  }catch(e){el.innerHTML='<p style="color:var(--red)">'+e.message+'</p>'}
+  }catch(e){el.innerHTML='<p style="color:var(--red)">'+esc(e.message)+'</p>'}
 }
 async function saveReport(){if(!authToken)return alert('Sign in first');try{const r=await fetch(API_BASE+'/api/reports',{method:'POST',headers:{Authorization:'Bearer '+authToken,'Content-Type':'application/json'},body:JSON.stringify({config:{base:cfg('base'),domain:cfg('domain'),version:sessionData.specVersion||'unknown',product:sessionData.productId||'auto'},summary:{total:pass+fail+skip,pass,fail,skip,api_calls:apiLog.length},deviations,tests:testResults.map(t=>({name:t.name,module:t.module,status:t.status,detail:t.detail,ms:t.ms})),api_log:apiLog})});if(!r.ok)throw new Error((await r.json()).error);document.getElementById('run-status').textContent+=' | Saved'}catch(e){alert('Save failed: '+e.message)}}
 async function viewReport(id){const r=await fetch(API_BASE+'/api/reports/'+id,{headers:{Authorization:'Bearer '+authToken}});const{report}=await r.json();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)]));a.download='report-'+id.slice(0,8)+'.json';a.click()}
@@ -481,7 +483,7 @@ function showDiscovered(){
   if(sessionData.productPrice)parts.push('$'+(sessionData.productPrice/100).toFixed(2));
   if(sessionData.paymentHandler)parts.push('Payment: '+sessionData.paymentHandler);
   if(sessionData.capabilities)parts.push(sessionData.capabilities.length+' capabilities');
-  items.innerHTML=parts.map(p=>'<span class="item">'+p+'</span>').join('');
+  items.innerHTML=parts.map(p=>'<span class="item">'+esc(p)+'</span>').join('');
   el.classList.add('visible');
 }
 
@@ -586,7 +588,7 @@ async function runTests(){
     [...new Set(allTests.map(t=>t.module))].forEach(m=>renderModuleHeader(m));
     for(const t of allTests)await runTest(t.name,t.module,t.fn,t.flags,t.note);
 
-    if(deviations.length){document.getElementById('deviations').classList.add('visible');const tb=document.getElementById('dev-table');deviations.forEach((d,i)=>{const r=tb.insertRow();r.innerHTML='<td>'+(i+1)+'</td><td>'+d.area+'</td><td>'+d.spec+'</td><td>'+d.server+'</td><td>'+d.severity+'</td>'})}
+    if(deviations.length){document.getElementById('deviations').classList.add('visible');const tb=document.getElementById('dev-table');deviations.forEach((d,i)=>{const r=tb.insertRow();r.innerHTML='<td>'+(i+1)+'</td><td>'+esc(d.area)+'</td><td>'+esc(d.spec)+'</td><td>'+esc(d.server)+'</td><td>'+esc(d.severity)+'</td>'})}
   }catch(e){
     document.getElementById('run-status').textContent='Error: '+e.message;
   }
@@ -611,9 +613,9 @@ function renderTest(r){
   const icon=r.status==='pass'?'✓':r.status==='fail'?'✗':'—';
   const lid='log-'+k+'-'+r.name.replace(/\W/g,'');
   const tag=r.flags==='deviation'?'<span class="test-tag tag-deviation">DEVIATION</span>':r.flags==='adjusted'?'<span class="test-tag tag-adjusted">ADJUSTED</span>':'';
-  const noteHtml=r.note?'<div class="test-note">'+r.note+'</div>':'';
+  const noteHtml=r.note?'<div class="test-note">'+esc(r.note)+'</div>':'';
   const d=document.createElement('div');d.className='test-row';
-  d.innerHTML='<div class="test-icon '+iconCls+'">'+icon+'</div><div style="flex:1"><div style="font-weight:500">'+r.name+tag+'</div><div class="test-detail">'+r.detail+'</div>'+noteHtml+(r.apiCalls.length?'<div class="test-toggle" onclick="document.getElementById(\''+lid+'\').style.display=document.getElementById(\''+lid+'\').style.display===\'none\'?\'block\':\'none\'">Show '+r.apiCalls.length+' API call(s)</div>':'')+'<div class="api-log" id="'+lid+'" style="display:none">'+fmtCalls(r.apiCalls)+'</div></div><div class="test-time">'+r.ms+'ms</div>';
+  d.innerHTML='<div class="test-icon '+iconCls+'">'+icon+'</div><div style="flex:1"><div style="font-weight:500">'+esc(r.name)+tag+'</div><div class="test-detail">'+esc(r.detail)+'</div>'+noteHtml+(r.apiCalls.length?'<div class="test-toggle" onclick="document.getElementById(\''+lid+'\').style.display=document.getElementById(\''+lid+'\').style.display===\'none\'?\'block\':\'none\'">Show '+r.apiCalls.length+' API call(s)</div>':'')+'<div class="api-log" id="'+lid+'" style="display:none">'+fmtCalls(r.apiCalls)+'</div></div><div class="test-time">'+r.ms+'ms</div>';
   body.appendChild(d);
   const b=document.getElementById('badge-'+k),ts=testResults.filter(t=>t.module===r.module),p=ts.filter(t=>t.status==='pass').length,f=ts.filter(t=>t.status==='fail').length;
   const hasDeviation=ts.some(t=>t.flags==='deviation'),hasAdjusted=ts.some(t=>t.flags==='adjusted');
@@ -621,8 +623,8 @@ function renderTest(r){
   b.textContent=p+'/'+ts.length+(hasDeviation?' *':hasAdjusted?' ~':'');
   updateSummary()
 }
-function fmtCalls(calls){return calls.map(c=>{const sc=c.response_status>=200&&c.response_status<300?'status-2xx':'status-4xx';let req=c.request_body?'\n'+syn(JSON.stringify(c.request_body,null,2)):'';let resp=syn(JSON.stringify(c.response_body,null,2));if(resp.length>3000)resp=resp.slice(0,3000)+'\n...';return'<span class="method">'+c.method+'</span> <span class="url">'+c.url+'</span>'+req+'\n\n<span class="'+sc+'">HTTP '+c.response_status+'</span> ('+c.elapsed_ms+'ms)\n'+resp}).join('\n\n'+'-'.repeat(50)+'\n\n')}
-function syn(j){return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?)/g,m=>'<span class="'+(/:$/.test(m)?'key':/^"/.test(m)?'string':'number')+'">'+m+'</span>')}
+function fmtCalls(calls){return calls.map(c=>{const sc=c.response_status>=200&&c.response_status<300?'status-2xx':'status-4xx';let req=c.request_body?'\n'+syn(JSON.stringify(c.request_body,null,2)):'';let resp=syn(JSON.stringify(c.response_body,null,2));if(resp.length>3000)resp=resp.slice(0,3000)+'\n...';return'<span class="method">'+esc(c.method)+'</span> <span class="url">'+esc(c.url)+'</span>'+req+'\n\n<span class="'+sc+'">HTTP '+esc(c.response_status)+'</span> ('+esc(c.elapsed_ms)+'ms)\n'+resp}).join('\n\n'+'-'.repeat(50)+'\n\n')}
+function syn(j){j=String(j).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?)/g,m=>'<span class="'+(/:$/.test(m)?'key':/^"/.test(m)?'string':'number')+'">'+m+'</span>')}
 function updateSummary(){
   document.getElementById('summary').className='summary visible';
   document.getElementById('sum-total').textContent=pass+fail+skip;
@@ -655,7 +657,7 @@ pre{background:#f4f4f5;padding:8px;border-radius:4px;font-size:9px;overflow-wrap
 @media print{body{padding:0}h1{font-size:16px}h2{font-size:12px}}
 </style></head><body>`;
   html+=`<h1>UCP Conformance Report</h1>`;
-  html+=`<p><strong>Date:</strong> ${date}<br><strong>Server:</strong> ${cfg('base')} / ${cfg('domain')}<br><strong>Version:</strong> ${ver}<br><strong>Result:</strong> ${pass}/${pass+fail+skip} passed, ${fail} failed, ${skip} skipped<br><strong>API Calls:</strong> ${apiLog.length}</p>`;
+  html+=`<p><strong>Date:</strong> ${esc(date)}<br><strong>Server:</strong> ${esc(cfg('base'))} / ${esc(cfg('domain'))}<br><strong>Version:</strong> ${esc(ver)}<br><strong>Result:</strong> ${pass}/${pass+fail+skip} passed, ${fail} failed, ${skip} skipped<br><strong>API Calls:</strong> ${apiLog.length}</p>`;
   // Summary table
   const devCount=testResults.filter(t=>t.flags==='deviation').length;
   const adjCount=testResults.filter(t=>t.flags==='adjusted').length;
@@ -664,26 +666,26 @@ pre{background:#f4f4f5;padding:8px;border-radius:4px;font-size:9px;overflow-wrap
   html+=`<h2>Test Results</h2><table><tr><th>Module</th><th>Test</th><th>Status</th><th>Classification</th><th>Detail</th><th>Time</th></tr>`;
   for(const t of testResults){
     const cls=t.flags==='deviation'?'<span style="color:#92400e;font-weight:600">DEVIATION</span>':t.flags==='adjusted'?'<span style="color:#3730a3;font-weight:600">ADJUSTED</span>':'<span style="color:#16a34a">CLEAN</span>';
-    html+=`<tr><td>${t.module}</td><td>${t.name}</td><td class="${t.status}">${t.status.toUpperCase()}</td><td>${cls}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;font-size:10px">${t.detail||''}</td><td>${t.ms}ms</td></tr>`;
-    if(t.note)html+=`<tr><td colspan="6" style="font-size:10px;color:#92400e;padding:2px 8px 6px;border-top:none;font-style:italic">↳ ${t.note}</td></tr>`;
+    html+=`<tr><td>${esc(t.module)}</td><td>${esc(t.name)}</td><td class="${t.status}">${esc(t.status.toUpperCase())}</td><td>${cls}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;font-size:10px">${esc(t.detail||'')}</td><td>${t.ms}ms</td></tr>`;
+    if(t.note)html+=`<tr><td colspan="6" style="font-size:10px;color:#92400e;padding:2px 8px 6px;border-top:none;font-style:italic">↳ ${esc(t.note)}</td></tr>`;
   }
   html+=`</table>`;
   // Deviations
   if(deviations.length){
     html+=`<h2>Detected Deviations</h2><table><tr><th>#</th><th>Area</th><th>Spec</th><th>Server</th><th>Severity</th></tr>`;
-    deviations.forEach((d,i)=>{html+=`<tr><td>${i+1}</td><td>${d.area}</td><td>${d.spec}</td><td>${d.server}</td><td>${d.severity}</td></tr>`});
+    deviations.forEach((d,i)=>{html+=`<tr><td>${i+1}</td><td>${esc(d.area)}</td><td>${esc(d.spec)}</td><td>${esc(d.server)}</td><td>${esc(d.severity)}</td></tr>`});
     html+=`</table>`;
   }
   // API calls per test
   html+=`<h2>API Call Log</h2>`;
   for(const t of testResults){
     if(!t.apiCalls?.length)continue;
-    html+=`<h3 style="font-size:11px;margin-top:12px">${t.module} / ${t.name} <span class="${t.status}">[${t.status.toUpperCase()}]</span></h3>`;
+    html+=`<h3 style="font-size:11px;margin-top:12px">${esc(t.module)} / ${esc(t.name)} <span class="${t.status}">[${esc(t.status.toUpperCase())}]</span></h3>`;
     for(const c of t.apiCalls){
-      html+=`<p style="margin:4px 0 2px;font-weight:600;font-size:10px">${c.method} ${c.url}</p>`;
-      if(c.request_body)html+=`<pre>${JSON.stringify(c.request_body,null,2)}</pre>`;
+      html+=`<p style="margin:4px 0 2px;font-weight:600;font-size:10px">${esc(c.method)} ${esc(c.url)}</p>`;
+      if(c.request_body)html+=`<pre>${esc(JSON.stringify(c.request_body,null,2))}</pre>`;
       const resp=JSON.stringify(c.response_body,null,2);
-      html+=`<p style="font-size:10px;color:#71717a">Response: HTTP ${c.response_status} (${c.elapsed_ms}ms)</p><pre>${resp.length>1500?resp.slice(0,1500)+'\\n...truncated':resp}</pre>`;
+      html+=`<p style="font-size:10px;color:#71717a">Response: HTTP ${esc(c.response_status)} (${esc(c.elapsed_ms)}ms)</p><pre>${esc(resp.length>1500?resp.slice(0,1500)+'\\n...truncated':resp)}</pre>`;
     }
   }
   html+=`<hr style="margin-top:24px"><p style="font-size:9px;color:#a1a1aa">Generated by UCP Conformance Testing Tool &mdash; spck.dev</p></body></html>`;
@@ -719,24 +721,24 @@ pre{background:#f4f4f5;padding:8px;border-radius:4px;font-size:9px;overflow-wrap
 @media print{body{padding:0}h1{font-size:16px}h2{font-size:12px}}
 </style></head><body>`;
   html+=`<h1>UCP Conformance Report</h1>`;
-  html+=`<p><strong>Date:</strong> ${date}<br><strong>Server:</strong> ${cfgR.base||'?'} / ${cfgR.domain||'?'}<br><strong>Version:</strong> ${cfgR.version||'?'}<br><strong>Result:</strong> ${p}/${t} passed, ${f} failed, ${s} skipped<br><strong>API Calls:</strong> ${sum.api_calls||apiLogR.length}</p>`;
+  html+=`<p><strong>Date:</strong> ${esc(date)}<br><strong>Server:</strong> ${esc(cfgR.base||'?')} / ${esc(cfgR.domain||'?')}<br><strong>Version:</strong> ${esc(cfgR.version||'?')}<br><strong>Result:</strong> ${p}/${t} passed, ${f} failed, ${s} skipped<br><strong>API Calls:</strong> ${sum.api_calls||apiLogR.length}</p>`;
   html+=`<h2>Test Results</h2><table><tr><th>Module</th><th>Test</th><th>Status</th><th>Detail</th><th>Time</th></tr>`;
   for(const tr of tests){
-    html+=`<tr><td>${tr.module||''}</td><td>${tr.name||''}</td><td class="${tr.status}">${(tr.status||'').toUpperCase()}</td><td style="max-width:320px;font-size:10px">${tr.detail||''}</td><td>${tr.ms||0}ms</td></tr>`;
+    html+=`<tr><td>${esc(tr.module||'')}</td><td>${esc(tr.name||'')}</td><td class="${tr.status}">${esc((tr.status||'').toUpperCase())}</td><td style="max-width:320px;font-size:10px">${esc(tr.detail||'')}</td><td>${tr.ms||0}ms</td></tr>`;
   }
   html+=`</table>`;
   if(devs.length){
     html+=`<h2>Detected Deviations</h2><table><tr><th>#</th><th>Area</th><th>Spec</th><th>Server</th><th>Severity</th></tr>`;
-    devs.forEach((d,i)=>{html+=`<tr><td>${i+1}</td><td>${d.area||''}</td><td>${d.spec||''}</td><td>${d.server||''}</td><td>${d.severity||''}</td></tr>`});
+    devs.forEach((d,i)=>{html+=`<tr><td>${i+1}</td><td>${esc(d.area||'')}</td><td>${esc(d.spec||'')}</td><td>${esc(d.server||'')}</td><td>${esc(d.severity||'')}</td></tr>`});
     html+=`</table>`;
   }
   if(apiLogR.length){
     html+=`<h2>API Call Log</h2>`;
     for(const c of apiLogR){
-      html+=`<p style="margin:4px 0 2px;font-weight:600;font-size:10px">${c.method} ${c.url}</p>`;
-      if(c.request_body)html+=`<pre>${JSON.stringify(c.request_body,null,2)}</pre>`;
+      html+=`<p style="margin:4px 0 2px;font-weight:600;font-size:10px">${esc(c.method)} ${esc(c.url)}</p>`;
+      if(c.request_body)html+=`<pre>${esc(JSON.stringify(c.request_body,null,2))}</pre>`;
       const resp=JSON.stringify(c.response_body,null,2);
-      html+=`<p style="font-size:10px;color:#71717a">Response: HTTP ${c.response_status} (${c.elapsed_ms}ms)</p><pre>${resp.length>1500?resp.slice(0,1500)+'\n...truncated':resp}</pre>`;
+      html+=`<p style="font-size:10px;color:#71717a">Response: HTTP ${esc(c.response_status)} (${esc(c.elapsed_ms)}ms)</p><pre>${esc(resp.length>1500?resp.slice(0,1500)+'\n...truncated':resp)}</pre>`;
     }
   }
   html+=`<hr style="margin-top:24px"><p style="font-size:9px;color:#a1a1aa">Generated by UCP Conformance Testing Tool &mdash; spck.dev</p></body></html>`;
@@ -754,7 +756,7 @@ async function viewReportInline(id){
     const el=document.getElementById('compare-result');
     const tests=report.tests||[];
     el.style.display='block';
-    el.innerHTML=`<div class="compare-box"><h3>Report: ${new Date(report.date).toLocaleString()} — ${report.config?.domain} v${report.config?.version}</h3>
+    el.innerHTML=`<div class="compare-box"><h3>Report: ${new Date(report.date).toLocaleString()} — ${esc(report.config?.domain)} v${esc(report.config?.version)}</h3>
       <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px">
         <span style="color:var(--green);font-weight:600">${report.summary?.pass||0} passed</span>
         <span style="color:var(--red);font-weight:600">${report.summary?.fail||0} failed</span>
@@ -762,7 +764,7 @@ async function viewReportInline(id){
         <span style="color:#a1a1aa">${report.summary?.api_calls||0} API calls</span>
       </div>
       <table class="admin-table"><thead><tr><th>Module</th><th>Test</th><th>Status</th><th>Detail</th><th>Time</th></tr></thead>
-      <tbody>${tests.map(t=>`<tr><td>${t.module}</td><td>${t.name}</td><td><span class="badge ${t.status==='pass'?'badge-pass':'badge-fail'}">${t.status}</span></td><td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis">${t.detail||''}</td><td>${t.ms||0}ms</td></tr>`).join('')}</tbody></table>
+      <tbody>${tests.map(t=>`<tr><td>${esc(t.module)}</td><td>${esc(t.name)}</td><td><span class="badge ${t.status==='pass'?'badge-pass':'badge-fail'}">${esc(t.status)}</span></td><td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis">${esc(t.detail||'')}</td><td>${t.ms||0}ms</td></tr>`).join('')}</tbody></table>
     </div>`;
   }catch(e){alert('Error: '+e.message)}
 }
@@ -793,12 +795,12 @@ async function compareRuns(){
     let html=`<div class="compare-box"><h3>Comparison</h3>
       <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:0;margin-bottom:16px">
         <div style="padding:8px;background:#f4f4f5;border-radius:4px 0 0 4px;font-size:11px;text-align:center">
-          <strong>Run A</strong><br>${new Date(a.date).toLocaleString()}<br>${a.config?.domain} v${a.config?.version}<br>
+          <strong>Run A</strong><br>${new Date(a.date).toLocaleString()}<br>${esc(a.config?.domain)} v${esc(a.config?.version)}<br>
           <span style="color:var(--green);font-weight:600">${sA.pass||0}</span> / <span style="color:var(--red)">${sA.fail||0}</span> / <span style="color:var(--orange)">${sA.skip||0}</span>
         </div>
         <div style="display:flex;align-items:center;justify-content:center;background:#f9f9f9;font-weight:700;color:#a1a1aa">vs</div>
         <div style="padding:8px;background:#f4f4f5;border-radius:0 4px 4px 0;font-size:11px;text-align:center">
-          <strong>Run B</strong><br>${new Date(b.date).toLocaleString()}<br>${b.config?.domain} v${b.config?.version}<br>
+          <strong>Run B</strong><br>${new Date(b.date).toLocaleString()}<br>${esc(b.config?.domain)} v${esc(b.config?.version)}<br>
           <span style="color:var(--green);font-weight:600">${sB.pass||0}</span> / <span style="color:var(--red)">${sB.fail||0}</span> / <span style="color:var(--orange)">${sB.skip||0}</span>
         </div>
       </div>
@@ -821,7 +823,7 @@ async function compareRuns(){
       else if(sA2==='skip'&&sB2==='pass'){change='NOW PASSING';cls='better';improved++}
       else{change=sA2+'→'+sB2;unchanged++}
       const name=key.split('/').pop();
-      html+=`<tr><td style="font-size:10px">${name}</td><td><span class="badge ${sA2==='pass'?'badge-pass':sA2==='fail'?'badge-fail':''}">${sA2}</span></td><td><span class="badge ${sB2==='pass'?'badge-pass':sB2==='fail'?'badge-fail':''}">${sB2}</span></td><td class="cell ${cls}" style="font-weight:600;font-size:10px">${change}</td></tr>`;
+      html+=`<tr><td style="font-size:10px">${esc(name)}</td><td><span class="badge ${sA2==='pass'?'badge-pass':sA2==='fail'?'badge-fail':''}">${esc(sA2)}</span></td><td><span class="badge ${sB2==='pass'?'badge-pass':sB2==='fail'?'badge-fail':''}">${esc(sB2)}</span></td><td class="cell ${cls}" style="font-weight:600;font-size:10px">${esc(change)}</td></tr>`;
     }
     html+=`</tbody></table>`;
     html+=`<div style="margin-top:10px;font-size:11px;color:#71717a">Summary: ${improved} improved, ${regressed} regressed, ${unchanged} unchanged, ${newTests} new</div>`;
@@ -844,30 +846,30 @@ async function loadAdmin(){
     // Domains
     const domains=Object.entries(stats.domainsTested||{}).sort((a,b)=>b[1]-a[1]);
     const maxD=Math.max(...domains.map(d=>d[1]),1);
-    document.getElementById('a-domains').innerHTML=domains.length?domains.map(([d,c])=>`<div class="chart-bar"><span class="bar-label">${d}</span><div class="bar" style="width:${c/maxD*200}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+    document.getElementById('a-domains').innerHTML=domains.length?domains.map(([d,c])=>`<div class="chart-bar"><span class="bar-label">${esc(d)}</span><div class="bar" style="width:${c/maxD*200}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
 
     // Endpoints
     const eps=Object.entries(stats.endpointsTested||{}).sort((a,b)=>b[1]-a[1]);
     const maxE=Math.max(...eps.map(e=>e[1]),1);
-    document.getElementById('a-endpoints').innerHTML=eps.length?eps.map(([e,c])=>`<div class="chart-bar"><span class="bar-label" style="min-width:200px;font-size:10px">${e}</span><div class="bar" style="width:${c/maxE*150}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+    document.getElementById('a-endpoints').innerHTML=eps.length?eps.map(([e,c])=>`<div class="chart-bar"><span class="bar-label" style="min-width:200px;font-size:10px">${esc(e)}</span><div class="bar" style="width:${c/maxE*150}px"></div><span class="bar-value">${c}</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
 
     // Daily activity
     const days=Object.entries(stats.dailyActivity||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
     const maxA=Math.max(...days.map(d=>d[1].logins+d[1].testRuns),1);
-    document.getElementById('a-daily').innerHTML=days.length?days.map(([d,v])=>`<div class="chart-bar"><span class="bar-label">${d}</span><div class="bar" style="width:${v.logins/maxA*100}px;background:#60a5fa"></div><div class="bar" style="width:${v.testRuns/maxA*100}px"></div><span class="bar-value" style="font-size:10px">${v.logins}L ${v.testRuns}T</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
+    document.getElementById('a-daily').innerHTML=days.length?days.map(([d,v])=>`<div class="chart-bar"><span class="bar-label">${esc(d)}</span><div class="bar" style="width:${v.logins/maxA*100}px;background:#60a5fa"></div><div class="bar" style="width:${v.testRuns/maxA*100}px"></div><span class="bar-value" style="font-size:10px">${v.logins}L ${v.testRuns}T</span></div>`).join(''):'<span style="color:#a1a1aa;font-size:11px">No data yet</span>';
 
     // Users
     const{users}=await(await fetch(API_BASE+'/api/admin/users',{headers:{Authorization:'Bearer '+authToken}})).json();
-    document.getElementById('a-users-table').innerHTML=users.slice(0,50).map(u=>`<tr><td>${u.email}</td><td>${u.created?.slice(0,10)||'-'}</td><td>${u.lastLogin?.slice(0,16)?.replace('T',' ')||'-'}</td><td>${u.loginCount||0}</td><td>${u.reportCount||0}</td></tr>`).join('');
+    document.getElementById('a-users-table').innerHTML=users.slice(0,50).map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.created?.slice(0,10)||'-')}</td><td>${esc(u.lastLogin?.slice(0,16)?.replace('T',' ')||'-')}</td><td>${u.loginCount||0}</td><td>${u.reportCount||0}</td></tr>`).join('');
 
     // Activity
     const{activity}=await(await fetch(API_BASE+'/api/admin/activity?days=3',{headers:{Authorization:'Bearer '+authToken}})).json();
     const allEvents=activity.flatMap(d=>d.events).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,50);
     document.getElementById('a-activity-table').innerHTML=allEvents.map(e=>{
       let details='';
-      if(e.domain)details+=e.domain+' ';
-      if(e.pass!==undefined)details+=e.pass+'/'+e.total+' passed ';
-      return`<tr><td style="white-space:nowrap">${e.time?.slice(0,16)?.replace('T',' ')||'-'}</td><td>${e.userId||'-'}</td><td><span class="badge ${e.type==='login'?'badge-pass':'badge-running'}">${e.type}</span></td><td style="font-size:10px">${details}</td></tr>`;
+      if(e.domain)details+=esc(e.domain)+' ';
+      if(e.pass!==undefined)details+=esc(e.pass)+'/'+esc(e.total)+' passed ';
+      return`<tr><td style="white-space:nowrap">${esc(e.time?.slice(0,16)?.replace('T',' ')||'-')}</td><td>${esc(e.userId||'-')}</td><td><span class="badge ${e.type==='login'?'badge-pass':'badge-running'}">${esc(e.type)}</span></td><td style="font-size:10px">${details}</td></tr>`;
     }).join('')||'<tr><td colspan="4" style="color:#a1a1aa;text-align:center">No activity yet</td></tr>';
   }catch(e){console.error('Admin load error:',e)}
 }
