@@ -1,0 +1,557 @@
+{
+  "_area": "fulfillment",
+  "_spec_commit": "806a5b74d3a5a918206844ea980450233b38664e",
+  "area": "fulfillment",
+  "rows": [
+    {
+      "id": "FUL-001",
+      "requirement": "Fulfillment is an extension (dev.ucp.shopping.fulfillment) that adds a fulfillment field to Checkout",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/fulfillment.md#L26",
+      "quote": "This extension adds a `fulfillment` field to Checkout containing:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Extension dev.ucp.shopping.fulfillment extends checkout (source/schemas/shopping/fulfillment.json#L24-44 wires fulfillment into the checkout via allOf). Descriptive shape statement, not a numbered normative keyword. Doc 'Version:' header says 2026-01-11 though the pinned tree is 2026-01-23."
+    },
+    {
+      "id": "FUL-002",
+      "requirement": "fulfillment.methods[] holds fulfillment methods for cart items",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment.json#L9",
+      "quote": "\"methods\": {\n      \"type\": \"array\",\n      \"description\": \"Fulfillment methods for cart items.\",",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema shape only; methods is not marked required in types/fulfillment.json. No RFC2119 keyword in spec prose for presence."
+    },
+    {
+      "id": "FUL-003",
+      "requirement": "A fulfillment_method MUST include id, type, and line_item_ids",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7",
+      "quote": "\"required\": [\"id\", \"type\", \"line_item_ids\"],",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-derived MUST (JSON Schema required). type enum is shipping|pickup. ucp_request makes id omit-on-create / required-on-update."
+    },
+    {
+      "id": "FUL-004",
+      "requirement": "fulfillment_method.type MUST be one of shipping or pickup",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L17",
+      "quote": "\"enum\": [\"shipping\", \"pickup\"],",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Extensions adding method types MUST extend this enum (fulfillment.md#L339-345)."
+    },
+    {
+      "id": "FUL-005",
+      "requirement": "fulfillment_method.destinations[] lists addresses (shipping) or retail locations (pickup); selected_destination_id references the chosen one",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L27",
+      "quote": "\"destinations\": {\n      \"type\": \"array\",\n      \"description\": \"Available destinations. For shipping: addresses. For pickup: retail locations.\",",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "selected_destination_id is type [string,null] (fulfillment_method.json#L32-34). The full address-resolution matrix (destination injection by customer identity, multiple-address selection) is exercised by fulfillment_test.py: FulfillmentTest.test_unknown_customer_no_address, test_known_customer_no_address, test_known_customer_one_address, test_known_customer_multiple_addresses_selection, test_known_customer_new_address. Schema does not require destinations; this prose is absent from the 01-23 doc so the test is the only oracle."
+    },
+    {
+      "id": "FUL-006",
+      "requirement": "fulfillment_method.groups[] are merchant-generated packages; agent sets selected_option_id on groups to choose shipping method",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L36",
+      "quote": "\"description\": \"Fulfillment groups for selecting options. Agent sets selected_option_id on groups to choose shipping method.\",",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Option generation and selection updating totals exercised by fulfillment_test.py: FulfillmentTest.test_fulfillment_flow and FulfillmentTest.test_dynamic_fulfillment."
+    },
+    {
+      "id": "FUL-007",
+      "requirement": "A fulfillment_group MUST include id and line_item_ids",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_group.json#L7",
+      "quote": "\"required\": [\"id\", \"line_item_ids\"],",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-derived MUST. group.options[] and selected_option_id carry the selectable choices; selected_option_id is [string,null]."
+    },
+    {
+      "id": "FUL-008",
+      "requirement": "A fulfillment_option MUST include id, title, and totals",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_option.json#L8",
+      "quote": "\"required\": [\"id\", \"title\", \"totals\"],",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "FIELD-NAME DIVERGENCE: schema requires 'totals' (array of total objects), while the spec Rendering table/prose call the field 'total' (price in minor units). See FUL-017. option id+totals asserted by fulfillment_test.py.test_fulfillment_flow (reads options[0]['id'] and options[0]['totals'])."
+    },
+    {
+      "id": "FUL-009",
+      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L170",
+      "quote": "| `groups[].options[]`  | `title`       | Yes      | Primary label that distinguishes from siblings          |",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Required in Rendering table; reinforced as a business MUST at L179. Content correctness (distinguishes siblings) is not schema-enforced, only presence is."
+    },
+    {
+      "id": "FUL-010",
+      "requirement": "options[].title MUST distinguish this option from its siblings",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L179",
+      "quote": "* **MUST** distinguish this option from its siblings",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Semantic content requirement; not machine-checkable from schema."
+    },
+    {
+      "id": "FUL-011",
+      "requirement": "options[].title SHOULD include method and speed",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L180",
+      "quote": "* **SHOULD** include method and speed (e.g., \"Express Shipping\", \"Curbside Pickup\")",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-012",
+      "requirement": "options[].title MUST be sufficient for buyer decision if description is absent",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L181",
+      "quote": "* **MUST** be sufficient for buyer decision if `description` is absent",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-013",
+      "requirement": "options[].description MUST NOT repeat title or total; provides supplementary context only",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/fulfillment.md#L185",
+      "quote": "* **MUST NOT** repeat `title` or `total`—provides supplementary context only",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "description is optional in schema (not in fulfillment_option required[]); no-repeat semantic constraint not schema-enforceable."
+    },
+    {
+      "id": "FUL-014",
+      "requirement": "options[].description SHOULD include timing, carrier, or other decision-relevant details",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L186",
+      "quote": "* **SHOULD** include timing, carrier, or other decision-relevant details",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-015",
+      "requirement": "options[].description SHOULD be a complete phrase",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L187",
+      "quote": "* **SHOULD** be a complete phrase (e.g., \"Arrives Dec 12-15 via FedEx\")",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-016",
+      "requirement": "options[].description MAY be omitted if title is self-explanatory",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/fulfillment.md#L188",
+      "quote": "* **MAY** be omitted if title is self-explanatory",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Consistent with description not being in fulfillment_option required[]."
+    },
+    {
+      "id": "FUL-017",
+      "requirement": "options[].total is the required price in minor units and may be null if not yet available",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L172",
+      "quote": "| `groups[].options[]`  | `total`       | Yes      | Price in minor units (may be null if not yet available) |",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "FIELD-NAME DIVERGENCE: schema names this 'totals' (array, required); spec Rendering prose names it 'total' (scalar minor-units, may be null). Schema enforces presence of 'totals', not the nullability described here."
+    },
+    {
+      "id": "FUL-018",
+      "requirement": "available_methods[].description MUST be a standalone sentence explaining what, when, and where",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L192",
+      "quote": "* **MUST** be a standalone sentence explaining what, when, and where",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "available_methods is omit-on-request; description optional in fulfillment_available_method.json. Semantic, not schema-enforced."
+    },
+    {
+      "id": "FUL-019",
+      "requirement": "available_methods[].description SHOULD be usable verbatim in platform dialogue",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L193",
+      "quote": "* **SHOULD** be usable verbatim in platform dialogue (e.g., \"Pants available\n    for pickup at Downtown Store today at 2pm\")",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-020",
+      "requirement": "Businesses SHOULD return options[] in a meaningful (business) order",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L198",
+      "quote": "* Businesses **SHOULD** return `options[]` in a meaningful order (e.g., cheapest\n    first, fastest first)",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-021",
+      "requirement": "Platforms SHOULD render options in the provided order",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L200",
+      "quote": "* Platforms **SHOULD** render options in the provided order",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform-side rendering; not observable from a business/server response."
+    },
+    {
+      "id": "FUL-022",
+      "requirement": "Platforms SHOULD treat fulfillment as a generic, renderable structure (render each option using title, description, total; present options in provided order; present all methods returned; use available_methods[].description to surface alternatives)",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L204",
+      "quote": "Platforms **SHOULD** treat fulfillment as a generic, renderable structure:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Bulleted sub-requirements at L205-209 include 'Present all methods returned—method selection is a buyer decision'. Platform-side render behavior."
+    },
+    {
+      "id": "FUL-023",
+      "requirement": "Platforms MAY provide enhanced UX for recognized method types; baseline contract is title + description + total is sufficient to render any option",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/fulfillment.md#L211",
+      "quote": "Platforms **MAY** provide enhanced UX for recognized method types (store\nselectors\nfor pickup, carrier logos for shipping), but this is optional. The baseline\ncontract is: **`title` + `description` + `total` is sufficient to render any\noption.**",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-024",
+      "requirement": "When a buyer selects an option the platform cannot fully process, the platform SHOULD use continue_url to hand off to the business's checkout",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L217",
+      "quote": "When a buyer selects an option the platform cannot fully process, the\nplatform **SHOULD** use `continue_url` to hand off to the business's checkout.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform-side handoff behavior."
+    },
+    {
+      "id": "FUL-025",
+      "requirement": "If the buyer chooses pickup but the platform does not support split fulfillment, the platform SHOULD use continue_url to hand off to the business's checkout",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/fulfillment.md#L266",
+      "quote": "If the buyer chooses pickup but the platform doesn't support split\nfulfillment, the platform **SHOULD** use `continue_url` to hand off to the\nbusiness's checkout.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Specific instance of the un-processable-selection handoff (cf. FUL-024)."
+    },
+    {
+      "id": "FUL-026",
+      "requirement": "When supports_multi_group is false (default), the business MUST consolidate all items into a single group per method",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L326",
+      "quote": "* Business **MUST** consolidate all items into a **single group per method**",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Conditional on platform profile config; response still uses methods[].groups[] with groups.length === 1. Not enforced by JSON Schema (no maxItems)."
+    },
+    {
+      "id": "FUL-027",
+      "requirement": "When supports_multi_group is false, the business MAY still return multiple methods (e.g., shipping + pickup) if cart items require it",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/fulfillment.md#L328",
+      "quote": "* Business **MAY** still return multiple methods (e.g., shipping + pickup) if\n    cart items require it",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-028",
+      "requirement": "When supports_multi_group is true, the business MAY return multiple groups per method based on inventory, packaging, or warehouse logic",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/fulfillment.md#L332",
+      "quote": "* Business **MAY** return multiple groups per method based on inventory,\n    packaging, or warehouse logic",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": ""
+    },
+    {
+      "id": "FUL-029",
+      "requirement": "Extensions that add new fulfillment method types MUST add an extension schema that adds the method to the fulfillment_method type enum and adds corresponding business config options",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/fulfillment.md#L339",
+      "quote": "Extensions that extend fulfillment with new method types (e.g.,\n`local_delivery`) **MUST** add an extension schema that:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Meta-requirement on extension authors, not on a request/response payload."
+    },
+    {
+      "id": "FUL-030",
+      "requirement": "A shipping_destination MUST include an id (it is a postal_address plus a required id)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/shipping_destination.json#L21",
+      "quote": "\"required\": [\n        \"id\"\n      ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "shipping_destination = allOf(postal_address, {id required}). fulfillment_destination is oneOf(shipping_destination, retail_location). Address ID assignment for new addresses and reuse of existing IDs exercised by fulfillment_test.py: FulfillmentTest.test_new_user_new_address_persistence and FulfillmentTest.test_known_user_existing_address_reuse."
+    }
+  ],
+  "notes": [
+    "PROMPT-vs-SPEC DISCREPANCY (address resolution): fulfillment.md at the pinned 2026-01-23 tree contains NO prose describing the address-resolution behaviors. A grep for 'customer|saved|persist|reuse|resolve|inject' over docs/specification/fulfillment.md returns nothing (exit 1). Those behaviors exist ONLY in the conformance reference test conformance/.vendor/conformance/fulfillment_test.py: test_unknown_customer_no_address, test_known_customer_no_address, test_known_customer_one_address, test_known_customer_multiple_addresses_selection, test_known_customer_new_address, test_new_user_new_address_persistence, test_known_user_existing_address_reuse. Since they are not stated as normative MUST/SHOULD prose in any readable file, no register row quotes them verbatim; they are surfaced via FUL-005 and FUL-030 (official_oracle:true), the schema anchors the tests actually exercise.",
+    "FIELD-NAME DIVERGENCE (total vs totals): The Rendering section table and prose (fulfillment.md L168-188) refer to an option field named 'total' (scalar, price in minor units, may be null). The actual schema (types/fulfillment_option.json) has NO 'total' field; it requires 'totals' — an array of total.json objects with {type, amount} in minor units. Every JSON example in fulfillment.md uses 'totals' arrays. Rows FUL-008 and FUL-017 flag this; schema_enforced refers to presence of 'totals', not to the 'total may be null' nullability described in prose.",
+    "OFFICIAL ORACLE: conformance/.vendor/conformance/fulfillment_test.py asserts behaviors against a reference UCP SDK server (POST /checkout-sessions, PUT /checkout-sessions/{id}). It directly exercises: option generation + selection updating totals (test_fulfillment_flow), dynamic options by destination country US vs CA (test_dynamic_fulfillment), free-shipping logic (test_free_shipping_on_expensive_order, test_free_shipping_for_specific_item), and the FULL address-resolution matrix (unknown customer / known-no-address / known-one-address / known-multiple-with-selection / known-new-address / new-user-persistence / existing-address-reuse). It does NOT test the title/description/ordering/rendering/continue_url prose. Accordingly official_oracle:true is set only on the destination/selection and shipping_destination.id rows (FUL-005, FUL-006, FUL-008, FUL-030); all prose semantic/rendering rows are official_oracle:false.",
+    "EXTENSION RELATIONSHIP: fulfillment is the capability 'dev.ucp.shopping.fulfillment' (source/schemas/shopping/fulfillment.json#L4, #L46). It extends checkout: fulfillment.json#L24-44 defines the checkout $def as allOf(checkout.json, {properties.fulfillment}). The fulfillment field is ucp_request optional on create/update and omit on complete (fulfillment.json#L35-39).",
+    "SCHEMA ENFORCEMENT: Rows derived purely from JSON Schema 'required'/'enum' (FUL-003, FUL-004, FUL-007, FUL-008, FUL-030) are schema_enforced:true and testable via validation. Most prose business/platform responsibilities (titles distinguishing siblings, no-repeat description, ordering, standalone-sentence, continue_url handoff) are semantic and cannot be schema-validated -> schema_enforced:false, testability:manual.",
+    "EMBEDDED-COMMERCE NOTE: source/schemas/shopping/fulfillment.json also declares embedded delegations ('fulfillment.address_change') and methods ec.fulfillment.change and ec.fulfillment.address_change_request (#L79-132) for the embedded/host transport. These were not expanded into rows because the prompt scopes transport to ['rest']; flagged here for completeness.",
+    "VERSION HEADER NOTE: The doc 'Version:' header (fulfillment.md#L19) and the schema 'version' fields read '2026-01-11', although the pinned tree is the 2026-01-23 vendored directory (spec commit dcf7eac7). All rows are tagged versions=['2026-01-23'] per the directory/commit pin.",
+    "VERSIONS/TRANSPORT: All rows tagged versions=['2026-01-23'], transport=['rest'], browser_capable=true per instructions. Schema source paths are cited under source/schemas/ (the schemas resolve under source/)."
+  ]
+}

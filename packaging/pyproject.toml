@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spck-conformance"
+version = "0.1.0"
+description = "Unofficial, capability-adaptive conformance runner for the Universal Commerce Protocol (UCP)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "spck.dev"}]
+keywords = ["ucp", "universal-commerce-protocol", "conformance", "agentic-commerce"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+# stdlib only at runtime — no third-party dependencies.
+
+[project.urls]
+Homepage = "https://spck.dev"
+Source = "https://github.com/vishkaty/ucp-conformance"
+
+[project.scripts]
+spck-conformance = "spck_conformance.cli:main"
+
+[tool.setuptools]
+packages = ["spck_conformance"]
+
+[tool.setuptools.package-data]
+spck_conformance = [
+  "_bundle/conformance/checks/*.py",
+  "_bundle/conformance/selfcheck/*.py",
+  "_bundle/conformance/requirements/*/*.json",
+]

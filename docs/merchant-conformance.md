@@ -1,0 +1,110 @@
+# Merchant conformance runner (unofficial)
+
+Point this at **any** UCP server and get an honest, capability-scoped conformance
+report. It is not a certification and not affiliated with the official UCP project —
+it reports only the checks it actually runs.
+
+```bash
+python3 conformance/checks/merchant.py --server https://api.example.com \
+    [--config merchant.json] [--json] [--junit report.xml]
+```
+
+**Friendly onboarding.** `--init [FILE]` probes the server and scaffolds a `--config`
+tailored to its declared capabilities (auto-discovering a product where possible, with
+`FILL_ME` placeholders for the rest). The report footer's **Next steps** tells you which
+config keys unlock the remaining `not-tested` checks.
+
+**Actionable failures.** On a deviation the report shows **expected** (the normative
+requirement + spec source) vs **observed** (your server's actual HTTP status + body
+excerpt) — enough to fix it directly.
+
+**CI-friendly output.** `--json` emits the full report (each check carries its
+`requirements` and the `observed` evidence). `--junit FILE` writes a JUnit XML report
+any CI can display as a test run (deviation → `<failure>` with evidence,
+not-applicable/not-tested → `<skipped>`). Exit code is **2** if any MUST deviates, else
+**0** (partial coverage is not a failure). A ready-made **GitHub Action**
+(`uses: vishkaty/ucp-conformance@main`) wraps all of this for drop-in CI.
+
+## How it decides what to test
+
+1. **Discovery.** It fetches `/.well-known/ucp` and reads the server's declared spec
+   version and capabilities.
+2. **Core checks** (discovery structure, `UCP-Agent` enforcement, idempotency,
+   validation) run on **every** server — no seeded data required.
+3. **Extension checks** (fulfillment, order, discount, …) run **only if the server
+   declares that capability**. Otherwise they are `not-applicable` and are excluded
+   from the score — a lean-but-correct merchant is not punished for features it
+   doesn't implement.
+4. **Data-dependent checks** (completing a real payment, out-of-stock, failing
+   payment) need concrete inputs only the merchant knows. Supply them via `--config`;
+   without them those checks are `not-tested`, never a silent pass.
+
+The verdict denominator is the set of **applicable, testable MUSTs** for the server's
+spec version, so the coverage percentage is honest for that specific server.
+
+## Verdict semantics
+
+| status | meaning |
+|---|---|
+| `clean-pass` | requirement observed satisfied **and** the check is kill-safe (proven to catch its own defects) |
+| `deviation` | a MUST was violated |
+| `not-applicable` | the server does not declare the capability this check needs |
+| `not-tested` | the check needs `--config` data (or a product) that wasn't provided |
+
+The aggregate is **never green** unless every applicable MUST is a kill-safe pass or an
+explicit `not-tested`/`not-applicable`. Partial coverage yields `INCOMPLETE`, not a
+false ✓.
+
+## Every check is proven sound before it can grade you
+
+A check that quietly always-passes, or that flags a defect that isn't real, is worse
+than no check. So each merchant check must pass a **reference gate** first: run against
+the known-good reference server, it has to both clean-pass **and** be kill-safe (catch
+every one of its injected mutations). Run it yourself:
+
+```bash
+python3 conformance/selfcheck/validate_merchant_checks.py --server http://localhost:8182
+```
+
+If any check deviates on the known-good server it's a false-deviation generator; if any
+mutation survives it can false-pass. Either fails the gate before it ships.
+
+## The `--config` file
+
+Everything is optional; provide only what applies to your server. See
+[`conformance/merchant.config.example.json`](../conformance/merchant.config.example.json)
+for a complete, working example (it is the reference server's own config, and is what
+the reference gate uses).
+
+| key | type | unlocks |
+|---|---|---|
+| `product_id` | string | a real, in-stock product id → lifecycle checks (create, GET, idempotency, fulfillment). Auto-discovered if the server supports `catalog.search`. |
+| `currency` | string | currency for created sessions (default `USD`). |
+| `payment_handlers` | array | payment-handler descriptors echoed on create. |
+| `fulfillment_option_id` | string | a valid fulfillment option id so a session can reach `ready_for_complete`. |
+| `complete_payment` | object | a payment body that **succeeds** → `checkout.complete_order`, `payment.no_credential_echo`. |
+| `fail_payment` | object | a payment body with a **known-failing** token → `validation.payment_failure` (expects 402). |
+| `out_of_stock_id` | string | a product id known to be out of stock → `validation.out_of_stock` (expects 4xx). |
+| `discount` | object | `{valid_code, invalid_code}` → discount checks (`single_applied`, `accept_one_reject_one`, `unknown_code_rejected`). Requires the `dev.ucp.shopping.discount` capability. |
+
+`complete_payment` / `fail_payment` follow the UCP complete-checkout body shape:
+
+```json
+{ "payment": { "instruments": [ { "credential": { "type": "token", "token": "…" }, "…": "…" } ] }, "risk_signals": {} }
+```
+
+## What's covered today
+
+37 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
+whole `/.well-known/ucp` document validated against the official `ucp.json` via the
+`ucp-schema` oracle — catches any structural deviation in one shot), checkout
+lifecycle, idempotency, validation, fulfillment, order completion, payment-credential
+handling, discounts, **catalog** (search/lookup/empty/by-variant), **cart**, and **totals invariants** — every one proven sound
+against a golden that declares the relevant capability (the official Flower Shop, or
+our own controlled 2026-04-08 fixture for catalog). The
+profile-schema check is skipped (`not-tested`) when the `ucp-schema` binary isn't
+built. Coverage is reported honestly as a fraction of the applicable MUSTs; it is
+**not** full spec coverage, and the report says so.
+
+> Unofficial, independent project. Not affiliated with, endorsed by, or a substitute
+> for the official UCP conformance suite.

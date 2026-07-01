@@ -1,0 +1,19 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "status": "error",
+    "capabilities": {
+      "dev.ucp.shopping.error": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/types/error_response.json" }
+      ]
+    }
+  },
+  "messages": [
+    {
+      "type": "error",
+      "code": "out_of_stock",
+      "content": "The requested item is out of stock.",
+      "severity": "catastrophic"
+    }
+  ]
+}

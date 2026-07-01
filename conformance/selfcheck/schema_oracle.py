@@ -35,9 +35,10 @@ class OracleUnavailable(RuntimeError):
 
 def _run(args):
     if not BIN.exists():
+        # parents[2] may not exist for an unusual BIN path; don't let the message crash.
+        hint = str(BIN.parents[2]) if len(BIN.parents) > 2 else str(BIN.parent)
         raise OracleUnavailable(
-            f"ucp-schema binary not built at {BIN}. Run: "
-            f"cd {BIN.parents[2]} && cargo build --release")
+            f"ucp-schema binary not built at {BIN}. Run: cd {hint} && cargo build --release")
     return subprocess.run([str(BIN), *args], capture_output=True, text=True)
 
 def validate(payload_path, op, *, request=False, response=False,
@@ -60,6 +61,51 @@ def validate(payload_path, op, *, request=False, response=False,
         args.append("--strict")
     r = _run(args)
     return (r.returncode == 0, (r.stdout + r.stderr).strip())
+
+def _ucp_schema_path(base):
+    """Locate ucp.json (the profile schema) under a schema base dir."""
+    for cand in (base / "schemas" / "ucp.json", base / "source" / "schemas" / "ucp.json"):
+        if cand.exists():
+            return cand
+    return None
+
+def validate_profile(profile, version="2026-01-23", role="business"):
+    """Validate a discovered /.well-known/ucp document against the official profile
+    schema (ucp.json, $def {role}_schema) using the ucp-schema validator.
+      role="business" for a merchant profile, "platform" for an agent profile.
+    Returns (ok: bool, detail: str). Raises OracleUnavailable if the binary or the
+    version's schema base isn't present (caller -> inconclusive / not-tested)."""
+    import tempfile, os
+    base = SCHEMA_BASE.get(version)
+    schema = _ucp_schema_path(base) if base else None
+    if not base or not schema:
+        raise OracleUnavailable(f"no ucp.json profile schema for {version} under {base}")
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(path).write_text(json.dumps(profile))
+        r = _run(["validate", path, "--schema", str(schema), "--def", f"{role}_schema",
+                  "--op", "read", "--schema-local-base", str(base)])
+        return (r.returncode == 0, (r.stdout + r.stderr).strip())
+    finally:
+        os.unlink(path)
+
+def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-08"):
+    """Validate a payload object against an explicit schema file + $def under a version's
+    schema base. schema_rel is relative to <base> (e.g. 'schemas/shopping/catalog_search.json').
+    Returns (ok, detail); raises OracleUnavailable if the binary/base is absent."""
+    import tempfile, os
+    base = SCHEMA_BASE.get(version)
+    schema = (base / schema_rel) if base else None
+    if not base or not schema or not schema.exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(path).write_text(json.dumps(payload))
+        r = _run(["validate", path, "--schema", str(schema), "--def", def_name,
+                  "--op", op, "--schema-local-base", str(base)])
+        return (r.returncode == 0, (r.stdout + r.stderr).strip())
+    finally:
+        os.unlink(path)
 
 def schema_parity(version="2026-04-08"):
     """Prove our oracle wiring is faithful: run the validator over our OWN controlled,

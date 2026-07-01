@@ -1,0 +1,51 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/checkout.json" }
+      ],
+      "dev.ucp.shopping.buyer_consent": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/buyer_consent.json", "extends": "dev.ucp.shopping.checkout" }
+      ]
+    },
+    "payment_handlers": {
+      "dev.ucp.payments.card": [
+        { "version": "2026-04-08", "id": "handler_card_1" }
+      ]
+    }
+  },
+  "id": "checkout_consent123",
+  "status": "ready_for_complete",
+  "currency": "USD",
+  "buyer": {
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "email": "ada@example.com",
+    "consent": {
+      "analytics": true,
+      "preferences": true,
+      "marketing": false,
+      "sale_of_data": false
+    }
+  },
+  "line_items": [
+    {
+      "id": "li_1",
+      "item": { "id": "sku_1", "title": "Widget", "price": 1000 },
+      "quantity": 2,
+      "totals": [
+        { "type": "subtotal", "display_text": "Subtotal", "amount": 2000 }
+      ]
+    }
+  ],
+  "totals": [
+    { "type": "subtotal", "display_text": "Subtotal", "amount": 2000 },
+    { "type": "tax", "display_text": "Tax", "amount": 160 },
+    { "type": "total", "display_text": "Total", "amount": 2160 }
+  ],
+  "links": [
+    { "type": "terms_of_service", "url": "https://merchant.example/tos" },
+    { "type": "privacy_policy", "url": "https://merchant.example/privacy" }
+  ]
+}

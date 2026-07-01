@@ -21,3 +21,18 @@ and is counted in the summary. Flags never flip an aggregate verdict by themselv
 but a check that depends on an ambiguous interpretation can only be `clean-pass`
 when it matches the **spec-authoritative** reading; any other reading is `advisory`
 or `deviation` per the table above.
+
+## DSC-003 — case-insensitive discount codes (reference server does NOT satisfy)
+The spec (2026-01-23 DSC-003) says discount codes MUST be matched case-insensitively.
+The Flower Shop reference server rejects a lowercased form of a valid code (e.g. `10off`
+for seeded `10OFF`), so it does not implement DSC-003. A check for this deviates on the
+known-good server and therefore cannot be reference-gated against it; deferred until a
+golden that implements case-insensitive matching is available. Discovered 2026-07-01.
+
+## ERR-001 — error message envelope (reference server uses a different shape)
+Spec 2026-01-23 ERR-001 says an error message MUST include type, code, content, and
+severity. The Flower Shop reference server instead returns `{"detail": "...", "code":
+"..."}` on a 400 (e.g. out-of-stock). So it satisfies VAL-006 (populated `detail`) but
+NOT the ERR-001 four-field envelope. A strict ERR-001 check would deviate on the
+known-good server, so it's not reference-gateable against Flower Shop; deferred.
+Discovered 2026-07-01.
