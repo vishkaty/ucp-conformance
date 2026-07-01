@@ -1,0 +1,6 @@
+[
+  {"file": "catalog_search.valid.json",   "op": "search", "direction": "response", "expect": "valid",
+   "note": "minimal well-formed catalog search response (empty products[]) with capability schema URL"},
+  {"file": "catalog_search.invalid.json", "op": "search", "direction": "response", "expect": "invalid",
+   "note": "product missing required title/description/price_range/variants -> must be rejected"}
+]

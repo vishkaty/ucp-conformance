@@ -1,0 +1,11 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.catalog.search": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/catalog_search.json" }
+      ]
+    }
+  },
+  "products": [ { "id": "p1" } ]
+}
