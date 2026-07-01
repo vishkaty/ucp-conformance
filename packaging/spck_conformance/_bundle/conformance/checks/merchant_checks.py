@@ -107,6 +107,52 @@ def complete_resp(ctx):
     return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
                  ctx.config.get("complete_payment"), _hdr())
 
+def p_checkout_fields(r):
+    """CHK-014: checkout response MUST include ucp, id, line_items, currency, status."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    return CLEAN if all(j.get(k) is not None
+                        for k in ("ucp", "id", "line_items", "currency", "status")) else DEVIATION
+
+def update_resp(ctx):
+    """CHK-003: update a session via PUT -> 200 with a valid checkout back."""
+    c = (create_resp(ctx).json or {})
+    cid = c.get("id"); li = (c.get("line_items") or [{}])[0]
+    body = {"id": cid, "currency": c.get("currency", "USD"),
+            "line_items": [{"id": li.get("id"),
+                            "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 3}],
+            "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])}}
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
+
+def p_update_ok(r):
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if r.json.get("id") and r.json.get("status") in STATUS_ENUM else DEVIATION
+
+def disc_empty_clears_resp(ctx):
+    """DSC-002: an empty codes array clears previously-applied codes (same session)."""
+    c = (create_resp(ctx).json or {})
+    cid = c.get("id"); li = (c.get("line_items") or [{}])[0]
+    def body(codes):
+        return {"id": cid, "currency": c.get("currency", "USD"),
+                "line_items": [{"id": li.get("id"),
+                                "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 1}],
+                "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])},
+                "discounts": {"codes": codes}}
+    fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body([_dvalid(ctx)]), _hdr())
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body([]), _hdr())
+
+def p_disc_cleared(r):
+    # require a valid checkout body (distinguishes "cleared" from a corrupt/error response)
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    if not (r.json.get("id") and r.json.get("status")):
+        return DEVIATION
+    d = _discounts(r)
+    ap = d.get("applied") if isinstance(d, dict) else None
+    return CLEAN if not ap else DEVIATION           # cleared -> nothing applied
+
 def cancel_resp(ctx):
     """Create then cancel -> status MUST be 'canceled'."""
     cid = (create_resp(ctx).json or {}).get("id")
@@ -449,6 +495,12 @@ CHECKS = [
     MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
            ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("checkout.response_fields", ["CHK-014"], "MUST", create_resp, p_checkout_fields,
+           ["status:500", "drop:ucp", "drop:line_items", "drop:currency", "empty", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("checkout.update", ["CHK-003"], "MUST", update_resp, p_update_ok,
+           ["status:500", "drop:id", "drop:status", "empty", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
@@ -542,6 +594,14 @@ CHECKS = [
            ["set:totals.0.amount=-1", "set:totals=[{\"type\":\"tax\",\"amount\":-5}]",
             "corrupt-json"],
            capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+    # NOTE: DSC-003 (case-insensitive discount codes) is NOT reference-gateable — the
+    # Flower Shop golden rejects a lowercased code, so it doesn't satisfy that MUST. A
+    # check for it would deviate on the known-good server, so it's deferred until a
+    # golden that implements case-insensitive matching is available. (see AMBIGUITIES)
+    MCheck("discount.empty_clears", ["DSC-002"], "MUST", disc_empty_clears_resp, p_disc_cleared,
+           ["status:500", "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",
