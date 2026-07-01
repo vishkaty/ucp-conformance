@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCP Conformance Check (unofficial)</title>
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --fg:#e6e8ee; --mut:#9aa3b2; --ok:#3fb950; --bad:#f85149; --acc:#58a6ff; --line:#2b2f3a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:780px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--mut); margin:0 0 24px; font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; margin:16px 0; }
+  label { display:block; font-size:13px; color:var(--mut); margin-bottom:6px; }
+  input[type=text] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:#0d1017; color:var(--fg); font-size:15px; }
+  button { margin-top:12px; padding:10px 18px; border:0; border-radius:8px; background:var(--acc); color:#04101f; font-weight:600; cursor:pointer; font-size:15px; }
+  button:disabled { opacity:.6; cursor:default; }
+  .meta { color:var(--mut); font-size:13px; margin:8px 0 0; }
+  .chk { display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
+  .chk:first-child { border-top:0; }
+  .badge { flex:0 0 auto; font-weight:700; }
+  .pass { color:var(--ok); } .dev { color:var(--bad); }
+  .cid { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+  .req { color:var(--mut); font-size:13px; }
+  .obs { color:var(--bad); font-size:13px; font-family:ui-monospace,Menlo,monospace; word-break:break-word; }
+  pre { background:#0d1017; border:1px solid var(--line); border-radius:8px; padding:12px; overflow:auto; font-size:13px; }
+  code { font-family:ui-monospace,Menlo,monospace; }
+  .note { font-size:12px; color:var(--mut); }
+  a { color:var(--acc); }
+  .verdict { font-size:16px; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>UCP Conformance Check <span class="note">(unofficial)</span></h1>
+  <p class="sub">Independent tool. Not affiliated with, endorsed by, or a substitute for the official UCP conformance suite.</p>
+
+  <div class="card">
+    <label for="server">Merchant server URL</label>
+    <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
+    <button id="run">Check discovery + profile</button>
+    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks. This is a preview — the full 37 kill-rate-validated checks run in the CLI.</p>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="card">
+    <div class="verdict">Run the full suite</div>
+    <p class="note">37 checks across checkout, order, discount, catalog, cart, totals — each proven to catch its own defects, each citing a spec clause.</p>
+    <pre><code># one-off
+pip install "git+https://github.com/vishkaty/ucp-conformance.git#subdirectory=packaging"
+spck-conformance --server https://store.example.com --init merchant.json
+spck-conformance --server https://store.example.com --config merchant.json
+
+# in CI (GitHub Action)
+- uses: vishkaty/ucp-conformance@main
+  with: { server: https://store.example.com }</code></pre>
+    <p class="note"><a href="https://github.com/vishkaty/ucp-conformance">Source &amp; methodology →</a></p>
+  </div>
+</div>
+
+<script>
+// XSS-safe rendering: build DOM with textContent only; never innerHTML untrusted data.
+const $ = (id) => document.getElementById(id);
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+async function run() {
+  const server = $("server").value.trim();
+  const out = $("out"); out.textContent = "";
+  if (!server) return;
+  $("run").disabled = true;
+  const card = el("div", "card"); card.appendChild(el("p", "meta", "Checking " + server + " …")); out.appendChild(card);
+  try {
+    const r = await fetch("/api/conformance?server=" + encodeURIComponent(server));
+    const d = await r.json();
+    card.textContent = "";
+    if (d.error) { card.appendChild(el("p", "obs", "Error: " + d.error)); return; }
+    const s = d.summary || { passed: 0, deviations: 0, total: 0 };
+    const v = el("div", "verdict", d.deviations > 0 || s.deviations > 0
+      ? (s.deviations + " deviation(s) in the profile") : "Profile structure looks conformant");
+    v.classList.add(s.deviations ? "dev" : "pass");
+    card.appendChild(v);
+    card.appendChild(el("p", "meta",
+      "server " + d.server + " · version " + (d.version || "(none)") +
+      " · transports [" + (d.transports || []).join(", ") + "] · capabilities " + (d.capabilities || []).length));
+    for (const c of (d.checks || [])) {
+      const row = el("div", "chk");
+      const b = el("span", "badge " + (c.status === "pass" ? "pass" : "dev"), c.status === "pass" ? "✓" : "✗");
+      row.appendChild(b);
+      const body = el("div");
+      body.appendChild(el("div", "cid", c.id));
+      body.appendChild(el("div", "req", c.requirement));
+      if (c.status === "deviation") body.appendChild(el("div", "obs", "observed: " + c.observed));
+      row.appendChild(body);
+      card.appendChild(row);
+    }
+    if (d.disclaimer) card.appendChild(el("p", "note", d.disclaimer));
+  } catch (e) {
+    card.textContent = ""; card.appendChild(el("p", "obs", "Request failed: " + e));
+  } finally {
+    $("run").disabled = false;
+  }
+}
+$("run").addEventListener("click", run);
+$("server").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+</script>
+</body>
+</html>
