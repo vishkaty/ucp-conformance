@@ -8,5 +8,11 @@
   {"file": "error_response.valid.json",   "op": "read", "direction": "response", "expect": "valid",
    "note": "valid error response: ucp status=error + non-empty messages[] with a well-formed error message. capabilities.schema points at error_response.json (a non-container leaf schema) so op/direction resolution returns it as-is"},
   {"file": "error_response.invalid.json", "op": "read", "direction": "response", "expect": "invalid",
-   "note": "error message severity 'catastrophic' outside the recoverable|requires_buyer_input|requires_buyer_review|unrecoverable enum -> must be rejected"}
+   "note": "error message severity 'catastrophic' outside the recoverable|requires_buyer_input|requires_buyer_review|unrecoverable enum -> must be rejected"},
+  {"file": "discount_response.valid.json", "op": "read", "direction": "response", "expect": "valid",
+   "note": "checkout read response declaring the discount EXTENSION (extends dev.ucp.shopping.checkout) with a discounts.applied entry (title/amount/method/priority/allocations) + negative items_discount totals; oracle composes discount $defs onto checkout"},
+  {"file": "buyer_consent_response.valid.json", "op": "read", "direction": "response", "expect": "valid",
+   "note": "checkout read response declaring the buyer_consent EXTENSION (extends dev.ucp.shopping.checkout) with buyer.consent boolean states; oracle composes buyer-with-consent $defs onto checkout"},
+  {"file": "fulfillment_response.valid.json", "op": "read", "direction": "response", "expect": "valid",
+   "note": "checkout read response declaring the fulfillment EXTENSION (dev.ucp.shopping.fulfillment extends dev.ucp.shopping.checkout) with one shipping method (id/type/line_item_ids) carrying a destination(id), a group(id/line_item_ids), and an option(id/title/totals); oracle composes the fulfillment field onto checkout"}
 ]

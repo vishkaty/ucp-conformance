@@ -1,0 +1,34 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.catalog.search": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/catalog_search.json" }
+      ]
+    }
+  },
+  "products": [
+    {
+      "id": "gid://shop/Product/1",
+      "title": "Blue Runner Pro",
+      "description": { "plain": "A lightweight running shoe." },
+      "price_range": {
+        "min": { "amount": 8900, "currency": "USD" },
+        "max": { "amount": 12900, "currency": "USD" }
+      },
+      "variants": [
+        {
+          "id": "gid://shop/Variant/1",
+          "title": "Blue / Large",
+          "description": { "plain": "Blue, size large." },
+          "price": { "amount": 12900, "currency": "USD" }
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "has_next_page": true,
+    "cursor": "eyJvZmZzZXQiOjEwfQ==",
+    "total_count": 42
+  }
+}

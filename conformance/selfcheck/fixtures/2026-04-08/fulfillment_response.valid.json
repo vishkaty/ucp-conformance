@@ -1,0 +1,78 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/checkout.json" }
+      ],
+      "dev.ucp.shopping.fulfillment": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/fulfillment.json", "extends": "dev.ucp.shopping.checkout" }
+      ]
+    },
+    "payment_handlers": {
+      "dev.ucp.payments.card": [
+        { "version": "2026-04-08", "id": "handler_card_1" }
+      ]
+    }
+  },
+  "id": "checkout_abc123",
+  "status": "ready_for_complete",
+  "currency": "USD",
+  "line_items": [
+    {
+      "id": "li_1",
+      "item": { "id": "sku_1", "title": "Widget", "price": 1000 },
+      "quantity": 2,
+      "totals": [
+        { "type": "subtotal", "display_text": "Subtotal", "amount": 2000 }
+      ]
+    }
+  ],
+  "totals": [
+    { "type": "subtotal", "display_text": "Subtotal", "amount": 2000 },
+    { "type": "fulfillment", "display_text": "Shipping", "amount": 500 },
+    { "type": "tax", "display_text": "Tax", "amount": 136 },
+    { "type": "total", "display_text": "Total", "amount": 2636 }
+  ],
+  "fulfillment": {
+    "methods": [
+      {
+        "id": "fm_1",
+        "type": "shipping",
+        "line_item_ids": ["li_1"],
+        "destinations": [
+          {
+            "id": "dest_1",
+            "street_address": "1600 Amphitheatre Pkwy",
+            "address_locality": "Mountain View",
+            "address_region": "CA",
+            "address_country": "US",
+            "postal_code": "94043"
+          }
+        ],
+        "selected_destination_id": "dest_1",
+        "groups": [
+          {
+            "id": "fg_1",
+            "line_item_ids": ["li_1"],
+            "options": [
+              {
+                "id": "fo_1",
+                "title": "Standard Shipping",
+                "description": "Arrives in 5-7 business days",
+                "totals": [
+                  { "type": "fulfillment", "display_text": "Shipping", "amount": 500 }
+                ]
+              }
+            ],
+            "selected_option_id": "fo_1"
+          }
+        ]
+      }
+    ]
+  },
+  "links": [
+    { "type": "terms_of_service", "url": "https://merchant.example/tos" },
+    { "type": "privacy_policy", "url": "https://merchant.example/privacy" }
+  ]
+}
