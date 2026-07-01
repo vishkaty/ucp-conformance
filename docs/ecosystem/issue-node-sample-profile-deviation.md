@@ -1,70 +1,54 @@
 # Ready-to-file issue — Universal-Commerce-Protocol/samples
 
-**Where to file:** https://github.com/Universal-Commerce-Protocol/samples/issues/new
-**Tone:** helpful and deferential — you're contributing a fix, not dunking. Attach the
-repro so a maintainer can confirm in 30 seconds.
+**Verified** with the official `ucp-schema` validator against the sample's actual output
+(inner `ucp` object vs `business_schema`), and cross-checked against the spec's Business
+Profile Example (`ap2-mandates.md`) and what production Shopify stores serve. Only the two
+confirmed field-shape mismatches are claimed.
+
+**File at:** https://github.com/Universal-Commerce-Protocol/samples/issues/new
 
 ---
 
-**Title:** Node.js REST sample: `/.well-known/ucp` profile shape doesn't match the profile schema (`capabilities` array, `services.<name>` object)
+**Title:**
+```
+Node.js sample: /.well-known/ucp `capabilities` is an array (should be a keyed object) and `services.<name>` is an object (should be an array)
+```
 
 **Body:**
+```markdown
+The Node.js REST sample's `/.well-known/ucp` uses two field shapes that don't match
+`schemas/ucp.json`. The Python sample and production Shopify stores use the schema-correct
+shapes.
 
-Thanks for the reference implementations — they're really useful for building against UCP.
+**Observed** (current `main`, [`rest/nodejs/src/api/discovery.ts`](https://github.com/Universal-Commerce-Protocol/samples/blob/main/rest/nodejs/src/api/discovery.ts)):
 
-While testing tooling against the samples I noticed the **Node.js REST sample**
-(`rest/nodejs`) serves a discovery profile whose *shape* differs from the profile schema
-(`schemas/ucp.json`), in two places. The **Python sample** and a real production Shopify
-store both use the schema-correct shapes, so this looks specific to the Node sample.
+- `ucp.capabilities` → a JSON **array**
+- `ucp.services["dev.ucp.shopping"]` → an **object** (with a `rest` key)
 
-### Observed
+**Expected** (per `schemas/ucp.json`):
 
-`GET http://localhost:3000/.well-known/ucp` returns:
+- `capabilities` → an **object keyed by reverse-domain capability name**, each value an
+  array of entries — e.g. `{ "dev.ucp.shopping.checkout": [ { "version": "…" } ] }`
+  (see the Business Profile Example in `specification/ap2-mandates.md`).
+- `services.<name>` → an **array** of `{ transport, endpoint, … }` entries.
 
-```json
-{
-  "version": "2026-01-23",
-  "services": {
-    "dev.ucp.shopping": {                 // ← object
-      "version": "2026-01-23",
-      "spec": "...",
-      "rest": { "schema": "...", "endpoint": "http://localhost:3000" }
-    }
-  },
-  "capabilities": [                        // ← array
-    { "version": "2026-01-23", "spec": ".../shopping/checkout", "schema": "..." },
-    ...
-  ]
-}
-```
-
-### Expected (per `schemas/ucp.json`)
-
-- **`capabilities` MUST be an object** keyed by reverse-domain capability names
-  (`ucp.json` defines `capabilities` as `type: "object"` with `propertyNames`), e.g.
-  `{ "dev.ucp.shopping.checkout": [ { "version": "..." } ], ... }`.
-- **`services.<name>` MUST be an array** of `{ transport, endpoint, ... }` entries
-  (`ucp.json` defines each service value as `type: "array"` of `service.json#/$defs/base`),
-  e.g. `"dev.ucp.shopping": [ { "transport": "rest", "endpoint": "...", ... } ]`.
-
-The Python sample and Shopify (`*.myshopify.com/.well-known/ucp`) both emit the keyed
-object + array-of-services form, which validates against `ucp.json`.
-
-### Reproduce
+**Reproduce:**
 
 ```bash
-git clone https://github.com/Universal-Commerce-Protocol/samples
-cd samples/rest/nodejs && npm install && npm run dev
-curl -s http://localhost:3000/.well-known/ucp | jq '.capabilities, .services'
-# capabilities is an array; services.dev.ucp.shopping is an object
+cd rest/nodejs && npm install && npm run dev
+curl -s http://localhost:3000/.well-known/ucp | jq '.ucp.capabilities, .ucp.services'
 ```
 
-(Observed on the current `main`. Validating the profile against `schemas/ucp.json` with
-the `ucp-schema` validator reports both mismatches.)
+Validating the profile against `schemas/ucp.json` with the `ucp-schema` validator reports
+both mismatches:
+`/capabilities … is not of type "object"` and
+`/services/dev.ucp.shopping … is not of type "array"`.
 
-Happy to open a PR aligning the Node profile builder with `ucp.json` if that's welcome.
+Happy to open a PR aligning the Node profile builder with `ucp.json`.
+```
 
 ---
 
-*(Found while building spck-conformance, an unofficial conformance checker. Filing this as
-a plain, reproducible bug report — the goal is to help the samples, not to promote.)*
+*Note: the profile is nested under a top-level `ucp` key — the repro path is
+`.ucp.capabilities`, not `.capabilities`. Confirmed genuine only after validating the
+inner object with the official validator (not by eye).*
