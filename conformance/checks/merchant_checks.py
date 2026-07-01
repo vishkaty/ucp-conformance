@@ -107,6 +107,38 @@ def complete_resp(ctx):
     return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
                  ctx.config.get("complete_payment"), _hdr())
 
+def cancel_resp(ctx):
+    """Create then cancel -> status MUST be 'canceled'."""
+    cid = (create_resp(ctx).json or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/cancel", "POST", None, _hdr())
+
+def p_canceled(r):
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if r.json.get("status") == "canceled" else DEVIATION
+
+def p_fulfil_options(r):
+    """FUL-008: each fulfillment option MUST carry id, title, and totals."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    try:
+        opts = r.json["fulfillment"]["methods"][0]["groups"][0]["options"]
+    except (KeyError, IndexError, TypeError):
+        return DEVIATION
+    if not opts:
+        return DEVIATION
+    return CLEAN if all(o.get("id") and o.get("title") and ("totals" in o) for o in opts) else DEVIATION
+
+def completed_immutable_resp(ctx):
+    """Complete a checkout, then attempt to cancel it -> MUST be rejected (4xx)."""
+    cid = (_create_for_complete(ctx).json or {}).get("id")
+    fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+          ctx.config.get("complete_payment"), _hdr())
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/cancel", "POST", None, _hdr())
+
+def p_rejected_4xx(r):
+    return CLEAN if 400 <= r.status < 500 else DEVIATION
+
 def payment_fail_resp(ctx):
     """Complete with the merchant's known-failing payment -> MUST be rejected (402)."""
     cid = (_create_for_complete(ctx).json or {}).get("id")
@@ -417,6 +449,13 @@ CHECKS = [
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+    MCheck("fulfillment.option_shape", ["FUL-008"], "MUST", create_resp_ful, p_fulfil_options,
+           ["status:500", "drop:fulfillment",
+            "drop:fulfillment.methods.0.groups.0.options.0.title", "corrupt-json"],
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+    MCheck("checkout.cancel", ["CHK-005"], "MUST", cancel_resp, p_canceled,
+           ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     # --- data-dependent (config-gated) — merchant supplies the concrete inputs ---
     MCheck("checkout.complete_order", ["CHK-004", "CHK-008"], "MUST", complete_resp, p_completed,
            ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"],
@@ -425,6 +464,10 @@ CHECKS = [
     MCheck("payment.no_credential_echo", ["PAY-009"], "MUST NOT", complete_resp, p_no_echo,
            ["set:order.leak=$CRED", "set:status=\"incomplete\"", "drop:status"],
            needs=("product",), cfg_needs=("complete_payment",), transport="rest"),
+    MCheck("checkout.completed_immutable", ["CHK-012"], "MUST", completed_immutable_resp,
+           p_rejected_4xx, ["status:200", "status:201"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("complete_payment",), transport="rest"),
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
            ["status:200", "status:201"], needs=("product",),
            cfg_needs=("fail_payment",), transport="rest"),

@@ -86,7 +86,7 @@ the reference gate uses).
 
 ## What's covered today
 
-26 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
+29 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
 whole `/.well-known/ucp` document validated against the official `ucp.json` via the
 `ucp-schema` oracle — catches any structural deviation in one shot), checkout
 lifecycle, idempotency, validation, fulfillment, order completion, payment-credential
