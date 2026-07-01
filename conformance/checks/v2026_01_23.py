@@ -114,6 +114,32 @@ def f_nonexistent(base):   return _create(base, item_id="pink_wumpus")   # seede
 def chk_http_400(r):       # VAL-001 / VAL-003 (validation failures MUST 400)
     return CLEAN if r.status == 400 else DEVIATION
 
+# --- complete + completed-immutability -------------------------------------
+_PAYMENT = {"payment": {"instruments": [{"id": "instr_1", "handler_id": "mock_payment_handler",
+    "type": "card", "display": {"brand": "Visa", "last_digits": "1234"},
+    "credential": {"type": "token", "token": "success_token"},
+    "billing_address": {"street_address": "123 Main St", "address_locality": "Anytown",
+        "address_region": "CA", "address_country": "US", "postal_code": "12345"}}]},
+    "risk_signals": {}}
+
+def _complete(base, cid):
+    return fetch(base, f"/checkout-sessions/{cid}/complete", "POST", _PAYMENT, _ucp_headers())
+
+def f_complete(base):
+    r = _create(base); return _complete(base, (r.json or {}).get("id"))
+
+def f_completed_immutable(base):
+    cid = (_create(base).json or {}).get("id")
+    _complete(base, cid)
+    return fetch(base, f"/checkout-sessions/{cid}/cancel", "POST", None, _ucp_headers())
+
+def chk_complete(r):       # CHK-004 + CHK-008
+    if r.status != 200 or not isinstance(r.json, dict): return DEVIATION
+    return CLEAN if r.json.get("status") == "completed" and r.json.get("order") else DEVIATION
+
+def chk_rejected_4xx(r):   # CHK-012: mutating a completed checkout MUST be rejected
+    return CLEAN if 400 <= r.status < 500 else DEVIATION
+
 CHECKS = [
     Check("disc.profile_200", ["DISC-013"], "MUST", _discovery, chk_profile_ok,
           ["status:404", "status:500", "drop:version", "corrupt-json", "empty"]),
@@ -130,6 +156,10 @@ CHECKS = [
     Check("validation.out_of_stock", ["VAL-001"], "MUST", f_out_of_stock, chk_http_400,
           ["status:200", "status:201"]),
     Check("validation.nonexistent_product", ["VAL-003"], "MUST", f_nonexistent, chk_http_400,
+          ["status:200", "status:201"]),
+    Check("checkout.complete", ["CHK-004", "CHK-008"], "MUST", f_complete, chk_complete,
+          ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"]),
+    Check("checkout.completed_immutable", ["CHK-012"], "MUST", f_completed_immutable, chk_rejected_4xx,
           ["status:200", "status:201"]),
 ]
 
