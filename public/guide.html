@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to test your UCP server for conformance (2026 guide) — spck.dev</title>
+<meta name="description" content="A practical guide to testing a Universal Commerce Protocol (UCP) server for conformance: what to check in your /.well-known/ucp profile, checkout, catalog, cart, and how to verify it in CI. Free, open-source checker.">
+<link rel="canonical" href="https://spck.dev/guide">
+<meta property="og:title" content="How to test your UCP server for conformance (2026)">
+<meta property="og:description" content="What to check in a UCP implementation, and how to verify it in the browser, pip, or CI.">
+<meta property="og:url" content="https://spck.dev/guide">
+<link rel="icon" href="/logo.svg">
+<style>
+  :root{--fg:#1a1a2e;--mut:#555;--acc:#5b5bd6;--line:#e5e7eb;--code:#f4f4f5}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--fg);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fff}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px}
+  nav{font-size:14px;margin-bottom:32px}
+  nav a{color:var(--acc);text-decoration:none;margin-right:18px}
+  h1{font-size:32px;line-height:1.2;letter-spacing:-.5px;margin:0 0 8px}
+  .sub{color:var(--mut);font-size:17px;margin:0 0 28px}
+  h2{font-size:22px;margin:40px 0 12px}
+  h3{font-size:17px;margin:26px 0 6px}
+  code{background:var(--code);padding:2px 6px;border-radius:4px;font:13px ui-monospace,Menlo,monospace}
+  pre{background:#0f0f11;color:#e6e8ee;padding:16px;border-radius:10px;overflow:auto}
+  pre code{background:none;color:inherit;padding:0}
+  a{color:var(--acc)}
+  .cta{display:inline-block;background:var(--acc);color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600;margin:8px 0}
+  .card{border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:24px 0;background:#fafaff}
+  ul{padding-left:22px}
+  li{margin:6px 0}
+  .note{font-size:13px;color:var(--mut)}
+  footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="/">spck.dev</a><a href="/check">Instant check</a><a href="https://github.com/vishkaty/ucp-conformance">GitHub</a></nav>
+
+  <h1>How to test your UCP server for conformance</h1>
+  <p class="sub">A practical 2026 guide to verifying a Universal Commerce Protocol (UCP) implementation — what to check, and how to check it in the browser, <code>pip</code>, or CI.</p>
+
+  <a class="cta" href="/check">Check your server now →</a>
+  <p class="note">Independent, unofficial. Not affiliated with or endorsed by the UCP project.</p>
+
+  <h2>What "conformance" actually means for UCP</h2>
+  <p>The Universal Commerce Protocol (UCP) is the open standard — co-developed by Google and Shopify — that lets AI agents discover products, run checkouts, and place orders with any merchant. A <em>conformant</em> UCP server is one whose behavior matches the spec's normative requirements: the discovery profile has the right shape, checkout follows the lifecycle, errors are structured, totals add up, and so on.</p>
+  <p>Getting this right matters because agents integrate against the <em>spec</em>, not against your specific server. A profile that's subtly off — <code>capabilities</code> as an array instead of a keyed object, a missing required field — can make your store invisible or broken to shopping agents.</p>
+
+  <h2>The fastest check: your discovery profile</h2>
+  <p>Every UCP interaction starts at <code>/.well-known/ucp</code>. Fetch yours and confirm:</p>
+  <ul>
+    <li><strong>version</strong> is present and dated (e.g. <code>2026-04-08</code>).</li>
+    <li><strong>capabilities</strong> is an <em>object keyed by reverse-domain names</em> (<code>{ "dev.ucp.shopping.checkout": [ … ] }</code>) — not an array.</li>
+    <li><strong>services</strong> values are <em>arrays</em> of <code>{ transport, endpoint }</code> entries (REST, MCP, or embedded).</li>
+    <li>It's served over HTTPS, without redirects.</li>
+  </ul>
+  <p>The quickest way to verify all of this is to paste your store URL into the free checker — it fetches the profile server-side (no CORS headaches) and validates it against the official schema:</p>
+  <a class="cta" href="/check">Run an instant profile check →</a>
+
+  <h2>Going deeper: the full suite (CLI)</h2>
+  <p>The profile is just the front door. To verify checkout, order, discount, catalog, cart, and the totals invariants, run the open-source CLI:</p>
+  <pre><code>pip install spck-conformance
+
+# scaffold a config tailored to your server's capabilities
+spck-conformance --server https://your-store.example.com --init merchant.json
+
+# run the full suite
+spck-conformance --server https://your-store.example.com --config merchant.json</code></pre>
+  <p>On any deviation it shows <strong>the requirement vs your actual response</strong>, so you can fix it directly. It's capability-adaptive: it only runs checks for what your server declares, and reports anything it can't test as <code>not-tested</code> rather than a silent pass.</p>
+
+  <h2>Keep it conformant: check on every deploy (CI)</h2>
+  <p>Add the GitHub Action so conformance is verified on every push — it fails the build on any MUST deviation and writes a JUnit report:</p>
+  <pre><code>- uses: vishkaty/ucp-conformance@main
+  with:
+    server: https://your-store.example.com
+    config: merchant.json   # optional</code></pre>
+
+  <h2>What makes a conformance result trustworthy</h2>
+  <p>A checker that can silently pass a broken server is worse than none. Look for a tool where each check is <strong>proven to catch the defect it's for</strong> (kill-rate testing), is anchored to the official <code>ucp-schema</code> validator, and cites the specific spec clause it enforces — so a "pass" is earned, not assumed. (That's the principle spck.dev is built on.)</p>
+
+  <div class="card">
+    <strong>Checklist</strong>
+    <ul>
+      <li>☐ <code>/.well-known/ucp</code> returns 200 JSON over HTTPS, no redirect</li>
+      <li>☐ dated <code>version</code>; <code>capabilities</code> is a keyed object; <code>services</code> values are arrays</li>
+      <li>☐ checkout create → get → update → complete → order works and is immutable when terminal</li>
+      <li>☐ errors are structured; out-of-stock / nonexistent product return 4xx</li>
+      <li>☐ idempotency-key conflict → 409; payment credentials never echoed back</li>
+      <li>☐ discounts apply/clear correctly; totals have exactly one subtotal + one total</li>
+      <li>☐ catalog search/lookup and cart shapes match the schema</li>
+      <li>☐ it's wired into CI so it stays conformant on every deploy</li>
+    </ul>
+  </div>
+
+  <a class="cta" href="/check">Check your UCP server →</a>
+
+  <footer>
+    spck.dev is a free, open-source, independent UCP conformance checker.
+    <a href="https://github.com/vishkaty/ucp-conformance">Source &amp; methodology</a> ·
+    <a href="https://pypi.org/project/spck-conformance/">PyPI</a> ·
+    <a href="https://ucp.dev">Official UCP spec</a>.
+    Not affiliated with the UCP project.
+  </footer>
+</div>
+</body>
+</html>
