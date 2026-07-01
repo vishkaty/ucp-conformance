@@ -24,13 +24,16 @@ STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
 
 class MCheck:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 capability=None, needs=(), cfg_needs=()):
+                 capability=None, needs=(), cfg_needs=(), transport=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         self.capability, self.needs = capability, tuple(needs)
         # cfg_needs = merchant-config keys that must be present to run this check
         # (data-dependent negatives: out-of-stock id, failing payment, etc.)
         self.cfg_needs = tuple(cfg_needs)
+        # transport="rest" -> requires a REST shopping transport; if the server offers
+        # only mcp/embedded this check is not-applicable (this runner is REST-scoped).
+        self.transport = transport
 
 # ---- request helpers (parameterized by the merchant context) ----------------
 def _hdr(idem=None):
@@ -186,34 +189,37 @@ CHECKS = [
     MCheck("discovery.version", ["DISC-013"], "MUST", profile_resp, p_version,
            ["drop:version", "corrupt-json", "empty"]),
     MCheck("discovery.rest_endpoint", ["DISC-007"], "MUST", profile_resp, p_rest_endpoint,
-           ["drop:services", "set:services={}", "corrupt-json"]),
+           ["drop:services", "set:services={}", "corrupt-json"], transport="rest"),
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"]),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
-           ["status:500", "drop:id", "set:status=\"bogus\"", "empty"], needs=("product",)),
+           ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
+           needs=("product",), transport="rest"),
     MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
-           ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"], needs=("product",)),
+           ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"],
+           needs=("product",), transport="rest"),
     MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
-           ["status:200", "status:201"], needs=("product",)),
+           ["status:200", "status:201"], needs=("product",), transport="rest"),
     MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
-           ["status:200", "status:201"]),
+           ["status:200", "status:201"], transport="rest"),
     MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", idem_conflict_resp, p_409,
-           ["status:200", "status:201"], needs=("product",)),
+           ["status:200", "status:201"], needs=("product",), transport="rest"),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
-           capability="dev.ucp.shopping.fulfillment", needs=("product",)),
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
     # --- data-dependent (config-gated) — merchant supplies the concrete inputs ---
     MCheck("checkout.complete_order", ["CHK-004", "CHK-008"], "MUST", complete_resp, p_completed,
            ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",)),
+           cfg_needs=("complete_payment",), transport="rest"),
     MCheck("payment.no_credential_echo", ["PAY-009"], "MUST NOT", complete_resp, p_no_echo,
            ["set:order.leak=$CRED", "set:status=\"incomplete\"", "drop:status"],
-           needs=("product",), cfg_needs=("complete_payment",)),
+           needs=("product",), cfg_needs=("complete_payment",), transport="rest"),
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
-           ["status:200", "status:201"], needs=("product",), cfg_needs=("fail_payment",)),
+           ["status:200", "status:201"], needs=("product",),
+           cfg_needs=("fail_payment",), transport="rest"),
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
-           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",)),
+           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest"),
 ]
 
 # ---- runner: capability-gated, config-gated, kill-rate-validated -------------
@@ -239,6 +245,11 @@ def _pred(chk, resp, ctx):
 def run_merchant_checks(ctx, checks=CHECKS):
     results, detail = [], []
     for chk in checks:
+        if chk.transport == "rest" and not getattr(ctx, "has_rest", True):
+            for rid in chk.req_ids:
+                results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable
+            detail.append((chk, {"status": "not-applicable (no REST transport)",
+                                  "kill_safe": None})); continue
         if chk.capability and chk.capability not in ctx.capabilities:
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable

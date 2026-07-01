@@ -47,6 +47,11 @@ class MerchantCtx:
         self.capabilities = set(caps.keys())
         svc = (ucp.get("services") or {}).get("dev.ucp.shopping") or []
         rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
+        # A server MAY offer only MCP/embedded transports and still be fully conformant.
+        # This runner is REST-scoped, so absence of a REST transport makes the REST
+        # lifecycle out-of-scope (not-applicable), never a deviation.
+        self.has_rest = rest is not None
+        self.transports = [s.get("transport") for s in svc if isinstance(s, dict)]
         self.shopping_endpoint = (rest or {}).get("endpoint", self.base)
         self.product_id = self.config.get("product_id")
 
@@ -61,6 +66,8 @@ def auto_discover_product(ctx):
     """If the server supports catalog.search, find a real product id to drive lifecycle."""
     if ctx.product_id:
         return ctx.product_id
+    if not ctx.has_rest:                     # REST catalog search only; never probe a non-REST store
+        return None
     if "dev.ucp.shopping.catalog.search" not in ctx.capabilities:
         return None
     try:
