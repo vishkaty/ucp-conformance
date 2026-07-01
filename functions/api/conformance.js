@@ -75,7 +75,7 @@ const DISCLAIMER =
   "endorsed by the UCP project. Run the spck-conformance CLI for the full, " +
   "kill-rate-validated check suite (checkout, order, discount, catalog, cart, totals…).";
 
-async function preview(serverUrl) {
+export async function preview(serverUrl) {
   let u;
   try { u = new URL(serverUrl); } catch { return { error: "invalid server URL" }; }
   if (!/^https?:$/.test(u.protocol)) return { error: "server must be http(s)" };
