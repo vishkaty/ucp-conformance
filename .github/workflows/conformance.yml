@@ -27,8 +27,23 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Set up Rust (for the ucp-schema oracle)
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Fetch pinned upstream sources
         run: bash conformance/ci/fetch_sources.sh
+
+      - name: Cache the ucp-schema build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            conformance/.vendor/ucp-schema/target
+          key: ucp-schema-${{ runner.os }}-${{ hashFiles('conformance/SOURCES.lock.json') }}
+
+      - name: Build the ucp-schema oracle
+        run: cargo build --release --manifest-path conformance/.vendor/ucp-schema/Cargo.toml
 
       - name: Bring up the golden server
         run: |
@@ -44,7 +59,8 @@ jobs:
             --server http://localhost:8182 \
             --require-server \
             --verbose
-        # schema gate auto-skips (exit 2) until the ucp-schema Rust oracle is built in CI.
+        # With the ucp-schema oracle built above, the schema / fixture / profile_schema
+        # gates run for real here (no longer skipped).
 
       - name: Tear down the golden server
         if: always()

@@ -48,4 +48,18 @@ while read -r dir repo sha; do
   git -C "$dest" fetch -q --depth 1 origin "$sha"
   git -C "$dest" checkout -q FETCH_HEAD
 done < "$ROWFILE"
+
+# Materialize the per-version schema-base dirs the ucp-schema oracle expects:
+# ucp-schemas/<ver> is the source/ tree of the matching ucp-<ver> clone (04-08 uses
+# ucp/source directly). Without these the schema/fixture/profile_schema gates skip.
+for ver in 2026-01-23 2026-01-11; do
+  src="$VENDOR/ucp-$ver/source"
+  dst="$VENDOR/ucp-schemas/$ver"
+  if [ -d "$src" ]; then
+    rm -rf "$dst"; mkdir -p "$VENDOR/ucp-schemas"; cp -R "$src" "$dst"
+    echo "✓ ucp-schemas/$ver materialized from ucp-$ver/source"
+  else
+    echo "! ucp-$ver/source missing; ucp-schemas/$ver not materialized" >&2
+  fi
+done
 echo "all sources pinned per SOURCES.lock.json"
