@@ -227,6 +227,13 @@ def out_of_stock_resp(ctx):
     p["line_items"][0]["item"]["id"] = ctx.config["out_of_stock_id"]
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
 
+def p_error_body(r):
+    """VAL-006: a 400 error body MUST be structured with a populated 'detail'."""
+    if r.status != 400 or not isinstance(r.json, dict):
+        return DEVIATION
+    d = r.json.get("detail")
+    return CLEAN if isinstance(d, str) and d.strip() else DEVIATION
+
 # ---- discount flows (capability dev.ucp.shopping.discount, config-gated) ------
 def _apply_codes(ctx, codes):
     """Create a fresh checkout, then PUT discounts.codes; return the update Resp."""
@@ -576,6 +583,10 @@ CHECKS = [
            cfg_needs=("fail_payment",), transport="rest"),
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
            ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest"),
+    MCheck("validation.error_body", ["VAL-006"], "MUST", out_of_stock_resp, p_error_body,
+           ["status:200", "set:detail=\"\"", "drop:detail", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout",
+           cfg_needs=("out_of_stock_id",), transport="rest"),
     # --- discount (capability-gated + config-gated on discount codes) ---
     MCheck("discount.single_applied", ["DSC-004", "DSC-011"], "MUST", disc_single_resp, p_disc_single,
            ["status:500", "drop:discounts", "drop:discounts.applied",
