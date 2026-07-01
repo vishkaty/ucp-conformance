@@ -26,11 +26,24 @@ from merchant import MerchantCtx, discover               # noqa: E402
 from engine import CLEAN                                  # noqa: E402
 
 # The reference server (Flower Shop) seeded data — the fixed, known-good target.
+# Doubles as the canonical example of the --config schema a real merchant supplies.
+def _pay(token, last):
+    return {"payment": {"instruments": [{"id": "instr_" + last, "handler_id": "mock_payment_handler",
+        "type": "card", "display": {"brand": "Visa", "last_digits": last},
+        "credential": {"type": "token", "token": token},
+        "billing_address": {"street_address": "123 Main St", "address_locality": "Anytown",
+            "address_region": "CA", "address_country": "US", "postal_code": "12345"}}]},
+        "risk_signals": {}}
+
 REF_CONFIG = {
     "product_id": "bouquet_roses", "currency": "USD",
     "payment_handlers": [{"id": "google_pay", "name": "google.pay", "version": "2026-01-23",
         "spec": "https://example.com/spec", "config_schema": "https://example.com/schema",
         "instrument_schemas": ["https://example.com/is"], "config": {}}],
+    "fulfillment_option_id": "std-ship",          # valid option to reach ready_for_complete
+    "complete_payment": _pay("success_token", "1234"),   # happy-path completion
+    "fail_payment": _pay("fail_token", "0000"),          # known-failing token -> 402
+    "out_of_stock_id": "gardenias",               # seeded out-of-stock product -> 4xx
 }
 
 def main():

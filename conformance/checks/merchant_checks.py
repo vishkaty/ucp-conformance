@@ -24,10 +24,13 @@ STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
 
 class MCheck:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 capability=None, needs=()):
+                 capability=None, needs=(), cfg_needs=()):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         self.capability, self.needs = capability, tuple(needs)
+        # cfg_needs = merchant-config keys that must be present to run this check
+        # (data-dependent negatives: out-of-stock id, failing payment, etc.)
+        self.cfg_needs = tuple(cfg_needs)
 
 # ---- request helpers (parameterized by the merchant context) ----------------
 def _hdr(idem=None):
@@ -86,6 +89,33 @@ def idem_conflict_resp(ctx):
     p2["line_items"][0]["quantity"] = 2
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p2, _hdr(k))
 
+# ---- data-dependent flows (config-gated) ------------------------------------
+def _create_for_complete(ctx):
+    """Create a session driven to a completable state, selecting the config option."""
+    p = _create_payload(ctx, with_fulfillment=True)
+    opt = ctx.config.get("fulfillment_option_id")
+    if opt:
+        p["fulfillment"]["methods"][0]["groups"][0]["selected_option_id"] = opt
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+
+def complete_resp(ctx):
+    """Full happy-path: create -> complete with the merchant's success payment."""
+    cid = (_create_for_complete(ctx).json or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+                 ctx.config.get("complete_payment"), _hdr())
+
+def payment_fail_resp(ctx):
+    """Complete with the merchant's known-failing payment -> MUST be rejected (402)."""
+    cid = (_create_for_complete(ctx).json or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+                 ctx.config.get("fail_payment"), _hdr())
+
+def out_of_stock_resp(ctx):
+    """Create referencing the merchant's known out-of-stock product -> MUST 4xx."""
+    p = _create_payload(ctx)
+    p["line_items"][0]["item"]["id"] = ctx.config["out_of_stock_id"]
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+
 # ---- predicates -------------------------------------------------------------
 def p_version(r):
     import re
@@ -126,6 +156,31 @@ def p_4xx(r):
 def p_409(r):
     return CLEAN if r.status == 409 else DEVIATION
 
+def p_completed(r):
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if r.json.get("status") == "completed" and r.json.get("order") else DEVIATION
+
+def p_402(r):
+    return CLEAN if r.status == 402 else DEVIATION
+
+def _cred_tokens(payment):
+    """All raw credential token strings inside a payment body (to check they aren't echoed)."""
+    toks = []
+    for inst in ((payment or {}).get("payment", {}) or {}).get("instruments", []) or []:
+        t = (inst.get("credential") or {}).get("token")
+        if isinstance(t, str) and t:
+            toks.append(t)
+    return toks
+
+def p_no_echo(r, ctx):
+    """PAY-009: a successful completion MUST NOT echo the raw payment credential back."""
+    if not isinstance(r.json, dict) or r.json.get("status") != "completed":
+        return DEVIATION
+    body = json.dumps(r.json)
+    toks = _cred_tokens(ctx.config.get("complete_payment"))
+    return DEVIATION if any(t in body for t in toks) else CLEAN
+
 # ---- the merchant-agnostic check set (2026-01-23 / 2026-04-08 shared core) ---
 CHECKS = [
     MCheck("discovery.version", ["DISC-013"], "MUST", profile_resp, p_version,
@@ -147,9 +202,40 @@ CHECKS = [
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",)),
+    # --- data-dependent (config-gated) — merchant supplies the concrete inputs ---
+    MCheck("checkout.complete_order", ["CHK-004", "CHK-008"], "MUST", complete_resp, p_completed,
+           ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("complete_payment",)),
+    MCheck("payment.no_credential_echo", ["PAY-009"], "MUST NOT", complete_resp, p_no_echo,
+           ["set:order.leak=$CRED", "set:status=\"incomplete\"", "drop:status"],
+           needs=("product",), cfg_needs=("complete_payment",)),
+    MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
+           ["status:200", "status:201"], needs=("product",), cfg_needs=("fail_payment",)),
+    MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
+           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",)),
 ]
 
 # ---- runner: capability-gated, config-gated, kill-rate-validated -------------
+import inspect as _inspect
+
+def _expand_mut(m, ctx):
+    """Expand $CRED in a mutation to the merchant's JSON-encoded credential token, so a
+    generic no-echo check can inject a concrete leak at kill-rate time."""
+    if "$CRED" not in m:
+        return m
+    toks = _cred_tokens(ctx.config.get("complete_payment"))
+    return m.replace("$CRED", json.dumps(toks[0]) if toks else '"__cred__"')
+
+def _pred(chk, resp, ctx):
+    """Call a predicate as p(resp) or p(resp, ctx) — ctx-aware predicates read config."""
+    fn = chk.predicate
+    try:
+        n = len(_inspect.signature(fn).parameters)
+    except (TypeError, ValueError):
+        n = 1
+    return fn(resp, ctx) if n >= 2 else fn(resp)
+
 def run_merchant_checks(ctx, checks=CHECKS):
     results, detail = [], []
     for chk in checks:
@@ -161,14 +247,21 @@ def run_merchant_checks(ctx, checks=CHECKS):
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": "not-tested (no product)", "kill_safe": None})); continue
+        missing = [k for k in chk.cfg_needs if not ctx.config.get(k)]
+        if missing:
+            for rid in chk.req_ids:
+                results.append(CheckResult(rid, chk.keyword, "not-tested"))
+            detail.append((chk, {"status": f"not-tested (needs config: {','.join(missing)})",
+                                  "kill_safe": None})); continue
         try:
             golden = chk.fetch_fn(ctx)
         except Exception as e:
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, INCONCLUSIVE))
             detail.append((chk, {"status": f"error:{e}", "kill_safe": False})); continue
-        clean = chk.predicate(golden)
-        survivors = [m for m in chk.mutations if chk.predicate(mutate(golden, m)) != DEVIATION]
+        clean = _pred(chk, golden, ctx)
+        muts = [_expand_mut(m, ctx) for m in chk.mutations]
+        survivors = [m for m in muts if _pred(chk, mutate(golden, m), ctx) != DEVIATION]
         kill_safe = (clean == CLEAN and not survivors)
         status = clean if kill_safe else (clean if clean == DEVIATION else INCONCLUSIVE)
         for rid in chk.req_ids:
