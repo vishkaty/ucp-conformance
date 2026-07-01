@@ -15,10 +15,14 @@ doesn't implement are excluded), so a lean-but-correct merchant scores honestly.
 
   merchant.py --server https://api.example.com [--config merchant.json] [--json]
 """
-import sys, json, argparse, pathlib, urllib.request, urllib.error
+import sys, json, argparse, pathlib, urllib.request, urllib.error, glob
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from engine import fetch, Resp                    # noqa: E402
+sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
+from verdict_gate import aggregate                # noqa: E402
+import merchant_checks                            # noqa: E402
+REQ_DIR = HERE.parents[0] / "requirements"
 
 # register area -> the capability a server must declare for that area to be in-scope
 AREA_CAPABILITY = {
@@ -84,6 +88,34 @@ def report(base, config=None):
     areas = applicable_areas(ctx)
     return ctx, ctype, areas
 
+def applicable_musts(ctx, areas):
+    """Testable MUSTs from the merchant's spec-version register, restricted to areas
+    the server implements (unsupported extensions are excluded from the denominator)."""
+    ids = set()
+    vdir = REQ_DIR / (ctx.version or "")
+    if not vdir.is_dir():
+        return ids
+    for f in glob.glob(str(vdir / "*.json")):
+        area = json.load(open(f)).get("_area", "?")
+        if areas.get(area, True) is False:
+            continue
+        for r in json.load(open(f)).get("rows", []):
+            if r["keyword"] in ("MUST", "MUST NOT") and r["testability"] == "testable" \
+               and any(t in ("rest", "any") for t in r.get("transport", [])):
+                ids.add(r["id"])
+    return ids
+
+SCOPE = {"tool": "spck.dev merchant conformance (dev)",
+         "methodology": "discovery-driven, capability-adaptive, kill-rate-gated"}
+DISCLAIMER = ("Unofficial. Not affiliated with or endorsed by the UCP project. A pass "
+             "reflects only the checks run against this server; not certified compliance.")
+
+def run_conformance(ctx, areas):
+    results, detail = merchant_checks.run_merchant_checks(ctx)
+    stamp = {**SCOPE, "spec_version": ctx.version, "server": ctx.base}
+    rep = aggregate(results, applicable_musts(ctx, areas), stamp, DISCLAIMER)
+    return rep, detail
+
 def main():
     ap = argparse.ArgumentParser(description="Merchant-agnostic UCP conformance (unofficial).")
     ap.add_argument("--server", required=True)
@@ -101,20 +133,29 @@ def main():
         "product_for_lifecycle": ctx.product_id,
         "applicable_areas": {a: v for a, v in areas.items()},
     }
+    rep, detail = run_conformance(ctx, areas)
+    cc = rep.counts
+    out["verdict"] = {"aggregate": rep.aggregate, "coverage": rep.coverage,
+                      "applicable_musts": cc["inscope_musts"], "musts_passed": cc["musts_clean_pass"],
+                      "deviations": cc["deviations"]}
+    out["checks"] = [{"id": c.id, "req_ids": c.req_ids, "capability": c.capability,
+                      "status": d["status"], "kill_safe": d["kill_safe"]} for c, d in detail]
     if args.json:
-        print(json.dumps(out, indent=2)); return 0
-    print(f"Merchant conformance discovery (UNOFFICIAL) — {ctx.base}\n")
-    print(f"  spec version:        {ctx.version}")
-    print(f"  JSON content-type:   {out['content_type_json']}")
-    print(f"  shopping endpoint:   {ctx.shopping_endpoint}")
+        print(json.dumps(out, indent=2)); return {"pass":0,"fail":2}.get(rep.aggregate,1)
+    print(f"Merchant conformance report (UNOFFICIAL) — {ctx.base}\n")
+    print(f"  spec version {ctx.version} · JSON {out['content_type_json']} · endpoint {ctx.shopping_endpoint}")
     print(f"  declared capabilities: {', '.join(supported) or '(none)'}")
-    print(f"  product for lifecycle: {ctx.product_id or '(none found — set --config product_id for data-dependent checks)'}")
-    print(f"\n  applicable requirement areas (extensions the server does NOT declare are excluded):")
-    for a, v in areas.items():
-        print(f"    {'[x]' if v else '[ ]'} {a}" + ("" if v else "  (not-applicable — capability not declared)"))
-    print("\n  Next: run the register-driven checks scoped to these areas (report.py). "
-          "Unsupported extensions are excluded from the denominator; missing test data -> not-tested.")
-    return 0
+    print(f"  product for lifecycle: {ctx.product_id or '(none — pass --config product_id)'}\n")
+    for c, d in detail:
+        st = d["status"]
+        mark = {"not-applicable":"— n/a","not-tested (no product)":"— not-tested"}.get(st, st)
+        print(f"    {c.id:30} {str(mark):12}" + (f" kill_safe={d['kill_safe']}" if d.get("kill_safe") is not None else "")
+              + (f"  survivors={d['survivors']}" if d.get("survivors") else ""))
+    print(f"\n  aggregate: {rep.aggregate.upper()}   "
+          f"MUST coverage: {cc['musts_clean_pass']}/{cc['inscope_musts']} applicable "
+          f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")
+    print(f"\n  {DISCLAIMER}")
+    return {"pass":0,"fail":2}.get(rep.aggregate,1)
 
 if __name__ == "__main__":
     sys.exit(main())

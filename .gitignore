@@ -6,3 +6,7 @@ node_modules/
 
 # Pinned upstream sources (see conformance/SOURCES.lock.json)
 conformance/.vendor/
+
+# python bytecode
+__pycache__/
+*.pyc
