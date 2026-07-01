@@ -132,10 +132,19 @@ def run_conformance(ctx, areas):
     rep = aggregate(results, applicable_musts(ctx, areas), stamp, DISCLAIMER)
     return rep, detail
 
+# Synthetic (non-register) check ids get a plain-language description so their reports
+# are still actionable (e.g. the holistic profile-schema validation).
+SYNTHETIC_REQS = {
+    "DISC-000": {"keyword": "MUST", "source": "ucp:source/schemas/ucp.json",
+                 "requirement": "The /.well-known/ucp profile document MUST validate against "
+                                "the official ucp.json profile schema (structure of version, "
+                                "services array, and reverse-domain-keyed capabilities object)."},
+}
+
 def req_meta(version):
     """req_id -> {requirement, source} from the register, so every result cites its
     normative clause (the trust story: each check traces to a verbatim spec quote)."""
-    meta = {}
+    meta = dict(SYNTHETIC_REQS)
     vdir = REQ_DIR / (version or "")
     if vdir.is_dir():
         for f in glob.glob(str(vdir / "*.json")):
@@ -163,8 +172,11 @@ def junit_xml(ctx, detail, meta):
         body = ""
         if st == "deviation":
             n_fail += 1
+            obs = d.get("observed") or {}
+            evidence = (f"expected: {cites}\nobserved: HTTP {obs.get('status')} "
+                        f"body: {obs.get('body')}")
             body = (f'\n      <failure message="MUST violated: {_xml_escape(c.req_ids)}">'
-                    f'{_xml_escape(cites)}</failure>\n    ')
+                    f'{_xml_escape(evidence)}</failure>\n    ')
         elif st.startswith(("not-applicable", "not-tested")):
             n_skip += 1
             body = f'\n      <skipped message="{_xml_escape(st)}"/>\n    '
@@ -201,7 +213,9 @@ def main():
                       "deviations": cc["deviations"]}
     out["checks"] = [{"id": c.id, "req_ids": c.req_ids, "capability": c.capability,
                       "status": d["status"], "kill_safe": d["kill_safe"],
-                      "requirements": _citations(c.req_ids, meta)} for c, d in detail]
+                      "requirements": _citations(c.req_ids, meta),
+                      # actionable evidence: what the server actually returned
+                      "observed": d.get("observed")} for c, d in detail]
     out["disclaimer"] = DISCLAIMER
     # exit code for CI: 2 if any MUST deviation, else 0 (partial coverage is not a failure)
     rc = 2 if cc["deviations"] else 0
@@ -218,9 +232,12 @@ def main():
         mark = {"not-applicable":"— n/a","not-tested (no product)":"— not-tested"}.get(st, st)
         print(f"    {c.id:30} {str(mark):12}" + (f" kill_safe={d['kill_safe']}" if d.get("kill_safe") is not None else "")
               + (f"  survivors={d['survivors']}" if d.get("survivors") else ""))
-        if st == "deviation":                       # cite the violated clause(s)
+        if st == "deviation":                       # actionable: expected vs observed
             for x in _citations(c.req_ids, meta):
-                print(f"        ↳ {x['id']}: {x['requirement']}  [{x['source']}]")
+                print(f"        expected  {x['id']}: {x['requirement']}")
+                print(f"        spec      {x['source']}")
+            obs = d.get("observed") or {}
+            print(f"        observed  HTTP {obs.get('status')}  body: {obs.get('body')}")
     print(f"\n  aggregate: {rep.aggregate.upper()}   "
           f"MUST coverage: {cc['musts_clean_pass']}/{cc['inscope_musts']} applicable "
           f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")

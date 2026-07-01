@@ -681,6 +681,16 @@ CHECKS = [
 # ---- runner: capability-gated, config-gated, kill-rate-validated -------------
 import inspect as _inspect
 
+def _excerpt(body, limit=500):
+    """A compact, redacted excerpt of a response body for actionable failure evidence."""
+    try:
+        s = json.dumps(body, default=str)
+    except Exception:
+        s = str(body)
+    if s is None:
+        return None
+    return s if len(s) <= limit else s[:limit] + " …(truncated)"
+
 def _expand_mut(m, ctx):
     """Expand config-specific placeholders in a mutation to concrete JSON values, so a
     generic check can inject a concrete defect at kill-rate time.
@@ -748,5 +758,7 @@ def run_merchant_checks(ctx, checks=CHECKS):
             results.append(CheckResult(rid, chk.keyword, status, kill_safe))
         detail.append((chk, {"status": clean,
                              "kills": f"{len(chk.mutations)-len(survivors)}/{len(chk.mutations)}",
-                             "kill_safe": kill_safe, "survivors": survivors}))
+                             "kill_safe": kill_safe, "survivors": survivors,
+                             # evidence for actionable reports: what the server actually returned
+                             "observed": {"status": golden.status, "body": _excerpt(golden.json)}}))
     return results, detail
