@@ -69,5 +69,9 @@
     },
     "risk_signals": {}
   },
-  "out_of_stock_id": "gardenias"
+  "out_of_stock_id": "gardenias",
+  "discount": {
+    "valid_code": "10OFF",
+    "invalid_code": "INVALID_CODE"
+  }
 }

@@ -44,6 +44,7 @@ REF_CONFIG = {
     "complete_payment": _pay("success_token", "1234"),   # happy-path completion
     "fail_payment": _pay("fail_token", "0000"),          # known-failing token -> 402
     "out_of_stock_id": "gardenias",               # seeded out-of-stock product -> 4xx
+    "discount": {"valid_code": "10OFF", "invalid_code": "INVALID_CODE"},  # seeded codes
 }
 
 def main():

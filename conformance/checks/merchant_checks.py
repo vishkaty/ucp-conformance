@@ -119,6 +119,34 @@ def out_of_stock_resp(ctx):
     p["line_items"][0]["item"]["id"] = ctx.config["out_of_stock_id"]
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
 
+# ---- discount flows (capability dev.ucp.shopping.discount, config-gated) ------
+def _apply_codes(ctx, codes):
+    """Create a fresh checkout, then PUT discounts.codes; return the update Resp."""
+    c = (create_resp(ctx).json or {})
+    cid = c.get("id")
+    li = (c.get("line_items") or [{}])[0]
+    body = {"id": cid, "currency": c.get("currency", ctx.config.get("currency", "USD")),
+            "line_items": [{"id": li.get("id"),
+                            "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 1}],
+            "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])},
+            "discounts": {"codes": codes}}
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
+
+def _dvalid(ctx):   return (ctx.config.get("discount") or {}).get("valid_code")
+def _dinvalid(ctx): return (ctx.config.get("discount") or {}).get("invalid_code")
+
+def disc_single_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx)])
+def disc_reject_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx), _dinvalid(ctx)])
+def disc_unknown_resp(ctx): return _apply_codes(ctx, [_dinvalid(ctx)])
+
+def _discounts(r):  return (r.json or {}).get("discounts") if isinstance(r.json, dict) else None
+def _applied(r):
+    d = _discounts(r); return d.get("applied") if isinstance(d, dict) else None
+def _has_discount_total(r):
+    tot = (r.json or {}).get("totals") if isinstance(r.json, dict) else None
+    return isinstance(tot, list) and any(
+        isinstance(t, dict) and t.get("type") in ("discount", "items_discount") for t in tot)
+
 # ---- predicates -------------------------------------------------------------
 def p_version(r):
     import re
@@ -184,6 +212,47 @@ def p_no_echo(r, ctx):
     toks = _cred_tokens(ctx.config.get("complete_payment"))
     return DEVIATION if any(t in body for t in toks) else CLEAN
 
+def p_disc_single(r, ctx):
+    """DSC-004/011: the valid code is applied (code + amount>0) and surfaced as a total."""
+    if r.status != 200:
+        return DEVIATION
+    ap = _applied(r)
+    if not isinstance(ap, list) or not ap:
+        return DEVIATION
+    first = ap[0]
+    if not (isinstance(first, dict) and first.get("code") == _dvalid(ctx)
+            and isinstance(first.get("amount"), int) and first["amount"] > 0):
+        return DEVIATION
+    return CLEAN if _has_discount_total(r) else DEVIATION
+
+def p_disc_reject_one(r, ctx):
+    """DSC-006/007: accept-one-reject-one — valid applied; invalid echoed in codes, not applied."""
+    if r.status != 200:
+        return DEVIATION
+    d = _discounts(r)
+    if not isinstance(d, dict):
+        return DEVIATION
+    ap, codes = d.get("applied"), d.get("codes")
+    if not isinstance(ap, list) or not isinstance(codes, list):
+        return DEVIATION
+    applied_codes = {x.get("code") for x in ap if isinstance(x, dict)}
+    if _dvalid(ctx) not in applied_codes:        return DEVIATION   # valid one applied
+    if _dinvalid(ctx) in applied_codes:          return DEVIATION   # rejected NOT applied
+    if _dinvalid(ctx) not in codes:              return DEVIATION   # rejected echoed back
+    return CLEAN
+
+def p_disc_unknown(r, ctx):
+    """DSC-007: an unknown-only code is rejected — echoed in codes, nothing applied, no total."""
+    if r.status != 200:
+        return DEVIATION
+    d = _discounts(r)
+    if not isinstance(d, dict):
+        return DEVIATION
+    if d.get("applied"):            return DEVIATION   # bogus code wrongly applied
+    if _has_discount_total(r):      return DEVIATION
+    codes = d.get("codes")
+    return CLEAN if isinstance(codes, list) and _dinvalid(ctx) in codes else DEVIATION
+
 # ---- the merchant-agnostic check set (2026-01-23 / 2026-04-08 shared core) ---
 CHECKS = [
     MCheck("discovery.version", ["DISC-013"], "MUST", profile_resp, p_version,
@@ -220,18 +289,46 @@ CHECKS = [
            cfg_needs=("fail_payment",), transport="rest"),
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
            ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest"),
+    # --- discount (capability-gated + config-gated on discount codes) ---
+    MCheck("discount.single_applied", ["DSC-004", "DSC-011"], "MUST", disc_single_resp, p_disc_single,
+           ["status:500", "drop:discounts", "drop:discounts.applied",
+            "drop:discounts.applied.0.code", "set:totals=[]",
+            "set:discounts={\"applied\":[]}", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
+    MCheck("discount.accept_one_reject_one", ["DSC-006", "DSC-007"], "MUST", disc_reject_resp,
+           p_disc_reject_one,
+           ["status:500", "drop:discounts", "drop:discounts.applied", "drop:discounts.codes",
+            "set:discounts={\"codes\":[$DVALID,$DINVALID],\"applied\":[{\"code\":$DVALID},{\"code\":$DINVALID}]}",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
+    MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
+           ["status:500", "drop:discounts", "drop:discounts.codes",
+            "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
 ]
 
 # ---- runner: capability-gated, config-gated, kill-rate-validated -------------
 import inspect as _inspect
 
 def _expand_mut(m, ctx):
-    """Expand $CRED in a mutation to the merchant's JSON-encoded credential token, so a
-    generic no-echo check can inject a concrete leak at kill-rate time."""
-    if "$CRED" not in m:
-        return m
-    toks = _cred_tokens(ctx.config.get("complete_payment"))
-    return m.replace("$CRED", json.dumps(toks[0]) if toks else '"__cred__"')
+    """Expand config-specific placeholders in a mutation to concrete JSON values, so a
+    generic check can inject a concrete defect at kill-rate time.
+      $CRED     -> the merchant's payment credential token (no-echo injection)
+      $DVALID   -> a valid discount code
+      $DINVALID -> an invalid/unknown discount code
+    """
+    if "$CRED" in m:
+        toks = _cred_tokens(ctx.config.get("complete_payment"))
+        m = m.replace("$CRED", json.dumps(toks[0]) if toks else '"__cred__"')
+    if "$DVALID" in m:
+        m = m.replace("$DVALID", json.dumps(_dvalid(ctx) or "__v__"))
+    if "$DINVALID" in m:
+        m = m.replace("$DINVALID", json.dumps(_dinvalid(ctx) or "__x__"))
+    return m
 
 def _pred(chk, resp, ctx):
     """Call a predicate as p(resp) or p(resp, ctx) — ctx-aware predicates read config."""

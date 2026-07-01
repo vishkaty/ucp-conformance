@@ -69,6 +69,7 @@ the reference gate uses).
 | `complete_payment` | object | a payment body that **succeeds** → `checkout.complete_order`, `payment.no_credential_echo`. |
 | `fail_payment` | object | a payment body with a **known-failing** token → `validation.payment_failure` (expects 402). |
 | `out_of_stock_id` | string | a product id known to be out of stock → `validation.out_of_stock` (expects 4xx). |
+| `discount` | object | `{valid_code, invalid_code}` → discount checks (`single_applied`, `accept_one_reject_one`, `unknown_code_rejected`). Requires the `dev.ucp.shopping.discount` capability. |
 
 `complete_payment` / `fail_payment` follow the UCP complete-checkout body shape:
 
@@ -78,10 +79,11 @@ the reference gate uses).
 
 ## What's covered today
 
-13 kill-rate-validated checks spanning discovery, checkout lifecycle, idempotency,
-validation, fulfillment, order completion, and payment-credential handling — every one
-proven sound against the reference server. Coverage is reported honestly as a fraction
-of the applicable MUSTs; it is **not** full spec coverage, and the report says so.
+16 kill-rate-validated checks spanning discovery, checkout lifecycle, idempotency,
+validation, fulfillment, order completion, payment-credential handling, and discounts
+— every one proven sound against the reference server. Coverage is reported honestly as
+a fraction of the applicable MUSTs; it is **not** full spec coverage, and the report
+says so.
 
 > Unofficial, independent project. Not affiliated with, endorsed by, or a substitute
 > for the official UCP conformance suite.
