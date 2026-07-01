@@ -79,11 +79,14 @@ the reference gate uses).
 
 ## What's covered today
 
-16 kill-rate-validated checks spanning discovery, checkout lifecycle, idempotency,
-validation, fulfillment, order completion, payment-credential handling, and discounts
-— every one proven sound against the reference server. Coverage is reported honestly as
-a fraction of the applicable MUSTs; it is **not** full spec coverage, and the report
-says so.
+17 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
+whole `/.well-known/ucp` document validated against the official `ucp.json` via the
+`ucp-schema` oracle — catches any structural deviation in one shot), checkout
+lifecycle, idempotency, validation, fulfillment, order completion, payment-credential
+handling, and discounts — every one proven sound against the reference server. The
+profile-schema check is skipped (`not-tested`) when the `ucp-schema` binary isn't
+built. Coverage is reported honestly as a fraction of the applicable MUSTs; it is
+**not** full spec coverage, and the report says so.
 
 > Unofficial, independent project. Not affiliated with, endorsed by, or a substitute
 > for the official UCP conformance suite.

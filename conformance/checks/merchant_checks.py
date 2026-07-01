@@ -158,6 +158,25 @@ def p_rest_endpoint(r):
     rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
     return CLEAN if rest and rest.get("endpoint") else DEVIATION
 
+def p_profile_schema(r, ctx):
+    """DISC-000: the discovered profile MUST validate against the official ucp.json
+    business_schema (via the ucp-schema oracle). Catches ALL profile-structure
+    deviations (capabilities/services shape, required fields) in one spec-anchored
+    check. Returns INCONCLUSIVE if the oracle isn't available (caller -> not-tested)."""
+    import pathlib as _pl
+    sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1] / "selfcheck"))
+    try:
+        from schema_oracle import validate_profile, OracleUnavailable
+    except Exception:
+        return INCONCLUSIVE
+    try:
+        ok, _ = validate_profile(r.json, version=ctx.version or "2026-01-23", role="business")
+    except Exception:
+        # OracleUnavailable OR any oracle-wiring glitch -> inconclusive, NEVER a false
+        # deviation. Only a clean "oracle ran and rejected" yields a deviation.
+        return INCONCLUSIVE
+    return CLEAN if ok else DEVIATION
+
 def p_reverse_domain(r):
     caps = (r.json or {}).get("capabilities")
     # DISC-001: capabilities MUST be a keyed object whose names are reverse-domain form.
@@ -264,6 +283,8 @@ CHECKS = [
            ["drop:services", "set:services={}", "corrupt-json"], transport="rest"),
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"]),
+    MCheck("discovery.profile_schema", ["DISC-000"], "MUST", profile_resp, p_profile_schema,
+           ["drop:version", "set:capabilities=[]", "set:services=[]", "corrupt-json"]),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
            needs=("product",), transport="rest"),
@@ -371,6 +392,11 @@ def run_merchant_checks(ctx, checks=CHECKS):
                 results.append(CheckResult(rid, chk.keyword, INCONCLUSIVE))
             detail.append((chk, {"status": f"error:{e}", "kill_safe": False})); continue
         clean = _pred(chk, golden, ctx)
+        if clean == INCONCLUSIVE:            # e.g. schema oracle unavailable -> honest skip
+            for rid in chk.req_ids:
+                results.append(CheckResult(rid, chk.keyword, "not-tested"))
+            detail.append((chk, {"status": "not-tested (oracle unavailable)",
+                                  "kill_safe": None})); continue
         muts = [_expand_mut(m, ctx) for m in chk.mutations]
         survivors = [m for m in muts if _pred(chk, mutate(golden, m), ctx) != DEVIATION]
         kill_safe = (clean == CLEAN and not survivors)
