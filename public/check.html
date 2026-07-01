@@ -49,7 +49,7 @@
     <div class="verdict">Run the full suite</div>
     <p class="note">37 checks across checkout, order, discount, catalog, cart, totals — each proven to catch its own defects, each citing a spec clause.</p>
     <pre><code># one-off
-pip install "git+https://github.com/vishkaty/ucp-conformance.git#subdirectory=packaging"
+pip install spck-conformance
 spck-conformance --server https://store.example.com --init merchant.json
 spck-conformance --server https://store.example.com --config merchant.json
 

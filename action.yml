@@ -33,8 +33,7 @@ runs:
         python-version: "${{ inputs.python-version }}"
     - name: Install spck-conformance
       shell: bash
-      run: pip install "git+https://github.com/vishkaty/ucp-conformance.git#subdirectory=packaging"
-      # once published to PyPI this becomes: pip install spck-conformance
+      run: pip install spck-conformance
     - name: Run UCP conformance
       shell: bash
       run: |

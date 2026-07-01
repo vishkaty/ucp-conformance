@@ -14,7 +14,7 @@ check is kill-rate-validated (proven to catch its own defects) before it ships.
 pip install spck-conformance
 ```
 
-No third-party dependencies (Python ≥ 3.9, stdlib only).
+Python ≥ 3.9. One small dependency: `certifi` (a CA bundle so TLS works everywhere).
 
 ## Use
 
