@@ -10,3 +10,8 @@ conformance/.vendor/
 # python bytecode
 __pycache__/
 *.pyc
+
+# python build artifacts
+packaging/build/
+packaging/*.egg-info/
+packaging/spck_conformance.egg-info/
