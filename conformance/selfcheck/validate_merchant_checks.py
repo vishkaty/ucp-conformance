@@ -49,7 +49,8 @@ REF_CONFIG = {
 
 # Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart,
 # capabilities the official samples don't implement. See conformance/fixtures/merchant/.
-CONTROLLED_CONFIG = {"product_id": "teapot_ceramic", "currency": "USD"}
+CONTROLLED_CONFIG = {"product_id": "teapot_ceramic", "currency": "USD",
+                     "catalog": {"variant_id": "teapot_ceramic_v1"}}
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
 

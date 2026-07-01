@@ -160,6 +160,56 @@ def p_catalog_search(r):
             return DEVIATION
     return CLEAN
 
+def catalog_empty_search_resp(ctx):
+    return fetch(ctx.shopping_endpoint, "/catalog/search", "POST",
+                 {"query": "zzz_no_such_product_zzz"}, _hdr())
+
+def catalog_lookup_variant_resp(ctx):
+    return fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST",
+                 {"ids": [(ctx.config.get("catalog") or {}).get("variant_id")]}, _hdr())
+
+def p_empty_search(r):
+    """CAT-012: a no-match search returns products:[] with no messages (not an error)."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    if r.json.get("products") != []:
+        return DEVIATION
+    return DEVIATION if r.json.get("messages") else CLEAN
+
+def p_lookup_found(r):
+    """CAT-013: lookup by variant id resolves to a product."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prods = r.json.get("products")
+    return CLEAN if isinstance(prods, list) and prods else DEVIATION
+
+def _totals(r):
+    if r.status not in (200, 201):          # totals are only meaningful on a success response
+        return None
+    t = (r.json or {}).get("totals") if isinstance(r.json, dict) else None
+    return t if isinstance(t, list) else None
+
+def p_totals_subtotal_total(r):
+    """TOT-005/006: exactly one totals entry of type subtotal AND exactly one of type total."""
+    t = _totals(r)
+    if t is None:
+        return DEVIATION
+    subs = [x for x in t if isinstance(x, dict) and x.get("type") == "subtotal"]
+    tots = [x for x in t if isinstance(x, dict) and x.get("type") == "total"]
+    return CLEAN if len(subs) == 1 and len(tots) == 1 else DEVIATION
+
+def p_totals_additive_nonneg(r):
+    """TOT-015: additive well-known types (subtotal, fulfillment, tax, fee) MUST be >= 0."""
+    t = _totals(r)
+    if t is None:
+        return DEVIATION
+    for x in t:
+        if isinstance(x, dict) and x.get("type") in ("subtotal", "fulfillment", "tax", "fee"):
+            a = x.get("amount")
+            if not isinstance(a, (int, float)) or a < 0:
+                return DEVIATION
+    return CLEAN
+
 def p_catalog_lookup_inputs(r):
     """CAT-017/018: lookup variants MUST carry a non-empty inputs correlation array."""
     if r.status != 200 or not isinstance(r.json, dict):
@@ -405,6 +455,13 @@ CHECKS = [
             "drop:products.0.variants.0.inputs", "set:products.0.variants.0.inputs=[]",
             "corrupt-json"],
            capability="dev.ucp.shopping.catalog.lookup", needs=("product",), transport="rest"),
+    MCheck("catalog.empty_search", ["CAT-012"], "MUST", catalog_empty_search_resp, p_empty_search,
+           ["status:500", "set:products=[{\"id\":\"x\"}]", "set:messages=[\"e\"]", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search", transport="rest"),
+    MCheck("catalog.lookup_by_variant", ["CAT-013"], "MUST", catalog_lookup_variant_resp,
+           p_lookup_found,
+           ["status:404", "set:products=[]", "drop:products", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", cfg_needs=("catalog",), transport="rest"),
     # --- cart (capability-gated; product from config) ---
     MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
            ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",
@@ -413,6 +470,17 @@ CHECKS = [
     MCheck("cart.line_item_shape", ["CART-031"], "MUST", cart_create_resp, p_cart_line_items,
            ["status:500", "set:line_items=[]", "drop:line_items.0.item",
             "drop:line_items.0.quantity", "drop:line_items.0.totals", "corrupt-json"],
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+    # --- totals invariants (prose-only, NOT schema-enforced) — run on the cart object ---
+    MCheck("totals.subtotal_and_total", ["TOT-005", "TOT-006"], "MUST", cart_create_resp,
+           p_totals_subtotal_total,
+           ["status:500", "set:totals=[]", "set:totals=[{\"type\":\"total\",\"amount\":1}]",
+            "set:totals=[{\"type\":\"subtotal\",\"amount\":1}]", "corrupt-json"],
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+    MCheck("totals.additive_non_negative", ["TOT-015"], "MUST", cart_create_resp,
+           p_totals_additive_nonneg,
+           ["set:totals.0.amount=-1", "set:totals=[{\"type\":\"tax\",\"amount\":-5}]",
+            "corrupt-json"],
            capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
