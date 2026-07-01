@@ -47,12 +47,20 @@ REF_CONFIG = {
     "discount": {"valid_code": "10OFF", "invalid_code": "INVALID_CODE"},  # seeded codes
 }
 
+# Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart,
+# capabilities the official samples don't implement. See conformance/fixtures/merchant/.
+CONTROLLED_CONFIG = {"product_id": "teapot_ceramic", "currency": "USD"}
+
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
+
 def main():
     ap = argparse.ArgumentParser(description="Reference gate for merchant checks.")
     ap.add_argument("--server", default="http://localhost:8182")
+    ap.add_argument("--golden", choices=sorted(GOLDENS), default="flower",
+                    help="which golden's config to use (flower=Flower Shop, controlled=our fixture)")
     args = ap.parse_args()
     profile, _ = discover(args.server)
-    ctx = MerchantCtx(args.server, profile, REF_CONFIG)
+    ctx = MerchantCtx(args.server, profile, GOLDENS[args.golden])
     results, detail = merchant_checks.run_merchant_checks(ctx)
 
     broken, weak, ok, skipped = [], [], [], []

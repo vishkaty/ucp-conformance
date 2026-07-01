@@ -12,9 +12,18 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `verdict` | the no-false-green verdict gate's own unit tests hold | — |
 | `schema` | our schema checks agree with the official validator | official `ucp-schema` binary |
 | `suite-04-08` | 2026-04-08 fixture checks pass, no false green | official schemas |
-| `merchant` | every merchant check is **clean-pass + kill-safe** on the golden | independent golden server |
+| `fixture` | our controlled merchant's profile + responses are schema-valid | official `ucp.json` / catalog schemas |
+| `merchant` | every merchant check is **clean-pass + kill-safe** on the Flower Shop golden | independent golden server |
+| `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+
+The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
+stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the
+official samples don't implement (catalog now; cart next). It is not a substitute
+oracle: every artifact it serves is validated against the official schemas by the
+`fixture` gate, so a catalog check that passes here is anchored to the official
+validator, not to our own checks.
 
 Green requires every *run* gate to pass. Gates auto-skip (not fail) when their
 prerequisite is absent — no golden server, or the Rust `ucp-schema` oracle not built —

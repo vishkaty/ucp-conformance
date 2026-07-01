@@ -139,6 +139,41 @@ def disc_single_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx)])
 def disc_reject_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx), _dinvalid(ctx)])
 def disc_unknown_resp(ctx): return _apply_codes(ctx, [_dinvalid(ctx)])
 
+# ---- catalog flows (capability dev.ucp.shopping.catalog.*, product from config) --
+def catalog_search_resp(ctx):
+    return fetch(ctx.shopping_endpoint, "/catalog/search", "POST", {"query": "*"}, _hdr())
+
+def catalog_lookup_resp(ctx):
+    return fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST",
+                 {"ids": [ctx.product_id]}, _hdr())
+
+def p_catalog_search(r):
+    """CAT-012: search returns a products array; each product is well-formed (id/title/variants)."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prods = r.json.get("products")
+    if not isinstance(prods, list):
+        return DEVIATION
+    for p in prods:
+        if not (isinstance(p, dict) and p.get("id") and p.get("title")
+                and isinstance(p.get("variants"), list) and p["variants"]):
+            return DEVIATION
+    return CLEAN
+
+def p_catalog_lookup_inputs(r):
+    """CAT-017/018: lookup variants MUST carry a non-empty inputs correlation array."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prods = r.json.get("products")
+    if not isinstance(prods, list) or not prods:
+        return DEVIATION
+    for p in prods:
+        for v in (p.get("variants") or []):
+            inp = v.get("inputs")
+            if not isinstance(inp, list) or not inp or not all(i.get("id") for i in inp):
+                return DEVIATION
+    return CLEAN
+
 def _discounts(r):  return (r.json or {}).get("discounts") if isinstance(r.json, dict) else None
 def _applied(r):
     d = _discounts(r); return d.get("applied") if isinstance(d, dict) else None
@@ -287,16 +322,19 @@ CHECKS = [
            ["drop:version", "set:capabilities=[]", "set:services=[]", "corrupt-json"]),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
-           needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
            ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"],
-           needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
-           ["status:200", "status:201"], needs=("product",), transport="rest"),
+           ["status:200", "status:201"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
-           ["status:200", "status:201"], transport="rest"),
+           ["status:200", "status:201"],
+           capability="dev.ucp.shopping.checkout", transport="rest"),
     MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", idem_conflict_resp, p_409,
-           ["status:200", "status:201"], needs=("product",), transport="rest"),
+           ["status:200", "status:201"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
@@ -327,6 +365,17 @@ CHECKS = [
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest"),
+    # --- catalog (capability-gated; product from config/auto-discovery) ---
+    MCheck("catalog.search_shape", ["CAT-012"], "MUST", catalog_search_resp, p_catalog_search,
+           ["status:500", "drop:products", "set:products=\"x\"",
+            "set:products=[{\"id\":\"p\"}]", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search", transport="rest"),
+    MCheck("catalog.lookup_inputs", ["CAT-017", "CAT-018"], "MUST", catalog_lookup_resp,
+           p_catalog_lookup_inputs,
+           ["status:500", "drop:products", "set:products=[]",
+            "drop:products.0.variants.0.inputs", "set:products.0.variants.0.inputs=[]",
+            "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",), transport="rest"),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",

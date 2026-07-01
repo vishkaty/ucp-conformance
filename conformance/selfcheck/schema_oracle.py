@@ -89,6 +89,24 @@ def validate_profile(profile, version="2026-01-23", role="business"):
     finally:
         os.unlink(path)
 
+def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-08"):
+    """Validate a payload object against an explicit schema file + $def under a version's
+    schema base. schema_rel is relative to <base> (e.g. 'schemas/shopping/catalog_search.json').
+    Returns (ok, detail); raises OracleUnavailable if the binary/base is absent."""
+    import tempfile, os
+    base = SCHEMA_BASE.get(version)
+    schema = (base / schema_rel) if base else None
+    if not base or not schema or not schema.exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(path).write_text(json.dumps(payload))
+        r = _run(["validate", path, "--schema", str(schema), "--def", def_name,
+                  "--op", op, "--schema-local-base", str(base)])
+        return (r.returncode == 0, (r.stdout + r.stderr).strip())
+    finally:
+        os.unlink(path)
+
 def schema_parity(version="2026-04-08"):
     """Prove our oracle wiring is faithful: run the validator over our OWN controlled,
     version-matched corpus (fixtures/<version>/manifest.json). Each entry declares
