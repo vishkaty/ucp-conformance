@@ -166,10 +166,12 @@ def _apply_codes(ctx, codes):
 
 def _dvalid(ctx):   return (ctx.config.get("discount") or {}).get("valid_code")
 def _dinvalid(ctx): return (ctx.config.get("discount") or {}).get("invalid_code")
+def _dsecond(ctx):  return (ctx.config.get("discount") or {}).get("second_valid_code")
 
-def disc_single_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx)])
-def disc_reject_resp(ctx):  return _apply_codes(ctx, [_dvalid(ctx), _dinvalid(ctx)])
-def disc_unknown_resp(ctx): return _apply_codes(ctx, [_dinvalid(ctx)])
+def disc_single_resp(ctx):   return _apply_codes(ctx, [_dvalid(ctx)])
+def disc_reject_resp(ctx):   return _apply_codes(ctx, [_dvalid(ctx), _dinvalid(ctx)])
+def disc_unknown_resp(ctx):  return _apply_codes(ctx, [_dinvalid(ctx)])
+def disc_multiple_resp(ctx): return _apply_codes(ctx, [_dvalid(ctx), _dsecond(ctx)])
 
 # ---- catalog flows (capability dev.ucp.shopping.catalog.*, product from config) --
 def catalog_search_resp(ctx):
@@ -393,6 +395,16 @@ def p_disc_single(r, ctx):
         return DEVIATION
     return CLEAN if _has_discount_total(r) else DEVIATION
 
+def p_disc_multiple(r, ctx):
+    """DSC-005: multiple valid codes are ALL applied (accept-both)."""
+    if r.status != 200:
+        return DEVIATION
+    ap = _applied(r)
+    if not isinstance(ap, list):
+        return DEVIATION
+    codes = {d.get("code") for d in ap if isinstance(d, dict)}
+    return CLEAN if {_dvalid(ctx), _dsecond(ctx)} <= codes else DEVIATION
+
 def p_disc_reject_one(r, ctx):
     """DSC-006/007: accept-one-reject-one — valid applied; invalid echoed in codes, not applied."""
     if r.status != 200:
@@ -478,6 +490,11 @@ CHECKS = [
            ["status:500", "drop:discounts", "drop:discounts.applied",
             "drop:discounts.applied.0.code", "set:totals=[]",
             "set:discounts={\"applied\":[]}", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
+    MCheck("discount.multiple_accept_both", ["DSC-005"], "MUST", disc_multiple_resp, p_disc_multiple,
+           ["status:500", "drop:discounts", "drop:discounts.applied",
+            "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest"),
     MCheck("discount.accept_one_reject_one", ["DSC-006", "DSC-007"], "MUST", disc_reject_resp,

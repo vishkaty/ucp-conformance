@@ -44,7 +44,8 @@ REF_CONFIG = {
     "complete_payment": _pay("success_token", "1234"),   # happy-path completion
     "fail_payment": _pay("fail_token", "0000"),          # known-failing token -> 402
     "out_of_stock_id": "gardenias",               # seeded out-of-stock product -> 4xx
-    "discount": {"valid_code": "10OFF", "invalid_code": "INVALID_CODE"},  # seeded codes
+    "discount": {"valid_code": "10OFF", "second_valid_code": "WELCOME20",
+                 "invalid_code": "INVALID_CODE"},  # seeded codes
 }
 
 # Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart,
