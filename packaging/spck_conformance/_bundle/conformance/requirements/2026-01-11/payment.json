@@ -1,0 +1,626 @@
+{
+  "_area": "payment",
+  "_spec_commit": "806a5b74d3a5a918206844ea980450233b38664e",
+  "rows": [
+    {
+      "id": "PAY-001",
+      "requirement": "Every payment handler specification must define the core required elements.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment-handler-guide.md#L52",
+      "quote": "Every payment handler specification **MUST** define the core elements below.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Spec-authoring requirement; no runtime oracle."
+    },
+    {
+      "id": "PAY-002",
+      "requirement": "A payment handler base/declaration must include an id field identifying the handler instance.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/payment_handler.json#L6",
+      "quote": "\"required\": [\n    \"id\",\n    \"name\",\n    \"version\",\n    \"spec\",\n    \"config_schema\",\n    \"instrument_schemas\",\n    \"config\"\n  ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "JSON-Schema required on PaymentHandler base ($defs/base); platform/business/response schemas all compose it."
+    },
+    {
+      "id": "PAY-004",
+      "requirement": "Payment handler specifications must explicitly document the participant field mappings.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment-handler-guide.md#L94",
+      "quote": "Specifications **MUST** explicitly document these field mappings.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Spec-authoring requirement."
+    },
+    {
+      "id": "PAY-005",
+      "requirement": "A payment handler specification must define which credential types are accepted by the handler.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment-handler-guide.md#L265",
+      "quote": "The specification **MUST** define which credential types are accepted by the\nhandler.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Spec-authoring requirement."
+    },
+    {
+      "id": "PAY-006",
+      "requirement": "If using token credentials, the handler schema must include an expiry/ttl field (or mechanism to refresh credentials).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment-handler-guide.md#L267",
+      "quote": "If using token credentials, the schema **MUST** include an",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Handler-schema design requirement; base token_credential.json does not enforce expiry."
+    },
+    {
+      "id": "PAY-007",
+      "requirement": "A handler specification must define a mapping for common payment failures.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment-handler-guide.md#L342",
+      "quote": "The specification **MUST** define a mapping for common failures (e.g.,",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Spec-authoring requirement."
+    },
+    {
+      "id": "PAY-008",
+      "requirement": "A payment instrument must include id, handler_id, and type, where handler_id corresponds to the id of the payment handler definition.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/payment_instrument_base.json#L7",
+      "quote": "\"required\": [\n    \"id\",\n    \"handler_id\",\n    \"type\"\n  ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "handler_id validation/routing. Exercised by test_card_credential_payment, Ap2MandateTest.test_ap2_mandate_completion, TokenBindingTest.test_token_binding_completion (all send handler_id=mock_payment_handler)."
+    },
+    {
+      "id": "PAY-009",
+      "requirement": "Credentials flow Platform to Business only; businesses must not echo credentials back in responses (unidirectional flow).",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview.md#L558",
+      "quote": "**Unidirectional Flow:** Credentials flow **Platform → Business** only. Businesses **MUST NOT** echo credentials back in responses.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "token_credential.json marks token with \"ucp_response\":\"omit\" enforcing non-echo for token credentials; general non-echo for all credential types needs a receiver-side response inspection oracle. No official test asserts non-echo."
+    },
+    {
+      "id": "PAY-010",
+      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L560",
+      "quote": "**Handler ID Routing:** The `handler_id` in the payload ensures the business knows exactly which payment credential provider key to use for decryption/charging, preventing key confusion attacks.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "handler_id routing/validation. Stated as descriptive rule (no bold MUST); enforced via required handler_id in payment_instrument and exercised by test_card_credential_payment with handler_id=mock_payment_handler."
+    },
+    {
+      "id": "PAY-011",
+      "requirement": "The platform acting as intermediary should not touch raw financial credentials.",
+      "keyword": "SHOULD NOT",
+      "source": "ucp:docs/specification/overview.md#L535",
+      "quote": "the platform (Client) acts as an intermediary that **SHOULD NOT**\ntouch raw financial credentials.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Trust-by-Design principle; not runtime-checkable from the wire."
+    },
+    {
+      "id": "PAY-012",
+      "requirement": "Businesses must filter the handlers list based on the context of the cart (dynamic filtering).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L601",
+      "quote": "**Dynamic Filtering:** Businesses **MUST** filter the `handlers` list based on\nthe context of the cart",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Requires business-side logic; no official oracle."
+    },
+    {
+      "id": "PAY-013",
+      "requirement": "The card credential type must not be used for checkout, only with payment handlers that tokenize or encrypt credentials.",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/shopping/types/card_credential.json#L5",
+      "quote": "This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Stated in schema description (not a structural constraint). Note: test_card_credential_payment sends a raw card credential and expects 200 against the mock, so no official oracle enforces this prohibition."
+    },
+    {
+      "id": "PAY-014",
+      "requirement": "Both parties handling a CardCredential (sender and receiver) must be PCI DSS compliant, and transmission must use HTTPS/TLS with strong cipher suites.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/card_credential.json#L5",
+      "quote": "Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Compliance/transport requirement; not assertable from payload schema."
+    },
+    {
+      "id": "PAY-015",
+      "requirement": "A card credential must include type (const 'card') and card_number_type.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/card_credential.json#L12",
+      "quote": "\"required\": [\n        \"type\",\n        \"card_number_type\"\n      ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "JSON-Schema required; type const 'card', card_number_type enum [fpan,network_token,dpan]. test_card_credential_payment sends type=card, card_number_type=fpan."
+    },
+    {
+      "id": "PAY-016",
+      "requirement": "A token credential must include type and token.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/token_credential.json#L12",
+      "quote": "\"required\": [\"type\", \"token\"]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "JSON-Schema required. Ap2MandateTest.test_ap2_mandate_completion and TokenBindingTest.test_token_binding_completion both send credential {type: token, token: ...}."
+    },
+    {
+      "id": "PAY-017",
+      "requirement": "A binding must include checkout_id identifying the checkout session the token is bound to (prevents token reuse across checkouts/participants).",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/binding.json#L7",
+      "quote": "\"required\": [\"checkout_id\"]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Token binding. TokenBindingTest.test_token_binding_completion sends credential with binding {checkout_id, identity:{access_token}} and expects status completed."
+    },
+    {
+      "id": "PAY-018",
+      "requirement": "The binding identity is required when acting on behalf of another participant (e.g., agent tokenizing for merchant).",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/binding.json#L15",
+      "quote": "Required when acting on behalf of another participant (e.g., agent tokenizing for merchant). Omit when the authenticated caller is the binding target.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Conditional requirement in schema description (not structurally enforced). TokenBindingTest.test_token_binding_completion supplies binding.identity.access_token."
+    },
+    {
+      "id": "PAY-019",
+      "requirement": "Businesses must embed a cryptographic signature (merchant_authorization) in checkout responses when AP2 is negotiated.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L31",
+      "quote": "**Businesses** **MUST** embed a cryptographic signature in checkout",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Requires business-side signing; no official oracle asserts merchant_authorization presence."
+    },
+    {
+      "id": "PAY-020",
+      "requirement": "Platforms must provide cryptographically signed proofs (Mandates) for autonomous/non-repudiable authorization.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L33",
+      "quote": "**Platforms** **MUST** provide cryptographically signed proofs (Mandates)",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform-side signing obligation."
+    },
+    {
+      "id": "PAY-021",
+      "requirement": "When ap2_mandate is negotiated, the business must include ap2.merchant_authorization in all relevant checkout responses.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L108",
+      "quote": "The business **MUST** include `ap2.merchant_authorization` in all",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business response obligation; no official oracle."
+    },
+    {
+      "id": "PAY-022",
+      "requirement": "When ap2_mandate is negotiated, the business must not accept a complete_checkout request that lacks ap2.checkout_mandate.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/ap2-mandates.md#L110",
+      "quote": "The business **MUST NOT** accept a `complete_checkout` request that\n        lacks `ap2.checkout_mandate`.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Signed checkout_mandate required for autonomous completion. ap2_mandate.json marks checkout_mandate/ap2 as ucp_request complete=required. Positive path asserted by Ap2MandateTest.test_ap2_mandate_completion (sends ap2.checkout_mandate, expects completed). Negative (missing mandate -> rejected) needs a receiver."
+    },
+    {
+      "id": "PAY-023",
+      "requirement": "The platform must verify the business's merchant signature before presenting checkout terms to the user.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L112",
+      "quote": "The platform **MUST** verify the business's signature before presenting",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform-side verification obligation."
+    },
+    {
+      "id": "PAY-024",
+      "requirement": "A public signing key must be available for the business to verify the mandate's signature.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L117",
+      "quote": "To utilize this extension, a public signing key **MUST** be available for the\nbusiness to verify the mandate's signature.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Key-availability precondition."
+    },
+    {
+      "id": "PAY-025",
+      "requirement": "If a public key cannot be resolved, or if the signature is invalid, the business must return an error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L123",
+      "quote": "If a public key cannot be resolved, or if the signature is invalid, the business\n**MUST** return an error.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business error-path obligation; no official oracle for the negative case."
+    },
+    {
+      "id": "PAY-026",
+      "requirement": "All AP2 signatures must use one of the approved algorithms (ES256/ES384/ES512).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L130",
+      "quote": "All signatures **MUST** use one of the following algorithms:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Algorithm constraint enforced in the JWS header (alg); not structurally validated by the ap2_mandate string pattern."
+    },
+    {
+      "id": "PAY-027",
+      "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L140",
+      "quote": "Businesses **MUST** embed their signature in the checkout response body under",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Placement requirement; ap2_mandate.json marks merchant_authorization as ucp_request omit (response-only)."
+    },
+    {
+      "id": "PAY-028",
+      "requirement": "The AP2 signature must cover both the JWS header and the checkout payload.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L172",
+      "quote": "The signature **MUST** cover both the JWS header and the checkout payload. This",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Signature scope requirement."
+    },
+    {
+      "id": "PAY-029",
+      "requirement": "Completion of an autonomous AP2 flow must produce two distinct mandate artifacts: a checkout_mandate and a payment_mandate.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L200",
+      "quote": "**MUST** produce two distinct mandate artifacts:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "checkout_mandate at ap2.checkout_mandate; payment_mandate at payment.instruments[*].credential.token. Ap2MandateTest.test_ap2_mandate_completion exercises checkout_mandate plus token credential."
+    },
+    {
+      "id": "PAY-030",
+      "requirement": "The checkout mandate must contain the full checkout response including the business's signature (nested signature model).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L207",
+      "quote": "The checkout mandate **MUST** contain the full checkout response including the",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Mandate content requirement; opaque SD-JWT, not structurally validated."
+    },
+    {
+      "id": "PAY-031",
+      "requirement": "Both parties must follow the locked AP2 completion flow once the ap2_mandate capability is negotiated; a completion request without mandates must result in a session failure.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L233",
+      "quote": "Both parties **MUST** follow these steps to",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Flow-lock requirement; negative (no-mandate -> failure) needs a receiver."
+    },
+    {
+      "id": "PAY-032",
+      "requirement": "A completion request without mandates must result in a session failure.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L235",
+      "quote": "a completion request without mandates **MUST** result in a session failure.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Enforced structurally by ap2 complete=required in ap2_mandate.json; runtime failure-path needs a receiver. No official negative test."
+    },
+    {
+      "id": "PAY-033",
+      "requirement": "For signature computation over JSON payloads, implementations must use JSON canonicalization (JCS).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L218",
+      "quote": "implementations **MUST** use",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Canonicalization requirement for signature verification."
+    },
+    {
+      "id": "PAY-034",
+      "requirement": "On receiving the complete request, the business must check the mandate is present and return a mandate_required error if ap2.checkout_mandate is missing.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/ap2-mandates.md#L358",
+      "quote": "Upon receiving the `complete` request, the business **MUST**:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business completion-verification steps (presence check, mandate verify, merchant-sig verify); negative paths need a receiver. error_code enum includes mandate_required."
+    },
+    {
+      "id": "PAY-035",
+      "requirement": "The merchant_authorization is a JWS Detached Content signature; its header must contain alg (ES256/ES384/ES512) and kid claims.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/ap2_mandate.json#L12",
+      "quote": "The header MUST contain 'alg' (ES256/ES384/ES512) and 'kid' claims.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "merchant_authorization string pattern is schema-enforced; the alg/kid header claims are not validated by the regex. No official test asserts merchant_authorization."
+    }
+  ],
+  "notes": [
+    "Spec version 2026-01-23, pinned commit dcf7eac71fc370dcc8768fcdbc5aa737037cca05.",
+    "Three official payment oracles in conformance/.vendor/conformance/: CardCredentialTest.test_card_credential_payment (raw card credential -> 200/completed), Ap2MandateTest.test_ap2_mandate_completion (ap2.checkout_mandate + token credential -> 200/completed), TokenBindingTest.test_token_binding_completion (token credential with binding{checkout_id,identity.access_token} -> 200/completed). All three send handler_id=mock_payment_handler, exercising handler_id routing (PAY-008/PAY-010).",
+    "All official tests assert only the POSITIVE completion path (status 200, 'completed'). No official test asserts negative cases: missing-mandate rejection (PAY-022/PAY-032/PAY-034), credential non-echo (PAY-009), or merchant_authorization presence/verification (PAY-019/PAY-023/PAY-035). These are marked official_oracle on the positive-path row where a test touches the same field, with notes flagging the missing negative coverage.",
+    "schema_enforced=true rows correspond to real JSON-Schema constraints: required arrays (payment_handler.json id; payment_instrument.json id/handler_id/type; card_credential.json type/card_number_type; token_credential.json type/token; binding.json checkout_id) and ucp_request/ucp_response lifecycle directives in ap2_mandate.json and token_credential.json (token omit on response). Descriptive prose constraints (PCI compliance, MUST NOT echo for arbitrary credential types, alg/kid header content) are NOT structurally validated.",
+    "Schema dir lacks files named available_payment_instrument.json and ap2_mandate.json under types/ (ap2_mandate.json lives at source/schemas/shopping/ap2_mandate.json; instrument selection lives in payment_instrument.json $defs/selected_payment_instrument). Quoted accordingly.",
+    "card_credential.json description says card credentials MUST NOT be used for checkout, yet test_card_credential_payment sends one to /complete and expects 200 against the mock handler -- the mock does not enforce that prohibition (PAY-013)."
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "_area": "errors-validation-security",
+  "_spec_commit": "806a5b74d3a5a918206844ea980450233b38664e",
+  "rows": [
+    {
+      "id": "ERR-001",
+      "requirement": "An error message MUST include the fields type, code, content, and severity (all four are required on a Message Error).",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L6-L11",
+      "quote": "\"required\": [ \"type\", \"code\", \"content\", \"severity\" ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Message Error required-field set. Not directly asserted field-by-field by the suite; ValidationTest.test_structured_error_messages checks the server's REST error envelope ('detail') rather than the Message Error object."
+    },
+    {
+      "id": "ERR-002",
+      "requirement": "The error message type discriminator MUST be the constant string \"error\".",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L13-L16",
+      "quote": "\"type\": { \"type\": \"string\", \"const\": \"error\", \"description\": \"Message type discriminator.\" }",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "const enforces the discriminator value."
+    },
+    {
+      "id": "ERR-003",
+      "requirement": "The error code field MUST be a string; defined values include missing, invalid, out_of_stock, payment_declined, requires_sign_in, requires_3ds, requires_identity_linking, with freeform codes also allowed.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L18-L21",
+      "quote": "Error code. Possible values include: missing, invalid, out_of_stock, payment_declined, requires_sign_in, requires_3ds, requires_identity_linking. Freeform codes also allowed.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Open vocabulary: schema enforces string type only, not enum membership."
+    },
+    {
+      "id": "ERR-004",
+      "requirement": "The error severity field MUST be one of exactly three enum values: recoverable, requires_buyer_input, requires_buyer_review.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L39-L46",
+      "quote": "\"severity\": { \"type\": \"string\", \"enum\": [ \"recoverable\", \"requires_buyer_input\", \"requires_buyer_review\" ]",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "01-23 DELTA: severity enum has exactly THREE values in 2026-01-23 (recoverable / requires_buyer_input / requires_buyer_review). 'unrecoverable' does NOT exist in this version."
+    },
+    {
+      "id": "ERR-005",
+      "requirement": "Errors with requires_* severity contribute to status requires_escalation.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L46",
+      "quote": "Errors with 'requires_*' severity contribute to 'status: requires_escalation'.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Severity-to-status mapping described in the severity field description; restated in checkout.md error handling."
+    },
+    {
+      "id": "ERR-006",
+      "requirement": "REST implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500) for responses including errors.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Basis for the suite's status-code assertions across validation/invalid-input/security tests."
+    },
+    {
+      "id": "ERR-007",
+      "requirement": "If negotiation fails, businesses MUST return an error response (status requires_escalation with a type:error message, e.g. version_unsupported, severity requires_buyer_input).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L489",
+      "quote": "If negotiation fails, businesses **MUST** return an error response:",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Example envelope uses severity requires_buyer_input."
+    },
+    {
+      "id": "ERR-008",
+      "requirement": "Businesses MUST include at least one message with severity escalation when returning status requires_escalation.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/checkout.md#L270-L271",
+      "quote": "**MUST** include at least one message with `severity: escalation` when returning `status` = `requires_escalation`.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NOTE: this guideline text says 'severity: escalation', but the message_error severity enum in 2026-01-23 has no 'escalation' value (only recoverable / requires_buyer_input / requires_buyer_review). Apparent spec inconsistency in 01-23; the requires_* severities are what contribute to requires_escalation."
+    },
+    {
+      "id": "ERR-009",
+      "requirement": "Businesses SHOULD provide accurate error messages.",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/checkout.md#L266",
+      "quote": "**SHOULD** provide accurate error messages.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business guideline."
+    },
+    {
+      "id": "VAL-001",
+      "requirement": "When an out-of-stock item is added to a checkout session, the server MUST return a 400 Bad Request error indicating insufficient stock.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_out_of_stock (assert_response_status 400). Spec basis is the standard-HTTP-status-codes MUST."
+    },
+    {
+      "id": "VAL-002",
+      "requirement": "An inventory/quantity validation failure on checkout creation MUST return a 400 Bad Request error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_update_inventory_validation (assert_response_status 400)."
+    },
+    {
+      "id": "VAL-003",
+      "requirement": "A request referencing a non-existent product MUST return a 400 Bad Request error indicating the product was not found.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_product_not_found (assert_response_status 400)."
+    },
+    {
+      "id": "VAL-004",
+      "requirement": "Submitting a payment instrument with a known failing token at checkout completion MUST return a 402 Payment Required error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_payment_failure (assert_response_status 402, instrument_id 'instr_fail')."
+    },
+    {
+      "id": "VAL-005",
+      "requirement": "Attempting to complete a checkout without required fulfillment MUST return a 400 Bad Request error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_complete_without_fulfillment (assert_response_status 400)."
+    },
+    {
+      "id": "VAL-006",
+      "requirement": "Error responses MUST be structured: a 400 error body MUST contain a populated 'detail' field describing the error.",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/message_error.json#L35-L38",
+      "quote": "\"content\": { \"type\": \"string\", \"description\": \"Human-readable message.\" }",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by ValidationTest.test_structured_error_messages (checks response.json()['detail'] populated and contains 'Insufficient stock'). The suite asserts the FastAPI/REST 'detail' envelope, not the UCP Message Error object; mapped here to the Message Error human-readable content field."
+    },
+    {
+      "id": "VAL-007",
+      "requirement": "An update specifying an invalid adjustment status (non-conforming literal) MUST be rejected with a 422 Unprocessable Entity error due to validation failure.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Asserted by InvalidInputTest.test_invalid_adjustment_status (assert_response_status 422). 422 is a server/Pydantic validation convention not enumerated in the spec's example status list."
+    },
+    {
+      "id": "VAL-008",
+      "requirement": "An update with a malformed adjustments field (e.g., a dict instead of a list) MUST return a 422 Unprocessable Entity error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Asserted by InvalidInputTest.test_malformed_adjustment_payload (assert_response_status 422)."
+    },
+    {
+      "id": "VAL-009",
+      "requirement": "A request using an unknown discount code MUST succeed with 200 OK, with no discount applied (graceful handling, not an error).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by InvalidInputTest.test_unknown_discount_code (status 200, discount None). Demonstrates unknown-input tolerance vs hard validation failure."
+    },
+    {
+      "id": "SEC-001",
+      "requirement": "A request to the simulation endpoint without the Simulation-Secret header MUST be rejected with 403 Forbidden.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_missing_header (assert_response_status 403). Simulation endpoint is a test-harness construct, not a normative UCP endpoint; spec basis is standard HTTP status codes."
+    },
+    {
+      "id": "SEC-002",
+      "requirement": "A request to the simulation endpoint with an incorrect Simulation-Secret MUST be rejected with 403 Forbidden.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_incorrect_secret (sets Simulation-Secret 'for-sure-incorrect-secret', asserts 403)."
+    },
+    {
+      "id": "SEC-003",
+      "requirement": "A request to the simulation endpoint with the correct Simulation-Secret MUST be accepted with 200 OK.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L951",
+      "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_correct_secret (uses FLAGS.simulation_secret, asserts 200)."
+    },
+    {
+      "id": "SEC-004",
+      "requirement": "All UCP communication MUST occur over HTTPS.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L992",
+      "quote": "All UCP communication **MUST** occur over **HTTPS**.",
+      "versions": [
+        "2026-01-11"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Transport security baseline; not asserted by the three cited suite tests (which use a test client)."
+    }
+  ],
+  "notes": [
+    "01-23 DELTA (severity enum): in 2026-01-23 the message_error 'severity' enum has exactly THREE values — recoverable, requires_buyer_input, requires_buyer_review (source/schemas/shopping/types/message_error.json#L41-L46). The value 'unrecoverable' does NOT exist in this version.",
+    "Files error_code.json and error_response.json do NOT exist in the 2026-01-23 vendored tree; errors are modeled solely via the Message / Message Error schemas (message.json oneOf message_error/message_warning/message_info). Error required fields (type/code/content/severity) come from message_error.json.",
+    "Spec inconsistency: checkout.md#L270 guideline text references 'severity: escalation', a value absent from the 01-23 severity enum. The normative severity-to-status mapping is that requires_* severities contribute to status requires_escalation (message_error.json#L46, checkout.md#L132).",
+    "Status-code mapping asserted by the official suite: validation_test -> 400 (out_of_stock, update_inventory_validation, product_not_found, complete_without_fulfillment, structured_error_messages) and 402 (payment_failure); invalid_input_test -> 422 (invalid_adjustment_status, malformed_adjustment_payload) and 200 (unknown_discount_code); simulation_url_security_test -> 403 (missing header, incorrect secret) and 200 (correct secret).",
+    "The spec's example HTTP status list (overview.md#L1032-L1033) enumerates 200/201/400/401/500. 402, 403, and 422 are used by the suite as 'standard HTTP status codes' but are not enumerated in that example; they have no dedicated normative MUST text, so all VAL/SEC rows cite the general standard-status-codes MUST and rely on official_oracle=true for the exact code.",
+    "official_oracle=true marks rows whose exact behavior/status code is asserted by a named test in the official conformance suite (validation_test.py, invalid_input_test.py, simulation_url_security_test.py). ERR rows about Message Error schema shape are schema_enforced but not individually asserted field-by-field by these three tests."
+  ]
+}

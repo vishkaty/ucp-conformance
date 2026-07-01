@@ -69,3 +69,9 @@ jobs:
         run: bash conformance/ci/stop_golden.sh
         env:
           DB_DIR: /tmp/ucp_test
+
+      - name: Verify the pip bundle is in sync with source
+        run: |
+          bash packaging/sync_bundle.sh
+          git diff --exit-code packaging/spck_conformance/_bundle \
+            || { echo "::error::packaging bundle is stale — run packaging/sync_bundle.sh and commit"; exit 1; }

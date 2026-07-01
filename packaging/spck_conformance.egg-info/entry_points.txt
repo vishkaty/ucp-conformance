@@ -1,0 +1,2 @@
+[console_scripts]
+spck-conformance = spck_conformance.cli:main
