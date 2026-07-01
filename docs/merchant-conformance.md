@@ -6,8 +6,15 @@ it reports only the checks it actually runs.
 
 ```bash
 python3 conformance/checks/merchant.py --server https://api.example.com \
-    [--config merchant.json] [--json]
+    [--config merchant.json] [--json] [--junit report.xml]
 ```
+
+**CI-friendly output.** `--json` emits the full report (each check carries its
+`requirements`: the normative id, verbatim text, and spec source). `--junit FILE`
+writes a JUnit XML report any CI can display as a test run (deviation → `<failure>`,
+not-applicable/not-tested → `<skipped>`). Exit code is **2** if any MUST deviates,
+else **0** (partial coverage is not a failure). On a deviation, the human output cites
+the violated clause.
 
 ## How it decides what to test
 
