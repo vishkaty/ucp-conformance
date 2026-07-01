@@ -262,26 +262,50 @@ def main():
         pathlib.Path(args.junit).write_text(junit_xml(ctx, detail, meta))
     if args.json:
         print(json.dumps(out, indent=2)); return rc
-    print(f"Merchant conformance report (UNOFFICIAL) — {ctx.base}\n")
-    print(f"  spec version {ctx.version} · JSON {out['content_type_json']} · endpoint {ctx.shopping_endpoint}")
-    print(f"  declared capabilities: {', '.join(supported) or '(none)'}")
-    print(f"  product for lifecycle: {ctx.product_id or '(none — pass --config product_id)'}\n")
-    for c, d in detail:
-        st = d["status"]
-        mark = {"not-applicable":"— n/a","not-tested (no product)":"— not-tested"}.get(st, st)
-        print(f"    {c.id:30} {str(mark):12}" + (f" kill_safe={d['kill_safe']}" if d.get("kill_safe") is not None else "")
-              + (f"  survivors={d['survivors']}" if d.get("survivors") else ""))
-        if st == "deviation":                       # actionable: expected vs observed
+    # ---- grouped, scannable report ------------------------------------------
+    passed  = [(c, d) for c, d in detail if d["status"] == "clean-pass"]
+    devs    = [(c, d) for c, d in detail if d["status"] == "deviation"]
+    nottest = [(c, d) for c, d in detail if str(d["status"]).startswith("not-tested")]
+    napp    = [(c, d) for c, d in detail if str(d["status"]).startswith("not-applicable")]
+    other   = [(c, d) for c, d in detail if (c, d) not in passed + devs + nottest + napp]
+
+    print(f"═══ UCP conformance report (unofficial) — {ctx.base} ═══")
+    print(f"  spec {ctx.version} · endpoint {ctx.shopping_endpoint}")
+    print(f"  capabilities: {', '.join(supported) or '(none declared)'}")
+    print(f"  product for lifecycle: {ctx.product_id or '(none)'}\n")
+    print(f"  VERDICT: {rep.aggregate.upper()} — "
+          f"{cc['musts_clean_pass']}/{cc['inscope_musts']} applicable MUSTs "
+          f"({round(100*rep.coverage)}%), {cc['deviations']} deviation(s)")
+    print(f"  [{len(passed)} passed · {len(devs)} deviations · {len(nottest)} not-tested "
+          f"· {len(napp)} not-applicable]")
+
+    if devs:
+        print(f"\n  ✗ DEVIATIONS ({len(devs)}) — a MUST was violated:")
+        for c, d in devs:
+            print(f"    {c.id}")
             for x in _citations(c.req_ids, meta):
                 print(f"        expected  {x['id']}: {x['requirement']}")
                 print(f"        spec      {x['source']}")
             obs = d.get("observed") or {}
             print(f"        observed  HTTP {obs.get('status')}  body: {obs.get('body')}")
-    print(f"\n  aggregate: {rep.aggregate.upper()}   "
-          f"MUST coverage: {cc['musts_clean_pass']}/{cc['inscope_musts']} applicable "
-          f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")
+    if passed:
+        print(f"\n  ✓ PASSED ({len(passed)}) — satisfied & kill-safe:")
+        for c, _ in passed:
+            print(f"        {c.id}")
+    if nottest:
+        print(f"\n  ⊘ NOT TESTED ({len(nottest)}) — need config/data (not a failure):")
+        for c, d in nottest:
+            reason = str(d["status"]).replace("not-tested", "").strip("() ")
+            print(f"        {c.id:30} {reason or 'needs data'}")
+    if napp:
+        print(f"\n  — NOT APPLICABLE ({len(napp)}) — capability/transport not declared:")
+        print(f"        {', '.join(c.id for c, _ in napp)}")
+    if other:
+        print(f"\n  ? INCONCLUSIVE ({len(other)}):")
+        for c, d in other:
+            print(f"        {c.id:30} {d['status']}")
     if args.junit:
-        print(f"  JUnit report written to {args.junit}")
+        print(f"\n  JUnit report written to {args.junit}")
 
     # ---- friendly next steps -------------------------------------------------
     n_pass = sum(1 for _, d in detail if d["status"] == "clean-pass")
