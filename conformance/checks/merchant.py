@@ -62,6 +62,10 @@ class MerchantCtx:
         self.has_rest = rest is not None
         self.transports = [s.get("transport") for s in svc if isinstance(s, dict)]
         self.shopping_endpoint = (rest or {}).get("endpoint", self.base)
+        # MCP transport (JSON-RPC tools/call): checks over MCP run if it's declared.
+        mcp = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "mcp"), None)
+        self.has_mcp = mcp is not None
+        self.mcp_endpoint = (mcp or {}).get("endpoint")
         self.product_id = self.config.get("product_id")
 
 def discover(base):

@@ -69,6 +69,21 @@ def fetch(base, path, method="GET", body=None, headers=None):
     except Exception as e:
         return Resp(0, {}, str(e).encode())
 
+def mcp_call(endpoint, name, arguments, rpc_id=1):
+    """Call a UCP operation over the MCP transport (JSON-RPC `tools/call`, per the spec's
+    checkout-mcp.md). Returns a Resp whose .json is the UCP object from
+    result.structuredContent — so the same shape predicates work transport-agnostically.
+    A JSON-RPC error -> status 0 with the error body (a deviation to the predicates)."""
+    rpc = {"jsonrpc": "2.0", "id": rpc_id, "method": "tools/call",
+           "params": {"name": name, "arguments": arguments}}
+    r = fetch(endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
+    if r.status != 200 or not isinstance(r.json, dict):
+        return r
+    if "error" in r.json:
+        return Resp(0, r.headers, json.dumps(r.json.get("error")).encode())
+    sc = (r.json.get("result") or {}).get("structuredContent")
+    return Resp(200, r.headers, json.dumps(sc).encode())
+
 # ---- mutations on a captured response (defect injection) --------------------
 def _reparse(r):
     r.body = json.dumps(r.json).encode() if r.json is not None else r.body

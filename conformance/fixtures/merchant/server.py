@@ -45,10 +45,13 @@ def profile(base):
     cap = [{"version": VERSION}]
     return {
         "version": VERSION,
-        "services": {"dev.ucp.shopping": [{
-            "version": VERSION, "transport": "rest", "endpoint": base,
-            "spec": "https://ucp.dev/2026-04-08/specification/shopping",
-            "schema": "https://ucp.dev/2026-04-08/services/shopping/openapi.json"}]},
+        "services": {"dev.ucp.shopping": [
+            {"version": VERSION, "transport": "rest", "endpoint": base,
+             "spec": "https://ucp.dev/2026-04-08/specification/shopping",
+             "schema": "https://ucp.dev/2026-04-08/services/shopping/openapi.json"},
+            {"version": VERSION, "transport": "mcp", "endpoint": base + "/ucp/mcp",
+             "spec": "https://ucp.dev/2026-04-08/specification/shopping",
+             "schema": "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"}]},
         "capabilities": {
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
@@ -107,6 +110,31 @@ def lookup_response(ids):
            [BY_VARIANT[i] for i in ids if i in BY_VARIANT and i not in BY_ID]
     return {"ucp": {"version": VERSION}, "products": [_detail(p, ids) for p in hits]}
 
+def mcp_dispatch(rpc):
+    """Handle a JSON-RPC `tools/call` (the UCP MCP transport, per checkout-mcp.md):
+    route to a shopping operation and wrap the UCP object in result.structuredContent.
+    Reuses the exact same handlers as REST, so both transports return identical payloads."""
+    rid = (rpc or {}).get("id")
+    def ok(payload): return {"jsonrpc": "2.0", "id": rid,
+                             "result": {"structuredContent": payload}}
+    def err(code, msg): return {"jsonrpc": "2.0", "id": rid,
+                                "error": {"code": code, "message": msg}}
+    if (rpc or {}).get("method") != "tools/call":
+        return err(-32601, "only tools/call is supported")
+    params = rpc.get("params") or {}
+    name, args = params.get("name"), (params.get("arguments") or {})
+    if not ((args.get("meta") or {}).get("ucp-agent")):     # required on every request
+        return err(-32602, "meta.ucp-agent is required")
+    cat = args.get("catalog") or {}
+    if name == "search_catalog":
+        return ok(search_response(cat.get("query")))
+    if name == "lookup_catalog":
+        ids = cat.get("ids") or ([cat["id"]] if cat.get("id") else [])
+        return ok(lookup_response(ids))
+    if name == "create_cart":
+        return ok(cart_response(args.get("cart") or {}))
+    return err(-32601, f"unknown tool: {name}")
+
 class _H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _send(self, code, obj):
@@ -138,6 +166,8 @@ class _H(BaseHTTPRequestHandler):
             return self._send(200, lookup_response(ids))
         if self.path.rstrip("/") == "/carts":
             return self._send(201, cart_response(body))
+        if self.path.rstrip("/") == "/ucp/mcp":         # MCP transport (JSON-RPC tools/call)
+            return self._send(200, mcp_dispatch(body))
         self._send(404, {"error_code": "not_found"})
 
 def main():

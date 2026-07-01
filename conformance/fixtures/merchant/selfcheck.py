@@ -31,6 +31,14 @@ def main():
         ("cart response", lambda: validate_against(
             server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
             "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
+        # the MCP transport must return the SAME schema-valid payload in structuredContent
+        ("mcp search_catalog result", lambda: validate_against(
+            server.mcp_dispatch({"id": 1, "method": "tools/call", "params": {
+                "name": "search_catalog",
+                "arguments": {"meta": {"ucp-agent": {"profile": "x"}}, "catalog": {"query": "*"}}}}
+            )["result"]["structuredContent"],
+            "schemas/shopping/catalog_search.json", "search_response", op="search",
+            version=server.VERSION)),
     ]
     try:
         rows = [(name, *fn()) for name, fn in artifacts]

@@ -16,7 +16,7 @@ come from the optional merchant config.
 """
 import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import Resp, fetch, mutate, CLEAN, DEVIATION   # noqa: E402
+from engine import Resp, fetch, mutate, mcp_call, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
 
 STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
@@ -326,6 +326,19 @@ def p_totals_additive_nonneg(r):
             if not isinstance(a, (int, float)) or a < 0:
                 return DEVIATION
     return CLEAN
+
+# ---- catalog over the MCP transport (JSON-RPC tools/call) — reuses REST predicates,
+# since the UCP payload in result.structuredContent is identical across transports. ----
+def _mcp_meta():
+    return {"ucp-agent": {"profile": "https://spck.dev/agent"}}
+
+def mcp_search_resp(ctx):
+    return mcp_call(ctx.mcp_endpoint, "search_catalog",
+                    {"meta": _mcp_meta(), "catalog": {"query": "*"}})
+
+def mcp_lookup_resp(ctx):
+    return mcp_call(ctx.mcp_endpoint, "lookup_catalog",
+                    {"meta": _mcp_meta(), "catalog": {"ids": [ctx.product_id]}})
 
 def p_catalog_lookup_inputs(r):
     """CAT-017/018: lookup variants MUST carry a non-empty inputs correlation array."""
@@ -642,6 +655,17 @@ CHECKS = [
            p_lookup_found,
            ["status:404", "set:products=[]", "drop:products", "corrupt-json"],
            capability="dev.ucp.shopping.catalog.lookup", cfg_needs=("catalog",), transport="rest"),
+    # --- catalog over the MCP transport (JSON-RPC tools/call) ---
+    MCheck("mcp.catalog_search", ["CAT-012"], "MUST", mcp_search_resp, p_catalog_search,
+           ["status:500", "drop:products", "set:products=\"x\"",
+            "set:products=[{\"id\":\"p\"}]", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search", transport="mcp"),
+    MCheck("mcp.catalog_lookup", ["CAT-017", "CAT-018"], "MUST", mcp_lookup_resp,
+           p_catalog_lookup_inputs,
+           ["status:500", "drop:products", "set:products=[]",
+            "drop:products.0.variants.0.inputs", "set:products.0.variants.0.inputs=[]",
+            "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",), transport="mcp"),
     # --- cart (capability-gated; product from config) ---
     MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
            ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",
@@ -719,10 +743,10 @@ def _pred(chk, resp, ctx):
 def run_merchant_checks(ctx, checks=CHECKS):
     results, detail = [], []
     for chk in checks:
-        if chk.transport == "rest" and not getattr(ctx, "has_rest", True):
+        if chk.transport and not getattr(ctx, f"has_{chk.transport}", True):
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable
-            detail.append((chk, {"status": "not-applicable (no REST transport)",
+            detail.append((chk, {"status": f"not-applicable (no {chk.transport.upper()} transport)",
                                   "kill_safe": None})); continue
         if chk.capability and chk.capability not in ctx.capabilities:
             for rid in chk.req_ids:
