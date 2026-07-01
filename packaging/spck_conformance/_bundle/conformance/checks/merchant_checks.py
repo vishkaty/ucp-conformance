@@ -478,6 +478,19 @@ def p_disc_single(r, ctx):
         return DEVIATION
     return CLEAN if _has_discount_total(r) else DEVIATION
 
+def p_disc_applied_fields(r, ctx):
+    """DSC-012: an applied_discount MUST include title and a non-negative integer amount."""
+    if r.status != 200:
+        return DEVIATION
+    ap = _applied(r)
+    if not isinstance(ap, list) or not ap:
+        return DEVIATION
+    for d in ap:
+        if not (isinstance(d, dict) and isinstance(d.get("title"), str) and d["title"]
+                and isinstance(d.get("amount"), int) and d["amount"] >= 0):
+            return DEVIATION
+    return CLEAN
+
 def p_disc_multiple(r, ctx):
     """DSC-005: multiple valid codes are ALL applied (accept-both)."""
     if r.status != 200:
@@ -592,6 +605,11 @@ CHECKS = [
            ["status:500", "drop:discounts", "drop:discounts.applied",
             "drop:discounts.applied.0.code", "set:totals=[]",
             "set:discounts={\"applied\":[]}", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount",), transport="rest"),
+    MCheck("discount.applied_fields", ["DSC-012"], "MUST", disc_single_resp, p_disc_applied_fields,
+           ["status:500", "drop:discounts.applied.0.title", "drop:discounts.applied.0.amount",
+            "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest"),
     MCheck("discount.multiple_accept_both", ["DSC-005"], "MUST", disc_multiple_resp, p_disc_multiple,
