@@ -185,6 +185,36 @@ def completed_immutable_resp(ctx):
 def p_rejected_4xx(r):
     return CLEAN if 400 <= r.status < 500 else DEVIATION
 
+def order_get_resp(ctx):
+    """Full order-retrieval flow: create -> complete -> GET /orders/{id}."""
+    cid = (_create_for_complete(ctx).json or {}).get("id")
+    c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+              ctx.config.get("complete_payment"), _hdr())
+    oid = ((c.json or {}).get("order") or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/orders/{oid}", "GET", None, _hdr())
+
+def p_order_shape(r):
+    """ORD-001/002: the order entity MUST include ucp, id, checkout_id, permalink_url."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    return CLEAN if all(j.get(k) is not None
+                        for k in ("ucp", "id", "checkout_id", "permalink_url")) else DEVIATION
+
+def p_order_line_items(r):
+    """ORD-004: each order line item MUST include id, item, quantity, totals, and status."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    lis = r.json.get("line_items")
+    if not isinstance(lis, list) or not lis:
+        return DEVIATION
+    for li in lis:
+        if not (isinstance(li, dict) and li.get("id") and li.get("item")
+                and li.get("quantity") is not None and isinstance(li.get("totals"), list)
+                and li.get("status")):
+            return DEVIATION
+    return CLEAN
+
 def payment_fail_resp(ctx):
     """Complete with the merchant's known-failing payment -> MUST be rejected (402)."""
     cid = (_create_for_complete(ctx).json or {}).get("id")
@@ -530,6 +560,15 @@ CHECKS = [
            needs=("product",), cfg_needs=("complete_payment",), transport="rest"),
     MCheck("checkout.completed_immutable", ["CHK-012"], "MUST", completed_immutable_resp,
            p_rejected_4xx, ["status:200", "status:201"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("complete_payment",), transport="rest"),
+    MCheck("order.entity_shape", ["ORD-001", "ORD-002"], "MUST", order_get_resp, p_order_shape,
+           ["status:404", "drop:ucp", "drop:checkout_id", "drop:permalink_url", "corrupt-json"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("complete_payment",), transport="rest"),
+    MCheck("order.line_item_shape", ["ORD-004"], "MUST", order_get_resp, p_order_line_items,
+           ["status:404", "set:line_items=[]", "drop:line_items.0.status",
+            "drop:line_items.0.totals", "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("complete_payment",), transport="rest"),
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
