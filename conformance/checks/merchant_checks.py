@@ -61,6 +61,31 @@ def create_resp_ful(ctx):
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
                  _create_payload(ctx, with_fulfillment=True), _hdr())
 
+def retrieve_resp(ctx):
+    """Create, then GET the session back."""
+    r = create_resp(ctx)
+    cid = (r.json or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "GET", None, _hdr())
+
+def nonexistent_resp(ctx):
+    """Create referencing a product that cannot exist — MUST be rejected (4xx)."""
+    p = _create_payload(ctx)
+    p["line_items"][0]["item"]["id"] = "ucp_nonexistent_" + uuid.uuid4().hex[:10]
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+
+def no_agent_resp(ctx):
+    """Otherwise-valid create with the mandatory UCP-Agent header removed — MUST 4xx."""
+    h = _hdr(); h.pop("UCP-Agent", None)
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", _create_payload(ctx), h)
+
+def idem_conflict_resp(ctx):
+    """Same idempotency-key, DIFFERENT body -> MUST 409 Conflict."""
+    k = str(uuid.uuid4())
+    fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", _create_payload(ctx), _hdr(k))
+    p2 = _create_payload(ctx)
+    p2["line_items"][0]["quantity"] = 2
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p2, _hdr(k))
+
 # ---- predicates -------------------------------------------------------------
 def p_version(r):
     import re
@@ -90,6 +115,17 @@ def p_fulfillment_shape(r):
         return DEVIATION
     return CLEAN if m.get("id") and m.get("type") in ("shipping", "pickup") else DEVIATION
 
+def p_get_ok(r):
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if r.json.get("id") and r.json.get("status") in STATUS_ENUM else DEVIATION
+
+def p_4xx(r):
+    return CLEAN if 400 <= r.status < 500 else DEVIATION
+
+def p_409(r):
+    return CLEAN if r.status == 409 else DEVIATION
+
 # ---- the merchant-agnostic check set (2026-01-23 / 2026-04-08 shared core) ---
 CHECKS = [
     MCheck("discovery.version", ["DISC-013"], "MUST", profile_resp, p_version,
@@ -100,6 +136,14 @@ CHECKS = [
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"]),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"], needs=("product",)),
+    MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
+           ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"], needs=("product",)),
+    MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
+           ["status:200", "status:201"], needs=("product",)),
+    MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
+           ["status:200", "status:201"]),
+    MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", idem_conflict_resp, p_409,
+           ["status:200", "status:201"], needs=("product",)),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",)),
