@@ -43,8 +43,17 @@ class MerchantCtx:
         self.config = config or {}
         ucp = profile.get("ucp", profile)          # profile may or may not nest under "ucp"
         self.version = ucp.get("version")
-        caps = ucp.get("capabilities") or {}
-        self.capabilities = set(caps.keys())
+        caps = ucp.get("capabilities")
+        # Spec requires capabilities to be a keyed object of reverse-domain names.
+        # Never crash on a non-conformant shape (a real sample ships a list): treat it
+        # as no declared capabilities (extension checks -> not-applicable) and flag it,
+        # so the profile-structure check can report the deviation instead of exploding.
+        if isinstance(caps, dict):
+            self.capabilities = set(caps.keys())
+            self.caps_malformed = False
+        else:
+            self.capabilities = set()
+            self.caps_malformed = caps is not None
         svc = (ucp.get("services") or {}).get("dev.ucp.shopping") or []
         rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
         # A server MAY offer only MCP/embedded transports and still be fully conformant.

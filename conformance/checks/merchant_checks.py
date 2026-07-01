@@ -159,10 +159,13 @@ def p_rest_endpoint(r):
     return CLEAN if rest and rest.get("endpoint") else DEVIATION
 
 def p_reverse_domain(r):
-    caps = (r.json or {}).get("capabilities") or {}
+    caps = (r.json or {}).get("capabilities")
+    # DISC-001: capabilities MUST be a keyed object whose names are reverse-domain form.
+    # A list/array (or missing) is non-conformant -> deviation (never iterate it blindly).
+    if not isinstance(caps, dict) or not caps:
+        return DEVIATION
     import re
-    ok = caps and all(re.match(r"^[a-z0-9.]+\.[a-z0-9_]+", k) for k in caps)
-    return CLEAN if ok else DEVIATION
+    return CLEAN if all(re.match(r"^[a-z0-9.]+\.[a-z0-9_]+", k) for k in caps) else DEVIATION
 
 def p_create_ok(r):
     if r.status not in (200, 201) or not isinstance(r.json, dict):
