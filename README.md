@@ -1,101 +1,87 @@
-# UCP Conformance Testing Tool
+# spck-conformance — a UCP conformance checker you can trust
 
-Test any [Universal Commerce Protocol](https://ucp.dev) implementation against the official spec.
+[![PyPI](https://img.shields.io/pypi/v/spck-conformance)](https://pypi.org/project/spck-conformance/)
+[![CI](https://github.com/vishkaty/ucp-conformance/actions/workflows/conformance.yml/badge.svg)](https://github.com/vishkaty/ucp-conformance/actions/workflows/conformance.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## What it does
+Point it at any **Universal Commerce Protocol (UCP)** server — from the browser, `pip`,
+or your CI — and get an honest, capability-scoped conformance report. Every check is
+**proven to catch the bug it's for**, so a green result means something.
 
-- **42 tests** across 10 modules mirroring Google's official UCP conformance suite
-- Tests discovery, checkout lifecycle, fulfillment, idempotency, business logic, validation, input handling, payment credentials, orders, and catalog
-- **Full request/response logging** for every API call — timestamps, headers, bodies, status codes, timing
-- **Multi-version support** — test against spec versions 2026-04-08, 2026-01-23, 2026-01-11, or all at once
-- **Auto-detects deviations** from the UCP spec and reports them
-- **Downloadable reports** in JSON (full log) and Markdown formats
-- **Save reports** to your account for future reference
+> **Independent, unofficial project.** Not affiliated with, endorsed by, or a substitute
+> for the official UCP conformance suite. It reports only the checks it actually runs and
+> never claims "certified."
 
-## Quick Start (local)
+**→ Try it in your browser: [spck.dev/check](https://spck.dev/check)**
 
-```bash
-# No build step needed — it's a single HTML file
-cd public
-python3 -m http.server 8080
-# Open http://localhost:8080
-```
-
-## Test Modules
-
-| Module | Tests | Coverage |
-|--------|:-----:|----------|
-| A. protocol_test | 4 | Discovery, URLs, version negotiation, error handling |
-| B. checkout_lifecycle | 11 | Create, get, update, cancel, complete, terminal state immutability |
-| C. fulfillment_test | 3 | Shipping options, tax calculation, totals consistency |
-| D. idempotency_test | 1 | Create idempotency |
-| E. business_logic_test | 2 | Totals on create, buyer persistence |
-| F. validation_test | 4 | Product not found, complete without fulfillment, error structure, 404 |
-| G. invalid_input_test | 2 | Missing currency, invalid merchant |
-| H. card_credential_test | 2 | Google Pay with Visa and Mastercard tokens |
-| I. order_test | 1 | Order data in complete response |
-| J. catalog_test | 4 | Search, empty results, pagination, catalog-to-checkout |
-
-## Deploy to Cloudflare
-
-### Frontend (Cloudflare Pages)
-
-1. Connect this repo to Cloudflare Pages
-2. Set build output directory to `public`
-3. No build command needed
-
-### Backend (Cloudflare Workers) — optional, for auth & saved reports
+## Quick start
 
 ```bash
-cd api
+pip install spck-conformance
 
-# Create KV namespaces
-wrangler kv:namespace create OTP_STORE
-wrangler kv:namespace create SESSIONS
-wrangler kv:namespace create USERS
-wrangler kv:namespace create REPORTS
+# scaffold a config tailored to your server's declared capabilities
+spck-conformance --server https://api.example.com --init merchant.json
 
-# Update wrangler.toml with the namespace IDs from above
-
-# Set email delivery API key (Resend)
-wrangler secret put RESEND_API_KEY
-
-# Deploy
-wrangler deploy
+# run the full suite (deviations show expected requirement vs your actual response)
+spck-conformance --server https://api.example.com --config merchant.json
 ```
 
-### Environment Variables
+In CI (fails the build on any MUST deviation, writes a JUnit report):
 
-| Variable | Required | Description |
-|----------|:--------:|-------------|
-| `RESEND_API_KEY` | Yes | [Resend](https://resend.com) API key for sending OTP emails |
-| `FROM_EMAIL` | No | Sender email address (default: `noreply@ucp-conformance.dev`) |
+```yaml
+- uses: vishkaty/ucp-conformance@main
+  with:
+    server: https://api.example.com
+    config: merchant.json   # optional
+```
 
-## Configuration
+Or paste a URL at **[spck.dev/check](https://spck.dev/check)** for an instant, no-install
+discovery + profile check — the result URL is shareable and you get an embeddable badge:
 
-All fields are configurable in the UI:
+```markdown
+[![UCP conformance](https://spck.dev/api/badge?server=YOUR_STORE)](https://spck.dev/check?server=YOUR_STORE)
+```
 
-| Field | Default | Description |
-|-------|---------|-------------|
-| Server Base URL | `https://api.firmly.work` | The UCP server to test |
-| Merchant Domain | `staging.luma.gift` | Merchant domain for multi-tenant servers |
-| Spec Version | `2026-04-08` | UCP spec version to test against |
-| Test Product ID | `EYE001` | Product ID for checkout tests |
-| Payment Token | `tok_visa` | Stripe test token for payment completion |
-| Host Header | `x-firmly-host` | Header name for merchant routing |
+## Why you can trust a pass
 
-## How it works
+A conformance checker that can silently pass a broken server is worse than none. So every
+check is validated three ways, each anchored to something we didn't write:
 
-The tool runs entirely in the browser. It makes direct API calls to the UCP server using `fetch()`. The server must have CORS enabled for the tool's origin.
+1. **Kill-rate testing.** For each check we inject the exact defect it should catch (drop a
+   required field, flip a status code, corrupt the body). If the check still passes, it's a
+   false-pass hazard and it's **blocked from release**. A check ships only if it catches
+   100% of its mutations *and* passes cleanly on a known-good server.
+2. **The official `ucp-schema` validator as the oracle** — no hand-rolled schema logic.
+3. **Verbatim spec citations** — every check traces to a specific normative clause.
 
-Each test:
-1. Makes one or more API calls
-2. Validates the response against spec requirements
-3. Logs the full request/response for traceability
-4. Reports pass/fail with details
+The whole suite **self-validates in CI** and goes red if any check loses its ability to
+catch defects.
 
-No data is sent to any third party. Reports are stored in Cloudflare KV if you deploy the backend.
+## What it checks
 
-## License
+Capability-adaptive across **REST and MCP** transports: discovery + profile-schema,
+checkout lifecycle, order retrieval, validation/errors, idempotency, payment-credential
+handling, discounts, catalog (search/lookup), cart, and the prose-only totals invariants
+the schema doesn't enforce. Unsupported capabilities are `not-applicable`; missing config
+is `not-tested` — never a silent pass.
 
-MIT
+Supports spec versions **2026-04-08**, **2026-01-23**, and **2026-01-11**. See
+[docs/merchant-conformance.md](docs/merchant-conformance.md) and
+[docs/spec-coverage.md](docs/spec-coverage.md).
+
+## How it stays honest
+
+The repo ships its own test-of-the-tests: a self-validating CI harness
+([`conformance/ci/run_suite.py`](conformance/ci/run_suite.py)) brings up a known-good
+reference server and requires every check to be clean-pass **and** kill-safe before it can
+grade a real merchant. Confirmed spec/reference ambiguities are documented in
+[`conformance/AMBIGUITIES.md`](conformance/AMBIGUITIES.md) rather than silently passed.
+
+## Links
+
+- **Web check:** https://spck.dev/check
+- **PyPI:** https://pypi.org/project/spck-conformance/
+- **Methodology, coverage & ambiguities:** [docs/](docs/) · [conformance/](conformance/)
+- **UCP spec (official):** https://ucp.dev
+
+MIT licensed.
