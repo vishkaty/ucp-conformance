@@ -65,6 +65,11 @@ def mutate(resp, mut):
         return _reparse(r)
     if name == "set" and isinstance(r.json, dict):
         k, _, v = arg.partition("="); r.json[k] = json.loads(v); return _reparse(r)
+    if name == "hset":       # set/replace a response header:  hset:Content-Type=text/plain
+        k, _, v = arg.partition("="); r.headers[k] = v; return r
+    if name == "hdrop":      # remove a response header (case-insensitive)
+        for hk in [h for h in r.headers if h.lower() == arg.lower()]: r.headers.pop(hk)
+        return r
     return r  # no-op (mutation not applicable)
 
 # ---- check spec -------------------------------------------------------------
