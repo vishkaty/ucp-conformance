@@ -23,6 +23,42 @@ spck-conformance --server https://api.example.com \
     [--config merchant.json] [--json] [--junit report.xml]
 ```
 
+### Quickstart (30 seconds)
+
+```bash
+# 1. point it at your server — no config needed for the discovery + structure checks
+spck-conformance --server https://api.example.com
+
+# 2. scaffold a config tailored to YOUR server's declared capabilities
+spck-conformance --server https://api.example.com --init merchant.json
+#    -> fill in the FILL_ME placeholders (a product id, discount code, payment token…)
+
+# 3. re-run with the config to unlock the data-dependent checks
+spck-conformance --server https://api.example.com --config merchant.json
+```
+
+On a deviation the report shows **expected (the requirement) vs observed (your actual
+response)** so you can fix it directly, and the footer's **Next steps** tells you how to
+unlock any `not-tested` checks.
+
+### Use in CI (GitHub Action)
+
+```yaml
+# .github/workflows/ucp.yml
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vishkaty/ucp-conformance@main
+        with:
+          server: https://api.example.com
+          config: merchant.json        # optional
+          # fail-on-deviation: false   # report-only mode
+```
+
+The job fails on any MUST deviation and writes a JUnit report (`ucp-conformance.xml`)
+your CI can display as a test run.
+
 - **`--config`** — optional JSON supplying data-dependent inputs (product id, discount
   codes, a succeeding/failing payment, an out-of-stock id). Without it, those checks
   are honestly `not-tested` rather than silently passed.

@@ -141,6 +141,33 @@ SYNTHETIC_REQS = {
                                 "services array, and reverse-domain-keyed capabilities object)."},
 }
 
+def scaffold_config(ctx):
+    """Build a starter --config for THIS server: detected product + FILL_ME placeholders
+    for the data-dependent inputs each declared capability needs. Friendly onboarding."""
+    caps = ctx.capabilities
+    def pay(desc):
+        return {"payment": {"instruments": [{"id": "instr_1", "handler_id": "FILL_ME: handler id",
+            "type": "card", "display": {"brand": "Visa", "last_digits": "1234"},
+            "credential": {"type": "token", "token": desc},
+            "billing_address": {"street_address": "1 Main St", "address_locality": "Town",
+                "address_region": "CA", "address_country": "US", "postal_code": "12345"}}]},
+            "risk_signals": {}}
+    cfg = {"product_id": ctx.product_id or "FILL_ME: an in-stock product id",
+           "currency": "USD"}
+    if "dev.ucp.shopping.checkout" in caps:
+        cfg["out_of_stock_id"] = "FILL_ME: a product id known to be out of stock"
+    if "dev.ucp.shopping.order" in caps:
+        cfg["fulfillment_option_id"] = "FILL_ME: a valid fulfillment option id"
+        cfg["complete_payment"] = pay("FILL_ME: a payment token that SUCCEEDS")
+        cfg["fail_payment"] = pay("FILL_ME: a payment token that FAILS (expect 402)")
+    if "dev.ucp.shopping.discount" in caps:
+        cfg["discount"] = {"valid_code": "FILL_ME: a real discount code",
+                           "second_valid_code": "FILL_ME: another real code",
+                           "invalid_code": "NOT_A_REAL_CODE"}
+    if "dev.ucp.shopping.catalog.lookup" in caps:
+        cfg["catalog"] = {"variant_id": ctx.product_id or "FILL_ME: a variant id"}
+    return cfg
+
 def req_meta(version):
     """req_id -> {requirement, source} from the register, so every result cites its
     normative clause (the trust story: each check traces to a verbatim spec quote)."""
@@ -193,9 +220,21 @@ def main():
     ap.add_argument("--config", help="optional merchant config JSON (product_id, out_of_stock_id, fail_token, discount_codes, ...)")
     ap.add_argument("--json", action="store_true", help="emit the report as JSON")
     ap.add_argument("--junit", metavar="FILE", help="write a JUnit XML report to FILE (for CI)")
+    ap.add_argument("--init", nargs="?", const="merchant.json", metavar="FILE",
+                    help="probe the server and scaffold a starter --config to FILE, then exit")
     args = ap.parse_args()
     config = json.loads(pathlib.Path(args.config).read_text()) if args.config else {}
     ctx, ctype, areas = report(args.server, config)
+    if args.init:
+        cfg = scaffold_config(ctx)
+        pathlib.Path(args.init).write_text(json.dumps(cfg, indent=2) + "\n")
+        fills = sum(1 for v in json.dumps(cfg).split('"') if v.startswith("FILL_ME"))
+        print(f"Wrote {args.init} for {ctx.base} (spec {ctx.version}).")
+        print(f"  detected capabilities: {', '.join(sorted(ctx.capabilities)) or '(none)'}")
+        print(f"  product for lifecycle: {ctx.product_id or '(none auto-discovered)'}")
+        print(f"\nNext: replace the {fills} FILL_ME placeholder(s) with real values, then run:")
+        print(f"  spck-conformance --server {ctx.base} --config {args.init}")
+        return 0
     meta = req_meta(ctx.version)
     supported = sorted(c for c in ctx.capabilities)
     out = {
@@ -243,6 +282,28 @@ def main():
           f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")
     if args.junit:
         print(f"  JUnit report written to {args.junit}")
+
+    # ---- friendly next steps -------------------------------------------------
+    n_pass = sum(1 for _, d in detail if d["status"] == "clean-pass")
+    n_dev = cc["deviations"]
+    needed = set()
+    for c, d in detail:
+        st = str(d["status"])
+        if st.startswith("not-tested (needs config"):
+            needed.update(st.split("needs config:")[1].rstrip(")").strip().split(","))
+    print("\n  Next steps:")
+    if n_dev:
+        print(f"    • Fix {n_dev} MUST deviation(s) above — each shows expected vs the observed response.")
+    if needed:
+        keys = ", ".join(sorted(k.strip() for k in needed if k.strip()))
+        hint = "--init to scaffold one" if not args.config else f"add: {keys}"
+        print(f"    • Unlock more checks by supplying config ({hint}).")
+    if ctx.product_id is None and "dev.ucp.shopping.checkout" in ctx.capabilities:
+        print(f"    • Set config.product_id to a real in-stock product to run the lifecycle checks.")
+    if not n_dev and not needed:
+        print(f"    • Looking good — {n_pass} checks clean-pass, 0 deviations for the checks run.")
+    if not args.config:
+        print(f"    • Tip: `spck-conformance --server {ctx.base} --init` scaffolds a config for this server.")
     print(f"\n  {DISCLAIMER}")
     return rc
 

@@ -9,12 +9,21 @@ python3 conformance/checks/merchant.py --server https://api.example.com \
     [--config merchant.json] [--json] [--junit report.xml]
 ```
 
+**Friendly onboarding.** `--init [FILE]` probes the server and scaffolds a `--config`
+tailored to its declared capabilities (auto-discovering a product where possible, with
+`FILL_ME` placeholders for the rest). The report footer's **Next steps** tells you which
+config keys unlock the remaining `not-tested` checks.
+
+**Actionable failures.** On a deviation the report shows **expected** (the normative
+requirement + spec source) vs **observed** (your server's actual HTTP status + body
+excerpt) — enough to fix it directly.
+
 **CI-friendly output.** `--json` emits the full report (each check carries its
-`requirements`: the normative id, verbatim text, and spec source). `--junit FILE`
-writes a JUnit XML report any CI can display as a test run (deviation → `<failure>`,
-not-applicable/not-tested → `<skipped>`). Exit code is **2** if any MUST deviates,
-else **0** (partial coverage is not a failure). On a deviation, the human output cites
-the violated clause.
+`requirements` and the `observed` evidence). `--junit FILE` writes a JUnit XML report
+any CI can display as a test run (deviation → `<failure>` with evidence,
+not-applicable/not-tested → `<skipped>`). Exit code is **2** if any MUST deviates, else
+**0** (partial coverage is not a failure). A ready-made **GitHub Action**
+(`uses: vishkaty/ucp-conformance@main`) wraps all of this for drop-in CI.
 
 ## How it decides what to test
 

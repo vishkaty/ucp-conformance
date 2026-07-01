@@ -1,0 +1,47 @@
+name: "UCP Conformance (unofficial)"
+description: "Capability-scoped UCP conformance check for a server. Fails CI on MUST deviations and uploads a JUnit report. Independent, not affiliated with the official UCP project."
+branding:
+  icon: "check-circle"
+  color: "blue"
+
+inputs:
+  server:
+    description: "Base URL of the UCP server to check (e.g. https://api.example.com)"
+    required: true
+  config:
+    description: "Path to a merchant config JSON (unlocks data-dependent checks). Optional."
+    required: false
+    default: ""
+  junit:
+    description: "Path to write the JUnit XML report."
+    required: false
+    default: "ucp-conformance.xml"
+  python-version:
+    description: "Python version to use."
+    required: false
+    default: "3.12"
+  fail-on-deviation:
+    description: "Fail the job if any MUST deviates (default true). Set false to report-only."
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "${{ inputs.python-version }}"
+    - name: Install spck-conformance
+      shell: bash
+      run: pip install "git+https://github.com/vishkaty/ucp-conformance.git#subdirectory=packaging"
+      # once published to PyPI this becomes: pip install spck-conformance
+    - name: Run UCP conformance
+      shell: bash
+      run: |
+        set -o pipefail
+        args=(--server "${{ inputs.server }}" --junit "${{ inputs.junit }}")
+        if [ -n "${{ inputs.config }}" ]; then args+=(--config "${{ inputs.config }}"); fi
+        spck-conformance "${args[@]}"; rc=$?
+        echo "spck-conformance exit code: $rc"
+        if [ "${{ inputs.fail-on-deviation }}" != "true" ]; then exit 0; fi
+        exit $rc
