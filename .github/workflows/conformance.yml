@@ -1,0 +1,53 @@
+name: conformance-selftest
+
+# The "test suite for the test suite": on every push/PR, materialize the pinned
+# upstream sources, bring up the official golden server, and run every self-validation
+# gate (register quote-check, verdict gate, both version suites, the merchant reference
+# gate, and mutation kill-rate). Red here means a change broke the suite's soundness.
+
+on:
+  push:
+    branches: [main, "feat/**", "fix/**"]
+    paths: ["conformance/**", ".github/workflows/conformance.yml"]
+  pull_request:
+    paths: ["conformance/**", ".github/workflows/conformance.yml"]
+  workflow_dispatch: {}
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Fetch pinned upstream sources
+        run: bash conformance/ci/fetch_sources.sh
+
+      - name: Bring up the golden server
+        run: |
+          bash conformance/ci/serve_golden.sh
+        env:
+          PORT: "8182"
+          SIM_SECRET: selfcheck-secret
+          DB_DIR: /tmp/ucp_test
+
+      - name: Run the conformance self-test suite
+        run: |
+          python3 conformance/ci/run_suite.py \
+            --server http://localhost:8182 \
+            --require-server \
+            --verbose
+        # schema gate auto-skips (exit 2) until the ucp-schema Rust oracle is built in CI.
+
+      - name: Tear down the golden server
+        if: always()
+        run: bash conformance/ci/stop_golden.sh
+        env:
+          DB_DIR: /tmp/ucp_test
