@@ -31,6 +31,8 @@ CHK = ROOT / "conformance" / "checks"
 FIXTURE = ROOT / "conformance" / "fixtures" / "merchant"
 CONTROLLED_PORT = 8184
 CONTROLLED = f"http://localhost:{CONTROLLED_PORT}"
+PROXY_PORT = 8183
+PROXY = f"http://localhost:{PROXY_PORT}"
 
 def _py(path, *args):
     return [sys.executable, str(path), *args]
@@ -47,7 +49,7 @@ def gates(server):
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
                                  "--server", CONTROLLED, "--golden", "controlled"), "controlled", ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
-        ("killrate",    _py(SELF / "mutation_killrate.py"),                     "golden",  (2,)),
+        ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
     ]
 
 def server_up(server, timeout=3):
@@ -57,18 +59,26 @@ def server_up(server, timeout=3):
     except Exception:
         return False
 
-def boot_controlled():
-    """Start the dependency-free controlled merchant fixture; return the Popen or None."""
-    if server_up(CONTROLLED):
+def _boot(argv, health_url, tries=40):
+    """Spawn a background server and wait for it to answer; return the Popen or None."""
+    if server_up(health_url):
         return None                                   # already up (external); leave it
-    p = subprocess.Popen([sys.executable, str(FIXTURE / "server.py"),
-                          "--port", str(CONTROLLED_PORT)],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    for _ in range(40):
-        if server_up(CONTROLLED):
+    p = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(tries):
+        if server_up(health_url):
             return p
         time.sleep(0.25)
     return p            # return anyway; the gate will report it DOWN
+
+def boot_controlled():
+    """Start the dependency-free controlled merchant fixture."""
+    return _boot([sys.executable, str(FIXTURE / "server.py"), "--port", str(CONTROLLED_PORT)],
+                 CONTROLLED)
+
+def boot_proxy(golden):
+    """Start the mutation proxy (wraps the golden) that the kill-rate gate drives."""
+    return _boot([sys.executable, str(SELF / "mutation_proxy.py"),
+                  "--upstream", golden, "--port", str(PROXY_PORT)], PROXY)
 
 def run_gate(name, argv, timeout=180):
     t0 = time.monotonic()
@@ -94,9 +104,12 @@ def main():
     up = server_up(args.server)
     ctrl_proc = boot_controlled()
     ctrl_up = server_up(CONTROLLED)
+    proxy_proc = boot_proxy(args.server) if up else None   # kill-rate gate drives the proxy
+    proxy_up = server_up(PROXY)
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
-    print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}\n")
-    avail = {"golden": up, "controlled": ctrl_up}
+    print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
+    print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}\n")
+    avail = {"golden": up, "controlled": ctrl_up, "proxy": proxy_up and up}
 
     results = []
     try:
@@ -120,8 +133,9 @@ def main():
         if status == "FAIL" and args.verbose:
             print(f"----- {name} output -----\n{r.get('out','')}\n-------------------------")
     finally:
-        if ctrl_proc is not None:
-            ctrl_proc.terminate()
+        for proc in (ctrl_proc, proxy_proc):
+            if proc is not None:
+                proc.terminate()
 
     print(f"{'gate':14} {'status':6} detail")
     print("-" * 72)
