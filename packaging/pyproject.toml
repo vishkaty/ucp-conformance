@@ -16,7 +16,9 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
 ]
-# stdlib only at runtime — no third-party dependencies.
+# certifi provides a CA bundle so TLS verification works on Pythons that ship none
+# (common on macOS python.org builds). Everything else is stdlib.
+dependencies = ["certifi>=2023.7.22"]
 
 [project.urls]
 Homepage = "https://spck.dev"

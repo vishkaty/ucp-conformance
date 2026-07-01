@@ -65,10 +65,19 @@ class MerchantCtx:
         self.product_id = self.config.get("product_id")
 
 def discover(base):
+    import engine
     try:
-        with urllib.request.urlopen(base.rstrip("/") + "/.well-known/ucp", timeout=10) as r:
+        with urllib.request.urlopen(base.rstrip("/") + "/.well-known/ucp", timeout=10,
+                                    context=engine._SSL_CTX) as r:
             return json.loads(r.read()), r.headers.get("Content-Type", "")
     except Exception as e:
+        if "CERTIFICATE_VERIFY_FAILED" in str(e):
+            raise SystemExit(
+                f"discovery failed for {base}: TLS certificate verification failed.\n"
+                f"  Your Python has no CA bundle. Fix with one of:\n"
+                f"    • pip install certifi         (spck-conformance uses it automatically)\n"
+                f"    • macOS python.org build: run 'Install Certificates.command'\n"
+                f"    • re-run with --insecure       (skips TLS verification; testing only)")
         raise SystemExit(f"discovery failed for {base}: {e}")
 
 def auto_discover_product(ctx):
@@ -222,7 +231,11 @@ def main():
     ap.add_argument("--junit", metavar="FILE", help="write a JUnit XML report to FILE (for CI)")
     ap.add_argument("--init", nargs="?", const="merchant.json", metavar="FILE",
                     help="probe the server and scaffold a starter --config to FILE, then exit")
+    ap.add_argument("--insecure", action="store_true",
+                    help="skip TLS certificate verification (testing only)")
     args = ap.parse_args()
+    if args.insecure:
+        import engine; engine.set_insecure(True)
     config = json.loads(pathlib.Path(args.config).read_text()) if args.config else {}
     ctx, ctype, areas = report(args.server, config)
     if args.init:

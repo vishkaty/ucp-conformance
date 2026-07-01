@@ -14,12 +14,39 @@ Mutations here operate on the CAPTURED response (deterministic golden+mutation),
 which works for stateful checks too — we mutate the final response under test.
 The live mutation_proxy remains for integration/timing/replay cases.
 """
-import json, sys, urllib.request, urllib.error, pathlib, glob
+import json, sys, ssl, urllib.request, urllib.error, pathlib, glob
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "selfcheck"))
 from verdict_gate import CheckResult, aggregate, CLEAN, DEVIATION, INCONCLUSIVE  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 REQ_DIR = ROOT / "conformance" / "requirements"
+
+# ---- TLS: use certifi's CA bundle if available (many Pythons ship no bundle, so a
+# plain urlopen against https fails with CERTIFICATE_VERIFY_FAILED). --insecure skips
+# verification entirely (testing only). -------------------------------------------
+def _make_ssl_context(insecure=False):
+    if insecure:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl.create_default_context()
+
+INSECURE = False
+_SSL_CTX = _make_ssl_context()
+
+def set_insecure(v):
+    """Toggle TLS verification (used by the --insecure CLI flag)."""
+    global INSECURE, _SSL_CTX
+    INSECURE = bool(v)
+    _SSL_CTX = _make_ssl_context(INSECURE)
+
+class TLSError(Exception):
+    """Raised on a TLS certificate verification failure, with a friendly hint."""
 
 # ---- response capture -------------------------------------------------------
 class Resp:
@@ -35,7 +62,7 @@ def fetch(base, path, method="GET", body=None, headers=None):
     h = {"Content-Type": "application/json", **(headers or {})}
     req = urllib.request.Request(base.rstrip("/") + path, data=data, method=method, headers=h)
     try:
-        with urllib.request.urlopen(req) as r:
+        with urllib.request.urlopen(req, context=_SSL_CTX) as r:
             return Resp(r.status, r.getheaders(), r.read())
     except urllib.error.HTTPError as e:
         return Resp(e.code, e.headers.items(), e.read())
