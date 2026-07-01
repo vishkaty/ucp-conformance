@@ -169,18 +169,18 @@ footer .copy{font-size:11px;color:#a1a1aa}
       UNIVERSAL COMMERCE PROTOCOL
     </div>
     <h1>Test Your <em>UCP Implementation</em></h1>
-    <p class="hero-sub">Open source conformance testing for the Universal Commerce Protocol. Verify your server against the official spec with automated tests, full request/response traceability, and multi-version support.</p>
+    <p class="hero-sub">An honest, capability-scoped conformance checker for the Universal Commerce Protocol. Every check is <strong>proven to catch the bug it's for</strong> — no false greens. Run it from the browser, <code>pip</code>, or your CI, across REST <em>and</em> MCP.</p>
     <div class="hero-actions">
-      <a href="tool" class="btn-hero btn-hero-primary">Launch Testing Tool &rarr;</a>
-      <a href="https://ucp.dev" target="_blank" class="btn-hero btn-hero-secondary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        View UCP Spec
+      <a href="check" class="btn-hero btn-hero-primary">Check your server &rarr;</a>
+      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" class="btn-hero btn-hero-secondary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star on GitHub
       </a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">42</div><div class="stat-label">Tests</div></div>
-      <div class="stat"><div class="stat-num">10</div><div class="stat-label">Modules</div></div>
-      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Spec Versions</div></div>
+      <div class="stat"><div class="stat-num">37+</div><div class="stat-label">Kill-rate-validated checks</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Transports (REST + MCP)</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Spec versions</div></div>
     </div>
   </div>
 </div>
@@ -261,18 +261,22 @@ footer .copy{font-size:11px;color:#a1a1aa}
   <div class="section-inner">
     <div class="section-label">Coverage</div>
     <div class="section-title">What We Test</div>
-    <div class="section-desc">42 tests across 10 modules, mirroring the structure of Google's official conformance suite. Real API calls validated against spec requirements.</div>
+    <div class="section-desc">Capability-adaptive: it discovers what your server declares and runs only the checks that apply — so a lean-but-correct server isn't penalized. Anything it can't test is reported <strong>not-tested</strong>, never silently passed.</div>
     <div class="module-grid">
-      <div class="module-card"><div class="mod-badge">A</div><div><h4>Protocol</h4><p>Discovery profile, service URLs, version negotiation, error handling</p><div class="test-count">4 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">B</div><div><h4>Checkout Lifecycle</h4><p>Create, get, update, cancel, complete, terminal state immutability</p><div class="test-count">11 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">C</div><div><h4>Fulfillment</h4><p>Shipping options, tax calculation, totals consistency</p><div class="test-count">3 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">D</div><div><h4>Idempotency</h4><p>Create request idempotency verification</p><div class="test-count">1 test</div></div></div>
-      <div class="module-card"><div class="mod-badge">E</div><div><h4>Business Logic</h4><p>Totals calculation, buyer info persistence</p><div class="test-count">2 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">F</div><div><h4>Validation</h4><p>Product not found, incomplete checkout, error structure, 404</p><div class="test-count">4 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">G</div><div><h4>Invalid Input</h4><p>Missing required fields, invalid merchant domain</p><div class="test-count">2 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">H</div><div><h4>Card Credentials</h4><p>Google Pay with Visa and Mastercard tokens</p><div class="test-count">2 tests</div></div></div>
-      <div class="module-card"><div class="mod-badge">I</div><div><h4>Order</h4><p>Order ID and permalink in completion response</p><div class="test-count">1 test</div></div></div>
-      <div class="module-card"><div class="mod-badge">J</div><div><h4>Catalog</h4><p>Product search, empty results, pagination, catalog-to-checkout</p><div class="test-count">4 tests</div></div></div>
+      <div class="module-card"><div class="mod-badge">1</div><div><h4>Discovery &amp; profile</h4><p>Dated version, reverse-domain capabilities, service transports, and the whole <code>/.well-known/ucp</code> validated against the official schema</p></div></div>
+      <div class="module-card"><div class="mod-badge">2</div><div><h4>Checkout lifecycle</h4><p>Create, get, update, cancel, complete&rarr;order, required fields, terminal-state immutability</p></div></div>
+      <div class="module-card"><div class="mod-badge">3</div><div><h4>Order</h4><p>Full order retrieval, required fields, line-item shape after completion</p></div></div>
+      <div class="module-card"><div class="mod-badge">4</div><div><h4>Validation &amp; errors</h4><p>Out-of-stock, nonexistent product, missing UCP-Agent, structured error bodies</p></div></div>
+      <div class="module-card"><div class="mod-badge">5</div><div><h4>Idempotency &amp; payment</h4><p>Idempotency-key conflict &rarr; 409; failing token &rarr; 402; credentials never echoed back</p></div></div>
+      <div class="module-card"><div class="mod-badge">6</div><div><h4>Discounts</h4><p>Apply, accept-both, accept-one-reject-one, clear, applied-fields</p></div></div>
+      <div class="module-card"><div class="mod-badge">7</div><div><h4>Catalog &amp; cart</h4><p>Search, empty-search, lookup by product/variant, cart shape, line-item shape</p></div></div>
+      <div class="module-card"><div class="mod-badge">8</div><div><h4>Totals invariants</h4><p>Exactly one subtotal + one total; additive types non-negative — the prose-only rules the schema doesn't enforce</p></div></div>
+      <div class="module-card"><div class="mod-badge">9</div><div><h4>MCP transport</h4><p>The same catalog checks over JSON-RPC <code>tools/call</code> — reach the transport real production merchants use</p></div></div>
+      <div class="module-card"><div class="mod-badge">10</div><div><h4>Fulfillment</h4><p>Method and option shape (id, type, title, totals)</p></div></div>
+    </div>
+    <div style="margin-top:32px;padding:24px 28px;background:#0f0f11;border-radius:14px;color:#e6e8ee">
+      <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#58a6ff;margin-bottom:10px">Why you can trust a pass</div>
+      <div style="font-size:16px;line-height:1.7">A checker that can't catch bugs is worse than none. So every check is <strong>kill-rate tested</strong> — we inject the exact defect it should catch, and if it still passes, it's blocked from release. Checks are anchored to the official <code>ucp-schema</code> validator and cite a verbatim spec clause, and the whole suite <strong>self-validates in CI</strong> and goes red if any check loses its ability to catch defects. No green unless it's earned.</div>
     </div>
   </div>
 </section>
@@ -281,22 +285,22 @@ footer .copy{font-size:11px;color:#a1a1aa}
 <section class="alt">
   <div class="section-inner">
     <div class="section-label">How It Works</div>
-    <div class="section-title">Three Steps to Conformance</div>
+    <div class="section-title">Three ways to run it</div>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <h4>Enter Your Server</h4>
-        <p>Provide your UCP server URL and merchant domain. The tool auto-discovers capabilities, payment handlers, and finds a test product from your catalog.</p>
+        <h4>In the browser</h4>
+        <p>Paste your server URL at <a href="check">spck.dev/check</a> for an instant discovery + profile check — no install. The result URL is shareable, and you get an embeddable conformance badge.</p>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h4>Run Tests</h4>
-        <p>42 tests execute in real time. Every API call is logged with full request headers, body, response, status code, and timing.</p>
+        <h4>From your terminal</h4>
+        <p><code>pip install spck-conformance</code>, then <code>--init</code> scaffolds a config for your server and it runs the full suite. Deviations show <strong>expected vs your actual response</strong>, so you can fix them directly.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <h4>Review &amp; Compare</h4>
-        <p>See pass/fail per test with expandable API logs. Save reports, download evidence, and compare runs to track progress.</p>
+        <h4>In your CI</h4>
+        <p>Drop in the GitHub Action — it fails the build on any MUST deviation and writes a JUnit report. Every push stays honest.</p>
       </div>
     </div>
   </div>
@@ -307,48 +311,36 @@ footer .copy{font-size:11px;color:#a1a1aa}
   <div class="section-inner">
     <div class="section-label">Command Line</div>
     <div class="section-title">Run From Your Terminal or CI</div>
-    <div class="section-desc">The <code style="background:#f4f4f5;padding:1px 6px;border-radius:4px;font-size:13px;font-family:'SF Mono',Menlo,monospace">spck</code> CLI runs the same 42 conformance tests from your shell. Pipe results into CI/CD, sync to your spck.dev account, or run offline &mdash; no account required.</div>
+    <div class="section-desc">The <code style="background:#f4f4f5;padding:1px 6px;border-radius:4px;font-size:13px;font-family:'SF Mono',Menlo,monospace">spck-conformance</code> CLI runs the full suite from your shell or CI. Stdlib-light, one dependency, no account required.</div>
     <div class="cli-grid">
       <div>
         <div class="cli-step">
           <h4><span class="cli-num">1</span> Install</h4>
-          <p>Requires Python 3.7+. Zero runtime dependencies.</p>
+          <p>Python 3.9+. Published on PyPI.</p>
           <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">pip install spck</span>
-<span class="dim">or run directly without installing:</span>
-<span class="prompt">$</span> <span class="cmd">curl -O</span> <span class="arg">https://raw.githubusercontent.com/vishkaty/ucp-conformance/main/cli/spck.py</span>
-<span class="prompt">$</span> <span class="cmd">python3 spck.py --help</span></div></div>
+          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">pip install spck-conformance</span></div></div>
         </div>
         <div class="cli-step">
-          <h4><span class="cli-num">2</span> Run tests</h4>
-          <p>No account needed. Pass your UCP server base URL and the merchant domain.</p>
+          <h4><span class="cli-num">2</span> Scaffold &amp; run</h4>
+          <p><code>--init</code> probes your server and writes a config tailored to its capabilities; fill the placeholders, then run.</p>
           <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--merchant</span> store.example.com
+          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--init</span> merchant.json
+<span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--config</span> merchant.json
 
-<span class="dim">spck v1.0.0 &mdash; UCP Conformance Testing CLI</span>
-<span class="dim">Server:</span> https://api.example.com
-<span class="dim">Merchant:</span> store.example.com
+<span class="dim">VERDICT: INCOMPLETE &mdash; 21/98 applicable MUSTs (21%), 0 deviations</span>
+<span class="dim">[21 passed &middot; 0 deviations &middot; 5 not-tested &middot; 8 not-applicable]</span>
 
-<span class="dim">Discovering server...</span>
-  Version: 2026-04-08
-  Capabilities: 6
-  Payment: gpay
-
-<span class="dim">--- A. protocol_test ---</span>
-  <span class="ok">&#x2713; PASS</span>  test_discovery (0ms)
-  <span class="ok">&#x2713; PASS</span>  test_discovery_urls (0ms)
-  <span class="comment">...</span>
-
-<span class="ok">Results: 34 passed, 0 failed, 0 skipped</span></div></div>
+<span class="ok">&#x2713; PASSED (21)</span>
+<span class="comment">... on a deviation you get: expected &lt;requirement&gt; vs observed &lt;your response&gt;</span></div></div>
         </div>
         <div class="cli-step">
-          <h4><span class="cli-num">3</span> Sync to your account (optional)</h4>
-          <p>Create an API key under <strong>Settings &rarr; API Keys</strong> in the web tool, then pass <code>--key</code> to upload results to your <strong>My Reports</strong> tab.</p>
-          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--key</span> spck_your_key <span class="arg">--save-key</span> <span class="arg">--server</span> ... <span class="arg">--merchant</span> ...
-<span class="dim"># key saved to ~/.spck &mdash; omit --key on future runs</span>
-
-<span class="prompt">$</span> <span class="cmd">spck</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--merchant</span> store.example.com <span class="arg">--json</span> <span class="cmd">&gt;</span> results.json</div></div>
+          <h4><span class="cli-num">3</span> In CI (GitHub Action)</h4>
+          <p>Fails the build on any MUST deviation and writes a JUnit report.</p>
+          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">.github/workflows/ucp.yml</span></div>
+          <div class="terminal-wrap"><div class="terminal"><span class="cmd">- uses:</span> <span class="arg">vishkaty/ucp-conformance@main</span>
+  <span class="cmd">with:</span>
+    <span class="cmd">server:</span> https://api.example.com
+    <span class="cmd">config:</span> merchant.json  <span class="dim"># optional</span></div></div>
         </div>
       </div>
       <div>
@@ -356,22 +348,18 @@ footer .copy{font-size:11px;color:#a1a1aa}
           <h5>Common options</h5>
           <table>
             <tr><td>--server</td><td>UCP server base URL <em>(required)</em></td></tr>
-            <tr><td>--merchant</td><td>Merchant domain <em>(required)</em></td></tr>
-            <tr><td>--key</td><td>API key from spck.dev to sync reports</td></tr>
-            <tr><td>--save-key</td><td>Persist <code>--key</code> to <code>~/.spck</code></td></tr>
-            <tr><td>--version</td><td><code>auto</code>, <code>2026-04-08</code>, <code>2026-01-23</code>, <code>2026-01-11</code></td></tr>
-            <tr><td>--host-header</td><td>Header for merchant routing (default <code>x-firmly-host</code>)</td></tr>
-            <tr><td>--headers</td><td>Extra headers, e.g. <code>K1=V1,K2=V2</code></td></tr>
-            <tr><td>--token</td><td>Payment test token (default <code>tok_visa</code>)</td></tr>
-            <tr><td>--json</td><td>Emit JSON to stdout (good for CI)</td></tr>
-            <tr><td>--verbose</td><td>Show full request/response per test</td></tr>
+            <tr><td>--init [FILE]</td><td>Probe the server and scaffold a config, then exit</td></tr>
+            <tr><td>--config FILE</td><td>Merchant config (product id, discount codes, payment tokens&hellip;) to unlock data-dependent checks</td></tr>
+            <tr><td>--json</td><td>Full JSON report (each check cites its spec clause + observed response)</td></tr>
+            <tr><td>--junit FILE</td><td>JUnit XML report for CI dashboards</td></tr>
+            <tr><td>--insecure</td><td>Skip TLS verification (testing only)</td></tr>
           </table>
         </div>
         <div style="margin-top:16px;padding:14px 16px;background:#fafaff;border:1px solid #e0e7ff;border-radius:10px;font-size:12px;color:#3f3f46;line-height:1.7">
-          <strong style="color:var(--accent)">Use in CI/CD</strong><br>
-          Exit code is non-zero on failures. Pair <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">--json</code> with your CI's artifact upload to preserve evidence per run.
+          <strong style="color:var(--accent)">Exit codes</strong><br>
+          <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">0</code> clean &middot; <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">2</code> a MUST deviated &middot; <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">1</code> couldn't run. Partial coverage is not a failure.
         </div>
-        <p style="margin-top:14px;font-size:12px;color:var(--muted)">Full reference &mdash; <a href="https://github.com/vishkaty/ucp-conformance/tree/main/cli" target="_blank">cli/README.md on GitHub</a></p>
+        <p style="margin-top:14px;font-size:12px;color:var(--muted)">On PyPI &mdash; <a href="https://pypi.org/project/spck-conformance/" target="_blank">pypi.org/project/spck-conformance</a></p>
       </div>
     </div>
   </div>
@@ -379,9 +367,9 @@ footer .copy{font-size:11px;color:#a1a1aa}
 
 <!-- CTA -->
 <div class="cta">
-  <h2>Ready to test your UCP server?</h2>
-  <p>Sign in with your email and start testing in seconds. Free and open source.</p>
-  <a href="tool" class="btn-cta">Launch Testing Tool &rarr;</a>
+  <h2>Ready to check your UCP server?</h2>
+  <p>Paste a URL for an instant check — or <code style="background:rgba(255,255,255,.12);padding:2px 8px;border-radius:5px;color:#fff">pip install spck-conformance</code>. Free, open source, unofficial.</p>
+  <a href="check" class="btn-cta">Check your server &rarr;</a>
 </div>
 
 <!-- Footer -->

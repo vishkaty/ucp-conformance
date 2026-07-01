@@ -166,8 +166,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
   <div class="tab-content active" id="tab-test">
     <div class="config"><h2>Server</h2>
       <div class="config-grid three">
-        <div><label>Server Base URL</label><input id="cfg-base" value="https://api.firmly.work"/></div>
-        <div><label>Merchant Domain</label><input id="cfg-domain" value="staging.luma.gift"/></div>
+        <div><label>Server Base URL</label><input id="cfg-base" value="" placeholder="https://api.example.com"/></div>
+        <div><label>Merchant Domain</label><input id="cfg-domain" value="" placeholder="store.example.com"/></div>
         <div><label>Spec Version</label><select id="cfg-version"><option value="auto" selected>Auto-detect</option><option value="2026-04-08">2026-04-08</option><option value="2026-01-23">2026-01-23</option><option value="2026-01-11">2026-01-11</option><option value="all">All versions</option></select></div>
       </div>
       <div class="discovered" id="discovered">
@@ -320,7 +320,7 @@ function loadSettingsToUI(){
   document.getElementById('set-domain').value=userSettings.defaultDomain||'';
   const el=document.getElementById('custom-headers');el.innerHTML='';
   const hdrs=userSettings.headers||{};
-  if(Object.keys(hdrs).length===0){addHeaderRow('x-firmly-host','${domain}')}
+  if(Object.keys(hdrs).length===0){addHeaderRow('','')}
   else{Object.entries(hdrs).forEach(([k,v])=>addHeaderRow(k,v))}
 }
 function addHeaderRow(key,val){
