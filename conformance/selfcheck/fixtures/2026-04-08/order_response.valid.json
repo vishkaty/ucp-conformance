@@ -1,0 +1,69 @@
+{
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.order": [
+        { "version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/order.json" }
+      ]
+    }
+  },
+  "id": "order_9f8a7b6c",
+  "checkout_id": "checkout_1a2b3c4d",
+  "permalink_url": "https://merchant.example.com/orders/9f8a7b6c",
+  "currency": "USD",
+  "line_items": [
+    {
+      "id": "li_001",
+      "item": {
+        "id": "sku_widget_blue",
+        "title": "Blue Widget",
+        "price": 1999,
+        "image_url": "https://merchant.example.com/img/widget_blue.png"
+      },
+      "quantity": {
+        "original": 2,
+        "total": 2,
+        "fulfilled": 2
+      },
+      "totals": [
+        { "type": "subtotal", "display_text": "Subtotal", "amount": 3998 },
+        { "type": "total", "display_text": "Total", "amount": 3998 }
+      ],
+      "status": "fulfilled"
+    }
+  ],
+  "fulfillment": {
+    "expectations": [
+      {
+        "id": "exp_001",
+        "line_items": [
+          { "id": "li_001", "quantity": 2 }
+        ],
+        "method_type": "shipping",
+        "destination": {
+          "street_address": "1600 Amphitheatre Pkwy",
+          "address_locality": "Mountain View",
+          "address_region": "CA",
+          "address_country": "US",
+          "postal_code": "94043"
+        },
+        "description": "Arrives in 5-8 business days"
+      }
+    ],
+    "events": [
+      {
+        "id": "fe_001",
+        "occurred_at": "2026-04-08T12:00:00Z",
+        "type": "shipped",
+        "line_items": [
+          { "id": "li_001", "quantity": 2 }
+        ]
+      }
+    ]
+  },
+  "totals": [
+    { "type": "subtotal", "display_text": "Subtotal", "amount": 3998 },
+    { "type": "tax", "display_text": "Tax", "amount": 320 },
+    { "type": "total", "display_text": "Total", "amount": 4318 }
+  ]
+}

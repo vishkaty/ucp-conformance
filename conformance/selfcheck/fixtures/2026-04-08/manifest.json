@@ -2,5 +2,11 @@
   {"file": "catalog_search.valid.json",   "op": "search", "direction": "response", "expect": "valid",
    "note": "minimal well-formed catalog search response (empty products[]) with capability schema URL"},
   {"file": "catalog_search.invalid.json", "op": "search", "direction": "response", "expect": "invalid",
-   "note": "product missing required title/description/price_range/variants -> must be rejected"}
+   "note": "product missing required title/description/price_range/variants -> must be rejected"},
+  {"file": "checkout_response.valid.json", "op": "read", "direction": "response", "expect": "valid",
+   "note": "valid checkout response: required top-level fields + totals with exactly one subtotal and one total (correct signs)"},
+  {"file": "error_response.valid.json",   "op": "read", "direction": "response", "expect": "valid",
+   "note": "valid error response: ucp status=error + non-empty messages[] with a well-formed error message. capabilities.schema points at error_response.json (a non-container leaf schema) so op/direction resolution returns it as-is"},
+  {"file": "error_response.invalid.json", "op": "read", "direction": "response", "expect": "invalid",
+   "note": "error message severity 'catastrophic' outside the recoverable|requires_buyer_input|requires_buyer_review|unrecoverable enum -> must be rejected"}
 ]

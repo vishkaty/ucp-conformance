@@ -63,8 +63,18 @@ def mutate(resp, mut):
         if isinstance(cur, dict): cur.pop(last, None)
         elif isinstance(cur, list) and last.isdigit() and int(last) < len(cur): cur.pop(int(last))
         return _reparse(r)
-    if name == "set" and isinstance(r.json, dict):
-        k, _, v = arg.partition("="); r.json[k] = json.loads(v); return _reparse(r)
+    if name == "set" and r.json is not None:
+        path, _, v = arg.partition("="); val = json.loads(v)
+        cur = r.json; parts = path.split(".")
+        for p in parts[:-1]:
+            if isinstance(cur, list) and p.isdigit() and int(p) < len(cur): cur = cur[int(p)]
+            elif isinstance(cur, dict): cur = cur.get(p)
+            else: cur = None
+            if cur is None: break
+        last = parts[-1]
+        if isinstance(cur, dict): cur[last] = val
+        elif isinstance(cur, list) and last.isdigit() and int(last) < len(cur): cur[int(last)] = val
+        return _reparse(r)
     if name == "hset":       # set/replace a response header (case-insensitive): hset:Content-Type=text/plain
         k, _, v = arg.partition("=")
         for hk in [h for h in r.headers if h.lower() == k.lower()]: r.headers.pop(hk)
