@@ -48,6 +48,9 @@ flags (never silently resolve): `conformance/AMBIGUITIES.md`.
 |---|---|---|---|---|---|---|
 | **2026-04-08** | 438 | 322 | 67 | 49 | 93 | 29 (7%) |
 | **2026-01-23** | 235 | 181 | 32 | 22 | 50 | 68 (29%) |
+| **2026-01-11** | 223 | 172 | 32 | 19 | 48 | 67 (30%) |
+
+All three registers are quote-verified (`438 + 235 + 223 = 896` requirements, 100%).
 
 `2026-01-23` is the **oracle-backed primary**: it's the only version with a live
 reference server *and* an official test suite, so 29% of its requirements have an
@@ -57,8 +60,8 @@ server**, so it is validated against synthetic fixtures + spec traceability.
 ## Executable checks — `2026-01-23` (against the live reference server)
 
 50 checks across 8 modules, **every one kill-rate-validated** (clean-pass + catches
-100% of its injected defects). Current aggregate: **`INCOMPLETE` — 45/98 testable
-MUSTs (46%), 0 deviations.**
+100% of its injected defects). Current aggregate: **`INCOMPLETE` — 47/98 testable
+MUSTs (48%), 0 deviations.**
 
 | Module | Checks | Requirements |
 |---|---|---|
@@ -70,6 +73,21 @@ MUSTs (46%), 0 deviations.**
 | validation + security | 8 | VAL-005..009, SEC-001/002/003 |
 | negotiation | 6 | DISC-001, NEG-012/016/017/019 |
 | payment | 2 | PAY-002/009 |
+
+## Executable checks — `2026-04-08` (synthetic fixtures, no live server)
+
+Because 04-08 has no reference server, its checks validate hand-built synthetic
+response fixtures through the **official `ucp-schema` validator** (the same oracle,
+version-matched to 04-08), and the same mutation kill-rate proves each catches its
+defect. **14 checks, all kill_safe**; aggregate **`INCOMPLETE` — 15/170 MUSTs (9%),
+0 deviations.**
+
+| Area | Checks | Requirements |
+|---|---|---|
+| catalog | 1 | CAT-029 (search response schema) |
+| checkout + totals | 6 | CHK-033/034, TOT-005/006/014/015 (totals contract + signs) |
+| order | 4 | ORD-003/004/005 (incl. the `currency`-required 04-08 delta) |
+| error-envelope | 3 | ERR-001/003/028/029/030 |
 
 ## What is NOT tested, and why (honest)
 
@@ -96,6 +114,9 @@ python3 conformance/selfcheck/schema_oracle.py             # schema-oracle parit
 python3 conformance/selfcheck/verdict_gate.py              # verdict-gate unit tests
 python3 conformance/selfcheck/mutation_killrate.py         # kill-rate demo
 
-# run the 2026-01-23 conformance report against a target server
-python3 conformance/checks/run_01_23.py http://localhost:8182
+# run the conformance report (unofficial) — text or CI-friendly JSON
+python3 conformance/checks/report.py --version 2026-01-23 --server http://localhost:8182
+python3 conformance/checks/report.py --version 2026-04-08 --json     # fixture-based
 ```
+
+Exit code: `0` pass · `1` incomplete · `2` fail (a MUST deviation).
