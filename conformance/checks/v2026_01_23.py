@@ -140,6 +140,29 @@ def chk_complete(r):       # CHK-004 + CHK-008
 def chk_rejected_4xx(r):   # CHK-012: mutating a completed checkout MUST be rejected
     return CLEAN if 400 <= r.status < 500 else DEVIATION
 
+_FAILPAY = {"payment": {"instruments": [{"id": "instr_fail", "handler_id": "mock_payment_handler",
+    "type": "card", "display": {"brand": "Visa", "last_digits": "0000"},
+    "credential": {"type": "token", "token": "fail_token"},
+    "billing_address": {"street_address": "1 A St", "address_locality": "X",
+        "address_region": "CA", "address_country": "US", "postal_code": "12345"}}]},
+    "risk_signals": {}}
+
+def f_payment_fail(base):     # VAL-004: known failing token -> 402
+    cid = (_create(base).json or {}).get("id")
+    return fetch(base, f"/checkout-sessions/{cid}/complete", "POST", _FAILPAY, _ucp_headers())
+def chk_http_402(r):
+    return CLEAN if r.status == 402 else DEVIATION
+
+def chk_fulfil_options(r):    # FUL-008: each fulfillment option MUST have id, title, totals
+    if r.status not in (200, 201) or not isinstance(r.json, dict): return DEVIATION
+    try:
+        opts = r.json["fulfillment"]["methods"][0]["groups"][0]["options"]
+    except (KeyError, IndexError, TypeError):
+        return DEVIATION
+    if not opts: return DEVIATION
+    ok = all(o.get("id") and o.get("title") and ("totals" in o) for o in opts)
+    return CLEAN if ok else DEVIATION
+
 CHECKS = [
     Check("disc.profile_200", ["DISC-013"], "MUST", _discovery, chk_profile_ok,
           ["status:404", "status:500", "drop:version", "corrupt-json", "empty"]),
@@ -161,6 +184,11 @@ CHECKS = [
           ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"]),
     Check("checkout.completed_immutable", ["CHK-012"], "MUST", f_completed_immutable, chk_rejected_4xx,
           ["status:200", "status:201"]),
+    Check("validation.payment_failure", ["VAL-004"], "MUST", f_payment_fail, chk_http_402,
+          ["status:200", "status:201"]),
+    Check("fulfillment.option_shape", ["FUL-008"], "MUST", f_create, chk_fulfil_options,
+          ["status:500", "drop:fulfillment",
+           "drop:fulfillment.methods.0.groups.0.options.0.title", "corrupt-json"]),
 ]
 
 SCOPE_STAMP = {

@@ -52,10 +52,16 @@ def mutate(resp, mut):
     if name == "status":         r.status = int(arg); return r
     if name == "empty":          r.body = b""; r.json = None; return r
     if name == "corrupt-json":   r.body = (r.body or b"{}")[:-1]; r.json = None; return r
-    if name == "drop" and isinstance(r.json, dict):
-        cur = r.json; *ps, last = arg.split(".")
-        for p in ps: cur = cur.get(p) if isinstance(cur, dict) else None
+    if name == "drop" and r.json is not None:
+        cur = r.json; parts = arg.split(".")
+        for p in parts[:-1]:
+            if isinstance(cur, list) and p.isdigit() and int(p) < len(cur): cur = cur[int(p)]
+            elif isinstance(cur, dict): cur = cur.get(p)
+            else: cur = None
+            if cur is None: break
+        last = parts[-1]
         if isinstance(cur, dict): cur.pop(last, None)
+        elif isinstance(cur, list) and last.isdigit() and int(last) < len(cur): cur.pop(int(last))
         return _reparse(r)
     if name == "set" and isinstance(r.json, dict):
         k, _, v = arg.partition("="); r.json[k] = json.loads(v); return _reparse(r)
