@@ -28,6 +28,9 @@ def main():
         ("catalog.lookup response", lambda: validate_against(
             server.lookup_response(["teapot_ceramic"]), "schemas/shopping/catalog_lookup.json",
             "lookup_response", op="lookup", version=server.VERSION)),
+        ("cart response", lambda: validate_against(
+            server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
+            "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
     ]
     try:
         rows = [(name, *fn()) for name, fn in artifacts]

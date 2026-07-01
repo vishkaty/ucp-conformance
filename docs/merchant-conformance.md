@@ -79,11 +79,11 @@ the reference gate uses).
 
 ## What's covered today
 
-19 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
+21 kill-rate-validated checks spanning discovery, **profile-schema validation** (the
 whole `/.well-known/ucp` document validated against the official `ucp.json` via the
 `ucp-schema` oracle — catches any structural deviation in one shot), checkout
 lifecycle, idempotency, validation, fulfillment, order completion, payment-credential
-handling, discounts, and **catalog** (search + lookup) — every one proven sound
+handling, discounts, **catalog** (search + lookup), and **cart** — every one proven sound
 against a golden that declares the relevant capability (the official Flower Shop, or
 our own controlled 2026-04-08 fixture for catalog). The
 profile-schema check is skipped (`not-tested`) when the `ucp-schema` binary isn't

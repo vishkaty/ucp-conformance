@@ -174,6 +174,35 @@ def p_catalog_lookup_inputs(r):
                 return DEVIATION
     return CLEAN
 
+# ---- cart flows (capability dev.ucp.shopping.cart, product from config) -------
+def cart_create_resp(ctx):
+    return fetch(ctx.shopping_endpoint, "/carts", "POST",
+                 {"line_items": [{"item": {"id": ctx.product_id}, "quantity": 2}],
+                  "currency": ctx.config.get("currency", "USD")}, _hdr())
+
+def p_cart_shape(r):
+    """CART-029: a cart response MUST include ucp, id, line_items, currency, totals."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    if not (j.get("ucp") and j.get("id") and j.get("currency")
+            and isinstance(j.get("line_items"), list) and isinstance(j.get("totals"), list)):
+        return DEVIATION
+    return CLEAN
+
+def p_cart_line_items(r):
+    """CART-031: each cart line item MUST include id, item, quantity, and totals."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    lis = r.json.get("line_items")
+    if not isinstance(lis, list) or not lis:
+        return DEVIATION
+    for li in lis:
+        if not (isinstance(li, dict) and li.get("id") and isinstance(li.get("item"), dict)
+                and li.get("quantity") is not None and isinstance(li.get("totals"), list)):
+            return DEVIATION
+    return CLEAN
+
 def _discounts(r):  return (r.json or {}).get("discounts") if isinstance(r.json, dict) else None
 def _applied(r):
     d = _discounts(r); return d.get("applied") if isinstance(d, dict) else None
@@ -376,6 +405,15 @@ CHECKS = [
             "drop:products.0.variants.0.inputs", "set:products.0.variants.0.inputs=[]",
             "corrupt-json"],
            capability="dev.ucp.shopping.catalog.lookup", needs=("product",), transport="rest"),
+    # --- cart (capability-gated; product from config) ---
+    MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
+           ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",
+            "corrupt-json"],
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+    MCheck("cart.line_item_shape", ["CART-031"], "MUST", cart_create_resp, p_cart_line_items,
+           ["status:500", "set:line_items=[]", "drop:line_items.0.item",
+            "drop:line_items.0.quantity", "drop:line_items.0.totals", "corrupt-json"],
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",

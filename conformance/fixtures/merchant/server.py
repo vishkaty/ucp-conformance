@@ -52,9 +52,38 @@ def profile(base):
         "capabilities": {
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
+            "dev.ucp.shopping.cart": cap,
         },
         "payment_handlers": {},
     }
+
+def _unit_price(item_id):
+    """Unit price (minor units) for a product or variant id, from the seed catalog."""
+    if item_id in BY_ID:
+        return BY_ID[item_id]["price_range"]["min"]["amount"]
+    if item_id in BY_VARIANT:
+        p = BY_VARIANT[item_id]
+        v = next((v for v in p["variants"] if v["id"] == item_id), None)
+        return (v or {}).get("price", {}).get("amount", p["price_range"]["min"]["amount"])
+    return 1000
+
+def cart_response(body):
+    """Build a spec-valid cart (checkout.json + cart_id) from requested line_items."""
+    reqs = (body or {}).get("line_items") or []
+    line_items, subtotal = [], 0
+    for i, li in enumerate(reqs):
+        iid = (li.get("item") or {}).get("id") or li.get("id")
+        qty = int(li.get("quantity", 1) or 1)
+        amt = _unit_price(iid) * qty
+        subtotal += amt
+        line_items.append({"id": f"li_{i+1}", "item": {"id": iid}, "quantity": qty,
+                           "totals": [{"type": "subtotal", "amount": amt}]})
+    cid = "cart_" + ((reqs[0].get("item") or {}).get("id", "empty") if reqs else "empty")
+    return {"ucp": {"version": VERSION}, "id": cid, "cart_id": cid,
+            "currency": (body or {}).get("currency", "USD"), "status": "incomplete",
+            "line_items": line_items,
+            "totals": [{"type": "subtotal", "amount": subtotal},
+                       {"type": "total", "amount": subtotal}]}
 
 def search_response(query):
     q = (query or "").strip().lower()
@@ -107,6 +136,8 @@ class _H(BaseHTTPRequestHandler):
         if self.path.rstrip("/") == "/catalog/lookup":
             ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
             return self._send(200, lookup_response(ids))
+        if self.path.rstrip("/") == "/carts":
+            return self._send(201, cart_response(body))
         self._send(404, {"error_code": "not_found"})
 
 def main():
