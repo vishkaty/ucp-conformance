@@ -19,7 +19,11 @@ function check(name, ok, detail = "") {
   console.log(`${ok ? "ok" : "not ok"} - ${name}${detail ? "  # " + detail : ""}`);
 }
 
-const browser = await puppeteer.launch({ executablePath: CHROME, headless: "new" });
+const browser = await puppeteer.launch({
+  executablePath: CHROME, headless: "new",
+  // required on CI runners (no user namespaces / small /dev/shm)
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+});
 try {
   const page = await browser.newPage();
   await page.goto(PAGE, { waitUntil: "domcontentloaded", timeout: 30000 });
