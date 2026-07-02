@@ -168,7 +168,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="config-grid three">
         <div><label>Server Base URL</label><input id="cfg-base" value="" placeholder="https://api.example.com"/></div>
         <div><label>Merchant Domain</label><input id="cfg-domain" value="" placeholder="store.example.com"/></div>
-        <div><label>Product ID <span style="font-weight:400;color:#a1a1aa">(optional)</span></label><input id="cfg-product" value="" placeholder="auto-discover via catalog"/></div>
+        <div><label>Product ID <span style="font-weight:400;color:#a1a1aa">(optional &mdash; or query:&lt;term&gt;)</span></label><input id="cfg-product" value="" placeholder="a product id &mdash; or query:sunglasses"/></div>
         <div><label>Spec Version</label><select id="cfg-version"><option value="auto" selected>Auto-detect</option><option value="2026-04-08">2026-04-08</option><option value="2026-01-23">2026-01-23</option><option value="2026-01-11">2026-01-11</option><option value="all">All versions</option></select></div>
       </div>
       <div class="discovered" id="discovered">
@@ -524,10 +524,16 @@ async function discover(){
 }
 
 async function discoverProduct(V){
-  // A manually supplied product id skips catalog discovery entirely — required for
-  // merchants that don't expose catalog (pre-04-08 specs) or whose catalog is empty.
+  // The Product ID field accepts either a concrete id (skips catalog entirely — for
+  // merchants without catalog or with an empty one) or "query:<term>" to drive the
+  // catalog search with a custom term (for search backends that don't support '*').
   const manual=cfg('product');
-  if(manual){sessionData.productId=manual;sessionData.productTitle='(manual)';sessionData.catalogVersion=null;return{id:manual}}
+  let customQ=null;
+  if(manual){
+    const m=manual.match(/^query\s*:(.+)$/i);
+    if(m){customQ=m[1].trim()}
+    else{sessionData.productId=manual;sessionData.productTitle='(manual)';sessionData.catalogVersion=null;return{id:manual}}
+  }
   // catalog.search only exists from spec 2026-04-08 — a merchant whose primary
   // profile is older (e.g. 2026-01-23) often still serves catalog on its 04-08
   // versioned endpoint, so try the primary version FIRST, then every other
@@ -536,19 +542,21 @@ async function discoverProduct(V){
   const candidates=[V,...(sessionData.supportedVersions||[]).filter(v=>v!==V).sort().reverse()];
   const found=(p,ver)=>{sessionData.productId=p.variants?.[0]?.id||p.id;sessionData.productTitle=p.title;sessionData.productPrice=p.price_range?.min?.amount;sessionData.catalogVersion=ver;return p};
   const reasons=[];
+  const primaryQ=customQ||'*';
+  const fallbackQs=['*','jacket','shirt','sunglasses','product'].filter(q=>q!==primaryQ);
   for(const ver of candidates){
-    const{status,data}=await http('POST',ep(ver)+'/catalog/search',{query:'*'});
+    const{status,data}=await http('POST',ep(ver)+'/catalog/search',{query:primaryQ});
     if(status===200&&data.products?.length)return found(data.products[0],ver);
     const code=(data.messages||[])[0]?.code;
     if(code==='unsupported_capability'){reasons.push('catalog.search not available at '+ver);continue}
     if(status===0){reasons.push('catalog request blocked (network/CORS) at '+ver);continue}
     if(status===200){
-      // reachable but empty for '*' — try common queries before giving up on this version
-      for(const q of['jacket','shirt','sunglasses','product']){
+      // reachable but empty for the primary query — try the fallbacks before giving up
+      for(const q of fallbackQs){
         const{status:s2,data:d2}=await http('POST',ep(ver)+'/catalog/search',{query:q});
         if(s2===200&&d2.products?.length)return found(d2.products[0],ver);
       }
-      reasons.push('catalog reachable at '+ver+' but returned ZERO products for every query (empty catalog?)');
+      reasons.push('catalog reachable at '+ver+' but returned ZERO products for '+JSON.stringify(primaryQ)+' and every fallback query (empty catalog?)');
     }else{reasons.push('catalog.search at '+ver+' returned HTTP '+status)}
   }
   throw new Error(reasons.join(' \u00b7 ')||'No products found via catalog search');

@@ -115,7 +115,7 @@ const DISCLAIMER =
 // Read-only catalog probes — the ONLY live checks safe to run anonymously online:
 // catalog search/lookup are read-only by semantics. Write-path checks (checkout
 // create/complete, cart) stay CLI-only where the merchant runs them consciously.
-async function catalogChecks(profile, extraHeaders) {
+async function catalogChecks(profile, extraHeaders, query) {
   const ucp = (profile && profile.ucp) || profile || {};
   const caps = (ucp.capabilities && !Array.isArray(ucp.capabilities)) ? ucp.capabilities : {};
   const svc = (ucp.services && ucp.services["dev.ucp.shopping"]) || [];
@@ -140,13 +140,14 @@ async function catalogChecks(profile, extraHeaders) {
   const add = (id, requirement, ok, observed) =>
     checks.push({ id, requirement, status: ok ? "pass" : "deviation", observed });
 
-  const s = await post("/catalog/search", { query: "*" });
+  const q = (typeof query === "string" && query.trim().slice(0, 80)) || "*";
+  const s = await post("/catalog/search", { query: q });
   const prods = s.json && Array.isArray(s.json.products) ? s.json.products : null;
   const shapeOk = s.status === 200 && prods !== null && prods.every((p) =>
     p && p.id && p.title && Array.isArray(p.variants) && p.variants.length);
   add("catalog.search_shape",
       "Search returns a products array; each product carries id, title, variants (CAT-012).",
-      shapeOk, `HTTP ${s.status}, products: ${prods === null ? "(absent)" : prods.length}`);
+      shapeOk, `HTTP ${s.status}, query ${JSON.stringify(q)}, products: ${prods === null ? "(absent)" : prods.length}`);
 
   const e = await post("/catalog/search", { query: "zzz_no_such_product_zzz" });
   const eOk = e.status === 200 && e.json && Array.isArray(e.json.products) &&
@@ -202,7 +203,7 @@ export async function preview(serverUrl, opts = {}) {
 
   const report = runPreviewChecks(profile, resp.headers.get("content-type"));
   if (opts.deep) {                       // /api/conformance runs the live probes;
-    const live = await catalogChecks(profile, extra);   // the badge stays shallow/fast
+    const live = await catalogChecks(profile, extra, opts.query);   // the badge stays shallow/fast
     report.checks.push(...live);
     report.summary.passed += live.filter((c) => c.status === "pass").length;
     report.summary.deviations += live.filter((c) => c.status === "deviation").length;
@@ -229,7 +230,7 @@ export async function onRequestGet(context) {
     const i = hv.indexOf(":");
     if (i > 0) headers[hv.slice(0, i).trim()] = hv.slice(i + 1).trim();
   }
-  const out = await preview(server, { deep: true, headers });
+  const out = await preview(server, { deep: true, headers, query: url.searchParams.get("query") });
   context.waitUntil(bumpStat(context.env, "instantChecks", out.server));
   return json(out, out.error && !out.checks ? 400 : 200);
 }
@@ -238,7 +239,7 @@ export async function onRequestPost(context) {
   let body = {};
   try { body = await context.request.json(); } catch {}
   if (!body.server) return json({ error: "POST { server: <url>, headers?: { \"x-…\": \"value\" } }" }, 400);
-  const out = await preview(body.server, { deep: true, headers: body.headers });
+  const out = await preview(body.server, { deep: true, headers: body.headers, query: body.query });
   context.waitUntil(bumpStat(context.env, "instantChecks", out.server));
   return json(out, out.error && !out.checks ? 400 : 200);
 }

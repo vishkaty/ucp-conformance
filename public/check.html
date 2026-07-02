@@ -48,6 +48,7 @@
     <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
     <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-firmly-host</code>)</summary>
       <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-firmly-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
+      <input id="cquery" type="text" style="margin-top:8px" placeholder="catalog search query (default: *) — e.g. sunglasses" autocomplete="off" spellcheck="false">
     </details>
     <button id="run">Check discovery + profile + catalog</button>
     <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks, plus read-only catalog probes when the server declares that capability. Write-path checks (checkout, order, cart) run only in the CLI &mdash; run those against your own server, never someone else's.</p>
@@ -86,6 +87,8 @@ async function run() {
     const hraw = (document.getElementById("hdrs") || { value: "" }).value.trim();
     hraw.split(";").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 3)
       .forEach(function (h) { q += "&header=" + encodeURIComponent(h); });
+    const cq = (document.getElementById("cquery") || { value: "" }).value.trim();
+    if (cq) q += "&query=" + encodeURIComponent(cq);
     const r = await fetch(q);
     const d = await r.json();
     card.textContent = "";
