@@ -233,17 +233,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       </div>
       <div class="settings-section" style="margin-top:16px">
         <h3>CLI (spck)</h3>
-        <p style="font-size:11px;color:#71717a;margin-bottom:10px">Run the same 42 tests from your shell or CI. Results sync to this account when you pass an API key.</p>
+        <p style="font-size:11px;color:#71717a;margin-bottom:10px">Run the full suite (37+ kill-rate-validated checks) from your shell or CI.</p>
         <div style="background:#0f0f11;color:#e5e7eb;padding:10px 12px;border-radius:6px;font-family:'SF Mono',Menlo,monospace;font-size:11px;line-height:1.7;margin-bottom:10px;overflow-x:auto">
           <div><span style="color:#6b7280"># install</span></div>
-          <div><span style="color:#818cf8">$</span> pip install spck</div>
-          <div style="margin-top:6px"><span style="color:#6b7280"># run (no account needed)</span></div>
-          <div><span style="color:#818cf8">$</span> spck <span style="color:#a5f3fc">--server</span> https://api.example.com <span style="color:#a5f3fc">--merchant</span> store.example.com</div>
-          <div style="margin-top:6px"><span style="color:#6b7280"># sync results to this account</span></div>
-          <div><span style="color:#818cf8">$</span> spck <span style="color:#a5f3fc">--key</span> YOUR_KEY <span style="color:#a5f3fc">--save-key</span> <span style="color:#a5f3fc">--server</span> ... <span style="color:#a5f3fc">--merchant</span> ...</div>
+          <div><span style="color:#818cf8">$</span> pip install spck-conformance</div>
+          <div style="margin-top:6px"><span style="color:#6b7280"># scaffold a config for your server, then run the suite</span></div>
+          <div><span style="color:#818cf8">$</span> spck-conformance <span style="color:#a5f3fc">--server</span> https://your-store.example.com <span style="color:#a5f3fc">--init</span> merchant.json</div>
+          <div><span style="color:#818cf8">$</span> spck-conformance <span style="color:#a5f3fc">--server</span> https://your-store.example.com <span style="color:#a5f3fc">--config</span> merchant.json</div>
         </div>
-        <p style="font-size:11px;color:#71717a;margin-bottom:4px">Options: <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--version</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--host-header</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--headers K=V,...</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--json</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--verbose</code></p>
-        <p style="font-size:11px;color:#71717a">Full docs: <a href="https://github.com/vishkaty/ucp-conformance/tree/main/cli" target="_blank">github.com/vishkaty/ucp-conformance/cli</a></p>
+        <p style="font-size:11px;color:#71717a;margin-bottom:4px">Options: <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--init</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--config</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--json</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--junit</code> <code style="background:#f4f4f5;padding:1px 4px;border-radius:3px">--insecure</code></p>
+        <p style="font-size:11px;color:#71717a">Full docs: <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">github.com/vishkaty/ucp-conformance</a></p>
       </div>
       <div class="settings-section" style="margin-top:16px">
         <h3>API Keys</h3>
