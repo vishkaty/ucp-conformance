@@ -495,17 +495,30 @@ async function discover(){
 }
 
 async function discoverProduct(V){
-  // Search catalog for a product
-  const{status,data}=await http('POST',ep(V)+'/catalog/search',{query:'*'});
-  if(status===200&&data.products?.length){
-    const p=data.products[0];sessionData.productId=p.variants?.[0]?.id||p.id;sessionData.productTitle=p.title;sessionData.productPrice=p.price_range?.min?.amount;return p;
+  // catalog.search only exists from spec 2026-04-08 — a merchant whose primary
+  // profile is older (e.g. 2026-01-23) often still serves catalog on its 04-08
+  // versioned endpoint, so try the primary version FIRST, then every other
+  // supported version, newest first. Distinguish "capability not available" from
+  // a genuinely empty catalog so the error is actionable, not misleading.
+  const candidates=[V,...(sessionData.supportedVersions||[]).filter(v=>v!==V).sort().reverse()];
+  const found=(p,ver)=>{sessionData.productId=p.variants?.[0]?.id||p.id;sessionData.productTitle=p.title;sessionData.productPrice=p.price_range?.min?.amount;sessionData.catalogVersion=ver;return p};
+  const reasons=[];
+  for(const ver of candidates){
+    const{status,data}=await http('POST',ep(ver)+'/catalog/search',{query:'*'});
+    if(status===200&&data.products?.length)return found(data.products[0],ver);
+    const code=(data.messages||[])[0]?.code;
+    if(code==='unsupported_capability'){reasons.push('catalog.search not available at '+ver);continue}
+    if(status===0){reasons.push('catalog request blocked (network/CORS) at '+ver);continue}
+    if(status===200){
+      // reachable but empty for '*' — try common queries before giving up on this version
+      for(const q of['jacket','shirt','sunglasses','product']){
+        const{status:s2,data:d2}=await http('POST',ep(ver)+'/catalog/search',{query:q});
+        if(s2===200&&d2.products?.length)return found(d2.products[0],ver);
+      }
+      reasons.push('catalog reachable at '+ver+' but returned ZERO products for every query (empty catalog?)');
+    }else{reasons.push('catalog.search at '+ver+' returned HTTP '+status)}
   }
-  // Fallback: try common queries
-  for(const q of['jacket','shirt','sunglasses','product']){
-    const{status:s2,data:d2}=await http('POST',ep(V)+'/catalog/search',{query:q});
-    if(s2===200&&d2.products?.length){const p=d2.products[0];sessionData.productId=p.variants?.[0]?.id||p.id;sessionData.productTitle=p.title;sessionData.productPrice=p.price_range?.min?.amount;return p}
-  }
-  throw new Error('No products found via catalog search');
+  throw new Error(reasons.join(' \u00b7 ')||'No products found via catalog search');
 }
 
 function showDiscovered(){
@@ -604,7 +617,7 @@ async function runTests(){
     // Phase 2: Find a product
     try{await discoverProduct(V)}catch(e){
       // If catalog search fails, we can't auto-discover. Show error.
-      document.getElementById('run-status').textContent='No products found. Check merchant domain.';
+      document.getElementById('run-status').textContent='Product discovery failed: '+(e.message||'no products found');
       document.getElementById('btn-run').disabled=false;
       document.getElementById('progress-bar').style.display='none';
       return;
