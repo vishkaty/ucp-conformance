@@ -21,12 +21,27 @@ sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 
 VERSION = "2026-01-23"
 # Check(id, req_ids, schema_rel, def_name, valid, negatives, op, direction, controls)
+#   def_name: a named $def to validate against — or None for a ROOT schema (no $defs,
+#     e.g. types/message_error.json), validated via schema_oracle.validate_root.
 #   op/direction: how the valid fixture + negatives are validated (direction=None keeps
 #     the validator default; "request" applies ucp_request lifecycle filtering for op).
 #   controls: [(payload, op)] that must ALSO validate — positive guards proving a rule
-#     is lifecycle-scoped (e.g. ap2 required on complete but NOT on create).
+#     is lifecycle-scoped (ap2 on complete only) or tolerant (freeform error codes,
+#     every legal severity value).
 Check = namedtuple("Check", "id req_ids schema_rel def_name valid negatives op direction controls")
 Check.__new__.__defaults__ = ("read", None, ())
+
+def _msg_err(**over):
+    """A minimal valid 2026-01-23 Message Error (required: type/code/content/severity),
+    with keyword args overriding or (value=None) deleting fields."""
+    m = {"type": "error", "code": "invalid", "content": "Quantity exceeds stock",
+         "severity": "recoverable"}
+    for k, v in over.items():
+        if v is None:
+            m.pop(k, None)
+        else:
+            m[k] = v
+    return m
 
 _PAY = {"instruments": [{"id": "instr_1", "handler_id": "h1", "type": "card",
                          "display": {"brand": "Visa", "last_digits": "1234"},
@@ -67,6 +82,35 @@ CHECKS = [
           # control: a create request WITHOUT ap2 stays valid on op=create — the rule
           # is lifecycle-scoped to complete, not an unconditional "ap2 always required"
           controls=((_CREATE_BODY, "create"),)),
+    # --- Message Error (ROOT schema — def_name=None -> validate_root; the old
+    # ERR-blocker only applied to --def mode) ---
+    Check("error.type_const_error", ["ERR-002"],
+          "schemas/shopping/types/message_error.json", None,
+          _msg_err(),
+          [_msg_err(type="warning"),                     # const "error" violated
+           _msg_err(type="info"),
+           _msg_err(type=""),
+           _msg_err(type=None)]),                        # required(type) unsatisfied
+    Check("error.code_is_open_string", ["ERR-003"],
+          "schemas/shopping/types/message_error.json", None,
+          _msg_err(),
+          [_msg_err(code=123),                           # number, not string
+           _msg_err(code=None),                          # required(code) unsatisfied
+           _msg_err(code=["invalid"]),                   # array, not string
+           _msg_err(code=True)],                         # boolean, not string
+          # tolerance control: a FREEFORM code must ALSO validate — the vocabulary is
+          # open (string-typed), not an enum
+          controls=((_msg_err(code="some_freeform_merchant_code"), "read"),)),
+    Check("error.severity_enum_3", ["ERR-004"],
+          "schemas/shopping/types/message_error.json", None,
+          _msg_err(),                                    # severity=recoverable
+          [_msg_err(severity="unrecoverable"),           # NOT in the 01-23 enum
+           _msg_err(severity="critical"),                # the Flower Shop's own bad value
+           _msg_err(severity="escalation"),              # the checkout.md guideline's bad name
+           _msg_err(severity=None)],                     # required(severity) unsatisfied
+          # positive controls: EVERY value of the exact 3-value enum validates
+          controls=((_msg_err(severity="requires_buyer_input"), "read"),
+                    (_msg_err(severity="requires_buyer_review"), "read"))),
 ]
 
 
@@ -74,20 +118,22 @@ def run():
     """Run every schema check; return (results, oracle_available).
     results = [(check, passed_all, detail)] where passed_all requires the valid fixture to
     validate AND every negative to be rejected (kill-rate)."""
-    from schema_oracle import validate_against, OracleUnavailable
+    from schema_oracle import validate_against, validate_root, OracleUnavailable
     results = []
     for c in CHECKS:
+        def _va(payload, op):
+            if c.def_name is None:      # ROOT schema (no named $defs)
+                return validate_root(payload, c.schema_rel, op=op, version=VERSION,
+                                     direction=c.direction or "response")
+            return validate_against(payload, c.schema_rel, c.def_name,
+                                    op=op, version=VERSION, direction=c.direction)
         try:
-            ok_valid, dv = validate_against(c.valid, c.schema_rel, c.def_name,
-                                            op=c.op, version=VERSION, direction=c.direction)
+            ok_valid, dv = _va(c.valid, c.op)
             neg_ok = []
             for n in c.negatives:
-                ok_n, _ = validate_against(n, c.schema_rel, c.def_name,
-                                           op=c.op, version=VERSION, direction=c.direction)
+                ok_n, _ = _va(n, c.op)
                 neg_ok.append(ok_n)
-            ctrl_ok = all(validate_against(p, c.schema_rel, c.def_name,
-                                           op=o, version=VERSION, direction=c.direction)[0]
-                          for p, o in c.controls)
+            ctrl_ok = all(_va(p, o)[0] for p, o in c.controls)
         except OracleUnavailable as e:
             return [], False
         killed_all = ok_valid and ctrl_ok and not any(neg_ok)

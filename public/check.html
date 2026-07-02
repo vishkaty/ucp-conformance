@@ -40,14 +40,14 @@
     <label for="server">Merchant server URL</label>
     <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
     <button id="run">Check discovery + profile</button>
-    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks. This is a preview — the full 37 kill-rate-validated checks run in the CLI.</p>
+    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks. This is a preview — the full 47 kill-rate-validated checks run in the CLI.</p>
   </div>
 
   <div id="out"></div>
 
   <div class="card">
     <div class="verdict">Run the full suite</div>
-    <p class="note">37 checks across checkout, order, discount, catalog, cart, totals — each proven to catch its own defects, each citing a spec clause.</p>
+    <p class="note">47 checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.</p>
     <pre><code># one-off
 pip install spck-conformance
 spck-conformance --server https://store.example.com --init merchant.json

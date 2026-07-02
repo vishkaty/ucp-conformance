@@ -115,6 +115,31 @@ def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-
     finally:
         os.unlink(path)
 
+def validate_root(payload, schema_rel, op="read", version="2026-04-08", direction="response"):
+    """Validate a payload against a ROOT schema (one with no named $defs — e.g.
+    types/message_error.json): pass --schema WITHOUT --def and the validator uses the
+    schema as-is. This is what unblocked ERR-002/003/004 (the old note that the oracle
+    'can't validate a root' was true only of --def mode).
+    Returns (ok, detail); raises OracleUnavailable if the binary/base is absent."""
+    import tempfile, os
+    base = SCHEMA_BASE.get(version)
+    schema = (base / schema_rel) if base else None
+    if not base or not schema or not schema.exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(path).write_text(json.dumps(payload))
+        args = ["validate", path, "--schema", str(schema), "--op", op,
+                "--schema-local-base", str(base)]
+        if direction == "request":
+            args.append("--request")
+        elif direction == "response":
+            args.append("--response")
+        r = _run(args)
+        return (r.returncode == 0, (r.stdout + r.stderr).strip())
+    finally:
+        os.unlink(path)
+
 def schema_parity(version="2026-04-08"):
     """Prove our oracle wiring is faithful: run the validator over our OWN controlled,
     version-matched corpus (fixtures/<version>/manifest.json). Each entry declares

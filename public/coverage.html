@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCP Spec Coverage — live traceability matrix (unofficial)</title>
+<meta name="description" content="Live, honest coverage accounting: every normative UCP MUST mapped to a kill-rate-validated check, a documented exemption, or an open gap — per spec version, traceable to the pinned official spec line.">
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --fg:#e6e8ee; --mut:#9aa3b2; --ok:#3fb950; --exempt:#58a6ff; --gap-t:#d29922; --gap-h:#a371f7; --gap-m:#6e7681; --bad:#f85149; --acc:#58a6ff; --line:#2b2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:16px; margin:26px 0 10px; }
+  .sub { color:var(--mut); margin:0 0 20px; font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; margin:14px 0; }
+  a { color:var(--acc); text-decoration:none; } a:hover { text-decoration:underline; }
+  .tabs { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
+  .tab { padding:7px 16px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--mut); cursor:pointer; font-size:14px; font-weight:600; }
+  .tab.active { background:var(--acc); color:#04101f; border-color:var(--acc); }
+  .bignum { font-size:30px; font-weight:800; }
+  .statrow { display:flex; gap:22px; flex-wrap:wrap; margin:4px 0 10px; }
+  .stat .lbl { color:var(--mut); font-size:12px; }
+  .bar { display:flex; height:22px; border-radius:6px; overflow:hidden; border:1px solid var(--line); }
+  .bar div { height:100%; }
+  .seg-check { background:var(--ok); } .seg-exempt { background:var(--exempt); }
+  .seg-testable { background:var(--gap-t); } .seg-harness { background:var(--gap-h); } .seg-manual { background:var(--gap-m); }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--mut); margin-top:8px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .arearow { display:grid; grid-template-columns:230px 1fr 90px; gap:10px; align-items:center; padding:5px 0; font-size:13px; }
+  .arearow .nm { color:var(--mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .arearow .ct { text-align:right; color:var(--mut); font-family:ui-monospace,Menlo,monospace; font-size:12px; }
+  .filters { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  select, input[type=text] { padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#0d1017; color:var(--fg); font-size:13px; }
+  input[type=text] { flex:1; min-width:180px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:var(--mut); font-size:11px; text-transform:uppercase; letter-spacing:.4px; padding:8px 8px; border-bottom:1px solid var(--line); }
+  td { padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; white-space:nowrap; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+  .p-check { background:rgba(63,185,80,.15); color:var(--ok); }
+  .p-exempt { background:rgba(88,166,255,.15); color:var(--exempt); }
+  .p-gap { background:rgba(210,153,34,.15); color:var(--gap-t); }
+  .p-gap-h { background:rgba(163,113,247,.15); color:var(--gap-h); }
+  .p-gap-m { background:rgba(110,118,129,.25); color:var(--mut); }
+  .note { font-size:12px; color:var(--mut); }
+  .count { color:var(--mut); font-size:12px; margin:6px 0; }
+  .topnav { font-size:13px; margin-bottom:18px; }
+  .topnav a { margin-right:14px; }
+  @media (max-width:640px){ .arearow{grid-template-columns:120px 1fr 70px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topnav">
+    <a href="/">← spck.dev</a><a href="/check">Instant Check</a><a href="/guide">Guide</a>
+    <a href="https://github.com/vishkaty/ucp-conformance">GitHub</a>
+  </div>
+  <h1>UCP Spec Coverage <span class="note">(unofficial, live)</span></h1>
+  <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a
+    <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
+    Each requirement links to the exact line of the pinned official spec. This page is generated from the same
+    data the CI gate enforces: if it were stale or coverage regressed, the build would be red.</p>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="summary"></div>
+  <div class="card"><h2 style="margin-top:0">Coverage by spec area</h2><div id="areas"></div></div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Requirements traceability</h2>
+    <div class="filters">
+      <select id="f-status"><option value="">All statuses</option><option value="check">Checked</option><option value="exempt">Exempt</option><option value="gap">Gap</option></select>
+      <select id="f-test"><option value="">All testability</option><option>testable</option><option>needs-receiver</option><option>needs-oauth</option><option>manual</option></select>
+      <select id="f-area"><option value="">All areas</option></select>
+      <input type="text" id="f-q" placeholder="Search id or requirement text…">
+    </div>
+    <div class="count" id="count"></div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Req</th><th>Status</th><th>Requirement (verbatim-verified against the pinned spec)</th><th>Spec</th><th>Covered by</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="note" id="shown-note"></p>
+  </div>
+
+  <div class="card note">
+    <b>Methodology.</b> Requirements registers are extracted from the pinned official spec and
+    <b>quote-verified verbatim</b> (896/896 rows) by a CI gate on every push. A check only counts when it
+    <b>clean-passes AND kills 100% of its injected defects</b> on a known-good reference (the official Flower Shop
+    sample or our oracle-validated controlled fixture). Exemptions require a written justification and are
+    machine-checked against double-booking. The <code>coverage</code> CI gate fails the build if this page's data
+    goes stale or accounted coverage ever decreases (ratchet).
+    <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md">Roadmap →</a>
+    &nbsp;·&nbsp; Unofficial; not affiliated with or endorsed by the UCP project.
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var DATA = null, VER = null;
+  var GAP_SEG = { testable: "seg-testable", "needs-receiver": "seg-harness", "needs-oauth": "seg-harness", manual: "seg-manual" };
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;   // textContent only — no HTML injection
+    return e;
+  }
+
+  function specLink(source, ver) {
+    // "ucp:docs/specification/discount.md#L175" -> pinned GitHub blob link
+    if (!source || source.indexOf("ucp:") !== 0) return null;
+    var rest = source.slice(4), sha = DATA.spec_pins[ver] || "main";
+    var m = rest.split("#");
+    return "https://github.com/" + DATA.spec_repo + "/blob/" + sha + "/" + m[0] + (m[1] ? "#" + m[1] : "");
+  }
+
+  function bar(parent, segs, total) {
+    var b = el("div", "bar");
+    segs.forEach(function (s) {
+      if (!s.n) return;
+      var d = el("div", s.cls);
+      d.style.width = (100 * s.n / total) + "%";
+      d.title = s.label + ": " + s.n;
+      b.appendChild(d);
+    });
+    parent.appendChild(b);
+  }
+
+  function segsFor(v) {
+    var g = v.gap_by_testability || {};
+    return [
+      { n: v.check, cls: "seg-check", label: "Checked" },
+      { n: v.exempt, cls: "seg-exempt", label: "Exempt (documented)" },
+      { n: g.testable || 0, cls: "seg-testable", label: "Gap: testable now" },
+      { n: (g["needs-receiver"] || 0) + (g["needs-oauth"] || 0), cls: "seg-harness", label: "Gap: needs harness (webhook/OAuth)" },
+      { n: (g.manual || 0) + (g["?"] || 0), cls: "seg-manual", label: "Gap: manual (exemption candidates)" }
+    ];
+  }
+
+  function renderSummary() {
+    var v = DATA.versions[VER], box = document.getElementById("summary");
+    box.textContent = "";
+    var card = el("div", "card");
+    var row = el("div", "statrow");
+    [["Accounted", v.accounted_pct + "%"], ["Normative MUSTs", v.musts], ["Checked", v.check],
+     ["Exempt", v.exempt], ["Gap", v.gap]].forEach(function (p) {
+      var s = el("div", "stat");
+      s.appendChild(el("div", "bignum", String(p[1])));
+      s.appendChild(el("div", "lbl", p[0]));
+      row.appendChild(s);
+    });
+    card.appendChild(row);
+    bar(card, segsFor(v), v.musts);
+    var lg = el("div", "legend");
+    [["seg-check", "Checked (kill-rate-validated)"], ["seg-exempt", "Exempt (documented)"],
+     ["seg-testable", "Gap: testable now"], ["seg-harness", "Gap: needs harness"],
+     ["seg-manual", "Gap: manual"]].forEach(function (p) {
+      var item = el("span");
+      var d = el("span", "dot " + p[0]); item.appendChild(d);
+      item.appendChild(document.createTextNode(p[1]));
+      lg.appendChild(item);
+    });
+    card.appendChild(lg);
+    box.appendChild(card);
+  }
+
+  function renderAreas() {
+    var v = DATA.versions[VER], box = document.getElementById("areas");
+    box.textContent = "";
+    v.areas.forEach(function (a) {
+      var r = el("div", "arearow");
+      r.appendChild(el("div", "nm", a.area));
+      var mid = el("div");
+      bar(mid, [
+        { n: a.check || 0, cls: "seg-check", label: "Checked" },
+        { n: a.exempt || 0, cls: "seg-exempt", label: "Exempt" },
+        { n: a.gap_testable || 0, cls: "seg-testable", label: "Gap: testable" },
+        { n: (a["gap_needs-receiver"] || 0) + (a["gap_needs-oauth"] || 0), cls: "seg-harness", label: "Gap: needs harness" },
+        { n: (a.gap_manual || 0) + (a["gap_?"] || 0), cls: "seg-manual", label: "Gap: manual" }
+      ], a.musts);
+      r.appendChild(mid);
+      r.appendChild(el("div", "ct", (a.check || 0) + (a.exempt || 0) + "/" + a.musts));
+      box.appendChild(r);
+    });
+  }
+
+  function pill(row) {
+    if (row.status === "check") return el("span", "pill p-check", "CHECKED");
+    if (row.status === "exempt") return el("span", "pill p-exempt", "EXEMPT");
+    if (row.testability === "manual") return el("span", "pill p-gap-m", "GAP · manual");
+    if (row.testability === "testable") return el("span", "pill p-gap", "GAP · testable");
+    return el("span", "pill p-gap-h", "GAP · " + row.testability);
+  }
+
+  var LIMIT = 400;
+  function renderRows() {
+    var v = DATA.versions[VER];
+    var fs = document.getElementById("f-status").value,
+        ft = document.getElementById("f-test").value,
+        fa = document.getElementById("f-area").value,
+        q = document.getElementById("f-q").value.trim().toLowerCase();
+    var body = document.getElementById("rows");
+    body.textContent = "";
+    var match = v.rows.filter(function (r) {
+      if (fs && r.status !== fs) return false;
+      if (ft && r.testability !== ft) return false;
+      if (fa && r.area !== fa) return false;
+      if (q && (r.id + " " + r.requirement).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    match.slice(0, LIMIT).forEach(function (r) {
+      var tr = el("tr");
+      var t1 = el("td"); t1.appendChild(el("span", "mono", r.id)); tr.appendChild(t1);
+      var t2 = el("td"); t2.appendChild(pill(r)); tr.appendChild(t2);
+      var t3 = el("td");
+      t3.appendChild(document.createTextNode(r.requirement + " "));
+      t3.appendChild(el("span", "note", "(" + r.area + ")"));
+      if (r.exempt_reason) { t3.appendChild(el("div", "note", "exempt: " + r.exempt_reason)); }
+      tr.appendChild(t3);
+      var t4 = el("td");
+      var url = specLink(r.source, VER);
+      if (url) { var a = el("a", "mono", "spec ↗"); a.href = url; a.target = "_blank"; a.rel = "noopener"; t4.appendChild(a); }
+      tr.appendChild(t4);
+      var t5 = el("td");
+      (r.covered_by || []).forEach(function (f) { t5.appendChild(el("div", "mono note", f)); });
+      tr.appendChild(t5);
+      body.appendChild(tr);
+    });
+    document.getElementById("count").textContent = match.length + " of " + v.rows.length + " requirements";
+    document.getElementById("shown-note").textContent =
+      match.length > LIMIT ? "Showing the first " + LIMIT + " — refine the filters to narrow down." : "";
+  }
+
+  function renderAll() {
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("active", t.dataset.ver === VER);
+    });
+    var fa = document.getElementById("f-area");
+    var keep = fa.value;
+    fa.textContent = "";
+    fa.appendChild(el("option", null, "All areas")).value = "";
+    DATA.versions[VER].areas.forEach(function (a) {
+      var o = el("option", null, a.area); o.value = a.area; fa.appendChild(o);
+    });
+    fa.value = keep && Array.prototype.some.call(fa.options, function (o) { return o.value === keep; }) ? keep : "";
+    renderSummary(); renderAreas(); renderRows();
+  }
+
+  fetch("/coverage.json").then(function (r) { return r.json(); }).then(function (d) {
+    DATA = d;
+    var vers = Object.keys(d.versions);
+    VER = vers[vers.length - 1];
+    var tabs = document.getElementById("tabs");
+    vers.forEach(function (ver) {
+      var t = el("button", "tab", ver);
+      t.dataset.ver = ver;
+      t.addEventListener("click", function () { VER = ver; renderAll(); });
+      tabs.appendChild(t);
+    });
+    ["f-status", "f-test", "f-area"].forEach(function (id) {
+      document.getElementById(id).addEventListener("change", renderRows);
+    });
+    document.getElementById("f-q").addEventListener("input", renderRows);
+    renderAll();
+  }).catch(function () {
+    document.getElementById("summary").textContent = "Failed to load coverage.json";
+  });
+})();
+</script>
+</body>
+</html>
