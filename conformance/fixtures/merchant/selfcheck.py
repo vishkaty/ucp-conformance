@@ -66,6 +66,19 @@ def checkout_artifacts():
         server.create_checkout({"line_items": li}, HDRS)[1]["id"], HDRS), "cancel")
     if not ok:
         raise RuntimeError(canceled)
+    # one response exercising ALL discount kinds: code-based order-level (10OFF),
+    # item-level with allocations (MUGLOVE), and threshold-automatic (subtotal>=5000)
+    ok, discounted = _expect(201, server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2},
+                        {"item": {"id": "mug_enamel"}, "quantity": 2}],
+         "discounts": {"codes": ["10OFF", "MUGLOVE"]}}, HDRS), "discounted create")
+    if not ok:
+        raise RuntimeError(discounted)
+    ap = (discounted.get("discounts") or {}).get("applied") or []
+    if not any(a.get("automatic") is True and "code" not in a for a in ap):
+        raise RuntimeError("discounted create did not surface the automatic discount")
+    if not any(a.get("allocations") for a in ap):
+        raise RuntimeError("discounted create did not surface item-level allocations")
     return [
         ("checkout create response",   lambda: validate_obj(created, "create")),
         ("checkout get response",      lambda: validate_obj(got, "read")),
@@ -73,6 +86,7 @@ def checkout_artifacts():
         ("checkout complete response", lambda: validate_obj(completed, "complete")),
         ("checkout cancel response",   lambda: validate_obj(canceled, "cancel")),
         ("order get response",         lambda: validate_obj(order, "read")),
+        ("discounted checkout response", lambda: validate_obj(discounted, "create")),
     ]
 
 def main():

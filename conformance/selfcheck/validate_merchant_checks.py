@@ -57,6 +57,8 @@ CONTROLLED_CONFIG = {
     "complete_payment": _pay("success_token", "1234"),   # fixture accepts any non-fail token
     "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
     "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx
+    "discount": {"valid_code": "10OFF", "second_valid_code": "TEA5",
+                 "invalid_code": "NOPE_NOT_A_CODE"},     # seeded codes (see server.py)
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}

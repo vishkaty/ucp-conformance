@@ -57,6 +57,18 @@ def _stock(iid):
 # success/fail tokens so the same config pattern drives both goldens).
 FAIL_TOKEN = "fail_token"
 
+# Seeded discount rules. Codes match case-insensitively (discount.md: "Case-insensitive").
+#   order_pct/order_flat -> order-level (no allocations -> totals[type=discount])
+#   item_pct             -> line-item level (allocations -> line discounts + items_discount)
+DISCOUNT_CODES = {
+    "10OFF":   {"title": "10% off your order", "kind": "order_pct", "value": 10},
+    "TEA5":    {"title": "$5 off your order", "kind": "order_flat", "value": 500},
+    "MUGLOVE": {"title": "20% off enamel mugs", "kind": "item_pct", "value": 20,
+                "product": "mug_enamel"},
+}
+# Automatic (rule-based) discount: applied with automatic:true and NO code field.
+AUTO_THRESHOLD, AUTO_AMOUNT, AUTO_TITLE = 5000, 500, "Bulk saver"
+
 def profile(base):
     cap = [{"version": VERSION}]
     return {
@@ -74,6 +86,8 @@ def profile(base):
             "dev.ucp.shopping.cart": cap,
             "dev.ucp.shopping.checkout": cap,
             "dev.ucp.shopping.order": cap,
+            "dev.ucp.shopping.discount": [
+                {"version": VERSION, "extends": "dev.ucp.shopping.checkout"}],
         },
         "payment_handlers": {},
     }
@@ -124,11 +138,18 @@ def _title(iid):
 
 def _ucp_envelope():
     """The `ucp` response envelope every checkout/order response MUST carry
-    (ucp.json $defs response_checkout_schema: version + payment_handlers required)."""
+    (ucp.json $defs response_checkout_schema: version + payment_handlers required).
+    Declaring the discount extension makes the oracle validate responses against the
+    discount-composed checkout schema (discount.json allOf checkout.json)."""
     return {"version": VERSION,
-            "capabilities": {"dev.ucp.shopping.checkout": [
-                {"version": VERSION,
-                 "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]},
+            "capabilities": {
+                "dev.ucp.shopping.checkout": [
+                    {"version": VERSION,
+                     "schema": "https://ucp.dev/schemas/shopping/checkout.json"}],
+                "dev.ucp.shopping.discount": [
+                    {"version": VERSION,
+                     "schema": "https://ucp.dev/schemas/shopping/discount.json",
+                     "extends": "dev.ucp.shopping.checkout"}]},
             "payment_handlers": {}}
 
 LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
@@ -170,15 +191,101 @@ def _build_line_items(reqs):
                                 "amount": price * qty}]})
     return out, None
 
+def _match_code(code):
+    """Case-insensitive seeded-code lookup (discount.md: codes are case-insensitive).
+    Returns (canonical_key, rule) or (None, None)."""
+    for k, rule in DISCOUNT_CODES.items():
+        if isinstance(code, str) and code.upper() == k:
+            return k, rule
+    return None, None
+
+def _compute_discounts(sess):
+    """Evaluate the session's submitted codes + automatic rules.
+    Returns (applied, order_disc, line_disc) — all amounts POSITIVE integers;
+    line_disc maps line-item index -> discount amount."""
+    lines = sess["line_items"]
+    subtotal = sum(li["totals"][0]["amount"] for li in lines)
+    applied, order_disc, line_disc = [], 0, {}
+    for code in sess.get("codes", []):
+        key, rule = _match_code(code)
+        if not rule:
+            continue                                    # unknown: echoed, never applied
+        if rule["kind"] == "order_pct":
+            amt = subtotal * rule["value"] // 100
+            applied.append({"code": key, "title": rule["title"], "amount": amt})
+            order_disc += amt
+        elif rule["kind"] == "order_flat":
+            amt = min(rule["value"], subtotal - order_disc)
+            applied.append({"code": key, "title": rule["title"], "amount": amt})
+            order_disc += amt
+        elif rule["kind"] == "item_pct":
+            allocations, total = [], 0
+            for i, li in enumerate(lines):
+                pid = li["item"]["id"]
+                pid = BY_VARIANT[pid]["id"] if pid in BY_VARIANT else pid
+                if pid == rule["product"]:
+                    a = li["item"]["price"] * li["quantity"] * rule["value"] // 100
+                    if a > 0:
+                        allocations.append({"path": f"$.line_items[{i}]", "amount": a})
+                        line_disc[i] = line_disc.get(i, 0) + a
+                        total += a
+            if total > 0:                               # no eligible items -> not applied
+                applied.append({"code": key, "title": rule["title"], "amount": total,
+                                "method": "each", "allocations": allocations})
+    if subtotal >= AUTO_THRESHOLD:                      # automatic: true, NO code field
+        applied.append({"title": AUTO_TITLE, "amount": AUTO_AMOUNT, "automatic": True})
+        order_disc += AUTO_AMOUNT
+    return applied, order_disc, line_disc
+
+def _codes_from(body):
+    """Extract discounts.codes from a request body.
+    Returns (codes_list | None if not submitted, error)."""
+    d = body.get("discounts")
+    if d is None:
+        return None, None
+    if not isinstance(d, dict) or not isinstance(d.get("codes", []), list) \
+       or any(not isinstance(c, str) for c in d.get("codes", [])):
+        return None, _err(400, "discounts.codes must be an array of strings")
+    return list(d.get("codes", [])), None
+
 def checkout_body(sess):
     """Render a session as a spec-valid checkout response (checkout.json requires
-    ucp, id, line_items, status, currency, totals, links)."""
-    subtotal = sum(li["totals"][0]["amount"] for li in sess["line_items"])
+    ucp, id, line_items, status, currency, totals, links). Discount rendering follows
+    the pinned per-version sign convention: 2026-04-08 totals[] discount entries are
+    NEGATIVE (schema-enforced) and item discounts appear as line-item totals entries;
+    2026-01-23/01-11 amounts are positive and item discounts populate
+    line_items[].discount (invariant: totals[items_discount] == sum of those)."""
+    applied, order_disc, line_disc = _compute_discounts(sess)
+    lines = [dict(li) for li in sess["line_items"]]
+    subtotal = sum(li["totals"][0]["amount"] for li in lines)
+    items_disc = sum(line_disc.values())
+    totals = [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal}]
+    if VERSION == "2026-04-08":
+        for i, a in line_disc.items():
+            lines[i]["totals"] = lines[i]["totals"] + [
+                {"type": "items_discount", "display_text": "Item discount", "amount": -a}]
+        if items_disc:
+            totals.append({"type": "items_discount", "display_text": "Item discounts",
+                           "amount": -items_disc})
+        if order_disc:
+            totals.append({"type": "discount", "display_text": "Discount",
+                           "amount": -order_disc})
+    else:
+        for i, a in line_disc.items():
+            lines[i]["discount"] = a
+        if items_disc:
+            totals.append({"type": "items_discount", "display_text": "Item discounts",
+                           "amount": items_disc})
+        if order_disc:
+            totals.append({"type": "discount", "display_text": "Discount",
+                           "amount": order_disc})
+    totals.append({"type": "total", "display_text": "Total",
+                   "amount": max(subtotal - items_disc - order_disc, 0)})
     out = {"ucp": _ucp_envelope(), "id": sess["id"], "status": sess["status"],
-           "currency": sess["currency"], "line_items": sess["line_items"],
-           "totals": [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal},
-                      {"type": "total", "display_text": "Total", "amount": subtotal}],
-           "links": LINKS}
+           "currency": sess["currency"], "line_items": lines,
+           "totals": totals, "links": LINKS}
+    if sess.get("codes") or applied:
+        out["discounts"] = {"codes": list(sess.get("codes", [])), "applied": applied}
     if sess.get("order"):
         out["order"] = sess["order"]        # order_confirmation: id + permalink_url
     return out
@@ -205,8 +312,12 @@ def create_checkout(body, headers=None):
     line_items, err = _build_line_items(body.get("line_items"))
     if err:
         return err
+    codes, err = _codes_from(body)
+    if err:
+        return err
     sess = {"id": "chk_" + uuid.uuid4().hex[:12], "status": "ready_for_complete",
-            "currency": body.get("currency", "USD"), "line_items": line_items}
+            "currency": body.get("currency", "USD"), "line_items": line_items,
+            "codes": codes or []}
     with _LOCK:
         SESSIONS[sess["id"]] = sess
         result = 201, checkout_body(sess)
@@ -244,7 +355,12 @@ def update_checkout(sid, body, headers=None):
     line_items, err = _build_line_items(body.get("line_items"))
     if err:
         return err
+    codes, err = _codes_from(body)
+    if err:
+        return err
     sess["line_items"] = line_items
+    if codes is not None:                   # submitted codes REPLACE the previous set;
+        sess["codes"] = codes               # an empty array clears them (DSC-002)
     if "currency" in body:
         sess["currency"] = body["currency"]
     return 200, checkout_body(sess)
