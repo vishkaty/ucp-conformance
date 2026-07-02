@@ -276,7 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="admin-grid" id="m-grid" style="margin-top:10px">
         <div class="admin-card"><div class="num" id="m-pypi">-</div><div class="lbl">PyPI downloads (30d)</div></div>
         <div class="admin-card"><div class="num" id="m-stars">-</div><div class="lbl">GitHub stars</div></div>
-        <div class="admin-card"><div class="num" id="m-clones">-</div><div class="lbl">Clones (14d)</div></div>
+        <div class="admin-card"><div class="num" id="m-clones">-</div><div class="lbl">Clones 14d (incl. CI+bots)</div></div>
         <div class="admin-card"><div class="num" id="m-traffic">-</div><div class="lbl">spck.dev requests (7d)</div></div>
       </div>
       <div id="m-detail" style="margin-top:10px;font-size:12px;color:#71717a;line-height:1.7"></div>
@@ -954,6 +954,7 @@ async function loadMetrics(refresh){
     if(ghErr)detail.push(`<span style="color:#b45309">GitHub: ${esc(String(ghErr))}</span>`);
     if(cf.error)detail.push(`<span style="color:#b45309">spck.dev traffic: ${esc(String(cf.error))}</span>`);
     if(d.pypi&&d.pypi.error)detail.push(`<span style="color:#b45309">PyPI: ${esc(String(d.pypi.error))}</span>`);
+    detail.push('<span style="color:#71717a">Clones include our own CI checkouts (every Actions run) and registry-scanner bots (PyPI/Action indexing) — the human signal is repo VIEWS, stars, and spck.dev uniques.</span>');
     if(d.pypi&&d.pypi.stale)detail.push(`<span style="color:#b45309">PyPI: * last-known-good snapshot from ${esc(String(d.pypi.as_of||'').slice(0,16).replace('T',' '))} UTC (pypistats rate-limited just now)</span>`);
     document.getElementById('m-detail').innerHTML=detail.join('<br>');
     up.textContent=(d.cached?'cached · ':'live · ')+(d.generated_at?d.generated_at.slice(0,16).replace('T',' ')+' UTC':'');
