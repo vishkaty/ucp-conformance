@@ -89,9 +89,12 @@ def validate_profile(profile, version="2026-01-23", role="business"):
     finally:
         os.unlink(path)
 
-def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-08"):
+def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-08",
+                     direction=None):
     """Validate a payload object against an explicit schema file + $def under a version's
     schema base. schema_rel is relative to <base> (e.g. 'schemas/shopping/catalog_search.json').
+    direction="request"/"response" applies the ucp_request lifecycle filtering for the
+    given op (e.g. ap2 required-on-complete); None leaves the validator's default.
     Returns (ok, detail); raises OracleUnavailable if the binary/base is absent."""
     import tempfile, os
     base = SCHEMA_BASE.get(version)
@@ -101,8 +104,13 @@ def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     try:
         pathlib.Path(path).write_text(json.dumps(payload))
-        r = _run(["validate", path, "--schema", str(schema), "--def", def_name,
-                  "--op", op, "--schema-local-base", str(base)])
+        args = ["validate", path, "--schema", str(schema), "--def", def_name,
+                "--op", op, "--schema-local-base", str(base)]
+        if direction == "request":
+            args.append("--request")
+        elif direction == "response":
+            args.append("--response")
+        r = _run(args)
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
         os.unlink(path)

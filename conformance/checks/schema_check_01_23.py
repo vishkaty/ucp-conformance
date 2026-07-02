@@ -20,8 +20,21 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 
 VERSION = "2026-01-23"
-# Check(id, req_ids, schema_rel, def_name, valid, negatives)
-Check = namedtuple("Check", "id req_ids schema_rel def_name valid negatives")
+# Check(id, req_ids, schema_rel, def_name, valid, negatives, op, direction, controls)
+#   op/direction: how the valid fixture + negatives are validated (direction=None keeps
+#     the validator default; "request" applies ucp_request lifecycle filtering for op).
+#   controls: [(payload, op)] that must ALSO validate — positive guards proving a rule
+#     is lifecycle-scoped (e.g. ap2 required on complete but NOT on create).
+Check = namedtuple("Check", "id req_ids schema_rel def_name valid negatives op direction controls")
+Check.__new__.__defaults__ = ("read", None, ())
+
+_PAY = {"instruments": [{"id": "instr_1", "handler_id": "h1", "type": "card",
+                         "display": {"brand": "Visa", "last_digits": "1234"},
+                         "credential": {"type": "token", "token": "tok"}}]}
+# SD-JWT+kb shaped string (matches the checkout_mandate pattern incl. ~disclosures)
+_MANDATE = "eyJhbGciOiJFUzI1NiJ9.eyJjaGVja291dCI6MX0.c2ln~ZGlzY2xvc3VyZQ"
+_CREATE_BODY = {"line_items": [{"id": "li_1", "quantity": 1,
+                                "item": {"id": "p1", "price": 1000}, "totals": []}]}
 
 CHECKS = [
     Check("discount.allocation_shape", ["DSC-014"],
@@ -44,6 +57,16 @@ CHECKS = [
           [{"title": "s", "amount": 500, "method": "proportional"},    # outside enum
            {"title": "s", "amount": 500, "method": "EACH"},            # wrong case
            {"title": "s", "amount": 500, "method": 123}]),             # wrong type
+    Check("payment.ap2_mandate_on_complete", ["PAY-036"],
+          "schemas/shopping/ap2_mandate.json", "checkout",
+          {"payment": _PAY, "ap2": {"checkout_mandate": _MANDATE}},    # complete + mandate
+          [{"payment": _PAY},                                          # ap2 dropped entirely
+           {"payment": _PAY, "ap2": {}},                               # ap2 without checkout_mandate
+           {"payment": _PAY, "ap2": {"checkout_mandate": "not a jwt!!"}}],  # pattern violated
+          op="complete", direction="request",
+          # control: a create request WITHOUT ap2 stays valid on op=create — the rule
+          # is lifecycle-scoped to complete, not an unconditional "ap2 always required"
+          controls=((_CREATE_BODY, "create"),)),
 ]
 
 
@@ -55,17 +78,23 @@ def run():
     results = []
     for c in CHECKS:
         try:
-            ok_valid, dv = validate_against(c.valid, c.schema_rel, c.def_name, op="read", version=VERSION)
+            ok_valid, dv = validate_against(c.valid, c.schema_rel, c.def_name,
+                                            op=c.op, version=VERSION, direction=c.direction)
             neg_ok = []
             for n in c.negatives:
-                ok_n, _ = validate_against(n, c.schema_rel, c.def_name, op="read", version=VERSION)
+                ok_n, _ = validate_against(n, c.schema_rel, c.def_name,
+                                           op=c.op, version=VERSION, direction=c.direction)
                 neg_ok.append(ok_n)
+            ctrl_ok = all(validate_against(p, c.schema_rel, c.def_name,
+                                           op=o, version=VERSION, direction=c.direction)[0]
+                          for p, o in c.controls)
         except OracleUnavailable as e:
             return [], False
-        killed_all = ok_valid and not any(neg_ok)
+        killed_all = ok_valid and ctrl_ok and not any(neg_ok)
         surviving = sum(1 for x in neg_ok if x)
         detail = ("clean-pass + kill-safe" if killed_all
-                  else f"valid_ok={ok_valid}, {surviving}/{len(c.negatives)} mutants SURVIVED")
+                  else f"valid_ok={ok_valid}, ctrl_ok={ctrl_ok}, "
+                       f"{surviving}/{len(c.negatives)} mutants SURVIVED")
         results.append((c, killed_all, detail))
     return results, True
 
