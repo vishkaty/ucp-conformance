@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UCP Conformance Testing Tool — Test Your Universal Commerce Protocol Implementation</title>
-<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec. 42 automated tests, full request/response logging, multi-version support.">
+<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec. 47 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>U</text></svg>">
 <style>
 :root{--accent:#5b5bd6;--dark:#18181b;--green:#16a34a;--red:#dc2626;--bg:#f8f9fa;--border:#e4e4e7;--muted:#71717a}
@@ -152,13 +152,11 @@ footer .copy{font-size:11px;color:#a1a1aa}
     UCP Conformance
   </div>
   <div class="nav-links">
-    <a href="https://ucp.dev" target="_blank">Spec</a>
-    <a href="#cli">CLI</a>
-    <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank">GitHub</a>
-    <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">Official Suite</a>
-    <a href="guide">Guide</a>
     <a href="coverage">Coverage</a>
+    <a href="guide">Guide</a>
     <a href="check">Instant Check</a>
+    <a href="#cli">CLI</a>
+    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
     <a href="tool" class="btn-nav">Launch Tool &rarr;</a>
   </div>
 </nav>
@@ -232,8 +230,71 @@ footer .copy{font-size:11px;color:#a1a1aa}
   </div>
 </section>
 
+<!-- Live coverage -->
+<section class="alt" id="coverage-live">
+  <div class="section-inner">
+    <div class="section-label">Transparency</div>
+    <div class="section-title">Live spec coverage</div>
+    <p style="color:var(--muted);font-size:14px;max-width:640px;margin-bottom:22px">
+      Every normative <strong>MUST</strong> in each pinned spec version, accounted as a
+      kill-rate-validated check, a documented exemption, or an open gap — regenerated with every
+      change and enforced by CI (stale data or a coverage regression fails the build).
+    </p>
+    <div id="cov-rows" style="max-width:720px"></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)" id="cov-legend"></div>
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+      <a href="coverage" class="btn-cta" style="background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px">View the full matrix &rarr;</a>
+      <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:14px;color:var(--dark)">Roadmap to 100%</a>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  "use strict";
+  // validated light-surface palette; gray = designated neutral for the manual residue
+  var SEGS = [["check","#1baf7a","Checked (kill-rate-validated)"],
+              ["exempt","#2a78d6","Exempt (documented)"],
+              ["testable","#eda100","Gap: testable now"],
+              ["harness","#4a3aa7","Gap: needs harness"],
+              ["manual","#9ca3af","Gap: manual"]];
+  function el(t,txt){var e=document.createElement(t);if(txt!==undefined)e.textContent=txt;return e}
+  fetch("/coverage.json").then(function(r){return r.json()}).then(function(d){
+    var rows=document.getElementById("cov-rows");
+    Object.keys(d.versions).forEach(function(ver){
+      var v=d.versions[ver], g=v.gap_by_testability||{};
+      var counts={check:v.check,exempt:v.exempt,testable:g.testable||0,
+                  harness:(g["needs-receiver"]||0)+(g["needs-oauth"]||0),
+                  manual:(g.manual||0)+(g["?"]||0)};
+      var row=el("div"); row.style.cssText="display:grid;grid-template-columns:110px 1fr 150px;gap:12px;align-items:center;padding:7px 0";
+      var nm=el("div",ver); nm.style.cssText="font-weight:700;font-size:13px";
+      var bar=el("div"); bar.style.cssText="display:flex;height:20px;gap:2px;border-radius:4px;overflow:hidden";
+      SEGS.forEach(function(s){
+        if(!counts[s[0]])return;
+        var seg=el("div"); seg.style.cssText="height:100%;border-radius:2px;min-width:2px;flex-basis:0";
+        seg.style.background=s[1]; seg.style.flexGrow=counts[s[0]];
+        seg.title=s[2]+": "+counts[s[0]]+" of "+v.musts;
+        bar.appendChild(seg);
+      });
+      var lbl=el("div", v.accounted_pct+"% · "+(v.check+v.exempt)+"/"+v.musts+" accounted");
+      lbl.style.cssText="font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums";
+      row.appendChild(nm); row.appendChild(bar); row.appendChild(lbl);
+      rows.appendChild(row);
+    });
+    var lg=document.getElementById("cov-legend");
+    SEGS.forEach(function(s){
+      var item=el("span"); var dot=el("span");
+      dot.style.cssText="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle;background:"+s[1];
+      item.appendChild(dot); item.appendChild(document.createTextNode(s[2]));
+      lg.appendChild(item);
+    });
+  }).catch(function(){
+    document.getElementById("cov-rows").textContent="Live data unavailable — see the full matrix.";
+  });
+})();
+</script>
+
 <!-- Spec Versions -->
-<section class="alt">
+<section>
   <div class="section-inner">
     <div class="section-label">Versions</div>
     <div class="section-title">Supported Spec Versions</div>
@@ -259,7 +320,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
 </section>
 
 <!-- Test Modules -->
-<section>
+<section class="alt">
   <div class="section-inner">
     <div class="section-label">Coverage</div>
     <div class="section-title">What We Test</div>

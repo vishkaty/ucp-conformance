@@ -61,7 +61,7 @@ async function sendOtp(request, env) {
 
   const resendKey = env.RESEND_API_KEY;
   if (!resendKey) return json({ error: 'Email delivery not configured' }, 500);
-  await fetch('https://api.resend.com/emails', {
+  const sent = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -75,6 +75,9 @@ async function sendOtp(request, env) {
         <p style="color:#888;font-size:13px">Expires in 10 minutes.</p></div>`
     })
   });
+  // Surface delivery failures instead of a silent ok (a bad/rotated Resend key or a
+  // rejected sender would otherwise look like "OTP sent" while nothing arrives).
+  if (!sent.ok) return json({ error: 'Email delivery failed — please try again shortly' }, 502);
   return json({ ok: true, message: 'OTP sent' });
 }
 
@@ -357,13 +360,26 @@ async function adminMetrics(request, env) {
   }
   const out = { generated_at: new Date().toISOString(), cached: false };
 
-  // PyPI (public)
+  // PyPI (public — but pypistats.org rate-limits datacenter IPs with an HTML 429,
+  // so keep a last-known-good snapshot and serve it, marked stale, when live fails)
   try {
     const r = await fetch(`https://pypistats.org/api/packages/${METRICS_PYPI}/recent`,
       { headers: { 'User-Agent': 'spck-metrics' } });
-    const d = await r.json();
-    out.pypi = d.data || { error: 'no data' };
-  } catch (e) { out.pypi = { error: String(e) }; }
+    let d = null;
+    try { d = JSON.parse(await r.text()); } catch {}
+    if (r.ok && d && d.data) {
+      out.pypi = d.data;
+      await env.REPORTS.put('metrics:pypi:last',
+        JSON.stringify({ ...d.data, as_of: out.generated_at }));
+    } else {
+      const last = await env.REPORTS.get('metrics:pypi:last', 'json');
+      out.pypi = last ? { ...last, stale: true }
+                      : { error: `pypistats unavailable (HTTP ${r.status})` };
+    }
+  } catch (e) {
+    const last = await env.REPORTS.get('metrics:pypi:last', 'json').catch(() => null);
+    out.pypi = last ? { ...last, stale: true } : { error: String(e) };
+  }
 
   // GitHub — stars/forks are public; traffic (views/clones/referrers) needs a token
   const ght = env.GH_METRICS_TOKEN;

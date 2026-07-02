@@ -280,6 +280,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       </div>
       <div id="m-detail" style="margin-top:10px;font-size:12px;color:#71717a;line-height:1.7"></div>
     </div>
+    <div class="admin-section" style="border-left:3px solid #1baf7a">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">&#x1F4CA; Spec Coverage</h3>
+        <span style="font-size:11px">
+          <a href="/coverage" target="_blank" style="margin-right:10px">Full matrix &rarr;</a>
+          <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank">Roadmap &rarr;</a>
+        </span>
+      </div>
+      <div id="cov-admin" style="margin-top:10px;font-size:12px;color:#71717a">loading&hellip;</div>
+    </div>
     <div class="admin-grid" id="admin-stats-grid">
       <div class="admin-card"><div class="num" id="a-users">-</div><div class="lbl">Users</div></div>
       <div class="admin-card"><div class="num" id="a-logins">-</div><div class="lbl">Total Logins</div></div>
@@ -863,8 +873,9 @@ async function loadMetrics(refresh){
     const r=await fetch(API_BASE+'/api/admin/metrics'+(refresh?'?refresh=1':''),{headers:{Authorization:'Bearer '+authToken}});
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
-    // PyPI (headline = 30d)
-    document.getElementById('m-pypi').textContent=(d.pypi&&d.pypi.last_month!=null)?d.pypi.last_month:'n/a';
+    // PyPI (headline = 30d; a stale flag means pypistats was rate-limited and this
+    // is the last-known-good snapshot)
+    document.getElementById('m-pypi').textContent=(d.pypi&&d.pypi.last_month!=null)?(d.pypi.last_month+(d.pypi.stale?'*':'')):'n/a';
     // GitHub — aggregate across repos
     const repos=d.github||{}, ghErr=repos.error;
     let stars=0,clones=0,cu=0; const detail=[];
@@ -885,11 +896,32 @@ async function loadMetrics(refresh){
     if(ghErr)detail.push(`<span style="color:#b45309">GitHub: ${esc(String(ghErr))}</span>`);
     if(cf.error)detail.push(`<span style="color:#b45309">spck.dev traffic: ${esc(String(cf.error))}</span>`);
     if(d.pypi&&d.pypi.error)detail.push(`<span style="color:#b45309">PyPI: ${esc(String(d.pypi.error))}</span>`);
+    if(d.pypi&&d.pypi.stale)detail.push(`<span style="color:#b45309">PyPI: * last-known-good snapshot from ${esc(String(d.pypi.as_of||'').slice(0,16).replace('T',' '))} UTC (pypistats rate-limited just now)</span>`);
     document.getElementById('m-detail').innerHTML=detail.join('<br>');
     up.textContent=(d.cached?'cached · ':'live · ')+(d.generated_at?d.generated_at.slice(0,16).replace('T',' ')+' UTC':'');
   }catch(e){up.textContent='error: '+e.message;}
 }
-async function loadAdmin(){
+function loadCoverage(){
+  // public data (enforced fresh by CI); validated light-surface palette, gray = neutral
+  const SEGS=[["check","#1baf7a","Checked"],["exempt","#2a78d6","Exempt"],["testable","#eda100","Gap: testable"],["harness","#4a3aa7","Gap: needs harness"],["manual","#9ca3af","Gap: manual"]];
+  fetch('/coverage.json').then(r=>r.json()).then(d=>{
+    const box=document.getElementById('cov-admin');box.textContent='';
+    Object.keys(d.versions).forEach(ver=>{
+      const v=d.versions[ver],g=v.gap_by_testability||{};
+      const c={check:v.check,exempt:v.exempt,testable:g.testable||0,harness:(g['needs-receiver']||0)+(g['needs-oauth']||0),manual:(g.manual||0)+(g['?']||0)};
+      const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:92px 1fr 150px;gap:10px;align-items:center;padding:5px 0';
+      const nm=document.createElement('div');nm.textContent=ver;nm.style.cssText='font-weight:700;font-size:12px;color:#18181b';
+      const bar=document.createElement('div');bar.style.cssText='display:flex;height:16px;gap:2px;border-radius:4px;overflow:hidden';
+      SEGS.forEach(sg=>{if(!c[sg[0]])return;const seg=document.createElement('div');
+        seg.style.cssText='height:100%;border-radius:2px;min-width:2px;flex-basis:0;background:'+sg[1];
+        seg.style.flexGrow=c[sg[0]];seg.title=sg[2]+': '+c[sg[0]]+' of '+v.musts;bar.appendChild(seg)});
+      const lbl=document.createElement('div');lbl.textContent=v.accounted_pct+'% · '+(v.check+v.exempt)+'/'+v.musts+' accounted';
+      lbl.style.cssText='font-size:11px;color:#71717a;text-align:right;font-variant-numeric:tabular-nums';
+      row.appendChild(nm);row.appendChild(bar);row.appendChild(lbl);box.appendChild(row);
+    });
+  }).catch(()=>{document.getElementById('cov-admin').textContent='coverage.json unavailable'});
+}
+async function loadAdmin(){loadCoverage();
   if(!authToken||!currentUser?.isAdmin)return;
   loadMetrics(false);
   try{
