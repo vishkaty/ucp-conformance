@@ -16,3 +16,4 @@ packaging/build/
 packaging/*.egg-info/
 packaging/spck_conformance.egg-info/
 packaging/dist/
+ops/
