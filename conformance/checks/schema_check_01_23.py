@@ -38,6 +38,12 @@ CHECKS = [
            {"analytics": 1},                             # integer, not boolean
            {"sale_of_data": None},                       # null, not boolean
            {"preferences": "yes"}]),                     # string, not boolean
+    Check("discount.applied_method_enum", ["DSC-013"],
+          "schemas/shopping/discount.json", "applied_discount",
+          {"title": "Spring sale", "amount": 500, "method": "each"},   # method optional; each|across
+          [{"title": "s", "amount": 500, "method": "proportional"},    # outside enum
+           {"title": "s", "amount": 500, "method": "EACH"},            # wrong case
+           {"title": "s", "amount": 500, "method": 123}]),             # wrong type
 ]
 
 
