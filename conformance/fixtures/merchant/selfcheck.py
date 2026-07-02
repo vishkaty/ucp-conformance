@@ -9,14 +9,63 @@ fixture serves against the pinned 2026-04-08 schemas using the ucp-schema oracle
 Exit 0 = every artifact schema-valid; 1 = a deviation (the fixture is buggy, fix it
 before it can be a golden); 2 = oracle unavailable (skip).
 """
-import sys, pathlib
+import sys, json, pathlib, tempfile, os
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "selfcheck"))
 import server                                              # noqa: E402
-from schema_oracle import validate_against, validate_profile, OracleUnavailable  # noqa: E402
+from schema_oracle import validate, validate_against, validate_profile, OracleUnavailable  # noqa: E402
 
 BASE = "http://localhost:8184"
+HDRS = {"UCP-Agent": 'profile="https://spck.dev/agent"'}   # minimal valid headers
+
+def validate_obj(payload, op):
+    """Validate an in-memory response object via the oracle's op/direction resolution
+    (for ROOT schemas like checkout.json that have no named $def): the payload's own
+    ucp.capabilities schema URL selects the schema, --op picks the lifecycle filter."""
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(path).write_text(json.dumps(payload))
+        return validate(path, op, response=True, version=server.VERSION)
+    finally:
+        os.unlink(path)
+
+def _expect(status_want, got, name):
+    status, payload = got
+    if status != status_want:
+        return False, f"{name}: expected HTTP {status_want}, got {status} {payload}"
+    return True, payload
+
+def checkout_artifacts():
+    """Drive the full checkout lifecycle in-process and yield (name, validate_fn) pairs,
+    one per lifecycle response the fixture can serve."""
+    li = [{"item": {"id": "teapot_ceramic"}, "quantity": 2},
+          {"item": {"id": "mug_enamel_v1"}, "quantity": 1}]
+    ok, created = _expect(201, server.create_checkout({"line_items": li}, HDRS), "create")
+    if not ok:
+        raise RuntimeError(created)
+    sid = created["id"]
+    ok, updated = _expect(200, server.update_checkout(
+        sid, {"id": sid, "line_items": li[:1]}, HDRS), "update")
+    if not ok:
+        raise RuntimeError(updated)
+    ok, got = _expect(200, server.get_checkout(sid, HDRS), "get")
+    if not ok:
+        raise RuntimeError(got)
+    ok, completed = _expect(200, server.complete_checkout(sid, {}, HDRS), "complete")
+    if not ok:
+        raise RuntimeError(completed)
+    ok, canceled = _expect(200, server.cancel_checkout(
+        server.create_checkout({"line_items": li}, HDRS)[1]["id"], HDRS), "cancel")
+    if not ok:
+        raise RuntimeError(canceled)
+    return [
+        ("checkout create response",   lambda: validate_obj(created, "create")),
+        ("checkout get response",      lambda: validate_obj(got, "read")),
+        ("checkout update response",   lambda: validate_obj(updated, "update")),
+        ("checkout complete response", lambda: validate_obj(completed, "complete")),
+        ("checkout cancel response",   lambda: validate_obj(canceled, "cancel")),
+    ]
 
 def main():
     artifacts = [
@@ -41,9 +90,14 @@ def main():
             version=server.VERSION)),
     ]
     try:
+        artifacts += checkout_artifacts()
         rows = [(name, *fn()) for name, fn in artifacts]
     except OracleUnavailable as e:
         print(f"oracle unavailable: {e}", file=sys.stderr); return 2
+    except RuntimeError as e:
+        print(f"  ✗ lifecycle drive failed: {e}")
+        print("\nfixture self-check: FAIL — fix the fixture before using it as a golden")
+        return 1
 
     ok = True
     for name, valid, detail in rows:

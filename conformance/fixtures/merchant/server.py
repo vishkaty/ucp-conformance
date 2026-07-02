@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Controlled UCP merchant fixture (spec 2026-04-08) — our OWN golden for capabilities
-the official samples don't implement (catalog search/lookup; cart next).
+the official samples don't implement (catalog search/lookup, cart, checkout lifecycle).
 
 Why this exists: neither official sample (Python Flower Shop, Node.js) declares
 `catalog` or `cart`, so those requirements can't be reference-gated against them.
@@ -14,7 +14,7 @@ here is anchored to the official validator, not to our own checks (no circularit
 Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
-import json, argparse
+import json, argparse, uuid, threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 VERSION = "2026-04-08"
@@ -41,6 +41,10 @@ PRODUCTS = [
 BY_ID = {p["id"]: p for p in PRODUCTS}
 BY_VARIANT = {v["id"]: p for p in PRODUCTS for v in p["variants"]}
 
+# Per-item available stock. Deliberately small so an over-stock quantity (the VAL-002
+# probe uses 10001) is always rejected, while normal 1-3 quantity flows succeed.
+STOCK_DEFAULT = 10
+
 def profile(base):
     cap = [{"version": VERSION}]
     return {
@@ -56,6 +60,7 @@ def profile(base):
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
             "dev.ucp.shopping.cart": cap,
+            "dev.ucp.shopping.checkout": cap,
         },
         "payment_handlers": {},
     }
@@ -87,6 +92,167 @@ def cart_response(body):
             "line_items": line_items,
             "totals": [{"type": "subtotal", "amount": subtotal},
                        {"type": "total", "amount": subtotal}]}
+
+# ---- checkout lifecycle (create/get/update/complete/cancel) ------------------
+# Pure functions returning (http_status, payload) so selfcheck.py can validate every
+# artifact against the official schemas without going through HTTP.
+SESSIONS = {}       # checkout id -> session state
+IDEM = {}           # idempotency-key -> (body_fingerprint, http_status, payload)
+_LOCK = threading.Lock()
+
+def _title(iid):
+    if iid in BY_ID:
+        return BY_ID[iid]["title"]
+    if iid in BY_VARIANT:
+        p = BY_VARIANT[iid]
+        v = next((v for v in p["variants"] if v["id"] == iid), None)
+        return f'{p["title"]} — {v["title"]}' if v else p["title"]
+    return iid
+
+def _ucp_envelope():
+    """The `ucp` response envelope every checkout/order response MUST carry
+    (ucp.json $defs response_checkout_schema: version + payment_handlers required)."""
+    return {"version": VERSION,
+            "capabilities": {"dev.ucp.shopping.checkout": [
+                {"version": VERSION,
+                 "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]},
+            "payment_handlers": {}}
+
+LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
+         {"type": "privacy_policy", "url": "https://spck.dev/fixture/privacy"}]
+
+def _err(status, detail):
+    """Structured error body: a populated `detail` string (the shape VAL-006 requires
+    of 400 responses, matching the reference server's error envelope)."""
+    return status, {"detail": detail}
+
+def _build_line_items(reqs):
+    """Resolve requested line_items against the seed catalog + stock.
+    Returns (line_items, None) or (None, (status, error_payload))."""
+    if not isinstance(reqs, list) or not reqs:
+        return None, _err(400, "line_items is required and must be a non-empty array")
+    out = []
+    for i, li in enumerate(reqs):
+        if not isinstance(li, dict):
+            return None, _err(400, f"line_items[{i}] must be an object")
+        iid = (li.get("item") or {}).get("id")
+        if not iid:
+            return None, _err(400, f"line_items[{i}].item.id is required")
+        if iid not in BY_ID and iid not in BY_VARIANT:
+            return None, _err(400, f"Unknown item id: {iid}")
+        try:
+            qty = int(li.get("quantity", 1) or 1)
+        except (TypeError, ValueError):
+            return None, _err(400, f"line_items[{i}].quantity must be an integer")
+        if qty < 1:
+            return None, _err(400, f"line_items[{i}].quantity must be >= 1")
+        if qty > STOCK_DEFAULT:
+            return None, _err(400, f"Insufficient stock for item {iid} "
+                                   f"(requested {qty}, available {STOCK_DEFAULT})")
+        price = _unit_price(iid)
+        out.append({"id": li.get("id") or f"li_{i+1}",
+                    "item": {"id": iid, "title": _title(iid), "price": price},
+                    "quantity": qty,
+                    "totals": [{"type": "subtotal", "display_text": "Subtotal",
+                                "amount": price * qty}]})
+    return out, None
+
+def checkout_body(sess):
+    """Render a session as a spec-valid checkout response (checkout.json requires
+    ucp, id, line_items, status, currency, totals, links)."""
+    subtotal = sum(li["totals"][0]["amount"] for li in sess["line_items"])
+    return {"ucp": _ucp_envelope(), "id": sess["id"], "status": sess["status"],
+            "currency": sess["currency"], "line_items": sess["line_items"],
+            "totals": [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal},
+                       {"type": "total", "display_text": "Total", "amount": subtotal}],
+            "links": LINKS}
+
+def create_checkout(body, headers=None):
+    """POST /checkout-sessions. Enforces: UCP-Agent required (CHK-052), line_items
+    required (CHK-018), known items + stock (VAL-003/VAL-001), idempotency-key
+    conflict -> 409 (IDM-004)."""
+    headers = headers or {}
+    if not headers.get("UCP-Agent"):
+        return _err(400, "UCP-Agent header is required")
+    if body is None or not isinstance(body, dict):
+        return _err(400, "request body must be a JSON object")
+    if "line_items" not in body:
+        return _err(400, "line_items is required on create")
+    key = headers.get("idempotency-key")
+    fp = json.dumps(body, sort_keys=True)
+    with _LOCK:
+        if key and key in IDEM:
+            prev_fp, prev_status, prev_payload = IDEM[key]
+            if prev_fp != fp:
+                return _err(409, "idempotency-key conflict: same key with a different body")
+            return prev_status, prev_payload           # replay the original result
+    line_items, err = _build_line_items(body.get("line_items"))
+    if err:
+        return err
+    sess = {"id": "chk_" + uuid.uuid4().hex[:12], "status": "ready_for_complete",
+            "currency": body.get("currency", "USD"), "line_items": line_items}
+    with _LOCK:
+        SESSIONS[sess["id"]] = sess
+        result = 201, checkout_body(sess)
+        if key:
+            IDEM[key] = (fp, *result)
+    return result
+
+def get_checkout(sid, headers=None):
+    """GET /checkout-sessions/{id}."""
+    sess = SESSIONS.get(sid)
+    if not sess:
+        return _err(404, f"checkout session not found: {sid}")
+    return 200, checkout_body(sess)
+
+def update_checkout(sid, body, headers=None):
+    """PUT /checkout-sessions/{id}. Enforces: top-level id required on update
+    (CHK-016), line_items required (CHK-018), stock revalidation -> 400 (VAL-002),
+    completed/canceled sessions immutable."""
+    headers = headers or {}
+    if not headers.get("UCP-Agent"):
+        return _err(400, "UCP-Agent header is required")
+    sess = SESSIONS.get(sid)
+    if not sess:
+        return _err(404, f"checkout session not found: {sid}")
+    if body is None or not isinstance(body, dict):
+        return _err(400, "request body must be a JSON object")
+    if not body.get("id"):
+        return _err(400, "top-level id is required on update requests")
+    if body["id"] != sid:
+        return _err(400, f"body id {body['id']} does not match path id {sid}")
+    if sess["status"] in ("completed", "canceled"):
+        return _err(409, f"checkout session is {sess['status']} and cannot be updated")
+    if "line_items" not in body:
+        return _err(400, "line_items is required on update")
+    line_items, err = _build_line_items(body.get("line_items"))
+    if err:
+        return err
+    sess["line_items"] = line_items
+    if "currency" in body:
+        sess["currency"] = body["currency"]
+    return 200, checkout_body(sess)
+
+def complete_checkout(sid, body, headers=None):
+    """POST /checkout-sessions/{id}/complete -> status 'completed'."""
+    sess = SESSIONS.get(sid)
+    if not sess:
+        return _err(404, f"checkout session not found: {sid}")
+    if sess["status"] == "canceled":
+        return _err(409, "checkout session is canceled and cannot be completed")
+    sess["status"] = "completed"
+    return 200, checkout_body(sess)
+
+def cancel_checkout(sid, headers=None):
+    """POST /checkout-sessions/{id}/cancel -> status 'canceled'; a completed
+    checkout is immutable (CHK-012) -> 4xx."""
+    sess = SESSIONS.get(sid)
+    if not sess:
+        return _err(404, f"checkout session not found: {sid}")
+    if sess["status"] == "completed":
+        return _err(409, "checkout session is completed and cannot be canceled")
+    sess["status"] = "canceled"
+    return 200, checkout_body(sess)
 
 def search_response(query):
     q = (query or "").strip().lower()
@@ -152,21 +318,44 @@ class _H(BaseHTTPRequestHandler):
         try: return json.loads(self.rfile.read(n)) if n else {}
         except Exception: return None
     def do_GET(self):
-        if self.path.rstrip("/") == "/.well-known/ucp":
+        path = self.path.rstrip("/")
+        if path == "/.well-known/ucp":
             return self._send(200, profile(self._base()))
+        if path.startswith("/checkout-sessions/"):
+            sid = path.split("/")[2]
+            return self._send(*get_checkout(sid, self.headers))
+        self._send(404, {"error_code": "not_found"})
+    def do_PUT(self):
+        body = self._body()
+        path = self.path.rstrip("/")
+        if body is None:
+            return self._send(400, {"detail": "request body is not valid JSON"})
+        if path.startswith("/checkout-sessions/") and path.count("/") == 2:
+            sid = path.split("/")[2]
+            return self._send(*update_checkout(sid, body, self.headers))
         self._send(404, {"error_code": "not_found"})
     def do_POST(self):
         body = self._body()
-        if body is None:
+        path = self.path.rstrip("/")
+        if body is None and path != "/checkout-sessions" \
+           and not (path.startswith("/checkout-sessions/") and path.endswith(("/complete", "/cancel"))):
             return self._send(400, {"error_code": "invalid_request"})
-        if self.path.rstrip("/") == "/catalog/search":
+        if path == "/catalog/search":
             return self._send(200, search_response(body.get("query")))
-        if self.path.rstrip("/") == "/catalog/lookup":
+        if path == "/catalog/lookup":
             ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
             return self._send(200, lookup_response(ids))
-        if self.path.rstrip("/") == "/carts":
+        if path == "/carts":
             return self._send(201, cart_response(body))
-        if self.path.rstrip("/") == "/ucp/mcp":         # MCP transport (JSON-RPC tools/call)
+        if path == "/checkout-sessions":
+            return self._send(*create_checkout(body, self.headers))
+        if path.startswith("/checkout-sessions/"):
+            parts = path.split("/")          # '', 'checkout-sessions', sid, action
+            if len(parts) == 4 and parts[3] == "complete":
+                return self._send(*complete_checkout(parts[2], body, self.headers))
+            if len(parts) == 4 and parts[3] == "cancel":
+                return self._send(*cancel_checkout(parts[2], self.headers))
+        if path == "/ucp/mcp":               # MCP transport (JSON-RPC tools/call)
             return self._send(200, mcp_dispatch(body))
         self._send(404, {"error_code": "not_found"})
 
@@ -177,7 +366,7 @@ def main():
     args = ap.parse_args()
     srv = ThreadingHTTPServer((args.host, args.port), _H)
     print(f"controlled merchant on http://{args.host}:{args.port} "
-          f"(catalog.search + catalog.lookup, spec {VERSION})")
+          f"(catalog + cart + checkout lifecycle, spec {VERSION})")
     try: srv.serve_forever()
     except KeyboardInterrupt: srv.shutdown()
 
