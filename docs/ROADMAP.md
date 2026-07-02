@@ -42,35 +42,41 @@ Nothing counts unless it survives this chain — every link is a CI gate, red on
    `conformance/**` or `public/**`, plus a weekly scheduled run (Mon 06:17 UTC) to
    catch environmental rot, plus the pip-bundle drift guard.
 
-## Where we are (2026-07-02)
+## Where we are (2026-07-02, post catalog grind)
 
-47 kill-rate-validated merchant checks + schema-oracle and version-suite checks.
+58 kill-rate-validated merchant checks + schema-oracle and version-suite checks.
 Two goldens: official Flower Shop (2026-01-23) and the controlled fixture
 (oracle-validated; serves 2026-04-08 AND 2026-01-23, full checkout/order/payment/
-discount lifecycle incl. automatic + item-level discounts and AP2 fields).
+discount lifecycle incl. automatic + item-level discounts and AP2 fields, plus
+catalog search/lookup/get_product with cursor pagination, dedup, batch cap and a
+configurable product).
 
 | Version | MUSTs | CHECK | EXEMPT | GAP (testable / needs-harness / manual) |
 |---|---|---|---|---|
-| 2026-01-11 | 172 | 57 | 0 | 115 (40 / 45 / 30) |
-| 2026-01-23 | 181 | 70 | 0 | 111 (35 / 45 / 31) |
-| 2026-04-08 | 322 | 35 | 0 | 287 (143 / 105 / 39) |
+| 2026-01-11 | 172 | 58 | 0 | 114 (38 / 45 / 31) |
+| 2026-01-23 | 181 | 71 | 0 | 110 (32 / 45 / 33) |
+| 2026-04-08 | 322 | 75 | 0 | 247 (101 / 105 / 41) |
 
 (Live numbers: [spck.dev/coverage](https://spck.dev/coverage) — this table is a
 snapshot; the page and `public/coverage.json` are the enforced source of truth.)
 
-Largest 04-08 gap areas: identity-linking 55 (47 need OAuth), catalog 24 testable,
-signatures 31, discounts 18 testable, payment/checkout/order ~15 testable each,
-error-envelope 25.
+Largest 04-08 gap areas: identity-linking 55 (47 need OAuth), signatures 31,
+error-envelope 25, discounts 18 testable, payment/checkout/order ~15 testable each.
+**Catalog is fully accounted for the testable tier** (27/32 CHECK; the 5 remaining
+are manual/client-bound — Phase-4 exemption candidates).
 
 ## Phases (each ends by raising the ratchet + a matrix milestone)
 
 ### Phase 1 — 2026-04-08 testable grind (~143 MUSTs, biggest single win)
 The controlled fixture already serves 04-08 with catalog/cart/checkout/order/discount,
 so most of these need only check implementation, not new infrastructure:
-catalog (24) · discounts (18) · signatures-testable (16) · payment (15) · checkout (14)
-· error-envelope (12; 04-08 error schemas are leaf schemas the oracle resolves as-is —
-unlike the 01-23 root-schema blocker) · order (11) · identity-testable (8) · totals (6)
-· cart (5) · discovery (5) · version-negotiation (4) · signals-testable (4).
+~~catalog (24)~~ **DONE 2026-07-02** (fixture gained get_product + cursor pagination +
+dedup/batch-cap/input-validation; 11 new MChecks + schema_check_04_08.py request-side
+checks; CAT-034 reclassified client-bound) · discounts (18) · signatures-testable (16)
+· payment (15) · checkout (14) · error-envelope (12; 04-08 error schemas are leaf
+schemas the oracle resolves as-is — unlike the 01-23 root-schema blocker) · order (11)
+· identity-testable (8) · totals (6) · cart (5) · discovery (5) · version-negotiation (4)
+· signals-testable (4).
 **Acceptance:** 04-08 accounted ≥ 55%; every new check reference-gated; ratchet raised.
 
 ### Phase 2 — harnesses (converts the needs-* tiers, all versions)
