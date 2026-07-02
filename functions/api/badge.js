@@ -8,7 +8,7 @@
  *
  * Unofficial. Not affiliated with or endorsed by the UCP project.
  */
-import { preview } from "./conformance.js";
+import { preview, bumpStat } from "./conformance.js";
 
 const LABEL = "UCP conformance";
 
@@ -66,6 +66,7 @@ export async function onRequestGet(context) {
   if (!server) return badgeResponse(svg("no server", "#9f9f9f"));
   let out;
   try { out = await preview(server); } catch { out = { error: "error" }; }
+  context.waitUntil(bumpStat(context.env, "badgeHits", out.server));
   let message, color;
   if (out.error) { message = "unreachable"; color = "#9f9f9f"; }
   else if ((out.summary?.deviations || 0) > 0) {

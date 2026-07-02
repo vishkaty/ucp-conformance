@@ -295,6 +295,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="admin-card"><div class="num" id="a-logins">-</div><div class="lbl">Total Logins</div></div>
       <div class="admin-card"><div class="num" id="a-runs">-</div><div class="lbl">Test Runs</div></div>
       <div class="admin-card"><div class="num" id="a-reports">-</div><div class="lbl">Reports Saved</div></div>
+      <div class="admin-card"><div class="num" id="a-ichecks">-</div><div class="lbl">Instant Checks (anon)</div></div>
+      <div class="admin-card"><div class="num" id="a-badges">-</div><div class="lbl">Badge Hits (anon)</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="admin-section">
@@ -928,6 +930,8 @@ async function loadAdmin(){loadCoverage();
     // Stats
     const{stats}=await(await fetch(API_BASE+'/api/admin/stats',{headers:{Authorization:'Bearer '+authToken}})).json();
     document.getElementById('a-users').textContent=stats.totalUsers||0;
+    document.getElementById('a-ichecks').textContent=stats.instantChecks||0;
+    document.getElementById('a-badges').textContent=stats.badgeHits||0;
     document.getElementById('a-logins').textContent=stats.totalLogins||0;
     document.getElementById('a-runs').textContent=stats.totalTestRuns||0;
     document.getElementById('a-reports').textContent=stats.totalReports||0;

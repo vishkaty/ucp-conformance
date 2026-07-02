@@ -46,8 +46,11 @@
   <div class="card">
     <label for="server">Merchant server URL</label>
     <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
-    <button id="run">Check discovery + profile</button>
-    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks. This is a preview — the full 47 kill-rate-validated checks run in the CLI.</p>
+    <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-firmly-host</code>)</summary>
+      <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-firmly-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
+    </details>
+    <button id="run">Check discovery + profile + catalog</button>
+    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks, plus read-only catalog probes when the server declares that capability. Write-path checks (checkout, order, cart) run only in the CLI &mdash; run those against your own server, never someone else's.</p>
   </div>
 
   <div id="out"></div>
@@ -79,7 +82,11 @@ async function run() {
   $("run").disabled = true;
   const card = el("div", "card"); card.appendChild(el("p", "meta", "Checking " + server + " …")); out.appendChild(card);
   try {
-    const r = await fetch("/api/conformance?server=" + encodeURIComponent(server));
+    let q = "/api/conformance?server=" + encodeURIComponent(server);
+    const hraw = (document.getElementById("hdrs") || { value: "" }).value.trim();
+    hraw.split(";").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 3)
+      .forEach(function (h) { q += "&header=" + encodeURIComponent(h); });
+    const r = await fetch(q);
     const d = await r.json();
     card.textContent = "";
     if (d.error) { card.appendChild(el("p", "obs", "Error: " + d.error)); return; }
