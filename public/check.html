@@ -20,7 +20,7 @@
   .chk { display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
   .chk:first-child { border-top:0; }
   .badge { flex:0 0 auto; font-weight:700; }
-  .pass { color:var(--ok); } .dev { color:var(--bad); }
+  .pass { color:var(--ok); } .dev { color:var(--bad); } .skip { color:var(--mut); }
   .cid { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
   .req { color:var(--mut); font-size:13px; }
   .obs { color:var(--bad); font-size:13px; font-family:ui-monospace,Menlo,monospace; word-break:break-word; }
@@ -103,12 +103,13 @@ async function run() {
       " · transports [" + (d.transports || []).join(", ") + "] · capabilities " + (d.capabilities || []).length));
     for (const c of (d.checks || [])) {
       const row = el("div", "chk");
-      const b = el("span", "badge " + (c.status === "pass" ? "pass" : "dev"), c.status === "pass" ? "✓" : "✗");
+      const cls = c.status === "pass" ? "pass" : c.status === "deviation" ? "dev" : "skip";
+      const b = el("span", "badge " + cls, c.status === "pass" ? "\u2713" : c.status === "deviation" ? "\u2717" : "\u00b7");
       row.appendChild(b);
       const body = el("div");
       body.appendChild(el("div", "cid", c.id));
       body.appendChild(el("div", "req", c.requirement));
-      if (c.status === "deviation") body.appendChild(el("div", "obs", "observed: " + c.observed));
+      if (c.status !== "pass") body.appendChild(el("div", c.status === "deviation" ? "obs" : "req", "observed: " + c.observed));
       row.appendChild(body);
       card.appendChild(row);
     }

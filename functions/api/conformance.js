@@ -142,6 +142,19 @@ async function catalogChecks(profile, extraHeaders, query) {
 
   const q = (typeof query === "string" && query.trim().slice(0, 80)) || "*";
   const s = await post("/catalog/search", { query: q });
+  // Requiring signed/authenticated agents is spec-LEGITIMATE, not a deviation —
+  // production stores commonly gate even reads. Report honestly as not-tested.
+  const AUTH_CODES = new Set(["agent_signature_required", "requires_sign_in", "requires_identity_linking"]);
+  const authMsg = ((s.json && s.json.messages) || []).find((m) => m && AUTH_CODES.has(m.code));
+  if (s.status === 401 || s.status === 403 || authMsg) {
+    checks.push({ id: "catalog.live_probes",
+      requirement: "Read-only catalog probes (search shape, empty search, lookup input correlation).",
+      status: "not-tested",
+      observed: `server requires request authentication (HTTP ${s.status}` +
+        (authMsg ? `, ${authMsg.code}` : "") +
+        `) — anonymous probes can't run; test with a registered agent via the CLI` });
+    return checks;
+  }
   const prods = s.json && Array.isArray(s.json.products) ? s.json.products : null;
   const shapeOk = s.status === 200 && prods !== null && prods.every((p) =>
     p && p.id && p.title && Array.isArray(p.variants) && p.variants.length);
