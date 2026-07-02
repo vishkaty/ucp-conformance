@@ -139,6 +139,43 @@ def p_update_ok(r):
         return DEVIATION
     return CLEAN if r.json.get("id") and r.json.get("status") in STATUS_ENUM else DEVIATION
 
+def p_400(r):
+    """Exactly HTTP 400 (a stricter cousin of p_4xx, for requirements that pin 400)."""
+    return CLEAN if r.status == 400 else DEVIATION
+
+def chk_missing_id_resp(ctx):
+    """CHK-016: top-level `id` is REQUIRED on Update; omitting it (valid path id, line_items
+    present) MUST be rejected 4xx and NOT applied."""
+    c = (create_resp(ctx).json or {}); cid = c.get("id")
+    li = (c.get("line_items") or [{}])[0]
+    body = {"currency": c.get("currency", "USD"),  # top-level "id" intentionally OMITTED
+            "line_items": [{"id": li.get("id"),
+                            "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 1}],
+            "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])}}
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
+
+def chk_missing_line_items_resp(ctx):
+    """CHK-018: `line_items` is REQUIRED on Create; omitting it MUST be rejected 4xx."""
+    p = _create_payload(ctx)
+    p.pop("line_items", None)
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+
+def neg_compatible_version_resp(ctx):
+    """NEG-015: platform version <= business version MUST be processed (compatible => 2xx)."""
+    h = _hdr()
+    h["UCP-Agent"] = f'profile="https://spck.dev/agent"; version="{ctx.version}"'
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", _create_payload(ctx), h)
+
+def val_overstock_update_resp(ctx):
+    """VAL-002: updating a line-item quantity beyond available stock MUST return 400."""
+    c = (create_resp(ctx).json or {}); cid = c.get("id")
+    li = (c.get("line_items") or [{}])[0]
+    body = {"id": cid, "currency": c.get("currency", "USD"),
+            "line_items": [{"id": li.get("id"),
+                            "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 10001}],
+            "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])}}
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
+
 def disc_empty_clears_resp(ctx):
     """DSC-002: an empty codes array clears previously-applied codes (same session)."""
     c = (create_resp(ctx).json or {})
@@ -572,6 +609,18 @@ CHECKS = [
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("checkout.update", ["CHK-003"], "MUST", update_resp, p_update_ok,
            ["status:500", "drop:id", "drop:status", "empty", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("checkout.update_requires_id", ["CHK-016"], "MUST", chk_missing_id_resp, p_4xx,
+           ["status:200", "status:201", "status:204"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("checkout.create_requires_line_items", ["CHK-018"], "MUST", chk_missing_line_items_resp, p_4xx,
+           ["status:200", "status:201"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("negotiation.compatible_version_processed", ["NEG-015"], "MUST", neg_compatible_version_resp, p_create_ok,
+           ["status:400", "status:500", "drop:id", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+    MCheck("validation.overstock_update_400", ["VAL-002"], "MUST", val_overstock_update_resp, p_400,
+           ["status:200", "status:201", "status:409", "status:500", "status:402"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
            ["status:200", "status:201"],
