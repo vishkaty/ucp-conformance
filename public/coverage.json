@@ -9,24 +9,24 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 57,
+   "check": 58,
    "exempt": 0,
-   "gap": 115,
-   "accounted_pct": 33,
+   "gap": 114,
+   "accounted_pct": 34,
    "gap_by_testability": {
     "manual": 31,
     "needs-oauth": 10,
     "needs-receiver": 35,
-    "testable": 39
+    "testable": 38
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 14,
-     "gap": 14,
+     "check": 15,
+     "gap": 13,
      "gap_manual": 3,
      "gap_needs-receiver": 8,
-     "gap_testable": 3,
+     "gap_testable": 2,
      "musts": 28
     },
     {
@@ -330,10 +330,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
      "source": "ucp:docs/specification/checkout-rest.md#L41",
-     "covered_by": []
+     "covered_by": [
+      "tls_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-052",
@@ -1934,24 +1936,24 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 70,
+   "check": 71,
    "exempt": 0,
-   "gap": 111,
+   "gap": 110,
    "accounted_pct": 39,
    "gap_by_testability": {
     "manual": 33,
     "needs-oauth": 10,
     "needs-receiver": 35,
-    "testable": 33
+    "testable": 32
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 16,
-     "gap": 16,
+     "check": 17,
+     "gap": 15,
      "gap_manual": 4,
      "gap_needs-receiver": 8,
-     "gap_testable": 4,
+     "gap_testable": 3,
      "musts": 32
     },
     {
@@ -2305,10 +2307,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
      "source": "ucp:docs/specification/checkout-rest.md#L41",
-     "covered_by": []
+     "covered_by": [
+      "tls_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-052",

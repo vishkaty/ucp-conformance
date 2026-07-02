@@ -77,14 +77,13 @@ def coverage_map():
             ids |= set(ID_RE.findall(grp))
         if not ids:
             continue
-        if "04_08" in name or "04-08" in name:
-            targets = ["2026-04-08"]
-        elif "01_23" in name:
-            targets = ["2026-01-23"]
-        elif "01_11" in name:
-            targets = ["2026-01-11"]
-        else:
-            targets = VERSIONS  # version-adaptive engine (merchant_checks, area_*, selfcheck)
+        # A file may carry SEVERAL version tokens (e.g. tls_check_01_11_01_23.py for a
+        # requirement verbatim-identical in both older registers); collect them all.
+        # No token at all -> version-adaptive (merchant_checks, area_*, selfcheck).
+        targets = [v for tok, v in (("04_08", "2026-04-08"), ("04-08", "2026-04-08"),
+                                    ("01_23", "2026-01-23"), ("01_11", "2026-01-11"))
+                   if tok in name]
+        targets = sorted(set(targets)) or VERSIONS
         for v in targets:
             for i in ids:
                 if i in all_ids[v]:

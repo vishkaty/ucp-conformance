@@ -843,10 +843,11 @@ def _pred(chk, resp, ctx):
 
 def all_checks():
     """The full check set: the version-adaptive core plus version-scoped extensions.
-    Imported lazily to avoid a circular import (the *_01_23 module pulls MCheck/_hdr
-    from this module at its top level)."""
+    Imported lazily to avoid a circular import (the version-scoped modules pull
+    MCheck/_hdr from this module at their top level)."""
     from merchant_checks_01_23 import CHECKS_01_23
-    return CHECKS + CHECKS_01_23
+    from tls_check_01_11_01_23 import CHECKS_TLS
+    return CHECKS + CHECKS_01_23 + CHECKS_TLS
 
 def run_merchant_checks(ctx, checks=None):
     if checks is None:
