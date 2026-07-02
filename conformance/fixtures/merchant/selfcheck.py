@@ -89,12 +89,15 @@ def checkout_artifacts():
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
     ]
     if server.VERSION != "2026-04-08":
-        # pre-04-08 discount.json can't be COMPOSED by the oracle (its extension def
-        # is named 'checkout', not the capability name), so the discounts subtree is
-        # anchored directly to the official $defs/discounts_object instead.
+        # pre-04-08 extension schemas can't be COMPOSED by the oracle (their extension
+        # def is named e.g. 'checkout', not the capability name), so the extension
+        # subtrees are anchored directly to their official $defs instead.
         out.append(("discounts subtree (discounts_object)", lambda: validate_against(
             discounted["discounts"], "schemas/shopping/discount.json",
             "discounts_object", op="read", version=server.VERSION)))
+        out.append(("ap2 subtree (merchant_authorization)", lambda: validate_against(
+            created["ap2"], "schemas/shopping/ap2_mandate.json",
+            "ap2_with_merchant_authorization", op="read", version=server.VERSION)))
     return out
 
 def main():

@@ -63,6 +63,7 @@ CONTROLLED_CONFIG = {
                  # scenario carts for the 01-23-scoped checks (DSC-010 / DSC-018):
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
+    "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}

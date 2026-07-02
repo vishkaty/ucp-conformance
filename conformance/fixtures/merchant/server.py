@@ -14,7 +14,7 @@ here is anchored to the official validator, not to our own checks (no circularit
 Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
-import json, argparse, uuid, threading
+import json, argparse, uuid, threading, base64
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # The spec version this fixture serves. Switchable (--spec-version / set_version) so the
@@ -85,6 +85,18 @@ DISCOUNT_CODES = {
 }
 # Automatic (rule-based) discount: applied with automatic:true and NO code field.
 AUTO_THRESHOLD, AUTO_AMOUNT, AUTO_TITLE = 5000, 500, "Bulk saver"
+
+def _b64url(b):
+    return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
+
+def merchant_authorization():
+    """A JWS Detached Content signature (header..signature) whose protected header
+    carries the alg/kid claims PAY-035 requires. The signature bytes are not
+    cryptographically real — the MUST is about the header claims and detached shape,
+    which is exactly what a conformance golden needs to exhibit."""
+    header = _b64url(json.dumps({"alg": "ES256", "kid": "spck-fixture-2026"},
+                                separators=(",", ":")).encode())
+    return header + ".." + _b64url(b"fixture-detached-signature")
 
 def profile(base):
     cap = [{"version": VERSION}]
@@ -311,6 +323,10 @@ def checkout_body(sess):
            "totals": totals, "links": LINKS}
     if sess.get("codes") or applied:
         out["discounts"] = {"codes": list(sess.get("codes", [])), "applied": applied}
+    if VERSION != "2026-04-08":
+        # AP2 merchant authorization on checkout responses (PAY-035 is a 01-23/01-11
+        # MUST; the id does not exist in the 04-08 register, so 04-08 stays lean)
+        out["ap2"] = {"merchant_authorization": merchant_authorization()}
     if sess.get("order"):
         out["order"] = sess["order"]        # order_confirmation: id + permalink_url
     return out

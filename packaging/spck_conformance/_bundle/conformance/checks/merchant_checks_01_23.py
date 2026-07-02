@@ -22,7 +22,7 @@ Config (under config.discount):
 NOTE: imported lazily by merchant_checks.all_checks() — do not import this module
 before merchant_checks (it pulls MCheck/_hdr from there).
 """
-import sys, pathlib
+import sys, pathlib, re, json, base64
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from engine import fetch, CLEAN, DEVIATION                    # noqa: E402
 from merchant_checks import MCheck, _hdr                      # noqa: E402
@@ -116,6 +116,43 @@ def p_case_insensitive_applied(r, ctx):
              and isinstance(x.get("amount"), int) and x["amount"] > 0 for x in ap)
     return CLEAN if ok else DEVIATION
 
+# ---- PAY-035: merchant_authorization JWS header MUST carry alg (ES*) + kid ----
+# The JSON-Schema pattern can't see inside the base64url header (register note), so
+# this is a coded predicate that decodes the protected header. Mutation JWS strings
+# are precomputed here (deterministic, no crypto — the MUST is about header claims).
+def _hdr64(obj):
+    return base64.urlsafe_b64encode(json.dumps(obj).encode()).rstrip(b"=").decode()
+
+_JWS_NO_KID = _hdr64({"alg": "ES256"}) + "..c2ln"
+_JWS_NO_ALG = _hdr64({"kid": "k1"}) + "..c2ln"
+_JWS_RS256 = _hdr64({"alg": "RS256", "kid": "k1"}) + "..c2ln"
+_JWS_NOT_JSON = _b64_garbage = base64.urlsafe_b64encode(b"garbage").rstrip(b"=").decode() + "..c2ln"
+
+def pay035_resp(ctx):
+    """Any checkout response from an AP2-emitting merchant carries
+    ap2.merchant_authorization (config flag ap2:true declares the golden emits it)."""
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+                 _payload(ctx, [(ctx.product_id, 1)]), _hdr())
+
+def p_merchant_auth_header(r):
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    ma = (r.json.get("ap2") or {}).get("merchant_authorization") \
+        if isinstance(r.json.get("ap2"), dict) else None
+    # detached-content shape: base64url header, EMPTY payload segment, base64url sig
+    if not isinstance(ma, str) or not re.fullmatch(r"[A-Za-z0-9_-]+\.\.[A-Za-z0-9_-]+", ma):
+        return DEVIATION
+    head = ma.split("..")[0]
+    try:
+        hdr = json.loads(base64.urlsafe_b64decode(head + "=" * (-len(head) % 4)))
+    except Exception:
+        return DEVIATION                        # pattern-shaped but header not b64url JSON
+    if not isinstance(hdr, dict) or hdr.get("alg") not in ("ES256", "ES384", "ES512"):
+        return DEVIATION
+    if not (isinstance(hdr.get("kid"), str) and hdr["kid"]):
+        return DEVIATION
+    return CLEAN
+
 CHECKS_01_23 = [
     MCheck("discount.automatic_no_code", ["DSC-010"], "MUST", dsc010_resp,
            p_automatic_no_code,
@@ -147,4 +184,13 @@ CHECKS_01_23 = [
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.valid_code", "discount.case_insensitive"),
            transport="rest", versions=V0123),
+    MCheck("payment.merchant_auth_jws_header", ["PAY-035"], "MUST", pay035_resp,
+           p_merchant_auth_header,
+           [f'set:ap2.merchant_authorization="{_JWS_NO_KID}"',    # kid claim absent
+            f'set:ap2.merchant_authorization="{_JWS_NO_ALG}"',    # alg claim absent
+            f'set:ap2.merchant_authorization="{_JWS_RS256}"',     # alg outside ES256/384/512
+            f'set:ap2.merchant_authorization="{_JWS_NOT_JSON}"',  # header not b64url JSON
+            'set:ap2.merchant_authorization="not..valid!!"',      # pattern violated
+            "drop:ap2", "corrupt-json", "status:500"],
+           needs=("product",), cfg_needs=("ap2",), transport="rest", versions=V0123),
 ]
