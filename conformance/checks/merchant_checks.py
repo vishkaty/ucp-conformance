@@ -224,6 +224,35 @@ def p_fulfil_options(r):
         return DEVIATION
     return CLEAN if all(o.get("id") and o.get("title") and ("totals" in o) for o in opts) else DEVIATION
 
+def ful_multi_item_resp(ctx):
+    """FUL-026: TWO distinct line items under ONE shipping method with a single group,
+    sent with the default platform profile (no config.supports_multi_group=true).
+    The business MUST consolidate: every returned method has groups.length == 1.
+    (A single-item cart would satisfy the invariant trivially, so the request carries
+    two line items — consolidation is actually exercised.)"""
+    p = _create_payload(ctx, with_fulfillment=True)
+    p["line_items"].append({"id": "li_2", "quantity": 1,
+                            "item": {"id": ctx.product_id, "price": 1000}, "totals": []})
+    m = p["fulfillment"]["methods"][0]
+    m["line_item_ids"] = ["li_1", "li_2"]
+    m["groups"][0]["line_item_ids"] = ["li_1", "li_2"]
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+
+def p_single_group_per_method(r):
+    """Every fulfillment method carries EXACTLY one group (default supports_multi_group
+    is false; zero groups or a split into 2+ groups both violate the MUST)."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    f = r.json.get("fulfillment")
+    methods = f.get("methods") if isinstance(f, dict) else None
+    if not isinstance(methods, list) or not methods:
+        return DEVIATION
+    for m in methods:
+        g = m.get("groups") if isinstance(m, dict) else None
+        if not isinstance(g, list) or len(g) != 1:
+            return DEVIATION
+    return CLEAN
+
 def completed_immutable_resp(ctx):
     """Complete a checkout, then attempt to cancel it -> MUST be rejected (4xx)."""
     cid = (_create_for_complete(ctx).json or {}).get("id")
@@ -640,6 +669,17 @@ CHECKS = [
     MCheck("fulfillment.option_shape", ["FUL-008"], "MUST", create_resp_ful, p_fulfil_options,
            ["status:500", "drop:fulfillment",
             "drop:fulfillment.methods.0.groups.0.options.0.title", "corrupt-json"],
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+    MCheck("fulfillment.single_group_default", ["FUL-026"], "MUST", ful_multi_item_resp,
+           p_single_group_per_method,
+           ["status:500", "empty", "corrupt-json",
+            'set:fulfillment={"methods":[{"id":"m1","type":"shipping",'
+            '"line_item_ids":["li_1","li_2"],'
+            '"destinations":[{"id":"d1","address_country":"US"}],'
+            '"selected_destination_id":"d1",'
+            '"groups":[{"id":"g1","line_item_ids":["li_1"],"selected_option_id":"std"},'
+            '{"id":"g2","line_item_ids":["li_2"],"selected_option_id":"std"}]}]}',
+            "drop:fulfillment.methods.0.groups"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
     MCheck("checkout.cancel", ["CHK-005"], "MUST", cancel_resp, p_canceled,
            ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"],
