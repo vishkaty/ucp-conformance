@@ -44,13 +44,28 @@ oracle — not by our own checks.
 # one-time / CI: materialize pinned upstreams into .vendor (gitignored)
 conformance/ci/fetch_sources.sh
 
-# bring up the golden, run all gates, tear down
+# recommended locally: one self-cleaning command — brings up the golden, runs
+# every gate, and ALWAYS tears everything down (even on Ctrl-C or error), and
+# pre-cleans stray servers so it's self-healing after a hard kill. No orphans.
+conformance/ci/selftest.sh            # add --verbose or any run_suite.py args
+```
+
+`selftest.sh` is the way to run locally — you never have to hunt down leftover
+servers on ports 8182/8183/8184.
+
+<details><summary>Manual steps (what the wrapper does)</summary>
+
+```bash
 PORT=8182 conformance/ci/serve_golden.sh
 python3 conformance/ci/run_suite.py --server http://localhost:8182 --require-server
 conformance/ci/stop_golden.sh
 ```
 
-Locally, with the golden already up, just: `python3 conformance/ci/run_suite.py`.
+With the golden already up, just: `python3 conformance/ci/run_suite.py`. Note that
+`run_suite.py` cleans up the fixture/proxy it spawns on normal exit, but the golden
+(started detached by `serve_golden.sh`) must be stopped with `stop_golden.sh` — which
+is exactly why `selftest.sh` exists.
+</details>
 
 ## CI
 

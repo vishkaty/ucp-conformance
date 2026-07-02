@@ -35,6 +35,15 @@ class MCheck:
         # only mcp/embedded this check is not-applicable (this runner is REST-scoped).
         self.transport = transport
 
+def _cfg_has(config, dotted):
+    """Truthy test for a config key that may be dotted, e.g. 'discount.second_valid_code'."""
+    cur = config
+    for part in dotted.split("."):
+        if not isinstance(cur, dict):
+            return False
+        cur = cur.get(part)
+    return bool(cur)
+
 # ---- request helpers (parameterized by the merchant context) ----------------
 def _hdr(idem=None):
     return {"UCP-Agent": 'profile="https://spck.dev/agent"', "request-signature": "test",
@@ -629,7 +638,7 @@ CHECKS = [
            ["status:500", "drop:discounts", "drop:discounts.applied",
             "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount.second_valid_code",), transport="rest"),
     MCheck("discount.accept_one_reject_one", ["DSC-006", "DSC-007"], "MUST", disc_reject_resp,
            p_disc_reject_one,
            ["status:500", "drop:discounts", "drop:discounts.applied", "drop:discounts.codes",
@@ -756,7 +765,7 @@ def run_merchant_checks(ctx, checks=CHECKS):
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": "not-tested (no product)", "kill_safe": None})); continue
-        missing = [k for k in chk.cfg_needs if not ctx.config.get(k)]
+        missing = [k for k in chk.cfg_needs if not _cfg_has(ctx.config, k)]
         if missing:
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
