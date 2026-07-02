@@ -17,7 +17,24 @@ Dependency-free (stdlib http.server), so CI can boot it in one line.
 import json, argparse, uuid, threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+# The spec version this fixture serves. Switchable (--spec-version / set_version) so the
+# SAME lifecycle can be reference-gated per version: catalog/cart/MCP exist only in
+# 2026-04-08; checkout/order/discount are served in every supported version with the
+# pinned per-version rendering (see checkout_body's sign-convention note).
+# 2026-01-11 is NOT yet servable: its envelope generation differs structurally
+# (ucp.capabilities is an ARRAY; the profile def is 'discovery_profile', which
+# schema_oracle.validate_profile can't select) — needs its own increment.
 VERSION = "2026-04-08"
+SUPPORTED_VERSIONS = ("2026-04-08", "2026-01-23")
+
+def set_version(v):
+    """Switch the spec version the fixture serves (also resets lifecycle state, so a
+    gate run against one version never sees sessions minted under another)."""
+    global VERSION
+    if v not in SUPPORTED_VERSIONS:
+        raise ValueError(f"unsupported spec version: {v} (supported: {SUPPORTED_VERSIONS})")
+    VERSION = v
+    SESSIONS.clear(); ORDERS.clear(); IDEM.clear()
 
 # ---- controlled seed catalog (stable ids the checks rely on) -----------------
 def _product(pid, vid, title, price, desc):
@@ -71,26 +88,30 @@ AUTO_THRESHOLD, AUTO_AMOUNT, AUTO_TITLE = 5000, 500, "Bulk saver"
 
 def profile(base):
     cap = [{"version": VERSION}]
-    return {
-        "version": VERSION,
-        "services": {"dev.ucp.shopping": [
-            {"version": VERSION, "transport": "rest", "endpoint": base,
-             "spec": "https://ucp.dev/2026-04-08/specification/shopping",
-             "schema": "https://ucp.dev/2026-04-08/services/shopping/openapi.json"},
+    services = [
+        {"version": VERSION, "transport": "rest", "endpoint": base,
+         "spec": f"https://ucp.dev/{VERSION}/specification/shopping",
+         "schema": f"https://ucp.dev/{VERSION}/services/shopping/openapi.json"}]
+    capabilities = {
+        "dev.ucp.shopping.checkout": cap,
+        "dev.ucp.shopping.order": cap,
+        "dev.ucp.shopping.discount": [
+            {"version": VERSION, "extends": "dev.ucp.shopping.checkout"}],
+    }
+    if VERSION == "2026-04-08":              # catalog/cart/MCP exist only in 04-08
+        services.append(
             {"version": VERSION, "transport": "mcp", "endpoint": base + "/ucp/mcp",
-             "spec": "https://ucp.dev/2026-04-08/specification/shopping",
-             "schema": "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"}]},
-        "capabilities": {
+             "spec": f"https://ucp.dev/{VERSION}/specification/shopping",
+             "schema": f"https://ucp.dev/{VERSION}/services/shopping/mcp.openrpc.json"})
+        capabilities.update({
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
             "dev.ucp.shopping.cart": cap,
-            "dev.ucp.shopping.checkout": cap,
-            "dev.ucp.shopping.order": cap,
-            "dev.ucp.shopping.discount": [
-                {"version": VERSION, "extends": "dev.ucp.shopping.checkout"}],
-        },
-        "payment_handlers": {},
-    }
+        })
+    return {"version": VERSION,
+            "services": {"dev.ucp.shopping": services},
+            "capabilities": capabilities,
+            "payment_handlers": {}}
 
 def _unit_price(item_id):
     """Unit price (minor units) for a product or variant id, from the seed catalog."""
@@ -139,18 +160,22 @@ def _title(iid):
 def _ucp_envelope():
     """The `ucp` response envelope every checkout/order response MUST carry
     (ucp.json $defs response_checkout_schema: version + payment_handlers required).
-    Declaring the discount extension makes the oracle validate responses against the
-    discount-composed checkout schema (discount.json allOf checkout.json)."""
-    return {"version": VERSION,
-            "capabilities": {
-                "dev.ucp.shopping.checkout": [
-                    {"version": VERSION,
-                     "schema": "https://ucp.dev/schemas/shopping/checkout.json"}],
-                "dev.ucp.shopping.discount": [
-                    {"version": VERSION,
-                     "schema": "https://ucp.dev/schemas/shopping/discount.json",
-                     "extends": "dev.ucp.shopping.checkout"}]},
-            "payment_handlers": {}}
+    At 2026-04-08 the envelope also declares the discount extension so the oracle
+    validates responses against the discount-composed checkout schema (the oracle
+    composes by $defs['dev.ucp.shopping.checkout'], the 04-08 def-naming convention).
+    2026-01-23's discount.json predates that convention ($defs is named plain
+    'checkout'), so the oracle cannot compose it: the 01-23 envelope declares only
+    checkout, and selfcheck.py separately anchors the discounts subtree to the
+    official $defs/discounts_object — both anchors remain the official oracle."""
+    caps = {"dev.ucp.shopping.checkout": [
+        {"version": VERSION,
+         "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]}
+    if VERSION == "2026-04-08":
+        caps["dev.ucp.shopping.discount"] = [
+            {"version": VERSION,
+             "schema": "https://ucp.dev/schemas/shopping/discount.json",
+             "extends": "dev.ucp.shopping.checkout"}]
+    return {"version": VERSION, "capabilities": caps, "payment_handlers": {}}
 
 LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
          {"type": "privacy_policy", "url": "https://spck.dev/fixture/privacy"}]
@@ -520,13 +545,14 @@ class _H(BaseHTTPRequestHandler):
         if body is None and path != "/checkout-sessions" \
            and not (path.startswith("/checkout-sessions/") and path.endswith(("/complete", "/cancel"))):
             return self._send(400, {"error_code": "invalid_request"})
-        if path == "/catalog/search":
-            return self._send(200, search_response(body.get("query")))
-        if path == "/catalog/lookup":
-            ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
-            return self._send(200, lookup_response(ids))
-        if path == "/carts":
-            return self._send(201, cart_response(body))
+        if VERSION == "2026-04-08":          # catalog/cart/MCP exist only in 04-08
+            if path == "/catalog/search":
+                return self._send(200, search_response(body.get("query")))
+            if path == "/catalog/lookup":
+                ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
+                return self._send(200, lookup_response(ids))
+            if path == "/carts":
+                return self._send(201, cart_response(body))
         if path == "/checkout-sessions":
             return self._send(*create_checkout(body, self.headers))
         if path.startswith("/checkout-sessions/"):
@@ -535,18 +561,22 @@ class _H(BaseHTTPRequestHandler):
                 return self._send(*complete_checkout(parts[2], body, self.headers))
             if len(parts) == 4 and parts[3] == "cancel":
                 return self._send(*cancel_checkout(parts[2], self.headers))
-        if path == "/ucp/mcp":               # MCP transport (JSON-RPC tools/call)
+        if path == "/ucp/mcp" and VERSION == "2026-04-08":   # MCP (JSON-RPC tools/call)
             return self._send(200, mcp_dispatch(body))
         self._send(404, {"error_code": "not_found"})
 
 def main():
-    ap = argparse.ArgumentParser(description="Controlled UCP merchant fixture (2026-04-08).")
+    ap = argparse.ArgumentParser(description="Controlled UCP merchant fixture (version-switchable).")
     ap.add_argument("--port", type=int, default=8184)
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
+                    help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
+    set_version(args.spec_version)
     srv = ThreadingHTTPServer((args.host, args.port), _H)
     print(f"controlled merchant on http://{args.host}:{args.port} "
-          f"(catalog + cart + checkout lifecycle, spec {VERSION})")
+          f"(checkout/order/discount lifecycle"
+          f"{' + catalog/cart/mcp' if VERSION == '2026-04-08' else ''}, spec {VERSION})")
     try: srv.serve_forever()
     except KeyboardInterrupt: srv.shutdown()
 

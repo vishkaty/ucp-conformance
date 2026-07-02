@@ -18,7 +18,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export PORT="${PORT:-8182}"
 export SIM_SECRET="${SIM_SECRET:-selfcheck-secret}"
 export DB_DIR="${DB_DIR:-/tmp/ucp_test}"
-PORTS=("$PORT" 8183 8184)   # golden, mutation proxy, controlled fixture
+PORTS=("$PORT" 8183 8184 8185)   # golden, mutation proxy, controlled fixture (04-08, 01-23)
 
 free_ports() {
   for p in "${PORTS[@]}"; do

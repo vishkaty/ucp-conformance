@@ -76,7 +76,10 @@ def main():
     broken, weak, ok, skipped = [], [], [], []
     for chk, d in detail:
         st = d["status"]
-        if st in ("not-applicable",) or (isinstance(st, str) and st.startswith("not-tested")):
+        # any not-applicable/not-tested status (incl. suffixed reasons like
+        # "not-applicable (no MCP transport)") is a legitimate skip on a golden
+        # that lacks the capability/transport — not a broken check
+        if isinstance(st, str) and st.startswith(("not-applicable", "not-tested")):
             skipped.append((chk.id, st)); continue
         if st != CLEAN:                       # deviation/inconclusive on a KNOWN-GOOD server → broken check
             broken.append((chk.id, st)); continue

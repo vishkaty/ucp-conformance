@@ -31,6 +31,8 @@ CHK = ROOT / "conformance" / "checks"
 FIXTURE = ROOT / "conformance" / "fixtures" / "merchant"
 CONTROLLED_PORT = 8184
 CONTROLLED = f"http://localhost:{CONTROLLED_PORT}"
+CONTROLLED_0123_PORT = 8185
+CONTROLLED_0123 = f"http://localhost:{CONTROLLED_0123_PORT}"
 PROXY_PORT = 8183
 PROXY = f"http://localhost:{PROXY_PORT}"
 
@@ -50,6 +52,9 @@ def gates(server):
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
                                  "--server", CONTROLLED, "--golden", "controlled"), "controlled", ()),
+        ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
+                                    "--server", CONTROLLED_0123, "--golden", "controlled"),
+         "controlled-01-23", ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
     ]
@@ -73,9 +78,15 @@ def _boot(argv, health_url, tries=40):
     return p            # return anyway; the gate will report it DOWN
 
 def boot_controlled():
-    """Start the dependency-free controlled merchant fixture."""
+    """Start the dependency-free controlled merchant fixture (default 2026-04-08)."""
     return _boot([sys.executable, str(FIXTURE / "server.py"), "--port", str(CONTROLLED_PORT)],
                  CONTROLLED)
+
+def boot_controlled_0123():
+    """Start a second controlled fixture serving spec 2026-01-23 (the version-switched
+    golden for pre-04-08 checks the Flower Shop can't exercise)."""
+    return _boot([sys.executable, str(FIXTURE / "server.py"), "--port", str(CONTROLLED_0123_PORT),
+                  "--spec-version", "2026-01-23"], CONTROLLED_0123)
 
 def boot_proxy(golden):
     """Start the mutation proxy (wraps the golden) that the kill-rate gate drives."""
@@ -106,12 +117,16 @@ def main():
     up = server_up(args.server)
     ctrl_proc = boot_controlled()
     ctrl_up = server_up(CONTROLLED)
+    ctrl0123_proc = boot_controlled_0123()
+    ctrl0123_up = server_up(CONTROLLED_0123)
     proxy_proc = boot_proxy(args.server) if up else None   # kill-rate gate drives the proxy
     proxy_up = server_up(PROXY)
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
+    print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
     print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}\n")
-    avail = {"golden": up, "controlled": ctrl_up, "proxy": proxy_up and up}
+    avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
+             "proxy": proxy_up and up}
 
     results = []
     try:
@@ -135,7 +150,7 @@ def main():
         if status == "FAIL" and args.verbose:
             print(f"----- {name} output -----\n{r.get('out','')}\n-------------------------")
     finally:
-        for proc in (ctrl_proc, proxy_proc):
+        for proc in (ctrl_proc, ctrl0123_proc, proxy_proc):
             if proc is not None:
                 proc.terminate()
 

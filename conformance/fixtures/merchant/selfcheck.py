@@ -79,7 +79,7 @@ def checkout_artifacts():
         raise RuntimeError("discounted create did not surface the automatic discount")
     if not any(a.get("allocations") for a in ap):
         raise RuntimeError("discounted create did not surface item-level allocations")
-    return [
+    out = [
         ("checkout create response",   lambda: validate_obj(created, "create")),
         ("checkout get response",      lambda: validate_obj(got, "read")),
         ("checkout update response",   lambda: validate_obj(updated, "update")),
@@ -88,11 +88,19 @@ def checkout_artifacts():
         ("order get response",         lambda: validate_obj(order, "read")),
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
     ]
+    if server.VERSION != "2026-04-08":
+        # pre-04-08 discount.json can't be COMPOSED by the oracle (its extension def
+        # is named 'checkout', not the capability name), so the discounts subtree is
+        # anchored directly to the official $defs/discounts_object instead.
+        out.append(("discounts subtree (discounts_object)", lambda: validate_against(
+            discounted["discounts"], "schemas/shopping/discount.json",
+            "discounts_object", op="read", version=server.VERSION)))
+    return out
 
 def main():
     artifacts = [
-        ("profile", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
-                                             role="business")),
+        ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
+                                                     role="business")),
         ("catalog.search response", lambda: validate_against(
             server.search_response("*"), "schemas/shopping/catalog_search.json",
             "search_response", op="search", version=server.VERSION)),
@@ -112,18 +120,32 @@ def main():
             version=server.VERSION)),
     ]
     try:
-        artifacts += checkout_artifacts()
-        rows = [(name, *fn()) for name, fn in artifacts]
+        # NOTE: everything is evaluated while its version is ACTIVE (validate_obj and
+        # the catalog validators read server.VERSION at call time). The checkout/order/
+        # discount lifecycle must be spec-conformant in EVERY version the fixture can
+        # serve — each validates against ITS pinned schemas (sign conventions and
+        # line-item discount shapes differ across versions).
+        rows = [(name, *fn()) for name, fn in artifacts]          # 04-08 catalog/cart/mcp
+        for ver in server.SUPPORTED_VERSIONS:
+            server.set_version(ver)
+            tag = f" [{ver[5:]}]"
+            batch = list(checkout_artifacts())
+            if ver != "2026-04-08":
+                batch.insert(0, ("profile", lambda: validate_profile(
+                    server.profile(BASE), version=server.VERSION, role="business")))
+            rows += [(name + tag, *fn()) for name, fn in batch]
     except OracleUnavailable as e:
         print(f"oracle unavailable: {e}", file=sys.stderr); return 2
     except RuntimeError as e:
         print(f"  ✗ lifecycle drive failed: {e}")
         print("\nfixture self-check: FAIL — fix the fixture before using it as a golden")
         return 1
+    finally:
+        server.set_version("2026-04-08")    # restore the default serving version
 
     ok = True
     for name, valid, detail in rows:
-        print(f"  {'✓' if valid else '✗'} {name:26} {'schema-valid' if valid else 'INVALID'}")
+        print(f"  {'✓' if valid else '✗'} {name:36} {'schema-valid' if valid else 'INVALID'}")
         if not valid:
             ok = False
             for line in detail.splitlines()[:4]:
