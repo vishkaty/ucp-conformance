@@ -176,7 +176,9 @@ export async function preview(serverUrl, opts = {}) {
   if (blockedHost(u.hostname)) return { error: "refusing to probe a private/loopback host" };
   const extra = cleanHeaders(opts.headers);
 
-  const wk = `${u.protocol}//${u.host}/.well-known/ucp`;
+  // Preserve the caller's query string (multi-tenant gateways route the merchant
+  // via e.g. ?domain=store.example.com on the well-known URL).
+  const wk = `${u.protocol}//${u.host}/.well-known/ucp${u.search || ""}`;
   let resp, text;
   try {
     resp = await fetch(wk, {

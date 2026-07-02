@@ -68,10 +68,18 @@ class MerchantCtx:
         self.mcp_endpoint = (mcp or {}).get("endpoint")
         self.product_id = self.config.get("product_id")
 
+def _wellknown_url(base):
+    """Build the discovery URL, PRESERVING any query string — multi-tenant platform
+    gateways route the merchant via e.g. ?domain=store.example.com."""
+    from urllib.parse import urlsplit, urlunsplit
+    p = urlsplit(base)
+    path = (p.path.rstrip("/") or "") + "/.well-known/ucp"
+    return urlunsplit((p.scheme, p.netloc, path, p.query, ""))
+
 def discover(base):
     import engine
     try:
-        with urllib.request.urlopen(base.rstrip("/") + "/.well-known/ucp", timeout=10,
+        with urllib.request.urlopen(_wellknown_url(base), timeout=10,
                                     context=engine._SSL_CTX) as r:
             return json.loads(r.read()), r.headers.get("Content-Type", "")
     except Exception as e:

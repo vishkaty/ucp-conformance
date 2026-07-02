@@ -168,6 +168,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
       <div class="config-grid three">
         <div><label>Server Base URL</label><input id="cfg-base" value="" placeholder="https://api.example.com"/></div>
         <div><label>Merchant Domain</label><input id="cfg-domain" value="" placeholder="store.example.com"/></div>
+        <div><label>Product ID <span style="font-weight:400;color:#a1a1aa">(optional)</span></label><input id="cfg-product" value="" placeholder="auto-discover via catalog"/></div>
         <div><label>Spec Version</label><select id="cfg-version"><option value="auto" selected>Auto-detect</option><option value="2026-04-08">2026-04-08</option><option value="2026-01-23">2026-01-23</option><option value="2026-01-11">2026-01-11</option><option value="all">All versions</option></select></div>
       </div>
       <div class="discovered" id="discovered">
@@ -473,12 +474,27 @@ async function http(method,url,body,xh={}){
   apiLog.push({timestamp:new Date().toISOString(),method,url,request_headers:{...h},request_body:body||null,response_status:st,response_body:d,elapsed_ms:ms});
   return{status:st,data:d,elapsed:ms}
 }
-function ep(v){return cfg('base')+'/api/'+v+'/ucp/rest/domain/'+cfg('domain')}
+// Endpoint per spec version. The DECLARED endpoint from the discovered profile is
+// authoritative (that's what discovery is for); the legacy platform-shaped path is
+// only a fallback for servers whose profile omits a REST endpoint.
+function ep(v){
+  const m=sessionData.endpointMap||{};
+  if(m[v])return m[v];
+  if(sessionData.restEndpoint&&v===sessionData.specVersion)return sessionData.restEndpoint;
+  return cfg('base')+'/api/'+v+'/ucp/rest/domain/'+cfg('domain');
+}
 
 // ── Discovery & Auto-config ──
 async function discover(){
-  const{status,data}=await http('GET',cfg('base')+'/.well-known/ucp');
+  let{status,data}=await http('GET',cfg('base')+'/.well-known/ucp');
+  // Multi-tenant platform gateways (e.g. Firmly) select the merchant via a
+  // ?domain= query param — retry with it when the bare fetch can't route.
+  if(cfg('domain')&&(status!==200||(data.messages||[]).some(m=>m.code==='merchant_not_found'))){
+    const r2=await http('GET',cfg('base')+'/.well-known/ucp?domain='+encodeURIComponent(cfg('domain')));
+    if(r2.status===200&&!(r2.data.messages||[]).some(m=>m.code==='merchant_not_found')){status=r2.status;data=r2.data;sessionData.domainParam=true}
+  }
   if(status!==200)throw new Error('Discovery failed: HTTP '+status);
+  if((data.messages||[]).some(m=>m.code==='merchant_not_found'))throw new Error('merchant_not_found — check the merchant domain / routing header / ?domain= support');
   const ucp=data.ucp;
   sessionData.specVersion=ucp.version;
   sessionData.discovery=data;
@@ -491,10 +507,27 @@ async function discover(){
   // Get capabilities
   sessionData.capabilities=Object.keys(ucp.capabilities||{});
   sessionData.supportedVersions=Object.keys(ucp.supported_versions||{});
+  // Resolve each supported version's DECLARED rest endpoint from its versioned
+  // profile (spec: supported_versions maps version -> profile URL). Non-fatal.
+  sessionData.endpointMap={};
+  if(rest)sessionData.endpointMap[ucp.version]=rest.endpoint;
+  const urls=ucp.supported_versions||{};
+  await Promise.all(Object.entries(urls).map(async([v,u])=>{
+    if(sessionData.endpointMap[v])return;
+    try{
+      const{status:s2,data:d2}=await http('GET',u);
+      const r2=s2===200&&(d2.ucp||d2).services?.['dev.ucp.shopping']?.find(x=>x.transport==='rest');
+      if(r2&&r2.endpoint)sessionData.endpointMap[v]=r2.endpoint;
+    }catch(e){}
+  }));
   return ucp;
 }
 
 async function discoverProduct(V){
+  // A manually supplied product id skips catalog discovery entirely — required for
+  // merchants that don't expose catalog (pre-04-08 specs) or whose catalog is empty.
+  const manual=cfg('product');
+  if(manual){sessionData.productId=manual;sessionData.productTitle='(manual)';sessionData.catalogVersion=null;return{id:manual}}
   // catalog.search only exists from spec 2026-04-08 — a merchant whose primary
   // profile is older (e.g. 2026-01-23) often still serves catalog on its 04-08
   // versioned endpoint, so try the primary version FIRST, then every other
@@ -617,7 +650,7 @@ async function runTests(){
     // Phase 2: Find a product
     try{await discoverProduct(V)}catch(e){
       // If catalog search fails, we can't auto-discover. Show error.
-      document.getElementById('run-status').textContent='Product discovery failed: '+(e.message||'no products found');
+      document.getElementById('run-status').textContent='Product discovery failed: '+(e.message||'no products found')+' — set a Product ID above to run without catalog.';
       document.getElementById('btn-run').disabled=false;
       document.getElementById('progress-bar').style.display='none';
       return;
