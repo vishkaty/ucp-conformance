@@ -1,0 +1,7 @@
+{
+  "name": "spck-web-tests",
+  "private": true,
+  "type": "module",
+  "description": "Committed regression suite for the WEBSITE layer (Pages functions + /tool SPA). Unit tests are dependency-free (node:test); the browser smoke needs puppeteer-core + a headless Chromium (CI installs chrome-headless-shell; locally set CHROME_PATH).",
+  "dependencies": { "puppeteer-core": "^24.0.0" }
+}

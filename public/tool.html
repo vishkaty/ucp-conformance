@@ -495,9 +495,11 @@ async function discover(){
   }
   if(status!==200)throw new Error('Discovery failed: HTTP '+status);
   if((data.messages||[]).some(m=>m.code==='merchant_not_found'))throw new Error('merchant_not_found — check the merchant domain / routing header / ?domain= support');
-  const ucp=data.ucp;
+  // Some platforms nest the profile under an `ucp` envelope; the spec-conformant
+  // /.well-known/ucp document is FLAT. Tolerate both (the Python engine already does).
+  const ucp=data.ucp||data;
   sessionData.specVersion=ucp.version;
-  sessionData.discovery=data;
+  sessionData.discovery={...data,ucp};
   // Get REST endpoint
   const rest=ucp.services?.['dev.ucp.shopping']?.find(s=>s.transport==='rest');
   if(rest)sessionData.restEndpoint=rest.endpoint;

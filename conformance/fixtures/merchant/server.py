@@ -527,8 +527,21 @@ class _H(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        # permissive CORS: this is a TEST golden — it must be drivable from the
+        # browser-based /tool (and its committed smoke tests) on any local origin
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
         self.end_headers()
         self.wfile.write(body)
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Headers",
+                         self.headers.get("Access-Control-Request-Headers", "*") or "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
+        self.send_header("Access-Control-Max-Age", "600")
+        self.end_headers()
     def _base(self):
         host = self.headers.get("Host") or f"localhost:{self.server.server_address[1]}"
         return f"http://{host}"
@@ -537,7 +550,11 @@ class _H(BaseHTTPRequestHandler):
         try: return json.loads(self.rfile.read(n)) if n else {}
         except Exception: return None
     def do_GET(self):
-        path = self.path.rstrip("/")
+        path = self.path.rstrip("/").split("?")[0]
+        if path == "/__echo":
+            # test-only: echo the received request headers, so browser smoke tests
+            # can assert what actually arrived on the wire (custom headers etc.)
+            return self._send(200, {"headers": {k.lower(): v for k, v in self.headers.items()}})
         if path == "/.well-known/ucp":
             return self._send(200, profile(self._base()))
         if path.startswith("/checkout-sessions/"):
