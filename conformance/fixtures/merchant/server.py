@@ -47,6 +47,31 @@ def _product(pid, vid, title, price, desc):
                       "description": {"text": desc + " (default variant)"}}],
     }
 
+def _cfg_variant(vid, price, color, size, available=True):
+    return {"id": vid, "title": f"{color} / {size}",
+            "price": {"amount": price, "currency": "USD"},
+            "description": {"text": f"Glazed teacup — {color}, {size}."},
+            "availability": {"available": available},
+            "options": [{"name": "Color", "label": color},
+                        {"name": "Size", "label": size}]}
+
+# A CONFIGURABLE product (option axes Color x Size) so get_product's selection
+# semantics (product.selected, variant narrowing — lookup.md Option Selection) can
+# be exercised and reference-gated. Featured variant = first (Blue/Small).
+CONFIGURABLE = {
+    "id": "teacup_glaze", "title": "Glazed Teacup", "handle": "teacup-glaze",
+    "description": {"text": "A hand-glazed teacup in two colors and two sizes."},
+    "price_range": {"min": {"amount": 1500, "currency": "USD"},
+                    "max": {"amount": 1900, "currency": "USD"}},
+    "options": [{"name": "Color", "values": [{"label": "Blue"}, {"label": "Red"}]},
+                {"name": "Size", "values": [{"label": "Small"}, {"label": "Large"}]}],
+    "variants": [_cfg_variant("teacup_glaze_blue_s", 1500, "Blue", "Small"),
+                 _cfg_variant("teacup_glaze_blue_l", 1900, "Blue", "Large"),
+                 _cfg_variant("teacup_glaze_red_s", 1500, "Red", "Small"),
+                 _cfg_variant("teacup_glaze_red_l", 1900, "Red", "Large",
+                              available=False)],
+}
+
 PRODUCTS = [
     _product("teapot_ceramic", "teapot_ceramic_v1", "Ceramic Teapot", 2500,
              "A sturdy stoneware teapot."),
@@ -56,7 +81,14 @@ PRODUCTS = [
              "A polished copper stovetop kettle."),
     _product("trivet_cork", "trivet_cork_v1", "Cork Trivet", 900,
              "A cork trivet, currently out of stock."),
-]
+    CONFIGURABLE,
+    # a seeded long tail so a match-all search EXCEEDS the default page size of 10
+    # (rest.md conformance: cursor-based pagination with default limit 10) — total
+    # catalog = 13 products (keep catalog.paginated_total in the golden config equal)
+] + [_product(f"tin_spice_{n}", f"tin_spice_{n}_v1", f"Spice Tin No. {i+1}", 700,
+              f"A lidded spice tin — {n}.")
+     for i, n in enumerate(["anise", "cardamom", "clove", "cumin",
+                            "fennel", "mace", "nutmeg", "sumac"])]
 BY_ID = {p["id"]: p for p in PRODUCTS}
 BY_VARIANT = {v["id"]: p for p in PRODUCTS for v in p["variants"]}
 
@@ -491,12 +523,93 @@ def search_query_valid(query):
     'requiring query, rejecting empty query strings'): a non-empty query string."""
     return isinstance(query, str) and bool(query.strip())
 
-def search_response(query):
+DEFAULT_PAGE_LIMIT = 10        # pagination.json: limit default 10 (rest.md item 3)
+
+def _cursor_make(offset):
+    """Opaque continuation cursor (base64 keyset token, per search.md pagination)."""
+    return _b64url(f"offset:{offset}".encode())
+
+def _cursor_offset(cursor):
+    """Decode a cursor back to an offset; None cursor -> 0; garbage -> None (invalid)."""
+    if cursor is None:
+        return 0
+    try:
+        pad = "=" * (-len(cursor) % 4)
+        tag, off = base64.urlsafe_b64decode(cursor + pad).decode().split(":", 1)
+        if tag != "offset" or int(off) < 0:
+            return None
+        return int(off)
+    except Exception:
+        return None
+
+def search_response(query, limit=None, cursor=None):
+    """Cursor-paginated search (rest.md conformance item 3): default page size 10;
+    `cursor` in the response is the NEXT-page continuation, present only when
+    has_next_page is true (pagination.json if/then)."""
     q = (query or "").strip().lower()
     hits = [p for p in PRODUCTS if not q or q == "*" or q in p["title"].lower()
             or q in p["description"]["text"].lower()]
-    return {"ucp": {"version": VERSION}, "products": hits,
-            "pagination": {"has_next_page": False, "total_count": len(hits)}}
+    n = DEFAULT_PAGE_LIMIT if limit is None else limit
+    off = _cursor_offset(cursor) or 0
+    page = hits[off:off + n]
+    pagination = {"has_next_page": off + n < len(hits), "total_count": len(hits)}
+    if pagination["has_next_page"]:
+        pagination["cursor"] = _cursor_make(off + n)
+    return {"ucp": {"version": VERSION}, "products": page, "pagination": pagination}
+
+def _variant_matches(v, selected):
+    """True when the variant carries EVERY selected {name,label} option."""
+    opts = {(o.get("name"), o.get("label")) for o in (v.get("options") or [])}
+    return all((s.get("name"), s.get("label")) in opts for s in selected)
+
+def _effective_selection(prod, sel_in, preferences):
+    """lookup.md Option Selection: effective selections after relaxation. Valid request
+    selections are honored; when no variant matches all of them, drop options from the
+    END of `preferences` (or of the selection itself) until a variant matches. With no
+    request selections, the featured (first) variant's own options are the effective
+    selection."""
+    names = {o.get("name") for o in (prod.get("options") or [])}
+    sel = [dict(s) for s in (sel_in or [])
+           if isinstance(s, dict) and s.get("name") in names]
+    if not sel:
+        return [dict(o) for o in (prod.get("variants") or [{}])[0].get("options", [])]
+    order = [p for p in (preferences or []) if p in {s["name"] for s in sel}]
+    order += [s["name"] for s in sel if s["name"] not in order]
+    while sel and not any(_variant_matches(v, sel) for v in prod.get("variants") or []):
+        dropped = order.pop()                       # relax lowest-priority option first
+        sel = [s for s in sel if s["name"] != dropped]
+    return sel or [dict(o) for o in (prod.get("variants") or [{}])[0].get("options", [])]
+
+def get_product_response(body):
+    """POST /catalog/product (lookup.md get_product): single-resource product detail.
+    Returns (status, payload). Product ID -> featured + selection-matching variants;
+    Variant ID -> that variant FIRST (featured), selection state from its options;
+    unknown id -> HTTP 200 application error (ucp.status=error, unrecoverable)."""
+    cap = "dev.ucp.shopping.catalog.lookup"
+    rid = body.get("id")
+    if not isinstance(rid, str) or not rid:
+        return 400, catalog_error(cap, "invalid_request", "id is required")
+    src = BY_ID.get(rid) or BY_VARIANT.get(rid)
+    if not src:
+        return 200, catalog_error(cap, "not_found", f"Product not found: {rid}",
+                                  severity="unrecoverable")
+    prod = json.loads(json.dumps(src))
+    variants = prod.get("variants") or []
+    if rid in BY_VARIANT and rid != prod["id"]:
+        # Variant ID: requested variant is the first element (featured); its own
+        # options ARE the selection state (request `selected` is ignored per spec)
+        variants.sort(key=lambda v: 0 if v["id"] == rid else 1)   # stable sort
+        prod["variants"] = variants
+        selected = [dict(o) for o in variants[0].get("options", [])]
+    else:
+        selected = _effective_selection(prod, body.get("selected"),
+                                        body.get("preferences"))
+        matching = [v for v in variants if _variant_matches(v, selected)]
+        prod["variants"] = matching or variants[:1]
+    if prod.get("options"):        # MUST include product.selected when configurable
+        prod["selected"] = selected
+    return 200, {"ucp": {"version": VERSION, "capabilities": {cap: [{"version": VERSION}]}},
+                 "product": prod}
 
 def _detail(p, requested):
     """Lookup returns DETAIL products whose variants carry `inputs` — one
@@ -620,7 +733,17 @@ class _H(BaseHTTPRequestHandler):
                         "dev.ucp.shopping.catalog.search", "invalid_request",
                         "search requires at least one input; this implementation "
                         "requires a non-empty `query` string"))
-                return self._send(200, search_response(body.get("query")))
+                limit, cursor = body.get("limit"), body.get("cursor")
+                if limit is not None and (isinstance(limit, bool)
+                                          or not isinstance(limit, int) or limit < 1):
+                    return self._send(400, catalog_error(     # pagination.json minimum 1
+                        "dev.ucp.shopping.catalog.search", "invalid_request",
+                        "limit must be an integer >= 1"))
+                if cursor is not None and _cursor_offset(cursor) is None:
+                    return self._send(400, catalog_error(
+                        "dev.ucp.shopping.catalog.search", "invalid_request",
+                        "cursor is not a valid continuation token"))
+                return self._send(200, search_response(body.get("query"), limit, cursor))
             if path == "/catalog/lookup":
                 ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
                 if len(ids) > MAX_LOOKUP_BATCH:
@@ -629,6 +752,8 @@ class _H(BaseHTTPRequestHandler):
                         f"lookup batch of {len(ids)} exceeds the maximum of "
                         f"{MAX_LOOKUP_BATCH} identifiers"))
                 return self._send(200, lookup_response(ids))
+            if path == "/catalog/product":
+                return self._send(*get_product_response(body))
             if path == "/carts":
                 return self._send(201, cart_response(body))
         if path == "/checkout-sessions":

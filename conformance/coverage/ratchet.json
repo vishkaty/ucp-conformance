@@ -2,5 +2,5 @@
   "_about": "Coverage ratchet \u2014 per-version MINIMUM accounted MUSTs (CHECK+EXEMPT). The `coverage` CI gate fails if accounted coverage ever drops below these floors, so coverage can only move forward. Raise the floor deliberately when coverage grows (coverage_gate.py prints the exact values).",
   "2026-01-11": 58,
   "2026-01-23": 71,
-  "2026-04-08": 68
+  "2026-04-08": 75
 }

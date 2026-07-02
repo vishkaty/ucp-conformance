@@ -54,7 +54,10 @@ REF_CONFIG = {
 CONTROLLED_CONFIG = {
     "product_id": "teapot_ceramic", "currency": "USD",
     "catalog": {"variant_id": "teapot_ceramic_v1",
-                "max_batch": 25},                        # fixture's MAX_LOOKUP_BATCH
+                "max_batch": 25,                         # fixture's MAX_LOOKUP_BATCH
+                "configurable_product_id": "teacup_glaze",  # option axes Color x Size
+                "paginated_query": "*",                  # matches the whole seed catalog
+                "paginated_total": 13},                  # len(server.PRODUCTS)
     "complete_payment": _pay("success_token", "1234"),   # fixture accepts any non-fail token
     "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
     "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx

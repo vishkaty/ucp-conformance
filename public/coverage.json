@@ -3992,15 +3992,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 68,
+   "check": 75,
    "exempt": 0,
-   "gap": 254,
-   "accounted_pct": 21,
+   "gap": 247,
+   "accounted_pct": 23,
    "gap_by_testability": {
     "manual": 40,
     "needs-oauth": 47,
     "needs-receiver": 58,
-    "testable": 109
+    "testable": 102
    },
    "areas": [
     {
@@ -4014,10 +4014,10 @@
     },
     {
      "area": "catalog",
-     "check": 20,
-     "gap": 12,
+     "check": 27,
+     "gap": 5,
      "gap_manual": 4,
-     "gap_testable": 8,
+     "gap_testable": 1,
      "musts": 32
     },
     {
@@ -4375,10 +4375,12 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "get_product MUST support product ID and variant ID for the single id parameter",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L94",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-015",
@@ -4435,10 +4437,12 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "For get_product / catalog/product, an unknown identifier (NOT_FOUND) returns HTTP 200 with ucp.status:\"error\" and a descriptive message",
      "source": "ucp:docs/specification/catalog/rest.md#L464",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-020",
@@ -4457,30 +4461,36 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the Lookup capability is advertised, both /catalog/lookup and /catalog/product MUST be available",
      "source": "ucp:docs/specification/catalog/rest.md#L572",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-023",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST transport MUST implement endpoints for each advertised catalog capability per its requirements",
      "source": "ucp:docs/specification/catalog/rest.md#L570",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-024",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST transport MUST support cursor-based pagination with default limit of 10",
      "source": "ucp:docs/specification/catalog/rest.md#L574",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-025",
@@ -4571,20 +4581,24 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "For Variant ID lookups via get_product, the requested variant MUST be the first element (featured)",
      "source": "ucp:docs/specification/catalog/lookup.md#L131",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-033",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "get_product response MUST include product.selected when the product has configurable options",
      "source": "ucp:docs/specification/catalog/lookup.md#L164",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-034",

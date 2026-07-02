@@ -100,6 +100,79 @@ def checkout_artifacts():
             "ap2_with_merchant_authorization", op="read", version=server.VERSION)))
     return out
 
+def _getproduct_configurable():
+    """get_product by PRODUCT id on the configurable product: product.selected MUST be
+    present (configurable options), variants narrowed to the effective selection."""
+    status, resp = server.get_product_response({"id": "teacup_glaze",
+                                                "selected": [{"name": "Color", "label": "Red"}]})
+    if status != 200:
+        return False, f"get_product returned HTTP {status}"
+    prod = resp.get("product") or {}
+    sel = prod.get("selected")
+    if not sel or not any(s.get("name") == "Color" and s.get("label") == "Red" for s in sel):
+        return False, f"product.selected missing/ignored the request selection: {sel}"
+    if not prod.get("variants") or any(
+            {"name": "Color", "label": "Red"} not in v.get("options", [])
+            for v in prod["variants"]):
+        return False, "variants were not narrowed to the Color=Red selection"
+    return validate_against(resp, "schemas/shopping/catalog_lookup.json",
+                            "get_product_response", op="get_product",
+                            version=server.VERSION)
+
+def _getproduct_by_variant():
+    """get_product by VARIANT id: the requested variant MUST be first (featured) and
+    product.selected reflects that variant's options."""
+    status, resp = server.get_product_response({"id": "teacup_glaze_red_s"})
+    if status != 200:
+        return False, f"get_product returned HTTP {status}"
+    prod = resp.get("product") or {}
+    variants = prod.get("variants") or []
+    if not variants or variants[0].get("id") != "teacup_glaze_red_s":
+        return False, f"requested variant is not first: {[v.get('id') for v in variants]}"
+    if {"name": "Color", "label": "Red"} not in (prod.get("selected") or []):
+        return False, f"selected does not reflect the variant options: {prod.get('selected')}"
+    return validate_against(resp, "schemas/shopping/catalog_lookup.json",
+                            "get_product_response", op="get_product",
+                            version=server.VERSION)
+
+def _getproduct_not_found():
+    """Unknown id: HTTP 200 application error with ucp.status=error, unrecoverable."""
+    status, resp = server.get_product_response({"id": "ucp_no_such_product"})
+    if status != 200:
+        return False, f"not-found must be HTTP 200 (application outcome), got {status}"
+    if (resp.get("ucp") or {}).get("status") != "error":
+        return False, "not-found response is missing ucp.status=error"
+    if not any(m.get("severity") == "unrecoverable" for m in resp.get("messages", [])):
+        return False, "not-found message must carry severity=unrecoverable (rest.md)"
+    return validate_root(resp, "schemas/shopping/types/error_response.json",
+                         op="get_product", version=server.VERSION)
+
+def _pagination_walk():
+    """Cursor pagination: match-all search pages at the default limit 10, the cursor
+    resumes exactly where page 1 ended, and the final page closes the stream."""
+    total = len(server.PRODUCTS)
+    if total <= 10:
+        return False, f"seed catalog must exceed the default page size, has {total}"
+    p1 = server.search_response("*")
+    pag1 = p1.get("pagination") or {}
+    if len(p1.get("products", [])) != 10 or pag1.get("has_next_page") is not True \
+       or not pag1.get("cursor"):
+        return False, f"page 1 wrong: {len(p1.get('products', []))} items, {pag1}"
+    p2 = server.search_response("*", cursor=pag1["cursor"])
+    pag2 = p2.get("pagination") or {}
+    if len(p2.get("products", [])) != total - 10 or pag2.get("has_next_page") is not False:
+        return False, f"page 2 wrong: {len(p2.get('products', []))} items, {pag2}"
+    ids = [p["id"] for p in p1["products"]] + [p["id"] for p in p2["products"]]
+    if len(ids) != len(set(ids)) or len(ids) != total:
+        return False, "pages overlap or drop products"
+    for resp in (p1, p2):
+        ok, detail = validate_against(resp, "schemas/shopping/catalog_search.json",
+                                      "search_response", op="search",
+                                      version=server.VERSION)
+        if not ok:
+            return ok, detail
+    return True, "ok"
+
 def _dedup_lookup():
     """lookup.md dedup MUSTs: a batch with a duplicate product id AND that product's
     variant id must return the product exactly ONCE — and still be schema-valid."""
@@ -120,6 +193,10 @@ def main():
             server.lookup_response(["teapot_ceramic"]), "schemas/shopping/catalog_lookup.json",
             "lookup_response", op="lookup", version=server.VERSION)),
         ("catalog.lookup dedup response", _dedup_lookup),
+        ("catalog.get_product configurable", _getproduct_configurable),
+        ("catalog.get_product by variant", _getproduct_by_variant),
+        ("catalog.get_product not-found", _getproduct_not_found),
+        ("catalog.search pagination walk", _pagination_walk),
         ("catalog search rejection (error_response)", lambda: validate_root(
             server.catalog_error("dev.ucp.shopping.catalog.search", "invalid_request",
                                  "search requires at least one input"),

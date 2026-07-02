@@ -509,6 +509,134 @@ def p_request_too_large(r):
         return CLEAN
     return DEVIATION
 
+# ---- get_product (/catalog/product) + pagination flows -----------------------
+def _gp(ctx, body):
+    return fetch(ctx.shopping_endpoint, "/catalog/product", "POST", body, _hdr())
+
+def catalog_endpoints_resp(ctx):
+    """CAT-022/023: probe every advertised catalog capability's REST endpoint(s);
+    return the first failing response, else the final /catalog/product response
+    (Lookup advertised => BOTH /catalog/lookup and /catalog/product available)."""
+    if "dev.ucp.shopping.catalog.search" in ctx.capabilities:
+        r = fetch(ctx.shopping_endpoint, "/catalog/search", "POST",
+                  {"query": "*"}, _hdr())
+        if r.status != 200:
+            return r
+    r = fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST",
+              {"ids": [ctx.product_id]}, _hdr())
+    if r.status != 200:
+        return r
+    return _gp(ctx, {"id": ctx.product_id})
+
+def p_getproduct_ok(r):
+    """A live /catalog/product endpoint: HTTP 200 with a singular product object."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prod = r.json.get("product")
+    return CLEAN if isinstance(prod, dict) and prod.get("id") else DEVIATION
+
+def catalog_getproduct_ids_resp(ctx):
+    """CAT-014: get_product must support BOTH id kinds — probe by product id, then
+    return the by-variant-id response (either failing fails the predicate)."""
+    r = _gp(ctx, {"id": ctx.product_id})
+    if r.status != 200 or not isinstance(r.json, dict) or not r.json.get("product"):
+        return r
+    vid = (ctx.config.get("catalog") or {}).get("variant_id")
+    return _gp(ctx, {"id": vid})
+
+def catalog_getproduct_variant_resp(ctx):
+    vid = (ctx.config.get("catalog") or {}).get("variant_id")
+    return _gp(ctx, {"id": vid})
+
+def p_getproduct_variant_first(r, ctx):
+    """CAT-032: for a variant-id get_product, the requested variant MUST be the
+    first (featured) element of product.variants."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    variants = (r.json.get("product") or {}).get("variants")
+    if not isinstance(variants, list) or not variants:
+        return DEVIATION
+    want = (ctx.config.get("catalog") or {}).get("variant_id")
+    return CLEAN if variants[0].get("id") == want else DEVIATION
+
+def catalog_getproduct_notfound_resp(ctx):
+    return _gp(ctx, {"id": "ucp_nonexistent_" + uuid.uuid4().hex[:10]})
+
+def p_getproduct_not_found(r):
+    """CAT-019/020: unknown get_product id is an APPLICATION outcome — HTTP 200 with
+    ucp.status=error and a descriptive message, not a transport error."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    if (r.json.get("ucp") or {}).get("status") != "error":
+        return DEVIATION
+    msgs = r.json.get("messages")
+    if not isinstance(msgs, list) or not msgs:
+        return DEVIATION
+    return CLEAN if any(isinstance(m, dict) and m.get("content") for m in msgs) \
+        else DEVIATION
+
+def catalog_getproduct_configurable_resp(ctx):
+    pid = (ctx.config.get("catalog") or {}).get("configurable_product_id")
+    return _gp(ctx, {"id": pid})
+
+def p_getproduct_selected(r):
+    """CAT-033: a configurable product's get_product response MUST include
+    product.selected (effective selections — featured defaults here)."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prod = r.json.get("product")
+    if not isinstance(prod, dict) or not prod.get("options"):
+        return DEVIATION                    # config promised configurable options
+    sel = prod.get("selected")
+    if not isinstance(sel, list) or not sel:
+        return DEVIATION
+    return CLEAN if all(isinstance(s, dict) and s.get("name") and s.get("label")
+                        for s in sel) else DEVIATION
+
+def catalog_paginated_search_resp(ctx):
+    q = (ctx.config.get("catalog") or {}).get("paginated_query")
+    return fetch(ctx.shopping_endpoint, "/catalog/search", "POST", {"query": q}, _hdr())
+
+def p_pagination_default_limit(r, ctx):
+    """CAT-024 (page 1): with NO limit requested and >10 known matches (config),
+    the default page size of 10 applies (never more; MAY clamp lower per search.md),
+    has_next_page is true and a continuation cursor is present."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prods, pag = r.json.get("products"), r.json.get("pagination")
+    if not isinstance(prods, list) or not prods or len(prods) > 10:
+        return DEVIATION
+    if not isinstance(pag, dict) or pag.get("has_next_page") is not True:
+        return DEVIATION
+    cur = pag.get("cursor")
+    return CLEAN if isinstance(cur, str) and cur else DEVIATION
+
+def catalog_cursor_walk_resp(ctx):
+    """Follow page 1's cursor; return page 2 (or page 1 if it offered no cursor,
+    which the predicate will fail)."""
+    r1 = catalog_paginated_search_resp(ctx)
+    cur = ((r1.json or {}).get("pagination") or {}).get("cursor") \
+        if isinstance(r1.json, dict) else None
+    if r1.status != 200 or not cur:
+        return r1
+    q = (ctx.config.get("catalog") or {}).get("paginated_query")
+    return fetch(ctx.shopping_endpoint, "/catalog/search", "POST",
+                 {"query": q, "cursor": cur}, _hdr())
+
+def p_pagination_cursor_walk(r, ctx):
+    """CAT-024 (page 2): the cursor resumes the stream — with config-known total,
+    page 2 carries exactly total-10 products and closes when the stream is done."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    total = int((ctx.config.get("catalog") or {}).get("paginated_total") or 0)
+    prods, pag = r.json.get("products"), r.json.get("pagination")
+    if not isinstance(prods, list) or not isinstance(pag, dict):
+        return DEVIATION
+    want = min(10, total - 10)
+    if len(prods) != want:
+        return DEVIATION
+    return CLEAN if pag.get("has_next_page") is (total > 20) else DEVIATION
+
 # ---- cart flows (capability dev.ucp.shopping.cart, product from config) -------
 def cart_create_resp(ctx):
     return fetch(ctx.shopping_endpoint, "/carts", "POST",
@@ -858,6 +986,54 @@ CHECKS = [
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
            cfg_needs=("catalog.max_batch",), transport="rest"),
+    # --- get_product (/catalog/product) + cursor pagination ---
+    MCheck("catalog.endpoints_available", ["CAT-022", "CAT-023"], "MUST",
+           catalog_endpoints_resp, p_getproduct_ok,
+           ["status:404", "status:501", "drop:product", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           transport="rest"),
+    MCheck("catalog.getproduct_both_id_kinds", ["CAT-014"], "MUST",
+           catalog_getproduct_ids_resp, p_getproduct_ok,
+           ["status:404", "drop:product", "set:product={}", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           cfg_needs=("catalog.variant_id",), transport="rest"),
+    MCheck("catalog.getproduct_variant_first", ["CAT-032"], "MUST",
+           catalog_getproduct_variant_resp, p_getproduct_variant_first,
+           ["status:404", "drop:product",
+            "set:product={\"id\":\"p\",\"variants\":[{\"id\":\"ucp_wrong_variant\"}]}",
+            "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           cfg_needs=("catalog.variant_id",), transport="rest"),
+    MCheck("catalog.getproduct_not_found", ["CAT-019", "CAT-020"], "MUST",
+           catalog_getproduct_notfound_resp, p_getproduct_not_found,
+           ["status:404", "status:400", "drop:ucp",
+            "set:ucp={\"version\":\"2026-04-08\"}",     # envelope without status=error
+            "drop:messages", "set:messages=[]", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", transport="rest"),
+    MCheck("catalog.getproduct_selected", ["CAT-033"], "MUST",
+           catalog_getproduct_configurable_resp, p_getproduct_selected,
+           ["status:404", "drop:product.selected", "set:product.selected=[]",
+            "drop:product", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup",
+           cfg_needs=("catalog.configurable_product_id",), transport="rest"),
+    MCheck("catalog.pagination_default_limit", ["CAT-024"], "MUST",
+           catalog_paginated_search_resp, p_pagination_default_limit,
+           ["status:500", "set:products=[]", "drop:pagination",
+            "drop:pagination.cursor", "drop:pagination.has_next_page",
+            "set:products=" + json.dumps([{"id": f"m{i}"} for i in range(11)]),
+            "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search",
+           cfg_needs=("catalog.paginated_query", "catalog.paginated_total"),
+           transport="rest"),
+    MCheck("catalog.pagination_cursor_walk", ["CAT-024"], "MUST",
+           catalog_cursor_walk_resp, p_pagination_cursor_walk,
+           ["status:500", "set:products=[]",
+            "set:products=[{\"id\":\"a\"},{\"id\":\"b\"},{\"id\":\"c\"},{\"id\":\"d\"}]",
+            "set:pagination={\"has_next_page\":true}",
+            "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search",
+           cfg_needs=("catalog.paginated_query", "catalog.paginated_total"),
+           transport="rest"),
     # --- catalog over the MCP transport (JSON-RPC tools/call) ---
     MCheck("mcp.catalog_search", ["CAT-012"], "MUST", mcp_search_resp, p_catalog_search,
            ["status:500", "drop:products", "set:products=\"x\"",
