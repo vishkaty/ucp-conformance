@@ -267,6 +267,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 </div>
   <!-- Admin Tab -->
   <div class="tab-content" id="tab-admin">
+    <div class="admin-section" style="border-left:3px solid #6366f1">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">📈 Growth / Performance</h3>
+        <span><span id="m-updated" style="font-size:11px;color:#a1a1aa;margin-right:8px"></span><button class="btn btn-outline btn-sm" onclick="loadMetrics(true)">Refresh</button></span>
+      </div>
+      <div class="admin-grid" id="m-grid" style="margin-top:10px">
+        <div class="admin-card"><div class="num" id="m-pypi">-</div><div class="lbl">PyPI downloads (30d)</div></div>
+        <div class="admin-card"><div class="num" id="m-stars">-</div><div class="lbl">GitHub stars</div></div>
+        <div class="admin-card"><div class="num" id="m-clones">-</div><div class="lbl">Clones (14d)</div></div>
+        <div class="admin-card"><div class="num" id="m-traffic">-</div><div class="lbl">spck.dev requests (7d)</div></div>
+      </div>
+      <div id="m-detail" style="margin-top:10px;font-size:12px;color:#71717a;line-height:1.7"></div>
+    </div>
     <div class="admin-grid" id="admin-stats-grid">
       <div class="admin-card"><div class="num" id="a-users">-</div><div class="lbl">Users</div></div>
       <div class="admin-card"><div class="num" id="a-logins">-</div><div class="lbl">Total Logins</div></div>
@@ -842,8 +855,43 @@ async function compareRuns(){
 }
 
 // ── Admin ──
+async function loadMetrics(refresh){
+  if(!authToken||!currentUser?.isAdmin)return;
+  const up=document.getElementById('m-updated');
+  try{
+    up.textContent='loading…';
+    const r=await fetch(API_BASE+'/api/admin/metrics'+(refresh?'?refresh=1':''),{headers:{Authorization:'Bearer '+authToken}});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+    // PyPI (headline = 30d)
+    document.getElementById('m-pypi').textContent=(d.pypi&&d.pypi.last_month!=null)?d.pypi.last_month:'n/a';
+    // GitHub — aggregate across repos
+    const repos=d.github||{}, ghErr=repos.error;
+    let stars=0,clones=0,cu=0; const detail=[];
+    if(!ghErr){
+      for(const[name,x] of Object.entries(repos)){
+        stars+=(x.stars||0); clones+=(x.clones_14d||0); cu+=(x.clones_uniq||0);
+        let line=`<b>${esc(name)}</b>: ⭐ ${x.stars??'?'} · views ${x.views_14d??'?'} (${x.views_uniq??'?'}u) · clones ${x.clones_14d??'?'} (${x.clones_uniq??'?'}u)`;
+        if(x.referrers&&x.referrers.length)line+=` · refs: ${x.referrers.map(z=>esc(String(z.src))+' ('+z.count+')').join(', ')}`;
+        detail.push(line);
+      }
+    }
+    document.getElementById('m-stars').textContent=ghErr?'n/a':stars;
+    document.getElementById('m-clones').textContent=ghErr?'n/a':(clones+' ('+cu+'u)');
+    // Cloudflare
+    const cf=d.cloudflare||{};
+    document.getElementById('m-traffic').textContent=cf.error?'n/a':((cf.requests_7d??'?')+' ('+(cf.uniques_7d??'?')+'u)');
+    // notes for anything unconfigured/errored
+    if(ghErr)detail.push(`<span style="color:#b45309">GitHub: ${esc(String(ghErr))}</span>`);
+    if(cf.error)detail.push(`<span style="color:#b45309">spck.dev traffic: ${esc(String(cf.error))}</span>`);
+    if(d.pypi&&d.pypi.error)detail.push(`<span style="color:#b45309">PyPI: ${esc(String(d.pypi.error))}</span>`);
+    document.getElementById('m-detail').innerHTML=detail.join('<br>');
+    up.textContent=(d.cached?'cached · ':'live · ')+(d.generated_at?d.generated_at.slice(0,16).replace('T',' ')+' UTC':'');
+  }catch(e){up.textContent='error: '+e.message;}
+}
 async function loadAdmin(){
   if(!authToken||!currentUser?.isAdmin)return;
+  loadMetrics(false);
   try{
     // Stats
     const{stats}=await(await fetch(API_BASE+'/api/admin/stats',{headers:{Authorization:'Bearer '+authToken}})).json();

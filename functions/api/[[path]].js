@@ -40,6 +40,7 @@ export async function onRequest(context) {
     if (path === '/api/admin/stats' && request.method === 'GET') return await adminStats(request, env);
     if (path === '/api/admin/users' && request.method === 'GET') return await adminUsers(request, env);
     if (path === '/api/admin/activity' && request.method === 'GET') return await adminActivity(request, env);
+    if (path === '/api/admin/metrics' && request.method === 'GET') return await adminMetrics(request, env);
 
     return json({ error: 'Not found' }, 404);
   } catch (e) {
@@ -338,6 +339,79 @@ async function adminActivity(request, env) {
   }
 
   return json({ activity, days });
+}
+
+// ── Growth / performance metrics (admin) ──
+// Live-fetches PyPI (public), GitHub (stars public; traffic needs GH_METRICS_TOKEN),
+// and Cloudflare spck.dev analytics (needs CF_ANALYTICS_TOKEN + CF_ZONE_ID). Cached in
+// KV for 30 min; ?refresh=1 bypasses. Each source degrades gracefully if unconfigured.
+const METRICS_REPOS = ['vishkaty/ucp-conformance', 'vishkaty/awesome-ucp'];
+const METRICS_PYPI = 'spck-conformance';
+
+async function adminMetrics(request, env) {
+  if (!await requireAdmin(request, env)) return json({ error: 'Not authorized' }, 403);
+  const refresh = new URL(request.url).searchParams.get('refresh') === '1';
+  if (!refresh) {
+    const cached = await env.REPORTS.get('metrics:cache', 'json');
+    if (cached) return json({ ...cached, cached: true });
+  }
+  const out = { generated_at: new Date().toISOString(), cached: false };
+
+  // PyPI (public)
+  try {
+    const r = await fetch(`https://pypistats.org/api/packages/${METRICS_PYPI}/recent`,
+      { headers: { 'User-Agent': 'spck-metrics' } });
+    const d = await r.json();
+    out.pypi = d.data || { error: 'no data' };
+  } catch (e) { out.pypi = { error: String(e) }; }
+
+  // GitHub — stars/forks are public; traffic (views/clones/referrers) needs a token
+  const ght = env.GH_METRICS_TOKEN;
+  out.github = {};
+  const ghHeaders = { 'User-Agent': 'spck-metrics', 'Accept': 'application/vnd.github+json' };
+  if (ght) ghHeaders['Authorization'] = 'Bearer ' + ght;
+  const gh = (p) => fetch('https://api.github.com/' + p, { headers: ghHeaders })
+    .then(r => r.ok ? r.json() : null).catch(() => null);
+  for (const repo of METRICS_REPOS) {
+    const info = await gh('repos/' + repo);
+    const entry = { stars: info?.stargazers_count, forks: info?.forks_count };
+    if (ght) {
+      const [views, clones, refs] = await Promise.all([
+        gh('repos/' + repo + '/traffic/views'),
+        gh('repos/' + repo + '/traffic/clones'),
+        gh('repos/' + repo + '/traffic/popular/referrers'),
+      ]);
+      entry.views_14d = views?.count; entry.views_uniq = views?.uniques;
+      entry.clones_14d = clones?.count; entry.clones_uniq = clones?.uniques;
+      entry.referrers = (refs || []).slice(0, 5).map(x => ({ src: x.referrer, count: x.count, uniq: x.uniques }));
+    }
+    out.github[repo] = entry;
+  }
+  if (!ght) out.github.error = 'set GH_METRICS_TOKEN (repo scope) as a Pages secret for views/clones/referrers (stars shown above are public)';
+
+  // Cloudflare spck.dev traffic
+  const cft = env.CF_ANALYTICS_TOKEN, zid = env.CF_ZONE_ID;
+  if (cft && zid) {
+    try {
+      const since = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const q = { query: `query{viewer{zones(filter:{zoneTag:"${zid}"}){httpRequests1dGroups(limit:7,orderBy:[date_DESC],filter:{date_geq:"${since}"}){dimensions{date} sum{requests} uniq{uniques}}}}}` };
+      const r = await fetch('https://api.cloudflare.com/client/v4/graphql',
+        { method: 'POST', headers: { 'Authorization': 'Bearer ' + cft, 'Content-Type': 'application/json' }, body: JSON.stringify(q) });
+      const d = await r.json();
+      const g = d?.data?.viewer?.zones?.[0]?.httpRequests1dGroups;
+      if (g) out.cloudflare = {
+        requests_7d: g.reduce((a, x) => a + x.sum.requests, 0),
+        uniques_7d: g.reduce((a, x) => a + x.uniq.uniques, 0),
+        days: g.map(x => ({ date: x.dimensions.date, req: x.sum.requests, uniq: x.uniq.uniques })),
+      };
+      else out.cloudflare = { error: 'analytics query failed — check CF_ANALYTICS_TOKEN scope (Zone Analytics:Read) and CF_ZONE_ID' };
+    } catch (e) { out.cloudflare = { error: String(e) }; }
+  } else {
+    out.cloudflare = { error: 'set CF_ANALYTICS_TOKEN + CF_ZONE_ID as Pages secrets to enable spck.dev traffic' };
+  }
+
+  await env.REPORTS.put('metrics:cache', JSON.stringify(out), { expirationTtl: 1800 });
+  return json(out);
 }
 
 // ── Helpers ──
