@@ -37,13 +37,25 @@ PRODUCTS = [
              "A camp-style enamel mug."),
     _product("kettle_copper", "kettle_copper_v1", "Copper Kettle", 6800,
              "A polished copper stovetop kettle."),
+    _product("trivet_cork", "trivet_cork_v1", "Cork Trivet", 900,
+             "A cork trivet, currently out of stock."),
 ]
 BY_ID = {p["id"]: p for p in PRODUCTS}
 BY_VARIANT = {v["id"]: p for p in PRODUCTS for v in p["variants"]}
 
 # Per-item available stock. Deliberately small so an over-stock quantity (the VAL-002
 # probe uses 10001) is always rejected, while normal 1-3 quantity flows succeed.
+# trivet_cork is the SEEDED OUT-OF-STOCK item (drives VAL-001/VAL-006 negatives).
 STOCK_DEFAULT = 10
+STOCK = {"trivet_cork": 0}
+
+def _stock(iid):
+    pid = BY_VARIANT[iid]["id"] if iid in BY_VARIANT else iid
+    return STOCK.get(pid, STOCK_DEFAULT)
+
+# Payment tokens the fixture recognizes (mirrors the Flower Shop golden's seeded
+# success/fail tokens so the same config pattern drives both goldens).
+FAIL_TOKEN = "fail_token"
 
 def profile(base):
     cap = [{"version": VERSION}]
@@ -61,6 +73,7 @@ def profile(base):
             "dev.ucp.shopping.catalog.lookup": cap,
             "dev.ucp.shopping.cart": cap,
             "dev.ucp.shopping.checkout": cap,
+            "dev.ucp.shopping.order": cap,
         },
         "payment_handlers": {},
     }
@@ -146,9 +159,9 @@ def _build_line_items(reqs):
             return None, _err(400, f"line_items[{i}].quantity must be an integer")
         if qty < 1:
             return None, _err(400, f"line_items[{i}].quantity must be >= 1")
-        if qty > STOCK_DEFAULT:
+        if qty > _stock(iid):
             return None, _err(400, f"Insufficient stock for item {iid} "
-                                   f"(requested {qty}, available {STOCK_DEFAULT})")
+                                   f"(requested {qty}, available {_stock(iid)})")
         price = _unit_price(iid)
         out.append({"id": li.get("id") or f"li_{i+1}",
                     "item": {"id": iid, "title": _title(iid), "price": price},
@@ -161,11 +174,14 @@ def checkout_body(sess):
     """Render a session as a spec-valid checkout response (checkout.json requires
     ucp, id, line_items, status, currency, totals, links)."""
     subtotal = sum(li["totals"][0]["amount"] for li in sess["line_items"])
-    return {"ucp": _ucp_envelope(), "id": sess["id"], "status": sess["status"],
-            "currency": sess["currency"], "line_items": sess["line_items"],
-            "totals": [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal},
-                       {"type": "total", "display_text": "Total", "amount": subtotal}],
-            "links": LINKS}
+    out = {"ucp": _ucp_envelope(), "id": sess["id"], "status": sess["status"],
+           "currency": sess["currency"], "line_items": sess["line_items"],
+           "totals": [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal},
+                      {"type": "total", "display_text": "Total", "amount": subtotal}],
+           "links": LINKS}
+    if sess.get("order"):
+        out["order"] = sess["order"]        # order_confirmation: id + permalink_url
+    return out
 
 def create_checkout(body, headers=None):
     """POST /checkout-sessions. Enforces: UCP-Agent required (CHK-052), line_items
@@ -233,15 +249,61 @@ def update_checkout(sid, body, headers=None):
         sess["currency"] = body["currency"]
     return 200, checkout_body(sess)
 
+ORDERS = {}         # order id -> order state
+
+def _payment_tokens(body):
+    """Raw credential tokens inside a complete request's payment.instruments."""
+    insts = ((body or {}).get("payment") or {}).get("instruments") or []
+    return [t for t in ((i.get("credential") or {}).get("token") for i in insts
+                        if isinstance(i, dict)) if isinstance(t, str)]
+
+def order_body(order):
+    """Render a stored order as a spec-valid order response (order.json requires ucp,
+    id, checkout_id, permalink_url, line_items, fulfillment, currency, totals)."""
+    return {"ucp": {"version": VERSION,
+                    "capabilities": {"dev.ucp.shopping.order": [
+                        {"version": VERSION,
+                         "schema": "https://ucp.dev/schemas/shopping/order.json"}]}},
+            **{k: order[k] for k in ("id", "checkout_id", "permalink_url", "currency",
+                                     "line_items", "fulfillment", "totals")}}
+
 def complete_checkout(sid, body, headers=None):
-    """POST /checkout-sessions/{id}/complete -> status 'completed'."""
+    """POST /checkout-sessions/{id}/complete -> 'completed' + an order confirmation.
+    The seeded FAIL_TOKEN credential is declined with 402 (VAL-004); credentials are
+    never echoed back (PAY-009)."""
     sess = SESSIONS.get(sid)
     if not sess:
         return _err(404, f"checkout session not found: {sid}")
     if sess["status"] == "canceled":
         return _err(409, "checkout session is canceled and cannot be completed")
-    sess["status"] = "completed"
+    if sess["status"] == "completed":
+        return _err(409, "checkout session is already completed")
+    if FAIL_TOKEN in _payment_tokens(body):
+        return _err(402, "payment declined by the payment handler")
+    oid = "ord_" + uuid.uuid4().hex[:12]
+    permalink = f"https://spck.dev/fixture/orders/{oid}"
+    checkout = checkout_body(sess)          # totals before flipping status
+    order = {"id": oid, "checkout_id": sid, "permalink_url": permalink,
+             "currency": sess["currency"],
+             "line_items": [{"id": li["id"], "item": li["item"],
+                             "quantity": {"original": li["quantity"],
+                                          "total": li["quantity"], "fulfilled": 0},
+                             "totals": li["totals"], "status": "processing"}
+                            for li in sess["line_items"]],
+             "fulfillment": {"expectations": [], "events": []},
+             "totals": checkout["totals"]}
+    with _LOCK:
+        ORDERS[oid] = order
+        sess["status"] = "completed"
+        sess["order"] = {"id": oid, "permalink_url": permalink}
     return 200, checkout_body(sess)
+
+def get_order(oid, headers=None):
+    """GET /orders/{id}."""
+    order = ORDERS.get(oid)
+    if not order:
+        return _err(404, f"order not found: {oid}")
+    return 200, order_body(order)
 
 def cancel_checkout(sid, headers=None):
     """POST /checkout-sessions/{id}/cancel -> status 'canceled'; a completed
@@ -324,6 +386,8 @@ class _H(BaseHTTPRequestHandler):
         if path.startswith("/checkout-sessions/"):
             sid = path.split("/")[2]
             return self._send(*get_checkout(sid, self.headers))
+        if path.startswith("/orders/"):
+            return self._send(*get_order(path.split("/")[2], self.headers))
         self._send(404, {"error_code": "not_found"})
     def do_PUT(self):
         body = self._body()

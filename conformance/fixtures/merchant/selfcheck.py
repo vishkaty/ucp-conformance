@@ -52,9 +52,16 @@ def checkout_artifacts():
     ok, got = _expect(200, server.get_checkout(sid, HDRS), "get")
     if not ok:
         raise RuntimeError(got)
-    ok, completed = _expect(200, server.complete_checkout(sid, {}, HDRS), "complete")
+    payment = {"payment": {"instruments": [{"id": "instr_1", "type": "card",
+        "credential": {"type": "token", "token": "success_token"}}]}}
+    ok, completed = _expect(200, server.complete_checkout(sid, payment, HDRS), "complete")
     if not ok:
         raise RuntimeError(completed)
+    if not (completed.get("order") or {}).get("id"):
+        raise RuntimeError("complete response is missing the order confirmation")
+    ok, order = _expect(200, server.get_order(completed["order"]["id"], HDRS), "order get")
+    if not ok:
+        raise RuntimeError(order)
     ok, canceled = _expect(200, server.cancel_checkout(
         server.create_checkout({"line_items": li}, HDRS)[1]["id"], HDRS), "cancel")
     if not ok:
@@ -65,6 +72,7 @@ def checkout_artifacts():
         ("checkout update response",   lambda: validate_obj(updated, "update")),
         ("checkout complete response", lambda: validate_obj(completed, "complete")),
         ("checkout cancel response",   lambda: validate_obj(canceled, "cancel")),
+        ("order get response",         lambda: validate_obj(order, "read")),
     ]
 
 def main():

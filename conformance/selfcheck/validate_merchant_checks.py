@@ -48,10 +48,16 @@ REF_CONFIG = {
                  "invalid_code": "INVALID_CODE"},  # seeded codes
 }
 
-# Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart,
-# capabilities the official samples don't implement. See conformance/fixtures/merchant/.
-CONTROLLED_CONFIG = {"product_id": "teapot_ceramic", "currency": "USD",
-                     "catalog": {"variant_id": "teapot_ceramic_v1"}}
+# Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart/
+# checkout/order, capabilities the official samples don't implement (or don't implement
+# at this spec version). See conformance/fixtures/merchant/.
+CONTROLLED_CONFIG = {
+    "product_id": "teapot_ceramic", "currency": "USD",
+    "catalog": {"variant_id": "teapot_ceramic_v1"},
+    "complete_payment": _pay("success_token", "1234"),   # fixture accepts any non-fail token
+    "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
+    "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx
+}
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
 
