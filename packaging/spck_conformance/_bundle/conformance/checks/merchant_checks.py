@@ -24,7 +24,7 @@ STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
 
 class MCheck:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 capability=None, needs=(), cfg_needs=(), transport=None):
+                 capability=None, needs=(), cfg_needs=(), transport=None, versions=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         self.capability, self.needs = capability, tuple(needs)
@@ -34,6 +34,9 @@ class MCheck:
         # transport="rest" -> requires a REST shopping transport; if the server offers
         # only mcp/embedded this check is not-applicable (this runner is REST-scoped).
         self.transport = transport
+        # versions=("2026-01-23",) -> run ONLY against servers of those spec versions
+        # (for register ids whose meaning differs across versions); None = any version.
+        self.versions = tuple(versions) if versions else None
 
 def _cfg_has(config, dotted):
     """Truthy test for a config key that may be dotted, e.g. 'discount.second_valid_code'."""
@@ -798,9 +801,25 @@ def _pred(chk, resp, ctx):
         n = 1
     return fn(resp, ctx) if n >= 2 else fn(resp)
 
-def run_merchant_checks(ctx, checks=CHECKS):
+def all_checks():
+    """The full check set: the version-adaptive core plus version-scoped extensions.
+    Imported lazily to avoid a circular import (the *_01_23 module pulls MCheck/_hdr
+    from this module at its top level)."""
+    from merchant_checks_01_23 import CHECKS_01_23
+    return CHECKS + CHECKS_01_23
+
+def run_merchant_checks(ctx, checks=None):
+    if checks is None:
+        checks = all_checks()
     results, detail = [], []
     for chk in checks:
+        if chk.versions and ctx.version not in chk.versions:
+            # this register id means something else (or nothing) at this server's
+            # spec version — out of scope, never graded
+            for rid in chk.req_ids:
+                results.append(CheckResult(rid, chk.keyword, "not-tested"))
+            detail.append((chk, {"status": f"not-applicable (spec {ctx.version} out of scope)",
+                                  "kill_safe": None})); continue
         if chk.transport and not getattr(ctx, f"has_{chk.transport}", True):
             for rid in chk.req_ids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable

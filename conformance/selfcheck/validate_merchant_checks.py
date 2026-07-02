@@ -58,7 +58,11 @@ CONTROLLED_CONFIG = {
     "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
     "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx
     "discount": {"valid_code": "10OFF", "second_valid_code": "TEA5",
-                 "invalid_code": "NOPE_NOT_A_CODE"},     # seeded codes (see server.py)
+                 "invalid_code": "NOPE_NOT_A_CODE",      # seeded codes (see server.py)
+                 "case_insensitive": True,               # fixture matches codes any-case
+                 # scenario carts for the 01-23-scoped checks (DSC-010 / DSC-018):
+                 "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
+                 "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
