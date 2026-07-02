@@ -83,5 +83,6 @@ grade a real merchant. Confirmed spec/reference ambiguities are documented in
 - **PyPI:** https://pypi.org/project/spck-conformance/
 - **Methodology, coverage & ambiguities:** [docs/](docs/) · [conformance/](conformance/)
 - **UCP spec (official):** https://ucp.dev
+- **Awesome UCP** — a curated list of UCP resources: https://github.com/vishkaty/awesome-ucp
 
 MIT licensed.
