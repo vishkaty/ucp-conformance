@@ -74,9 +74,12 @@ unlike the 01-23 root-schema blocker) · order (11) · identity-testable (8) · 
 **Acceptance:** 04-08 accounted ≥ 55%; every new check reference-gated; ratchet raised.
 
 ### Phase 2 — harnesses (converts the needs-* tiers, all versions)
-1. **TLS 1.3 harness** (CHK-051, last WF#1 backlog item): TLS-terminating listener in
-   front of the fixture + a TLS≤1.2-capped negative endpoint; self-signed cert checked
-   in or minted at boot.
+1. ~~**TLS 1.3 harness** (CHK-051)~~ **DONE 2026-07-02**: tls_proxy.py (1.3-only golden
+   + 1.2-accepting negative, boot-minted cert) + version-scoped check counting for
+   01-23 AND 01-11 + dedicated soundness gate. WF#1 backlog: 16/16 complete.
+   Real-world pull for the next harness: production luma.gift answers 401
+   agent_signature_required even for reads — a working RFC 9421 signer is both
+   coverage AND the key to testing signature-gated merchants.
 2. **Webhook receiver extension** (`webhook_harness.py` exists with ORD-012/013):
    order/payment/checkout event MUSTs — 35 @01-23/01-11, ~43 @04-08.
 3. **RFC 9421 signature harness**: request-signature generation + verification checks
