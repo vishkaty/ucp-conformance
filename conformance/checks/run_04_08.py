@@ -4,12 +4,19 @@ run_04_08.py — aggregate 2026-04-08 fixture-based check modules and produce th
 honest, coverage-gated report. Core in v2026_04_08.py; areas auto-loaded from
 area_04_08_*.py. These checks need no server (they validate synthetic fixtures via
 the schema oracle); the schema oracle requires the built ucp-schema binary.
+
+Exit codes (this IS the suite-04-08 gate; matrix.py attributes fixture_check ids
+on the strength of it): 0 = every check clean-pass AND kill-safe; 1 = any check
+unsound (deviating fixture or surviving mutant — our bug, must not ship);
+2 = schema oracle unavailable (honest skip, mirrors the schema/fixture gates).
 """
 import sys, pathlib, importlib, glob
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 import v2026_04_08 as core            # noqa: E402
 from engine import run_report         # noqa: E402
+from verdict_gate import INCONCLUSIVE  # noqa: E402
 
 def collect():
     checks = list(core.CHECKS)
@@ -36,7 +43,12 @@ def main():
           f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")
     unsafe = [c.id for c, d in details if not d["kill_safe"]]
     if unsafe:
-        print(f"UNSAFE (excluded): {unsafe}")
+        # every check INCONCLUSIVE = the oracle never answered -> skip, not red
+        if all(d["clean"] == INCONCLUSIVE for _, d in details):
+            print("schema oracle unavailable — skip")
+            return 2
+        print(f"UNSOUND — gate RED: {unsafe}")
+        return 1
     return 0
 
 if __name__ == "__main__":

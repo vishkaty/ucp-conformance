@@ -34,8 +34,11 @@ REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
 VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
-# capture the req-id list: Check("name", [ ... ]) / MCheck("name", [ ... ])
-REQIDS_RE = re.compile(r'M?Check\(\s*"[^"]*"\s*,\s*\[([^\]]*)\]', re.S)
+# capture the req-id list: Check("name", [ ... ]) / MCheck("name", [ ... ]) /
+# fixture_check("name", [ ... ]) — schema_check.py's factory builds an engine.Check
+# at runtime, so its citations are as real as literal constructors; its checks are
+# kill-gated by the suite-04-08 gate (run_04_08.py exits red on any unsound check).
+REQIDS_RE = re.compile(r'(?:M?Check|fixture_check)\(\s*"[^"]*"\s*,\s*\[([^\]]*)\]', re.S)
 
 
 def load_rows(ver):

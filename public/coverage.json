@@ -3992,50 +3992,50 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 35,
+   "check": 58,
    "exempt": 0,
-   "gap": 287,
-   "accounted_pct": 11,
+   "gap": 264,
+   "accounted_pct": 18,
    "gap_by_testability": {
     "manual": 40,
     "needs-oauth": 47,
     "needs-receiver": 58,
-    "testable": 142
+    "testable": 119
    },
    "areas": [
     {
      "area": "cart",
-     "check": 2,
-     "gap": 12,
+     "check": 4,
+     "gap": 10,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 5,
+     "gap_testable": 3,
      "musts": 14
     },
     {
      "area": "catalog",
-     "check": 4,
-     "gap": 28,
+     "check": 10,
+     "gap": 22,
      "gap_manual": 4,
-     "gap_testable": 24,
+     "gap_testable": 18,
      "musts": 32
     },
     {
      "area": "checkout-lifecycle",
-     "check": 6,
-     "gap": 27,
+     "check": 8,
+     "gap": 25,
      "gap_manual": 4,
      "gap_needs-receiver": 9,
-     "gap_testable": 14,
+     "gap_testable": 12,
      "musts": 33
     },
     {
      "area": "discounts-consent",
-     "check": 5,
-     "gap": 24,
+     "check": 12,
+     "gap": 17,
      "gap_manual": 1,
      "gap_needs-receiver": 5,
-     "gap_testable": 18,
+     "gap_testable": 11,
      "musts": 29
     },
     {
@@ -4047,9 +4047,10 @@
     },
     {
      "area": "error-envelope",
-     "gap": 25,
+     "check": 5,
+     "gap": 20,
      "gap_manual": 13,
-     "gap_testable": 12,
+     "gap_testable": 7,
      "musts": 25
     },
     {
@@ -4099,10 +4100,10 @@
     },
     {
      "area": "totals",
-     "check": 3,
-     "gap": 11,
+     "check": 4,
+     "gap": 10,
      "gap_manual": 5,
-     "gap_testable": 6,
+     "gap_testable": 5,
      "musts": 14
     },
     {
@@ -4212,6 +4213,7 @@
      "requirement": "A cart response object MUST include ucp, id, line_items, currency, and totals",
      "source": "ucp:source/schemas/shopping/cart.json#L32",
      "covered_by": [
+      "area_04_08_cart.py",
       "merchant_checks.py"
      ]
     },
@@ -4234,6 +4236,7 @@
      "requirement": "Each cart line item MUST include id, item, quantity, and totals",
      "source": "ucp:source/schemas/shopping/types/line_item.json#L7",
      "covered_by": [
+      "area_04_08_cart.py",
       "merchant_checks.py"
      ]
     },
@@ -4242,50 +4245,60 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line item quantity MUST be an integer of at least 1",
      "source": "ucp:source/schemas/shopping/types/line_item.json#L27",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_cart.py"
+     ]
     },
     {
      "id": "CART-033",
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each line item's item MUST include id, title, and price",
      "source": "ucp:source/schemas/shopping/types/item.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_cart.py"
+     ]
     },
     {
      "id": "CAT-001",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Pagination response MUST include has_next_page",
      "source": "ucp:source/schemas/shopping/types/pagination.json#L42",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_catalog.py"
+     ]
     },
     {
      "id": "CAT-002",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When has_next_page is true, cursor MUST be present (if/then schema constraint)",
      "source": "ucp:source/schemas/shopping/types/pagination.json#L43",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_catalog.py"
+     ]
     },
     {
      "id": "CAT-003",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Cursor to fetch next page MUST be present when has_next_page is true",
      "source": "ucp:source/schemas/shopping/types/pagination.json#L30",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_catalog.py"
+     ]
     },
     {
      "id": "CAT-005",
@@ -4390,6 +4403,7 @@
      "requirement": "Variants without an inputs entry MUST NOT appear in lookup responses",
      "source": "ucp:docs/specification/catalog/lookup.md#L71",
      "covered_by": [
+      "area_04_08_catalog.py",
       "merchant_checks.py"
      ]
     },
@@ -4402,6 +4416,7 @@
      "requirement": "lookup response variants MUST include a non-empty inputs array (correlation metadata)",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L13",
      "covered_by": [
+      "area_04_08_catalog.py",
       "merchant_checks.py"
      ]
     },
@@ -4500,30 +4515,36 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "search_response MUST include ucp and products",
      "source": "ucp:source/schemas/shopping/catalog_search.json#L35",
-     "covered_by": []
+     "covered_by": [
+      "v2026_04_08.py"
+     ]
     },
     {
      "id": "CAT-030",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "lookup_response MUST include ucp and products",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L53",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_catalog.py"
+     ]
     },
     {
      "id": "CAT-031",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "get_product_response MUST include ucp and a singular product object",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L155",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_catalog.py"
+     ]
     },
     {
      "id": "CAT-032",
@@ -4762,20 +4783,24 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "status field enum is constrained to the six lifecycle values",
      "source": "ucp:source/schemas/shopping/checkout.json#L67",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_checkout.py"
+     ]
     },
     {
      "id": "CHK-034",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Checkout response MUST include required top-level fields: ucp, id, line_items, status, currency, totals, links",
      "source": "ucp:source/schemas/shopping/checkout.json#L8",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_checkout.py"
+     ]
     },
     {
      "id": "CHK-035",
@@ -5169,10 +5194,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount entries in totals[] are negative (strictly < 0); the sign is schema-enforced",
      "source": "ucp:docs/specification/discount.md#L314",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-022",
@@ -5189,40 +5216,48 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "applied_discount MUST include title and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L29",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-024",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "applied_discount.method MUST be one of 'each' or 'across' when present",
      "source": "ucp:source/schemas/shopping/discount.json#L51",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-025",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "applied_discount.priority MUST be an integer >= 1 (lower applied first)",
      "source": "ucp:source/schemas/shopping/discount.json#L59",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-026",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "allocation MUST include path and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L11",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-027",
@@ -5269,20 +5304,24 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the consent extension is supported, the buyer object in checkout is extended with a consent field containing boolean consent states",
      "source": "ucp:docs/specification/buyer-consent.md#L27",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-033",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "consent properties (analytics, preferences, marketing, sale_of_data) MUST be booleans when present",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_discount.py"
+     ]
     },
     {
      "id": "DSC-034",
@@ -5299,10 +5338,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message MUST include type, code, content, and severity fields.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_error.py"
+     ]
     },
     {
      "id": "ERR-002",
@@ -5319,10 +5360,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message severity MUST be one of recoverable, requires_buyer_input, requires_buyer_review, unrecoverable.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L40",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_error.py"
+     ]
     },
     {
      "id": "ERR-004",
@@ -5499,30 +5542,36 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response MUST include ucp and messages.",
      "source": "ucp:source/schemas/shopping/types/error_response.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_error.py"
+     ]
     },
     {
      "id": "ERR-029",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response ucp.status MUST be 'error'.",
      "source": "ucp:source/schemas/shopping/types/error_response.json#L10",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_error.py"
+     ]
     },
     {
      "id": "ERR-030",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response messages array MUST contain at least one message (minItems 1).",
      "source": "ucp:source/schemas/shopping/types/error_response.json#L14",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_error.py"
+     ]
     },
     {
      "id": "ERR-031",
@@ -5553,6 +5602,7 @@
      "requirement": "A fulfillment_method MUST include id, type, and line_item_ids",
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7",
      "covered_by": [
+      "area_04_08_fulfillment.py",
       "area_fulfillment.py",
       "merchant_checks.py"
      ]
@@ -5566,6 +5616,7 @@
      "requirement": "fulfillment_method.type MUST be one of shipping or pickup",
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L17",
      "covered_by": [
+      "area_04_08_fulfillment.py",
       "area_fulfillment.py"
      ]
     },
@@ -5578,6 +5629,7 @@
      "requirement": "A fulfillment_group MUST include id and line_item_ids",
      "source": "ucp:source/schemas/shopping/types/fulfillment_group.json#L7",
      "covered_by": [
+      "area_04_08_fulfillment.py",
       "area_fulfillment.py"
      ]
     },
@@ -5590,6 +5642,7 @@
      "requirement": "A fulfillment_option MUST include id, title, and totals",
      "source": "ucp:source/schemas/shopping/types/fulfillment_option.json#L8",
      "covered_by": [
+      "area_04_08_fulfillment.py",
       "area_fulfillment.py",
       "merchant_checks.py"
      ]
@@ -5685,6 +5738,7 @@
      "requirement": "A shipping_destination MUST include an id (it is a postal_address plus a required id)",
      "source": "ucp:source/schemas/shopping/types/shipping_destination.json#L21",
      "covered_by": [
+      "area_04_08_fulfillment.py",
       "area_fulfillment.py"
      ]
     },
@@ -6313,6 +6367,7 @@
      "requirement": "order.currency is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
      "covered_by": [
+      "area_04_08_order.py",
       "area_order.py"
      ]
     },
@@ -6325,6 +6380,7 @@
      "requirement": "line_items is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
      "covered_by": [
+      "area_04_08_order.py",
       "area_order.py",
       "merchant_checks.py"
      ]
@@ -6338,6 +6394,7 @@
      "requirement": "Each order line item requires id, item, quantity, totals, and status",
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L6",
      "covered_by": [
+      "area_04_08_order.py",
       "area_order.py"
      ]
     },
@@ -7307,6 +7364,7 @@
      "requirement": "Exactly one totals entry of type subtotal MUST be present",
      "source": "ucp:docs/specification/checkout.md#L797",
      "covered_by": [
+      "area_04_08_checkout.py",
       "merchant_checks.py"
      ]
     },
@@ -7319,6 +7377,7 @@
      "requirement": "Exactly one totals entry of type total MUST be present",
      "source": "ucp:docs/specification/checkout.md#L798",
      "covered_by": [
+      "area_04_08_checkout.py",
       "merchant_checks.py"
      ]
     },
@@ -7357,10 +7416,12 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Subtractive well-known types (discount, items_discount) MUST have negative amounts",
      "source": "ucp:docs/specification/checkout.md#L829",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_checkout.py"
+     ]
     },
     {
      "id": "TOT-015",
@@ -7371,6 +7432,7 @@
      "requirement": "Additive well-known types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts",
      "source": "ucp:docs/specification/checkout.md#L830",
      "covered_by": [
+      "area_04_08_checkout.py",
       "merchant_checks.py"
      ]
     },
