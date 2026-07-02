@@ -113,6 +113,12 @@ them. Anything that turns out testable during classification goes back to Phase 
   (04-08 convention); 01-23 extension schemas use bare `checkout`. Workaround in use:
   extension subtrees anchored directly to their named $defs.
 
+## Web layer (under the harness since 2026-07-02)
+The website (Pages functions + /tool SPA) has its own committed regression net inside
+the same selftest: `web-unit` (node:test vs the real modules, mocked KV/fetch) and
+`web-browser` (headless Chromium driving /tool against the controlled fixture). Extend
+these when touching the web layer — a red gate blocks the push like any engine change.
+
 ## Beyond coverage (product usefulness track)
 - **MCP transport depth**: checkout/cart/order over MCP (catalog done); embedded
   transport survey.
