@@ -3997,10 +3997,10 @@
    "gap": 247,
    "accounted_pct": 23,
    "gap_by_testability": {
-    "manual": 40,
+    "manual": 41,
     "needs-oauth": 47,
     "needs-receiver": 58,
-    "testable": 102
+    "testable": 101
    },
    "areas": [
     {
@@ -4016,8 +4016,7 @@
      "area": "catalog",
      "check": 27,
      "gap": 5,
-     "gap_manual": 4,
-     "gap_testable": 1,
+     "gap_manual": 5,
      "musts": 32
     },
     {
@@ -4604,7 +4603,7 @@
      "id": "CAT-034",
      "area": "catalog",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "In get_product selected input, each option name MUST appear at most once",
      "source": "ucp:docs/specification/catalog/lookup.md#L156",
