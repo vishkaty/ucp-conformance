@@ -3992,15 +3992,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 60,
+   "check": 68,
    "exempt": 0,
-   "gap": 262,
-   "accounted_pct": 19,
+   "gap": 254,
+   "accounted_pct": 21,
    "gap_by_testability": {
     "manual": 40,
     "needs-oauth": 47,
     "needs-receiver": 58,
-    "testable": 117
+    "testable": 109
    },
    "areas": [
     {
@@ -4014,10 +4014,10 @@
     },
     {
      "area": "catalog",
-     "check": 12,
-     "gap": 20,
+     "check": 20,
+     "gap": 12,
      "gap_manual": 4,
-     "gap_testable": 16,
+     "gap_testable": 8,
      "musts": 32
     },
     {
@@ -4327,20 +4327,24 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A valid search request MUST include at least one of: a query string, one or more filters, or an extension-defined input",
      "source": "ucp:docs/specification/catalog/search.md#L40",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-010",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Implementations MUST validate that incoming requests contain at least one recognized input",
      "source": "ucp:docs/specification/catalog/search.md#L47",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-012",
@@ -4381,20 +4385,24 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Duplicate identifiers in the request MUST be deduplicated",
      "source": "ucp:docs/specification/catalog/lookup.md#L56",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-016",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When multiple identifiers resolve to the same product, it MUST be returned once",
      "source": "ucp:docs/specification/catalog/lookup.md#L58",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-017",
@@ -4437,10 +4445,12 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All application-level outcomes (incl. not-found) return HTTP 200 with the UCP envelope and optional messages array",
      "source": "ucp:docs/specification/catalog/rest.md#L513",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-022",
@@ -4477,30 +4487,36 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST transport MUST return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned",
      "source": "ucp:docs/specification/catalog/rest.md#L575",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-026",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST transport MUST return HTTP 400 with request_too_large error for requests exceeding batch size limits",
      "source": "ucp:docs/specification/catalog/rest.md#L576",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-027",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Lookup implementations MAY enforce a maximum batch size and MUST reject requests exceeding their limit with an appropriate error",
      "source": "ucp:docs/specification/catalog/lookup.md#L76",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CAT-028",

@@ -53,7 +53,8 @@ REF_CONFIG = {
 # at this spec version). See conformance/fixtures/merchant/.
 CONTROLLED_CONFIG = {
     "product_id": "teapot_ceramic", "currency": "USD",
-    "catalog": {"variant_id": "teapot_ceramic_v1"},
+    "catalog": {"variant_id": "teapot_ceramic_v1",
+                "max_batch": 25},                        # fixture's MAX_LOOKUP_BATCH
     "complete_payment": _pay("success_token", "1234"),   # fixture accepts any non-fail token
     "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
     "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx

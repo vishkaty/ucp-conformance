@@ -432,6 +432,83 @@ def p_catalog_lookup_inputs(r):
                 return DEVIATION
     return CLEAN
 
+def catalog_searchless_resp(ctx):
+    """A search request with NO recognized input (no query, no filters) — invalid per
+    search.md regardless of the merchant's own input rules."""
+    return fetch(ctx.shopping_endpoint, "/catalog/search", "POST", {}, _hdr())
+
+def p_search_input_required(r):
+    """CAT-009/010: an input-less search request must not be graded as valid. search.md
+    MUSTs the validation; rest.md's two-layer model places request-validation failures
+    at the transport layer (400 = missing required parameters), so CLEAN = 4xx with a
+    structured error body. A 200 (with or without products) means the merchant treated
+    an invalid request as a valid browse — validation demonstrably didn't happen."""
+    if not (400 <= r.status < 500):
+        return DEVIATION
+    j = r.json
+    if not isinstance(j, dict):
+        return DEVIATION
+    return CLEAN if (j.get("detail") or j.get("messages") or j.get("error")
+                     or j.get("error_code")) else DEVIATION
+
+def catalog_lookup_dup_resp(ctx):
+    """Batch lookup with a GUARANTEED duplicate: [product, product, variant] — at most
+    2 distinct products can resolve (1 when the variant belongs to the product)."""
+    vid = (ctx.config.get("catalog") or {}).get("variant_id")
+    return fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST",
+                 {"ids": [ctx.product_id, ctx.product_id, vid]}, _hdr())
+
+def p_lookup_dedup(r):
+    """CAT-015/016: duplicate identifiers are deduplicated; identifiers resolving to
+    the same product return it once. We sent 3 identifiers with a duplicate, so the
+    response must carry UNIQUE product ids and fewer products than identifiers."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    prods = r.json.get("products")
+    if not isinstance(prods, list) or not prods:
+        return DEVIATION
+    ids = [p.get("id") for p in prods if isinstance(p, dict)]
+    if len(ids) != len(prods) or len(ids) != len(set(ids)):
+        return DEVIATION                    # same product returned twice (CAT-016)
+    return CLEAN if len(prods) < 3 else DEVIATION   # duplicate id collapsed (CAT-015)
+
+def catalog_lookup_unknown_resp(ctx):
+    """Batch lookup mixing a known product id with an id that cannot exist."""
+    return fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST",
+                 {"ids": [ctx.product_id, "ucp_nonexistent_" + uuid.uuid4().hex[:10]]},
+                 _hdr())
+
+def p_lookup_partial(r):
+    """CAT-025/020: lookup stays HTTP 200 with the UCP envelope when some identifiers
+    are unknown (application outcome, not a transport error); the known id still
+    resolves; the unknown one yields fewer products than identifiers requested."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    if not isinstance(r.json.get("ucp"), dict):
+        return DEVIATION                    # CAT-020: the UCP envelope must be there
+    prods = r.json.get("products")
+    if not isinstance(prods, list) or not prods:
+        return DEVIATION                    # the known id must still resolve
+    return CLEAN if len(prods) < 2 else DEVIATION
+
+def catalog_lookup_toolarge_resp(ctx):
+    """A lookup batch of max_batch+1 identifiers (merchant's cap from config)."""
+    cap = int((ctx.config.get("catalog") or {}).get("max_batch") or 0)
+    ids = [ctx.product_id] + [f"ucp_batch_probe_{i}" for i in range(cap)]
+    return fetch(ctx.shopping_endpoint, "/catalog/lookup", "POST", {"ids": ids}, _hdr())
+
+def p_request_too_large(r):
+    """CAT-026/027: a batch exceeding the merchant's limit MUST be rejected with
+    HTTP 400 and a `request_too_large` error (rest.md conformance item 5)."""
+    if r.status != 400 or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    codes = {m.get("code") for m in j.get("messages", []) if isinstance(m, dict)}
+    if "request_too_large" in codes or j.get("code") == "request_too_large" \
+       or (isinstance(j.get("error"), dict) and j["error"].get("code") == "request_too_large"):
+        return CLEAN
+    return DEVIATION
+
 # ---- cart flows (capability dev.ucp.shopping.cart, product from config) -------
 def cart_create_resp(ctx):
     return fetch(ctx.shopping_endpoint, "/carts", "POST",
@@ -756,6 +833,31 @@ CHECKS = [
            p_lookup_found,
            ["status:404", "set:products=[]", "drop:products", "corrupt-json"],
            capability="dev.ucp.shopping.catalog.lookup", cfg_needs=("catalog",), transport="rest"),
+    MCheck("catalog.search_requires_input", ["CAT-009", "CAT-010"], "MUST",
+           catalog_searchless_resp, p_search_input_required,
+           ["status:200", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.catalog.search", transport="rest"),
+    MCheck("catalog.lookup_dedup", ["CAT-015", "CAT-016"], "MUST",
+           catalog_lookup_dup_resp, p_lookup_dedup,
+           ["status:500", "set:products=[]",
+            "set:products=[{\"id\":\"dup\"},{\"id\":\"dup\"}]",
+            "set:products=[{\"id\":\"a\"},{\"id\":\"b\"},{\"id\":\"c\"}]",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           cfg_needs=("catalog",), transport="rest"),
+    MCheck("catalog.lookup_unknown_partial", ["CAT-025", "CAT-020"], "MUST",
+           catalog_lookup_unknown_resp, p_lookup_partial,
+           ["status:404", "status:400", "drop:ucp", "set:products=[]",
+            "set:products=[{\"id\":\"a\"},{\"id\":\"b\"}]", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           transport="rest"),
+    MCheck("catalog.lookup_batch_too_large", ["CAT-026", "CAT-027"], "MUST",
+           catalog_lookup_toolarge_resp, p_request_too_large,
+           ["status:200", "status:413",
+            "set:messages=[{\"type\":\"error\",\"code\":\"invalid\",\"content\":\"x\",\"severity\":\"recoverable\"}]",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           cfg_needs=("catalog.max_batch",), transport="rest"),
     # --- catalog over the MCP transport (JSON-RPC tools/call) ---
     MCheck("mcp.catalog_search", ["CAT-012"], "MUST", mcp_search_resp, p_catalog_search,
            ["status:500", "drop:products", "set:products=\"x\"",

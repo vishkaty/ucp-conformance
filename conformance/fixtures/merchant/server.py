@@ -473,6 +473,24 @@ def cancel_checkout(sid, headers=None):
     sess["status"] = "canceled"
     return 200, checkout_body(sess)
 
+# Lookup batch cap (lookup.md: implementations MAY enforce a maximum batch size and
+# MUST reject requests exceeding it — HTTP 400 request_too_large / JSON-RPC -32602).
+# 25 comfortably honors the SHOULD-accept-at-least-10.
+MAX_LOOKUP_BATCH = 25
+
+def catalog_error(capability, code, content, severity="recoverable"):
+    """An error_response envelope (types/error_response.json): ucp.status=error +
+    a non-empty messages[]. Used for catalog rejections (input-less search, batch cap)."""
+    return {"ucp": {"version": VERSION, "status": "error",
+                    "capabilities": {capability: [{"version": VERSION}]}},
+            "messages": [{"type": "error", "code": code, "content": content,
+                          "severity": severity}]}
+
+def search_query_valid(query):
+    """The fixture's implementation-defined search-input rule (search.md allows e.g.
+    'requiring query, rejecting empty query strings'): a non-empty query string."""
+    return isinstance(query, str) and bool(query.strip())
+
 def search_response(query):
     q = (query or "").strip().lower()
     hits = [p for p in PRODUCTS if not q or q == "*" or q in p["title"].lower()
@@ -481,18 +499,27 @@ def search_response(query):
             "pagination": {"has_next_page": False, "total_count": len(hits)}}
 
 def _detail(p, requested):
-    """Lookup returns DETAIL products whose variants carry `inputs` — an input_correlation
-    per variant tying it to the requested id and how it matched (search omits this)."""
+    """Lookup returns DETAIL products whose variants carry `inputs` — one
+    input_correlation entry per REQUEST identifier that resolved to the variant
+    (lookup.md client correlation): `exact` for the variant's own id, `featured`
+    when the parent product id resolved here."""
     d = json.loads(json.dumps(p))
     for v in d["variants"]:
-        rid = next((r for r in requested if r in (p["id"], v["id"])), p["id"])
-        v["inputs"] = [{"id": rid, "match": "exact" if rid == v["id"] else "product"}]
+        ins = [{"id": r, "match": "exact" if r == v["id"] else "featured"}
+               for r in requested if r in (p["id"], v["id"])]
+        v["inputs"] = ins or [{"id": p["id"], "match": "featured"}]
     return d
 
 def lookup_response(ids):
-    ids = ids or []
-    hits = [BY_ID[i] for i in ids if i in BY_ID] + \
-           [BY_VARIANT[i] for i in ids if i in BY_VARIANT and i not in BY_ID]
+    """Batch lookup per lookup.md: duplicate request identifiers are deduplicated,
+    multiple identifiers resolving to the same product return it ONCE, unknown
+    identifiers simply yield fewer products (partial result, still HTTP 200)."""
+    ids = list(dict.fromkeys(ids or []))          # dedup identifiers, keep order
+    seen, hits = set(), []
+    for i in ids:
+        p = BY_ID.get(i) or BY_VARIANT.get(i)
+        if p and p["id"] not in seen:             # same product resolved twice -> once
+            seen.add(p["id"]); hits.append(p)
     return {"ucp": {"version": VERSION}, "products": [_detail(p, ids) for p in hits]}
 
 def mcp_dispatch(rpc):
@@ -512,9 +539,14 @@ def mcp_dispatch(rpc):
         return err(-32602, "meta.ucp-agent is required")
     cat = args.get("catalog") or {}
     if name == "search_catalog":
+        if not search_query_valid(cat.get("query")):    # same MUST-validate rule as REST
+            return err(-32602, "search requires at least one input (non-empty query)")
         return ok(search_response(cat.get("query")))
     if name == "lookup_catalog":
         ids = cat.get("ids") or ([cat["id"]] if cat.get("id") else [])
+        if len(ids) > MAX_LOOKUP_BATCH:                 # lookup.md: JSON-RPC -32602
+            return err(-32602, f"lookup batch of {len(ids)} exceeds the maximum of "
+                               f"{MAX_LOOKUP_BATCH} identifiers")
         return ok(lookup_response(ids))
     if name == "create_cart":
         return ok(cart_response(args.get("cart") or {}))
@@ -580,9 +612,22 @@ class _H(BaseHTTPRequestHandler):
             return self._send(400, {"error_code": "invalid_request"})
         if VERSION == "2026-04-08":          # catalog/cart/MCP exist only in 04-08
             if path == "/catalog/search":
+                # search.md: MUST validate that requests carry >=1 recognized input;
+                # a validation failure is a request error (rest.md two-layer model:
+                # 400 = missing required parameters), not an application outcome.
+                if not search_query_valid(body.get("query")):
+                    return self._send(400, catalog_error(
+                        "dev.ucp.shopping.catalog.search", "invalid_request",
+                        "search requires at least one input; this implementation "
+                        "requires a non-empty `query` string"))
                 return self._send(200, search_response(body.get("query")))
             if path == "/catalog/lookup":
                 ids = body.get("ids") or ([body["id"]] if body.get("id") else [])
+                if len(ids) > MAX_LOOKUP_BATCH:
+                    return self._send(400, catalog_error(
+                        "dev.ucp.shopping.catalog.lookup", "request_too_large",
+                        f"lookup batch of {len(ids)} exceeds the maximum of "
+                        f"{MAX_LOOKUP_BATCH} identifiers"))
                 return self._send(200, lookup_response(ids))
             if path == "/carts":
                 return self._send(201, cart_response(body))

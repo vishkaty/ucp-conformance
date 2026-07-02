@@ -14,7 +14,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "selfcheck"))
 import server                                              # noqa: E402
-from schema_oracle import validate, validate_against, validate_profile, OracleUnavailable  # noqa: E402
+from schema_oracle import validate, validate_against, validate_root, validate_profile, OracleUnavailable  # noqa: E402
 
 BASE = "http://localhost:8184"
 HDRS = {"UCP-Agent": 'profile="https://spck.dev/agent"'}   # minimal valid headers
@@ -100,6 +100,15 @@ def checkout_artifacts():
             "ap2_with_merchant_authorization", op="read", version=server.VERSION)))
     return out
 
+def _dedup_lookup():
+    """lookup.md dedup MUSTs: a batch with a duplicate product id AND that product's
+    variant id must return the product exactly ONCE — and still be schema-valid."""
+    resp = server.lookup_response(["teapot_ceramic", "teapot_ceramic", "teapot_ceramic_v1"])
+    if len(resp.get("products", [])) != 1:
+        return False, f"dedup lookup returned {len(resp.get('products', []))} products, want 1"
+    return validate_against(resp, "schemas/shopping/catalog_lookup.json",
+                            "lookup_response", op="lookup", version=server.VERSION)
+
 def main():
     artifacts = [
         ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
@@ -110,6 +119,17 @@ def main():
         ("catalog.lookup response", lambda: validate_against(
             server.lookup_response(["teapot_ceramic"]), "schemas/shopping/catalog_lookup.json",
             "lookup_response", op="lookup", version=server.VERSION)),
+        ("catalog.lookup dedup response", _dedup_lookup),
+        ("catalog search rejection (error_response)", lambda: validate_root(
+            server.catalog_error("dev.ucp.shopping.catalog.search", "invalid_request",
+                                 "search requires at least one input"),
+            "schemas/shopping/types/error_response.json", op="search",
+            version=server.VERSION)),
+        ("catalog batch-cap rejection (error_response)", lambda: validate_root(
+            server.catalog_error("dev.ucp.shopping.catalog.lookup", "request_too_large",
+                                 "lookup batch exceeds the maximum"),
+            "schemas/shopping/types/error_response.json", op="lookup",
+            version=server.VERSION)),
         ("cart response", lambda: validate_against(
             server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
             "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
