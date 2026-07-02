@@ -3992,15 +3992,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 58,
+   "check": 60,
    "exempt": 0,
-   "gap": 264,
-   "accounted_pct": 18,
+   "gap": 262,
+   "accounted_pct": 19,
    "gap_by_testability": {
     "manual": 40,
     "needs-oauth": 47,
     "needs-receiver": 58,
-    "testable": 119
+    "testable": 117
    },
    "areas": [
     {
@@ -4014,10 +4014,10 @@
     },
     {
      "area": "catalog",
-     "check": 10,
-     "gap": 22,
+     "check": 12,
+     "gap": 20,
      "gap_manual": 4,
-     "gap_testable": 18,
+     "gap_testable": 16,
      "musts": 32
     },
     {
@@ -4305,10 +4305,12 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "limit request parameter has minimum 1 and default 10",
      "source": "ucp:source/schemas/shopping/types/pagination.json#L16",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "CAT-008",
@@ -4505,10 +4507,12 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Lookup ids array is required with minItems 1",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L29",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "CAT-029",
