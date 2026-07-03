@@ -2,6 +2,6 @@
   "_about": "Coverage ratchet \u2014 per-version MINIMUM accounted MUSTs (CHECK+EXEMPT). The `coverage` CI gate fails if accounted coverage ever drops below these floors, so coverage can only move forward. Raise the floor deliberately when coverage grows (coverage_gate.py prints the exact values).",
   "2026-01-11": 70,
   "2026-01-23": 83,
-  "2026-04-08": 123,
+  "2026-04-08": 134,
   "_note_2026-07-02": "04-08 floor corrected 75 -> 74: the citation reconciliation (req_ids_map) removed 12 MIS-attributed rows (old-register meanings counted against renumbered 04-08 ids: CHK-001/004/008/013/014, DISC-001, DSC-005/007/012, ORD-002, ORD-012, PAY-009) and added 11 correctly-remapped rows (CHK-017/019/020/021/022/025/038/046, DSC-029/030, PAY-011). Honest accounting correction, not a coverage loss."
 }

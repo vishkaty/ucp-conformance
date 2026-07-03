@@ -33,6 +33,9 @@ AREA_CAPABILITY = {
     "cart": "dev.ucp.shopping.cart",
     "signals-attribution-eligibility": None,   # informational; treat as core
     "order": "dev.ucp.shopping.order",
+    # identity-linking (04-08 rework): IDL rows apply only to businesses that
+    # declare the capability — never in the denominator for merchants without it
+    "identity-linking": "dev.ucp.common.identity_linking",
 }
 CORE_CAP = "dev.ucp.shopping.checkout"
 

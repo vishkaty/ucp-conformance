@@ -4022,15 +4022,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 96,
+   "check": 107,
    "exempt": 27,
-   "gap": 199,
-   "accounted_pct": 38,
+   "gap": 188,
+   "accounted_pct": 42,
    "gap_by_testability": {
     "manual": 16,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 71
+    "testable": 60
    },
    "areas": [
     {
@@ -4093,9 +4093,10 @@
     },
     {
      "area": "identity-linking",
-     "gap": 55,
+     "check": 7,
+     "gap": 48,
      "gap_needs-oauth": 47,
-     "gap_testable": 8,
+     "gap_testable": 1,
      "musts": 55
     },
     {
@@ -4118,9 +4119,9 @@
     },
     {
      "area": "signals-attribution-eligibility",
-     "gap": 14,
+     "check": 4,
+     "gap": 10,
      "gap_needs-receiver": 10,
-     "gap_testable": 4,
      "musts": 14
     },
     {
@@ -5988,20 +5989,24 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST publish authorization server metadata via RFC 8414 at /.well-known/oauth-authorization-server.",
      "source": "ucp:docs/specification/identity-linking.md#L161-L163",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-017",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST populate scopes_supported in RFC 8414 metadata so platforms can detect scope mismatches before initiating an authorization flow.",
      "source": "ucp:docs/specification/identity-linking.md#L164-L167",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-018",
@@ -6048,10 +6053,12 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST declare supported client authentication methods in token_endpoint_auth_methods_supported and enforce one of the declared methods at the token endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L183-L185",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-023",
@@ -6188,10 +6195,12 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Scope names MUST match the pattern ^[a-z][a-z0-9_]*$.",
      "source": "ucp:docs/specification/identity-linking.md#L339-L340",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-038",
@@ -6378,30 +6387,38 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "authorization_response_iss_parameter_supported and code_challenge_methods_supported:[\"S256\"] MUST both be present in UCP-compliant RFC 8414 metadata.",
      "source": "ucp:docs/specification/identity-linking.md#L689-L691",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-059",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "config.scopes property names MUST conform to the scope_token pattern {capability}:{scope}.",
      "source": "ucp:source/schemas/common/identity_linking.json#L26",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py",
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "IDL-060",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business identity_linking config object is required and MUST contain a 'scopes' property.",
      "source": "ucp:source/schemas/common/identity_linking.json#L44-L49",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_identity.py",
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "NEG-001",
@@ -7011,30 +7028,36 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All signal keys MUST use reverse-domain naming to ensure provenance and prevent collisions in the shared namespace",
      "source": "ucp:docs/specification/overview.md#L1696",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "SAE-003",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Signal keys must match the reverse-domain identifier pattern (well-known dev.ucp namespace; extensions use their own)",
      "source": "ucp:source/schemas/shopping/types/signals.json#L8",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "SAE-007",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Numeric or boolean attribution values MUST be string-encoded as they would be in a URL query string",
      "source": "ucp:source/schemas/shopping/types/attribution.json#L9",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "SAE-008",
@@ -7051,10 +7074,12 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Eligibility values MUST use reverse-domain naming and MUST be non-identifying",
      "source": "ucp:source/schemas/shopping/types/context.json#L35",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_identity.py"
+     ]
     },
     {
      "id": "SAE-011",
