@@ -51,12 +51,29 @@ discount lifecycle incl. automatic + item-level discounts and AP2 fields, plus
 catalog search/lookup/get_product with cursor pagination, dedup, batch cap and a
 configurable product).
 
-| Version | MUSTs | CHECK | EXEMPT | GAP (testable / needs-harness / manual) |
-|---|---|---|---|---|
-| 2026-01-11 | 172 | 58 | 12 | 102 (38 / 45 / 19) |
-| 2026-01-23 | 181 | 71 | 12 | 98 (32 / 45 / 21) |
-| 2026-04-08 | 322 | 159 | 27 | 136 (1 / 118 / 17) |
+| Version | MUSTs | CHECK | EXEMPT | GAP | accounted |
+|---|---|---|---|---|---|
+| 2026-01-11 | 172 | 117 | 34 | 21 | **88%** |
+| 2026-01-23 | 181 | 125 | 35 | 21 | **88%** |
+| 2026-04-08 | 323 | 228 | 74 | 21 | **93%** |
 
+(Live + enforced: [spck.dev/coverage](https://spck.dev/coverage) / `public/coverage.json`.)
+
+**State of play (2026-07-03, after 3 parallel waves + 3 adversarial reviews + a
+spec-truth citation gate).** 187 kill-rate-validated checks across 3 controlled
+goldens + Flower Shop; 26 CI gates. The remaining GAP is the irreducible residue,
+categorized honestly:
+- **Documented spec bugs (won't fake):** ERR-008 / CHK-039 (`severity: escalation`
+  not in the enum — fixed on upstream main #216) and FUL-017 (prose `total` vs
+  schema `totals`). Drafts in `ops/upstream-reports.md`.
+- **Genuinely impossible black-box:** IDL-025 (opaque-token aud/azp claims),
+  SIG-009/023 (rotation-grace / retention time windows), SIG-024 (fail-closed on
+  storage fault), SIG-022 (client key entropy) — no single observed response can
+  prove these of a business under test.
+- **needs-receiver scenario tail:** mostly the 01-era AP2 mandate-VERIFICATION
+  family (PAY-022/024/025/028/030-034) needing an AP2-negotiation fixture, plus
+  a handful of 04-08 rows (some schema-convertible: CART-030, ERR-034). Buildable,
+  but high-effort / low marginal value.
 (Live numbers: [spck.dev/coverage](https://spck.dev/coverage) — this table is a
 snapshot; the page and `public/coverage.json` are the enforced source of truth.)
 
