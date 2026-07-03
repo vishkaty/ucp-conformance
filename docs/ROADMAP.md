@@ -108,10 +108,15 @@ FUL-026 was).
 **Acceptance:** `matrix --require testable` green for 01-11 and 01-23.
 
 ### Phase 4 — documented exemptions + the 100% gate
-Classify the manual residue (31/33/40 rows) into `coverage/exemptions.json` with a
-written why-unprovable per row (`class`: real-world-act / human-perception /
-subjective-judgment / out-of-band-legal). The coverage gate already machine-validates
-them. Anything that turns out testable during classification goes back to Phase 1-3.
+Classify the manual residue into `coverage/exemptions.json` with a written
+why-unprovable per row (`class`: real-world-act / human-perception /
+subjective-judgment / out-of-band-legal / client-bound [binds the platform/agent,
+unobservable from the business side] / spec-authoring [binds ecosystem document
+authors]). The coverage gate machine-validates them. **First pass DONE 2026-07-02
+(parallel wave 1): 34 exemptions (12/12/27 per version); 15 manual rows REFUSED as
+actually machine-testable (returned to Phases 1-3); 18 more blocked on version-scoped
+exemption support (the 04-08 renumbering makes id-keyed exemptions unsafe) — schema
+extension pending.** Anything that turns out testable during classification goes back to Phase 1-3.
 **Acceptance:** `matrix --require all` green per version → added to CI permanently.
 
 ### Known blockers (tracked, not forgotten)
