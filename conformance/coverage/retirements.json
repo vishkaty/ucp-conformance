@@ -1,0 +1,16 @@
+{
+  "_about": "Test-retirement registry — the ONLY sanctioned way a requirement id may leave the coverage lock (stop being CHECK/EXEMPT). A pinned spec version is immutable, so a check that correctly tested one of its MUSTs must live for the life of that version. An id may be retired ONLY for a reason grounded in the pinned spec, and it must be recorded here with that reasoning BEFORE the coverage-lock gate will allow it. Never retire a test to make a failing build pass. Valid classes: unsound-check (the check tested something the spec does not require / cannot be triggered conformantly — a bug fix, cite the spec), superseded (replaced by a check that covers the same id at least as strictly — name it), spec-defect (the requirement is unsatisfiable under the pinned spec's own schema — upstream-report it, leave GAP). NOT valid: 'flaky', 'hard to fix', 'failing and unclear why'.",
+  "retirements": [
+    {
+      "id": "SIG-035",
+      "versions": ["2026-04-08"],
+      "was": "check",
+      "now": "gap",
+      "class": "unsound-check",
+      "date": "2026-07-03",
+      "commit": "d76b004",
+      "reason": "The check induced 'algorithm_unsupported' by putting alg=\"rsa-pss-sha512\" in Signature-Input, but signatures.md states the algorithm is DERIVED from the key's crv and alg is NOT a Signature-Input parameter. So a conformant signer never sends an unsupported alg and a conformant verifier returns signature_invalid, not algorithm_unsupported — the check rode a spec-FORBIDDEN trigger and only passed because the fixture was hand-coded to read the forbidden param (circular). There is no normative 'MUST emit on unsupported alg' text and no official-oracle test. Verified by the wave-3 adversarial review (F1). SIG-035 stays GAP (needs-receiver) with a register note; if a crv-based unsupported-key scenario is later devised it can be re-covered.",
+      "spec_source": "ucp:docs/specification/signatures.md (algorithm derived from crv; alg not in Signature-Input)"
+    }
+  ]
+}

@@ -46,6 +46,7 @@ def gates(server):
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
+        ("coverage-lock", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),

@@ -95,6 +95,13 @@ reference server and requires every check to be clean-pass **and** kill-safe bef
 grade a real merchant. Confirmed spec/reference ambiguities are documented in
 [`conformance/AMBIGUITIES.md`](conformance/AMBIGUITIES.md) rather than silently passed.
 
+**Tests don't disappear.** Pinned spec versions are immutable, so a check that correctly
+tests one of their MUSTs is permanent — a CI gate (`coverage-lock`) fails the build if any
+covered requirement silently loses its test. A test may only be retired for a
+spec-grounded reason (unsound check / superseded / spec defect), recorded and reviewable
+in [`conformance/coverage/retirements.json`](conformance/coverage/retirements.json). The
+full policy: [docs/TEST-INTEGRITY.md](docs/TEST-INTEGRITY.md).
+
 ## Links
 
 - **Web check:** https://spck.dev/check
