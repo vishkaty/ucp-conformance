@@ -37,6 +37,16 @@ echo "selftest: pre-cleaning harness ports ${PORTS[*]} ..." >&2
 free_ports
 rm -rf "$DB_DIR"
 
+# pip-bundle drift guard (was CI-only; now local too — an em-dash/ensure_ascii
+# JSON re-encode in a register/exemption edit can desync the bundle copy, which
+# run_suite's gates don't see because they read source, not the bundle)
+bash "$ROOT/packaging/sync_bundle.sh" >/dev/null 2>&1 || true
+if ! git -C "$ROOT" diff --quiet packaging/spck_conformance/_bundle 2>/dev/null; then
+  echo "selftest: ✗ pip bundle is STALE vs source — run packaging/sync_bundle.sh and commit" >&2
+  git -C "$ROOT" checkout -- packaging/spck_conformance/_bundle 2>/dev/null || true
+  exit 1
+fi
+
 bash "$ROOT/conformance/ci/serve_golden.sh"
 python3 "$ROOT/conformance/ci/run_suite.py" --server "http://localhost:$PORT" "$@"
 # trap fires cleanup() on the way out with this exit code preserved
