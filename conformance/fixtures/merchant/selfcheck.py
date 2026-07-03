@@ -338,6 +338,280 @@ def _oauth_metadata():
         return False, "advertising 'none' requires PKCE S256"
     return True, "ok"
 
+# ---- OAUTH area artifacts (identity-linking.md; RFC 6749/7636/7009/6750/9728) ----
+# The OAuth server has no official UCP schema, so its artifacts are RULE-CHECKED
+# against the pinned spec text + the RFCs it cites; the UCP error BODIES the gated
+# operations emit (identity_required / insufficient_scope messages) and the order
+# entities behind the gate ARE oracle-validated against the official schemas.
+OAUTH_PUB, OAUTH_CONF = "spck-platform-public", "spck-platform-confidential"
+OAUTH_SECRET = "spck-confidential-secret-2026"
+OAUTH_RURI = "https://platform.spck.dev/oauth/callback"
+
+def _pkce_pair():
+    v = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b"=").decode()
+    return v, base64.urlsafe_b64encode(
+        hashlib.sha256(v.encode()).digest()).rstrip(b"=").decode()
+
+def _qs(headers):
+    import urllib.parse
+    loc = headers.get("Location", "")
+    return dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(loc).query))
+
+def _authorize(**over):
+    v, ch = _pkce_pair()
+    p = {"response_type": "code", "client_id": OAUTH_PUB, "redirect_uri": OAUTH_RURI,
+         "scope": "dev.ucp.shopping.order:read dev.ucp.shopping.order:manage",
+         "code_challenge": ch, "code_challenge_method": "S256", "state": "st1"}
+    for k, val in over.items():
+        if val is None:
+            p.pop(k, None)
+        else:
+            p[k] = val
+    st, hdrs, payload = server.oauth_authorize(p, BASE)
+    return st, hdrs, payload, _qs(hdrs), v
+
+def _basic(cid, secret):
+    return {"Authorization": "Basic "
+            + base64.b64encode(f"{cid}:{secret}".encode()).decode()}
+
+def _token(code, verifier, cid=OAUTH_PUB, ruri=OAUTH_RURI, headers=None):
+    form = {"grant_type": "authorization_code", "code": code}
+    if ruri is not None:
+        form["redirect_uri"] = ruri
+    if verifier is not None:
+        form["code_verifier"] = verifier
+    if headers is None:
+        form["client_id"] = cid
+    return server.oauth_token(form, headers or {}, BASE)
+
+def _challenge_params(hdrs):
+    """Parse 'Bearer k="v", ...' -> dict (RFC 6750 §3)."""
+    v = hdrs.get("WWW-Authenticate", "")
+    if not v.startswith("Bearer"):
+        return None
+    out = {}
+    for part in v[len("Bearer"):].split(","):
+        k, eq, val = part.strip().partition("=")
+        if eq:
+            out[k.strip()] = val.strip().strip('"')
+    return out
+
+def _oauth_code_flow():
+    """The authorization-code + PKCE happy path and every token-endpoint rejection
+    the 04-08 spec pins (identity-linking.md For Businesses + Security
+    Considerations): iss on the authorization response (RFC 9207), PKCE S256
+    required / plain rejected (RFC 7636), invalid_scope for out-of-vocabulary
+    scopes, exact redirect_uri matching with the loopback port exception
+    (RFC 8252 §7.3), invalid_client vs invalid_grant error selection, and
+    single-use codes."""
+    st, hdrs, _, q, v = _authorize()
+    if st != 302 or not hdrs.get("Location", "").startswith(OAUTH_RURI):
+        return False, f"authorize happy path did not redirect to redirect_uri ({st})"
+    if not q.get("code") or q.get("state") != "st1" or q.get("iss") != BASE:
+        return False, f"authorization response must carry code + state echo + iss: {q}"
+    st, thdrs, tok = _token(q["code"], v)
+    if st != 200 or not tok.get("access_token") or tok.get("token_type") != "Bearer":
+        return False, f"token exchange failed: {st} {tok}"
+    if tok.get("scope") and "dev.ucp.shopping.order:read" not in tok["scope"].split():
+        return False, f"granted scope lost the requested standard UCP scope: {tok}"
+    if thdrs.get("Cache-Control") != "no-store":
+        return False, "token response must carry Cache-Control: no-store (RFC 6749 §5.1)"
+    st, _, err = _token(q["code"], v)                        # code reuse
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"authorization-code reuse must fail invalid_grant: {st} {err}"
+    v2, ch2 = _pkce_pair()
+    st, hdrs, _, q2, _ = _authorize(code_challenge=ch2, code_challenge_method="plain")
+    if st != 302 or _qs(hdrs).get("error") != "invalid_request" or "code" in q2:
+        return False, f"plain PKCE must be rejected invalid_request: {_qs(hdrs)}"
+    st, hdrs, _, q2, _ = _authorize(code_challenge=None, code_challenge_method=None)
+    if st != 302 or _qs(hdrs).get("error") != "invalid_request" or "code" in q2:
+        return False, f"missing code_challenge must be rejected: {_qs(hdrs)}"
+    st, hdrs, _, q2, _ = _authorize(scope="dev.ucp.shopping.nope:zap")
+    if st != 302 or _qs(hdrs).get("error") != "invalid_scope":
+        return False, f"out-of-vocabulary scope must be invalid_scope: {_qs(hdrs)}"
+    st, hdrs, payload, _, _ = _authorize(redirect_uri="https://evil.example/cb")
+    if st != 400 or "Location" in hdrs:
+        return False, "unregistered redirect_uri must be answered directly (400, no redirect)"
+    # PKCE at the token endpoint: absent and wrong verifiers are invalid_grant
+    st, hdrs, _, q3, v3 = _authorize()
+    st, _, err = _token(q3["code"], None)
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"token without code_verifier must be invalid_grant: {st} {err}"
+    st, _, err = _token(q3["code"], v3 + "x")
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"wrong code_verifier must be invalid_grant: {st} {err}"
+    st, hdrs, _, q4, v4 = _authorize()
+    st, _, err = _token(q4["code"], v4, ruri=OAUTH_RURI + "/")
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"redirect_uri mismatch must be invalid_grant: {st} {err}"
+    # loopback exception: the port differs between authorize and token — accepted
+    st, hdrs, _, q5, v5 = _authorize(redirect_uri="http://127.0.0.1:7777/oauth/cb")
+    st, _, tok5 = _token(q5["code"], v5, ruri="http://127.0.0.1:12345/oauth/cb")
+    if st != 200 or not tok5.get("access_token"):
+        return False, f"loopback port must be ignored (RFC 8252 §7.3): {st} {tok5}"
+    # client authentication: wrong secret -> invalid_client 401; right secret -> 200
+    st, hdrs, _, q6, v6 = _authorize(client_id=OAUTH_CONF)
+    st, ehdrs, err = _token(q6["code"], v6, headers=_basic(OAUTH_CONF, "wrong"))
+    if st != 401 or err.get("error") != "invalid_client" \
+       or not ehdrs.get("WWW-Authenticate", "").startswith("Basic"):
+        return False, f"bad client secret must be 401 invalid_client (+challenge): {st} {err}"
+    st, _, tok6 = _token(q6["code"], v6, headers=_basic(OAUTH_CONF, OAUTH_SECRET))
+    if st != 200 or not tok6.get("access_token"):
+        return False, f"client_secret_basic exchange failed: {st} {tok6}"
+    return True, "ok"
+
+def _mint_token(scope):
+    st, hdrs, _, q, v = _authorize(scope=scope)
+    if st != 302 or not q.get("code"):
+        raise RuntimeError(f"authorize failed while minting a token: {st}")
+    st, _, tok = _token(q["code"], v)
+    if st != 200:
+        raise RuntimeError(f"token mint failed: {st} {tok}")
+    return tok
+
+def _oauth_gated():
+    """The gated-operation challenges (identity-linking.md Error Handling):
+    identity_required (401, realm=issuer, error omitted without a token /
+    error=invalid_token with a bad one, resource_metadata pointer, non-pre-baked
+    continue_url) and insufficient_scope (403, error + FULL required scope set).
+    The UCP message bodies are ORACLE-validated (message_error.json); the order
+    entities behind the gate are ORACLE-validated (order.json)."""
+    st, hdrs, body = server.list_orders({}, BASE)
+    if st != 401:
+        return False, f"gated op without a token must be 401, got {st}"
+    p = _challenge_params(hdrs)
+    if p is None:
+        return False, "401 must carry a WWW-Authenticate: Bearer challenge"
+    if p.get("realm") != BASE:
+        return False, f"realm must equal the issuer URI: {p}"
+    if "error" in p:
+        return False, "error param SHOULD be omitted when no token was presented"
+    if p.get("resource_metadata") != BASE + "/.well-known/oauth-protected-resource":
+        return False, f"resource_metadata must point at the RFC 9728 document: {p}"
+    msgs = body.get("messages") or []
+    if not msgs or msgs[0].get("code") != "identity_required":
+        return False, f"401 body must carry code=identity_required: {msgs}"
+    ok, detail = validate_root(msgs[0], "schemas/shopping/types/message_error.json",
+                               op="get", version=server.VERSION)
+    if not ok:
+        return False, f"identity_required message is not schema-valid: {detail}"
+    cu = body.get("continue_url", "")
+    import urllib.parse
+    cu_qs = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(cu).query))
+    if not cu or {"response_type", "client_id", "code_challenge"} & set(cu_qs):
+        return False, f"continue_url must be a non-pre-baked onboarding URL: {cu}"
+    st, hdrs, _ = server.list_orders({"Authorization": "Bearer bogus_token"}, BASE)
+    p = _challenge_params(hdrs)
+    if st != 401 or not p or p.get("error") != "invalid_token":
+        return False, f"invalid token must yield 401 + error=invalid_token: {st} {p}"
+    # a real order behind the gate: drive create -> complete, then read the history
+    created = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]}, HDRS)[1]
+    server.complete_checkout(created["id"], {"payment": {"instruments": [
+        {"id": "i1", "type": "card",
+         "credential": {"type": "token", "token": "success_token"}}]}}, HDRS)
+    read_tok = _mint_token("dev.ucp.shopping.order:read")
+    st, _, body = server.list_orders(
+        {"Authorization": "Bearer " + read_tok["access_token"]}, BASE)
+    if st != 200 or not body.get("orders"):
+        return False, f"order:read token must unlock the order history: {st}"
+    ok, detail = validate_obj(body["orders"][0], "read")
+    if not ok:
+        return False, f"gated order entity is not schema-valid: {detail}"
+    # insufficient_scope: an order:read-only token on the manage-gated cancel op
+    st, hdrs, body = server.cancel_order(
+        "ord_x", {"Authorization": "Bearer " + read_tok["access_token"]}, BASE)
+    p = _challenge_params(hdrs)
+    if st != 403 or not p or p.get("error") != "insufficient_scope":
+        return False, f"under-scoped token must yield 403 insufficient_scope: {st} {p}"
+    if p.get("realm") != BASE:
+        return False, f"insufficient_scope realm must equal the issuer URI: {p}"
+    if set((p.get("scope") or "").split()) != set(server.ORDER_MANAGE_SCOPES):
+        return False, f"scope param must list the FULL required set: {p}"
+    msgs = body.get("messages") or []
+    if not msgs or msgs[0].get("code") != "insufficient_scope":
+        return False, f"403 body must carry code=insufficient_scope: {msgs}"
+    ok, detail = validate_root(msgs[0], "schemas/shopping/types/message_error.json",
+                               op="get", version=server.VERSION)
+    if not ok:
+        return False, f"insufficient_scope message is not schema-valid: {detail}"
+    # revocation: revoking the refresh_token invalidates its access tokens too
+    st, _, _ = server.oauth_revoke({"token": read_tok["refresh_token"],
+                                    "client_id": OAUTH_PUB}, {}, BASE)
+    if st != 200:
+        return False, f"revocation must return 200: {st}"
+    st, hdrs, _ = server.list_orders(
+        {"Authorization": "Bearer " + read_tok["access_token"]}, BASE)
+    p = _challenge_params(hdrs)
+    if st != 401 or not p or p.get("error") != "invalid_token":
+        return False, "revoking the refresh_token must invalidate its access tokens"
+    st, _, err = server.oauth_token(
+        {"grant_type": "refresh_token", "refresh_token": read_tok["refresh_token"],
+         "client_id": OAUTH_PUB}, {}, BASE)
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"a revoked refresh_token must be invalid_grant: {st} {err}"
+    st, _, _ = server.oauth_revoke({"token": "never_issued",
+                                    "client_id": OAUTH_PUB}, {}, BASE)
+    if st != 200:
+        return False, f"revoking an unknown token must still be 200 (RFC 7009 §2.2): {st}"
+    return True, "ok"
+
+def _oauth_resource_metadata():
+    """RFC 9728 protected resource metadata invariants + consistency with the AS."""
+    md = server.oauth_protected_resource_metadata(BASE)
+    if md.get("resource") != BASE or md.get("authorization_servers") != [BASE]:
+        return False, f"resource/authorization_servers must be the business base: {md}"
+    if set(md.get("scopes_supported") or []) != set(server.IDENTITY_SCOPES):
+        return False, "protected-resource scopes must match the identity scopes"
+    return True, "ok"
+
+def _oauth_01era():
+    """The 01-era identity-linking business MUSTs (identity-linking.md@2026-01-23,
+    textually identical at 2026-01-11): RFC 8414 metadata, Client Authentication
+    enforced at the token endpoint (HTTP Basic / client_secret_basic), the standard
+    scope ucp:scopes:checkout_session granted, RFC 7009 revocation with the same
+    client credentials. Runs while the fixture serves an 01-era version."""
+    md = server.oauth_authorization_server_metadata(BASE)
+    if md.get("token_endpoint_auth_methods_supported") != ["client_secret_basic"]:
+        return False, f"01-era metadata must advertise client_secret_basic: {md}"
+    if "code_challenge_methods_supported" in md:
+        return False, "01-era metadata predates the PKCE advertisement"
+    if list(server.IDENTITY_SCOPES_01ERA)[0] not in md.get("scopes_supported", []):
+        return False, f"01-era scopes_supported must carry the standard scope: {md}"
+    for f in ("issuer", "authorization_endpoint", "token_endpoint",
+              "revocation_endpoint"):
+        if not md.get(f):
+            return False, f"01-era metadata is missing {f}"
+    scope = list(server.IDENTITY_SCOPES_01ERA)[0]
+    st, hdrs, _, q, v = _authorize(client_id=OAUTH_CONF, scope=scope,
+                                   code_challenge=None, code_challenge_method=None)
+    if st != 302 or not q.get("code"):
+        return False, f"01-era authorize failed: {st} {_qs(hdrs)}"
+    st, _, err = _token(q["code"], None, headers={})    # no client authentication
+    if st != 401 or err.get("error") != "invalid_client":
+        return False, f"unauthenticated token request must be invalid_client: {st} {err}"
+    st, _, err = _token(q["code"], None, headers=_basic(OAUTH_CONF, "wrong"))
+    if st != 401 or err.get("error") != "invalid_client":
+        return False, f"wrong client secret must be invalid_client: {st} {err}"
+    st, _, tok = _token(q["code"], None, headers=_basic(OAUTH_CONF, OAUTH_SECRET))
+    if st != 200 or not tok.get("access_token"):
+        return False, f"01-era Basic-authenticated exchange failed: {st} {tok}"
+    if tok.get("scope") and scope not in tok["scope"].split():
+        return False, f"standard UCP scope was not granted: {tok}"
+    st, _, err = server.oauth_revoke({"token": tok["refresh_token"]}, {}, BASE)
+    if st != 401:
+        return False, "01-era revocation must require the same client credentials"
+    st, _, _ = server.oauth_revoke({"token": tok["refresh_token"]},
+                                   _basic(OAUTH_CONF, OAUTH_SECRET), BASE)
+    if st != 200:
+        return False, f"authenticated revocation must return 200: {st}"
+    st, _, err = server.oauth_token(
+        {"grant_type": "refresh_token", "refresh_token": tok["refresh_token"]},
+        _basic(OAUTH_CONF, OAUTH_SECRET), BASE)
+    if st != 400 or err.get("error") != "invalid_grant":
+        return False, f"a revoked 01-era refresh_token must be invalid_grant: {st} {err}"
+    return True, "ok"
+
 def _cart_artifact():
     """POST /carts behavior (create_cart): a request WITHOUT the mandatory UCP-Agent
     header MUST be rejected 400 (cart-rest.md — CART-024); a well-formed request
@@ -614,6 +888,12 @@ def main():
         # identity-linking (04-08): capability declaration + RFC 8414 metadata
         ("identity_linking capability config", _identity_capability_config),
         ("oauth metadata (RFC 8414)", _oauth_metadata),
+        # OAUTH area: the live authorization-code+PKCE server, gated resources,
+        # and RFC 9728 metadata (rule-checked vs the pinned spec + RFCs; UCP
+        # bodies and gated order entities oracle-validated)
+        ("oauth code flow (RFC 6749/7636)", _oauth_code_flow),
+        ("oauth gated ops (identity challenges)", _oauth_gated),
+        ("oauth protected resource (RFC 9728)", _oauth_resource_metadata),
         ("cart response (UCP-Agent enforced)", _cart_artifact),
         # discovery/negotiation area (04-08): profile hosting policy + the simulated
         # negotiation failures (seeded platform-profile URLs; see server.py)
@@ -651,6 +931,8 @@ def main():
             if ver != "2026-04-08":
                 batch.insert(0, ("profile", lambda: validate_profile(
                     server.profile(BASE), version=server.VERSION, role="business")))
+                # OAUTH area: the 01-era identity-linking business MUSTs
+                batch.append(("oauth 01-era (Basic auth + RFC 7009)", _oauth_01era))
             rows += [(name + tag, *fn()) for name, fn in batch]
     except OracleUnavailable as e:
         print(f"oracle unavailable: {e}", file=sys.stderr); return 2

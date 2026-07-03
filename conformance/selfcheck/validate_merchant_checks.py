@@ -104,6 +104,35 @@ CONTROLLED_CONFIG = {
             "y": "-Ie-pMb2OxUqg4GR_B6wObhra9-fRe5YWzWAAv7dNKk",
             "d": "EymkNYgazGbLoD16l-fw7K-C9WNJEIv4hn_RpRgW5xY"},
     },
+    # OAUTH area (identity-linking): the fixture's registered platform clients and
+    # gated operations (server.py OAUTH_CLIENTS / ORDER_*_SCOPES). TEST credentials,
+    # committed on purpose. A real merchant supplies its own registered client(s)
+    # and the operation(s) its config.scopes gate.
+    "identity": {
+        # public client: token_endpoint_auth 'none' + PKCE S256 (RFC 8252 agent)
+        "client_id": "spck-platform-public",
+        "redirect_uri": "https://platform.spck.dev/oauth/callback",
+        "scopes": ["dev.ucp.shopping.order:read", "dev.ucp.shopping.order:manage"],
+        "public_none": True,                 # metadata advertises 'none' (IDL-023)
+        # confidential client for the client_secret_basic checks (IDL-024/IDL-007@01)
+        "confidential": {"client_id": "spck-platform-confidential",
+                         "client_secret": "spck-confidential-secret-2026"},
+        # registered loopback redirect — the PORT is ignored at match time (IDL-021)
+        "loopback_redirect": "http://127.0.0.1:7777/oauth/cb",
+        # an operation gated by ONE scope (identity_required / access checks) and
+        # one needing TWO scopes with a strict-subset token (insufficient_scope —
+        # proves the challenge lists the FULL set, IDL-047)
+        "gated": {"method": "GET", "path": "/orders",
+                  "scopes": ["dev.ucp.shopping.order:read"]},
+        "gated_multi": {"method": "POST", "path": "/orders/ord_probe/cancel",
+                        "scopes": ["dev.ucp.shopping.order:read",
+                                   "dev.ucp.shopping.order:manage"],
+                        "have_scopes": ["dev.ucp.shopping.order:read"]},
+        "continue_url": True,        # 401 bodies carry an onboarding continue_url
+        "resource_metadata": True,   # challenges carry resource_metadata (RFC 9728)
+        # 01-era (2026-01-11/01-23) standard scope vocabulary
+        "scope_01era": "ucp:scopes:checkout_session",
+    },
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
