@@ -209,8 +209,8 @@ def export_json():
                           "requirement": r.get("requirement", ""),
                           "source": r.get("source", ""),
                           "covered_by": covmap[ver].get(rid, []),
-                          **({"exempt_reason": exempt[rid].get("reason", "")}
-                             if status == "exempt" and isinstance(exempt.get(rid), dict) else {})})
+                          **({"exempt_reason": exempt_reason_at(exempt, rid, ver)}
+                             if status == "exempt" else {})})
         n = len(rows)
         out["versions"][ver] = {
             "musts": n, "check": n_check, "exempt": n_exempt,
@@ -230,22 +230,47 @@ def load_exemptions():
     return json.load(open(EXEMPT_FILE))
 
 
+def _entry_exempts_at(entry, ver):
+    """True when a single exemption entry (a {class,reason,versions?} dict) applies
+    at `ver`. A scoped entry (with `versions`) applies only in its listed versions;
+    an unscoped entry applies at every version where the id is a MUST row."""
+    if isinstance(entry, dict) and entry.get("versions") is not None:
+        return ver in entry["versions"]
+    return True
+
+
 def exempt_at(exempt, rid, ver):
     """True when `rid` is exempt AT `ver`.
 
+    An id's value is EITHER a single entry dict OR a LIST of scoped entries. The
+    list form is needed because the 2026-04-08 registers RENUMBERED ids, so one id
+    can name an irreducibly-manual MUST of one CLASS at one version and an
+    irreducibly-manual MUST of a DIFFERENT class at another (e.g. DISC-006 is
+    spec-authoring @01-era but client-bound @04-08). Each list entry carries its own
+    class/reason/versions and buckets EXEMPT only in its listed versions.
+
     Entries may carry an optional `"versions": ["2026-01-11", ...]` list — needed
-    because the 2026-04-08 registers RENUMBERED ids, so the same id can name an
-    irreducibly-manual MUST at one version and a covered/testable requirement at
-    another. A scoped entry buckets EXEMPT only in its listed versions. An entry
-    WITHOUT the field keeps the original semantics: it applies at every version
-    where the id is a MUST row (matrix only ever buckets MUST/MUST NOT rows, and
-    coverage_gate.py separately forbids exempting a covered id)."""
+    because the same id can name an irreducibly-manual MUST at one version and a
+    covered/testable requirement at another. A scoped entry buckets EXEMPT only in
+    its listed versions. A single entry WITHOUT the field keeps the original
+    semantics: it applies at every version where the id is a MUST row (matrix only
+    ever buckets MUST/MUST NOT rows, and coverage_gate.py separately forbids
+    exempting a covered id)."""
     meta = exempt.get(rid)
     if meta is None:
         return False
-    if isinstance(meta, dict) and meta.get("versions") is not None:
-        return ver in meta["versions"]
-    return True
+    if isinstance(meta, list):
+        return any(_entry_exempts_at(e, ver) for e in meta)
+    return _entry_exempts_at(meta, ver)
+
+
+def exempt_reason_at(exempt, rid, ver):
+    """The written `reason` of the entry that exempts `rid` at `ver` (for the export)."""
+    meta = exempt.get(rid)
+    for e in (meta if isinstance(meta, list) else [meta]):
+        if isinstance(e, dict) and _entry_exempts_at(e, ver):
+            return e.get("reason", "")
+    return ""
 
 
 def account(ver, cov, exempt):

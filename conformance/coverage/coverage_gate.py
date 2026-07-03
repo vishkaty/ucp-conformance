@@ -28,6 +28,11 @@ Three invariants, enforced on every CI run (via run_suite gate `coverage`):
    into a covered version = failure). Unscoped entries keep the original semantics
    (apply wherever the id is a MUST) and are held to the same no-double-booking bar
    across all versions where the id is a MUST row.
+   An id's value may also be a LIST of scoped entries — one id can be irreducibly
+   manual of a DIFFERENT class at different versions (the 04-08 renumbering means
+   e.g. DISC-006 is spec-authoring @01-era but client-bound @04-08). Every entry in
+   a list must be version-scoped and the scopes must be DISJOINT (a version can
+   carry exactly one class); each entry is otherwise held to the same bar above.
 
 Run with --selftest to execute the injection kill-tests for invariant 3 (each
 synthetic defect must be CAUGHT — proves the validator can actually fail).
@@ -62,10 +67,60 @@ EXEMPT_CLASSES = {"real-world-act", "human-perception", "subjective-judgment",
                   "spec-authoring"}
 
 
+def _validate_entry(rid, meta, must_in, covered, require_scope):
+    """Validate ONE exemption entry (a {class,reason,versions?} dict). `must_in` is
+    the list of versions where `rid` is a MUST/MUST NOT row. `require_scope` is True
+    for entries that live inside a multi-entry list (there, an unscoped entry would be
+    ambiguous — which class wins where?). Returns the list of failure strings."""
+    failures = []
+    if not isinstance(meta, dict):
+        failures.append(f"exemption {rid}: entry must be an object, got {type(meta).__name__}")
+        return failures
+    vscope = meta.get("versions")
+    if vscope is None and require_scope:
+        failures.append(f"exemption {rid}: every entry in a multi-class list MUST carry a "
+                        f"`versions` scope (an unscoped entry alongside others is ambiguous)")
+    if vscope is not None:
+        # the version scope itself must be well-formed and real
+        if not isinstance(vscope, list) or not vscope:
+            failures.append(f"exemption {rid}: `versions` must be a non-empty list of spec versions")
+            return failures
+        bogus = [v for v in vscope if v not in matrix.VERSIONS]
+        if bogus:
+            failures.append(f"exemption {rid}: unknown version(s) {bogus} — must be from {matrix.VERSIONS}")
+            return failures
+        if len(set(vscope)) != len(vscope):
+            failures.append(f"exemption {rid}: duplicate versions in scope {vscope}")
+        # over-scoping: at every scoped version the id must be a normative MUST row
+        not_must = [v for v in vscope if v not in must_in]
+        if not_must:
+            failures.append(f"exemption {rid}: scoped to {not_must} where the id is not a "
+                            f"MUST/MUST NOT row (the 04-08 renumbering means that version's "
+                            f"row is a different/absent requirement — narrow the scope)")
+        scope = [v for v in vscope if v in must_in]
+    else:
+        scope = must_in
+    # no double-booking anywhere the entry actually exempts
+    double = [v for v in scope if rid in covered[v]]
+    if double:
+        failures.append(f"exemption {rid}: ALSO covered by a check in {double} "
+                        f"(double-booked — remove the exemption or narrow its `versions`)")
+    if not str(meta.get("reason", "")).strip():
+        failures.append(f"exemption {rid}: missing a written `reason`")
+    if meta.get("class") not in EXEMPT_CLASSES:
+        failures.append(f"exemption {rid}: `class` must be one of {sorted(EXEMPT_CLASSES)}")
+    return failures
+
+
 def validate_exemptions(exempt, must_ids, covered):
     """Invariant-3 validator (pure — also driven by --selftest injections).
 
-    exempt:   {id: {class, reason, versions?}} from exemptions.json
+    exempt:   {id: entry}  where entry is EITHER a {class, reason, versions?} dict
+              OR a LIST of scoped entries (one id can be irreducibly-manual of a
+              DIFFERENT class at different versions — e.g. DISC-006 is spec-authoring
+              @01-era but client-bound @04-08 — which a single class field can't
+              express). List entries must each be version-scoped, and their scopes
+              must be DISJOINT (a version can carry exactly one class).
     must_ids: {version: set(ids that are MUST/MUST NOT rows)}
     covered:  {version: set(ids covered by shipped checks)}
     Returns the list of failure strings (empty = honest)."""
@@ -75,36 +130,22 @@ def validate_exemptions(exempt, must_ids, covered):
         if not must_in:
             failures.append(f"exemption {rid}: not a MUST/MUST NOT register row in ANY version")
             continue
-        vscope = meta.get("versions") if isinstance(meta, dict) else None
-        if vscope is not None:
-            # the version scope itself must be well-formed and real
-            if not isinstance(vscope, list) or not vscope:
-                failures.append(f"exemption {rid}: `versions` must be a non-empty list of spec versions")
+        if isinstance(meta, list):
+            if not meta:
+                failures.append(f"exemption {rid}: multi-class list must be non-empty")
                 continue
-            bogus = [v for v in vscope if v not in matrix.VERSIONS]
-            if bogus:
-                failures.append(f"exemption {rid}: unknown version(s) {bogus} — must be from {matrix.VERSIONS}")
-                continue
-            if len(set(vscope)) != len(vscope):
-                failures.append(f"exemption {rid}: duplicate versions in scope {vscope}")
-            # over-scoping: at every scoped version the id must be a normative MUST row
-            not_must = [v for v in vscope if v not in must_in]
-            if not_must:
-                failures.append(f"exemption {rid}: scoped to {not_must} where the id is not a "
-                                f"MUST/MUST NOT row (the 04-08 renumbering means that version's "
-                                f"row is a different/absent requirement — narrow the scope)")
-            scope = [v for v in vscope if v in must_in]
+            # scopes across list entries must be disjoint — one version, one class
+            seen = {}
+            for e in meta:
+                for v in (e.get("versions") or []) if isinstance(e, dict) else []:
+                    if v in seen:
+                        failures.append(f"exemption {rid}: version {v} is claimed by more than "
+                                        f"one list entry (a version can carry only one class)")
+                    seen[v] = True
+            for e in meta:
+                failures += _validate_entry(rid, e, must_in, covered, require_scope=True)
         else:
-            scope = must_in
-        # no double-booking anywhere the entry actually exempts
-        double = [v for v in scope if rid in covered[v]]
-        if double:
-            failures.append(f"exemption {rid}: ALSO covered by a check in {double} "
-                            f"(double-booked — remove the exemption or narrow its `versions`)")
-        if not (isinstance(meta, dict) and str(meta.get("reason", "")).strip()):
-            failures.append(f"exemption {rid}: missing a written `reason`")
-        if isinstance(meta, dict) and meta.get("class") not in EXEMPT_CLASSES:
-            failures.append(f"exemption {rid}: `class` must be one of {sorted(EXEMPT_CLASSES)}")
+            failures += _validate_entry(rid, meta, must_in, covered, require_scope=False)
     return failures
 
 
@@ -138,12 +179,37 @@ def selftest():
          {"AAA-001": {"class": "client-bound", "reason": "x", "versions": [V1, V1]}}, True),
         ("scoped entry missing reason",
          {"AAA-003": {"class": "client-bound", "versions": [V1]}}, True),
+        # --- multi-class LIST schema (one id, different class per version) ---
+        ("list: empty list", {"AAA-003": []}, True),
+        ("list: entry missing a versions scope (ambiguous)",
+         {"AAA-003": [{"class": "client-bound", "reason": "x"}]}, True),
+        ("list: entry with a versions scope and a bare entry mixed",
+         {"AAA-003": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                      {"class": "spec-authoring", "reason": "y"}]}, True),
+        ("list: overlapping scopes (a version claimed by two classes)",
+         {"AAA-003": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                      {"class": "spec-authoring", "reason": "y", "versions": [V1, V2]}]}, True),
+        ("list: an entry over-scoped to a non-MUST version",
+         {"AAA-001": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                      {"class": "spec-authoring", "reason": "y", "versions": [V3]}]}, True),
+        ("list: an entry scoped into the covered version",
+         {"AAA-002": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                      {"class": "spec-authoring", "reason": "y", "versions": [V3]}]}, True),
+        ("list: an entry with a bogus class",
+         {"AAA-003": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                      {"class": "too-hard", "reason": "y", "versions": [V2]}]}, True),
+        ("list: an entry with an empty reason",
+         {"AAA-003": [{"class": "client-bound", "reason": "  ", "versions": [V1]},
+                      {"class": "spec-authoring", "reason": "y", "versions": [V2]}]}, True),
         # honest entries must PASS
         ("honest unscoped entry", {"AAA-001": {"class": "client-bound", "reason": "x"}}, False),
         ("honest scope avoiding the covered version",
          {"AAA-002": {"class": "client-bound", "reason": "x", "versions": [V1, V2]}}, False),
         ("honest full scope on an uncovered id",
          {"AAA-003": {"class": "spec-authoring", "reason": "x", "versions": [V1, V2, V3]}}, False),
+        ("honest two-class list with disjoint scopes",
+         {"AAA-003": [{"class": "client-bound", "reason": "x", "versions": [V1, V2]},
+                      {"class": "spec-authoring", "reason": "y", "versions": [V3]}]}, False),
     ]
     bad = 0
     for name, entry, must_fail in cases:
@@ -162,6 +228,16 @@ def selftest():
            and not matrix.exempt_at(ex, "AAA-004", V2))
     print(f"  {'✓' if sem else '✗'} matrix.exempt_at scope semantics")
     bad += 0 if sem else 1
+    # matrix-side LIST semantics: each entry buckets only in its own scope
+    lst = {"AAA-003": [{"class": "client-bound", "reason": "x", "versions": [V1]},
+                       {"class": "spec-authoring", "reason": "y", "versions": [V2]}]}
+    sem_list = (matrix.exempt_at(lst, "AAA-003", V1)
+                and matrix.exempt_at(lst, "AAA-003", V2)
+                and not matrix.exempt_at(lst, "AAA-003", V3)
+                and matrix.exempt_reason_at(lst, "AAA-003", V1) == "x"
+                and matrix.exempt_reason_at(lst, "AAA-003", V2) == "y")
+    print(f"  {'✓' if sem_list else '✗'} matrix.exempt_at/exempt_reason_at list semantics")
+    bad += 0 if sem_list else 1
     print(f"\ncoverage gate selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
