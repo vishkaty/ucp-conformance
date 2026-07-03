@@ -1190,10 +1190,19 @@ def all_checks():
     """The full check set: the version-adaptive core plus version-scoped extensions.
     Imported lazily to avoid a circular import (the version-scoped modules pull
     MCheck/_hdr from this module at their top level)."""
-    from merchant_checks_01_23 import CHECKS_01_23
-    from merchant_checks_04_08 import CHECKS_04_08
+    import glob as _glob, importlib as _importlib, os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    out = list(CHECKS)
+    # auto-discover version-scoped sibling modules (merchant_checks_<ver>[_area].py):
+    # each exports one or more CHECKS_* lists of MChecks. Discovery keeps parallel
+    # area work additive — a new area module needs no wiring edits here.
+    for f in sorted(_glob.glob(_os.path.join(here, "merchant_checks_*.py"))):
+        mod = _importlib.import_module(_os.path.splitext(_os.path.basename(f))[0])
+        for attr in sorted(dir(mod)):
+            if attr.startswith("CHECKS"):
+                out += list(getattr(mod, attr))
     from tls_check_01_11_01_23 import CHECKS_TLS
-    return CHECKS + CHECKS_01_23 + CHECKS_04_08 + CHECKS_TLS
+    return out + CHECKS_TLS
 
 def run_merchant_checks(ctx, checks=None):
     if checks is None:

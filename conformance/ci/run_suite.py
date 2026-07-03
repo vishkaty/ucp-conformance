@@ -49,7 +49,7 @@ def gates(server):
         ("fixture",     _py(FIXTURE / "selfcheck.py"),                          None, (2,)),
         ("wrapper",     _py(SELF / "test_wrapper.py"),                          None, (2,)),
         ("schema-01-23", _py(CHK / "schema_check_01_23.py"),                    None, (2,)),
-        ("schema-04-08", _py(CHK / "schema_check_04_08.py"),                    None, (2,)),
+        ("schema-04-08", _py(CHK / "run_schema_04_08.py"),                      None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",

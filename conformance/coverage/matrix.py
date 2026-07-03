@@ -89,8 +89,13 @@ def _module_checks(path):
     stem = os.path.splitext(os.path.basename(path))[0]
     try:
         mod = importlib.import_module(stem)
-        checks = list(getattr(mod, "CHECKS", []) or [])
-        checks += list(getattr(mod, "RESOLVE_CHECKS", []) or [])   # resolver-level checks
+        checks = []
+        # every CHECKS* list (CHECKS, CHECKS_01_23, CHECKS_04_08, per-area exports)
+        # plus RESOLVE_CHECKS* (resolver-level checks) — additive by convention so
+        # parallel area modules attribute without central wiring
+        for attr in sorted(dir(mod)):
+            if attr.startswith("CHECKS") or attr.startswith("RESOLVE_CHECKS"):
+                checks += list(getattr(mod, attr) or [])
         return (checks or None), mod
     except Exception as e:
         print(f"(matrix: {stem} not importable — text-scan fallback: {e})", file=sys.stderr)
