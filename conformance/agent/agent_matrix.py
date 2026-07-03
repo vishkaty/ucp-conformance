@@ -28,6 +28,13 @@ VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
 
+# Obligations that bind the platform/agent AS A VERIFIER of business RESPONSES. The
+# subject heuristic misses these (they read "Verification must…" / "All implementations
+# MUST support verifying…" with no platform keyword), but a UCP client receiving signed
+# responses IS the verifying party — so they belong on the agent axis too (they can also
+# be merchant obligations for request verification — shared, different axes).
+AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036"}
+
 
 def _client_bound_ids():
     if not os.path.exists(EXEMPT):
@@ -52,7 +59,7 @@ def agent_rows(ver):
             if r.get("keyword") not in ("MUST", "MUST NOT"):
                 continue
             text = (r.get("requirement", "") + " " + r.get("quote", "")).lower()
-            if any(w in text for w in AGENT_WORDS) or r["id"] in cb:
+            if any(w in text for w in AGENT_WORDS) or r["id"] in cb or r["id"] in AGENT_EXTRA:
                 ids.add(r["id"])
     return ids
 

@@ -24,6 +24,19 @@
      "CHK-008"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B3-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read signatures.md + ap2-mandates.md + the crypto",
+   "spec_reverified": true,
+   "notes": "agent.verifies_business_signature: sandbox signs RFC 9421 responses (bad_signature scenario corrupts the Signature); the reference agent verifies via common/crypto.verify_response and rejects. Independent review REFUTED the original PAY-036 citation (that is the AP2 merchant_authorization JWS/JCS mandate signature, a DIFFERENT mechanism \u2014 JCS-canonicalized, body-embedded, AP2-gated) and confirmed the correct rows: SIG-036 (signatures.md L404: 'Verification must reconstruct the signature base and reject with signature_invalid if ECDSA verification fails'; L444 mirrors for responses) + SIG-002 (L90: 'All implementations MUST support verifying ES256'). Fixed before locking. Crypto anchored by crypto-interop (common/crypto == fixture's openssl-cross-anchored ES256). Kill-safe: skip_sig_verify -> agent accepts the invalid signature -> DEVIATION.",
+   "ids": {
+    "2026-04-08": [
+     "SIG-036",
+     "SIG-002"
+    ]
+   }
   }
  ]
 }

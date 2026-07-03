@@ -14,10 +14,10 @@
   "accounted_pct": 0
  },
  "2026-04-08": {
-  "agent_musts": 95,
-  "check": 2,
+  "agent_musts": 98,
+  "check": 4,
   "exempt": 0,
-  "gap": 93,
-  "accounted_pct": 2
+  "gap": 94,
+  "accounted_pct": 4
  }
 }

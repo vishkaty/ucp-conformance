@@ -15,11 +15,18 @@ hosted verification later.
 Conformant by default; adversarial behaviors are triggered by explicit inputs (e.g. the
 `escalate_token` in a completion payment), so the default surface stays clean.
 """
-import json, threading, uuid
+import base64, json, os, sys, threading, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from contextlib import contextmanager
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common import crypto   # noqa: E402
+
 ESCALATE_TOKEN = "escalate_token"
+
+# the sandbox's own RFC 9421 response-signing key (published in its profile)
+SIG_KID = "spck-sandbox-sig-2026"
+_SIG_D, _SIG_Q = crypto.keypair(b"spck-agent-sandbox-signing-key-2026")
 
 
 def _payment_tokens(body):
@@ -36,6 +43,15 @@ class _Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        # RFC 9421 response signing (signatures.md). In the "bad_signature" scenario the
+        # Signature is corrupted so a conformant agent MUST reject the response.
+        sig = crypto.sign_response_headers(code, body, _SIG_D, SIG_KID)
+        if self.server.scenario == "bad_signature":
+            raw = base64.b64decode(sig["Signature"].split(":", 1)[1].rsplit(":", 1)[0])
+            tampered = bytes([raw[0] ^ 0xFF]) + raw[1:]
+            sig["Signature"] = "sig1=:" + base64.b64encode(tampered).decode() + ":"
+        for hn, hv in sig.items():
+            self.send_header(hn, hv)
         self.end_headers()
         self.wfile.write(body)
 
@@ -55,6 +71,7 @@ class _Handler(BaseHTTPRequestHandler):
             base = self._base()
             return self._send(200, {"ucp": {
                 "version": "2026-04-08", "status": "ok",
+                "signing_keys": [crypto.jwk_from_pub(SIG_KID, _SIG_Q)],
                 "services": {"dev.ucp.shopping": [
                     {"transport": "rest", "endpoint": base}]},
                 "capabilities": {"dev.ucp.shopping.checkout": [{}]}}})
@@ -89,12 +106,14 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 @contextmanager
-def serve():
-    """Boot the sandbox on an ephemeral port; yield (base_url, server). `server.observed`
-    records what the agent did (from the SERVER side, complementary to the agent log)."""
+def serve(scenario="conformant"):
+    """Boot the sandbox on an ephemeral port; yield (base_url, server). `scenario` selects
+    the stimulus: "conformant" (default) or "bad_signature" (responses carry an invalid
+    RFC 9421 signature, which a conformant agent MUST reject)."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}
+    httpd.scenario = scenario
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()
     try:

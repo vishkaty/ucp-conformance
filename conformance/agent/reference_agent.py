@@ -15,7 +15,10 @@ are Phase B — each added as a method + a matching defect.
 
 Stdlib only. This same client hardens into the real "find & buy" agent in Phase B'.
 """
-import json, urllib.request, urllib.error, uuid
+import json, os, sys, urllib.request, urllib.error, uuid
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common import crypto   # noqa: E402
 
 # The catalogue of injectable client-side defects (grows with coverage). Each becomes the
 # `kill_mutation` a Phase-B agent check must catch.
@@ -23,7 +26,8 @@ DEFECTS = {
     None: "conformant reference agent (no defect)",
     "no_ucp_agent": "omit the required UCP-Agent header",
     "ignore_escalation": "do NOT follow continue_url on requires_escalation",
-    # Phase B.3: "skip_sig_verify", "skip_iss_validation", "reuse_pkce", ...
+    "skip_sig_verify": "do NOT verify the business's RFC 9421 response signature",
+    # Phase B.4: "skip_iss_validation", "reuse_pkce", ...
 }
 
 
@@ -34,7 +38,8 @@ class ReferenceAgent:
         assert defect in DEFECTS, f"unknown defect {defect!r}"
         self.server = server.rstrip("/")
         self.defect = defect
-        self.log = []          # [{op, request:{method,path,headers,body}, response:{...}}]
+        self.log = []          # [{op, request:{...}, response:{...}, sig_verified?, rejected?}]
+        self.jwks = []         # business signing keys, learned at discovery
 
     # --- client obligations (each maps to agent-side spec rows) ---
     def _headers(self, idem=None):
@@ -56,9 +61,13 @@ class ReferenceAgent:
                                        "body": body}}
         try:
             with urllib.request.urlopen(req, timeout=10) as r:
-                entry["response"] = {"status": r.status,
-                                     "headers": {k.lower(): v for k, v in r.headers.items()},
-                                     "body": json.loads(r.read().decode("utf-8", "replace"))}
+                raw = r.read()
+                rhdrs = {k: v for k, v in r.headers.items()}
+                entry["response"] = {
+                    "status": r.status,
+                    "headers": {k.lower(): v for k, v in rhdrs.items()},
+                    "body": json.loads(raw.decode("utf-8", "replace") or "null")}
+                self._verify_sig(entry, r.status, raw, rhdrs)
         except urllib.error.HTTPError as e:
             entry["response"] = {"status": e.code, "body": None, "error": True}
         except Exception as e:
@@ -66,8 +75,23 @@ class ReferenceAgent:
         self.log.append(entry)
         return entry["response"]
 
+    def _verify_sig(self, entry, status, raw, rhdrs):
+        """SIG-002/SIG-036: an implementation MUST verify RFC 9421 (ES256) response
+        signatures and reject with signature_invalid when ECDSA verification fails. A
+        conformant agent rejects a response whose signature is missing/invalid. The
+        skip_sig_verify defect omits this check entirely."""
+        if entry["op"] == "discover" or self.defect == "skip_sig_verify" or not self.jwks:
+            return
+        ok, reason = crypto.verify_response(status, raw, rhdrs, self.jwks)
+        entry["sig_verified"] = ok
+        entry["sig_reason"] = reason
+        if not ok:
+            entry["rejected"] = True     # abort on a bad business signature
+
     def discover(self):
-        return self._send("discover", "GET", "/.well-known/ucp")
+        r = self._send("discover", "GET", "/.well-known/ucp")
+        self.jwks = ((r.get("body") or {}).get("ucp") or {}).get("signing_keys") or []
+        return r
 
     def create_checkout(self, product_id="teapot_ceramic"):
         body = {"id": str(uuid.uuid4()), "currency": "USD",
@@ -103,6 +127,8 @@ class ReferenceAgent:
         escalation); return the session log for grading."""
         self.discover()
         c = self.create_checkout(product_id)
+        if self.log[-1].get("rejected"):   # rejected a bad business signature -> stop here
+            return self.log
         sid = (c.get("body") or {}).get("id")
         if sid:
             resp = self.complete(sid)

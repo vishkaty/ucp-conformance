@@ -22,41 +22,45 @@ import agent_checks   # noqa: E402
 import sandbox   # noqa: E402
 
 
-def reference_gate(base):
-    """Every ACheck must PASS on the clean reference agent and FAIL on its kill_mutation,
-    both shopping against the adversarial `base` sandbox."""
-    clean_log = ReferenceAgent(base).run_flow()
-    results, unsound = [], []
+def reference_gate():
+    """Every ACheck must PASS on the clean reference agent and FAIL on its kill_mutation.
+    Checks are grouped by their `scenario`; one sandbox is booted per scenario (conformant,
+    bad_signature, ...) and the reference agent shops against it."""
+    from collections import defaultdict
+    by_scenario = defaultdict(list)
     for chk in agent_checks.CHECKS:
-        on_clean = chk.predicate(clean_log)
-        mut_log = ReferenceAgent(base, defect=chk.kill_mutation).run_flow()
-        on_mut = chk.predicate(mut_log)
-        sound = (on_clean == agent_checks.CLEAN) and (on_mut == agent_checks.DEVIATION)
-        results.append({"id": chk.id, "req_ids": chk.req_ids, "clean": on_clean,
-                        "mutant": on_mut, "kill_mutation": chk.kill_mutation, "sound": sound})
-        if not sound:
-            unsound.append(chk.id)
-    return results, unsound
+        by_scenario[chk.scenario].append(chk)
+    results, unsound, ref_ops = [], [], 0
+    for scenario in sorted(by_scenario):
+        with sandbox.serve(scenario=scenario) as (base, _srv):
+            clean_log = ReferenceAgent(base).run_flow()
+            if scenario == "conformant":
+                ref_ops = len(clean_log)
+            for chk in by_scenario[scenario]:
+                on_clean = chk.predicate(clean_log)
+                mut_log = ReferenceAgent(base, defect=chk.kill_mutation).run_flow()
+                on_mut = chk.predicate(mut_log)
+                sound = (on_clean == agent_checks.CLEAN) and (on_mut == agent_checks.DEVIATION)
+                results.append({"id": chk.id, "req_ids": chk.req_ids, "scenario": scenario,
+                                "clean": on_clean, "mutant": on_mut,
+                                "kill_mutation": chk.kill_mutation, "sound": sound})
+                if not sound:
+                    unsound.append(chk.id)
+    return results, unsound, ref_ops
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--server", default=None,
-                    help="external merchant to shop against (default: in-process sandbox)")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    # The agent lane is self-contained: it boots its own adversarial sandbox (the agent's
-    # golden merchant) in-process, so it's hermetic and never depends on the merchant fixture.
-    if args.server:
-        log = ReferenceAgent(args.server).run_flow()
+    # The agent lane is self-contained: it boots its own adversarial sandbox(es) in-process,
+    # so it's hermetic and never depends on the merchant fixture.
+    with sandbox.serve() as (base, _srv):
+        log = ReferenceAgent(base).run_flow()      # conformant sanity flow
         booted = all(e["response"]["status"] in (200, 201) for e in log)
-        results, unsound = reference_gate(args.server)
-    else:
-        with sandbox.serve() as (base, _srv):
-            log = ReferenceAgent(base).run_flow()
-            booted = all(e["response"]["status"] in (200, 201) for e in log)
-            results, unsound = reference_gate(base)
+    results, unsound, ref_ops = reference_gate()
+    ref_ops = ref_ops or len(log)
 
     if args.json:
         print(json.dumps({"agent_checks": len(agent_checks.CHECKS), "reference_flow_ops": len(log),

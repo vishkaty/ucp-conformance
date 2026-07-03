@@ -24,7 +24,7 @@ DEVIATION = "DEVIATION"
 
 class ACheck:
     def __init__(self, cid, req_ids, keyword, predicate, kill_mutation,
-                 versions=None, capability=None, needs=()):
+                 versions=None, capability=None, needs=(), scenario="conformant"):
         self.id = cid
         self.req_ids = list(req_ids)
         self.keyword = keyword
@@ -33,6 +33,9 @@ class ACheck:
         self.versions = tuple(versions) if versions else None
         self.capability = capability
         self.needs = tuple(needs)
+        # which sandbox stimulus the reference agent runs against ("conformant" |
+        # "bad_signature" | ...). The reference-gate boots one sandbox per scenario.
+        self.scenario = scenario
 
 
 # ---- P0 predicates (each asserts on the agent's session log) ----------------
@@ -68,9 +71,25 @@ def p_follows_escalation(log):
     return CLEAN if followed else DEVIATION
 
 
+def p_verifies_business_signature(log):
+    """SIG-036: a verifier MUST reconstruct the signature base and reject with
+    signature_invalid if ECDSA verification fails. The platform/agent is the verifier of
+    the business's RFC 9421 response signatures (SIG-001/002). Run against the
+    bad_signature sandbox, a conformant agent detects the invalid signature and rejects
+    (does not proceed) — we require an API response flagged sig_verified=False AND
+    rejected."""
+    for e in log:
+        if e["op"] != "discover" and e.get("sig_verified") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
     ACheck("agent.follows_escalation", ["CHK-008"], "MUST",
            p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
+    ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
+           p_verifies_business_signature, kill_mutation="skip_sig_verify",
+           versions=["2026-04-08"], scenario="bad_signature"),
 ]
