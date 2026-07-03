@@ -1,0 +1,4 @@
+{
+  "_about": "Documented, reviewed exceptions for the differential gate (differential.py). Each entry silences ONE (target, check) deviation because the independent target is KNOWN to legitimately deviate on that point — e.g. a real, reported bug in that target, or a capability the target implements to an older pinned version. An entry needs the target name, the check id, and a substantive reason (with a link/citation where possible). This exists so a genuine target bug can never silently mask one of OUR check bugs: every deviation is either resolved (fix the check or the target) or explained here. An empty allow list is the healthy default — it means every check agrees with every independent conformant target we test.",
+  "allow": []
+}

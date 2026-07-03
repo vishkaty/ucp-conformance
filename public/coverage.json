@@ -8,14 +8,14 @@
  },
  "versions": {
   "2026-01-11": {
-   "musts": 172,
+   "musts": 178,
    "check": 117,
-   "exempt": 34,
-   "gap": 21,
-   "accounted_pct": 88,
+   "exempt": 38,
+   "gap": 23,
+   "accounted_pct": 87,
    "gap_by_testability": {
     "manual": 2,
-    "needs-receiver": 19
+    "needs-receiver": 21
    },
    "areas": [
     {
@@ -64,15 +64,37 @@
      "musts": 18
     },
     {
+     "area": "overview",
+     "exempt": 1,
+     "musts": 1
+    },
+    {
      "area": "payment",
      "check": 13,
-     "exempt": 9,
+     "exempt": 11,
      "gap": 11,
      "gap_needs-receiver": 11,
-     "musts": 33
+     "musts": 35
+    },
+    {
+     "area": "transports",
+     "exempt": 1,
+     "gap": 2,
+     "gap_needs-receiver": 2,
+     "musts": 3
     }
    ],
    "rows": [
+    {
+     "id": "A2A-001",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
+     "source": "ucp:docs/specification/checkout-a2a.md#L141",
+     "covered_by": []
+    },
     {
      "id": "CHK-001",
      "area": "checkout-lifecycle",
@@ -1136,6 +1158,27 @@
      ]
     },
     {
+     "id": "MCP-001",
+     "area": "transports",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
+     "source": "ucp:docs/specification/checkout-mcp.md#L95",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` pa \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "MCP-002",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, handle errors with UCP-specific codes embedded in the JSON-RPC error object, validate tool inputs against schemas, and support HTTP streaming",
+     "source": "ucp:docs/specification/checkout-mcp.md#L597",
+     "covered_by": []
+    },
+    {
      "id": "NEG-001",
      "area": "discovery-negotiation",
      "keyword": "MUST",
@@ -1554,6 +1597,17 @@
      "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
+     "id": "OVR-001",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines",
+     "source": "ucp:docs/specification/overview.md#L1004",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
      "id": "PAY-001",
      "area": "payment",
      "keyword": "MUST",
@@ -1920,6 +1974,28 @@
      ]
     },
     {
+     "id": "PAY-036",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L97",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-037",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic channels.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L300",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
      "id": "SEC-001",
      "area": "errors-validation-security",
      "keyword": "MUST",
@@ -2079,14 +2155,14 @@
    ]
   },
   "2026-01-23": {
-   "musts": 181,
+   "musts": 188,
    "check": 125,
-   "exempt": 35,
-   "gap": 21,
-   "accounted_pct": 88,
+   "exempt": 39,
+   "gap": 24,
+   "accounted_pct": 87,
    "gap_by_testability": {
     "manual": 2,
-    "needs-receiver": 19
+    "needs-receiver": 22
    },
    "areas": [
     {
@@ -2135,15 +2211,37 @@
      "musts": 18
     },
     {
+     "area": "overview",
+     "exempt": 1,
+     "musts": 1
+    },
+    {
      "area": "payment",
      "check": 15,
-     "exempt": 9,
+     "exempt": 11,
      "gap": 11,
      "gap_needs-receiver": 11,
-     "musts": 35
+     "musts": 37
+    },
+    {
+     "area": "transports",
+     "exempt": 1,
+     "gap": 3,
+     "gap_needs-receiver": 3,
+     "musts": 4
     }
    ],
    "rows": [
+    {
+     "id": "A2A-001",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
+     "source": "ucp:docs/specification/checkout-a2a.md#L143",
+     "covered_by": []
+    },
     {
      "id": "CHK-001",
      "area": "checkout-lifecycle",
@@ -3289,6 +3387,37 @@
      ]
     },
     {
+     "id": "MCP-001",
+     "area": "transports",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
+     "source": "ucp:docs/specification/checkout-mcp.md#L117",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` pa \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "MCP-002",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, handle errors with UCP-specific codes embedded in the JSON-RPC error object, validate tool inputs against schemas, and support HTTP streaming",
+     "source": "ucp:docs/specification/checkout-mcp.md#L601",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-003",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "MCP transport MUST expose UCP OpenRPC operations via JSON-RPC tools/call, mapping method->params.name and params->params.arguments",
+     "source": "ucp:docs/specification/checkout-mcp.md#L615",
+     "covered_by": []
+    },
+    {
      "id": "NEG-001",
      "area": "discovery-negotiation",
      "keyword": "MUST",
@@ -3718,6 +3847,17 @@
      "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
+     "id": "OVR-001",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines",
+     "source": "ucp:docs/specification/overview.md#L1085",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
      "id": "PAY-001",
      "area": "payment",
      "keyword": "MUST",
@@ -4108,6 +4248,28 @@
      ]
     },
     {
+     "id": "PAY-037",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L100",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-038",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic channels.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L305",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic  \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
      "id": "SEC-001",
      "area": "errors-validation-security",
      "keyword": "MUST",
@@ -4270,15 +4432,15 @@
    ]
   },
   "2026-04-08": {
-   "musts": 323,
+   "musts": 364,
    "check": 228,
-   "exempt": 74,
-   "gap": 21,
-   "accounted_pct": 93,
+   "exempt": 81,
+   "gap": 55,
+   "accounted_pct": 85,
    "gap_by_testability": {
-    "manual": 4,
-    "needs-oauth": 1,
-    "needs-receiver": 16
+    "manual": 7,
+    "needs-oauth": 3,
+    "needs-receiver": 45
    },
    "areas": [
     {
@@ -4339,9 +4501,10 @@
      "area": "identity-linking",
      "check": 33,
      "exempt": 21,
-     "gap": 1,
-     "gap_needs-oauth": 1,
-     "musts": 55
+     "gap": 3,
+     "gap_manual": 1,
+     "gap_needs-oauth": 2,
+     "musts": 57
     },
     {
      "area": "order",
@@ -4350,12 +4513,21 @@
      "musts": 25
     },
     {
+     "area": "overview",
+     "exempt": 2,
+     "gap": 11,
+     "gap_manual": 2,
+     "gap_needs-oauth": 1,
+     "gap_needs-receiver": 8,
+     "musts": 13
+    },
+    {
      "area": "payment",
      "check": 16,
-     "exempt": 9,
-     "gap": 2,
-     "gap_needs-receiver": 2,
-     "musts": 27
+     "exempt": 13,
+     "gap": 15,
+     "gap_needs-receiver": 15,
+     "musts": 44
     },
     {
      "area": "signals-attribution-eligibility",
@@ -4369,9 +4541,9 @@
      "area": "signatures",
      "check": 23,
      "exempt": 2,
-     "gap": 6,
-     "gap_needs-receiver": 6,
-     "musts": 31
+     "gap": 8,
+     "gap_needs-receiver": 8,
+     "musts": 33
     },
     {
      "area": "totals",
@@ -4380,12 +4552,29 @@
      "musts": 14
     },
     {
+     "area": "transports",
+     "exempt": 1,
+     "gap": 6,
+     "gap_needs-receiver": 6,
+     "musts": 7
+    },
+    {
      "area": "version-negotiation-and-protocol-errors",
      "check": 5,
      "musts": 5
     }
    ],
    "rows": [
+    {
+     "id": "A2A-001",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
+     "source": "ucp:docs/specification/checkout-a2a.md#L144",
+     "covered_by": []
+    },
     {
      "id": "CART-001",
      "area": "cart",
@@ -6811,6 +7000,87 @@
      ]
     },
     {
+     "id": "IDL-061",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "The `issuer` value in RFC 8414 metadata and the `iss` parameter returned in authorization responses MUST be identical byte-for-byte; platforms MUST NOT normalize (e.g. strip trailing slashes) before comparison.",
+     "source": "ucp:docs/specification/identity-linking.md#L604-L607",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-062",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "In the OIDC Discovery fallback (step 2, reached after RFC 8414 discovery in step 1 returns 404), if the {business-domain}/.well-known/openid-configuration fetch returns any non-2xx response, network error, or timeout, the platform MUST abort the identity linking process.",
+     "source": "ucp:docs/specification/identity-linking.md#L246",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-001",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "When the catalog Lookup capability is advertised, the MCP endpoint MUST expose both `lookup_catalog` and `get_product` tools",
+     "source": "ucp:docs/specification/catalog/mcp.md#L693",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-002",
+     "area": "transports",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
+     "source": "ucp:docs/specification/checkout-mcp.md#L120",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` pa \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "MCP-003",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, return errors per core spec, return business outcomes as JSON-RPC result with UCP envelope and messages array, validate tool inputs against schemas, and support HTTP streaming",
+     "source": "ucp:docs/specification/checkout-mcp.md#L783",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-004",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "MCP transport MUST expose UCP OpenRPC operations via JSON-RPC tools/call, mapping method->params.name and params->params.arguments",
+     "source": "ucp:docs/specification/checkout-mcp.md#L804",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-005",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A business implementing the MCP order binding MUST implement the `get_order` tool per the OpenRPC schema",
+     "source": "ucp:docs/specification/order-mcp.md#L292",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-006",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming catalog MCP transport implementation MUST implement JSON-RPC 2.0 correctly, validate tool inputs against UCP schemas, support cursor-based pagination with a default limit of 10, and return -32602 (Invalid params) for requests exceeding batch size limits (the catalog MCP conformance list beyond the Lookup-tool exposure that MCP-001 covers).",
+     "source": "ucp:docs/specification/catalog/mcp.md#L690",
+     "covered_by": []
+    },
+    {
      "id": "NEG-001",
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
@@ -7168,6 +7438,138 @@
      "exempt_reason": "'After verifying the signature, the platform MUST confirm the signer is authorized to send events for the referenced order (profile matches order's business; reject otherwise)' (order.md L512, Webhook Signature Verification) is receiver-side authorization conduct, not a business obligation observable on the merchant. Same subject-binding as ORD-032; the 01-era twin is ORD-019."
     },
     {
+     "id": "OVR-001",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "All capability and service names advertised in a profile MUST use the reverse-domain format {reverse-domain}.{service}.{capability}",
+     "source": "ucp:docs/specification/overview.md#L59",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-003",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The origin of each capability's spec/schema URL MUST match the namespace authority derived from its reverse-domain name",
+     "source": "ucp:docs/specification/overview.md#L83",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-004",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Businesses MUST include the ucp field in every response, containing the processing version and the array of active capabilities",
+     "source": "ucp:docs/specification/overview.md#L641",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-005",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In ucp.capabilities the business MUST include only capabilities that are (1) in the negotiated intersection and (2) relevant to this response's operation type",
+     "source": "ucp:docs/specification/overview.md#L950",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-006",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Verifiers MUST ensure the authenticated identity is consistent with the UCP-Agent profile, and (for API key/OAuth/mTLS) MUST confirm the authenticated principal is authorized to act on behalf of that profile, rejecting requests where identity and claimed profile conflict",
+     "source": "ucp:docs/specification/overview.md#L1014",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-007",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "On signature-verification failure with an unknown kid, an implementation that force-refreshes the cached platform profile MUST NOT do so more than once per TTL floor per origin",
+     "source": "ucp:docs/specification/overview.md#L1108",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: On signature-verification failure with an unknown kid, an implementation that force-refreshes the cached platform profile MUST NOT \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "OVR-008",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "REST requests and responses MUST use Content-Type application/json",
+     "source": "ucp:docs/specification/overview.md#L1584",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-009",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A version-specific (leaf) profile served from a supported_versions URI MUST NOT contain a supported_versions field",
+     "source": "ucp:docs/specification/overview.md#L1897",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-010",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date version string (e.g. 'draft') in their profile version field or in supported_versions",
+     "source": "ucp:docs/specification/overview.md#L1953",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-011",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "Businesses MUST include only capabilities compatible with the negotiated protocol version in their response; a capability depending on features introduced in a newer protocol version MUST NOT be included when processing at an older protocol version",
+     "source": "ucp:docs/specification/overview.md#L1974",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Businesses MUST include only capabilities compatible with the negotiated protocol version in their response; a capability dependin \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "OVR-012",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "During capability negotiation (step 3, Extension Validation), businesses MUST exclude any extension whose parent capability is not present in the platform/business capability intersection.",
+     "source": "ucp:docs/specification/overview.md#L640",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-013",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "In the REST transport (core), implementations MUST use standard HTTP verbs (e.g., POST for creation, GET for retrieval).",
+     "source": "ucp:docs/specification/overview.md#L1585",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-014",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "In the REST transport (core), implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+     "source": "ucp:docs/specification/overview.md#L1587",
+     "covered_by": []
+    },
+    {
      "id": "PAY-001",
      "area": "payment",
      "keyword": "MUST",
@@ -7481,6 +7883,180 @@
      "source": "ucp:docs/specification/overview.md#L1682",
      "covered_by": [],
      "exempt_reason": "'Sensitive data (such as Payment Credentials or PII) MUST be handled according to PCI-DSS and GDPR guidelines' (overview.md Data Privacy, L1682-1684): compliance with PCI-DSS and GDPR is established by out-of-band audit and regulation \u2014 data-handling practices inside the business leave no trace in any protocol message the suite can observe. [Scoped: at 2026-01-11/2026-01-23 this id is the checkout-mandate-content rule, a needs-receiver row left to its own accounting.]"
+    },
+    {
+     "id": "PAY-031",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "When AP2 is active, the business must embed a cryptographic signature in checkout responses proving the terms are authentic.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L29",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-032",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "Platforms must provide cryptographically signed mandates during the complete operation proving user authorization.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L31",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Platforms must provide cryptographically signed mandates during the complete operation proving user authorization. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-033",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L98",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-034",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "When AP2 is negotiated, the business must include ap2.merchant_authorization in all checkout responses.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L106",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-035",
+     "area": "payment",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The business must not accept a complete_checkout request that lacks ap2.checkout_mandate.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L108",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-036",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "The platform must verify the business's signature before presenting the checkout to the user.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L110",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-037",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A public signing key must be available for the business to verify the mandate's signature.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L115",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-038",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "If a public key cannot be resolved or the signature is invalid, the business must return an error.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L122",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-039",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization using JWS detached content.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L140",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-040",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The business's signature must cover both the JWS header and the checkout payload (preventing alg-substitution attacks).",
+     "source": "ucp:docs/specification/ap2-mandates.md#L172",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-041",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The platform must produce two distinct mandate artifacts (checkout_mandate and payment_mandate).",
+     "source": "ucp:docs/specification/ap2-mandates.md#L200",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-042",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The checkout mandate must contain the full checkout response including the ap2.merchant_authorization field.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L207",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-043",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "All JSON payloads must be canonicalized using JSON Canonicalization Scheme (JCS) per RFC 8785.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L218",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-044",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Once AP2 is negotiated, both parties must follow the defined mandate flow steps to ensure cryptographic integrity.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L242",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-045",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A completion request without mandates must result in a session failure.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L244",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-046",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "requirement": "The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic channels.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L314",
+     "covered_by": [],
+     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic  \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+    },
+    {
+     "id": "PAY-047",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Upon receiving the complete request, the business must perform the defined negotiation-enforcement and mandate/authorization verification steps.",
+     "source": "ucp:docs/specification/ap2-mandates.md#L380",
+     "covered_by": []
     },
     {
      "id": "SAE-001",
@@ -8002,6 +8578,26 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ]
+    },
+    {
+     "id": "SIG-040",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The `profile` value in the `UCP-Agent` header MUST be a quoted string containing an HTTPS URL (non-HTTPS URLs must be rejected).",
+     "source": "ucp:docs/specification/signatures.md#L355",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-041",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "For business profiles, the `UCP-Agent` profile URL MUST point to `/.well-known/ucp`; platform profile URLs are not path-constrained.",
+     "source": "ucp:docs/specification/signatures.md#L356",
+     "covered_by": []
     },
     {
      "id": "TOT-001",

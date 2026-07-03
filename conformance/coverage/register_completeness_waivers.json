@@ -1,0 +1,905 @@
+{
+ "_about": "Reconciliation ledger for the register-completeness gate (verify_register_completeness.py). Every mandatory RFC-2119 keyword (MUST/MUST NOT/SHALL/SHALL NOT/REQUIRED) in the pinned prose spec must be a register row, OR listed here. This file is how we PROVE the coverage denominator is complete rather than assumed. Two kinds of entry: (1) scope_exclusions \u2014 a whole spec file whose obligations are structurally outside what a server-endpoint conformance checker can observe, or are non-normative documents (narrative/examples/templates/guides). (2) waivers \u2014 a single keyword line in an IN-SCOPE file that is a duplicate restatement, non-normative prose, or a prose MUST enforced by a schema row. A missed keyword that is neither covered by a row nor listed here FAILS the build. Reasons must be spec-grounded; a thin or bogus reason is itself rejected.",
+ "scope_exclusions": [
+  {
+   "file": "docs/specification/embedded-checkout.md",
+   "versions": "*",
+   "class": "out-of-scope",
+   "reason": "Embedded-Protocol (EP) binding for checkout: a browser host-page <-> iframe integration built on window.postMessage / MessagePort. Its obligations bind the host page and the embedded UI surface, not the server's HTTP/MCP API, and are not observable by pointing a conformance checker at a server URL. A different harness (a headless browser driving the EP handshake) would be required; out of scope for this server-endpoint suite."
+  },
+  {
+   "file": "docs/specification/embedded-protocol.md",
+   "versions": [
+    "2026-04-08"
+   ],
+   "class": "out-of-scope",
+   "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface."
+  },
+  {
+   "file": "docs/specification/embedded-cart.md",
+   "versions": [
+    "2026-04-08"
+   ],
+   "class": "out-of-scope",
+   "reason": "Embedded-Protocol (EP) binding for cart: the browser host <-> iframe MessagePort UI protocol for embedded cart sessions. Same rationale as embedded-checkout \u2014 binds the host/embedded UI, not the server API, and is not observable from a server endpoint."
+  },
+  {
+   "file": "docs/specification/payment-handler-template.md",
+   "versions": "*",
+   "class": "non-normative-doc",
+   "reason": "A fill-in-the-blank TEMPLATE ('# {Handler Name} Payment Handler', '{reverse-dns.name}') for authors WRITING a payment-handler specification. Its MUST/REQUIRED clauses bind the author of a handler spec (e.g. 'Specifications MUST document these field mappings'), not the merchant server under test. No server-observable obligation lives here."
+  },
+  {
+   "file": "docs/specification/tokenization-guide.md",
+   "versions": "*",
+   "class": "non-normative-doc",
+   "reason": "An explanatory guide to the tokenization flow. The normative tokenization contract is defined in the payment-handler schemas and the tokenization OpenAPI it links to; the guide's prose keywords restate or contextualize those, and are not an independent normative source for server conformance."
+  },
+  {
+   "file": "docs/specification/examples/platform-tokenizer-payment-handler.md",
+   "versions": "*",
+   "class": "non-normative-doc",
+   "reason": "A worked, illustrative example of one payment-handler configuration. Keywords describe what this specific example scenario does; they are not independent normative obligations on a UCP server. Examples are non-normative by spec convention."
+  },
+  {
+   "file": "docs/specification/examples/processor-tokenizer-payment-handler.md",
+   "versions": [
+    "2026-04-08",
+    "2026-01-23"
+   ],
+   "class": "non-normative-doc",
+   "reason": "A worked, illustrative example of a processor-tokenizer payment-handler configuration. Non-normative by spec convention; keywords narrate the example, not server obligations."
+  },
+  {
+   "file": "docs/specification/examples/encrypted-credential-handler.md",
+   "versions": "*",
+   "class": "non-normative-doc",
+   "reason": "A worked, illustrative example of an encrypted-credential payment handler. Non-normative by spec convention; keywords narrate the example scenario, not independent server obligations."
+  },
+  {
+   "file": "docs/specification/examples/business-tokenizer-payment-handler.md",
+   "versions": [
+    "2026-01-11"
+   ],
+   "class": "non-normative-doc",
+   "reason": "A worked, illustrative example of a business-tokenizer payment handler. Non-normative by spec convention; keywords narrate the example scenario, not independent server obligations."
+  }
+ ],
+ "waivers": [
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 282,
+   "class": "duplicate",
+   "reason": "Step-1 restatement 'The platform MUST verify the signature:' (pseudocode intro) is the same platform-verifies-merchant-signature obligation captured by the L110 new_row ('The platform MUST verify the business's signature before presenting'). Consistent with 2026-01-11/23 where the equivalent line waives to PAY-023.",
+   "duplicate_of": "new_row@ucp:docs/specification/ap2-mandates.md#L110"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 308,
+   "class": "duplicate",
+   "reason": "'When the user confirms the purchase, the platform MUST facilitate the generation of ... mandates' restates the platform-provides-mandates obligation captured by the L31 new_row ('Platforms MUST provide cryptographically signed proofs (Mandates)'). Consistent with 2026-01-11/23 where the equivalent line waives to PAY-020.",
+   "duplicate_of": "new_row@ucp:docs/specification/ap2-mandates.md#L31"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 273,
+   "class": "duplicate",
+   "reason": "'The platform MUST verify the signature:' (Step-1 verify_merchant_authorization pseudocode intro) is the same platform-verifies-merchant-signature obligation already captured by PAY-023 ('The platform MUST verify the business's signature before presenting the checkout to the user').",
+   "duplicate_of": "PAY-023"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 299,
+   "class": "duplicate",
+   "reason": "'When the user confirms the purchase, the platform MUST facilitate the generation of ... mandates' restates the platform-provides-mandates obligation already captured by PAY-020 ('Platforms MUST provide cryptographically signed proofs (Mandates) during the complete operation').",
+   "duplicate_of": "PAY-020"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 268,
+   "class": "duplicate",
+   "reason": "'The platform MUST verify the signature:' (Step-1 verify_merchant_authorization pseudocode intro) is the same platform-verifies-merchant-signature obligation already captured by PAY-023 ('The platform MUST verify the business's signature before presenting the checkout to the user').",
+   "duplicate_of": "PAY-023"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 294,
+   "class": "duplicate",
+   "reason": "'When the user confirms the purchase, the platform MUST facilitate the generation of ... mandates' restates the platform-provides-mandates obligation already captured by PAY-020 ('Platforms MUST provide cryptographically signed proofs (Mandates) during the complete operation').",
+   "duplicate_of": "PAY-020"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 81,
+   "class": "non-normative",
+   "reason": "Client-side obligation on MCP clients (the caller) to send meta['ucp-agent'] profile. Already captured transport-agnostically by DISC-006 ('Platforms MUST include their profile URI in every request using the transport-appropriate mechanism'); MCP meta is that mechanism. Not a server obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 834,
+   "class": "duplicate",
+   "reason": "Same obligation as the OpenRPC->tools/call transformation MUST at L804 (this line just introduces the worked complete_checkout example of that transformation).",
+   "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L804"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 78,
+   "class": "non-normative",
+   "reason": "Client-side meta obligation. NEG-003 already captures the identical clause ('MCP Transport: Platforms MUST include a `meta` object containing request...') from overview.md."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 645,
+   "class": "duplicate",
+   "reason": "Same obligation as the OpenRPC->tools/call transformation MUST at L615 (introduces the worked example of that transformation).",
+   "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L615"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 62,
+   "class": "non-normative",
+   "reason": "Client-side profile-advertisement obligation ('MCP clients MUST include the UCP platform profile URI with every request'). Already captured transport-agnostically by NEG-004 ('Profile Advertisement: Platforms MUST include their profile URI in ...')."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/checkout-mcp.md",
+   "line": 82,
+   "class": "non-normative",
+   "reason": "Restatement of the same client profile obligation ('_meta.ucp.profile MUST be present in every MCP tool invocation'); duplicate of NEG-004 and of L62 above."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-mcp.md",
+   "line": 59,
+   "class": "non-normative",
+   "reason": "Client-side meta obligation (MCP clients MUST include meta). Duplicate of DISC-006 client profile obligation; MCP meta is the transport-appropriate mechanism."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-mcp.md",
+   "line": 277,
+   "class": "non-normative",
+   "reason": "Client obligation ('Platforms MUST check messages before accessing order fields'). Duplicate of ORD-023 (MUST check the messages array in responses before accessing order data)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-mcp.md",
+   "line": 284,
+   "class": "non-normative",
+   "reason": "Client bullet under 'Platforms implementing the MCP binding' (MUST include meta.ucp-agent.profile on all requests). Duplicate of DISC-006 profile obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-mcp.md",
+   "line": 285,
+   "class": "non-normative",
+   "reason": "Client bullet - verbatim ORD-023 quote ('MUST check the messages array in responses before accessing order data'). Duplicate of ORD-023."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/cart-mcp.md",
+   "line": 66,
+   "class": "non-normative",
+   "reason": "Client-side meta obligation. Duplicate of DISC-006 (transport-appropriate profile mechanism)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/cart-mcp.md",
+   "line": 102,
+   "class": "duplicate",
+   "reason": "Same identifier-pattern clause as the canonical checkout id-field row (checkout-mcp L120), applied to the `cart` object. Per shared-clause dedup, waive against the first 2026-04-08 occurrence.",
+   "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L120"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/cart-mcp.md",
+   "line": 635,
+   "class": "duplicate",
+   "reason": "Identical 'A conforming MCP transport implementation MUST:' stem as the canonical checkout conformance row (checkout-mcp L783); cart-specific bullets carry no additional RFC-2119 keywords.",
+   "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L783"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/catalog/mcp.md",
+   "line": 62,
+   "class": "non-normative",
+   "reason": "Client-side meta obligation. Duplicate of DISC-006."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 90,
+   "class": "duplicate",
+   "reason": "Platform-side mirror of the spec-origin/namespace binding: 'Platform MUST validate this binding and SHOULD reject capabilities where the spec origin does not match the namespace authority.' The server-observable constraint is the business's well-formedness obligation captured in the new L83 row. This is a client-side validation obligation, not exercised by the REST conformance surface (older versions rowed it as DISC-004).",
+   "duplicate_of": "NEW:overview.md#L83"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 102,
+   "class": "duplicate",
+   "reason": "'Vendors MUST use their own reverse-domain namespace for custom capabilities' is governance framing enforced by the spec-origin/namespace binding (new L83 row) plus the reverse-domain naming rule (new L59 row). Not a distinct server-observable obligation. Older versions rowed it as DISC-005.",
+   "duplicate_of": "NEW:overview.md#L83"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 120,
+   "class": "non-normative",
+   "reason": "'Transport definitions MUST be thin: they declare method names and reference base schemas only' is an authoring rule for the OpenAPI/OpenRPC transport-definition documents themselves, not a runtime obligation on a conforming business/platform. Restated normatively at L215. Not server-observable via the conformance HTTP surface. (Older versions rowed the analog as DISC-006.)"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 215,
+   "class": "non-normative",
+   "reason": "'Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only' governs the structure of transport-definition artifacts (spec-authoring), not the runtime behavior of a server. Duplicate of the same rule at L120. Not testable via the conformance HTTP surface."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 216,
+   "class": "non-normative",
+   "reason": "'They MUST NOT enumerate fields or define payload shapes inline' is the negative half of the same transport-definition authoring rule (L215/L120). Concerns how schema documents are written, not runtime server behavior. (Older versions: DISC-009.)"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 217,
+   "class": "non-normative",
+   "reason": "'Extensions MUST be self-describing. Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition' is an extension-schema authoring convention, not a runtime obligation observable over HTTP. (Older versions: DISC-010.)"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 217,
+   "class": "non-normative",
+   "reason": "Second keyword occurrence on the same line 217 ('Each extension schema MUST declare...'); same extension-schema authoring convention as the first L217 occurrence. Not a runtime server obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 220,
+   "class": "non-normative",
+   "reason": "'Platforms MUST resolve schemas client-side by fetching and composing base schemas with active extension schemas' describes internal platform (client) schema-composition process. Not a business-server obligation and not observable over the conformance HTTP surface. Restated at L330/L629. (Older versions: DISC-011.)"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 225,
+   "class": "non-normative",
+   "reason": "'The $defs key MUST use the full parent capability name (reverse-domain format)' is an extension-schema authoring convention (build-time verifiable), not a runtime server obligation. Restated at L253/L255."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 253,
+   "class": "non-normative",
+   "reason": "'Extension schemas MUST have a $defs entry for each parent declared in extends' is an extension-schema authoring rule (build-time check per the spec's own 'Verifiable' note). Not runtime server behavior."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 255,
+   "class": "non-normative",
+   "reason": "'The $defs key MUST match the parent's full capability name exactly' duplicates the authoring convention at L225. Extension-schema authoring rule, not a runtime server obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 305,
+   "class": "non-normative",
+   "reason": "'Keys in requires.capabilities MUST be a subset of the extension's $defs keys' constrains how an extension schema author writes the requires block (self-consistency of the schema document), not runtime server behavior. Mirrored only descriptively in ucp.json (not a hard schema constraint)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 307,
+   "class": "duplicate",
+   "reason": "'Platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution' is the extension-`requires` refinement of version-compatibility verification. Its server-observable effect (incompatible extensions excluded from the active capability set) is captured by the new L1974 row (version-compatible capabilities only) and NEG-002 (capabilities_incompatible).",
+   "duplicate_of": "NEW:overview.md#L1974"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 330,
+   "class": "non-normative",
+   "reason": "'Platforms MUST resolve schemas following this sequence' enumerates the client-side schema-resolution flow (Discovery/Negotiation/Fetch/Compose/Validate). Restates L220/L629; internal platform process, not server-observable."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 579,
+   "class": "duplicate",
+   "reason": "'Platforms MUST communicate their profile URI with each request' is the profile-advertisement obligation already rowed as DISC-006 (Platforms MUST include their profile URI in every request, overview.md#L622-L623).",
+   "duplicate_of": "DISC-006"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 582,
+   "class": "duplicate",
+   "reason": "'HTTP Transport: Platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header' is the concrete header-syntax detail already captured per-transport by CHK-046 (UCP-Agent header, RFC 8941 dictionary syntax) and at the overview level by DISC-006.",
+   "duplicate_of": "CHK-046"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 594,
+   "class": "duplicate",
+   "reason": "'MCP Transport: Platforms MUST include a meta object containing request metadata' is the MCP-transport mechanism of the same profile-advertisement obligation (DISC-006). MCP transport is out of the REST conformance surface (transport: rest).",
+   "duplicate_of": "DISC-006"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 627,
+   "class": "duplicate",
+   "reason": "'Namespace Validation: Platforms MUST validate that capability spec URI origins match namespace authorities' is the platform-side mirror of the spec-origin/namespace binding captured in the new L83 row (and L90). Client-side validation, not exercised by the REST server surface. (Older versions: NEG-007.)",
+   "duplicate_of": "NEW:overview.md#L83"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 629,
+   "class": "non-normative",
+   "reason": "'Schema Resolution: Platforms MUST fetch and compose schemas for negotiated capabilities before making requests' restates the client-side schema-resolution process (L220/L330). Internal platform behavior, not server-observable."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 635,
+   "class": "duplicate",
+   "reason": "'Profile Resolution: businesses MUST fetch and validate the platform profile unless already cached' is the business obligation whose server-observable outcomes are already rowed: invalid_profile_url (NEG-005), profile_unreachable (NEG-003), profile_malformed (NEG-004).",
+   "duplicate_of": "NEG-005"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 637,
+   "class": "duplicate",
+   "reason": "'Capability Intersection: Businesses MUST compute the intersection of platform and business capabilities' is the negotiation computation whose observable output is the response's ucp.capabilities, captured by the new L950 row (and the empty-intersection error case by NEG-002). Older versions rowed it as NEG-010.",
+   "duplicate_of": "NEW:overview.md#L950"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 915,
+   "class": "duplicate",
+   "reason": "'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error' is the MCP/Streamable-HTTP variant of the standard-HTTP-status-code obligation (captured for REST at L1587 and concretely by CHK-050 and the NEG/SIG status-code rows). MCP transport is out of the REST conformance surface.",
+   "duplicate_of": "CHK-050"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1009,
+   "class": "duplicate",
+   "reason": "'Business-to-platform webhooks MUST be signed' is already rowed as SIG-027 (Webhook notifications MUST be signed) and ORD-026/ORD-027 (order webhook payloads MUST be signed per Message Signatures).",
+   "duplicate_of": "SIG-027"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1112,
+   "class": "duplicate",
+   "reason": "'If a profile cannot be fetched or fails validation, businesses MUST reject the request with an appropriate error and status code' is the general statement whose server-observable outcomes are already rowed: NEG-005 (invalid_profile_url), NEG-003 (profile_unreachable), NEG-004 (profile_malformed).",
+   "duplicate_of": "NEG-005"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1620,
+   "class": "duplicate",
+   "reason": "'MUST return the UCP response payload in structuredContent' is the MCP dual-output response requirement. MCP transport is out of the REST conformance surface (transport: rest); the equivalent REST obligation to return the UCP envelope is captured per-capability (e.g., CHK-034).",
+   "duplicate_of": "CHK-034"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1678,
+   "class": "duplicate",
+   "reason": "'All UCP communication MUST occur over HTTPS' is the umbrella transport-security statement; HTTPS is rowed per capability/transport: CART-023, CHK-045, ORD-022 (HTTPS + TLS 1.3), IDL-053 (HTTPS + TLS 1.2), and DISC-001/DISC-004 for profiles.",
+   "duplicate_of": "CHK-045"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1893,
+   "class": "duplicate",
+   "reason": "'businesses MUST respond with a version_unsupported error' (unsupported platform protocol version) is already rowed as NEG-001 (version_unsupported -> HTTP 422), which cites overview.md#L699,L1912.",
+   "duplicate_of": "NEG-001"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1902,
+   "class": "duplicate",
+   "reason": "'Businesses MUST validate the platform's protocol version on every request' is the obligation whose server-observable outcome (version_unsupported when incompatible) is rowed as NEG-001.",
+   "duplicate_of": "NEG-001"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1995,
+   "class": "non-normative",
+   "reason": "'The following changes MUST NOT be introduced without a new version:' (breaking-changes list) is spec-evolution governance describing how the protocol itself may change across versions, not a runtime obligation on a conforming implementation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 2009,
+   "class": "non-normative",
+   "reason": "'Capabilities MUST follow the same backwards compatibility rules as the protocol' is versioning governance for capability authors (how capabilities evolve across versions), not a runtime server obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 2011,
+   "class": "duplicate",
+   "reason": "'Businesses MUST validate capability version compatibility using the same logic as ... above' is realized through the intersection version-selection and its error outcome capabilities_incompatible (NEG-002), and the version-compatible-capabilities selection (new L1974 row).",
+   "duplicate_of": "NEG-002"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 230,
+   "class": "non-normative",
+   "reason": "'Composed type names MUST use the pattern: {capability-name}.{TypeName}' is a schema-authoring naming convention for composed/extension types, not a runtime server obligation observable over HTTP."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 234,
+   "class": "duplicate",
+   "reason": "'Platforms MUST resolve schemas following this sequence' enumerates the client-side schema-resolution flow already rowed as DISC-011 (Platforms MUST resolve schemas client-side by fetching and composing base schemas with active extension schemas).",
+   "duplicate_of": "DISC-011"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 854,
+   "class": "non-normative",
+   "reason": "'The platform MUST now open continue_url in a WebView/Window...' is an italicized narrative step inside a worked payment-flow example (3DS/SCA soft-decline), illustrating a platform (client) action. The normative continue_url obligations are rowed separately (CHK-025/CHK-032/CHK-038)."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 1080,
+   "class": "duplicate",
+   "reason": "'Business to Platform (Webhooks): Webhooks MUST be signed using a shared secret or asymmetric key' is already rowed as ORD-014 (Webhook payloads MUST be signed by the business and verified by the platform) and ORD-015.",
+   "duplicate_of": "ORD-014"
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 1207,
+   "class": "non-normative",
+   "reason": "'The following changes MUST NOT be introduced without a new version:' (breaking-changes list) is spec-evolution governance, not a runtime obligation on a conforming implementation."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 1221,
+   "class": "non-normative",
+   "reason": "'Capabilities MUST follow the same backwards compatibility rules as the protocol' is versioning governance for capability authors, not a runtime server obligation."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 1223,
+   "class": "duplicate",
+   "reason": "'Businesses MUST validate capability version compatibility using the same logic' is realized through version validation and the negotiation-failure error outcome already rowed as NEG-014 (validate platform version / determine compatibility) and NEG-013 (negotiation failure -> error response).",
+   "duplicate_of": "NEG-014"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 224,
+   "class": "non-normative",
+   "reason": "'Composed type names MUST use the pattern: {capability-name}.{TypeName}' is a schema-authoring naming convention, not a runtime server obligation."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 228,
+   "class": "duplicate",
+   "reason": "'Platforms MUST resolve schemas following this sequence' is the client-side schema-resolution flow already rowed as DISC-011.",
+   "duplicate_of": "DISC-011"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 424,
+   "class": "duplicate",
+   "reason": "'MCP Transport: Platforms MUST use native dictionary structure in _meta.ucp' is the MCP-transport mechanism of the profile-advertisement obligation already rowed as NEG-004 (Platforms MUST include their profile URI in every request using the transport-appropriate mechanism) and NEG-001. MCP transport is out of the REST conformance surface; the 2026-01-11 register has no dedicated MCP-meta row.",
+   "duplicate_of": "NEG-004"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 784,
+   "class": "non-normative",
+   "reason": "'The platform MUST now open continue_url in a WebView/Window...' is an italicized narrative step in a worked payment-flow example (3DS/SCA), illustrating a platform (client) action; the normative continue_url obligations are rowed separately (CHK-025/CHK-032/CHK-038)."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 999,
+   "class": "duplicate",
+   "reason": "'Business to Platform (Webhooks): Webhooks MUST be signed using a shared secret or asymmetric key' is already rowed as ORD-014 and ORD-015.",
+   "duplicate_of": "ORD-014"
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 1124,
+   "class": "non-normative",
+   "reason": "'The following changes MUST NOT be introduced without a new version:' (breaking-changes list) is spec-evolution governance, not a runtime obligation."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 1138,
+   "class": "non-normative",
+   "reason": "'Capabilities MUST follow the same backwards compatibility rules as the protocol' is versioning governance for capability authors, not a runtime server obligation."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/overview.md",
+   "line": 1140,
+   "class": "duplicate",
+   "reason": "'Businesses MUST validate capability version compatibility using the same logic' is realized through version validation and the negotiation-failure error outcome rowed as NEG-014 and NEG-013.",
+   "duplicate_of": "NEG-014"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 332,
+   "class": "non-normative",
+   "reason": "Subject=platform. Intro sentence to the 'Warning Presentation' rendering-contract table: 'The presentation field on warning messages controls the rendering contract the platform MUST follow.' Narrative lead-in whose normative cells are already rowed \u2014 the overall rendering contract is ERR-012, and the individual table/prose obligations are ERR-013..ERR-022. Not a distinct server obligation (platform-side rendering, not server-observable)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 342,
+   "class": "duplicate",
+   "reason": "Subject=platform. Table cell '| Escalate if cannot honor | \u2014 | MUST via continue_url |' is the tabular restatement of the disclosure-escalation prose at L371, already captured verbatim by ERR-018 ('Platforms that cannot honor the disclosure rendering contract MUST escalate to merchant UI via continue_url...'). Table-cell restatement of an already-rowed platform requirement.",
+   "duplicate_of": "ERR-018"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 354,
+   "class": "non-normative",
+   "reason": "Subject=platform. Section lead-in: 'Warnings with presentation: \"disclosure\" carry notices ... that MUST follow the prescribed rendering contract below.' Narrative pointer to the disclosure rendering-contract bullets that immediately follow, each already rowed (ERR-014 display content, ERR-015 proximity, ERR-016 must-not-hide, ERR-017 image_url). Not a distinct obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 640,
+   "class": "duplicate",
+   "reason": "Subject=business. 'Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.' Already captured by SAE-012 (same verbatim requirement; SAE-012 cites the context schema description that mirrors this checkout.md prose). Same normative obligation, different source location.",
+   "duplicate_of": "SAE-012"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 649,
+   "class": "duplicate",
+   "reason": "Subject=platform. 'signal values MUST NOT be buyer-asserted claims \u2014 platforms provide signals based on direct observation or by relaying independently verifiable third-party attestations.' Already captured by SAE-001 (quotes the fuller overview.md#Signals statement of the same platform-bound MUST NOT). Platform-provenance obligation, not a business-response wire shape.",
+   "duplicate_of": "SAE-001"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 834,
+   "class": "schema-enforced",
+   "reason": "Subject=business. 'Unknown types MUST include display_text (schema-enforced).' The parenthetical explicitly flags schema enforcement and TOT-004 already captures 'unknown types MUST include display_text' with schema_enforced=true (totals.json if/then: type not in well-known enum -> require display_text).",
+   "row_id": "TOT-004"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout-rest.md",
+   "line": 1344,
+   "class": "duplicate",
+   "reason": "Subject=platform (requester). 'When HTTP Message Signatures are used, requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.' REST-transport restatement of the canonical signatures.md requirement rowed as SIG-013 (Signature-Input and Signature headers required on requests/responses); the Content-Digest-when-body clause is rowed as SIG-011. No distinct obligation.",
+   "duplicate_of": "SIG-013"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order.md",
+   "line": 403,
+   "class": "duplicate",
+   "reason": "Subject=business. Business-guidelines bullet '* MUST authenticate requests to order data before returning a response (see Authorization)' is the guideline restatement of the Authorization-section requirement already captured by ORD-012 (whose notes explicitly record 'Restated in Business guideline at L403'). Same authentication obligation.",
+   "duplicate_of": "ORD-012"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 92,
+   "class": "non-normative",
+   "reason": "Subject is 'Specifications' (payment-handler spec authors), not the merchant server: 'Specifications **MUST** explicitly document these field mappings.' Binds document authors of downstream handler specs, not a runtime server obligation; not testable via HTTP/MCP."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 746,
+   "class": "non-normative",
+   "reason": "Subject is 'The specification' (payment-handler spec authors): 'The specification **MUST** define a mapping for common failures...' Binds handler-spec authors, not the merchant server; documentation obligation, not runtime-observable."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 762,
+   "class": "non-normative",
+   "reason": "Under '## Specification Template': 'Sections marked **[REQUIRED]** **MUST** be present...' constrains the structure of downstream handler specification documents authored by spec authors, not a server behavior. Documentation/template checklist."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 762,
+   "class": "non-normative",
+   "reason": "Same sentence as the REQUIRED occurrence on L762 under '## Specification Template'; the MUST binds spec-author document structure ('Sections marked [REQUIRED] MUST be present'), not the merchant server."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 774,
+   "class": "non-normative",
+   "reason": "Bullet under '## Conformance Checklist for Spec Authors' \u2192 'Before publishing a payment handler specification, verify: ... [ ] All [REQUIRED] sections are present'. Explicit spec-author checklist item, not a server obligation."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 664,
+   "class": "non-normative",
+   "reason": "Under '## Specification Template' (2026-01-23): 'Sections marked **[REQUIRED]** **MUST** be present...' constrains downstream handler-spec document structure, authored by spec authors; not a server behavior."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 664,
+   "class": "non-normative",
+   "reason": "Same L664 sentence under '## Specification Template' (2026-01-23); the MUST binds spec-author document structure, not the merchant server."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 676,
+   "class": "non-normative",
+   "reason": "Bullet under '## Conformance Checklist for Spec Authors' (2026-01-23): '[ ] All [REQUIRED] sections are present'. Spec-author documentation checklist, not a server obligation."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 359,
+   "class": "non-normative",
+   "reason": "Under '## Specification Template' (2026-01-11): 'Sections marked **[REQUIRED]** **MUST** be present...' constrains downstream handler-spec document structure, authored by spec authors; not a server behavior."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 359,
+   "class": "non-normative",
+   "reason": "Same L359 sentence under '## Specification Template' (2026-01-11); the MUST binds spec-author document structure, not the merchant server."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/payment-handler-guide.md",
+   "line": 371,
+   "class": "non-normative",
+   "reason": "Bullet under '## Conformance Checklist for Spec Authors' (2026-01-11): '[ ] All [REQUIRED] sections are present'. Spec-author documentation checklist, not a server obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 338,
+   "class": "duplicate",
+   "duplicate_of": "ERR-015",
+   "reason": "Contract-table cell 'Proximity to path | MUST' (disclosure column) summarizes the disclosure prose bullet at L359 that ERR-015 already captures: platforms MUST display the warning in proximity to the component referenced by path."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 339,
+   "class": "duplicate",
+   "duplicate_of": "ERR-016",
+   "reason": "Contract-table cell 'Dismissible | MUST NOT' (disclosure column) summarizes the disclosure prose bullet at L363 that ERR-016 already captures: platforms MUST NOT hide, collapse, or auto-dismiss the disclosure warning."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 340,
+   "class": "duplicate",
+   "duplicate_of": "ERR-017",
+   "reason": "Contract-table cell 'Render image_url | MUST' (disclosure column) summarizes the disclosure prose bullet at L364 that ERR-017 already captures: platforms MUST render image_url when present for disclosure warnings."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 810,
+   "class": "duplicate",
+   "duplicate_of": "TOT-007",
+   "reason": "'MUST NOT alter the rendered output - the business's presented totals are authoritative' restates TOT-007's prohibition (platforms MUST NOT substitute their own computed totals for the business's values), applied here to the sum-mismatch verification case. The other MUST NOT in the block (autonomous"
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/checkout.md",
+   "line": 850,
+   "class": "duplicate",
+   "duplicate_of": "TOT-001",
+   "reason": "'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half is TOT-018."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/discount.md",
+   "line": 200,
+   "class": "duplicate",
+   "duplicate_of": "DSC-015",
+   "reason": "The 'Platforms MUST display' clause at end of L200 is the same sentence that wraps to L201 which DSC-015 quotes verbatim: Platforms MUST display provisional discounts to the buyer."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/discount.md",
+   "line": 228,
+   "class": "duplicate",
+   "duplicate_of": "DSC-017",
+   "reason": "'claims MUST be resolved' is the L227-228 sentence DSC-017 already quotes: at checkout completion, all remaining provisional claims MUST be resolved."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 143,
+   "class": "duplicate",
+   "duplicate_of": "IDL-012",
+   "reason": "'If the values do not match, the platform MUST abort and discard the authorization response' is the tail of the single iss-validation bullet (L138-144). IDL-012 spans that whole bullet and its requirement explicitly includes the abort/discard-on-mismatch obligation."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 416,
+   "class": "duplicate",
+   "duplicate_of": "IDL-040",
+   "reason": "'the business MUST return:' at L416 is the exact lead-in IDL-040 quotes for the identity_required error (business MUST return HTTP 401, a WWW-Authenticate: Bearer challenge, and a UCP error body with code identity_required)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 428,
+   "class": "duplicate",
+   "duplicate_of": "IDL-042",
+   "reason": "'the header MUST also include error=invalid_token' is the L427-428 sentence IDL-042 already captures: when the request included an invalid/expired/unverifiable token, the WWW-Authenticate header MUST include error=invalid_token."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 491,
+   "class": "duplicate",
+   "duplicate_of": "IDL-045",
+   "reason": "'the business MUST return:' at L491 is the exact lead-in IDL-045 quotes for the insufficient_scope error (business MUST return HTTP 403, a WWW-Authenticate: Bearer challenge, and a UCP error body with code insufficient_scope)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 581,
+   "class": "duplicate",
+   "duplicate_of": "IDL-050",
+   "reason": "'Public clients ... cannot keep a client_secret confidential and MUST use none' is exactly IDL-050's requirement (row deliberately spans L578-585)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 583,
+   "class": "duplicate",
+   "duplicate_of": "IDL-050",
+   "reason": "'Businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms' is stated verbatim in IDL-050's requirement text; IDL-050 explicitly spans L578-585 and captures both the client 'MUST use none' and this business MUST NOT."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 586,
+   "class": "duplicate",
+   "duplicate_of": "IDL-012",
+   "reason": "Security-summary restatement 'Platforms MUST validate the iss parameter in the authorization response' duplicates IDL-012, the primary Mix-Up-Attack iss-validation obligation defined in the main flow (L138)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 593,
+   "class": "duplicate",
+   "duplicate_of": "IDL-026",
+   "reason": "'Businesses MUST emit WWW-Authenticate: Bearer challenges ... on 401 and 403 responses' is exactly IDL-026 (businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 identity_required and 403 insufficient_scope responses)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/identity-linking.md",
+   "line": 602,
+   "class": "duplicate",
+   "duplicate_of": "IDL-020",
+   "reason": "'Businesses MUST enforce exact string matching for redirect_uri' is exactly IDL-020 (businesses MUST enforce exact string matching for the redirect_uri parameter during authorization)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-rest.md",
+   "line": 252,
+   "class": "duplicate",
+   "duplicate_of": "ORD-015",
+   "reason": "The order-rest conformance bullet 'MUST include UCP-Agent header with profile URL on all requests' is the identical obligation captured by ORD-015 (platforms MUST include the UCP-Agent header with profile URL on all order requests)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/order-rest.md",
+   "line": 260,
+   "class": "duplicate",
+   "duplicate_of": "ORD-022",
+   "reason": "'MUST serve all endpoints over HTTPS with TLS 1.3+' duplicates ORD-022 (all order REST endpoints MUST be served over HTTPS with minimum TLS version 1.3)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1099,
+   "class": "duplicate",
+   "duplicate_of": "DISC-002",
+   "reason": "'Implementations MUST NOT follow redirects (3xx) on profile fetches' duplicates DISC-002 (profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them). Same no-redirect-on-profile-fetch obligation; the adjacent DISC-004 only covers the HTTPS-rejection item."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1918,
+   "class": "duplicate",
+   "duplicate_of": "OVR-004",
+   "reason": "'Businesses MUST include the negotiated protocol version in every response' is captured by OVR-004 (businesses MUST include the ucp field in every response, containing the processing version and active capabilities); ucp.version IS the negotiated protocol version."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/overview.md",
+   "line": 1956,
+   "class": "duplicate",
+   "duplicate_of": "OVR-010",
+   "reason": "'Pre-release implementations ... MUST NOT be surfaced through public discovery' duplicates OVR-010 (protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date/draft version string in their profile version field or supported_versions)."
+  },
+  {
+   "version": "2026-04-08",
+   "file": "docs/specification/signatures.md",
+   "line": 178,
+   "class": "duplicate",
+   "duplicate_of": "SIG-010",
+   "reason": "'Implementations MUST use sha-256' is explicitly part of SIG-010's requirement: Content-Digest follows RFC 9530 and hashes the raw body bytes; implementations MUST use sha-256."
+  },
+  {
+   "version": "2026-01-23",
+   "file": "docs/specification/overview.md",
+   "line": 197,
+   "class": "duplicate",
+   "duplicate_of": "DISC-009",
+   "reason": "'Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only' is the affirmative half of the same single rule DISC-009 captures from its negative half (L198): transport definitions MUST NOT enumerate fields or define payload shapes inline."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/ap2-mandates.md",
+   "line": 107,
+   "class": "duplicate",
+   "duplicate_of": "PAY-022",
+   "reason": "'The business MUST NOT accept a complete_checkout request that lacks ap2.checkout_mandate' (L107-108) is exactly the obligation PAY-022 captures for negotiated ap2_mandate."
+  },
+  {
+   "version": "2026-01-11",
+   "file": "docs/specification/order.md",
+   "line": 331,
+   "class": "duplicate",
+   "duplicate_of": "ORD-015",
+   "reason": "'MUST sign all webhook payloads using a key from their signing_keys array' (L331-332) is exactly ORD-015 (businesses MUST sign all webhook payloads with a signing_keys key published in /.well-known/ucp, signature carried in Request-Signature as a detached JWT)."
+  }
+ ]
+}

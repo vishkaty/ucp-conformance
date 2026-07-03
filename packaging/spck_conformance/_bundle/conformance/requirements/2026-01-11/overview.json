@@ -1,0 +1,26 @@
+{
+ "_area": "overview",
+ "_spec_commit": "see SOURCES.lock.json",
+ "rows": [
+  {
+   "id": "OVR-001",
+   "keyword": "MUST",
+   "requirement": "Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines",
+   "quote": "Sensitive data (such as Payment Credentials or PII) **MUST** be handled ... according to PCI-DSS and GDPR guidelines.",
+   "source": "ucp:docs/specification/overview.md#L1004",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-01-11"
+   ],
+   "notes": "Subject: both parties (Data Privacy). Compliance obligation, not server-observable -> manual. Matches the 2026-04-08 register's PAY-030; the 2026-01-11 register rows only card-credential PCI (PAY-014), not the general PII/GDPR statement. [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  }
+ ],
+ "notes": ""
+}

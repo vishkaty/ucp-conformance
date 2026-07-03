@@ -55,6 +55,20 @@ If relaxing a predicate would let a genuinely non-conformant server pass, it is 
 - **The ratchet, citation-soundness, register-quote, and copy-freshness gates** stop the
   accounted count regressing, an id being graded against the wrong spec version, a quote
   drifting from the pinned text, and the advertised numbers going stale.
+- **`verify_register_completeness.py`** (the `register-completeness` gate) proves the
+  *denominator* is complete: every mandatory RFC-2119 keyword in the pinned prose spec is
+  either a register row or a documented reconciliation entry (a scope exclusion for
+  structurally-unobservable files like the browser-embedded MessagePort UI, or a per-line
+  waiver that is a duplicate / non-normative / schema-enforced). A missed normative clause
+  fails the build — a coverage percentage can't be a fraction of an assumed denominator.
+- **`verify_review_signoffs.py`** (the `review-signoff` gate) makes coverage *expansion*
+  as governed as removal: every locked CHECK id must carry an adversarial-review sign-off
+  (an independent reviewer re-read the pinned clause and confirmed subject / citation /
+  strictness). Coverage cannot grow while skipping the review that keeps it honest.
+- **`differential.py`** (the `differential` gate) runs the suite against an independent,
+  known-conformant server (the official Flower Shop). A check that passes our own fixture
+  but flags an independently-conformant target is a differential finding — the antidote to
+  a check and its fixture jointly encoding the same misreading.
 
 ## Adding a test (the normal path)
 

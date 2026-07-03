@@ -1,0 +1,140 @@
+{
+ "_area": "transports",
+ "_spec_commit": "see SOURCES.lock.json",
+ "rows": [
+  {
+   "id": "MCP-001",
+   "keyword": "MUST",
+   "requirement": "When the catalog Lookup capability is advertised, the MCP endpoint MUST expose both `lookup_catalog` and `get_product` tools",
+   "quote": "When the Lookup capability is advertised, both `lookup_catalog` and `get_product` tools MUST be available.",
+   "source": "ucp:docs/specification/catalog/mcp.md#L693",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: MCP catalog endpoint (server). Distinct catalog-specific tool-availability obligation embedded in conformance bullet 2; parallels REST CAT-023. Server-observable. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "A2A-001",
+   "keyword": "MUST",
+   "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
+   "quote": "The checkout\nobject **MUST** be returned as part of a `DataPart` object with key\n`a2a.ucp.checkout`.",
+   "source": "ucp:docs/specification/checkout-a2a.md#L144",
+   "testability": "needs-receiver",
+   "transport": [
+    "a2a"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business agent (server) response format over A2A transport. Genuinely missed - no A2A/DataPart rows exist. Server-observable. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs A2A transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-002",
+   "keyword": "MUST NOT",
+   "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
+   "quote": "The `checkout` object in the request payload **MUST NOT** contain\n    an `id` field.",
+   "source": "ucp:docs/specification/checkout-mcp.md#L120",
+   "testability": "manual",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: MCP client constructing the request (identifier-pattern well-formedness). Not directly server-observable (spec does not mandate the endpoint reject an id in checkout), so manual/client-side. Canonical id-field row for 2026-04-08 (cart-mcp restates it). [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-003",
+   "keyword": "MUST",
+   "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, return errors per core spec, return business outcomes as JSON-RPC result with UCP envelope and messages array, validate tool inputs against schemas, and support HTTP streaming",
+   "quote": "A conforming MCP transport implementation **MUST**:\n\n1. Implement JSON-RPC 2.0 protocol correctly.\n2. Provide all core checkout tools defined in this specification.\n3. Return errors per the [Core Specification](overview.md#error-handling).\n4. Return business outcomes as JSON-RPC `result` with UCP envelope and\n    `messages` array.\n5. Validate tool inputs against UCP schemas.\n6. Support HTTP transport with streaming.",
+   "source": "ucp:docs/specification/checkout-mcp.md#L783",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: the MCP transport implementation (server/endpoint). Genuinely missed - register deferred the MCP binding (see cart.json note). Canonical MCP-conformance list for 2026-04-08; cart-mcp L635 and catalog-mcp L690 restate the same stem. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-004",
+   "keyword": "MUST",
+   "requirement": "MCP transport MUST expose UCP OpenRPC operations via JSON-RPC tools/call, mapping method->params.name and params->params.arguments",
+   "quote": "requires all tool invocations to use a `tools/call` method with the operation\nname and arguments wrapped in `params`. Implementers **MUST** apply this\ntransformation:",
+   "source": "ucp:docs/specification/checkout-mcp.md#L804",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: implementer (server). Distinct, more granular than the JSON-RPC bullet in the conformance stem: the concrete OpenRPC->tools/call param transformation. Observable on the endpoint's tool surface. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-005",
+   "keyword": "MUST",
+   "requirement": "A business implementing the MCP order binding MUST implement the `get_order` tool per the OpenRPC schema",
+   "quote": "**MUST** implement the `get_order` tool per the\n  [OpenRPC schema](https://ucp.dev/services/shopping/mcp.openrpc.json)",
+   "source": "ucp:docs/specification/order-mcp.md#L292",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: the business (server/endpoint) under 'Businesses implementing the MCP binding'. Server-observable tool-existence obligation; genuinely missed. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-006",
+   "keyword": "MUST",
+   "requirement": "A conforming catalog MCP transport implementation MUST implement JSON-RPC 2.0 correctly, validate tool inputs against UCP schemas, support cursor-based pagination with a default limit of 10, and return -32602 (Invalid params) for requests exceeding batch size limits (the catalog MCP conformance list beyond the Lookup-tool exposure that MCP-001 covers).",
+   "quote": "A conforming MCP transport implementation **MUST**: ... Implement JSON-RPC 2.0 protocol correctly. ... Validate tool inputs against UCP schemas. ... Support cursor-based pagination with default limit of 10. ... Return `-32602` (Invalid params) for requests exceeding batch size limits.",
+   "source": "ucp:docs/specification/catalog/mcp.md#L690",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Umbrella lead-in for the catalog MCP conformance list (items 1,3-8). MCP-001 only captures item 2 (Lookup tools). Parallels MCP-003, which is the equivalent conformance roll-up for the checkout MCP binding. [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "_completeness_batch": "completeness-2026-07-03"
+  }
+ ],
+ "notes": ""
+}

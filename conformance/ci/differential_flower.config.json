@@ -1,0 +1,78 @@
+{
+ "product_id": "bouquet_roses",
+ "currency": "USD",
+ "payment_handlers": [
+  {
+   "id": "google_pay",
+   "name": "google.pay",
+   "version": "2026-01-23",
+   "spec": "https://example.com/spec",
+   "config_schema": "https://example.com/schema",
+   "instrument_schemas": [
+    "https://example.com/is"
+   ],
+   "config": {}
+  }
+ ],
+ "fulfillment_option_id": "std-ship",
+ "complete_payment": {
+  "payment": {
+   "instruments": [
+    {
+     "id": "instr_1234",
+     "handler_id": "mock_payment_handler",
+     "type": "card",
+     "display": {
+      "brand": "Visa",
+      "last_digits": "1234"
+     },
+     "credential": {
+      "type": "token",
+      "token": "success_token"
+     },
+     "billing_address": {
+      "street_address": "123 Main St",
+      "address_locality": "Anytown",
+      "address_region": "CA",
+      "address_country": "US",
+      "postal_code": "12345"
+     }
+    }
+   ]
+  },
+  "risk_signals": {}
+ },
+ "fail_payment": {
+  "payment": {
+   "instruments": [
+    {
+     "id": "instr_0000",
+     "handler_id": "mock_payment_handler",
+     "type": "card",
+     "display": {
+      "brand": "Visa",
+      "last_digits": "0000"
+     },
+     "credential": {
+      "type": "token",
+      "token": "fail_token"
+     },
+     "billing_address": {
+      "street_address": "123 Main St",
+      "address_locality": "Anytown",
+      "address_region": "CA",
+      "address_country": "US",
+      "postal_code": "12345"
+     }
+    }
+   ]
+  },
+  "risk_signals": {}
+ },
+ "out_of_stock_id": "gardenias",
+ "discount": {
+  "valid_code": "10OFF",
+  "second_valid_code": "WELCOME20",
+  "invalid_code": "INVALID_CODE"
+ }
+}

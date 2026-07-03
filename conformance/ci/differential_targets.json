@@ -1,0 +1,11 @@
+{
+ "_about": "Independent, known-conformant UCP servers the differential gate (differential.py) runs the suite against, to catch checks that pass our own fixture but false-flag a server we did NOT author (the fixture-circularity risk). URLs are resolved from an environment variable (server_env) so real endpoints/secrets are never committed. The gate SKIPs cleanly when none are reachable, and also accepts an ad-hoc --server on the command line. Add your own conformant staging server here to keep the suite honest against a second implementation.",
+ "targets": [
+  {
+   "name": "flower-shop-official-sample",
+   "server_env": "UCP_FLOWER_SHOP_URL",
+   "config": "conformance/ci/differential_flower.config.json",
+   "note": "The official UCP Flower Shop sample server \u2014 an implementation independent of our controlled fixture. Served locally by conformance/ci/serve_golden.sh (pinned to 2026-01-23). Set UCP_FLOWER_SHOP_URL to its base URL to include it."
+  }
+ ]
+}

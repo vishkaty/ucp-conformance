@@ -1,1094 +1,1132 @@
 {
-  "_area": "identity-linking",
-  "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
-  "rows": [
-    {
-      "id": "IDL-001",
-      "requirement": "Identity linking uses OAuth 2.0 as the v1 auth mechanism.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L34-L35",
-      "quote": "**This specification uses\n[OAuth 2.0](https://datatracker.ietf.org/doc/html/rfc6749){ target=\"_blank\" }**\nas the v1 auth mechanism.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Capability dev.ucp.common.identity_linking. Identity-linking existed in 2026-01-23 but 04-08 reworked it to capability-driven scopes / RFC 8414 discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-002",
-      "requirement": "Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L98-L100",
-      "quote": "**MUST** authenticate token endpoint requests using a method advertised in\n    the business's `token_endpoint_auth_methods_supported` metadata",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 8414 metadata field. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Token-endpoint auth method selection is the platform's request behavior. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-003",
-      "requirement": "Confidential clients SHOULD prefer asymmetric token-endpoint auth methods (private_key_jwt or tls_client_auth) and MAY use client_secret_basic where supported.",
-      "keyword": "SHOULD",
-      "source": "ucp:docs/specification/identity-linking.md#L101-L110",
-      "quote": "**Confidential clients** (server-side platforms that can protect a\n        credential) **SHOULD** prefer asymmetric methods \u2014\n        `private_key_jwt`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "MAY client_secret_basic where business supports it. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Confidential-client method preference is the platform's choice. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-004",
-      "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L111-L116",
-      "quote": "**Public clients** (native, desktop, browser-extension, and on-device\n        agent runtimes per\n        [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n        **MUST** use `none` and rely on PKCE with `S256`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Capability-driven OAuth model new in 04-08 rework. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Public-client method choice + PKCE use are the platform's request behavior. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-005",
-      "requirement": "Public clients MUST NOT embed a client_secret.",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/identity-linking.md#L116-L117",
-      "quote": "Public clients\n        **MUST NOT** embed a `client_secret`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Mirrored at Security Considerations L581. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Not embedding a client_secret is a property of the platform's distributed binary. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-006",
-      "requirement": "Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L119-L120",
-      "quote": "Platforms **MUST** select the strongest method offered by the business\n    that is compatible with the platform's deployment model.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Method-strength selection is the platform's negotiation behavior. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-007",
-      "requirement": "Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L121-L122",
-      "quote": "**MUST** include user identity tokens in the HTTP `Authorization` header\n    using the Bearer scheme: `Authorization: Bearer <access_token>`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 6750 \u00a72.1. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The Authorization: Bearer header is authored by the platform. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-008",
-      "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L124-L126",
-      "quote": "**MUST** process `WWW-Authenticate: Bearer` challenges per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401` and `403` responses to user-authenticated operations.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Challenge processing is the platform's response handling. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-009",
-      "requirement": "Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L127-L128",
-      "quote": "Platforms **MUST** extract the `scope` parameter (when present) to\n    construct subsequent authorization requests",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Platforms drive flow from structured scope param, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Extracting the scope param is the platform's response handling. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-010",
-      "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L132-L134",
-      "quote": "**MUST** implement the OAuth 2.0 Authorization Code flow\n    ([RFC 6749 \u00a74.1](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1){ target=\"_blank\" })\n    as the account linking mechanism.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Authorization Code flow is mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The account-linking flow choice is the platform's client implementation. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-011",
-      "requirement": "Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L135-L137",
-      "quote": "**MUST** use PKCE\n    ([RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636){ target=\"_blank\" })\n    with `code_challenge_method=S256` for all authorization code exchanges.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "PKCE S256 mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). PKCE use on the request side is the platform's; the business-side enforcement is IDL-019/023/036/049 (checked). Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-012",
-      "requirement": "Platforms MUST validate the iss parameter in the authorization response to prevent Mix-Up Attacks, verifying it matches the AS issuer URI; if it does not match they MUST abort and discard the authorization response.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L138-L144",
-      "quote": "**MUST** validate the `iss` parameter in the authorization response\n    ([RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207){ target=\"_blank\" })\n    to prevent Mix-Up Attacks. The platform **MUST** verify that the `iss`\n    value matches the authorization server's issuer URI ... If the values do not match, the platform **MUST**\n    abort and discard the authorization response.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Mix-up defense. Issuer declared in RFC 8414 metadata. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). iss validation is the platform's response handling; the business-side iss emission is IDL-018 (checked). Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-013",
-      "requirement": "Platforms SHOULD include a unique unguessable state parameter in the authorization request to prevent CSRF.",
-      "keyword": "SHOULD",
-      "source": "ucp:docs/specification/identity-linking.md#L145-L147",
-      "quote": "**SHOULD** include a unique, unguessable `state` parameter in the\n    authorization request to prevent CSRF",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-014",
-      "requirement": "Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L149-L151",
-      "quote": "**MUST** call the business's token revocation endpoint\n        ([RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009){ target=\"_blank\" })\n        when a user initiates an unlink action on the platform side.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Restated at Security Considerations L617-L618. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side revocation endpoint is IDL-027/028 (checked). Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-015",
-      "requirement": "Businesses MUST implement OAuth 2.0.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L159-L160",
-      "quote": "**MUST** implement OAuth 2.0\n    ([RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749){ target=\"_blank\" }).",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-016",
-      "requirement": "Businesses MUST publish authorization server metadata via RFC 8414 at /.well-known/oauth-authorization-server.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L161-L163",
-      "quote": "**MUST** publish authorization server metadata via\n    [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }\n    at `/.well-known/oauth-authorization-server`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 8414 well-known metadata is a fetchable endpoint; RFC 8414 discovery is the 04-08 rework."
-    },
-    {
-      "id": "IDL-017",
-      "requirement": "Businesses MUST populate scopes_supported in RFC 8414 metadata so platforms can detect scope mismatches before initiating an authorization flow.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L164-L167",
-      "quote": "**MUST** populate `scopes_supported` in\n    [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }\n    metadata to allow platforms\n    to detect scope mismatches before initiating an authorization flow.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Restated at Security Considerations L613-L614."
-    },
-    {
-      "id": "IDL-018",
-      "requirement": "Businesses MUST return the iss parameter in the authorization response.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L168-L169",
-      "quote": "**MUST** return the `iss` parameter in the authorization response\n    ([RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207){ target=\"_blank\" }).",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Mix-up defense companion to IDL-012. Restated at L589-L590. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-019",
-      "requirement": "Businesses MUST enforce PKCE validation at the token endpoint for all authorization code exchanges; requests without a valid code_verifier MUST be rejected.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L170-L173",
-      "quote": "**MUST** enforce PKCE\n    ([RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636){ target=\"_blank\" })\n    validation at the token endpoint for all authorization code exchanges.\n    Requests without a valid `code_verifier` **MUST** be rejected.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-020",
-      "requirement": "Businesses MUST enforce exact string matching for the redirect_uri parameter during authorization requests; the token-request redirect_uri MUST be identical to the authorization-request one.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L174-L177",
-      "quote": "**MUST** enforce exact string matching for the `redirect_uri` parameter\n    during authorization requests to prevent open redirects and token theft.\n    The `redirect_uri` in the token request **MUST** be identical to the one\n    in the authorization request.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Loopback exception (127.0.0.1 / [::1]): ignore port, match scheme/host/path. Restated at Security Considerations L602-L604. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-021",
-      "requirement": "For loopback redirect URIs (127.0.0.1 or [::1]) businesses MUST ignore the port component and match on scheme, host, and path only.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L177-L181",
-      "quote": "**Exception \u2014 loopback redirects:** For\n    redirect URIs targeting `127.0.0.1` or `[::1]`, businesses **MUST** ignore\n    the port component and match on scheme, host, and path only",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 8252 \u00a77.3 native/desktop ephemeral ports. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-022",
-      "requirement": "Businesses MUST declare supported client authentication methods in token_endpoint_auth_methods_supported and enforce one of the declared methods at the token endpoint.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L183-L185",
-      "quote": "**MUST** declare supported client authentication methods in\n    `token_endpoint_auth_methods_supported`\n    ([RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }) and enforce one of the declared methods at the token endpoint.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Presence in RFC 8414 metadata is fetch-testable; enforcement is needs-oauth."
-    },
-    {
-      "id": "IDL-023",
-      "requirement": "When 'none' is advertised, businesses MUST require PKCE with S256 and MUST reject any authorization code redemption lacking a valid code_verifier.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L190-L192",
-      "quote": "When `none` is advertised, businesses **MUST** require PKCE with `S256` and\n    **MUST** reject any authorization code redemption that lacks a valid\n    `code_verifier`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Public-client path. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-024",
-      "requirement": "Requests that fail the negotiated authentication method MUST be rejected with invalid_client; requests that fail PKCE MUST be rejected with invalid_grant.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L192-L194",
-      "quote": "Requests that fail the negotiated authentication method\n    **MUST** be rejected with `invalid_client`; requests that fail PKCE\n    **MUST** be rejected with `invalid_grant`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-025",
-      "requirement": "Businesses MUST validate user identity tokens on every user-authenticated request (iss, aud, exp, scopes, and client_id/azp).",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L195-L199",
-      "quote": "**MUST** validate user identity tokens on every user-authenticated request:\n    verify `iss`, `aud` (the business's resource server identifier), `exp`,\n    scopes, and `client_id` / `azp` (or equivalent) to confirm the token was\n    issued to the authenticated platform client",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "needs-oauth",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 9068 \u00a74. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Graded on its observable core: an unverifiable/tampered Bearer token on a user-authenticated request is rejected with the invalid_token challenge; whether validation specifically inspects iss/aud/exp/azp is not black-box distinguishable. W2-F5 (2026-07-03): the identity.invalid_token_challenge check grades only the observable garbage-token core, which is NOT the full RFC 9068 claims validation this row demands (iss/aud/exp/azp on every request) \u2014 citation dropped rather than counting a partially-verified row. W3 (2026-07-03): the fixture now mints deterministic expired/revoked tokens (POST /testing/oauth/mint, config identity.token_mint) and identity.expired_token_rejected / identity.revoked_token_rejected (citing IDL-042 — its quote names 'expired') confirm the business validates exp + revocation on EVERY request; the --oauth-accept-any-token mutant proves those checks. That strengthens IDL-042's observable subset but does NOT close IDL-025: for an OPAQUE-token business the token carries no inspectable iss/aud/azp claims, and a resource request presents only the Bearer token (no client identity to bind), so aud (resource-server id) and client_id/azp validation are NOT black-box distinguishable. Kept needs-oauth rather than counting a partially-verified row (W2-F5 precedent). A reviewer MAY reclassify to manual (partial: exp/revocation/unverifiable observable; aud/azp irreducible for opaque tokens)."
-    },
-    {
-      "id": "IDL-026",
-      "requirement": "Businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 Unauthorized (identity_required) and 403 Forbidden (insufficient_scope) responses to user-authenticated operations.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L200-L203",
-      "quote": "**MUST** emit a `WWW-Authenticate: Bearer` challenge per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401 Unauthorized` (`identity_required`) and `403 Forbidden`\n    (`insufficient_scope`) responses to user-authenticated operations.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Restated at Security Considerations L593-L595. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-027",
-      "requirement": "Businesses MUST implement token revocation; revoking a refresh_token MUST also immediately invalidate all access_tokens issued from it.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L206-L209",
-      "quote": "**MUST** implement token revocation\n    ([RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009){ target=\"_blank\" }).\n    Revoking a `refresh_token` **MUST** also immediately invalidate all\n    `access_token`s issued from it.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-028",
-      "requirement": "Businesses MUST support revocation requests authenticated with the same client credentials used at the token endpoint.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L210-L211",
-      "quote": "**MUST** support revocation requests authenticated with the same client\n    credentials used at the token endpoint.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-029",
-      "requirement": "Businesses MUST support standard UCP scopes as defined in the Scopes section.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L216-L217",
-      "quote": "**MUST** support standard UCP scopes as defined in the\n    [Scopes](#scopes) section.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Scope vocabulary: *.catalog.*:read, checkout:manage, order:read, order:manage. Capability-driven scopes new in 04-08 rework. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-030",
-      "requirement": "Businesses SHOULD publish protected resource metadata at /.well-known/oauth-protected-resource and reference it via the resource_metadata parameter in WWW-Authenticate challenges.",
-      "keyword": "SHOULD",
-      "source": "ucp:docs/specification/identity-linking.md#L218-L222",
-      "quote": "**SHOULD** publish protected resource metadata at\n    `/.well-known/oauth-protected-resource`\n    ([RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728){ target=\"_blank\" })\n    and reference it via the `resource_metadata` parameter in\n    `WWW-Authenticate` challenges.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": ""
-    },
-    {
-      "id": "IDL-031",
-      "requirement": "On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L240-L241",
-      "quote": "Any other non-2xx response, network error, or timeout: **MUST** abort.\n      **MUST NOT** proceed to step 2.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Strict two-tier discovery hierarchy; RFC 8414 primary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery abort semantics are the platform's fetch behavior. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-032",
-      "requirement": "Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery.",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/identity-linking.md#L249-L251",
-      "quote": "Platforms **MUST NOT** silently fall through on any error other than `404` in\nstep 1.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery fall-through is the platform's fetch behavior. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-033",
-      "requirement": "The issuer value in discovered metadata MUST match the discovery base URI exactly; platforms MUST NOT normalize before comparison (byte-for-byte match).",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L253-L257",
-      "quote": "The `issuer` value in the discovered metadata **MUST** match the discovery\nbase URI exactly ... Platforms **MUST NOT** normalize (e.g., strip trailing slashes) before\ncomparison \u2014 the value must be a byte-for-byte match.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "RFC 8414 \u00a73.3. Restated at Security Considerations L605-L607. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (metadata issuer == discovery base, byte-for-byte); the 'platforms MUST NOT normalize' half is platform-bound."
-    },
-    {
-      "id": "IDL-034",
-      "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L297-L299",
-      "quote": "Platforms **MUST** request only the derived scope set \u2014 not a superset.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Derived from business config.scopes. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Requesting only the derived scope set is the platform's request authoring. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-035",
-      "requirement": "On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L301-L305",
-      "quote": "the platform **MUST** verify that the `state`\nparameter matches the value sent in step 2, and that the `iss` parameter\nmatches the authorization server's `issuer` URI from discovered metadata.\nIf either check fails, the platform **MUST** discard the authorization\nresponse.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). state/iss verification is the platform's response handling. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-036",
-      "requirement": "The token-request code_verifier MUST correspond to the code_challenge sent in the authorization request; businesses MUST reject token requests where code_verifier is absent or does not verify.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L307-L310",
-      "quote": "The `code_verifier` **MUST** correspond to the\n`code_challenge` sent in step 2. Businesses **MUST** reject token requests\nwhere `code_verifier` is absent or does not verify against the stored\n`code_challenge`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (token requests with an absent/non-verifying code_verifier are rejected); the platform half (send the corresponding verifier) is requester-bound."
-    },
-    {
-      "id": "IDL-037",
-      "requirement": "Scope names MUST match the pattern ^[a-z][a-z0-9_]*$.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L339-L340",
-      "quote": "Scope names **MUST** match the pattern `^[a-z][a-z0-9_]*$`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": true,
-      "notes": "Full scope_token pattern enforced in schema identity_linking.json#L26 (^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$). Scope vocabulary: {capability}:{scope} e.g. *.catalog.*:read, checkout:manage, order:read, order:manage."
-    },
-    {
-      "id": "IDL-038",
-      "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L348-L350",
-      "quote": "Platforms **MUST** treat any\nscope listed in `config.scopes` \u2014 well-known or custom \u2014 as gating its\noperations behind user authentication.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "config.scopes hard-gates user-auth operations vs scopes_supported accepted vocabulary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Treating config.scopes as gating is the platform's interpretation duty. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-039",
-      "requirement": "Platforms MUST ignore unrecognized fields in a per-scope policy object.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L358-L359",
-      "quote": "Platforms **MUST** ignore\nunrecognized fields.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "scope_policy is additionalProperties:true in schema. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring unrecognized per-scope policy fields is the platform's parsing duty. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-040",
-      "requirement": "On identity_required the business MUST return 401 Unauthorized, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'identity_required'.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L414-L422",
-      "quote": "the business **MUST** return:\n\n* HTTP `401 Unauthorized`\n* A `WWW-Authenticate: Bearer` challenge header per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n* A UCP error response body containing a message with\n    `code: \"identity_required\"`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-041",
-      "requirement": "The identity_required WWW-Authenticate header MUST include a realm parameter set to the business's issuer URI from RFC 8414 metadata.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L424-L426",
-      "quote": "The `WWW-Authenticate` header **MUST** include a `realm` parameter set to\nthe business's issuer URI as declared in",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "realm MUST match issuer URI; see L600-L601. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-042",
-      "requirement": "When the request included a token that was invalid/expired/unverifiable, the identity_required header MUST also include error=\"invalid_token\".",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L427-L429",
-      "quote": "When the request included a token but it was invalid, expired, or\nunverifiable, the header **MUST** also include `error=\"invalid_token\"`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "When no token presented, error SHOULD be omitted (RFC 6750 \u00a73.1). Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-043",
-      "requirement": "The identity_required WWW-Authenticate header SHOULD include a resource_metadata parameter pointing to the protected resource metadata document.",
-      "keyword": "SHOULD",
-      "source": "ucp:docs/specification/identity-linking.md#L432-L435",
-      "quote": "The header **SHOULD** include a `resource_metadata` parameter\n([RFC 9728 \u00a75.1](https://datatracker.ietf.org/doc/html/rfc9728#section-5.1){ target=\"_blank\" })\npointing to the protected resource metadata document",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-044",
-      "requirement": "continue_url MUST NOT be used to convey a pre-baked OAuth authorization request; the platform constructs its own authorization request.",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/identity-linking.md#L440-L443",
-      "quote": "`continue_url`\n**MUST NOT** be used to convey a pre-baked OAuth\nauthorization request; the platform constructs its own authorization\nrequest from the `WWW-Authenticate` challenge and discovered metadata",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-045",
-      "requirement": "On insufficient_scope the business MUST return 403 Forbidden, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'insufficient_scope'.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L489-L496",
-      "quote": "the business **MUST** return:\n\n* HTTP `403 Forbidden`\n* A `WWW-Authenticate: Bearer` challenge header per RFC 6750 \u00a73\n* A UCP error response body containing a message with\n    `code: \"insufficient_scope\"`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-046",
-      "requirement": "The insufficient_scope WWW-Authenticate header MUST include realm, error=\"insufficient_scope\", and scope=\"<space-separated full required scope set>\".",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L498-L502",
-      "quote": "The `WWW-Authenticate` header **MUST** include:\n\n* `realm=\"<business issuer URI>\"`\n* `error=\"insufficient_scope\"`\n* `scope=\"<space-separated full required scope set for the operation>\"`",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-047",
-      "requirement": "The insufficient_scope scope parameter MUST list the full set of scopes required for the operation, not just the missing ones.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L507-L509",
-      "quote": "The `scope` parameter **MUST** list the **full** set of scopes required\nfor the operation, not just the missing ones.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Enables incremental authorization. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-048",
-      "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/identity-linking.md#L535-L538",
-      "quote": "Platforms **MUST NOT** retry an `insufficient_scope` response by\n> re-initiating a fresh account linking flow \u2014 they **MUST** instead request\n> only the missing scope(s) via incremental authorization to preserve\n> previously granted scopes.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Incremental-authorization retry behavior is the platform's flow control. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-049",
-      "requirement": "Plain PKCE (plain) MUST NOT be used; PKCE S256 is REQUIRED for all authorization code flows, and businesses MUST reject exchanges without a valid code_verifier.",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/identity-linking.md#L570-L572",
-      "quote": "PKCE (`S256`) is REQUIRED for all authorization code flows.\n  Plain PKCE (`plain`) **MUST NOT** be used. Businesses **MUST** reject\n  authorization code exchanges without a valid `code_verifier`.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Security Considerations. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-050",
-      "requirement": "Public clients cannot keep a client_secret confidential and MUST use 'none'; businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L578-L585",
-      "quote": "Public clients (native, desktop, and\n  on-device agents per\n  [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n  cannot keep a `client_secret` confidential and **MUST** use `none`... Businesses **MUST NOT** require\n  `client_secret_basic` as the only method when serving native or agent\n  platforms.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-051",
-      "requirement": "Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L596-L599",
-      "quote": "Platforms\n  **MUST** process the structured `scope` and `error` parameters to drive\n  authorization flow decisions; `error_description` is a human-readable\n  hint only and **MUST NOT** be used for control-flow decisions.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Platforms drive flow from structured scope/error params, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Driving flow decisions from structured params is the platform's logic. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-052",
-      "requirement": "The realm parameter MUST match the business's issuer URI so platforms can correlate the challenge with the correct authorization server.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L599-L601",
-      "quote": "The\n  `realm` parameter **MUST** match the business's issuer URI so platforms\n  can correlate the challenge with the correct authorization server.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
-    },
-    {
-      "id": "IDL-053",
-      "requirement": "All communication between platform and business MUST use HTTPS with a minimum of TLS 1.2.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L610-L612",
-      "quote": "All communication between platform and business\n  **MUST** use HTTPS with a minimum of TLS 1.2",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": false,
-      "schema_enforced": false,
-      "notes": "TLS version assertion requires CLI/transport-level inspection, not browser fetch."
-    },
-    {
-      "id": "IDL-054",
-      "requirement": "Platforms SHOULD verify the derived scope set is a subset of scopes_supported before initiating the authorization flow.",
-      "keyword": "SHOULD",
-      "source": "ucp:docs/specification/identity-linking.md#L613-L616",
-      "quote": "Platforms **SHOULD** verify that the derived scope set is\n  a subset of `scopes_supported` before initiating the authorization flow, to\n  fail fast on scope mismatches rather than at the consent screen.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "config.scopes vs scopes_supported relationship. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The scopes_supported subset pre-check is the platform's; the business-side scopes_supported publication is IDL-017 (checked). Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-055",
-      "requirement": "Platforms MUST revoke user identity tokens at the business's revocation endpoint when a user unlinks; businesses MUST reject subsequent requests that present revoked tokens.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L617-L619",
-      "quote": "Platforms **MUST** revoke user identity tokens at the\n  business's revocation endpoint (RFC 7009) when a user unlinks their account.\n  Businesses **MUST** reject subsequent requests that present revoked tokens.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (revoked tokens are rejected after RFC 7009 revocation); the 'platforms MUST revoke on unlink' half is platform-bound."
-    },
-    {
-      "id": "IDL-056",
-      "requirement": "When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L646-L649",
-      "quote": "When `config.providers` is\nabsent (as in v1), platforms **MUST** fall back to direct OAuth 2.0 against the\nbusiness domain via RFC 8414 discovery.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Forward-compat. config.providers is a reserved extension point in schema $comment. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The v1 fallback is the platform's flow selection. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-057",
-      "requirement": "When config contains fields not defined in this version, platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L651-L654",
-      "quote": "When `config` contains fields\nnot defined in this version of the spec (`providers` or any other future field),\nplatforms **MUST** ignore those fields and proceed using OAuth 2.0 with RFC 8414\ndiscovery on the business domain, as defined here.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring future config fields is the platform's parsing duty. Platform-conformance exemption candidate."
-    },
-    {
-      "id": "IDL-058",
-      "requirement": "authorization_response_iss_parameter_supported and code_challenge_methods_supported:[\"S256\"] MUST both be present in UCP-compliant RFC 8414 metadata.",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L689-L691",
-      "quote": "`code_challenge_methods_supported: [\"S256\"]` signals PKCE.\nBoth **MUST** be present in UCP-compliant metadata.",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "authorization_response_iss_parameter_supported:true advertises RFC 9207; fetchable from /.well-known/oauth-authorization-server."
-    },
-    {
-      "id": "IDL-059",
-      "requirement": "config.scopes property names MUST conform to the scope_token pattern {capability}:{scope}.",
-      "keyword": "MUST",
-      "source": "ucp:source/schemas/common/identity_linking.json#L26",
-      "quote": "\"pattern\": \"^[a-z][a-z0-9]*(?:\\\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$\"",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": true,
-      "notes": "scope_token $def applied as propertyNames of config.scopes (schema L54). Capability-driven scope vocabulary new in 04-08 rework."
-    },
-    {
-      "id": "IDL-060",
-      "requirement": "Business identity_linking config object is required and MUST contain a 'scopes' property.",
-      "keyword": "MUST",
-      "source": "ucp:source/schemas/common/identity_linking.json#L44-L49",
-      "quote": "\"required\": [\"config\"],...\"required\": [\"scopes\"],",
-      "versions": [
-        "2026-04-08"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": true,
-      "notes": "business_schema requires config; config requires scopes (config.scopes). additionalProperties:true keeps config open for the reserved providers extension point."
-    }
-  ],
-  "notes": [
-    "No official conformance oracle exists for identity-linking: .vendor/conformance contains only checkout/order/fulfillment/card-credential/webhook/etc. tests; grep found no identity-linking, oauth, or scope tests. All rows official_oracle=false.",
-    "Identity linking EXISTED in the 2026-01-23 version, but the 2026-04-08 version REWORKED it onto capability-driven scopes ({capability}:{scope}) and RFC 8414 authorization-server discovery. This is the spec-significant delta; flagged on rows IDL-001, IDL-016, IDL-029, IDL-037, IDL-059.",
-    "Almost all normative rows are OAuth-flow obligations requiring a live authorization server / browser-driven consent, hence testability=needs-oauth. The fetch-only obligations (RFC 8414 metadata presence: scopes_supported, token_endpoint_auth_methods_supported, code_challenge_methods_supported, authorization_response_iss_parameter_supported, protected-resource metadata, well-known publication) are marked testable. TLS-1.2-minimum (IDL-053) is testable but not browser_capable (transport-level inspection).",
-    "schema_enforced=true only for real JSON-Schema constraints in identity_linking.json: scope_token regex pattern (IDL-037/IDL-059) and the required config/scopes structure (IDL-060). The scope-name pattern ^[a-z][a-z0-9_]*$ in prose (IDL-037) is a subset of the full schema scope_token pattern.",
-    "Scope vocabulary referenced across rows: *.catalog.*:read, dev.ucp.shopping.checkout:manage, dev.ucp.shopping.order:read, dev.ucp.shopping.order:manage (well-known); businesses MAY declare custom scopes following the same {capability}:{scope} convention.",
-    "config.scopes (UCP hard gates: scopes that REQUIRE user auth) vs OAuth scopes_supported (accepted vocabulary the AS will honor) are distinct; their set difference is the optional/auth-unlocked layer (IDL-017, IDL-038, IDL-054)."
-  ]
+ "_area": "identity-linking",
+ "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+ "rows": [
+  {
+   "id": "IDL-001",
+   "requirement": "Identity linking uses OAuth 2.0 as the v1 auth mechanism.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L34-L35",
+   "quote": "**This specification uses\n[OAuth 2.0](https://datatracker.ietf.org/doc/html/rfc6749){ target=\"_blank\" }**\nas the v1 auth mechanism.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Capability dev.ucp.common.identity_linking. Identity-linking existed in 2026-01-23 but 04-08 reworked it to capability-driven scopes / RFC 8414 discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-002",
+   "requirement": "Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L98-L100",
+   "quote": "**MUST** authenticate token endpoint requests using a method advertised in\n    the business's `token_endpoint_auth_methods_supported` metadata",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 8414 metadata field. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Token-endpoint auth method selection is the platform's request behavior. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-003",
+   "requirement": "Confidential clients SHOULD prefer asymmetric token-endpoint auth methods (private_key_jwt or tls_client_auth) and MAY use client_secret_basic where supported.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/identity-linking.md#L101-L110",
+   "quote": "**Confidential clients** (server-side platforms that can protect a\n        credential) **SHOULD** prefer asymmetric methods \u2014\n        `private_key_jwt`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "MAY client_secret_basic where business supports it. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Confidential-client method preference is the platform's choice. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-004",
+   "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L111-L116",
+   "quote": "**Public clients** (native, desktop, browser-extension, and on-device\n        agent runtimes per\n        [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n        **MUST** use `none` and rely on PKCE with `S256`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Capability-driven OAuth model new in 04-08 rework. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Public-client method choice + PKCE use are the platform's request behavior. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-005",
+   "requirement": "Public clients MUST NOT embed a client_secret.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/identity-linking.md#L116-L117",
+   "quote": "Public clients\n        **MUST NOT** embed a `client_secret`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Mirrored at Security Considerations L581. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Not embedding a client_secret is a property of the platform's distributed binary. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-006",
+   "requirement": "Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L119-L120",
+   "quote": "Platforms **MUST** select the strongest method offered by the business\n    that is compatible with the platform's deployment model.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Method-strength selection is the platform's negotiation behavior. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-007",
+   "requirement": "Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L121-L122",
+   "quote": "**MUST** include user identity tokens in the HTTP `Authorization` header\n    using the Bearer scheme: `Authorization: Bearer <access_token>`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 6750 \u00a72.1. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The Authorization: Bearer header is authored by the platform. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-008",
+   "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L124-L126",
+   "quote": "**MUST** process `WWW-Authenticate: Bearer` challenges per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401` and `403` responses to user-authenticated operations.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Challenge processing is the platform's response handling. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-009",
+   "requirement": "Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L127-L128",
+   "quote": "Platforms **MUST** extract the `scope` parameter (when present) to\n    construct subsequent authorization requests",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platforms drive flow from structured scope param, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Extracting the scope param is the platform's response handling. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-010",
+   "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L132-L134",
+   "quote": "**MUST** implement the OAuth 2.0 Authorization Code flow\n    ([RFC 6749 \u00a74.1](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1){ target=\"_blank\" })\n    as the account linking mechanism.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Authorization Code flow is mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The account-linking flow choice is the platform's client implementation. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-011",
+   "requirement": "Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L135-L137",
+   "quote": "**MUST** use PKCE\n    ([RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636){ target=\"_blank\" })\n    with `code_challenge_method=S256` for all authorization code exchanges.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "PKCE S256 mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). PKCE use on the request side is the platform's; the business-side enforcement is IDL-019/023/036/049 (checked). Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-012",
+   "requirement": "Platforms MUST validate the iss parameter in the authorization response to prevent Mix-Up Attacks, verifying it matches the AS issuer URI; if it does not match they MUST abort and discard the authorization response.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L138-L144",
+   "quote": "**MUST** validate the `iss` parameter in the authorization response\n    ([RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207){ target=\"_blank\" })\n    to prevent Mix-Up Attacks. The platform **MUST** verify that the `iss`\n    value matches the authorization server's issuer URI ... If the values do not match, the platform **MUST**\n    abort and discard the authorization response.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Mix-up defense. Issuer declared in RFC 8414 metadata. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). iss validation is the platform's response handling; the business-side iss emission is IDL-018 (checked). Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-013",
+   "requirement": "Platforms SHOULD include a unique unguessable state parameter in the authorization request to prevent CSRF.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/identity-linking.md#L145-L147",
+   "quote": "**SHOULD** include a unique, unguessable `state` parameter in the\n    authorization request to prevent CSRF",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-014",
+   "requirement": "Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L149-L151",
+   "quote": "**MUST** call the business's token revocation endpoint\n        ([RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009){ target=\"_blank\" })\n        when a user initiates an unlink action on the platform side.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Restated at Security Considerations L617-L618. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side revocation endpoint is IDL-027/028 (checked). Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-015",
+   "requirement": "Businesses MUST implement OAuth 2.0.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L159-L160",
+   "quote": "**MUST** implement OAuth 2.0\n    ([RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749){ target=\"_blank\" }).",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-016",
+   "requirement": "Businesses MUST publish authorization server metadata via RFC 8414 at /.well-known/oauth-authorization-server.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L161-L163",
+   "quote": "**MUST** publish authorization server metadata via\n    [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }\n    at `/.well-known/oauth-authorization-server`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 8414 well-known metadata is a fetchable endpoint; RFC 8414 discovery is the 04-08 rework."
+  },
+  {
+   "id": "IDL-017",
+   "requirement": "Businesses MUST populate scopes_supported in RFC 8414 metadata so platforms can detect scope mismatches before initiating an authorization flow.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L164-L167",
+   "quote": "**MUST** populate `scopes_supported` in\n    [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }\n    metadata to allow platforms\n    to detect scope mismatches before initiating an authorization flow.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Restated at Security Considerations L613-L614."
+  },
+  {
+   "id": "IDL-018",
+   "requirement": "Businesses MUST return the iss parameter in the authorization response.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L168-L169",
+   "quote": "**MUST** return the `iss` parameter in the authorization response\n    ([RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207){ target=\"_blank\" }).",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Mix-up defense companion to IDL-012. Restated at L589-L590. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-019",
+   "requirement": "Businesses MUST enforce PKCE validation at the token endpoint for all authorization code exchanges; requests without a valid code_verifier MUST be rejected.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L170-L173",
+   "quote": "**MUST** enforce PKCE\n    ([RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636){ target=\"_blank\" })\n    validation at the token endpoint for all authorization code exchanges.\n    Requests without a valid `code_verifier` **MUST** be rejected.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-020",
+   "requirement": "Businesses MUST enforce exact string matching for the redirect_uri parameter during authorization requests; the token-request redirect_uri MUST be identical to the authorization-request one.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L174-L177",
+   "quote": "**MUST** enforce exact string matching for the `redirect_uri` parameter\n    during authorization requests to prevent open redirects and token theft.\n    The `redirect_uri` in the token request **MUST** be identical to the one\n    in the authorization request.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Loopback exception (127.0.0.1 / [::1]): ignore port, match scheme/host/path. Restated at Security Considerations L602-L604. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-021",
+   "requirement": "For loopback redirect URIs (127.0.0.1 or [::1]) businesses MUST ignore the port component and match on scheme, host, and path only.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L177-L181",
+   "quote": "**Exception \u2014 loopback redirects:** For\n    redirect URIs targeting `127.0.0.1` or `[::1]`, businesses **MUST** ignore\n    the port component and match on scheme, host, and path only",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 8252 \u00a77.3 native/desktop ephemeral ports. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-022",
+   "requirement": "Businesses MUST declare supported client authentication methods in token_endpoint_auth_methods_supported and enforce one of the declared methods at the token endpoint.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L183-L185",
+   "quote": "**MUST** declare supported client authentication methods in\n    `token_endpoint_auth_methods_supported`\n    ([RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }) and enforce one of the declared methods at the token endpoint.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Presence in RFC 8414 metadata is fetch-testable; enforcement is needs-oauth."
+  },
+  {
+   "id": "IDL-023",
+   "requirement": "When 'none' is advertised, businesses MUST require PKCE with S256 and MUST reject any authorization code redemption lacking a valid code_verifier.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L190-L192",
+   "quote": "When `none` is advertised, businesses **MUST** require PKCE with `S256` and\n    **MUST** reject any authorization code redemption that lacks a valid\n    `code_verifier`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Public-client path. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-024",
+   "requirement": "Requests that fail the negotiated authentication method MUST be rejected with invalid_client; requests that fail PKCE MUST be rejected with invalid_grant.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L192-L194",
+   "quote": "Requests that fail the negotiated authentication method\n    **MUST** be rejected with `invalid_client`; requests that fail PKCE\n    **MUST** be rejected with `invalid_grant`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-025",
+   "requirement": "Businesses MUST validate user identity tokens on every user-authenticated request (iss, aud, exp, scopes, and client_id/azp).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L195-L199",
+   "quote": "**MUST** validate user identity tokens on every user-authenticated request:\n    verify `iss`, `aud` (the business's resource server identifier), `exp`,\n    scopes, and `client_id` / `azp` (or equivalent) to confirm the token was\n    issued to the authenticated platform client",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 9068 \u00a74. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Graded on its observable core: an unverifiable/tampered Bearer token on a user-authenticated request is rejected with the invalid_token challenge; whether validation specifically inspects iss/aud/exp/azp is not black-box distinguishable. W2-F5 (2026-07-03): the identity.invalid_token_challenge check grades only the observable garbage-token core, which is NOT the full RFC 9068 claims validation this row demands (iss/aud/exp/azp on every request) \u2014 citation dropped rather than counting a partially-verified row. W3 (2026-07-03): the fixture now mints deterministic expired/revoked tokens (POST /testing/oauth/mint, config identity.token_mint) and identity.expired_token_rejected / identity.revoked_token_rejected (citing IDL-042 \u2014 its quote names 'expired') confirm the business validates exp + revocation on EVERY request; the --oauth-accept-any-token mutant proves those checks. That strengthens IDL-042's observable subset but does NOT close IDL-025: for an OPAQUE-token business the token carries no inspectable iss/aud/azp claims, and a resource request presents only the Bearer token (no client identity to bind), so aud (resource-server id) and client_id/azp validation are NOT black-box distinguishable. Kept needs-oauth rather than counting a partially-verified row (W2-F5 precedent). A reviewer MAY reclassify to manual (partial: exp/revocation/unverifiable observable; aud/azp irreducible for opaque tokens)."
+  },
+  {
+   "id": "IDL-026",
+   "requirement": "Businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 Unauthorized (identity_required) and 403 Forbidden (insufficient_scope) responses to user-authenticated operations.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L200-L203",
+   "quote": "**MUST** emit a `WWW-Authenticate: Bearer` challenge per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401 Unauthorized` (`identity_required`) and `403 Forbidden`\n    (`insufficient_scope`) responses to user-authenticated operations.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Restated at Security Considerations L593-L595. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-027",
+   "requirement": "Businesses MUST implement token revocation; revoking a refresh_token MUST also immediately invalidate all access_tokens issued from it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L206-L209",
+   "quote": "**MUST** implement token revocation\n    ([RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009){ target=\"_blank\" }).\n    Revoking a `refresh_token` **MUST** also immediately invalidate all\n    `access_token`s issued from it.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-028",
+   "requirement": "Businesses MUST support revocation requests authenticated with the same client credentials used at the token endpoint.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L210-L211",
+   "quote": "**MUST** support revocation requests authenticated with the same client\n    credentials used at the token endpoint.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-029",
+   "requirement": "Businesses MUST support standard UCP scopes as defined in the Scopes section.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L216-L217",
+   "quote": "**MUST** support standard UCP scopes as defined in the\n    [Scopes](#scopes) section.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Scope vocabulary: *.catalog.*:read, checkout:manage, order:read, order:manage. Capability-driven scopes new in 04-08 rework. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-030",
+   "requirement": "Businesses SHOULD publish protected resource metadata at /.well-known/oauth-protected-resource and reference it via the resource_metadata parameter in WWW-Authenticate challenges.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/identity-linking.md#L218-L222",
+   "quote": "**SHOULD** publish protected resource metadata at\n    `/.well-known/oauth-protected-resource`\n    ([RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728){ target=\"_blank\" })\n    and reference it via the `resource_metadata` parameter in\n    `WWW-Authenticate` challenges.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": ""
+  },
+  {
+   "id": "IDL-031",
+   "requirement": "On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L240-L241",
+   "quote": "Any other non-2xx response, network error, or timeout: **MUST** abort.\n      **MUST NOT** proceed to step 2.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Strict two-tier discovery hierarchy; RFC 8414 primary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery abort semantics are the platform's fetch behavior. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-032",
+   "requirement": "Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/identity-linking.md#L249-L251",
+   "quote": "Platforms **MUST NOT** silently fall through on any error other than `404` in\nstep 1.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery fall-through is the platform's fetch behavior. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-033",
+   "requirement": "The issuer value in discovered metadata MUST match the discovery base URI exactly; platforms MUST NOT normalize before comparison (byte-for-byte match).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L253-L257",
+   "quote": "The `issuer` value in the discovered metadata **MUST** match the discovery\nbase URI exactly ... Platforms **MUST NOT** normalize (e.g., strip trailing slashes) before\ncomparison \u2014 the value must be a byte-for-byte match.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "RFC 8414 \u00a73.3. Restated at Security Considerations L605-L607. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (metadata issuer == discovery base, byte-for-byte); the 'platforms MUST NOT normalize' half is platform-bound."
+  },
+  {
+   "id": "IDL-034",
+   "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L297-L299",
+   "quote": "Platforms **MUST** request only the derived scope set \u2014 not a superset.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Derived from business config.scopes. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Requesting only the derived scope set is the platform's request authoring. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-035",
+   "requirement": "On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L301-L305",
+   "quote": "the platform **MUST** verify that the `state`\nparameter matches the value sent in step 2, and that the `iss` parameter\nmatches the authorization server's `issuer` URI from discovered metadata.\nIf either check fails, the platform **MUST** discard the authorization\nresponse.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). state/iss verification is the platform's response handling. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-036",
+   "requirement": "The token-request code_verifier MUST correspond to the code_challenge sent in the authorization request; businesses MUST reject token requests where code_verifier is absent or does not verify.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L307-L310",
+   "quote": "The `code_verifier` **MUST** correspond to the\n`code_challenge` sent in step 2. Businesses **MUST** reject token requests\nwhere `code_verifier` is absent or does not verify against the stored\n`code_challenge`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (token requests with an absent/non-verifying code_verifier are rejected); the platform half (send the corresponding verifier) is requester-bound."
+  },
+  {
+   "id": "IDL-037",
+   "requirement": "Scope names MUST match the pattern ^[a-z][a-z0-9_]*$.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L339-L340",
+   "quote": "Scope names **MUST** match the pattern `^[a-z][a-z0-9_]*$`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Full scope_token pattern enforced in schema identity_linking.json#L26 (^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$). Scope vocabulary: {capability}:{scope} e.g. *.catalog.*:read, checkout:manage, order:read, order:manage."
+  },
+  {
+   "id": "IDL-038",
+   "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L348-L350",
+   "quote": "Platforms **MUST** treat any\nscope listed in `config.scopes` \u2014 well-known or custom \u2014 as gating its\noperations behind user authentication.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "config.scopes hard-gates user-auth operations vs scopes_supported accepted vocabulary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Treating config.scopes as gating is the platform's interpretation duty. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-039",
+   "requirement": "Platforms MUST ignore unrecognized fields in a per-scope policy object.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L358-L359",
+   "quote": "Platforms **MUST** ignore\nunrecognized fields.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "scope_policy is additionalProperties:true in schema. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring unrecognized per-scope policy fields is the platform's parsing duty. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-040",
+   "requirement": "On identity_required the business MUST return 401 Unauthorized, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'identity_required'.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L414-L422",
+   "quote": "the business **MUST** return:\n\n* HTTP `401 Unauthorized`\n* A `WWW-Authenticate: Bearer` challenge header per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n* A UCP error response body containing a message with\n    `code: \"identity_required\"`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-041",
+   "requirement": "The identity_required WWW-Authenticate header MUST include a realm parameter set to the business's issuer URI from RFC 8414 metadata.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L424-L426",
+   "quote": "The `WWW-Authenticate` header **MUST** include a `realm` parameter set to\nthe business's issuer URI as declared in",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "realm MUST match issuer URI; see L600-L601. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-042",
+   "requirement": "When the request included a token that was invalid/expired/unverifiable, the identity_required header MUST also include error=\"invalid_token\".",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L427-L429",
+   "quote": "When the request included a token but it was invalid, expired, or\nunverifiable, the header **MUST** also include `error=\"invalid_token\"`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "When no token presented, error SHOULD be omitted (RFC 6750 \u00a73.1). Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-043",
+   "requirement": "The identity_required WWW-Authenticate header SHOULD include a resource_metadata parameter pointing to the protected resource metadata document.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/identity-linking.md#L432-L435",
+   "quote": "The header **SHOULD** include a `resource_metadata` parameter\n([RFC 9728 \u00a75.1](https://datatracker.ietf.org/doc/html/rfc9728#section-5.1){ target=\"_blank\" })\npointing to the protected resource metadata document",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-044",
+   "requirement": "continue_url MUST NOT be used to convey a pre-baked OAuth authorization request; the platform constructs its own authorization request.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/identity-linking.md#L440-L443",
+   "quote": "`continue_url`\n**MUST NOT** be used to convey a pre-baked OAuth\nauthorization request; the platform constructs its own authorization\nrequest from the `WWW-Authenticate` challenge and discovered metadata",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-045",
+   "requirement": "On insufficient_scope the business MUST return 403 Forbidden, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'insufficient_scope'.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L489-L496",
+   "quote": "the business **MUST** return:\n\n* HTTP `403 Forbidden`\n* A `WWW-Authenticate: Bearer` challenge header per RFC 6750 \u00a73\n* A UCP error response body containing a message with\n    `code: \"insufficient_scope\"`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-046",
+   "requirement": "The insufficient_scope WWW-Authenticate header MUST include realm, error=\"insufficient_scope\", and scope=\"<space-separated full required scope set>\".",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L498-L502",
+   "quote": "The `WWW-Authenticate` header **MUST** include:\n\n* `realm=\"<business issuer URI>\"`\n* `error=\"insufficient_scope\"`\n* `scope=\"<space-separated full required scope set for the operation>\"`",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-047",
+   "requirement": "The insufficient_scope scope parameter MUST list the full set of scopes required for the operation, not just the missing ones.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L507-L509",
+   "quote": "The `scope` parameter **MUST** list the **full** set of scopes required\nfor the operation, not just the missing ones.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Enables incremental authorization. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-048",
+   "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/identity-linking.md#L535-L538",
+   "quote": "Platforms **MUST NOT** retry an `insufficient_scope` response by\n> re-initiating a fresh account linking flow \u2014 they **MUST** instead request\n> only the missing scope(s) via incremental authorization to preserve\n> previously granted scopes.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Incremental-authorization retry behavior is the platform's flow control. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-049",
+   "requirement": "Plain PKCE (plain) MUST NOT be used; PKCE S256 is REQUIRED for all authorization code flows, and businesses MUST reject exchanges without a valid code_verifier.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/identity-linking.md#L570-L572",
+   "quote": "PKCE (`S256`) is REQUIRED for all authorization code flows.\n  Plain PKCE (`plain`) **MUST NOT** be used. Businesses **MUST** reject\n  authorization code exchanges without a valid `code_verifier`.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Security Considerations. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-050",
+   "requirement": "Public clients cannot keep a client_secret confidential and MUST use 'none'; businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L578-L585",
+   "quote": "Public clients (native, desktop, and\n  on-device agents per\n  [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n  cannot keep a `client_secret` confidential and **MUST** use `none`... Businesses **MUST NOT** require\n  `client_secret_basic` as the only method when serving native or agent\n  platforms.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-051",
+   "requirement": "Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L596-L599",
+   "quote": "Platforms\n  **MUST** process the structured `scope` and `error` parameters to drive\n  authorization flow decisions; `error_description` is a human-readable\n  hint only and **MUST NOT** be used for control-flow decisions.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platforms drive flow from structured scope/error params, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Driving flow decisions from structured params is the platform's logic. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-052",
+   "requirement": "The realm parameter MUST match the business's issuer URI so platforms can correlate the challenge with the correct authorization server.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L599-L601",
+   "quote": "The\n  `realm` parameter **MUST** match the business's issuer URI so platforms\n  can correlate the challenge with the correct authorization server.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py."
+  },
+  {
+   "id": "IDL-053",
+   "requirement": "All communication between platform and business MUST use HTTPS with a minimum of TLS 1.2.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L610-L612",
+   "quote": "All communication between platform and business\n  **MUST** use HTTPS with a minimum of TLS 1.2",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "TLS version assertion requires CLI/transport-level inspection, not browser fetch."
+  },
+  {
+   "id": "IDL-054",
+   "requirement": "Platforms SHOULD verify the derived scope set is a subset of scopes_supported before initiating the authorization flow.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/identity-linking.md#L613-L616",
+   "quote": "Platforms **SHOULD** verify that the derived scope set is\n  a subset of `scopes_supported` before initiating the authorization flow, to\n  fail fast on scope mismatches rather than at the consent screen.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "config.scopes vs scopes_supported relationship. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The scopes_supported subset pre-check is the platform's; the business-side scopes_supported publication is IDL-017 (checked). Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-055",
+   "requirement": "Platforms MUST revoke user identity tokens at the business's revocation endpoint when a user unlinks; businesses MUST reject subsequent requests that present revoked tokens.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L617-L619",
+   "quote": "Platforms **MUST** revoke user identity tokens at the\n  business's revocation endpoint (RFC 7009) when a user unlinks their account.\n  Businesses **MUST** reject subsequent requests that present revoked tokens.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (revoked tokens are rejected after RFC 7009 revocation); the 'platforms MUST revoke on unlink' half is platform-bound."
+  },
+  {
+   "id": "IDL-056",
+   "requirement": "When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L646-L649",
+   "quote": "When `config.providers` is\nabsent (as in v1), platforms **MUST** fall back to direct OAuth 2.0 against the\nbusiness domain via RFC 8414 discovery.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Forward-compat. config.providers is a reserved extension point in schema $comment. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The v1 fallback is the platform's flow selection. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-057",
+   "requirement": "When config contains fields not defined in this version, platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L651-L654",
+   "quote": "When `config` contains fields\nnot defined in this version of the spec (`providers` or any other future field),\nplatforms **MUST** ignore those fields and proceed using OAuth 2.0 with RFC 8414\ndiscovery on the business domain, as defined here.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring future config fields is the platform's parsing duty. Platform-conformance exemption candidate."
+  },
+  {
+   "id": "IDL-058",
+   "requirement": "authorization_response_iss_parameter_supported and code_challenge_methods_supported:[\"S256\"] MUST both be present in UCP-compliant RFC 8414 metadata.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/identity-linking.md#L689-L691",
+   "quote": "`code_challenge_methods_supported: [\"S256\"]` signals PKCE.\nBoth **MUST** be present in UCP-compliant metadata.",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "authorization_response_iss_parameter_supported:true advertises RFC 9207; fetchable from /.well-known/oauth-authorization-server."
+  },
+  {
+   "id": "IDL-059",
+   "requirement": "config.scopes property names MUST conform to the scope_token pattern {capability}:{scope}.",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/identity_linking.json#L26",
+   "quote": "\"pattern\": \"^[a-z][a-z0-9]*(?:\\\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$\"",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "scope_token $def applied as propertyNames of config.scopes (schema L54). Capability-driven scope vocabulary new in 04-08 rework."
+  },
+  {
+   "id": "IDL-060",
+   "requirement": "Business identity_linking config object is required and MUST contain a 'scopes' property.",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/identity_linking.json#L44-L49",
+   "quote": "\"required\": [\"config\"],...\"required\": [\"scopes\"],",
+   "versions": [
+    "2026-04-08"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "business_schema requires config; config requires scopes (config.scopes). additionalProperties:true keeps config open for the reserved providers extension point."
+  },
+  {
+   "id": "IDL-061",
+   "keyword": "MUST",
+   "requirement": "The `issuer` value in RFC 8414 metadata and the `iss` parameter returned in authorization responses MUST be identical byte-for-byte; platforms MUST NOT normalize (e.g. strip trailing slashes) before comparison.",
+   "quote": "`iss` parameter in authorization responses **MUST** be identical ... (byte-for-byte). Platforms **MUST NOT** normalize before comparison.",
+   "source": "ucp:docs/specification/identity-linking.md#L604-L607",
+   "testability": "needs-oauth",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business (emits both the RFC 8414 `issuer` metadata value and the `iss` authorization-response parameter, which must be byte-identical) with a platform-side non-normalization corollary. Distinct from IDL-033 (issuer metadata value == discovery base URI) and IDL-018 (business must return `iss` at all): this row is the issuer-metadata-vs-iss-parameter equality invariant. Requires observing an OAuth authorization response, hence needs-oauth. [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "IDL-062",
+   "keyword": "MUST",
+   "requirement": "In the OIDC Discovery fallback (step 2, reached after RFC 8414 discovery in step 1 returns 404), if the {business-domain}/.well-known/openid-configuration fetch returns any non-2xx response, network error, or timeout, the platform MUST abort the identity linking process.",
+   "quote": "**OIDC Discovery (Fallback):** ... Any non-2xx response, network error, or timeout: **MUST** abort the ... identity linking process.",
+   "source": "ucp:docs/specification/identity-linking.md#L246",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Step-2 (OIDC fallback) abort obligation. IDL-031 covers only the step-1 (RFC 8414) abort; IDL-032 covers only the no-silent-fall-through rule for step 1. Neither covers a step-2 fetch failure. Platform-side discovery behavior, so not server-observable (consistent with IDL-031/IDL-032 being 'manual'). [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "_completeness_batch": "completeness-2026-07-03"
+  }
+ ],
+ "notes": [
+  "No official conformance oracle exists for identity-linking: .vendor/conformance contains only checkout/order/fulfillment/card-credential/webhook/etc. tests; grep found no identity-linking, oauth, or scope tests. All rows official_oracle=false.",
+  "Identity linking EXISTED in the 2026-01-23 version, but the 2026-04-08 version REWORKED it onto capability-driven scopes ({capability}:{scope}) and RFC 8414 authorization-server discovery. This is the spec-significant delta; flagged on rows IDL-001, IDL-016, IDL-029, IDL-037, IDL-059.",
+  "Almost all normative rows are OAuth-flow obligations requiring a live authorization server / browser-driven consent, hence testability=needs-oauth. The fetch-only obligations (RFC 8414 metadata presence: scopes_supported, token_endpoint_auth_methods_supported, code_challenge_methods_supported, authorization_response_iss_parameter_supported, protected-resource metadata, well-known publication) are marked testable. TLS-1.2-minimum (IDL-053) is testable but not browser_capable (transport-level inspection).",
+  "schema_enforced=true only for real JSON-Schema constraints in identity_linking.json: scope_token regex pattern (IDL-037/IDL-059) and the required config/scopes structure (IDL-060). The scope-name pattern ^[a-z][a-z0-9_]*$ in prose (IDL-037) is a subset of the full schema scope_token pattern.",
+  "Scope vocabulary referenced across rows: *.catalog.*:read, dev.ucp.shopping.checkout:manage, dev.ucp.shopping.order:read, dev.ucp.shopping.order:manage (well-known); businesses MAY declare custom scopes following the same {capability}:{scope} convention.",
+  "config.scopes (UCP hard gates: scopes that REQUIRE user auth) vs OAuth scopes_supported (accepted vocabulary the AS will honor) are distinct; their set difference is the optional/auth-unlocked layer (IDL-017, IDL-038, IDL-054)."
+ ]
 }

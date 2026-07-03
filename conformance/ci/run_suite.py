@@ -45,8 +45,10 @@ def gates(server):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
+        ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         ("coverage-lock", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py"), None, ()),
+        ("review-signoff", _py(ROOT / "conformance" / "coverage" / "verify_review_signoffs.py"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),
@@ -78,6 +80,9 @@ def gates(server):
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
+        ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
+                             "--config", str(ROOT / "conformance" / "ci" / "differential_flower.config.json")),
+         "golden", (2,)),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
     ]
 

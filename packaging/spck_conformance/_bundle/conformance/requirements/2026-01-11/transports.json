@@ -1,0 +1,64 @@
+{
+ "_area": "transports",
+ "_spec_commit": "see SOURCES.lock.json",
+ "rows": [
+  {
+   "id": "A2A-001",
+   "keyword": "MUST",
+   "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
+   "quote": "The checkout object **MUST** be returned as part of a `DataPart` object with\nkey `a2a.ucp.checkout`.",
+   "source": "ucp:docs/specification/checkout-a2a.md#L141",
+   "testability": "needs-receiver",
+   "transport": [
+    "a2a"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-01-11"
+   ],
+   "notes": "Subject: business agent (server) A2A response format. Genuinely missed. Version-specific line. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs A2A transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-001",
+   "keyword": "MUST NOT",
+   "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
+   "quote": "The `checkout` object in the request payload **MUST NOT** contain\n    an `id` field.",
+   "source": "ucp:docs/specification/checkout-mcp.md#L95",
+   "testability": "manual",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-01-11"
+   ],
+   "notes": "Subject: MCP client (identifier-pattern well-formedness). Not server-observable. Canonical id-field row for 2026-01-11. [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "MCP-002",
+   "keyword": "MUST",
+   "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, handle errors with UCP-specific codes embedded in the JSON-RPC error object, validate tool inputs against schemas, and support HTTP streaming",
+   "quote": "A conforming MCP transport implementation **MUST**:\n\n1.  Implement JSON-RPC 2.0 protocol correctly.\n2.  Provide all core checkout tools defined in this specification.\n3.  Handle errors with UCP-specific error codes embedded in the JSON-RPC error\n    object.\n4.  Validate tool inputs against UCP schemas.\n5.  Support HTTP transport with streaming.",
+   "source": "ucp:docs/specification/checkout-mcp.md#L597",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-01-11"
+   ],
+   "notes": "Subject: MCP endpoint (server). Genuinely missed. Canonical MCP-conformance list for 2026-01-11. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  }
+ ],
+ "notes": ""
+}

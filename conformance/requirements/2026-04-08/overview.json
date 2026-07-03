@@ -1,0 +1,273 @@
+{
+ "_area": "overview",
+ "_spec_commit": "see SOURCES.lock.json",
+ "rows": [
+  {
+   "id": "OVR-001",
+   "keyword": "MUST",
+   "requirement": "All capability and service names advertised in a profile MUST use the reverse-domain format {reverse-domain}.{service}.{capability}",
+   "quote": "All capability and service names **MUST** use the format:",
+   "source": "ucp:docs/specification/overview.md#L59",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business/platform profile author; server-observable via /.well-known/ucp (service & capability registry keys). Enforced by ucp.json services/capabilities propertyNames -> shopping/types/reverse_domain_name.json. No existing 2026-04-08 row covers capability/service name format (PAY-001 covers only the payment_handlers registry). Older versions row this as DISC-001. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-002",
+   "keyword": "REQUIRED",
+   "requirement": "Every advertised capability declaration MUST include spec and schema URL fields",
+   "quote": "The `spec` and `schema` fields are **REQUIRED** for all capabilities.",
+   "source": "ucp:docs/specification/overview.md#L82",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business/platform profile; server-observable via /.well-known/ucp. Enforced by capability.json#/$defs/platform_schema required [spec,schema] (and service.json platform_schema requires spec + schema). No 2026-04-08 row covers this for capabilities (PAY-004 covers only payment handlers). Older versions: DISC-002. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-003",
+   "keyword": "MUST",
+   "requirement": "The origin of each capability's spec/schema URL MUST match the namespace authority derived from its reverse-domain name",
+   "quote": "The `spec` and `schema` fields are **REQUIRED** for all capabilities. The origin ... of these URLs **MUST** match the namespace authority:",
+   "source": "ucp:docs/specification/overview.md#L83",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business/platform profile; server-observable. Cross-field check (derive expected origin from the capability's reverse-domain authority, compare to the URL origin) is not expressible in JSON Schema, so not schema-enforced. Older versions: DISC-003. Platform-side validation (L90/L627) is the mirror of this and is waived to this row. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-004",
+   "keyword": "MUST",
+   "requirement": "Businesses MUST include the ucp field in every response, containing the processing version and the array of active capabilities",
+   "quote": "Businesses **MUST** include the `ucp` field in",
+   "source": "ucp:docs/specification/overview.md#L641",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business; server-observable. Cross-cutting response-envelope obligation for EVERY response (broader than per-capability CHK-034, which only requires ucp in checkout responses). ucp.version is schema-required by ucp.json entity, but the cross-cutting presence + capabilities-content obligation is prose-only. Full clause (L641-644): '...containing: version: The UCP version used to process the request; capabilities: Array of active capabilities for this response.' Older versions: NEG-012. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-005",
+   "keyword": "MUST",
+   "requirement": "In ucp.capabilities the business MUST include only capabilities that are (1) in the negotiated intersection and (2) relevant to this response's operation type",
+   "quote": "Businesses **MUST** include in `ucp.capabilities` only the capabilities that are:",
+   "source": "ucp:docs/specification/overview.md#L950",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business; server-observable via the response ucp.capabilities. Subsumes the intersection computation (L637) and orphan-extension exclusion (L640). 2026-04-08 adds operation-type relevance beyond the older NEG-010/NEG-011 framing. No existing 2026-04-08 row captures response capability selection. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-006",
+   "keyword": "MUST",
+   "requirement": "Verifiers MUST ensure the authenticated identity is consistent with the UCP-Agent profile, and (for API key/OAuth/mTLS) MUST confirm the authenticated principal is authorized to act on behalf of that profile, rejecting requests where identity and claimed profile conflict",
+   "quote": "Regardless of authentication mechanism, verifiers **MUST** ensure the ... **API keys / OAuth / mTLS** \u2014 Verifiers **MUST** confirm the authenticated",
+   "source": "ucp:docs/specification/overview.md#L1014",
+   "testability": "needs-oauth",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business (verifier). Cross-cutting request-time identity-binding security obligation for credential-based auth. ORD-033 covers only the order-webhook signer-authorization case; this general binding of authenticated principal to UCP-Agent profile is not otherwise rowed. Covers worklist L1014 + L1019 (the L1019 API-keys/OAuth/mTLS bullet is the concrete elaboration and is waived to this row). [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-007",
+   "keyword": "MUST NOT",
+   "requirement": "On signature-verification failure with an unknown kid, an implementation that force-refreshes the cached platform profile MUST NOT do so more than once per TTL floor per origin",
+   "quote": "implementations **MAY** force-refresh the cached profile \u2014 but ... **MUST NOT** do so more than once per TTL floor per origin.",
+   "source": "ucp:docs/specification/overview.md#L1108",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business (verifier) discovery-cache/DoS-protection behavior. Genuine normative MUST NOT not captured elsewhere, but it constrains internal cache-refresh behavior that is not externally observable via the conformance HTTP surface -> manual. [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-008",
+   "keyword": "MUST",
+   "requirement": "REST requests and responses MUST use Content-Type application/json",
+   "quote": "Requests and responses **MUST** use `application/json`.",
+   "source": "ucp:docs/specification/overview.md#L1584",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: general REST implementer; server-observable (response Content-Type header). Distinct from the per-capability 'body MUST be valid JSON per RFC 8259' rows (CART-022/CHK-044/ORD-021), which constrain body format, not the Content-Type media type. Older versions rowed the overview statement as NEG-019. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-009",
+   "keyword": "MUST NOT",
+   "requirement": "A version-specific (leaf) profile served from a supported_versions URI MUST NOT contain a supported_versions field",
+   "quote": "Version-specific profiles are leaf documents \u2014 they describe exactly ... one protocol version and **MUST NOT** contain a `supported_versions`",
+   "source": "ucp:docs/specification/overview.md#L1897",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business profile; server-observable by fetching a profile URI listed in the primary profile's supported_versions map. Not schema-enforced (ucp.json business_schema permits supported_versions on any profile). New requirement in the 2026-04-08 versioning section. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-010",
+   "keyword": "MUST",
+   "requirement": "The protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date version string (e.g. 'draft') in their profile version field or in supported_versions",
+   "quote": "The protocol version **MUST** be a dated release in `YYYY-MM-DD` format. ... Businesses **MUST NOT** advertise a non-date version string (e.g.",
+   "source": "ucp:docs/specification/overview.md#L1953",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business profile; server-observable via /.well-known/ucp. Enforced by ucp.json #/$defs/version pattern ^\\d{4}-\\d{2}-\\d{2}$ (and supported_versions propertyNames -> #/$defs/version). Covers worklist L1953 + L1954. New 'Pre-release Versions' section in 2026-04-08; no existing row. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-011",
+   "keyword": "MUST",
+   "requirement": "Businesses MUST include only capabilities compatible with the negotiated protocol version in their response; a capability depending on features introduced in a newer protocol version MUST NOT be included when processing at an older protocol version",
+   "quote": "Businesses **MUST** include only capabilities compatible with the ... depends on features introduced in a newer protocol version **MUST",
+   "source": "ucp:docs/specification/overview.md#L1974",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Subject: business; observable in ucp.capabilities but requires multi-protocol-version fixtures to exercise -> manual. Covers worklist L1974 + L1976; also the target for the extension-`requires` version verification (L307) and capability-version validation (L2011). Distinct from operation-relevance (new L950 row). [added by completeness-2026-07-03]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-012",
+   "keyword": "MUST",
+   "requirement": "During capability negotiation (step 3, Extension Validation), businesses MUST exclude any extension whose parent capability is not present in the platform/business capability intersection.",
+   "quote": "**Extension Validation**: Extensions without their parent capability in the ... intersection **MUST** be excluded.",
+   "source": "ucp:docs/specification/overview.md#L640",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "Step 3 of the negotiation algorithm. The adjacent OVR-004 covers step 4 (the ucp field). No existing row covers the extension-exclusion rule; observable in the negotiated response's active capabilities/extensions. [completeness-refine: testable in principle but needs an orphan-extension negotiation scenario not in the controlled fixture] [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-013",
+   "keyword": "MUST",
+   "requirement": "In the REST transport (core), implementations MUST use standard HTTP verbs (e.g., POST for creation, GET for retrieval).",
+   "quote": "**Methods:** Implementations **MUST** use standard HTTP verbs (e.g., `POST` ... for creation, `GET` for retrieval).",
+   "source": "ucp:docs/specification/overview.md#L1585",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "REST Transport (Core) conventions list. Distinct from OVR-008, which covers only the Content-Type: application/json bullet. Server-observable over HTTP. [completeness-refine: requirement is non-exhaustive (\"e.g.\" verbs, no precise normative list) \u2014 no crisp conformance oracle] [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "OVR-014",
+   "keyword": "MUST",
+   "requirement": "In the REST transport (core), implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
+   "quote": "**Status Codes:** Implementations **MUST** use standard HTTP status codes ... (e.g., 200, 201, 400, 401, 500).",
+   "source": "ucp:docs/specification/overview.md#L1587",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-04-08"
+   ],
+   "notes": "REST Transport (Core) conventions list. Distinct from OVR-008 (Content-Type) and from capability/error-specific status rows (CHK-050, ORD-032); this is the general REST status-code convention. [completeness-refine: requirement is non-exhaustive (\"e.g.\" status codes) \u2014 no crisp conformance oracle] [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "_completeness_batch": "completeness-2026-07-03"
+  }
+ ],
+ "notes": ""
+}

@@ -52,7 +52,14 @@ check is validated three ways, each anchored to something we didn't write:
    false-pass hazard and it's **blocked from release**. A check ships only if it catches
    100% of its mutations *and* passes cleanly on a known-good server.
 2. **The official `ucp-schema` validator as the oracle** — no hand-rolled schema logic.
-3. **Verbatim spec citations** — every check traces to a specific normative clause.
+3. **Verbatim spec citations** — every check traces to a specific normative clause, and a
+   `register-completeness` gate proves the citation set is *complete*: every mandatory
+   keyword in the pinned prose is a tracked requirement, so nothing normative is silently
+   missed from the denominator.
+4. **Differential testing against an implementation we didn't write.** The suite is run
+   against the independent official Flower Shop server; a check that passes our own fixture
+   but flags an independently-conformant target is caught, so a check can't quietly encode a
+   fixture-specific misreading.
 
 The whole suite **self-validates in CI** and goes red if any check loses its ability to
 catch defects.
@@ -82,10 +89,14 @@ open **gap** — each requirement deep-linked to the pinned official spec line. 
 `conformance/coverage/matrix.py` and enforced by a CI gate: stale data, a coverage
 regression (ratchet), or a wrong check-count claim on the site fails the build.
 
-Currently **187 kill-rate-validated checks** account for **93% of 2026-04-08**, **88% of
-2026-01-23**, and **88% of 2026-01-11** normative MUSTs (check + documented exemption);
-the remaining gap is a small, categorized residue (documented spec bugs we won't fake,
-genuinely-unobservable rows, and a needs-receiver tail — see [docs/ROADMAP.md](docs/ROADMAP.md)).
+Currently **187 kill-rate-validated checks** account for **85% of 2026-04-08**, **87% of
+2026-01-23**, and **87% of 2026-01-11** normative MUSTs (check + documented exemption).
+The denominator itself is now gated: a `register-completeness` CI gate reconciles **every**
+mandatory keyword in the pinned prose against the register, so the percentage is a fraction
+of a *proven-complete* set of requirements, not an assumed one. The remaining gap is a
+categorized residue — documented spec bugs we won't fake, client/platform-bound obligations,
+and a needs-receiver / MCP-A2A-transport tail we haven't built a harness for yet (see
+[docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ## How it stays honest
 
