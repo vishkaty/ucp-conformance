@@ -15,13 +15,49 @@
     "class": "client-bound",
     "reason": "Binds platform rendering of disclosure-presentation catalog warnings (index.md L168): hiding or dismissing a notice happens in the platform's UI after the protocol exchange ends, leaving no wire trace the suite could observe."
   },
+  "CART-024": {
+    "class": "client-bound",
+    "versions": ["2026-04-08"],
+    "reason": "'All requests MUST include the UCP-Agent header' on cart operations (cart-rest.md L468-470) binds the REQUEST AUTHOR \u2014 the platform \u2014 per the suite-wide F2 policy (adversarial review 2026-07-03, register note applied): the spec mandates no business-side rejection of header-less requests, so no merchant response can prove or refute the platform's compliance. [Cart exists only at 2026-04-08; scoped explicitly.]"
+  },
   "CHK-011": {
     "class": "real-world-act",
-    "reason": "[2026-04-08 row; at 2026-01-11/2026-01-23 this id is an unrelated SHOULD (cancelable sessions), which the matrix never buckets.] The confirmation email (checkout.md L531) is dispatched on a channel the protocol does not define; no checkout response field evidences it, and a conformance run has no principled inbox oracle \u2014 non-receipt is indistinguishable from spam-filtering or asynchronous delay."
+    "versions": ["2026-04-08"],
+    "reason": "The confirmation email (checkout.md L531) is dispatched on a channel the protocol does not define; no checkout response field evidences it, and a conformance run has no principled inbox oracle \u2014 non-receipt is indistinguishable from spam-filtering or asynchronous delay. [Scoped: at 2026-01-11/2026-01-23 this id is an unrelated SHOULD (cancelable sessions); the same email requirement there is CHK-035.]"
+  },
+  "CHK-035": {
+    "class": "real-world-act",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Business MUST send a confirmation email after the checkout has been completed' (checkout.md Business responsibilities, L261@01-11 / L265@01-23) is dispatched on a channel the protocol does not define; no checkout response field evidences it, and a conformance run has no principled inbox oracle \u2014 non-receipt is indistinguishable from spam-filtering or asynchronous delay. [Scoped: at 2026-04-08 this id is the testable ucp_request:omit rule on checkout id, already covered by schema_check_04_08_lifecycle; the 04-08 twin of the email requirement is CHK-011.]"
+  },
+  "CHK-046": {
+    "class": "client-bound",
+    "versions": ["2026-04-08"],
+    "reason": "'All requests MUST include the UCP-Agent header containing the platform profile URI' (checkout-rest.md L1237-1239) binds the REQUEST AUTHOR \u2014 the platform \u2014 per the suite-wide F2 policy (adversarial review 2026-07-03, register note applied): the spec mandates no business-side rejection of header-less requests, so no message the suite can elicit from the merchant proves or refutes it; the tester, being the platform, simply sends the header. [Scoped: at 2026-01-11/2026-01-23 this id is an unrelated SHOULD (platform starts a new session on canceled); the 01-era twin of this header rule is CHK-052.]"
+  },
+  "CHK-052": {
+    "class": "client-bound",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'All requests MUST include the UCP-Agent header containing the platform profile URI' (checkout-rest.md L1211-1213) binds the REQUEST AUTHOR \u2014 the platform \u2014 per the suite-wide F2 policy (adversarial review 2026-07-03, register note applied): the spec mandates no business-side rejection of header-less requests, so no merchant response can prove or refute the platform's compliance; the tester, being the platform, simply sends the header. [Scoped: at 2026-04-08 this id is an unrelated SHOULD (severity unrecoverable when no resource exists); the 04-08 twin of this header rule is CHK-046.]"
   },
   "CHK-055": {
     "class": "client-bound",
     "reason": "Prohibits the platform from AUTONOMOUSLY completing a checkout with mismatched totals (checkout.md L811): the business only ever sees a complete request, which carries no evidence of whether the platform verified totals or escalated for buyer review first."
+  },
+  "DISC-004": {
+    "class": "client-bound",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Platform MUST validate this binding and SHOULD reject capabilities where the spec origin does not match the namespace authority' (overview.md L82-83) is a platform-internal validation step over discovery data it already holds; a validating and a non-validating platform emit byte-identical traffic toward the business, so nothing the suite can elicit from the party under test reflects it — same subject-binding as the already-exempt NEG-007. [Scoped: at 2026-04-08 this id is 'reject profile URLs not served over HTTPS', testable and covered by merchant_checks_04_08_discovery.]"
+  },
+  "DISC-005": {
+    "class": "out-of-band-legal",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Vendors MUST use their own reverse-domain namespace for custom capabilities' (overview.md Governance Model, L94-95) turns on OWNERSHIP: whether com.example.* is really 'their own' is a domain-registration/governance fact established by registrars and the UCP governing body's reservation of dev.ucp.*, not by any protocol message — a payload shows the namespace string but never who owns it. [Scoped: at 2026-04-08 this id is 'service endpoint MUST be a valid HTTPS URL', testable and covered by merchant_checks_04_08_discovery.]"
+  },
+  "DISC-006": {
+    "class": "spec-authoring",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Transport definitions MUST be thin: they declare method names and reference base schemas only' (overview.md L125-126) binds the AUTHORS of capability transport-definition documents (OpenAPI/OpenRPC) — the namespace authority publishing the capability, a party distinct from the business or platform under test; conformance is established by document review, same as the already-exempt DISC-009 (its 04-08 twin). [Scoped: at 2026-04-08 this id is the platform's profile-URI-in-every-request duty — a different, requester-bound requirement left to its own accounting.]"
   },
   "DISC-009": {
     "class": "spec-authoring",
@@ -34,6 +70,16 @@
   "DISC-011": {
     "class": "client-bound",
     "reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side \u2014 wire traffic from a resolving and a non-resolving client can be byte-identical."
+  },
+  "DSC-015": {
+    "class": "client-bound",
+    "versions": ["2026-04-08"],
+    "reason": "'Platforms MUST display provisional discounts to the buyer' (discount.md L200-201) is a platform UI rendering duty: whether the provisional entries in the applied array were actually painted for a human happens after the protocol exchange ends and leaves no wire trace the suite could observe from the business side — same family as the exempt ERR-011/TOT-001 display duties. [Scoped: at 2026-01-23 this id is the testable discounts-omitted-on-complete request annotation, which stays in the 01-23 testable grind.]"
+  },
+  "DSC-022": {
+    "class": "out-of-band-legal",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Consent is declarative - the protocol communicates consent, it does not enforce it' and 'legal compliance remains the business's responsibility' (buyer-consent.md Security & Privacy Considerations, L131-133) assert a non-enforcement property of the protocol plus a LEGAL allocation of responsibility; whether a business actually meets its consent-law obligations is established by audit/regulation entirely outside any protocol message. [Scoped: at 2026-04-08 this id is the testable allocations-sum invariant, already covered by merchant_checks_04_08.]"
   },
   "ERR-011": {
     "class": "client-bound",
@@ -95,6 +141,16 @@
     "class": "spec-authoring",
     "reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test."
   },
+  "IDL-008": {
+    "class": "real-world-act",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'MUST provide an account creation flow if the user does not already have an account' (identity-linking.md L84-85) requires a human-facing enrollment journey on the business's own web property, outside every protocol message: a conformance run cannot enact a real new user signing up, and no identity-linking response field evidences that such a flow exists or works. [Scoped: at 2026-04-08 this id is the platform's WWW-Authenticate challenge-processing duty — an unrelated needs-oauth requirement left to its own accounting.]"
+  },
+  "NEG-003": {
+    "class": "client-bound",
+    "versions": ["2026-01-23"],
+    "reason": "'MCP Transport: Platforms MUST include a meta object containing request metadata' (overview.md L453-454) binds the REQUEST AUTHOR on the MCP binding: the business only receives whatever the platform sent, the spec mandates no business-side rejection of meta-less calls, and the tester — being the platform — simply includes meta. No merchant response can prove or refute a third-party platform's compliance. [Scoped: at 2026-04-08 this id is the profile_unreachable/HTTP 424 mapping, testable and covered by merchant_checks_04_08_discovery; not a row at 2026-01-11.]"
+  },
   "NEG-007": {
     "class": "client-bound",
     "reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant."
@@ -103,13 +159,65 @@
     "class": "client-bound",
     "reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas."
   },
+  "PAY-001": {
+    "class": "spec-authoring",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Every payment handler specification MUST define the core elements below' (payment-handler-guide.md L52) binds AUTHORS of payment-handler specification documents \u2014 a party distinct from the business or platform under test; whether a third-party handler spec document defines identity/participants/credentials etc. is established by document review, and no runtime message reflects it. [Scoped: at 2026-04-08 this id is the testable payment_handlers-registry schema requirement, covered by the 04-08 payment checks; the 04-08 twin of this requirement is PAY-028.]"
+  },
+  "PAY-004": {
+    "class": "spec-authoring",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Specifications MUST explicitly document these field mappings' (payment-handler-guide.md L94, participant mappings) binds handler-spec AUTHORS: documentation completeness of a third-party specification is a document-review property with no runtime counterpart in any message the suite can elicit. [Scoped: at 2026-04-08 this id is the testable platform-declaration spec+schema-URL schema requirement, covered by schema_check_04_08_payment; at 04-08 the mapping duty folds into PAY-028's core-elements list.]"
+  },
+  "PAY-005": {
+    "class": "spec-authoring",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'The specification MUST define which credential types are accepted' (payment-handler-guide.md L265@01-11 / L525@01-23) binds handler-spec AUTHORS \u2014 whether a third-party handler document declares its accepted credential types is decided by reading that document, not by any protocol exchange with the business under test. [Scoped: at 2026-04-08 this id is the testable available_instruments minItems-1 schema requirement, covered by schema_check_04_08_payment; the 04-08 twin of this requirement is PAY-029.]"
+  },
   "PAY-006": {
     "class": "spec-authoring",
-    "reason": "[2026-01-11/2026-01-23 rows; at 2026-04-08 this id is an unrelated MAY (available_instruments optionality), which the matrix never buckets \u2014 the 04-08 twin of this requirement is PAY-025.] Binds authors of payment-handler credential schemas (payment-handler-guide.md): whether a token schema includes 'expiry, ttl, or similar' is a design requirement on a third-party specification document, with an open-ended naming clause ('or similar', 'or mechanism to refresh') that no fixed predicate can arbitrate without false-flagging conforming handlers."
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "Binds authors of payment-handler credential schemas (payment-handler-guide.md): whether a token schema includes 'expiry, ttl, or similar' is a design requirement on a third-party specification document, with an open-ended naming clause ('or similar', 'or mechanism to refresh') that no fixed predicate can arbitrate without false-flagging conforming handlers. [Scoped: at 2026-04-08 this id is an unrelated MAY (available_instruments optionality); the 04-08 twin of this requirement is PAY-025.]"
+  },
+  "PAY-007": {
+    "class": "spec-authoring",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'The specification MUST define a mapping for common failures' (payment-handler-guide.md L343@01-11 / L648@01-23) binds handler-spec AUTHORS: the failure-mapping table lives in a third-party specification document and is verified by reading it \u2014 no message from the business under test evidences whether its handler's spec defined one. [Scoped: at 2026-04-08 this id is the testable available_payment_instrument type-required schema rule, covered by schema_check_04_08_payment; at 04-08 the error-mapping duty folds into PAY-028's core-elements list.]"
   },
   "PAY-013": {
     "class": "client-bound",
-    "reason": "[2026-01-11/2026-01-23 rows; at 2026-04-08 this id is an unrelated SHOULD NOT (intermediary touching raw credentials), which the matrix never buckets \u2014 the 04-08 twin of this requirement is PAY-022.] Prohibits a USAGE by the credential sender \u2014 the platform submitting raw PANs at checkout (card_credential.json description). The spec places no rejection duty on the receiving business (the official sample suite itself accepts a raw card credential at checkout with 200), so no merchant response can prove or refute the prohibition."
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "Prohibits a USAGE by the credential sender \u2014 the platform submitting raw PANs at checkout (card_credential.json description). The spec places no rejection duty on the receiving business (the official sample suite itself accepts a raw card credential at checkout with 200), so no merchant response can prove or refute the prohibition. [Scoped: at 2026-04-08 this id is an unrelated SHOULD NOT (intermediary touching raw credentials); the 04-08 twin of this requirement is PAY-022.]"
+  },
+  "PAY-014": {
+    "class": "out-of-band-legal",
+    "versions": ["2026-01-11", "2026-01-23"],
+    "reason": "'Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites' (card_credential.json description): PCI DSS compliance is an organizational certification established by out-of-band audit \u2014 no protocol message carries it \u2014 and the transmission clause binds whichever channel actually carries a raw PAN (which conformant checkout traffic never does, per PAY-013); generic endpoint transport is separately accounted by the HTTPS/TLS rows. [Scoped: at 2026-04-08 this id is the handler_id-validation business obligation, a needs-receiver row left to its own accounting.]"
+  },
+  "PAY-022": {
+    "class": "client-bound",
+    "versions": ["2026-04-08"],
+    "reason": "'This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials' (card_credential.json L5 description) prohibits a USAGE by the credential SENDER \u2014 the platform submitting raw PANs at checkout. The spec places no rejection duty on the receiving business (the official sample suite itself accepts a raw card credential at checkout with 200), so no merchant response can prove or refute the prohibition \u2014 the 04-08 twin of the exempt PAY-013@01-era. [Scoped: at 2026-01-11/2026-01-23 this id is the ap2 mandate-required completion rule, a needs-receiver row left to its own accounting.]"
+  },
+  "PAY-025": {
+    "class": "spec-authoring",
+    "versions": ["2026-04-08"],
+    "reason": "'If using token credentials, the schema MUST include an expiration field (expiry, ttl, or similar)' (payment-handler-guide.md L626-628) binds authors of payment-handler credential schemas: a design requirement on a third-party specification document with an open-ended naming clause ('or similar') that no fixed predicate can arbitrate without false-flagging conforming handlers \u2014 the 04-08 twin of the exempt PAY-006@01-era. [Scoped: at 2026-01-11/2026-01-23 this id is the ap2 unresolvable-key/invalid-signature error duty, a needs-receiver row left to its own accounting.]"
+  },
+  "PAY-028": {
+    "class": "spec-authoring",
+    "versions": ["2026-04-08"],
+    "reason": "'Every payment handler specification MUST define the core elements below' (payment-handler-guide.md L50) binds AUTHORS of payment-handler specification documents \u2014 identity, participants, prerequisites, declaration, instrument, credential, acquisition, processing and error mapping are properties of a third-party document established by review, with no runtime counterpart the suite can elicit from the business under test \u2014 the 04-08 twin of the exempt PAY-001@01-era. [Scoped: at 2026-01-11/2026-01-23 this id is the AP2 signature-coverage rule, a needs-receiver row left to its own accounting.]"
+  },
+  "PAY-029": {
+    "class": "spec-authoring",
+    "versions": ["2026-04-08"],
+    "reason": "'The specification MUST define which credential types are accepted by the handler' (payment-handler-guide.md L623-624) binds handler-spec AUTHORS: whether a third-party handler document declares its accepted credential types is decided by reading that document, not by any protocol exchange \u2014 the 04-08 twin of the exempt PAY-005@01-era. [Scoped: at 2026-01-11/2026-01-23 this id is the two-mandate-artifacts AP2 completion rule, which stays in the 01-era grind.]"
+  },
+  "PAY-030": {
+    "class": "out-of-band-legal",
+    "versions": ["2026-04-08"],
+    "reason": "'Sensitive data (such as Payment Credentials or PII) MUST be handled according to PCI-DSS and GDPR guidelines' (overview.md Data Privacy, L1682-1684): compliance with PCI-DSS and GDPR is established by out-of-band audit and regulation \u2014 data-handling practices inside the business leave no trace in any protocol message the suite can observe. [Scoped: at 2026-01-11/2026-01-23 this id is the checkout-mandate-content rule, a needs-receiver row left to its own accounting.]"
   },
   "TOT-001": {
     "class": "client-bound",

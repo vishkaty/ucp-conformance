@@ -188,7 +188,7 @@ def export_json():
             rid = r.get("id")
             if rid in covmap[ver]:
                 status = "check"; n_check += 1
-            elif rid in exempt:
+            elif exempt_at(exempt, rid, ver):
                 status = "exempt"; n_exempt += 1
             else:
                 status = "gap"
@@ -224,6 +224,24 @@ def load_exemptions():
     return json.load(open(EXEMPT_FILE))
 
 
+def exempt_at(exempt, rid, ver):
+    """True when `rid` is exempt AT `ver`.
+
+    Entries may carry an optional `"versions": ["2026-01-11", ...]` list — needed
+    because the 2026-04-08 registers RENUMBERED ids, so the same id can name an
+    irreducibly-manual MUST at one version and a covered/testable requirement at
+    another. A scoped entry buckets EXEMPT only in its listed versions. An entry
+    WITHOUT the field keeps the original semantics: it applies at every version
+    where the id is a MUST row (matrix only ever buckets MUST/MUST NOT rows, and
+    coverage_gate.py separately forbids exempting a covered id)."""
+    meta = exempt.get(rid)
+    if meta is None:
+        return False
+    if isinstance(meta, dict) and meta.get("versions") is not None:
+        return ver in meta["versions"]
+    return True
+
+
 def account(ver, cov, exempt):
     rows = load_rows(ver)
     musts = [r for r in rows if r.get("keyword") in ("MUST", "MUST NOT")]
@@ -234,7 +252,7 @@ def account(ver, cov, exempt):
         rid = r.get("id")
         if rid in cov_ver:
             buckets["CHECK"].append(rid)
-        elif rid in exempt:
+        elif exempt_at(exempt, rid, ver):
             buckets["EXEMPT"].append(rid)
         else:
             buckets["GAP"].append(rid)

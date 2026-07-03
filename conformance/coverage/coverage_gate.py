@@ -16,9 +16,21 @@ Three invariants, enforced on every CI run (via run_suite gate `coverage`):
 
 3. HONEST EXEMPTIONS — every entry in coverage/exemptions.json must (a) reference a
    real MUST row id in at least one register, (b) NOT be covered by a check anywhere
-   (no double-booking), and (c) carry a non-empty written `reason` plus a `class`
-   from the irreducibly-manual taxonomy. An exemption is a documented claim, never
-   a shrug.
+   it exempts (no double-booking), and (c) carry a non-empty written `reason` plus a
+   `class` from the irreducibly-manual taxonomy. An exemption is a documented claim,
+   never a shrug.
+   Entries may carry an optional `"versions": ["2026-01-11", ...]` scope (the 04-08
+   registers renumbered ids, so one id can be exempt-worthy at one version and
+   covered/testable at another). A scoped entry must list only real spec versions,
+   the id must be a MUST/MUST NOT row in EVERY listed version (over-scoping to a
+   version where the requirement under that id doesn't exist or isn't normative =
+   failure), and it must not be covered by a check in ANY listed version (scoping
+   into a covered version = failure). Unscoped entries keep the original semantics
+   (apply wherever the id is a MUST) and are held to the same no-double-booking bar
+   across all versions where the id is a MUST row.
+
+Run with --selftest to execute the injection kill-tests for invariant 3 (each
+synthetic defect must be CAUGHT — proves the validator can actually fail).
 
 4. SITE COPY TELLS THE TRUTH — every "N kill-rate-validated checks" claim in
    public/*.html must equal the ACTUAL merchant-check count (MCheck registrations).
@@ -49,6 +61,111 @@ EXEMPT_CLASSES = {"real-world-act", "human-perception", "subjective-judgment",
                   # under test; conformance is established by document review.
                   "spec-authoring"}
 
+
+def validate_exemptions(exempt, must_ids, covered):
+    """Invariant-3 validator (pure — also driven by --selftest injections).
+
+    exempt:   {id: {class, reason, versions?}} from exemptions.json
+    must_ids: {version: set(ids that are MUST/MUST NOT rows)}
+    covered:  {version: set(ids covered by shipped checks)}
+    Returns the list of failure strings (empty = honest)."""
+    failures = []
+    for rid, meta in sorted(exempt.items()):
+        must_in = [v for v in matrix.VERSIONS if rid in must_ids[v]]
+        if not must_in:
+            failures.append(f"exemption {rid}: not a MUST/MUST NOT register row in ANY version")
+            continue
+        vscope = meta.get("versions") if isinstance(meta, dict) else None
+        if vscope is not None:
+            # the version scope itself must be well-formed and real
+            if not isinstance(vscope, list) or not vscope:
+                failures.append(f"exemption {rid}: `versions` must be a non-empty list of spec versions")
+                continue
+            bogus = [v for v in vscope if v not in matrix.VERSIONS]
+            if bogus:
+                failures.append(f"exemption {rid}: unknown version(s) {bogus} — must be from {matrix.VERSIONS}")
+                continue
+            if len(set(vscope)) != len(vscope):
+                failures.append(f"exemption {rid}: duplicate versions in scope {vscope}")
+            # over-scoping: at every scoped version the id must be a normative MUST row
+            not_must = [v for v in vscope if v not in must_in]
+            if not_must:
+                failures.append(f"exemption {rid}: scoped to {not_must} where the id is not a "
+                                f"MUST/MUST NOT row (the 04-08 renumbering means that version's "
+                                f"row is a different/absent requirement — narrow the scope)")
+            scope = [v for v in vscope if v in must_in]
+        else:
+            scope = must_in
+        # no double-booking anywhere the entry actually exempts
+        double = [v for v in scope if rid in covered[v]]
+        if double:
+            failures.append(f"exemption {rid}: ALSO covered by a check in {double} "
+                            f"(double-booked — remove the exemption or narrow its `versions`)")
+        if not (isinstance(meta, dict) and str(meta.get("reason", "")).strip()):
+            failures.append(f"exemption {rid}: missing a written `reason`")
+        if isinstance(meta, dict) and meta.get("class") not in EXEMPT_CLASSES:
+            failures.append(f"exemption {rid}: `class` must be one of {sorted(EXEMPT_CLASSES)}")
+    return failures
+
+
+def selftest():
+    """Injection kill-tests: every synthetic defect below MUST be caught by
+    validate_exemptions, and every honest entry must pass. This is the proof the
+    exemptions gate can actually fail (a validator that can't fail validates nothing)."""
+    V1, V2, V3 = matrix.VERSIONS  # 2026-01-11, 2026-01-23, 2026-04-08
+    must_ids = {V1: {"AAA-001", "AAA-002", "AAA-003"},
+                V2: {"AAA-001", "AAA-002", "AAA-003"},
+                V3: {"AAA-002", "AAA-003", "AAA-004"}}   # AAA-001 not a MUST at 04-08
+    covered = {V1: set(), V2: set(), V3: {"AAA-002"}}     # AAA-002 covered at 04-08 only
+    ok = lambda e: validate_exemptions(e, must_ids, covered)
+    cases = [  # (name, entry-dict, must_fail)
+        ("ghost id", {"ZZZ-999": {"class": "client-bound", "reason": "x"}}, True),
+        ("empty reason", {"AAA-001": {"class": "client-bound", "reason": "  "}}, True),
+        ("bogus class", {"AAA-001": {"class": "too-hard", "reason": "x"}}, True),
+        ("unscoped double-book (id covered at a MUST version)",
+         {"AAA-002": {"class": "client-bound", "reason": "x"}}, True),
+        ("scoped INTO the covered version",
+         {"AAA-002": {"class": "client-bound", "reason": "x", "versions": [V3]}}, True),
+        ("scoped into covered version among others",
+         {"AAA-002": {"class": "client-bound", "reason": "x", "versions": [V1, V3]}}, True),
+        ("over-scoped to a version where the id is not a MUST",
+         {"AAA-001": {"class": "client-bound", "reason": "x", "versions": [V1, V3]}}, True),
+        ("versions not a list", {"AAA-001": {"class": "client-bound", "reason": "x", "versions": V1}}, True),
+        ("versions empty list", {"AAA-001": {"class": "client-bound", "reason": "x", "versions": []}}, True),
+        ("unknown version string",
+         {"AAA-001": {"class": "client-bound", "reason": "x", "versions": ["2026-13-99"]}}, True),
+        ("duplicate versions in scope",
+         {"AAA-001": {"class": "client-bound", "reason": "x", "versions": [V1, V1]}}, True),
+        ("scoped entry missing reason",
+         {"AAA-003": {"class": "client-bound", "versions": [V1]}}, True),
+        # honest entries must PASS
+        ("honest unscoped entry", {"AAA-001": {"class": "client-bound", "reason": "x"}}, False),
+        ("honest scope avoiding the covered version",
+         {"AAA-002": {"class": "client-bound", "reason": "x", "versions": [V1, V2]}}, False),
+        ("honest full scope on an uncovered id",
+         {"AAA-003": {"class": "spec-authoring", "reason": "x", "versions": [V1, V2, V3]}}, False),
+    ]
+    bad = 0
+    for name, entry, must_fail in cases:
+        fails = ok(entry)
+        caught = bool(fails)
+        good = caught == must_fail
+        print(f"  {'✓' if good else '✗'} {name}: {'CAUGHT' if caught else 'clean'}"
+              + ("" if good else f"  <-- EXPECTED {'a failure' if must_fail else 'clean'} {fails}"))
+        bad += 0 if good else 1
+    # matrix-side scope semantics: a scoped entry buckets only in its versions
+    ex = {"AAA-003": {"class": "client-bound", "reason": "x", "versions": [V2]}}
+    sem = (not matrix.exempt_at(ex, "AAA-003", V1)
+           and matrix.exempt_at(ex, "AAA-003", V2)
+           and not matrix.exempt_at(ex, "AAA-003", V3)
+           and matrix.exempt_at({"AAA-003": {"class": "c", "reason": "x"}}, "AAA-003", V3)
+           and not matrix.exempt_at(ex, "AAA-004", V2))
+    print(f"  {'✓' if sem else '✗'} matrix.exempt_at scope semantics")
+    bad += 0 if sem else 1
+    print(f"\ncoverage gate selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
+    return 1 if bad else 0
+
+
 def main():
     failures = []
     fresh = matrix.export_json()
@@ -78,23 +195,13 @@ def main():
         elif got > floor:
             print(f"      note: floor can be raised to {got} in coverage/ratchet.json")
 
-    # 3. exemptions are honest
+    # 3. exemptions are honest (incl. optional per-entry `versions` scope)
     exempt = matrix.load_exemptions()
-    all_ids = {v: {r.get("id") for r in matrix.load_rows(v)} for v in matrix.VERSIONS}
+    must_ids = {v: {r.get("id") for r in matrix.load_rows(v)
+                    if r.get("keyword") in ("MUST", "MUST NOT")}
+                for v in matrix.VERSIONS}
     covered = matrix.covered_ids_by_version()
-    for rid, meta in sorted(exempt.items()):
-        in_any = [v for v in matrix.VERSIONS if rid in all_ids[v]]
-        if not in_any:
-            failures.append(f"exemption {rid}: not a register row in ANY version")
-            continue
-        double = [v for v in in_any if rid in covered[v]]
-        if double:
-            failures.append(f"exemption {rid}: ALSO covered by a check in {double} "
-                            f"(double-booked — remove the exemption)")
-        if not (isinstance(meta, dict) and str(meta.get("reason", "")).strip()):
-            failures.append(f"exemption {rid}: missing a written `reason`")
-        if isinstance(meta, dict) and meta.get("class") not in EXEMPT_CLASSES:
-            failures.append(f"exemption {rid}: `class` must be one of {sorted(EXEMPT_CLASSES)}")
+    failures += validate_exemptions(exempt, must_ids, covered)
 
     # 4. site copy: the advertised check count must equal the real MCheck count
     actual = 0
@@ -122,4 +229,6 @@ def main():
     return 0
 
 if __name__ == "__main__":
+    if "--selftest" in sys.argv[1:]:
+        sys.exit(selftest())
     sys.exit(main())
