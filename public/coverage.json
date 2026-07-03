@@ -10,11 +10,11 @@
   "2026-01-11": {
    "musts": 172,
    "check": 107,
-   "exempt": 24,
-   "gap": 41,
-   "accounted_pct": 76,
+   "exempt": 31,
+   "gap": 34,
+   "accounted_pct": 80,
    "gap_by_testability": {
-    "manual": 9,
+    "manual": 2,
     "needs-oauth": 1,
     "needs-receiver": 30,
     "testable": 1
@@ -31,18 +31,16 @@
     {
      "area": "discount-consent-identity",
      "check": 24,
-     "exempt": 2,
-     "gap": 3,
-     "gap_manual": 2,
+     "exempt": 4,
+     "gap": 1,
      "gap_needs-oauth": 1,
      "musts": 29
     },
     {
      "area": "discovery-negotiation",
      "check": 15,
-     "exempt": 8,
-     "gap": 7,
-     "gap_manual": 3,
+     "exempt": 11,
+     "gap": 4,
      "gap_needs-receiver": 3,
      "gap_testable": 1,
      "musts": 30
@@ -65,8 +63,8 @@
     {
      "area": "order",
      "check": 14,
-     "gap": 4,
-     "gap_manual": 2,
+     "exempt": 2,
+     "gap": 2,
      "gap_needs-receiver": 2,
      "musts": 18
     },
@@ -961,20 +959,22 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens.",
      "source": "ucp:docs/specification/identity-linking.md#L42",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens' (identity-linking.md L42, RFC 6749 2.3.1 / RFC 7617) binds the PLATFORM as the token-request author, not the business under test; HTTP Basic client authentication is the platform's request authoring and no merchant response can prove or refute it. The business-side enforcement duty is IDL-007 (checked). Requester-bound per suite policy F2; precedent CAT-034. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "IDL-002",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L52",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism' (identity-linking.md L52) binds the PLATFORM's client implementation \u2014 a flow choice authored by the platform, not the business; no merchant response can prove or refute it. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-005",
@@ -1132,30 +1132,33 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L408",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header",
      "source": "ucp:docs/specification/overview.md#L411",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header' (overview.md L441@01-23 / L411@01-11) binds the PLATFORM: RFC 8941 header syntax is authored by the platform and is not observable as a business obligation. Requester-bound per policy F2; precedent CHK-046@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-004",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST include their profile URI in every request using the transport-appropriate mechanism",
      "source": "ucp:docs/specification/overview.md#L446",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST include their profile URI in every request using the transport-appropriate mechanism' (overview.md L479@01-23 / L446@01-11) binds the PLATFORM's request authoring; profile-URI advertisement is the platform's duty and the tester satisfies it on every request. Requester-bound per policy F2; precedent DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-007",
@@ -1525,20 +1528,22 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L330, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "PAY-001",
@@ -2058,11 +2063,11 @@
   "2026-01-23": {
    "musts": 181,
    "check": 115,
-   "exempt": 25,
-   "gap": 41,
-   "accounted_pct": 77,
+   "exempt": 32,
+   "gap": 34,
+   "accounted_pct": 81,
    "gap_by_testability": {
-    "manual": 9,
+    "manual": 2,
     "needs-oauth": 1,
     "needs-receiver": 30,
     "testable": 1
@@ -2079,18 +2084,16 @@
     {
      "area": "discount-consent-identity",
      "check": 26,
-     "exempt": 2,
-     "gap": 3,
-     "gap_manual": 2,
+     "exempt": 4,
+     "gap": 1,
      "gap_needs-oauth": 1,
      "musts": 31
     },
     {
      "area": "discovery-negotiation",
      "check": 15,
-     "exempt": 9,
-     "gap": 7,
-     "gap_manual": 3,
+     "exempt": 12,
+     "gap": 4,
      "gap_needs-receiver": 3,
      "gap_testable": 1,
      "musts": 31
@@ -2113,8 +2116,8 @@
     {
      "area": "order",
      "check": 14,
-     "gap": 4,
-     "gap_manual": 2,
+     "exempt": 2,
+     "gap": 2,
      "gap_needs-receiver": 2,
      "musts": 18
     },
@@ -3090,20 +3093,22 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens.",
      "source": "ucp:docs/specification/identity-linking.md#L42",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens' (identity-linking.md L42, RFC 6749 2.3.1 / RFC 7617) binds the PLATFORM as the token-request author, not the business under test; HTTP Basic client authentication is the platform's request authoring and no merchant response can prove or refute it. The business-side enforcement duty is IDL-007 (checked). Requester-bound per suite policy F2; precedent CAT-034. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "IDL-002",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L52",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism' (identity-linking.md L52) binds the PLATFORM's client implementation \u2014 a flow choice authored by the platform, not the business; no merchant response can prove or refute it. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-005",
@@ -3262,20 +3267,22 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L438",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header",
      "source": "ucp:docs/specification/overview.md#L441",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header' (overview.md L441@01-23 / L411@01-11) binds the PLATFORM: RFC 8941 header syntax is authored by the platform and is not observable as a business obligation. Requester-bound per policy F2; precedent CHK-046@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-003",
@@ -3293,10 +3300,11 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST include their profile URI in every request using the transport-appropriate mechanism",
      "source": "ucp:docs/specification/overview.md#L479",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST include their profile URI in every request using the transport-appropriate mechanism' (overview.md L479@01-23 / L446@01-11) binds the PLATFORM's request authoring; profile-URI advertisement is the platform's duty and the tester satisfies it on every request. Requester-bound per policy F2; precedent DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-007",
@@ -3666,20 +3674,22 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L330, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "PAY-001",
@@ -4226,11 +4236,11 @@
   "2026-04-08": {
    "musts": 323,
    "check": 204,
-   "exempt": 34,
-   "gap": 85,
-   "accounted_pct": 74,
+   "exempt": 62,
+   "gap": 57,
+   "accounted_pct": 82,
    "gap_by_testability": {
-    "manual": 34,
+    "manual": 6,
     "needs-oauth": 2,
     "needs-receiver": 49
    },
@@ -4254,9 +4264,8 @@
     {
      "area": "checkout-lifecycle",
      "check": 14,
-     "exempt": 3,
-     "gap": 16,
-     "gap_manual": 2,
+     "exempt": 5,
+     "gap": 14,
      "gap_needs-receiver": 14,
      "musts": 33
     },
@@ -4271,8 +4280,7 @@
     {
      "area": "discovery-and-profile",
      "check": 5,
-     "gap": 1,
-     "gap_manual": 1,
+     "exempt": 1,
      "musts": 6
     },
     {
@@ -4294,16 +4302,16 @@
     {
      "area": "identity-linking",
      "check": 33,
-     "gap": 22,
-     "gap_manual": 21,
+     "exempt": 21,
+     "gap": 1,
      "gap_needs-oauth": 1,
      "musts": 55
     },
     {
      "area": "order",
      "check": 20,
-     "gap": 5,
-     "gap_manual": 4,
+     "exempt": 4,
+     "gap": 1,
      "gap_needs-oauth": 1,
      "musts": 25
     },
@@ -5096,20 +5104,22 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "ucp envelope field is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L19",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'The ucp envelope field is omitted on request bodies (ucp_request: omit)' (checkout.json L19) constrains the REQUEST author \u2014 the platform that sends checkout requests \u2014 to omit a response-only field; the spec places no duty on the business to reject requests that include it, so no merchant response reflects it and the tester itself omits it. Request-author-bound; same subject-binding as DISC-006/CART-024."
     },
     {
      "id": "CHK-037",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "status, currency, totals, messages, links, expires_at, continue_url, order are response-only (ucp_request: omit) and omitted on requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L76",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'status, currency, totals, messages, links, expires_at, continue_url, order are response-only (ucp_request: omit) and omitted on requests' (checkout.json L76-127) constrains the REQUEST author (the platform) to omit response-only fields; no business-side rejection duty exists, so nothing the suite elicits from the merchant reflects it and the tester omits them. Request-author-bound; same subject-binding as DISC-006/CART-024. [Scoped: at 01-era this id is an unrelated needs-receiver requirement (deterministic checkout-session logic).]"
     },
     {
      "id": "CHK-038",
@@ -5306,10 +5316,11 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST include their profile URI in every request.",
      "source": "ucp:docs/specification/overview.md#L622-L623",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST include their profile URI in every request' (overview.md L622-623) binds the PLATFORM (the UCP-Agent header request author), not the merchant; the spec mandates no business-side rejection of requests lacking the profile URI, so a merchant check would grade something never required of merchants, and the tester itself sends UCP-Agent profile=... on every request (merchant_checks._hdr). Same subject-binding as CAT-008/CAT-034."
     },
     {
      "id": "DSC-003",
@@ -6104,110 +6115,121 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata.",
      "source": "ucp:docs/specification/identity-linking.md#L98-L100",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata' (identity-linking.md L98-100, RFC 8414) binds the PLATFORM's token-request authoring; token-endpoint auth-method selection is the platform's request behavior, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-004",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
      "source": "ucp:docs/specification/identity-linking.md#L111-L116",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Public clients MUST use token-endpoint auth method none and rely on PKCE with S256 as proof-of-possession of the authorization code' (identity-linking.md L111-116) binds the PLATFORM's client type and request behavior, not the business; no merchant response reflects a client's method choice or PKCE use. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-005",
      "area": "identity-linking",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Public clients MUST NOT embed a client_secret.",
      "source": "ucp:docs/specification/identity-linking.md#L116-L117",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Public clients MUST NOT embed a client_secret' (identity-linking.md L116-117; Security Considerations L581) is a property of the PLATFORM's distributed binary, not any protocol message the business sees. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-006",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model.",
      "source": "ucp:docs/specification/identity-linking.md#L119-L120",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model' (identity-linking.md L119-120) binds the PLATFORM's negotiation behavior; method-strength selection is internal client logic, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-007",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme.",
      "source": "ucp:docs/specification/identity-linking.md#L121-L122",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme' (identity-linking.md L121-122, RFC 6750 2.1) binds the PLATFORM as the request author; the Authorization: Bearer header is authored by the platform. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-008",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
      "source": "ucp:docs/specification/identity-linking.md#L124-L126",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations' (identity-linking.md L124-126) binds the PLATFORM's response handling, not the business; challenge processing is internal client conduct with no merchant-observable signal. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-009",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests.",
      "source": "ucp:docs/specification/identity-linking.md#L127-L128",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests' (identity-linking.md L127-128) binds the PLATFORM's response handling; extracting the scope param is internal client conduct. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-010",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L132-L134",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism' (identity-linking.md L132-134) binds the PLATFORM's client implementation \u2014 a flow choice, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-011",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges.",
      "source": "ucp:docs/specification/identity-linking.md#L135-L137",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges' (identity-linking.md L135-137) binds the PLATFORM's request side; the business-side PKCE enforcement is IDL-019/023/036/049 (checked). Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-012",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST validate the iss parameter in the authorization response to prevent Mix-Up Attacks, verifying it matches the AS issuer URI; if it does not match they MUST abort and discard the authorization response.",
      "source": "ucp:docs/specification/identity-linking.md#L138-L144",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST validate the iss parameter in the authorization response ... if it does not match they MUST abort and discard the authorization response' (identity-linking.md L138-144, Mix-Up defense) binds the PLATFORM's response handling; the business-side iss emission is IDL-018 (checked). Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-014",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side.",
      "source": "ucp:docs/specification/identity-linking.md#L149-L151",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side' (identity-linking.md L149-151; Security Considerations L617-618) binds the PLATFORM's action; the business-side revocation endpoint is IDL-027/028 (checked). Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-015",
@@ -6392,20 +6414,22 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback.",
      "source": "ucp:docs/specification/identity-linking.md#L240-L241",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback' (identity-linking.md L240-241) binds the PLATFORM's discovery fetch behavior, not the business. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-032",
      "area": "identity-linking",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery.",
      "source": "ucp:docs/specification/identity-linking.md#L249-L251",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery' (identity-linking.md L249-251) binds the PLATFORM's discovery fetch behavior. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-033",
@@ -6424,20 +6448,22 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
      "source": "ucp:docs/specification/identity-linking.md#L297-L299",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST request only the derived scope set (from config.scopes) and not a superset' (identity-linking.md L297-299) binds the PLATFORM's request authoring; the scope set it requests is not a merchant obligation. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-035",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response.",
      "source": "ucp:docs/specification/identity-linking.md#L301-L305",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response' (identity-linking.md L301-305) binds the PLATFORM's response handling. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-036",
@@ -6468,20 +6494,22 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
      "source": "ucp:docs/specification/identity-linking.md#L348-L350",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication' (identity-linking.md L348-350) binds the PLATFORM's interpretation duty. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-039",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST ignore unrecognized fields in a per-scope policy object.",
      "source": "ucp:docs/specification/identity-linking.md#L358-L359",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST ignore unrecognized fields in a per-scope policy object' (identity-linking.md L358-359) binds the PLATFORM's parsing duty. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-040",
@@ -6572,10 +6600,11 @@
      "area": "identity-linking",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
      "source": "ucp:docs/specification/identity-linking.md#L535-L538",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization' (identity-linking.md L535-538) binds the PLATFORM's flow control. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-049",
@@ -6606,10 +6635,11 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions.",
      "source": "ucp:docs/specification/identity-linking.md#L596-L599",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions' (identity-linking.md L596-599) binds the PLATFORM's flow logic. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-052",
@@ -6652,20 +6682,22 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.",
      "source": "ucp:docs/specification/identity-linking.md#L646-L649",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery' (identity-linking.md L646-649) binds the PLATFORM's flow selection. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-057",
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "When config contains fields not defined in this version, platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain.",
      "source": "ucp:docs/specification/identity-linking.md#L651-L654",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'When config contains fields not defined in this version, platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain' (identity-linking.md L651-654) binds the PLATFORM's parsing duty. Requester-bound per policy F2; precedent CAT-034."
     },
     {
      "id": "IDL-058",
@@ -6889,10 +6921,11 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST include the UCP-Agent header with profile URL on all order requests",
      "source": "ucp:docs/specification/order.md#L395",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST include the UCP-Agent header with profile URL on all order requests' (order.md L395; order-rest.md L252) binds the PLATFORM's outbound requests; the order spec places no duty on the business to reject requests lacking UCP-Agent, and the tester sends it on all order requests. Same subject-binding as CAT-008/CAT-034."
     },
     {
      "id": "ORD-018",
@@ -6959,10 +6992,11 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST check the messages array in responses before accessing order data",
      "source": "ucp:docs/specification/order-rest.md#L253",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST check the messages array in responses before accessing order data' (order-rest.md L253) binds the PLATFORM's client-side consumption order \u2014 an internal read-ordering behavior with no wire-observable merchant obligation. Same subject-binding as CAT-008/CAT-034."
     },
     {
      "id": "ORD-026",
@@ -7041,20 +7075,22 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST respond quickly with a 2xx HTTP status code to acknowledge webhook receipt",
      "source": "ucp:docs/specification/order.md#L531",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'Platforms MUST respond quickly with a 2xx HTTP status code to acknowledge webhook receipt' (order.md L531, Events Guidelines) binds the webhook RECEIVER (the platform); no check on a merchant can prove a third-party platform's ack behavior. Same subject-binding as ORD-015/ORD-023; the 01-era twin is ORD-018."
     },
     {
      "id": "ORD-033",
      "area": "order",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "After verifying the signature, the platform MUST confirm the signer is authorized to send events for the referenced order (profile matches order's business; reject otherwise)",
      "source": "ucp:docs/specification/order.md#L512",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "'After verifying the signature, the platform MUST confirm the signer is authorized to send events for the referenced order (profile matches order's business; reject otherwise)' (order.md L512, Webhook Signature Verification) is receiver-side authorization conduct, not a business obligation observable on the merchant. Same subject-binding as ORD-032; the 01-era twin is ORD-019."
     },
     {
      "id": "PAY-001",
