@@ -994,7 +994,12 @@ def profile_01_11(base):
                         "rest": {"schema": "https://ucp.dev/services/shopping/rest.openapi.json",
                                  "endpoint": base}}},
                     "capabilities": [_cap_meta(n, e) for n, e in _CAPS_01_ERA]},
-            "payment": {"handlers": [payment_handler_01era()]}}
+            "payment": {"handlers": [payment_handler_01era()]},
+            # order.md@01-era webhook signing: "a key from their signing_keys array,
+            # published in /.well-known/ucp" — top-level sibling, the same placement
+            # every other served version uses (integration fix: the 01-11 renderer
+            # predated webhook emission and returned before signing_keys attached)
+            "signing_keys": [signing_jwk()]}
 
 def profile(base):
     if VERSION == "2026-01-11":
@@ -1036,8 +1041,13 @@ def profile(base):
     else:
         # OAUTH area: 01-era identity-linking (identity-linking.md@2026-01-23/01-11
         # is capability-plain — no config.scopes shape existed yet; the OAuth layer
-        # carries the 01-era scope vocabulary, see IDENTITY_SCOPES_01ERA)
-        capabilities["dev.ucp.common.identity_linking"] = cap
+        # carries the 01-era scope vocabulary, see IDENTITY_SCOPES_01ERA).
+        # spec/schema carry origin-matched URLs (DISC-002/DISC-003 — every declared
+        # capability needs them, integration fix after the wave-2 union).
+        capabilities["dev.ucp.common.identity_linking"] = [
+            {"version": VERSION,
+             "spec": "https://ucp.dev/specification/identity-linking",
+             "schema": "https://ucp.dev/schemas/common/identity_linking.json"}]
     out = {"version": VERSION,
            "services": {"dev.ucp.shopping": services},
            "capabilities": capabilities,

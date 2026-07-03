@@ -47,26 +47,40 @@ class MerchantCtx:
         ucp = profile.get("ucp", profile)          # profile may or may not nest under "ucp"
         self.version = ucp.get("version")
         caps = ucp.get("capabilities")
-        # Spec requires capabilities to be a keyed object of reverse-domain names.
-        # Never crash on a non-conformant shape (a real sample ships a list): treat it
-        # as no declared capabilities (extension checks -> not-applicable) and flag it,
-        # so the profile-structure check can report the deviation instead of exploding.
+        # From 2026-01-23 the spec requires capabilities to be a keyed object of
+        # reverse-domain names; the OLDER 2026-01-11 generation declares an ARRAY of
+        # {name, version, spec, schema} entries (overview.md 2026-01-11 Discovery) —
+        # conformant there, never flagged malformed. Otherwise never crash on a
+        # non-conformant shape (a real sample ships a list): treat it as no declared
+        # capabilities (extension checks -> not-applicable) and flag it, so the
+        # profile-structure check can report the deviation instead of exploding.
         if isinstance(caps, dict):
             self.capabilities = set(caps.keys())
+            self.caps_malformed = False
+        elif self.version == "2026-01-11" and isinstance(caps, list):
+            self.capabilities = {e.get("name") for e in caps
+                                 if isinstance(e, dict) and e.get("name")}
             self.caps_malformed = False
         else:
             self.capabilities = set()
             self.caps_malformed = caps is not None
         svc = (ucp.get("services") or {}).get("dev.ucp.shopping") or []
-        rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
+        if isinstance(svc, dict):
+            # 2026-01-11 service OBJECT: transport bindings are keys of the service
+            # (service_schema.json rest/mcp/a2a/embedded members), not list entries
+            rest = svc.get("rest") if isinstance(svc.get("rest"), dict) else None
+            mcp = svc.get("mcp") if isinstance(svc.get("mcp"), dict) else None
+            self.transports = [t for t in ("rest", "mcp", "a2a", "embedded") if t in svc]
+        else:
+            rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
+            mcp = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "mcp"), None)
+            self.transports = [s.get("transport") for s in svc if isinstance(s, dict)]
         # A server MAY offer only MCP/embedded transports and still be fully conformant.
         # This runner is REST-scoped, so absence of a REST transport makes the REST
         # lifecycle out-of-scope (not-applicable), never a deviation.
         self.has_rest = rest is not None
-        self.transports = [s.get("transport") for s in svc if isinstance(s, dict)]
         self.shopping_endpoint = (rest or {}).get("endpoint", self.base)
         # MCP transport (JSON-RPC tools/call): checks over MCP run if it's declared.
-        mcp = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "mcp"), None)
         self.has_mcp = mcp is not None
         self.mcp_endpoint = (mcp or {}).get("endpoint")
         self.product_id = self.config.get("product_id")

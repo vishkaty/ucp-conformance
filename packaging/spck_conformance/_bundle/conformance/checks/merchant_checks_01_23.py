@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-merchant_checks_01_23.py — 2026-01-23-scoped behavioral checks (WF#1 vetted backlog).
+merchant_checks_01_23.py — 01-era-scoped behavioral checks (WF#1 vetted backlog).
 
 These register ids mean something DIFFERENT (or are non-MUST) in 2026-04-08 — e.g.
 DSC-010 is the automatic-discount MUST here but a messages[] SHOULD there — so every
-check is version-locked (versions=) and this file is named *_01_23 so
-coverage/matrix.py attributes its ids to 2026-01-23 only.
+check is version-locked (versions=). The requirement texts for DSC-003/DSC-010/
+DSC-018/PAY-035 were verified TEXTUALLY IDENTICAL in the 2026-01-11 and 2026-01-23
+registers (and the fixture's 01-11 mode exhibits every scenario, oracle-validated in
+selfcheck.py), so those checks are scoped to BOTH 01-era versions; the module-level
+VERSIONS marker below widens matrix.py's file-token attribution bound accordingly.
 
 Reference target: the controlled fixture in 01-23 mode (run_suite gate
 merchant-ctrl-01-23). The Flower Shop golden CANNOT exercise these MUSTs — it never
@@ -28,6 +31,11 @@ from engine import fetch, CLEAN, DEVIATION                    # noqa: E402
 from merchant_checks import MCheck, _hdr                      # noqa: E402
 
 V0123 = ("2026-01-23",)
+# ids verified textually identical at 2026-01-11 (see module docstring)
+V_OLD = ("2026-01-11", "2026-01-23")
+# attribution bound for matrix.py: this file counts for both 01-era versions
+# (per-check versions= still narrows individual checks)
+VERSIONS = V_OLD
 
 def _dcfg(ctx):
     return ctx.config.get("discount") or {}
@@ -163,7 +171,7 @@ CHECKS_01_23 = [
             'set:discounts.applied.0.amount=-5',               # negative amount
             "drop:discounts.applied", "corrupt-json", "status:500"],
            capability="dev.ucp.shopping.discount",
-           cfg_needs=("discount.automatic",), transport="rest", versions=V0123),
+           cfg_needs=("discount.automatic",), transport="rest", versions=V_OLD),
     MCheck("discount.items_discount_invariant", ["DSC-018"], "MUST", dsc018_resp,
            p_items_discount_invariant,
            ["set:line_items.0.discount=1",                     # sum no longer matches
@@ -175,7 +183,7 @@ CHECKS_01_23 = [
             '{"type":"total","amount":4420}]',                 # items_discount omitted entirely
             "corrupt-json", "status:500"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount.item",), transport="rest", versions=V0123),
+           cfg_needs=("discount.item",), transport="rest", versions=V_OLD),
     MCheck("discount.case_insensitive_codes", ["DSC-003"], "MUST", dsc003_resp,
            p_case_insensitive_applied,
            ['set:discounts={"codes":["10off"],"applied":[]}',  # code rejected
@@ -183,7 +191,7 @@ CHECKS_01_23 = [
             "drop:discounts", "corrupt-json", "status:500"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.valid_code", "discount.case_insensitive"),
-           transport="rest", versions=V0123),
+           transport="rest", versions=V_OLD),
     MCheck("payment.merchant_auth_jws_header", ["PAY-035"], "MUST", pay035_resp,
            p_merchant_auth_header,
            [f'set:ap2.merchant_authorization="{_JWS_NO_KID}"',    # kid claim absent
@@ -192,5 +200,5 @@ CHECKS_01_23 = [
             f'set:ap2.merchant_authorization="{_JWS_NOT_JSON}"',  # header not b64url JSON
             'set:ap2.merchant_authorization="not..valid!!"',      # pattern violated
             "drop:ap2", "corrupt-json", "status:500"],
-           needs=("product",), cfg_needs=("ap2",), transport="rest", versions=V0123),
+           needs=("product",), cfg_needs=("ap2",), transport="rest", versions=V_OLD),
 ]

@@ -303,11 +303,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced."
+      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): the OFFICIAL resolver arbitrates ucp_request annotations — the ucp property MUST be absent from every request-op resolution and present on the response resolution (RootCheck, schema_check_01_11_01_23.py)."
     },
     {
       "id": "CHK-018",
@@ -339,11 +339,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "currency is response-required (in required[]) but omitted on all request operations: the merchant determines currency from address/context/geo IP. In 2026-04-08 currency carries a flat ucp_request:'omit'; here it is the explicit per-operation create/update/complete omit form, equivalent effect. ucp_request annotation, not base-schema-enforced."
+      "notes": "currency is response-required (in required[]) but omitted on all request operations: the merchant determines currency from address/context/geo IP. In 2026-04-08 currency carries a flat ucp_request:'omit'; here it is the explicit per-operation create/update/complete omit form, equivalent effect. ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (currency absent from all request-op resolutions, present on response; RootCheck, schema_check_01_11_01_23.py)."
     },
     {
       "id": "CHK-020",
@@ -357,11 +357,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Covers status(L74), totals(L91), messages(L99), links(L107), expires_at(L113), continue_url(L119), order(L132) \u2014 all ucp_request:omit. Annotation, not base-schema-enforced."
+      "notes": "Covers status(L74), totals(L91), messages(L99), links(L107), expires_at(L113), continue_url(L119), order(L132) — all ucp_request:omit. Annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (one RootCheck per response-only property; schema_check_01_11_01_23.py)."
     },
     {
       "id": "CHK-021",
@@ -419,7 +419,7 @@
     },
     {
       "id": "CHK-024",
-      "requirement": "context is response-omitted (ucp_response: omit) \u2014 provisional buyer hints supplied only on requests",
+      "requirement": "context is response-omitted (ucp_response: omit) — provisional buyer hints supplied only on requests",
       "keyword": "MAY",
       "source": "ucp:source/schemas/shopping/checkout.json#L61",
       "quote": "\"ucp_response\": \"omit\"",
@@ -548,7 +548,7 @@
       "requirement": "Businesses SHOULD implement support for the checkout permalink (stateless) format",
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/checkout.md#L234",
-      "quote": "Businesses **SHOULD** implement support for\nthis format to facilitate checkout handoff and accelerated entry\u2014for example, a\nplatform can prefill checkout state when initiating a buy-now flow.",
+      "quote": "Businesses **SHOULD** implement support for\nthis format to facilitate checkout handoff and accelerated entry—for example, a\nplatform can prefill checkout state when initiating a buy-now flow.",
       "versions": [
         "2026-01-23"
       ],
@@ -937,7 +937,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
+      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) — the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
     },
     {
       "id": "IDM-001",
@@ -1035,9 +1035,9 @@
     "The vendored markdown and schema carry literal capability/example version '2026-01-11' (checkout.md L20; checkout.json L5; example payloads throughout checkout-rest.md). This is the capability version label, not the spec release; the prompt pins this extraction to spec 2026-01-23, so all rows are tagged ['2026-01-23'].",
     "VERSION DELTAS 2026-01-23 vs 2026-04-08: (1) Status enum, response required[] (ucp,id,line_items,status,currency,totals,links), and currency-as-merchant-determined are IDENTICAL across both. (2) Escalation message rule differs: 2026-01-23 requires a message with `severity: escalation` (CHK-039, checkout.md L270); 2026-04-08 requires severity 'requires_buyer_input' or 'requires_buyer_review'. (3) Base checkout.json request fields differ: 2026-01-23 has a `context` field (request-only, ucp_response:omit) and NO signals/attribution fields; 2026-04-08 carries signals/attribution. (4) Top-level `id` ucp_request differs: 2026-01-23 uses the per-operation form {create:omit, update:required, complete:omit} (CHK-016); 2026-04-08 uses a flat ucp_request:'omit'. (5) `currency` in 2026-01-23 uses the explicit per-operation omit form {create:omit, update:omit, complete:omit} (CHK-019) vs the flat 'omit' in 2026-04-08 (equivalent effect).",
     "official_oracle=true rows are backed by conformance/.vendor/conformance/checkout_lifecycle_test.py and idempotency_test.py. Lifecycle oracles: test_create_checkout (CHK-001), test_get_checkout (CHK-002), test_update_checkout (CHK-003), test_complete_checkout (CHK-004, CHK-008, CHK-045), test_cancel_checkout (CHK-005, CHK-011), test_cancel_is_idempotent + test_cannot_cancel_completed_checkout (CHK-010), test_cannot_update_completed_checkout + test_cannot_cancel_completed_checkout + test_complete_is_idempotent (CHK-012), status-enum assertions (CHK-013). Idempotency oracles: test_idempotency_{create,update,complete,cancel} (IDM-001, IDM-003), 409-on-different-body in create/update/complete (IDM-004, IDM-005).",
-    "schema_enforced=true ONLY for genuine JSON-Schema constructs on checkout.json: status enum (CHK-013, L65) and response required[] (CHK-014, L9). All `ucp_request` / `ucp_response` annotations (omit/required/optional per operation) are UCP-specific, NOT standard JSON-Schema keywords \u2014 a vanilla draft 2020-12 validator against base checkout.json would not enforce them, hence schema_enforced=false for CHK-016..024 (a UCP-aware request-profile validator would catch these).",
+    "schema_enforced=true ONLY for genuine JSON-Schema constructs on checkout.json: status enum (CHK-013, L65) and response required[] (CHK-014, L9). All `ucp_request` / `ucp_response` annotations (omit/required/optional per operation) are UCP-specific, NOT standard JSON-Schema keywords — a vanilla draft 2020-12 validator against base checkout.json would not enforce them, hence schema_enforced=false for CHK-016..024 (a UCP-aware request-profile validator would catch these).",
     "continue_url MUST-be-absolute-HTTPS (CHK-028) is schema_enforced=false: the schema only declares format:'uri', which most validators treat as annotation-only and which permits http/relative; the absolute-HTTPS constraint is prose-only.",
-    "State-transition legality and terminal-state immutability (CHK-012) are prose invariants, not schema-encoded \u2014 base checkout.json has no if/then or transition modeling. Their oracle is behavioral (HTTP non-200 on an illegal transition). Lifecycle terminal states are completed and canceled (diagram checkout.md L86-93 and status-value definitions); incomplete, requires_escalation, ready_for_complete, complete_in_progress are non-terminal. Autonomous Complete is permitted only from ready_for_complete (CHK-043).",
+    "State-transition legality and terminal-state immutability (CHK-012) are prose invariants, not schema-encoded — base checkout.json has no if/then or transition modeling. Their oracle is behavioral (HTTP non-200 on an illegal transition). Lifecycle terminal states are completed and canceled (diagram checkout.md L86-93 and status-value definitions); incomplete, requires_escalation, ready_for_complete, complete_in_progress are non-terminal. Autonomous Complete is permitted only from ready_for_complete (CHK-043).",
     "Idempotency: the three-step server MUST (store >=24h, return cached on duplicate, 409 on same-key-different-body) is quoted verbatim from checkout-rest.md L1216-1219. IDM-002 (24h retention) is needs-receiver (not time-assertable by the suite); IDM-003/IDM-004 are directly asserted by IdempotencyTest. test_idempotency_cancel has no request body, so it validates only the duplicate-returns-cached path, not the 409-conflict path.",
     "Several requirements are platform-side behaviors (CHK-032/033/034/041/042/046) or out-of-band side effects (CHK-035 confirmation email) that cannot be validated from a single business HTTP response; marked manual or needs-receiver accordingly."
   ]

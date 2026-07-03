@@ -33,6 +33,8 @@ CONTROLLED_PORT = 8184
 CONTROLLED = f"http://localhost:{CONTROLLED_PORT}"
 CONTROLLED_0123_PORT = 8185
 CONTROLLED_0123 = f"http://localhost:{CONTROLLED_0123_PORT}"
+CONTROLLED_0111_PORT = 8193          # 8186-8188 sig gate, 8189 static web, 8190/8191 webhook harness
+CONTROLLED_0111 = f"http://localhost:{CONTROLLED_0111_PORT}"
 PROXY_PORT = 8183
 PROXY = f"http://localhost:{PROXY_PORT}"
 
@@ -57,6 +59,14 @@ def gates(server):
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
                                     "--server", CONTROLLED_0123, "--golden", "controlled"),
          "controlled-01-23", ()),
+        ("merchant-ctrl-01-11", _py(SELF / "validate_merchant_checks.py",
+                                    "--server", CONTROLLED_0111, "--golden", "controlled"),
+         "controlled-01-11", ()),
+        ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
+        # the CLOSED testable tier can never silently reopen (wave-2 milestone)
+        ("require-testable-04-08",
+         _py(ROOT / "conformance" / "coverage" / "matrix.py",
+             "--require", "testable", "--version", "2026-04-08"),               None, ()),
         ("tls-check",   _py(SELF / "validate_tls_check.py"),                 "controlled", (2,)),
         ("sig-check",   _py(SELF / "validate_sig_check.py"),                    None, (2,)),
         ("oauth-check", _py(SELF / "validate_oauth_checks.py"),                  None, (2,)),
@@ -95,6 +105,12 @@ def boot_controlled_0123():
     return _boot([sys.executable, str(FIXTURE / "server.py"), "--port", str(CONTROLLED_0123_PORT),
                   "--spec-version", "2026-01-23"], CONTROLLED_0123)
 
+def boot_controlled_0111():
+    """Start a third controlled fixture serving spec 2026-01-11 (wave-2: the oldest
+    envelope generation — array capabilities, discovery_profile def)."""
+    return _boot([sys.executable, str(FIXTURE / "server.py"), "--port", str(CONTROLLED_0111_PORT),
+                  "--spec-version", "2026-01-11"], CONTROLLED_0111)
+
 def boot_tls_proxy():
     """Start the CHK-051 TLS harness (1.3-only golden :8443 + 1.2-accepting negative
     :8444) in front of the controlled fixture. No HTTP health URL (TLS listeners);
@@ -132,7 +148,9 @@ def main():
     ctrl_proc = boot_controlled()
     ctrl_up = server_up(CONTROLLED)
     ctrl0123_proc = boot_controlled_0123()
+    ctrl0111_proc = boot_controlled_0111()
     ctrl0123_up = server_up(CONTROLLED_0123)
+    ctrl0111_up = server_up(CONTROLLED_0111)
     tls_proc = boot_tls_proxy() if ctrl_up else None
     if tls_proc: time.sleep(1.0)            # cert mint + listener bind
     proxy_proc = boot_proxy(args.server) if up else None   # kill-rate gate drives the proxy
@@ -140,8 +158,10 @@ def main():
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
+    print(f"controlled fixture (01-11) {CONTROLLED_0111}: {'UP' if ctrl0111_up else 'DOWN'}")
     print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}\n")
     avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
+             "controlled-01-11": ctrl0111_up,
              "proxy": proxy_up and up}
 
     results = []
@@ -166,7 +186,7 @@ def main():
         if status == "FAIL" and args.verbose:
             print(f"----- {name} output -----\n{r.get('out','')}\n-------------------------")
     finally:
-        for proc in (ctrl_proc, ctrl0123_proc, tls_proc, proxy_proc):
+        for proc in (ctrl_proc, ctrl0123_proc, ctrl0111_proc, tls_proc, proxy_proc):
             if proc is not None:
                 proc.terminate()
 

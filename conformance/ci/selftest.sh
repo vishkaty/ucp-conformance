@@ -18,7 +18,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export PORT="${PORT:-8182}"
 export SIM_SECRET="${SIM_SECRET:-selfcheck-secret}"
 export DB_DIR="${DB_DIR:-/tmp/ucp_test}"
-PORTS=("$PORT" 8183 8184 8185 8189 8443 8444)   # golden, proxy, fixtures, static web, TLS harness
+PORTS=("$PORT" 8183 8184 8185 8186 8187 8188 8189 8190 8191 8193 8443 8444 8445)   # golden, proxy, fixtures, sig-gate trio, static web, webhook harness pair, 01-11 golden, TLS harness
 
 free_ports() {
   for p in "${PORTS[@]}"; do

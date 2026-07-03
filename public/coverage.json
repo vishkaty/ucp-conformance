@@ -9,79 +9,73 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 67,
+   "check": 107,
    "exempt": 24,
-   "gap": 81,
-   "accounted_pct": 53,
+   "gap": 41,
+   "accounted_pct": 76,
    "gap_by_testability": {
-    "manual": 12,
+    "manual": 9,
     "needs-oauth": 1,
     "needs-receiver": 30,
-    "testable": 38
+    "testable": 1
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 14,
+     "check": 18,
      "exempt": 2,
-     "gap": 12,
-     "gap_manual": 2,
+     "gap": 8,
      "gap_needs-receiver": 8,
-     "gap_testable": 2,
      "musts": 28
     },
     {
      "area": "discount-consent-identity",
-     "check": 14,
+     "check": 24,
      "exempt": 2,
-     "gap": 13,
+     "gap": 3,
      "gap_manual": 2,
      "gap_needs-oauth": 1,
-     "gap_testable": 10,
      "musts": 29
     },
     {
      "area": "discovery-negotiation",
-     "check": 8,
+     "check": 15,
      "exempt": 8,
-     "gap": 14,
-     "gap_manual": 1,
+     "gap": 7,
+     "gap_manual": 3,
      "gap_needs-receiver": 3,
-     "gap_testable": 10,
+     "gap_testable": 1,
      "musts": 30
     },
     {
      "area": "errors-validation-security",
-     "check": 12,
-     "gap": 9,
-     "gap_manual": 3,
-     "gap_testable": 6,
+     "check": 20,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 21
     },
     {
      "area": "fulfillment",
-     "check": 6,
+     "check": 7,
      "exempt": 5,
-     "gap": 2,
-     "gap_manual": 2,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 13
     },
     {
      "area": "order",
-     "check": 11,
-     "gap": 7,
+     "check": 14,
+     "gap": 4,
      "gap_manual": 2,
      "gap_needs-receiver": 2,
-     "gap_testable": 3,
      "musts": 18
     },
     {
      "area": "payment",
-     "check": 2,
+     "check": 9,
      "exempt": 7,
-     "gap": 24,
+     "gap": 17,
      "gap_needs-receiver": 17,
-     "gap_testable": 7,
      "musts": 33
     }
    ],
@@ -234,21 +228,25 @@
      "id": "CHK-017",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "ucp envelope field is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L22",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-020",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "status, totals, messages, links, expires_at, continue_url, and order are response-only (ucp_request: omit) and omitted on requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L54",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-025",
@@ -326,10 +324,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST request and response bodies MUST be valid JSON per RFC 8259",
      "source": "ucp:docs/specification/checkout-rest.md#L36",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-051",
@@ -372,20 +372,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The spec and schema fields are REQUIRED for all capabilities",
      "source": "ucp:docs/specification/overview.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DISC-003",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The origin of capability spec/schema URLs MUST match the namespace authority",
      "source": "ucp:docs/specification/overview.md#L75",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DISC-004",
@@ -492,10 +496,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
      "source": "ucp:docs/specification/discount.md#L125",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-002",
@@ -514,10 +520,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount codes are matched case-insensitively by the business.",
      "source": "ucp:docs/specification/discount.md#L127",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_23.py"
+     ]
     },
     {
      "id": "DSC-004",
@@ -576,10 +584,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platform action and cannot be removed by the platform.",
      "source": "ucp:docs/specification/discount.md#L175",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_23.py"
+     ]
     },
     {
      "id": "DSC-011",
@@ -611,70 +621,84 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "applied_discount.method, when present, must be one of 'each' or 'across'.",
      "source": "ucp:source/schemas/shopping/discount.json#L51",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-014",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An allocation must include path and amount; allocation amount is a non-negative integer in minor currency units.",
      "source": "ucp:source/schemas/shopping/discount.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-016",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
      "source": "ucp:docs/specification/discount.md#L117",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-017",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
      "source": "ucp:docs/specification/discount.md#L205",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-018",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
      "source": "ucp:docs/specification/discount.md#L199",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_23.py"
+     ]
     },
     {
      "id": "DSC-019",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
      "source": "ucp:docs/specification/buyer-consent.md#L29",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-020",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each buyer consent state (analytics, preferences, marketing, sale_of_data), when present, must be a boolean.",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L14",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-022",
@@ -692,70 +716,84 @@
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An error message MUST include the fields type, code, content, and severity (all four are required on a Message Error).",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L6-L11",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-002",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The error message type discriminator MUST be the constant string \"error\".",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L13-L16",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-003",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The error code field MUST be a string; defined values include missing, invalid, out_of_stock, payment_declined, requires_sign_in, requires_3ds, requires_identity_linking, with freeform codes also allowed.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L18-L21",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-004",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The error severity field MUST be one of exactly three enum values: recoverable, requires_buyer_input, requires_buyer_review.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L39-L46",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-005",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Errors with requires_* severity contribute to status requires_escalation.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L46",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-006",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500) for responses including errors.",
      "source": "ucp:docs/specification/overview.md#L951",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-007",
      "area": "errors-validation-security",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "If negotiation fails, businesses MUST return an error response (status requires_escalation with a type:error message, e.g. version_unsupported, severity requires_buyer_input).",
      "source": "ucp:docs/specification/overview.md#L489",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-008",
@@ -821,11 +859,13 @@
      "id": "FUL-009",
      "area": "fulfillment",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "FUL-010",
@@ -1080,16 +1120,18 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
      "source": "ucp:docs/specification/checkout-rest.md#L1311",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-001",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L408",
@@ -1099,7 +1141,7 @@
      "id": "NEG-002",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header",
      "source": "ucp:docs/specification/overview.md#L411",
@@ -1109,7 +1151,7 @@
      "id": "NEG-004",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST include their profile URI in every request using the transport-appropriate mechanism",
      "source": "ucp:docs/specification/overview.md#L446",
@@ -1184,20 +1226,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "If negotiation fails, businesses MUST return an error response",
      "source": "ucp:docs/specification/overview.md#L489",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-014",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST validate the platform's version and determine compatibility",
      "source": "ucp:docs/specification/overview.md#L1068",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-015",
@@ -1240,10 +1286,12 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All UCP communication MUST occur over HTTPS",
      "source": "ucp:docs/specification/overview.md#L992",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-019",
@@ -1262,20 +1310,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP verbs (e.g., POST for creation, GET for retrieval)",
      "source": "ucp:docs/specification/overview.md#L948",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-021",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500)",
      "source": "ucp:docs/specification/overview.md#L950",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-001",
@@ -1345,30 +1397,36 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line items reflect what was purchased at checkout and MUST be retained as the immutable source of truth for what was ordered",
      "source": "ucp:source/schemas/shopping/order.json#L57",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-007",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Adjustments are an append-only log; each adjustment MUST include id, type, occurred_at, and status",
      "source": "ucp:source/schemas/shopping/types/adjustment.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-009",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each fulfillment event (append-only log of actual shipments) MUST include id, occurred_at, type, and line_items",
      "source": "ucp:source/schemas/shopping/types/fulfillment_event.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-010",
@@ -1554,10 +1612,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A payment instrument must include id, handler_id, and type, where handler_id corresponds to the id of the payment handler definition.",
      "source": "ucp:source/schemas/shopping/types/payment_instrument_base.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-009",
@@ -1577,10 +1637,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
      "source": "ucp:docs/specification/overview.md#L560",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-012",
@@ -1619,30 +1681,36 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A card credential must include type (const 'card') and card_number_type.",
      "source": "ucp:source/schemas/shopping/types/card_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-016",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A token credential must include type and token.",
      "source": "ucp:source/schemas/shopping/types/token_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-017",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A binding must include checkout_id identifying the checkout session the token is bound to (prevents token reuse across checkouts/participants).",
      "source": "ucp:source/schemas/shopping/types/binding.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-018",
@@ -1759,10 +1827,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Completion of an autonomous AP2 flow must produce two distinct mandate artifacts: a checkout_mandate and a payment_mandate.",
      "source": "ucp:docs/specification/ap2-mandates.md#L200",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-030",
@@ -1819,10 +1889,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The merchant_authorization is a JWS Detached Content signature; its header must contain alg (ES256/ES384/ES512) and kid claims.",
      "source": "ucp:source/schemas/shopping/ap2_mandate.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_23.py"
+     ]
     },
     {
      "id": "SEC-001",
@@ -1864,11 +1936,13 @@
      "id": "SEC-004",
      "area": "errors-validation-security",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "All UCP communication MUST occur over HTTPS.",
      "source": "ucp:docs/specification/overview.md#L992",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "VAL-001",
@@ -1983,79 +2057,73 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 80,
+   "check": 115,
    "exempt": 25,
-   "gap": 76,
-   "accounted_pct": 58,
+   "gap": 41,
+   "accounted_pct": 77,
    "gap_by_testability": {
-    "manual": 13,
+    "manual": 9,
     "needs-oauth": 1,
     "needs-receiver": 30,
-    "testable": 32
+    "testable": 1
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 16,
+     "check": 22,
      "exempt": 2,
-     "gap": 14,
-     "gap_manual": 3,
+     "gap": 8,
      "gap_needs-receiver": 8,
-     "gap_testable": 3,
      "musts": 32
     },
     {
      "area": "discount-consent-identity",
-     "check": 20,
+     "check": 26,
      "exempt": 2,
-     "gap": 9,
+     "gap": 3,
      "gap_manual": 2,
      "gap_needs-oauth": 1,
-     "gap_testable": 6,
      "musts": 31
     },
     {
      "area": "discovery-negotiation",
-     "check": 8,
+     "check": 15,
      "exempt": 9,
-     "gap": 14,
-     "gap_manual": 1,
+     "gap": 7,
+     "gap_manual": 3,
      "gap_needs-receiver": 3,
-     "gap_testable": 10,
+     "gap_testable": 1,
      "musts": 31
     },
     {
      "area": "errors-validation-security",
-     "check": 15,
-     "gap": 6,
-     "gap_manual": 3,
-     "gap_testable": 3,
+     "check": 20,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 21
     },
     {
      "area": "fulfillment",
-     "check": 6,
+     "check": 7,
      "exempt": 5,
-     "gap": 2,
-     "gap_manual": 2,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 13
     },
     {
      "area": "order",
-     "check": 11,
-     "gap": 7,
+     "check": 14,
+     "gap": 4,
      "gap_manual": 2,
      "gap_needs-receiver": 2,
-     "gap_testable": 3,
      "musts": 18
     },
     {
      "area": "payment",
-     "check": 4,
+     "check": 11,
      "exempt": 7,
-     "gap": 24,
+     "gap": 17,
      "gap_needs-receiver": 17,
-     "gap_testable": 7,
      "musts": 35
     }
    ],
@@ -2226,11 +2294,13 @@
      "id": "CHK-017",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "ucp envelope field is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L22",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-018",
@@ -2248,31 +2318,37 @@
      "id": "CHK-019",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "currency is omitted on create, update, and complete requests (merchant-determined, response-only)",
      "source": "ucp:source/schemas/shopping/checkout.json#L79",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-020",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "status, totals, messages, links, expires_at, continue_url, and order are response-only (ucp_request: omit) and omitted on requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L74",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-021",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "payment is optional on create and update, and required on complete requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L123",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-025",
@@ -2350,10 +2426,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST request and response bodies MUST be valid JSON per RFC 8259",
      "source": "ucp:docs/specification/checkout-rest.md#L36",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "CHK-051",
@@ -2396,20 +2474,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The spec and schema fields are REQUIRED for all capabilities",
      "source": "ucp:docs/specification/overview.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DISC-003",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The origin of capability spec/schema URLs MUST match the namespace authority",
      "source": "ucp:docs/specification/overview.md#L75",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DISC-004",
@@ -2518,10 +2600,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
      "source": "ucp:docs/specification/discount.md#L125",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-002",
@@ -2665,30 +2749,36 @@
      "area": "discount-consent-identity",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The discounts object is optional on create and update operations and must be omitted on complete.",
      "source": "ucp:source/schemas/shopping/discount.json#L98",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-016",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
      "source": "ucp:docs/specification/discount.md#L117",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-017",
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
      "source": "ucp:docs/specification/discount.md#L205",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-018",
@@ -2707,10 +2797,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
      "source": "ucp:docs/specification/buyer-consent.md#L29",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-020",
@@ -2729,10 +2821,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The buyer consent object is optional on create and update operations and must be omitted on complete (consent is not required to gate completion).",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L63",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "DSC-022",
@@ -2750,10 +2844,12 @@
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An error message MUST include the fields type, code, content, and severity (all four are required on a Message Error).",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L6-L11",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-002",
@@ -2796,30 +2892,36 @@
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Errors with requires_* severity contribute to status requires_escalation.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L46",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-006",
      "area": "errors-validation-security",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500) for responses including errors.",
      "source": "ucp:docs/specification/overview.md#L1032-L1033",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-007",
      "area": "errors-validation-security",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "If negotiation fails, businesses MUST return an error response (status requires_escalation with a type:error message, e.g. version_unsupported, severity requires_buyer_input).",
      "source": "ucp:docs/specification/overview.md#L522",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ERR-008",
@@ -2886,11 +2988,13 @@
      "id": "FUL-009",
      "area": "fulfillment",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "FUL-010",
@@ -3146,16 +3250,18 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
      "source": "ucp:docs/specification/checkout-rest.md#L1236",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-001",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L438",
@@ -3165,7 +3271,7 @@
      "id": "NEG-002",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "For HTTP transport, platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header",
      "source": "ucp:docs/specification/overview.md#L441",
@@ -3186,7 +3292,7 @@
      "id": "NEG-004",
      "area": "discovery-negotiation",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST include their profile URI in every request using the transport-appropriate mechanism",
      "source": "ucp:docs/specification/overview.md#L479",
@@ -3261,20 +3367,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "If negotiation fails, businesses MUST return an error response",
      "source": "ucp:docs/specification/overview.md#L522",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-014",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST validate the platform's version and determine compatibility",
      "source": "ucp:docs/specification/overview.md#L1151",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-015",
@@ -3317,10 +3427,12 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All UCP communication MUST occur over HTTPS",
      "source": "ucp:docs/specification/overview.md#L1074",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-019",
@@ -3339,20 +3451,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP verbs (e.g., POST for creation, GET for retrieval)",
      "source": "ucp:docs/specification/overview.md#L1030",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "NEG-021",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500)",
      "source": "ucp:docs/specification/overview.md#L1032",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-001",
@@ -3422,30 +3538,36 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line items reflect what was purchased at checkout and MUST be retained as the immutable source of truth for what was ordered",
      "source": "ucp:source/schemas/shopping/order.json#L57",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-007",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Adjustments are an append-only log; each adjustment MUST include id, type, occurred_at, and status",
      "source": "ucp:source/schemas/shopping/types/adjustment.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-009",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each fulfillment event (append-only log of actual shipments) MUST include id, occurred_at, type, and line_items",
      "source": "ucp:source/schemas/shopping/types/fulfillment_event.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "ORD-010",
@@ -3587,10 +3709,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A platform-schema payment handler declaration must include spec and schema fields.",
      "source": "ucp:source/schemas/payment_handler.json#L21",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-004",
@@ -3641,10 +3765,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A payment instrument must include id, handler_id, and type, where handler_id corresponds to the id of the payment handler definition.",
      "source": "ucp:source/schemas/shopping/types/payment_instrument.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-009",
@@ -3664,10 +3790,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
      "source": "ucp:docs/specification/overview.md#L602",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-012",
@@ -3706,30 +3834,36 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A card credential must include type (const 'card') and card_number_type.",
      "source": "ucp:source/schemas/shopping/types/card_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-016",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A token credential must include type and token.",
      "source": "ucp:source/schemas/shopping/types/token_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-017",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A binding must include checkout_id identifying the checkout session the token is bound to (prevents token reuse across checkouts/participants).",
      "source": "ucp:source/schemas/shopping/types/binding.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-018",
@@ -3846,10 +3980,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Completion of an autonomous AP2 flow must produce two distinct mandate artifacts: a checkout_mandate and a payment_mandate.",
      "source": "ucp:docs/specification/ap2-mandates.md#L200",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_01_11_01_23.py"
+     ]
     },
     {
      "id": "PAY-030",
@@ -3965,11 +4101,13 @@
      "id": "SEC-004",
      "area": "errors-validation-security",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "All UCP communication MUST occur over HTTPS.",
      "source": "ucp:docs/specification/overview.md#L1074",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23.py"
+     ]
     },
     {
      "id": "VAL-001",
