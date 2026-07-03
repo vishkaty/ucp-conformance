@@ -558,5 +558,106 @@
       "2026-04-08"
     ],
     "reason": "'status, currency, totals, messages, links, expires_at, continue_url, order are response-only (ucp_request: omit) and omitted on requests' (checkout.json L76-127) constrains the REQUEST author (the platform) to omit response-only fields; no business-side rejection duty exists, so nothing the suite elicits from the merchant reflects it and the tester omits them. Request-author-bound; same subject-binding as DISC-006/CART-024. [Scoped: at 01-era this id is an unrelated needs-receiver requirement (deterministic checkout-session logic).]"
+  },
+  "CART-020": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST NOT: platforms provide signal values from direct observation; a business cannot be tested for the provenance of platform-supplied signals (overview.md #signals). No business-observable dual.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "SAE-001": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST NOT: signal values are platform-provided (direct observation/independent attestation); the business under test never asserts them, so provenance is unobservable business-side.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "SIG-011": {
+    "class": "client-bound",
+    "reason": "Intermediary-bound MUST NOT: proxies/API gateways/other intermediaries MUST NOT re-serialize bodies; neither the business nor the platform endpoint under test is the bound party, and no intermediary sits under test.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "SIG-022": {
+    "class": "client-bound",
+    "reason": "Client/signer-bound MUST: the client generating the Idempotency-Key chooses >=128-bit entropy; entropy of one observed key is unmeasurable on a business response.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "PAY-008": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@04-08 only; a business MUST at 01-era, covered there): platforms treat available_instruments/handler config as authoritative. The business duty to RETURN the authoritative set is checked by PAY-005/007.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "PAY-009": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST/MUST NOT (@04-08 only; covered at 01-era): platforms treat available_instruments as authoritative and MUST NOT use contradicting types. Business emission is checked by PAY-005/007.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "PAY-010": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@04-08 only; covered at 01-era): platforms treat available_instruments as authoritative. Business emission checked by PAY-005/007.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "PAY-017": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@04-08 only; covered at 01-era): the PLATFORM opens continue_url after a 3DS/SCA soft-decline. The business soft-decline duty (return requires_escalation + continue_url) is checked by CHK-001/004/014.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "CHK-008": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@04-08 only; a business response MUST at 01-era, covered there): the PLATFORM uses continue_url on requires_escalation. The business duty to PROVIDE it is checked by CHK-001/014/043.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "CHK-023": {
+    "class": "client-bound",
+    "reason": "Request-author (platform) obligation to send the entire checkout resource on PUT; the business full-replacement semantics are checked by the update checks. Not observable on a business response.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "CHK-024": {
+    "class": "client-bound",
+    "reason": "Client obligation: clients MUST include all previously set fields on PUT. Not observable on a business response.",
+    "versions": [
+      "2026-04-08"
+    ]
+  },
+  "CHK-032": {
+    "class": "client-bound",
+    "reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks.",
+    "versions": [
+      "2026-01-11",
+      "2026-01-23"
+    ]
+  },
+  "PAY-020": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@01-era only; covered at 04-08): platforms provide cryptographically signed AP2 Mandates. The business AP2 duties are checked by PAY-019/021/026/027/035.",
+    "versions": [
+      "2026-01-11",
+      "2026-01-23"
+    ]
+  },
+  "PAY-023": {
+    "class": "client-bound",
+    "reason": "Platform-bound MUST (@01-era only; covered at 04-08): the PLATFORM verifies the business's merchant signature before presenting terms. The business duty to embed a valid ES256 merchant signature is checked by PAY-035.",
+    "versions": [
+      "2026-01-11",
+      "2026-01-23"
+    ]
   }
 }

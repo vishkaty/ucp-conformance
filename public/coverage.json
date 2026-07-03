@@ -10,20 +10,19 @@
   "2026-01-11": {
    "musts": 172,
    "check": 117,
-   "exempt": 31,
-   "gap": 24,
-   "accounted_pct": 86,
+   "exempt": 34,
+   "gap": 21,
+   "accounted_pct": 88,
    "gap_by_testability": {
-    "manual": 5,
+    "manual": 2,
     "needs-receiver": 19
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
      "check": 22,
-     "exempt": 2,
-     "gap": 4,
-     "gap_manual": 1,
+     "exempt": 3,
+     "gap": 3,
      "gap_needs-receiver": 3,
      "musts": 28
     },
@@ -67,9 +66,8 @@
     {
      "area": "payment",
      "check": 13,
-     "exempt": 7,
-     "gap": 13,
-     "gap_manual": 2,
+     "exempt": 9,
+     "gap": 11,
      "gap_needs-receiver": 11,
      "musts": 33
     }
@@ -272,10 +270,11 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
     },
     {
      "id": "CHK-035",
@@ -1753,10 +1752,11 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must provide cryptographically signed proofs (Mandates) for autonomous/non-repudiable authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L33",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@01-era only; covered at 04-08): platforms provide cryptographically signed AP2 Mandates. The business AP2 duties are checked by PAY-019/021/026/027/035."
     },
     {
      "id": "PAY-021",
@@ -1785,10 +1785,11 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "The platform must verify the business's merchant signature before presenting checkout terms to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L112",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@01-era only; covered at 04-08): the PLATFORM verifies the business's merchant signature before presenting terms. The business duty to embed a valid ES256 merchant signature is checked by PAY-035."
     },
     {
      "id": "PAY-024",
@@ -2080,20 +2081,19 @@
   "2026-01-23": {
    "musts": 181,
    "check": 125,
-   "exempt": 32,
-   "gap": 24,
-   "accounted_pct": 87,
+   "exempt": 35,
+   "gap": 21,
+   "accounted_pct": 88,
    "gap_by_testability": {
-    "manual": 5,
+    "manual": 2,
     "needs-receiver": 19
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
      "check": 26,
-     "exempt": 2,
-     "gap": 4,
-     "gap_manual": 1,
+     "exempt": 3,
+     "gap": 3,
      "gap_needs-receiver": 3,
      "musts": 32
     },
@@ -2137,9 +2137,8 @@
     {
      "area": "payment",
      "check": 15,
-     "exempt": 7,
-     "gap": 13,
-     "gap_manual": 2,
+     "exempt": 9,
+     "gap": 11,
      "gap_needs-receiver": 11,
      "musts": 35
     }
@@ -2396,10 +2395,11 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
     },
     {
      "id": "CHK-035",
@@ -3928,10 +3928,11 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms must provide cryptographically signed proofs (Mandates) for autonomous/non-repudiable authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L33",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@01-era only; covered at 04-08): platforms provide cryptographically signed AP2 Mandates. The business AP2 duties are checked by PAY-019/021/026/027/035."
     },
     {
      "id": "PAY-021",
@@ -3960,10 +3961,11 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "The platform must verify the business's merchant signature before presenting checkout terms to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L112",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@01-era only; covered at 04-08): the PLATFORM verifies the business's merchant signature before presenting terms. The business duty to embed a valid ES256 merchant signature is checked by PAY-035."
     },
     {
      "id": "PAY-024",
@@ -4270,11 +4272,11 @@
   "2026-04-08": {
    "musts": 323,
    "check": 227,
-   "exempt": 62,
-   "gap": 34,
-   "accounted_pct": 89,
+   "exempt": 73,
+   "gap": 23,
+   "accounted_pct": 93,
    "gap_by_testability": {
-    "manual": 17,
+    "manual": 6,
     "needs-oauth": 1,
     "needs-receiver": 16
    },
@@ -4282,9 +4284,8 @@
     {
      "area": "cart",
      "check": 11,
-     "exempt": 1,
-     "gap": 2,
-     "gap_manual": 1,
+     "exempt": 2,
+     "gap": 1,
      "gap_needs-receiver": 1,
      "musts": 14
     },
@@ -4299,9 +4300,8 @@
     {
      "area": "checkout-lifecycle",
      "check": 21,
-     "exempt": 5,
-     "gap": 7,
-     "gap_manual": 3,
+     "exempt": 8,
+     "gap": 4,
      "gap_needs-receiver": 4,
      "musts": 33
     },
@@ -4352,25 +4352,24 @@
     {
      "area": "payment",
      "check": 16,
-     "exempt": 5,
-     "gap": 6,
-     "gap_manual": 4,
+     "exempt": 9,
+     "gap": 2,
      "gap_needs-receiver": 2,
      "musts": 27
     },
     {
      "area": "signals-attribution-eligibility",
      "check": 11,
-     "gap": 3,
-     "gap_manual": 1,
+     "exempt": 1,
+     "gap": 2,
      "gap_needs-receiver": 2,
      "musts": 14
     },
     {
      "area": "signatures",
      "check": 23,
-     "gap": 8,
-     "gap_manual": 2,
+     "exempt": 2,
+     "gap": 6,
      "gap_needs-receiver": 6,
      "musts": 31
     },
@@ -4440,10 +4439,11 @@
      "area": "cart",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Signal values MUST NOT be buyer-asserted claims",
      "source": "ucp:docs/specification/cart.md#L229",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST NOT: platforms provide signal values from direct observation; a business cannot be tested for the provenance of platform-supplied signals (overview.md #signals). No business-observable dual."
     },
     {
      "id": "CART-022",
@@ -4961,10 +4961,11 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L524",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@04-08 only; a business response MUST at 01-era, covered there): the PLATFORM uses continue_url on requires_escalation. The business duty to PROVIDE it is checked by CHK-001/014/043."
     },
     {
      "id": "CHK-011",
@@ -5088,20 +5089,22 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Update Checkout performs a full replacement of the checkout resource; platform is REQUIRED to send the entire checkout resource",
      "source": "ucp:docs/specification/checkout.md#L585",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Request-author (platform) obligation to send the entire checkout resource on PUT; the business full-replacement semantics are checked by the update checks. Not observable on a business response."
     },
     {
      "id": "CHK-024",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Each PUT replaces the entire session; clients must include all previously set fields they wish to retain",
      "source": "ucp:docs/specification/checkout-rest.md#L197",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Client obligation: clients MUST include all previously set fields on PUT. Not observable on a business response."
     },
     {
      "id": "CHK-025",
@@ -7242,30 +7245,33 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST treat the response_schema available_instruments / handler config as authoritative for the checkout",
      "source": "ucp:docs/specification/payment-handler-guide.md#L212",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@04-08 only; a business MUST at 01-era, covered there): platforms treat available_instruments/handler config as authoritative. The business duty to RETURN the authoritative set is checked by PAY-005/007."
     },
     {
      "id": "PAY-009",
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "The available_instruments returned in the response_schema is authoritative; platforms MUST treat it as authoritative and MUST NOT use instrument types or constraints that contradict it",
      "source": "ucp:docs/specification/payment-handler-guide.md#L303",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST/MUST NOT (@04-08 only; covered at 01-era): platforms treat available_instruments as authoritative and MUST NOT use contradicting types. Business emission is checked by PAY-005/007."
     },
     {
      "id": "PAY-010",
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Platforms MUST treat the available_instruments in the checkout response as authoritative for that checkout",
      "source": "ucp:docs/specification/overview.md#L1203",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@04-08 only; covered at 01-era): platforms treat available_instruments as authoritative. Business emission checked by PAY-005/007."
     },
     {
      "id": "PAY-011",
@@ -7316,10 +7322,11 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "On 3DS/SCA soft-decline the business returns status requires_escalation with a continue_url; the platform MUST open continue_url for the buyer to complete the bank check then retry completion",
      "source": "ucp:docs/specification/overview.md#L1409",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST (@04-08 only; covered at 01-era): the PLATFORM opens continue_url after a 3DS/SCA soft-decline. The business soft-decline duty (return requires_escalation + continue_url) is checked by CHK-001/004/014."
     },
     {
      "id": "PAY-018",
@@ -7477,10 +7484,11 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Signal values MUST NOT be buyer-asserted claims; platforms provide signals from direct observation or independently verifiable third-party attestations",
      "source": "ucp:docs/specification/overview.md#L1689",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Platform-bound MUST NOT: signal values are platform-provided (direct observation/independent attestation); the business under test never asserts them, so provenance is unobservable business-side."
     },
     {
      "id": "SAE-002",
@@ -7721,10 +7729,11 @@
      "area": "signatures",
      "keyword": "MUST NOT",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Proxies, API gateways, and other intermediaries MUST NOT re-serialize JSON bodies, as this would invalidate the signature.",
      "source": "ucp:docs/specification/signatures.md#L182",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Intermediary-bound MUST NOT: proxies/API gateways/other intermediaries MUST NOT re-serialize bodies; neither the business nor the platform endpoint under test is the bound party, and no intermediary sits under test."
     },
     {
      "id": "SIG-012",
@@ -7847,10 +7856,11 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "Idempotency-Key must have minimum 128 bits of entropy (e.g., UUID v4, 22+ char alphanumeric).",
      "source": "ucp:docs/specification/signatures.md#L482",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "Client/signer-bound MUST: the client generating the Idempotency-Key chooses >=128-bit entropy; entropy of one observed key is unmeasurable on a business response."
     },
     {
      "id": "SIG-023",
