@@ -39,6 +39,10 @@ MUTANTS_04_08 = [
     ("--oauth-no-client-auth", ["identity.client_auth_enforced"]),
     ("--oauth-challenge-no-error", ["identity.invalid_token_challenge",
                                     "identity.insufficient_scope_challenge"]),
+    # IDL-042: a merchant that accepts a present Bearer token without checking it is
+    # known/unexpired/unrevoked lets the minted expired/revoked tokens through.
+    ("--oauth-accept-any-token", ["identity.expired_token_rejected",
+                                  "identity.revoked_token_rejected"]),
 ]
 MUTANTS_01_23 = [
     ("--oauth-no-client-auth", ["identity01.token_client_auth"]),
