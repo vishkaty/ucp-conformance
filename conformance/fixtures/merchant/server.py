@@ -23,11 +23,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 # SAME lifecycle can be reference-gated per version: catalog/cart/MCP exist only in
 # 2026-04-08; checkout/order/discount are served in every supported version with the
 # pinned per-version rendering (see checkout_body's sign-convention note).
-# 2026-01-11 is NOT yet servable: its envelope generation differs structurally
-# (ucp.capabilities is an ARRAY; the profile def is 'discovery_profile', which
-# schema_oracle.validate_profile can't select) — needs its own increment.
+# 2026-01-11 is an OLDER envelope generation (overview.md 2026-01-11 "Discovery"):
+#   * the profile nests under a top-level `ucp` member and validates against
+#     ucp.json $defs/discovery_profile (not business_schema);
+#   * ucp.capabilities is an ARRAY of {name, version, spec, schema[, extends]};
+#   * services is an OBJECT keyed by reverse-domain service name whose value carries
+#     transport bindings as keys (rest/mcp/...), not a list of transport entries;
+#   * checkout responses REQUIRE a root `payment` object (payment.json: handlers[]).
 VERSION = "2026-04-08"
-SUPPORTED_VERSIONS = ("2026-04-08", "2026-01-23")
+SUPPORTED_VERSIONS = ("2026-04-08", "2026-01-23", "2026-01-11")
 # MUTANT switch (--no-verify-signatures): a deliberately-NON-VERIFYING merchant —
 # accepts requests with tampered/garbage RFC 9421 signatures. Exists ONLY so the
 # SIG-002 check's kill-proof gate can show the check DEVIATES on such a merchant
@@ -940,8 +944,61 @@ def _deliver_webhook(url, payload, base):
         pass
     threading.Thread(target=retries, daemon=True).start()
 # ==== end WEBHOOK/EVENTS area ==================================================
+# ---- OLD-VERSIONS (01-era) capability metadata --------------------------------
+# The `spec` and `schema` fields are REQUIRED for all capabilities (overview.md
+# "Spec URL Binding" — DISC-002) and their URL origin MUST match the namespace
+# authority (DISC-003): dev.ucp.* -> https://ucp.dev/... . Schema-required at
+# 2026-01-11 (capability.json $defs/discovery); prose-required at 2026-01-23.
+def _cap_meta(name, extends=None):
+    short = name.rsplit(".", 1)[-1].replace("_", "-")
+    entry = {"name": name, "version": VERSION,
+             "spec": f"https://ucp.dev/specification/{short}",
+             "schema": f"https://ucp.dev/schemas/shopping/{name.rsplit('.', 1)[-1]}.json"}
+    if extends:
+        entry["extends"] = extends
+    return entry
+
+# 01-era capability set (checkout/order + the extensions the lifecycle exhibits)
+_CAPS_01_ERA = (
+    ("dev.ucp.shopping.checkout", None),
+    ("dev.ucp.shopping.order", None),
+    ("dev.ucp.shopping.discount", "dev.ucp.shopping.checkout"),
+    # buyer-consent.md: businesses advertise consent support in their profile;
+    # the extension extends checkout.buyer with boolean consent states (DSC-019)
+    ("dev.ucp.shopping.buyer_consent", "dev.ucp.shopping.checkout"),
+)
+
+def payment_handler_01era():
+    """A payment handler entry per the 01-era shopping/types/payment_handler.json
+    (required: id, name, version, spec, config_schema, instrument_schemas, config).
+    Used by the 2026-01-11 profile's top-level `payment.handlers` AND by 01-11
+    checkout responses (checkout.json REQUIRES root `payment` at 2026-01-11)."""
+    return {"id": PAYMENT_HANDLER_ID, "name": PAYMENT_HANDLER_KEY,
+            "version": VERSION,
+            "spec": "https://spck.dev/fixture/handlers/tokenpay",
+            "config_schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
+            "instrument_schemas": [
+                "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json"],
+            "config": {}}
+
+def profile_01_11(base):
+    """The 2026-01-11 discovery document (overview.md 2026-01-11 example): the UCP
+    metadata nests under `ucp` (validated against ucp.json $defs/discovery_profile:
+    version + services + capabilities ARRAY, entries per capability.json
+    $defs/discovery — name/version/spec/schema required) and payment handlers live
+    in a sibling top-level `payment` member (payment.json: handlers[])."""
+    return {"ucp": {"version": VERSION,
+                    "services": {"dev.ucp.shopping": {
+                        "version": VERSION,
+                        "spec": "https://ucp.dev/specification/overview",
+                        "rest": {"schema": "https://ucp.dev/services/shopping/rest.openapi.json",
+                                 "endpoint": base}}},
+                    "capabilities": [_cap_meta(n, e) for n, e in _CAPS_01_ERA]},
+            "payment": {"handlers": [payment_handler_01era()]}}
 
 def profile(base):
+    if VERSION == "2026-01-11":
+        return profile_01_11(base)
     cap = [{"version": VERSION}]
     services = [
         {"version": VERSION, "transport": "rest", "endpoint": base,
@@ -953,6 +1010,11 @@ def profile(base):
         "dev.ucp.shopping.discount": [
             {"version": VERSION, "extends": "dev.ucp.shopping.checkout"}],
     }
+    if VERSION == "2026-01-23":
+        # 01-era profile entries carry the REQUIRED spec/schema capability metadata
+        # (DISC-002) with namespace-authority origins (DISC-003) + buyer_consent
+        capabilities = {n: [{k: v for k, v in _cap_meta(n, e).items() if k != "name"}]
+                        for n, e in _CAPS_01_ERA}
     if VERSION == "2026-04-08":              # catalog/cart/MCP exist only in 04-08
         services.append(
             {"version": VERSION, "transport": "mcp", "endpoint": base + "/ucp/mcp",
@@ -1154,7 +1216,14 @@ def _ucp_envelope():
     2026-01-23's discount.json predates that convention ($defs is named plain
     'checkout'), so the oracle cannot compose it: the 01-23 envelope declares only
     checkout, and selfcheck.py separately anchors the discounts subtree to the
-    official $defs/discounts_object — both anchors remain the official oracle."""
+    official $defs/discounts_object — both anchors remain the official oracle.
+    2026-01-11 responses declare active capabilities as an ARRAY (overview.md
+    "Capability Declaration in Responses": name + version, per capability.json
+    $defs/response); the schema URL is carried too (legal per $defs/base)."""
+    if VERSION == "2026-01-11":
+        return {"version": VERSION, "capabilities": [
+            {"name": "dev.ucp.shopping.checkout", "version": VERSION,
+             "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]}
     caps = {"dev.ucp.shopping.checkout": [
         {"version": VERSION,
          "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]}
@@ -1334,6 +1403,15 @@ def checkout_body(sess):
         # AP2 merchant authorization on checkout responses (PAY-035 is a 01-23/01-11
         # MUST; the id does not exist in the 04-08 register, so 04-08 stays lean)
         out["ap2"] = {"merchant_authorization": merchant_authorization()}
+        # buyer-consent extension (01-era, DSC-019): consent submitted as boolean
+        # states inside buyer.consent on create/update is persisted and echoed back
+        # (the oracle anchor is buyer_consent.json $defs/buyer — see selfcheck.py)
+        if sess.get("buyer") is not None:
+            out["buyer"] = sess["buyer"]
+    if VERSION == "2026-01-11":
+        # 2026-01-11 checkout.json REQUIRES the root `payment` object on responses
+        # (payment.json: handlers[] of shopping/types/payment_handler.json entries)
+        out["payment"] = {"handlers": [payment_handler_01era()]}
     if sess.get("order"):
         out["order"] = sess["order"]        # order_confirmation: id + permalink_url
     return out
@@ -1351,6 +1429,18 @@ def create_checkout(body, headers=None):
         neg = negotiate_platform(headers.get("UCP-Agent"))
         if neg:
             return neg
+    elif _agent_profile_url(headers.get("UCP-Agent")) == SIM_LEGACY_VERSION:
+        # 01-era negotiation failure (overview.md "Error Handling" — NEG-013/NEG-014/
+        # ERR-007): the business validates the platform's version and, when
+        # incompatible, returns the spec's error envelope verbatim in shape:
+        # status requires_escalation + a type:error message (the pinned example uses
+        # code version_unsupported, severity requires_buyer_input). HTTP 400 follows
+        # the official 01-23 conformance suite's incompatible-version assertion.
+        return 400, {"status": "requires_escalation",
+                     "messages": [{"type": "error", "code": "version_unsupported",
+                                   "content": "Protocol version 1999-01-01 is not "
+                                              f"supported. This business supports {VERSION}.",
+                                   "severity": "requires_buyer_input"}]}
     if body is None or not isinstance(body, dict):
         return _err(400, "request body must be a JSON object")
     if "line_items" not in body:
@@ -1381,6 +1471,8 @@ def create_checkout(body, headers=None):
     if wu:
         sess["webhook_url"] = wu
         sess["base"] = "http://" + headers.get("Host", "localhost")
+    if VERSION != "2026-04-08" and isinstance(body.get("buyer"), dict):
+        sess["buyer"] = body["buyer"]       # buyer-consent extension echo (DSC-019)
     with _LOCK:
         SESSIONS[sess["id"]] = sess
         result = 201, checkout_body(sess)
@@ -1425,6 +1517,8 @@ def update_checkout(sid, body, headers=None):
     sess["line_items"] = line_items
     if codes is not None:                   # submitted codes REPLACE the previous set;
         sess["codes"] = codes               # an empty array clears them (DSC-002)
+    if VERSION != "2026-04-08" and isinstance(body.get("buyer"), dict):
+        sess["buyer"] = body["buyer"]       # submitted buyer state replaces (DSC-019)
     if "currency" in body:
         sess["currency"] = body["currency"]
     return 200, checkout_body(sess)
@@ -1440,11 +1534,19 @@ def _payment_tokens(body):
 def order_body(order):
     """Render a stored order as a spec-valid order response (order.json requires ucp,
     id, checkout_id, permalink_url, line_items, fulfillment, currency, totals;
-    adjustments is the post-order event log — present in both supported versions)."""
-    return {"ucp": {"version": VERSION,
-                    "capabilities": {"dev.ucp.shopping.order": [
-                        {"version": VERSION,
-                         "schema": "https://ucp.dev/schemas/shopping/order.json"}]}},
+    adjustments is the post-order event log — present in every supported version).
+    2026-01-11 order responses carry the array-form envelope (ucp.json
+    $defs/response_order: version + capabilities ARRAY)."""
+    if VERSION == "2026-01-11":
+        ucp = {"version": VERSION, "capabilities": [
+            {"name": "dev.ucp.shopping.order", "version": VERSION,
+             "schema": "https://ucp.dev/schemas/shopping/order.json"}]}
+    else:
+        ucp = {"version": VERSION,
+               "capabilities": {"dev.ucp.shopping.order": [
+                   {"version": VERSION,
+                    "schema": "https://ucp.dev/schemas/shopping/order.json"}]}}
+    return {"ucp": ucp,
             **{k: order[k] for k in ("id", "checkout_id", "permalink_url", "currency",
                                      "line_items", "fulfillment", "adjustments",
                                      "totals")}}
@@ -1514,12 +1616,16 @@ def get_order(oid, headers=None):
 #   * the affected order line item's quantity.total is reduced, its status derived
 #     per order.md Status Derivation (total==0 -> "removed"), and the line item is
 #     RETAINED in line_items — "all line items that ever existed" (ORD-002).
-# 04-08 only: the 2026-01-23 adjustment schema is UNSIGNED (quantity minimum 1) and
-# its order_line_item status enum has no "removed", so the hook 404s there.
+# The 04-08 branch is SIGNED semantics; the 2026-01-23/2026-01-11 adjustment schema
+# is UNSIGNED (line_items[].quantity minimum 1, no totals — an optional positive
+# `amount`) and the 01-era order_line_item status enum has no "removed", so the
+# 01-era branch appends the append-only LOG ENTRY (ORD-007: id, type, occurred_at,
+# status required) WITHOUT rewriting the order's line items — which stay retained
+# verbatim as the immutable source of truth for what was ordered (ORD-006).
 def simulate_order_adjustment(oid, body, headers=None):
     """POST /testing/orders/{id}/adjust  {line_item_id, quantity>=1, [type]}."""
     if VERSION != "2026-04-08":
-        return _err(404, "testing adjustment hook is only served in 2026-04-08 mode")
+        return _simulate_adjustment_01era(oid, body)
     order = ORDERS.get(oid)
     if not order:
         return _err(404, f"order not found: {oid}")
@@ -1555,6 +1661,75 @@ def simulate_order_adjustment(oid, body, headers=None):
     if order.get("_webhook_url"):
         _deliver_webhook(order["_webhook_url"], webhook_event_payload(order),
                          order["_base"])
+    return 200, order_body(order)
+
+def _simulate_adjustment_01era(oid, body):
+    """01-era adjust hook: append an adjustment per the PINNED 01-era
+    types/adjustment.json — required {id, type, occurred_at, status}; line_items[]
+    quantities UNSIGNED (minimum 1); `amount` an optional positive integer. The
+    order's own line_items are NOT touched (ORD-006 retention)."""
+    order = ORDERS.get(oid)
+    if not order:
+        return _err(404, f"order not found: {oid}")
+    body = body if isinstance(body, dict) else {}
+    lid = body.get("line_item_id")
+    li = next((x for x in order["line_items"] if x["id"] == lid), None)
+    if not li:
+        return _err(400, f"unknown line_item_id: {lid}")
+    try:
+        qty = int(body.get("quantity", 1))
+    except (TypeError, ValueError):
+        return _err(400, "quantity must be an integer")
+    if qty < 1 or qty > li["quantity"]["total"]:
+        return _err(400, f"quantity must be between 1 and the line item's "
+                         f"total ({li['quantity']['total']})")
+    atype = body.get("type") or "refund"
+    with _LOCK:
+        order["adjustments"].append({
+            "id": "adj_" + uuid.uuid4().hex[:12], "type": atype,
+            "occurred_at": "2026-01-23T12:00:00Z", "status": "completed",
+            "line_items": [{"id": lid, "quantity": qty}],   # unsigned (minimum 1)
+            "amount": li["item"]["price"] * qty,            # positive minor units
+            "description": f"Test-driven {atype} of {qty} unit(s)"})
+    return 200, order_body(order)
+
+# 01-era ORDER area test-only hook (precedent: the Flower golden's
+# /testing/simulate-shipping): appends a fulfillment EVENT to the order's
+# append-only shipment log per the pinned 01-era types/fulfillment_event.json —
+# required {id, occurred_at, type, line_items}; tracking fields are carried since
+# type != processing ("required if type != processing" per the field description).
+def simulate_order_fulfillment(oid, body, headers=None):
+    """POST /testing/orders/{id}/fulfill  {line_item_id, quantity>=1, [type]}."""
+    if VERSION == "2026-04-08":
+        return _err(404, "testing fulfillment hook is served in 01-era modes only")
+    order = ORDERS.get(oid)
+    if not order:
+        return _err(404, f"order not found: {oid}")
+    body = body if isinstance(body, dict) else {}
+    lid = body.get("line_item_id")
+    li = next((x for x in order["line_items"] if x["id"] == lid), None)
+    if not li:
+        return _err(400, f"unknown line_item_id: {lid}")
+    try:
+        qty = int(body.get("quantity", 1))
+    except (TypeError, ValueError):
+        return _err(400, "quantity must be an integer")
+    remaining = li["quantity"]["total"] - li["quantity"]["fulfilled"]
+    if qty < 1 or qty > remaining:
+        return _err(400, f"quantity must be between 1 and the line item's "
+                         f"unfulfilled total ({remaining})")
+    etype = body.get("type") or "shipped"
+    eid = "ful_" + uuid.uuid4().hex[:12]
+    with _LOCK:
+        order["fulfillment"].setdefault("events", []).append({
+            "id": eid, "occurred_at": "2026-01-23T12:00:00Z", "type": etype,
+            "line_items": [{"id": lid, "quantity": qty}],
+            "tracking_number": f"SPCK{eid[-8:].upper()}",
+            "tracking_url": f"https://spck.dev/fixture/track/{eid}"})
+        li["quantity"]["fulfilled"] += qty
+        q = li["quantity"]
+        li["status"] = ("fulfilled" if q["fulfilled"] >= q["total"]
+                        else "partial" if q["fulfilled"] > 0 else "processing")
     return 200, order_body(order)
 
 def cancel_checkout(sid, headers=None):
@@ -1886,11 +2061,14 @@ class _H(BaseHTTPRequestHandler):
                 return self._send(*get_product_response(body))
             if path == "/carts":
                 return self._send(*create_cart(body, self.headers))
-            # ORDER area test-only hook (see simulate_order_adjustment docstring)
-            if path.startswith("/testing/orders/") and path.endswith("/adjust"):
-                parts = path.split("/")      # '', 'testing', 'orders', oid, 'adjust'
-                if len(parts) == 5:
-                    return self._send(*simulate_order_adjustment(parts[3], body, self.headers))
+        # ORDER area test-only hooks (every version; the handlers render per the
+        # serving version's pinned adjustment/fulfillment_event semantics)
+        if path.startswith("/testing/orders/") and path.endswith(("/adjust", "/fulfill")):
+            parts = path.split("/")          # '', 'testing', 'orders', oid, action
+            if len(parts) == 5:
+                fn = (simulate_order_adjustment if parts[4] == "adjust"
+                      else simulate_order_fulfillment)
+                return self._send(*fn(parts[3], body, self.headers))
         if path == "/checkout-sessions":
             return self._send(*create_checkout(body, self.headers))
         if path.startswith("/checkout-sessions/"):

@@ -94,11 +94,11 @@
       "quote": "If negotiation fails, businesses **MUST** return an error response:",
       "versions": ["2026-01-23"],
       "transport": ["rest"],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Example envelope uses severity requires_buyer_input."
+      "notes": "Example envelope uses severity requires_buyer_input. RECLASSIFIED manual->testable (2026-07-03): the controlled fixture serves a seeded unsupported-version platform-profile scenario (config negotiation.unsupported_version_profile_url), so the envelope is merchant-observable; check negotiation.failure_error_envelope."
     },
     {
       "id": "ERR-008",
@@ -112,7 +112,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "NOTE: this guideline text says 'severity: escalation', but the message_error severity enum in 2026-01-23 has no 'escalation' value (only recoverable / requires_buyer_input / requires_buyer_review). Apparent spec inconsistency in 01-23; the requires_* severities are what contribute to requires_escalation."
+      "notes": "NOTE: this guideline text says 'severity: escalation', but the message_error severity enum in 2026-01-23 has no 'escalation' value (only recoverable / requires_buyer_input / requires_buyer_review). Apparent spec inconsistency in 01-23; the requires_* severities are what contribute to requires_escalation. UPSTREAM CONTRADICTION (2026-07-03): checkout.md demands 'severity: escalation' but that value is NOT in the message_error severity enum at any 01-era version (recoverable/requires_buyer_input/requires_buyer_review). Do NOT ship a check for the literal reading; left GAP pending the upstream spec report (coordinator files)."
     },
     {
       "id": "ERR-009",
@@ -304,11 +304,11 @@
       "quote": "All UCP communication **MUST** occur over **HTTPS**.",
       "versions": ["2026-01-23"],
       "transport": ["rest"],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Transport security baseline; not asserted by the three cited suite tests (which use a test client)."
+      "notes": "Transport security baseline; not asserted by the three cited suite tests (which use a test client). RECLASSIFIED manual->testable (2026-07-03): verifiable at the connection layer in the CHK-051 TLS-harness pattern (probe the declared endpoint's TLS service; kill-proof in selfcheck/validate_tls_check.py); check transport.https_all_communication."
     }
   ],
   "notes": [

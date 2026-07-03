@@ -69,10 +69,13 @@ CONTROLLED_CONFIG = {
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
     "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
-    # ORDER area (04-08): the fixture serves the TEST-ONLY post-order adjustment hook
-    # (POST /testing/orders/{id}/adjust); second product = the surviving line item in
-    # the removed-line-item scenario (ORD-002/007/009).
-    "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
+    # ORDER area: the fixture serves the TEST-ONLY post-order adjustment hook
+    # (POST /testing/orders/{id}/adjust — 04-08 signed semantics, 01-era unsigned
+    # log entries) and the 01-era fulfillment-event hook
+    # (POST /testing/orders/{id}/fulfill — ORD-009); second product = the surviving
+    # line item in the removed-line-item scenario (ORD-002/007/009).
+    "order": {"simulate_adjustment": True, "simulate_fulfillment": True,
+              "second_product_id": "mug_enamel"},
     # CART area (04-08): a second distinct product so the update-replaces-not-merges
     # probe (CART-017, merchant_checks_04_08_cartupdate.py) can tell a replaced-away
     # line from a legitimately consolidated one.

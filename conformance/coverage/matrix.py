@@ -125,12 +125,18 @@ def coverage_map():
         checks, mod = _module_checks(path)
         if checks:
             mod_versions = getattr(mod, "VERSIONS", None)
+            # attribution bound: the file-name version tokens, WIDENED by an explicit
+            # module-level VERSIONS marker (a reviewed declaration that the file's
+            # citations were verified at those versions too — e.g.
+            # merchant_checks_01_23.py carries VERSIONS=(01-11, 01-23) after its
+            # DSC/PAY rows were verified textually identical at 2026-01-11)
+            bound = set(file_targets) | set(mod_versions or ())
             for chk in checks:
                 scope = getattr(chk, "versions", None) or mod_versions or file_targets
                 vmap = getattr(chk, "req_ids_map", None) or {}
                 for v in scope:
-                    if v not in file_targets:
-                        continue          # a file token still bounds the scope
+                    if v not in bound:
+                        continue          # outside every declared scope
                     for i in vmap.get(v, list(getattr(chk, "req_ids", []) or [])):
                         if i in all_ids[v]:
                             cov[v][i].add(base)
