@@ -12,7 +12,9 @@ const CHROME = process.env.CHROME_PATH;
 const BASE = process.env.BASE || "http://127.0.0.1:8189";
 if (!CHROME) { console.error("CHROME_PATH not set"); process.exit(2); }
 
-const PAGES = ["index.html", "check.html", "guide.html", "coverage.html", "tool.html"];
+// the content/marketing pages (the /tool SPA has its own gate: tool_smoke.mjs — and
+// its long-lived connections never reach network-idle, so it's excluded here)
+const PAGES = ["index.html", "check.html", "guide.html", "coverage.html"];
 const WIDTHS = [375, 320];   // iPhone SE / small Android — the tightest common widths
 
 const results = [];
@@ -25,8 +27,10 @@ try {
   for (const p of PAGES) {
     for (const w of WIDTHS) {
       await page.setViewport({ width: w, height: 812, isMobile: true, deviceScaleFactor: 2 });
-      await page.goto(`${BASE}/${p}`, { waitUntil: "networkidle2", timeout: 30000 });
-      await new Promise(r => setTimeout(r, 400));   // let async coverage bars settle
+      // domcontentloaded (not networkidle) — robust against pages with long-lived
+      // connections; a fixed settle lets the async coverage bars lay out.
+      await page.goto(`${BASE}/${p}`, { waitUntil: "domcontentloaded", timeout: 20000 });
+      await new Promise(r => setTimeout(r, 600));
       const o = await page.evaluate(() => {
         const vw = document.documentElement.clientWidth;
         const sw = document.documentElement.scrollWidth;
