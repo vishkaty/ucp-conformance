@@ -78,8 +78,19 @@ CONTROLLED_CONFIG = {
               "second_product_id": "mug_enamel"},
     # CART area (04-08): a second distinct product so the update-replaces-not-merges
     # probe (CART-017, merchant_checks_04_08_cartupdate.py) can tell a replaced-away
-    # line from a legitimately consolidated one.
+    # line from a legitimately consolidated one. The RECEIVER-tier cart-to-checkout
+    # conversion checks (merchant_checks_04_08_receiver.py) also use it as the
+    # CONFLICTING checkout-payload product the conversion MUST ignore (CART-001).
     "cart": {"second_product_id": "kettle_copper"},
+    # ELIGIBILITY / SIGNALS-ATTRIBUTION area (04-08 receiver tier): reverse-domain
+    # eligibility claim values the fixture recognizes/rejects (server.py
+    # ELIG_VERIFIABLE / ELIG_UNVERIFIABLE). `verifiable` resolves at completion;
+    # `unverifiable` is recognized (surfaces a provisional discount) but fails
+    # verification at completion; `unrecognized` is ignored without error. A real
+    # merchant supplies claim values its own business logic recognizes/verifies.
+    "eligibility": {"verifiable": "com.spck.loyalty_gold",
+                    "unverifiable": "com.spck.vip_unverifiable",
+                    "unrecognized": "com.spck.unknown_benefit"},
     # WEBHOOK/EVENTS area (04-08): the merchant discovers the platform's order
     # webhook_url from the platform profile named in UCP-Agent and can deliver
     # signed order events to a LOOPBACK receiver. Supplying `simulate` asserts

@@ -773,6 +773,133 @@ def _cart_update_artifact():
     return validate_root(nf, "schemas/shopping/types/error_response.json",
                          op="read", version=server.VERSION)
 
+# ---- RECEIVER-TIER artifacts (2026-04-08): eligibility + cart conversion --------
+_ELIG_PAY = {"payment": {"instruments": [{"id": "instr_ok", "type": "card",
+    "credential": {"type": "token", "token": "success_token"}}]}}
+
+def _eligibility_provisional_artifact():
+    """A RECOGNIZED context.eligibility claim surfaces a PROVISIONAL discount
+    (discount.md 'Eligibility Claims': automatic+provisional+eligibility, no code —
+    DSC-014/016) plus an info eligibility_accepted message; response oracle-valid."""
+    st, resp = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}],
+         "context": {"eligibility": [server.ELIG_VERIFIABLE]}}, HDRS)
+    if st != 201:
+        return False, f"eligibility create returned HTTP {st}: {resp}"
+    ap = (resp.get("discounts") or {}).get("applied") or []
+    if not any(a.get("provisional") is True and "code" not in a
+               and a.get("eligibility") == server.ELIG_VERIFIABLE for a in ap):
+        return False, f"no provisional eligibility discount surfaced: {ap}"
+    if not any(m.get("type") == "info" and m.get("code") == "eligibility_accepted"
+               for m in resp.get("messages") or []):
+        return False, "missing info eligibility_accepted message"
+    return validate_obj(resp, "create")
+
+def _eligibility_unrecognized_artifact():
+    """An UNRECOGNIZED claim is IGNORED without error (SAE-011) and MUST NOT block
+    the checkout (SAE-014): a type:warning eligibility_not_accepted message, no
+    provisional discount, and completion still succeeds."""
+    st, resp = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}],
+         "context": {"eligibility": ["com.spck.unknown_benefit"]}}, HDRS)
+    if st != 201:
+        return False, f"unrecognized-claim create returned HTTP {st}: {resp}"
+    if (resp.get("discounts") or {}).get("applied"):
+        return False, "unrecognized claim wrongly produced a discount"
+    if not any(m.get("type") == "warning" and m.get("code") == "eligibility_not_accepted"
+               for m in resp.get("messages") or []):
+        return False, "missing warning eligibility_not_accepted message"
+    st2, done = server.complete_checkout(resp["id"], _ELIG_PAY, HDRS)
+    if st2 != 200 or done.get("status") != "completed":
+        return False, f"unrecognized claim blocked completion: {st2} {done.get('status')}"
+    return validate_obj(resp, "create")
+
+def _eligibility_completion_artifact():
+    """At completion an accepted-but-UNVERIFIABLE claim fails verification: the
+    Business returns type:error eligibility_invalid severity recoverable, the
+    failure affects ONLY the messages array (envelope stays a normal checkout), and
+    the transaction MUST NOT complete (SAE-017/018/019/020, CHK-056). A VERIFIABLE
+    claim resolves and completes with no lingering provisional (DSC-017/SAE-013)."""
+    st, c = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}],
+         "context": {"eligibility": [server.ELIG_UNVERIFIABLE]}}, HDRS)
+    if st != 201:
+        return False, f"unverifiable create failed: {st}"
+    st2, blocked = server.complete_checkout(c["id"], _ELIG_PAY, HDRS)
+    if st2 != 200 or blocked.get("status") == "completed":
+        return False, f"unverifiable claim wrongly completed: {st2} {blocked.get('status')}"
+    em = [m for m in blocked.get("messages") or [] if m.get("code") == "eligibility_invalid"]
+    if not em or em[0].get("type") != "error" or em[0].get("severity") != "recoverable":
+        return False, f"missing eligibility_invalid error/recoverable: {blocked.get('messages')}"
+    if (blocked.get("ucp") or {}).get("status") == "error":
+        return False, "verification failure must affect ONLY messages, not the envelope"
+    st3, c2 = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}],
+         "context": {"eligibility": [server.ELIG_VERIFIABLE]}}, HDRS)
+    st4, done = server.complete_checkout(c2["id"], _ELIG_PAY, HDRS)
+    if st4 != 200 or done.get("status") != "completed":
+        return False, f"verifiable claim did not complete: {st4} {done.get('status')}"
+    if any(a.get("provisional") for a in (done.get("discounts") or {}).get("applied") or []):
+        return False, "provisional discount not resolved at completion (DSC-017)"
+    return validate_obj(blocked, "complete")
+
+def _cart_conversion_artifact():
+    """Cart-to-checkout conversion (cart.md): the Business uses cart contents and
+    IGNORES overlapping checkout-payload fields (CART-001), carries forward the
+    cart's discount codes (DSC-009), and returns the SAME session for a repeated
+    conversion of the same cart (CART-002 idempotent conversion)."""
+    st, cart = server.create_cart(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}],
+         "discounts": {"codes": ["10OFF"]}}, HDRS)
+    if st != 201:
+        return False, f"seed cart failed: {st}"
+    cid = cart["id"]
+    st2, chk = server.create_checkout(
+        {"cart_id": cid,
+         "line_items": [{"item": {"id": "mug_enamel"}, "quantity": 9}]}, HDRS)
+    if st2 != 201:
+        return False, f"conversion returned HTTP {st2}: {chk}"
+    if sorted(li["item"]["id"] for li in chk["line_items"]) != ["teapot_ceramic"]:
+        return False, "conversion did not ignore overlapping payload line_items"
+    if "10OFF" not in ((chk.get("discounts") or {}).get("codes") or []):
+        return False, "cart discount code was not carried forward (DSC-009)"
+    st3, chk2 = server.create_checkout({"cart_id": cid, "line_items": []}, HDRS)
+    if st3 != 200 or chk2.get("id") != chk.get("id"):
+        return False, f"idempotent conversion made a new session: {chk2.get('id')}"
+    return validate_obj(chk, "create")
+
+def _cart_cancel_artifact():
+    """Cancel Cart returns the cart state before deletion (CART-018); a later GET
+    yields the not_found business outcome."""
+    st, cart = server.create_cart(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]}, HDRS)
+    if st != 201:
+        return False, f"seed cart failed: {st}"
+    cid = cart["id"]
+    st2, final = server.cancel_cart(cid, HDRS)
+    if st2 != 200 or final.get("id") != cid:
+        return False, f"cancel did not return the cart state: {st2} {final}"
+    st3, nf = server.get_cart(cid)
+    if (nf.get("ucp") or {}).get("status") != "error":
+        return False, "cancelled cart still resolves (should be not_found)"
+    return validate_against(final, "schemas/shopping/cart.json", "checkout",
+                            op="read", version=server.VERSION)
+
+def _cart_idempotency_artifact():
+    """Idempotency-Key on create cart: a duplicate key replays the cached result; a
+    reuse with a DIFFERENT body returns 409 (cart-rest.md Idempotency — CART-026)."""
+    hdr = dict(HDRS); hdr["idempotency-key"] = "idem-cart-selfcheck-1"
+    body = {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]}
+    st, a = server.create_cart(body, hdr)
+    st2, b = server.create_cart(body, hdr)
+    if st != 201 or st2 != 201 or b.get("id") != a.get("id"):
+        return False, f"duplicate key did not replay: {st2} {b.get('id')} != {a.get('id')}"
+    st3, _ = server.create_cart(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 5}]}, hdr)
+    if st3 != 409:
+        return False, f"reuse with a different body must be 409, got {st3}"
+    return True, "cart idempotency (replay + 409) ok"
+
 # ---- discovery/negotiation-area artifacts (2026-04-08) --------------------------
 def _profile_cache_control():
     """DISC-003 hosting policy: Cache-Control has `public` + max-age >= 60 and none
@@ -914,6 +1041,13 @@ def _sig_request_verification():
     err = server.verify_signed_request("POST", "/checkout-sessions", u, raw)
     if not err or err[0] != 401 or err[1].get("code") != "key_not_found":
         return False, f"unknown kid: expected 401 key_not_found, got {err}"
+    # SIG-035: a PRESENT-but-unsupported algorithm parameter -> 400
+    # algorithm_unsupported (signatures.md Error Handling table)
+    a = dict(hdrs)
+    a["Signature-Input"] = f'sig1={raw_params};alg="rsa-pss-sha512"'
+    err = server.verify_signed_request("POST", "/checkout-sessions", a, raw)
+    if not err or err[0] != 400 or err[1].get("code") != "algorithm_unsupported":
+        return False, f"unsupported alg: expected 400 algorithm_unsupported, got {err}"
     return True, "ok"
 
 # ==== WEBHOOK/EVENTS area artifacts (2026-04-08, order.md Events) ==============
@@ -1179,6 +1313,13 @@ def main():
         ("oauth protected resource (RFC 9728)", _oauth_resource_metadata),
         ("cart response (UCP-Agent enforced)", _cart_artifact),
         ("cart update replace-not-merge (CART-017)", _cart_update_artifact),
+        # RECEIVER-TIER (04-08): eligibility claims + cart-to-checkout conversion
+        ("eligibility provisional discount (DSC-014/016)", _eligibility_provisional_artifact),
+        ("eligibility unrecognized ignored (SAE-011/014)", _eligibility_unrecognized_artifact),
+        ("eligibility completion resolution (SAE-017..020)", _eligibility_completion_artifact),
+        ("cart-to-checkout conversion (CART-001/002, DSC-009)", _cart_conversion_artifact),
+        ("cart cancel returns pre-delete state (CART-018)", _cart_cancel_artifact),
+        ("cart idempotency (CART-026)", _cart_idempotency_artifact),
         # discovery/negotiation area (04-08): profile hosting policy + the simulated
         # negotiation failures (seeded platform-profile URLs; see server.py)
         ("profile Cache-Control policy", _profile_cache_control),

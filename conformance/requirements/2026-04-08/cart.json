@@ -356,11 +356,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Provenance constraint on signals; not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Platform-bound MUST NOT - platforms provide signals (see overview.md#signals); a business cannot be tested for the provenance of platform-supplied signal values."
     },
     {
       "id": "CART-021",

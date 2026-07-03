@@ -447,11 +447,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; not a wire shape testable on the business response."
+      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-025/CHK-038. Not a business-response wire shape."
     },
     {
       "id": "CHK-033",

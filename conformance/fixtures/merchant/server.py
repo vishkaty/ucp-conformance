@@ -872,6 +872,8 @@ def sign_response(status, body_bytes):
             "Signature-Input": f"sig1={raw_params}",
             "Signature": "sig1=:" + base64.b64encode(sig).decode() + ":"}
 
+SUPPORTED_SIG_ALGS = ("ecdsa-p256-sha256",)   # signatures.md: ES256 over P-256
+
 def verify_signed_request(method, path_qs, headers, raw_body):
     """Verify an incoming request that carries RFC 9421 signature headers, per the
     spec's verify_rest_request pseudocode. `headers` is a case-insensitive-ready
@@ -890,6 +892,14 @@ def verify_signed_request(method, path_qs, headers, raw_body):
     if label is None:
         return err(401, "signature_missing", "no Signature member matches Signature-Input")
     entry = si[label]
+    # signatures.md Error Handling: an unsupported signature algorithm maps to
+    # HTTP 400 algorithm_unsupported (SIG-035). The `alg` parameter is optional in
+    # RFC 9421 (the verifier may derive it from key material), so this rejects only
+    # a PRESENT-but-unsupported alg; the fixture verifies ES256 (ecdsa-p256-sha256).
+    alg = entry["params"].get("alg")
+    if alg is not None and alg not in SUPPORTED_SIG_ALGS:
+        return err(400, "algorithm_unsupported",
+                   f"signature algorithm not supported: {alg}")
     kid = entry["params"].get("keyid")
     pub = TRUSTED_PLATFORM_KEYS.get(kid)
     if not pub:
@@ -1278,7 +1288,23 @@ def cart_response(body, cid=None):
                        {"type": "total", "amount": subtotal}]}
 
 CARTS = {}          # cart id -> latest cart state (2026-04-08 only; guarded by _CART_LOCK)
+CART_CODES = {}     # cart id -> discount codes applied to the cart (DSC-009 carry-forward)
+CART_ELIG = {}      # cart id -> context.eligibility claims applied to the cart
+CART_CHECKOUTS = {} # cart id -> checkout id created from it (CART-002 idempotent conversion)
+CART_IDEM = {}      # Idempotency-Key -> (body_fingerprint, status, payload) (CART-026)
+CANCELED_CARTS = set()   # cart ids whose Cancel Cart returned final state (CART-018)
 _CART_LOCK = threading.Lock()
+
+def _cart_side_state(cid, body):
+    """Record the discount codes + eligibility claims 'applied to the cart' so a
+    later cart_id conversion can carry them forward (DSC-009). Stored OUT-OF-BAND
+    (not in the rendered cart response) to keep the cart oracle-valid."""
+    d = body.get("discounts") if isinstance(body, dict) else None
+    codes = d.get("codes") if isinstance(d, dict) else None
+    CART_CODES[cid] = [c for c in codes if isinstance(c, str)] if isinstance(codes, list) else []
+    ctx = body.get("context") if isinstance(body, dict) else None
+    elig = ctx.get("eligibility") if isinstance(ctx, dict) else None
+    CART_ELIG[cid] = [c for c in elig if isinstance(c, str)] if isinstance(elig, list) else []
 
 def _cart_not_found():
     """Cart not-found is a BUSINESS OUTCOME (cart-rest.md 'Business Outcomes'):
@@ -1294,14 +1320,43 @@ def create_cart(body, headers=None):
     (cart-rest.md 'All requests MUST include the UCP-Agent header' — CART-024),
     mirroring create_checkout's enforcement for checkout (CHK-052/CHK-046).
     Stores the cart so GET/PUT /carts/{id} can act on it (CART-017).
+    Idempotency-Key: replays the cached result for a duplicate key, and rejects a
+    reuse with a different body with 409 (cart-rest.md Idempotency — CART-026).
     Returns (http_status, payload) so selfcheck.py can validate it in-process."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
         return _missing_agent_err()
+    key = headers.get("idempotency-key")
+    fp = json.dumps(body, sort_keys=True)
+    with _CART_LOCK:
+        if key and key in CART_IDEM:
+            prev_fp, prev_status, prev_payload = CART_IDEM[key]
+            if prev_fp != fp:
+                return _err(409, "idempotency-key conflict: same key with a different body")
+            return prev_status, prev_payload           # replay the cached result
     cart = cart_response(body)
     with _CART_LOCK:
         CARTS[cart["id"]] = cart
-    return 201, cart
+        _cart_side_state(cart["id"], body or {})
+        result = 201, cart
+        if key:
+            CART_IDEM[key] = (fp, *result)
+    return result
+
+def cancel_cart(cid, headers=None):
+    """POST /carts/{id}/cancel (2026-04-08 only) — cart.md 'Cancel Cart':
+    'Business MUST return the cart state before deletion. Subsequent operations
+    for this cart ID SHOULD return not_found.' (CART-018). Returns the cart body
+    as it stood, then deletes it so later GET/cancel yield the not_found outcome."""
+    headers = headers or {}
+    if not headers.get("UCP-Agent"):
+        return _missing_agent_err()
+    with _CART_LOCK:
+        cart = CARTS.pop(cid, None)
+        if cart is None:
+            return _cart_not_found()
+        CANCELED_CARTS.add(cid)
+    return 200, cart
 
 def get_cart(cid):
     """GET /carts/{id} (2026-04-08 only) — 'retrieves the latest state of a cart
@@ -1325,6 +1380,7 @@ def update_cart(cid, body, headers=None):
             return _cart_not_found()
         cart = cart_response(body, cid=cid)   # replace, never merge
         CARTS[cid] = cart
+        _cart_side_state(cid, body or {})     # codes/eligibility replace too
     return 200, cart
 
 # ---- checkout lifecycle (create/get/update/complete/cancel) ------------------
@@ -1478,6 +1534,64 @@ def _codes_from(body):
         return None, _err(400, "discounts.codes must be an array of strings")
     return list(d.get("codes", [])), None
 
+# ==== ELIGIBILITY / SIGNALS-ATTRIBUTION area (2026-04-08) ======================
+# context.eligibility (types/context.json) carries buyer CLAIMS about benefits,
+# as reverse-domain-name strings. The fixture RECOGNIZES two seeded claims and
+# IGNORES every other value WITHOUT error (context.json: "Businesses MUST ignore
+# unrecognized values without error" — SAE-011); an unrecognized claim yields a
+# type:warning eligibility_not_accepted message and MUST NOT block the checkout
+# (SAE-014). A recognized claim affects pricing, so — when the discount extension
+# is active — it surfaces a PROVISIONAL discount (discount.md "Eligibility Claims":
+# automatic:true + provisional:true + eligibility:<claim>, NO code field —
+# DSC-014/DSC-016). At completion each accepted claim MUST be resolved
+# (checkout.md "Eligibility Verification at Completion"):
+#   ELIG_VERIFIABLE   resolves (verified) — the session completes and the
+#                     discount is no longer provisional (DSC-017/SAE-013);
+#   ELIG_UNVERIFIABLE cannot be verified — the Business returns a type:error
+#                     eligibility_invalid message with severity recoverable, the
+#                     failure affects ONLY the messages array, and the
+#                     transaction MUST NOT complete (SAE-017/018/019/020, CHK-056).
+ELIG_VERIFIABLE = "com.spck.loyalty_gold"
+ELIG_UNVERIFIABLE = "com.spck.vip_unverifiable"
+ELIG_RECOGNIZED = (ELIG_VERIFIABLE, ELIG_UNVERIFIABLE)
+ELIG_DISCOUNT = 300     # provisional eligibility discount (POSITIVE minor units)
+
+def _compute_eligibility(sess):
+    """Evaluate context.eligibility claims for a session.
+    Returns (applied_entries, provisional_order_discount, messages). A recognized
+    claim contributes a provisional discount entry (provisional flag drops once the
+    session is completed — the claim is then resolved); an unrecognized claim is
+    surfaced as a warning and contributes no discount (MUST NOT block). A claim
+    recorded in eligibility_failed (verification failed at completion) is surfaced
+    as an error eligibility_invalid/recoverable instead of the accepted info."""
+    claims = sess.get("eligibility") or []
+    completed = sess.get("status") == "completed"
+    failed = set(sess.get("eligibility_failed") or [])
+    applied, disc, msgs = [], 0, []
+    for i, claim in enumerate(claims):
+        if claim in ELIG_RECOGNIZED:
+            entry = {"title": "Eligibility benefit", "amount": ELIG_DISCOUNT,
+                     "automatic": True, "eligibility": claim}
+            if not completed:
+                entry["provisional"] = True     # resolved once verified at completion
+            applied.append(entry)
+            disc += ELIG_DISCOUNT
+            if claim in failed:
+                msgs.append({"type": "error", "code": "eligibility_invalid",
+                             "severity": "recoverable",
+                             "path": f"$.context.eligibility[{i}]",
+                             "content": f"Eligibility claim '{claim}' could not be "
+                                        "verified at completion"})
+            else:
+                msgs.append({"type": "info", "code": "eligibility_accepted",
+                             "path": f"$.context.eligibility[{i}]",
+                             "content": f"Applied provisional benefit for '{claim}'"})
+        else:
+            msgs.append({"type": "warning", "code": "eligibility_not_accepted",
+                         "path": f"$.context.eligibility[{i}]",
+                         "content": f"Eligibility claim '{claim}' is not recognized"})
+    return applied, disc, msgs
+
 def checkout_body(sess):
     """Render a session as a spec-valid checkout response (checkout.json requires
     ucp, id, line_items, status, currency, totals, links). Discount rendering follows
@@ -1486,6 +1600,14 @@ def checkout_body(sess):
     2026-01-23/01-11 amounts are positive and item discounts populate
     line_items[].discount (invariant: totals[items_discount] == sum of those)."""
     applied, order_disc, line_disc = _compute_discounts(sess)
+    # ELIGIBILITY (04-08 only): recognized context.eligibility claims surface
+    # PROVISIONAL discounts (discount.md "Eligibility Claims") that flow into the
+    # order-level discount total exactly like any other unallocated discount.
+    elig_applied, elig_msgs = [], []
+    if VERSION == "2026-04-08" and sess.get("eligibility"):
+        elig_applied, elig_disc, elig_msgs = _compute_eligibility(sess)
+        applied = applied + elig_applied
+        order_disc += elig_disc
     lines = [dict(li) for li in sess["line_items"]]
     subtotal = sum(li["totals"][0]["amount"] for li in lines)
     items_disc = sum(line_disc.values())
@@ -1531,6 +1653,8 @@ def checkout_body(sess):
          "path": f"$.discounts.codes[{i}]",
          "content": f"Code '{c}' is not a valid discount code"}
         for i, c in rejected]
+    # ELIGIBILITY: accepted/not-accepted/failed claim messages (checkout.md table)
+    messages.extend(elig_msgs)
     # PAYMENT AREA: escalated sessions carry continue_url (checkout.json: "MUST be
     # provided when status is requires_escalation" — PAY-018) plus the soft-decline
     # error message whose requires_buyer_input severity "contributes to
@@ -1589,6 +1713,32 @@ def create_checkout(body, headers=None):
                                    "severity": "requires_buyer_input"}]}
     if body is None or not isinstance(body, dict):
         return _err(400, "request body must be a JSON object")
+    # CART area (04-08): cart-to-checkout conversion (cart.md "Cart to Checkout
+    # Conversion"). When cart_id is provided the Business MUST use the cart
+    # contents and MUST IGNORE overlapping fields in the checkout payload
+    # (CART-001); MUST carry forward discount codes applied to the cart (DSC-009);
+    # and if an incomplete checkout already exists for this cart_id MUST return
+    # that existing session rather than creating a new one (CART-002).
+    cart_conv = None
+    if VERSION == "2026-04-08" and body.get("cart_id"):
+        cart_id = body["cart_id"]
+        with _CART_LOCK:
+            cart = CARTS.get(cart_id)
+        if cart is None:
+            return _cart_not_found()
+        with _LOCK:
+            prior_sid = CART_CHECKOUTS.get(cart_id)
+            prior = SESSIONS.get(prior_sid) if prior_sid else None
+            if prior and prior["status"] not in ("completed", "canceled"):
+                return 200, checkout_body(prior)     # CART-002 idempotent conversion
+        body = {"cart_id": cart_id, "currency": cart.get("currency", "USD"),
+                "line_items": [{"item": {"id": li["item"]["id"]},
+                                "quantity": li["quantity"]} for li in cart["line_items"]]}
+        if CART_CODES.get(cart_id):                  # DSC-009 carry-forward
+            body["discounts"] = {"codes": list(CART_CODES[cart_id])}
+        if CART_ELIG.get(cart_id):
+            body["context"] = {"eligibility": list(CART_ELIG[cart_id])}
+        cart_conv = cart_id
     if "line_items" not in body:
         return _err(400, "line_items is required on create")
     key = headers.get("idempotency-key")
@@ -1619,8 +1769,18 @@ def create_checkout(body, headers=None):
         sess["base"] = "http://" + headers.get("Host", "localhost")
     if VERSION != "2026-04-08" and isinstance(body.get("buyer"), dict):
         sess["buyer"] = body["buyer"]       # buyer-consent extension echo (DSC-019)
+    if VERSION == "2026-04-08":
+        # ELIGIBILITY: capture buyer claims from context.eligibility so the
+        # response can surface provisional discounts + accept/ignore messages.
+        elig = (body.get("context") or {}).get("eligibility")
+        if isinstance(elig, list):
+            sess["eligibility"] = [c for c in elig if isinstance(c, str)]
+        if cart_conv:
+            sess["cart_id"] = cart_conv
     with _LOCK:
         SESSIONS[sess["id"]] = sess
+        if cart_conv:
+            CART_CHECKOUTS[cart_conv] = sess["id"]   # link for CART-002 idempotency
         result = 201, checkout_body(sess)
         if key:
             IDEM[key] = (fp, *result)
@@ -1665,6 +1825,13 @@ def update_checkout(sid, body, headers=None):
         sess["codes"] = codes               # an empty array clears them (DSC-002)
     if VERSION != "2026-04-08" and isinstance(body.get("buyer"), dict):
         sess["buyer"] = body["buyer"]       # submitted buyer state replaces (DSC-019)
+    if VERSION == "2026-04-08" and isinstance(body.get("context"), dict):
+        # ELIGIBILITY: submitted context.eligibility replaces the prior claims;
+        # a rescinded claim (removed here) is recalculated without it (checkout.md).
+        elig = body["context"].get("eligibility")
+        sess["eligibility"] = [c for c in elig if isinstance(c, str)] \
+            if isinstance(elig, list) else []
+        sess.pop("eligibility_failed", None)
     if "currency" in body:
         sess["currency"] = body["currency"]
     return 200, checkout_body(sess)
@@ -1718,6 +1885,26 @@ def complete_checkout(sid, body, headers=None):
             sess["status"] = "requires_escalation"
             sess["continue_url"] = f"https://spck.dev/fixture/3ds/{sid}"
         return 200, checkout_body(sess)
+    # ELIGIBILITY (04-08): all accepted eligibility claims MUST be resolved before
+    # the transaction can complete (checkout.md "Eligibility Verification at
+    # Completion"). The completion request MAY rescind claims by resubmitting
+    # context.eligibility. A recognized-but-unverifiable claim fails verification:
+    # the Business returns a type:error eligibility_invalid message with severity
+    # recoverable (failure affecting ONLY the messages array) and MUST NOT complete
+    # (SAE-013/SAE-017/SAE-018/SAE-019/SAE-020, CHK-056, DSC-017).
+    if VERSION == "2026-04-08":
+        if isinstance((body or {}).get("context"), dict):
+            elig = body["context"].get("eligibility")
+            if isinstance(elig, list):
+                with _LOCK:
+                    sess["eligibility"] = [c for c in elig if isinstance(c, str)]
+        unverifiable = [c for c in (sess.get("eligibility") or [])
+                        if c == ELIG_UNVERIFIABLE]
+        if unverifiable:
+            with _LOCK:
+                sess["eligibility_failed"] = unverifiable
+            return 200, checkout_body(sess)     # status unchanged — NOT completed
+        sess.pop("eligibility_failed", None)     # verifiable claims resolve on completion
     oid = "ord_" + uuid.uuid4().hex[:12]
     permalink = f"https://spck.dev/fixture/orders/{oid}"
     checkout = checkout_body(sess)          # totals before flipping status
@@ -2239,6 +2426,9 @@ class _H(BaseHTTPRequestHandler):
                 return self._send(*get_product_response(body))
             if path == "/carts":
                 return self._send(*create_cart(body, self.headers))
+            if path.startswith("/carts/") and path.endswith("/cancel") \
+               and path.count("/") == 3:      # POST /carts/{id}/cancel (CART-018)
+                return self._send(*cancel_cart(path.split("/")[2], self.headers))
         # ORDER area test-only hooks (every version; the handlers render per the
         # serving version's pinned adjustment/fulfillment_event semantics)
         if path.startswith("/testing/orders/") and path.endswith(("/adjust", "/fulfill")):
