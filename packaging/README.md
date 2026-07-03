@@ -70,11 +70,20 @@ your CI can display as a test run.
 
 ## What it checks
 
-Discovery + profile structure, checkout lifecycle, idempotency, validation,
-fulfillment, order completion, payment-credential handling, discounts, catalog
-(search/lookup), and cart — scoped to the capabilities the target declares. The
-profile-schema check requires the native `ucp-schema` validator (not shipped in the
-wheel), so it reports `not-tested` here; run it from the source repo for full fidelity.
+Across **REST and MCP** transports and spec versions **2026-04-08 / 2026-01-23 /
+2026-01-11**: discovery + profile structure, checkout lifecycle (incl. escalation /
+`continue_url`), order retrieval + adjustments, idempotency, validation/errors,
+payment (handlers, credentials, AP2 mandates), discounts + consent, catalog
+(search / lookup / get_product / pagination), cart + cart-to-checkout conversion,
+fulfillment, eligibility signals, totals invariants, **RFC 9421 signatures**,
+**OAuth 2.0 + PKCE identity-linking**, and **order-event webhooks** — each scoped to
+the capabilities the target declares.
+
+Coverage is tracked openly: every normative MUST in each version is a
+kill-rate-validated check, a documented exemption, or a tracked gap
+([spck.dev/coverage](https://spck.dev/coverage)). The profile-schema and some
+schema-oracle checks require the native `ucp-schema` validator (not shipped in the
+wheel), so they report `not-tested` here; run from the source repo for full fidelity.
 
 Source, methodology, and the self-validating CI harness:
 <https://github.com/vishkaty/ucp-conformance>.
