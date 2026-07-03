@@ -506,6 +506,21 @@
      "MCP-006"
     ]
    }
+  },
+  {
+   "batch": "mcp-a2a-tools-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "independent adversarial review (agent re-read catalog/mcp.md, order-mcp.md, checkout-a2a.md per check)",
+   "spec_reverified": true,
+   "commit": "mcp-a2a-tool-coverage",
+   "notes": "Added mcp.get_product_tool (MCP-001), mcp.get_order_tool (MCP-005), a2a.checkout_in_datapart (A2A-001) for 2026-04-08 \u2014 closing the server-testable MCP/A2A frontier (only MCP-002 remains, client-side/manual). Fixture gained get_product routing + an A2A message/send endpoint returning the checkout in a DataPart keyed a2a.ucp.checkout; ctx gained has_a2a/a2a_endpoint; engine gained a2a_call. Independent review verified citations exact (catalog/mcp.md:693 both-tools, order-mcp.md:292 get_order, checkout-a2a.md:144 a2a.ucp.checkout) and subjects server-side. It REFUTED an A2A over-strictness bug (predicate accepted only the Message shape, would false-fail the spec-permitted Task shape at checkout-a2a.md:115-116) \u2014 FIXED before shipping: p_a2a_checkout_datapart now recursively finds the DataPart across Message result.parts, Task status.message.parts, and artifacts[].parts (unit-tested: CLEAN on all 3 shapes, DEVIATION on missing-datapart / ucp-less checkout). MCP-001's both-tools split (get_product here + lookup_catalog via mcp.catalog_lookup) and the A2A structured-request assumption are documented in-code. All 3 clean-pass + kill-safe on the controlled fixture.",
+   "ids": {
+    "2026-04-08": [
+     "MCP-001",
+     "MCP-005",
+     "A2A-001"
+    ]
+   }
   }
  ]
 }

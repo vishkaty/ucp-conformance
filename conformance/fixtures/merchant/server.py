@@ -1120,11 +1120,14 @@ def profile(base):
         # (DISC-002) with namespace-authority origins (DISC-003) + buyer_consent
         capabilities = {n: [{k: v for k, v in _cap_meta(n, e).items() if k != "name"}]
                         for n, e in _CAPS_01_ERA}
-    if VERSION == "2026-04-08":              # catalog/cart/MCP exist only in 04-08
+    if VERSION == "2026-04-08":              # catalog/cart/MCP/A2A exist only in 04-08
         services.append(
             {"version": VERSION, "transport": "mcp", "endpoint": base + "/ucp/mcp",
              "spec": f"https://ucp.dev/{VERSION}/specification/shopping",
              "schema": f"https://ucp.dev/{VERSION}/services/shopping/mcp.openrpc.json"})
+        services.append(
+            {"version": VERSION, "transport": "a2a", "endpoint": base + "/ucp/a2a",
+             "spec": f"https://ucp.dev/{VERSION}/specification/shopping"})
         capabilities.update({
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
@@ -2228,6 +2231,12 @@ def mcp_dispatch(rpc):
             return err(-32602, f"lookup batch of {len(ids)} exceeds the maximum of "
                                f"{MAX_LOOKUP_BATCH} identifiers")
         return ok(lookup_response(ids))
+    if name == "get_product":
+        # catalog/mcp.md: get_product tool exposed via tools/call (single-resource detail).
+        st, payload = get_product_response(cat)
+        if st >= 400:
+            return err(-32602, (payload or {}).get("message") or "invalid get_product request")
+        return ok(payload)
     if name == "create_cart":
         return ok(cart_response(args.get("cart") or {}))
     if name == "create_checkout":
@@ -2246,6 +2255,24 @@ def mcp_dispatch(rpc):
             return err(-32602, (payload or {}).get("message") or "order not found")
         return ok(payload)
     return err(-32601, f"unknown tool: {name}")
+
+def a2a_dispatch(rpc):
+    """Handle an A2A `message/send` (checkout-a2a.md): the checkout object MUST be
+    returned inside an A2A Message DataPart keyed `a2a.ucp.checkout` (A2A-001).
+    Builds a checkout via the same handler REST/MCP use, then wraps it in a DataPart."""
+    rid = (rpc or {}).get("id")
+    pid = next(iter(BY_ID), None)
+    payload = {"id": str(uuid.uuid4()), "currency": "USD",
+               "line_items": [{"id": "li_1", "quantity": 1,
+                               "item": {"id": pid, "price": 1000}, "totals": []}],
+               "payment": {"instruments": [], "handlers": []},
+               "status": "incomplete", "ucp": {"version": VERSION}, "totals": [], "links": []}
+    _st, checkout = create_checkout(payload, {"UCP-Agent": 'profile="https://spck.dev/agent"'})
+    return {"id": rid, "jsonrpc": "2.0",
+            "result": {"contextId": str(uuid.uuid4()), "kind": "message",
+                       "messageId": str(uuid.uuid4()), "role": "agent",
+                       "parts": [{"kind": "data",
+                                  "data": {"a2a.ucp.checkout": checkout}}]}}
 
 class _H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -2465,6 +2492,8 @@ class _H(BaseHTTPRequestHandler):
                 if self._checkout_scope_denied("cancel"):    # IDL-013 Cancel gate
                     return
                 return self._send(*cancel_checkout(parts[2], self.headers))
+        if path == "/ucp/a2a" and VERSION == "2026-04-08":   # A2A (JSON-RPC message/send)
+            return self._send(200, a2a_dispatch(body))
         if path == "/ucp/mcp" and VERSION == "2026-04-08":   # MCP (JSON-RPC tools/call)
             return self._send(200, mcp_dispatch(body))
         self._send(404, {"error_code": "not_found"})

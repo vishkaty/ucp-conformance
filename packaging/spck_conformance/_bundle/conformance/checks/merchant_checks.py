@@ -16,7 +16,7 @@ come from the optional merchant config.
 """
 import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, CLEAN, DEVIATION   # noqa: E402
+from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, a2a_call, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
 
 STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
@@ -457,6 +457,20 @@ def mcp_unknown_raw(ctx):
     rpc = {"jsonrpc": "2.0", "id": 1, "method": "rpc.unknown_method_xyz", "params": {}}
     return fetch(ctx.mcp_endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
 
+def mcp_get_product_raw(ctx):
+    # MCP-001: the get_product tool exposed via tools/call (catalog Lookup capability).
+    return mcp_call_raw(ctx.mcp_endpoint, "get_product",
+                        {"meta": _mcp_meta(), "catalog": {"id": ctx.product_id}})
+
+def mcp_get_order_raw(ctx):
+    # MCP-005: the get_order tool over MCP. Drive a real order first: create -> complete
+    # (REST) -> then fetch it back via get_order over tools/call.
+    cid = (_create_for_complete(ctx).json or {}).get("id")
+    c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+              ctx.config.get("complete_payment"), _hdr())
+    oid = ((c.json or {}).get("order") or {}).get("id")
+    return mcp_call_raw(ctx.mcp_endpoint, "get_order", {"meta": _mcp_meta(), "id": oid})
+
 def p_mcp_result_envelope(r):
     """A successful tools/call MUST return a JSON-RPC 2.0 result envelope:
     {jsonrpc:'2.0', id, result:{structuredContent:{ucp,...}}} and no error."""
@@ -480,6 +494,43 @@ def p_mcp_error_envelope(r):
         return DEVIATION
     err = j.get("error")
     return CLEAN if isinstance(err, dict) and isinstance(err.get("code"), int) else DEVIATION
+
+# --- A2A transport (checkout-a2a.md): checkout MUST be returned in a DataPart ---
+def a2a_checkout_resp(ctx):
+    # Structured DataPart request (the spec's structured-input form, e.g. its
+    # {action:add_to_checkout,...} example). NOTE: A2A agents interpret input freely —
+    # a conformant agent MAY answer a create request with a clarification Message and no
+    # checkout yet; this check assumes a fixture/agent that fulfils a create_checkout
+    # action directly. The predicate accepts both Message and Task response shapes.
+    msg = {"role": "user", "kind": "message", "messageId": "m-" + uuid.uuid4().hex[:12],
+           "parts": [{"kind": "data", "data": {"action": "create_checkout"}}]}
+    return a2a_call(ctx.a2a_endpoint, msg)
+
+def p_a2a_checkout_datapart(r):
+    """A2A-001: the checkout MUST be returned in an A2A Message DataPart keyed
+    `a2a.ucp.checkout`. A conformant agent MAY wrap the Message in a Task
+    (checkout-a2a.md L115-119), so we search the whole result subtree for the DataPart
+    rather than assuming a bare-Message `result.parts` shape (which would false-fail a
+    Task response)."""
+    j = r.json
+    if r.status != 200 or not isinstance(j, dict) or j.get("jsonrpc") != "2.0":
+        return DEVIATION
+    hit = []
+    def walk(o):
+        if hit:
+            return
+        if isinstance(o, dict):
+            data = o.get("data")
+            co = data.get("a2a.ucp.checkout") if isinstance(data, dict) else None
+            if isinstance(co, dict) and co.get("ucp") is not None:
+                hit.append(True); return
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(j.get("result"))
+    return CLEAN if hit else DEVIATION
 
 def p_catalog_lookup_inputs(r):
     """CAT-017/018: lookup variants MUST carry a non-empty inputs correlation array."""
@@ -1186,6 +1237,30 @@ CHECKS = [
            ["set:jsonrpc=\"1.0\"", "drop:result.structuredContent",
             "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
            capability="dev.ucp.shopping.catalog.search", transport="mcp", versions=["2026-04-08"]),
+    # MCP-001 ("when Lookup advertised, both lookup_catalog AND get_product MUST be
+    # available"): this check probes the get_product conjunct; the lookup_catalog
+    # conjunct is exercised by mcp.catalog_lookup above.
+    MCheck("mcp.get_product_tool", ["MCP-001"], "MUST",
+           mcp_get_product_raw, p_mcp_result_envelope,
+           ["set:jsonrpc=\"1.0\"", "drop:result.structuredContent",
+            "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.lookup", needs=("product",),
+           transport="mcp", versions=["2026-04-08"]),
+    # MCP-005: the get_order tool is implemented over MCP (create -> complete -> get_order).
+    MCheck("mcp.get_order_tool", ["MCP-005"], "MUST",
+           mcp_get_order_raw, p_mcp_result_envelope,
+           ["set:jsonrpc=\"1.0\"", "drop:result.structuredContent",
+            "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("complete_payment",), transport="mcp", versions=["2026-04-08"]),
+    # --- A2A transport conformance (2026-04-08) ---
+    # A2A-001: the business agent returns the checkout inside an A2A Message DataPart
+    # keyed `a2a.ucp.checkout` (checkout-a2a.md).
+    MCheck("a2a.checkout_in_datapart", ["A2A-001"], "MUST",
+           a2a_checkout_resp, p_a2a_checkout_datapart,
+           ["set:jsonrpc=\"1.0\"", "drop:result.parts", "set:result.parts=[]",
+            "drop:result.parts.0.data", "set:result={}", "status:500", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", transport="a2a", versions=["2026-04-08"]),
     # --- cart (capability-gated; product from config) ---
     MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
            ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",

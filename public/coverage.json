@@ -4433,14 +4433,14 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 231,
+   "check": 234,
    "exempt": 81,
-   "gap": 52,
-   "accounted_pct": 86,
+   "gap": 49,
+   "accounted_pct": 87,
    "gap_by_testability": {
     "manual": 7,
     "needs-oauth": 3,
-    "needs-receiver": 42
+    "needs-receiver": 39
    },
    "areas": [
     {
@@ -4553,10 +4553,8 @@
     },
     {
      "area": "transports",
-     "check": 3,
+     "check": 6,
      "exempt": 1,
-     "gap": 3,
-     "gap_needs-receiver": 3,
      "musts": 7
     },
     {
@@ -4571,10 +4569,12 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The A2A business agent MUST return the checkout object inside an A2A Message DataPart keyed `a2a.ucp.checkout`",
      "source": "ucp:docs/specification/checkout-a2a.md#L144",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CART-001",
@@ -7025,10 +7025,12 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the catalog Lookup capability is advertised, the MCP endpoint MUST expose both `lookup_catalog` and `get_product` tools",
      "source": "ucp:docs/specification/catalog/mcp.md#L693",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "MCP-002",
@@ -7070,10 +7072,12 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A business implementing the MCP order binding MUST implement the `get_order` tool per the OpenRPC schema",
      "source": "ucp:docs/specification/order-mcp.md#L292",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "MCP-006",

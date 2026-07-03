@@ -55,7 +55,7 @@ configurable product).
 |---|---|---|---|---|---|
 | 2026-01-11 | 178 | 117 | 38 | 23 | **87%** |
 | 2026-01-23 | 188 | 125 | 39 | 24 | **87%** |
-| 2026-04-08 | 364 | 231 | 81 | 52 | **86%** |
+| 2026-04-08 | 364 | 234 | 81 | 49 | **87%** |
 
 (Live + enforced: [spck.dev/coverage](https://spck.dev/coverage) / `public/coverage.json`.)
 
@@ -64,11 +64,11 @@ configurable product).
 > incomplete denominator — most notably the **2026-04-08 ap2-mandates section had zero rows**,
 > plus missing MCP/A2A transport bindings and several signature/identity/overview clauses.
 > 51 rows were added (all quote-verified), so the MUST counts grew (323→364 for 04-08) and
-> the honest percentage moved from 93/88/88 to **86/87/87**. Higher denominator, truer number.
+> the honest percentage moved from 93/88/88 to **87/87/87**. Higher denominator, truer number.
 > The newly-surfaced GAP is mostly a needs-receiver / MCP-A2A-transport tail (no harness yet).
 
 **State of play (2026-07-03, after 3 parallel waves + 3 adversarial reviews + a
-spec-truth citation gate + a completeness reconciliation).** 190 kill-rate-validated
+spec-truth citation gate + a completeness reconciliation).** 193 kill-rate-validated
 checks across 3 controlled goldens + Flower Shop; 30 CI gates (incl. register-completeness,
 review-signoff, and a differential harness vs the independent Flower Shop). The remaining
 GAP is the categorized residue, honestly:
@@ -98,7 +98,7 @@ error-envelope 25, payment/checkout/order ~15 testable each.
 > Phase 2 harnesses all built (TLS incl. sub-1.2 negative, webhook receiver + RFC 9421
 > verification, RFC 9421 request/response signing, OAuth 2.0 + PKCE). Phase 3 (2026-01-11
 > fixture mode) done — three controlled goldens run in CI. Phase 4 exemptions
-> classified (version-scoped, multi-class). Result: **87 / 87 / 86% accounted** (against a
+> classified (version-scoped, multi-class). Result: **87 / 87 / 87% accounted** (against a
 > now-completeness-gated denominator). What remains is the categorized residue in "State of
 > play" above plus the newly-surfaced needs-receiver / MCP-A2A tail, not a phase.
 

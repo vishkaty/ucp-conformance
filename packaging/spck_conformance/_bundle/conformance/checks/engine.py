@@ -92,6 +92,14 @@ def mcp_call_raw(endpoint, name, arguments, rpc_id=1):
            "params": {"name": name, "arguments": arguments}}
     return fetch(endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
 
+def a2a_call(endpoint, message, rpc_id=1):
+    """Call a UCP business agent over the A2A transport (JSON-RPC `message/send`, per
+    checkout-a2a.md). Returns the full JSON-RPC response envelope (with result.parts) as
+    .json, so a predicate can inspect the A2A Message + its DataParts."""
+    rpc = {"jsonrpc": "2.0", "id": rpc_id, "method": "message/send",
+           "params": {"message": message}}
+    return fetch(endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
+
 # ---- mutations on a captured response (defect injection) --------------------
 def _reparse(r):
     r.body = json.dumps(r.json).encode() if r.json is not None else r.body

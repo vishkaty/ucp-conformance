@@ -70,10 +70,12 @@ class MerchantCtx:
             # (service_schema.json rest/mcp/a2a/embedded members), not list entries
             rest = svc.get("rest") if isinstance(svc.get("rest"), dict) else None
             mcp = svc.get("mcp") if isinstance(svc.get("mcp"), dict) else None
+            a2a = svc.get("a2a") if isinstance(svc.get("a2a"), dict) else None
             self.transports = [t for t in ("rest", "mcp", "a2a", "embedded") if t in svc]
         else:
             rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
             mcp = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "mcp"), None)
+            a2a = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "a2a"), None)
             self.transports = [s.get("transport") for s in svc if isinstance(s, dict)]
         # A server MAY offer only MCP/embedded transports and still be fully conformant.
         # This runner is REST-scoped, so absence of a REST transport makes the REST
@@ -83,6 +85,9 @@ class MerchantCtx:
         # MCP transport (JSON-RPC tools/call): checks over MCP run if it's declared.
         self.has_mcp = mcp is not None
         self.mcp_endpoint = (mcp or {}).get("endpoint")
+        # A2A transport (JSON-RPC message/send): checks over A2A run if it's declared.
+        self.has_a2a = a2a is not None
+        self.a2a_endpoint = (a2a or {}).get("endpoint")
         self.product_id = self.config.get("product_id")
 
 def _wellknown_url(base):
