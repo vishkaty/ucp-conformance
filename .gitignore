@@ -20,3 +20,4 @@ ops/
 tests/web/node_modules/
 tests/web/package-lock.json
 .claude/
+conformance/.vendor
