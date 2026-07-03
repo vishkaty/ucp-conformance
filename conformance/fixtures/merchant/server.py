@@ -205,6 +205,13 @@ def oauth_authorization_server_metadata(base):
         "service_documentation": "https://spck.dev/fixture/docs/oauth2",
     }
 
+# ---- discovery-area profile-serving policy (2026-04-08 overview.md Hosting) -----
+# Profile responses MUST carry Cache-Control with `public` and max-age >= 60 and
+# MUST NOT use private/no-store/no-cache (DISC-003). Served on /.well-known/ucp;
+# rule-checked in selfcheck.py (headers are not schema territory, so the assertion
+# is against the pinned spec text, not the oracle).
+PROFILE_CACHE_CONTROL = "public, max-age=300"
+
 def profile(base):
     cap = [{"version": VERSION}]
     services = [
@@ -240,6 +247,59 @@ def profile(base):
             "capabilities": capabilities,
             # PAYMENT AREA: the business-profile handler declaration (PAY-001/PAY-002)
             "payment_handlers": payment_handlers_registry()}
+
+# ---- version-negotiation / discovery-error simulation (2026-04-08 only) ----------
+# The negotiation protocol (overview.md "Negotiation Protocol" + "Error Handling")
+# requires a business to fetch the platform profile named in UCP-Agent and fail with
+# the mapped negotiation error. This offline fixture cannot fetch, so it recognizes
+# SEEDED platform-profile URLs and answers exactly as a fetching implementation
+# would; a REAL merchant is probed with config-supplied URLs that genuinely exhibit
+# each failure (the checks are config-gated). Discovery/version failures are
+# TRANSPORT errors with a flat {code, content, continue_url} body (overview.md
+# "Transport Bindings"); capabilities_incompatible is HTTP 200 with the error in
+# the UCP body (error_response envelope). Owned by the discovery/negotiation area.
+SIM_PLATFORM = "https://spck.dev/fixture/platform/"
+SIM_UNREACHABLE = SIM_PLATFORM + "unreachable-profile.json"   # fetch times out / non-2xx
+SIM_MALFORMED = SIM_PLATFORM + "malformed-profile.json"       # fetched body is not JSON
+SIM_LEGACY_VERSION = SIM_PLATFORM + "legacy-version.json"     # profile version 1999-01-01
+SIM_NO_COMMON_CAPS = SIM_PLATFORM + "no-common-caps.json"     # empty capability intersection
+CONTINUE_URL = "https://spck.dev/fixture"
+
+def _agent_profile_url(agent_header):
+    """The profile URL from a UCP-Agent header (RFC 8941 dict, profile= member)."""
+    import re
+    m = re.search(r'profile="([^"]*)"', agent_header or "")
+    return m.group(1) if m else None
+
+def negotiate_platform(agent_header):
+    """Simulated platform-profile resolution for the seeded URLs above.
+    Returns (http_status, payload) for a negotiation failure, or None to proceed."""
+    url = _agent_profile_url(agent_header)
+    if url is None:
+        return None                               # header-presence is enforced elsewhere
+    def flat(code, content):                      # transport-error body per overview.md
+        return {"code": code, "content": content, "continue_url": CONTINUE_URL}
+    if url.startswith("http://"):                 # DISC-004: reject non-HTTPS profile URLs
+        return 400, flat("invalid_profile_url",
+                         f"Profile URLs must use https, got: {url}")
+    if url == SIM_UNREACHABLE:                    # NEG-003: resolved but fetch failed -> 424
+        return 424, flat("profile_unreachable",
+                         f"Unable to fetch platform profile {url}: connection timeout")
+    if url == SIM_MALFORMED:                      # NEG-004: fetched content invalid -> 422
+        return 422, flat("profile_malformed",
+                         f"Platform profile {url} is not valid JSON")
+    if url == SIM_LEGACY_VERSION:                 # NEG-001: version_unsupported -> 422
+        return 422, flat("version_unsupported",
+                         f"Protocol version 1999-01-01 is not supported. "
+                         f"This business supports version {VERSION}.")
+    if url == SIM_NO_COMMON_CAPS:                 # NEG-002: HTTP 200, error in the UCP body
+        return 200, {"ucp": {"version": VERSION, "status": "error", "capabilities": {}},
+                     "messages": [{"type": "error", "code": "capabilities_incompatible",
+                                   "content": "No compatible capabilities in the "
+                                              "platform/business intersection",
+                                   "severity": "unrecoverable"}],
+                     "continue_url": CONTINUE_URL}
+    return None
 
 def _unit_price(item_id):
     """Unit price (minor units) for a product or variant id, from the seed catalog."""
@@ -495,6 +555,12 @@ def create_checkout(body, headers=None):
     headers = headers or {}
     if not headers.get("UCP-Agent"):
         return _err(400, "UCP-Agent header is required")
+    if VERSION == "2026-04-08":
+        # negotiation precedes request processing (discovery/negotiation area);
+        # 04-08-scoped: the 01-era registers map these errors differently
+        neg = negotiate_platform(headers.get("UCP-Agent"))
+        if neg:
+            return neg
     if body is None or not isinstance(body, dict):
         return _err(400, "request body must be a JSON object")
     if "line_items" not in body:
@@ -853,11 +919,13 @@ def mcp_dispatch(rpc):
 
 class _H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
-    def _send(self, code, obj):
+    def _send(self, code, obj, extra_headers=None):
         body = json.dumps(obj).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        for k, v in (extra_headers or {}).items():
+            self.send_header(k, v)
         # permissive CORS: this is a TEST golden — it must be drivable from the
         # browser-based /tool (and its committed smoke tests) on any local origin
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -887,7 +955,9 @@ class _H(BaseHTTPRequestHandler):
             # can assert what actually arrived on the wire (custom headers etc.)
             return self._send(200, {"headers": {k.lower(): v for k, v in self.headers.items()}})
         if path == "/.well-known/ucp":
-            return self._send(200, profile(self._base()))
+            # DISC-003: profile responses carry the required Cache-Control policy
+            return self._send(200, profile(self._base()),
+                              {"Cache-Control": PROFILE_CACHE_CONTROL})
         if path == "/.well-known/oauth-authorization-server" and VERSION == "2026-04-08":
             # identity-linking (04-08 only, like the capability declaration):
             # RFC 8414 authorization server metadata on the business domain
