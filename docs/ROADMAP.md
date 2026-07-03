@@ -181,6 +181,38 @@ these when touching the web layer — a red gate blocks the push like any engine
   `VERSIONS`) → fixture version mode → grind. Target: first accounted matrix within
   days of a release.
 
+## Agent-side conformance — the two-sided offering (NEW workstream)
+
+UCP is two-sided: ~half the normative MUSTs bind the **business/merchant** (shipped:
+193 checks, 87/87/87) and ~half bind the **platform/agent** (the client). The merchant
+suite tests the merchant side; the agent side (95 platform/agent MUSTs at 2026-04-08,
+~34 reverse-testable) is currently documented as exemptions. New workstream builds the
+**reverse harness**: an agent points at our sandbox, we grade its client-side behavior
+(sends `UCP-Agent`, verifies the business's RFC 9421 signature, validates `iss` for
+mix-up, OAuth2/PKCE, follows `continue_url` on escalation…). Same kill-rate TDD loop,
+against a **reference agent** golden + defect-injected mutation agents.
+
+**Isolation is structural:** the agent tree (`conformance/agent/`) is invisible to the
+merchant coverage_map (non-recursive glob) → merchant numbers cannot move; a
+`merchant-stability` gate is the belt-and-suspenders. Separate coverage axis
+(`agent_matrix.py`), separate lock/gates.
+
+- **Phase A — DONE:** isolated tree, reference agent + mutation harness, agent coverage
+  axis (denominator 48/51/95), `run_agent` reference-gate/kill-rate lane, and the
+  `merchant-stability` safety net; wired into CI (32/32 green), merchant byte-identical.
+- **Phase B (next):** rounded P0 slice — UCP-Agent + signing, business-signature
+  verification, identity/OAuth/PKCE/`iss`-mix-up, escalation-follow. Then invite agents
+  to test (build-first).
+- **Phase B′:** reference implementations for dogfood + showcase — a Shopify store
+  (Shopify provides UCP; cheap real differential target) + the reference agent hardened
+  into a real "find & buy" agent. Stripe test mode; selling decoupled.
+- **Phase C→D:** breadth (payment/AP2 mandates, order/webhooks, rendering) → 100% agent
+  accounted, `agent_matrix --require all` in CI.
+- **Phase E (demand-gated):** cross-protocol (ACP/AP2); revenue products if pull.
+
+Positioning: *"the conformance layer for agentic commerce"* — both sides, proven. Full
+plan + DD: `ops/agent-conformance-plan.md`, `ops/agent-conformance-dd.md`.
+
 ## Maintenance invariants (standing)
 - Every change: full local `conformance/ci/selftest.sh` GREEN before commit; CI GREEN
   after push; bundle re-synced (`packaging/sync_bundle.sh`, CI-enforced).
