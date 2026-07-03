@@ -84,6 +84,14 @@ def mcp_call(endpoint, name, arguments, rpc_id=1):
     sc = (r.json.get("result") or {}).get("structuredContent")
     return Resp(200, r.headers, json.dumps(sc).encode())
 
+def mcp_call_raw(endpoint, name, arguments, rpc_id=1):
+    """Like mcp_call but returns the FULL JSON-RPC response envelope (jsonrpc/id/
+    result/error) as .json — for checks that verify JSON-RPC 2.0 conformance itself
+    (the envelope), not just the unwrapped structuredContent payload."""
+    rpc = {"jsonrpc": "2.0", "id": rpc_id, "method": "tools/call",
+           "params": {"name": name, "arguments": arguments}}
+    return fetch(endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
+
 # ---- mutations on a captured response (defect injection) --------------------
 def _reparse(r):
     r.body = json.dumps(r.json).encode() if r.json is not None else r.body

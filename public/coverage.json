@@ -4433,14 +4433,14 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 228,
+   "check": 231,
    "exempt": 81,
-   "gap": 55,
-   "accounted_pct": 85,
+   "gap": 52,
+   "accounted_pct": 86,
    "gap_by_testability": {
     "manual": 7,
     "needs-oauth": 3,
-    "needs-receiver": 45
+    "needs-receiver": 42
    },
    "areas": [
     {
@@ -4553,9 +4553,10 @@
     },
     {
      "area": "transports",
+     "check": 3,
      "exempt": 1,
-     "gap": 6,
-     "gap_needs-receiver": 6,
+     "gap": 3,
+     "gap_needs-receiver": 3,
      "musts": 7
     },
     {
@@ -7045,20 +7046,24 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, return errors per core spec, return business outcomes as JSON-RPC result with UCP envelope and messages array, validate tool inputs against schemas, and support HTTP streaming",
      "source": "ucp:docs/specification/checkout-mcp.md#L783",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "MCP-004",
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "MCP transport MUST expose UCP OpenRPC operations via JSON-RPC tools/call, mapping method->params.name and params->params.arguments",
      "source": "ucp:docs/specification/checkout-mcp.md#L804",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "MCP-005",
@@ -7075,10 +7080,12 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A conforming catalog MCP transport implementation MUST implement JSON-RPC 2.0 correctly, validate tool inputs against UCP schemas, support cursor-based pagination with a default limit of 10, and return -32602 (Invalid params) for requests exceeding batch size limits (the catalog MCP conformance list beyond the Lookup-tool exposure that MCP-001 covers).",
      "source": "ucp:docs/specification/catalog/mcp.md#L690",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "NEG-001",

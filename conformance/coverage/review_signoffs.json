@@ -491,6 +491,21 @@
      "TOT-021"
     ]
    }
+  },
+  {
+   "batch": "mcp-transport-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "independent adversarial review (agent re-read pinned checkout-mcp.md + catalog/mcp.md against each check)",
+   "spec_reverified": true,
+   "commit": "mcp-jsonrpc-conformance",
+   "notes": "Added 3 MCP JSON-RPC-2.0 transport-conformance checks for 2026-04-08 (mcp.checkout_via_tools_call, mcp.error_conformance, mcp.catalog_via_tools_call) covering MCP-003/004/006. Independent review verified the structuredContent path (checkout-mcp.md:212-213 / catalog-mcp.md:160-164) and jsonrpc:'2.0' requirement, and REFUTED two over-strictness bugs which were then FIXED before shipping: (1) checkout check no longer requires top-level id/status (checkout-response shape, legitimately absent from an all-out-of-stock error result) \u2014 asserts only the JSON-RPC envelope + ucp; (2) error check no longer requires HTTP 200 (spec pins the JSON-RPC body, not the transport status) and tests an unknown METHOD (unambiguous JSON-RPC-2.0 -32601) rather than an unknown tool name (which checkout-mcp.md leaves to MCP convention). All 3 clean-pass + kill-safe on the controlled fixture.",
+   "ids": {
+    "2026-04-08": [
+     "MCP-003",
+     "MCP-004",
+     "MCP-006"
+    ]
+   }
   }
  ]
 }

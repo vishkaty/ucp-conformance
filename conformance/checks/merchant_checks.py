@@ -16,7 +16,7 @@ come from the optional merchant config.
 """
 import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import Resp, fetch, mutate, mcp_call, CLEAN, DEVIATION   # noqa: E402
+from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
 
 STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
@@ -428,6 +428,58 @@ def mcp_search_resp(ctx):
 def mcp_lookup_resp(ctx):
     return mcp_call(ctx.mcp_endpoint, "lookup_catalog",
                     {"meta": _mcp_meta(), "catalog": {"ids": [ctx.product_id]}})
+
+# --- MCP JSON-RPC 2.0 transport-conformance (checkout-mcp.md / catalog/mcp.md) ---
+# These use mcp_call_raw so the predicate can inspect the JSON-RPC ENVELOPE itself
+# (jsonrpc / id / result / error) — the "MCP transport MUST implement JSON-RPC 2.0
+# and expose UCP OpenRPC operations via tools/call" requirement.
+def _mcp_checkout_args(ctx):
+    return {"meta": _mcp_meta(),
+            "checkout": {"id": str(uuid.uuid4()), "currency": ctx.config.get("currency", "USD"),
+                         "line_items": [{"id": "li_1", "quantity": 1,
+                                         "item": {"id": ctx.product_id, "price": 1000}, "totals": []}],
+                         "payment": {"instruments": [], "handlers": ctx.config.get("payment_handlers", [])},
+                         "status": "incomplete", "ucp": {"version": ctx.version},
+                         "totals": [], "links": []}}
+
+def mcp_checkout_raw(ctx):
+    return mcp_call_raw(ctx.mcp_endpoint, "create_checkout", _mcp_checkout_args(ctx))
+
+def mcp_search_raw(ctx):
+    return mcp_call_raw(ctx.mcp_endpoint, "search_catalog",
+                        {"meta": _mcp_meta(), "catalog": {"query": "*"}})
+
+def mcp_unknown_raw(ctx):
+    # JSON-RPC 2.0 "method not found": an unknown METHOD MUST return a JSON-RPC error
+    # object (-32601), never a result. We test the unknown *method* (unambiguously
+    # required by JSON-RPC 2.0) rather than an unknown *tool name* under tools/call,
+    # which checkout-mcp.md leaves to MCP convention (isError result vs error).
+    rpc = {"jsonrpc": "2.0", "id": 1, "method": "rpc.unknown_method_xyz", "params": {}}
+    return fetch(ctx.mcp_endpoint, "", "POST", rpc, {"Content-Type": "application/json"})
+
+def p_mcp_result_envelope(r):
+    """A successful tools/call MUST return a JSON-RPC 2.0 result envelope:
+    {jsonrpc:'2.0', id, result:{structuredContent:{ucp,...}}} and no error."""
+    j = r.json
+    if r.status != 200 or not isinstance(j, dict):
+        return DEVIATION
+    if j.get("jsonrpc") != "2.0" or "error" in j:
+        return DEVIATION
+    sc = (j.get("result") or {}).get("structuredContent")
+    return CLEAN if isinstance(sc, dict) and sc.get("ucp") is not None else DEVIATION
+
+def p_mcp_error_envelope(r):
+    """An unknown method MUST yield a JSON-RPC 2.0 error object with an integer `code`,
+    never a success result. The spec pins the JSON-RPC body, NOT the HTTP status of the
+    error (a conformant server may return it under 200 or 4xx), so we assert only the
+    body — an error object with an int code and no masquerading result."""
+    j = r.json
+    if not isinstance(j, dict):
+        return DEVIATION
+    if j.get("jsonrpc") != "2.0":
+        return DEVIATION
+    err = j.get("error")
+    return CLEAN if isinstance(err, dict) and isinstance(err.get("code"), int) else DEVIATION
 
 def p_catalog_lookup_inputs(r):
     """CAT-017/018: lookup variants MUST carry a non-empty inputs correlation array."""
@@ -1110,6 +1162,30 @@ CHECKS = [
             "drop:products.0.variants.0.inputs", "set:products.0.variants.0.inputs=[]",
             "corrupt-json"],
            capability="dev.ucp.shopping.catalog.lookup", needs=("product",), transport="mcp"),
+    # --- MCP JSON-RPC 2.0 transport conformance (2026-04-08) ---
+    # MCP-003/004: the MCP checkout endpoint implements JSON-RPC 2.0 and exposes the
+    # create_checkout OpenRPC operation via tools/call, returning a JSON-RPC 2.0 result
+    # whose structuredContent carries the UCP object. (We assert the TRANSPORT envelope,
+    # not the checkout-response shape — id/status are covered by the REST checkout checks
+    # and are legitimately absent from an error result e.g. all-out-of-stock.)
+    MCheck("mcp.checkout_via_tools_call", ["MCP-003", "MCP-004"], "MUST",
+           mcp_checkout_raw, p_mcp_result_envelope,
+           ["set:jsonrpc=\"1.0\"", "drop:jsonrpc", "drop:result.structuredContent",
+            "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", transport="mcp", versions=["2026-04-08"]),
+    # MCP-003: JSON-RPC 2.0 conformance — an unknown METHOD yields a JSON-RPC error
+    # object (-32601 method-not-found), never a result.
+    MCheck("mcp.error_conformance", ["MCP-003"], "MUST",
+           mcp_unknown_raw, p_mcp_error_envelope,
+           ["drop:error", "drop:error.code", "set:error={\"message\":\"x\"}",
+            "set:jsonrpc=\"1.0\"", "corrupt-json"],
+           transport="mcp", versions=["2026-04-08"]),
+    # MCP-006: the catalog MCP transport implements JSON-RPC 2.0 (result envelope).
+    MCheck("mcp.catalog_via_tools_call", ["MCP-006"], "MUST",
+           mcp_search_raw, p_mcp_result_envelope,
+           ["set:jsonrpc=\"1.0\"", "drop:result.structuredContent",
+            "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
+           capability="dev.ucp.shopping.catalog.search", transport="mcp", versions=["2026-04-08"]),
     # --- cart (capability-gated; product from config) ---
     MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
            ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",

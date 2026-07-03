@@ -89,7 +89,7 @@ open **gap** — each requirement deep-linked to the pinned official spec line. 
 `conformance/coverage/matrix.py` and enforced by a CI gate: stale data, a coverage
 regression (ratchet), or a wrong check-count claim on the site fails the build.
 
-Currently **187 kill-rate-validated checks** account for **85% of 2026-04-08**, **87% of
+Currently **190 kill-rate-validated checks** account for **86% of 2026-04-08**, **87% of
 2026-01-23**, and **87% of 2026-01-11** normative MUSTs (check + documented exemption).
 The denominator itself is now gated: a `register-completeness` CI gate reconciles **every**
 mandatory keyword in the pinned prose against the register, so the percentage is a fraction

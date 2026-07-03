@@ -2230,6 +2230,21 @@ def mcp_dispatch(rpc):
         return ok(lookup_response(ids))
     if name == "create_cart":
         return ok(cart_response(args.get("cart") or {}))
+    if name == "create_checkout":
+        # checkout-mcp.md: the create_checkout OpenRPC op exposed via tools/call.
+        # Reuse the exact REST handler; a non-2xx maps to a JSON-RPC error object.
+        ua = (args.get("meta") or {}).get("ucp-agent") or {}
+        hdr = {"UCP-Agent": f'profile="{ua.get("profile", "")}"'}
+        st, payload = create_checkout(args.get("checkout") or {}, hdr)
+        if st >= 400:
+            return err(-32602, (payload or {}).get("message") or "checkout rejected")
+        return ok(payload)
+    if name == "get_order":
+        oid = args.get("id") or (args.get("order") or {}).get("id")
+        st, payload = get_order(oid, {})
+        if st >= 400:
+            return err(-32602, (payload or {}).get("message") or "order not found")
+        return ok(payload)
     return err(-32601, f"unknown tool: {name}")
 
 class _H(BaseHTTPRequestHandler):
