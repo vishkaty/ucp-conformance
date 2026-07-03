@@ -135,6 +135,34 @@ def p_digest_mismatch(r):
     return CLEAN if r.status == 400 and "digest_mismatch" in _err_codes(r) \
         else DEVIATION
 
+# ---- SIG-025: duplicate idempotency key -> cached response, no re-execution ------
+def idem_replay_resp(ctx):
+    """The SAME create request (identical body AND Idempotency-Key) sent twice;
+    returns both results so the predicate can prove the second is the CACHED
+    response (same resource id — a fresh id would prove re-execution)."""
+    import uuid as _uuid
+    k = str(_uuid.uuid4())
+    p = _create_payload(ctx)                 # reused verbatim: identical body bytes
+    r1 = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr(k))
+    r2 = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr(k))
+    body = {"first": r1.json, "first_status": r1.status,
+            "second": r2.json, "second_status": r2.status}
+    return Resp(200, {"Content-Type": "application/json"}, json.dumps(body).encode())
+
+def p_idem_replay(r):
+    """SIG-025: the duplicate returns the cached result — same status, same
+    checkout id, never a second execution (which would mint a new id)."""
+    j = r.json if isinstance(r.json, dict) else {}
+    f, s = j.get("first"), j.get("second")
+    if not (isinstance(f, dict) and isinstance(s, dict)):
+        return DEVIATION
+    if j.get("first_status") not in (200, 201):
+        return DEVIATION
+    if j.get("second_status") != j.get("first_status"):
+        return DEVIATION                    # a cached response replays the status
+    fid = f.get("id")
+    return CLEAN if fid and s.get("id") == fid else DEVIATION
+
 # ---- SIG-021: response signed components (body present) --------------------------
 def signed_create_resp(ctx):
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
@@ -452,6 +480,16 @@ CHECKS_04_08_EVENTS = [
            capability="dev.ucp.shopping.checkout", needs=("product",),
            cfg_needs=("signature.request_private_jwk",), transport="rest",
            versions=V0408),
+    # --- duplicate idempotency key -> cached response (server-side, directly
+    #     probe-able; 04-08-locked: SIG ids exist only in the 04-08 register).
+    #     CHK-048/CART-026 bundle the same cached-result rule with a >=24h
+    #     retention window this probe cannot observe, so they are NOT cited. ---
+    MCheck("signature.idempotency_replay_cached", ["SIG-025"], "MUST",
+           idem_replay_resp, p_idem_replay,
+           ["set:second.id=\"chk_other\"", "drop:second", "drop:first",
+            "set:second_status=500", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           transport="rest", versions=V0408),
     # --- response signed components with a body (the suite is the receiver) ---
     MCheck("signature.response_body_components", ["SIG-021"], "MUST",
            signed_create_resp, p_body_components,
