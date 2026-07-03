@@ -81,6 +81,21 @@ def checkout_artifacts():
         raise RuntimeError("discounted create did not surface the automatic discount")
     if not any(a.get("allocations") for a in ap):
         raise RuntimeError("discounted create did not surface item-level allocations")
+    # rejected-code semantics (discount.md): invalid code echoed in codes[], absent
+    # from applied[], and communicated via a warning in messages[]
+    ok, rejected = _expect(201, server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}],
+         "discounts": {"codes": ["10OFF", "NOPE_NOT_A_CODE"]}}, HDRS), "rejected-code create")
+    if not ok:
+        raise RuntimeError(rejected)
+    rd = rejected.get("discounts") or {}
+    if "NOPE_NOT_A_CODE" not in (rd.get("codes") or []):
+        raise RuntimeError("rejected code was not echoed in discounts.codes")
+    if any(a.get("code") == "NOPE_NOT_A_CODE" for a in rd.get("applied") or []):
+        raise RuntimeError("rejected code wrongly appears in discounts.applied")
+    if not any("NOPE_NOT_A_CODE" in (m.get("content") or "")
+               for m in rejected.get("messages") or []):
+        raise RuntimeError("rejected code was not communicated via messages[]")
     out = [
         ("checkout create response",   lambda: validate_obj(created, "create")),
         ("checkout get response",      lambda: validate_obj(got, "read")),
@@ -89,6 +104,7 @@ def checkout_artifacts():
         ("checkout cancel response",   lambda: validate_obj(canceled, "cancel")),
         ("order get response",         lambda: validate_obj(order, "read")),
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
+        ("rejected-code checkout response", lambda: validate_obj(rejected, "create")),
     ]
     if server.VERSION != "2026-04-08":
         # pre-04-08 extension schemas can't be COMPOSED by the oracle (their extension

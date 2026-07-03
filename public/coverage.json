@@ -3992,15 +3992,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 74,
+   "check": 86,
    "exempt": 0,
-   "gap": 248,
-   "accounted_pct": 23,
+   "gap": 236,
+   "accounted_pct": 27,
    "gap_by_testability": {
     "manual": 41,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 95
+    "testable": 83
    },
    "areas": [
     {
@@ -4030,11 +4030,10 @@
     },
     {
      "area": "discounts-consent",
-     "check": 11,
-     "gap": 18,
+     "check": 23,
+     "gap": 6,
      "gap_manual": 1,
      "gap_needs-receiver": 5,
-     "gap_testable": 12,
      "musts": 29
     },
     {
@@ -5057,10 +5056,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics)",
      "source": "ucp:docs/specification/discount.md#L133",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-004",
@@ -5079,10 +5080,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount codes are matched case-insensitively by the business",
      "source": "ucp:docs/specification/discount.md#L135",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-006",
@@ -5101,20 +5104,24 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Rejected codes are communicated via the messages[] array",
      "source": "ucp:docs/specification/discount.md#L140",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "DSC-008",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount amounts are reflected in totals[] and line_items[].totals[]",
      "source": "ucp:docs/specification/discount.md#L141",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-009",
@@ -5131,10 +5138,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Automatic discounts appear in discounts.applied with automatic:true and no code field",
      "source": "ucp:docs/specification/discount.md#L189",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-013",
@@ -5191,30 +5200,36 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "If a discount has allocations pointing to line items it contributes to items_discount; otherwise (no allocations, or shipping/fees allocations) it contributes to discount",
      "source": "ucp:docs/specification/discount.md#L298",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-019",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Invariant: totals[type=items_discount].amount equals sum of line_items[].totals[type=items_discount].amount",
      "source": "ucp:docs/specification/discount.md#L307",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-020",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount amounts in discounts.applied are positive integers (value of the discount)",
      "source": "ucp:docs/specification/discount.md#L313",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-021",
@@ -5233,10 +5248,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Invariant: sum of allocations[].amount equals applied_discount.amount",
      "source": "ucp:docs/specification/discount.md#L124",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08.py"
+     ]
     },
     {
      "id": "DSC-023",
@@ -5292,20 +5309,24 @@
      "area": "discounts-consent",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "discounts.applied is response-only and MUST be omitted from requests",
      "source": "ucp:source/schemas/shopping/discount.json#L99",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "DSC-028",
      "area": "discounts-consent",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "On checkout complete, the discounts object MUST be omitted from the request",
      "source": "ucp:source/schemas/shopping/discount.json#L139",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "DSC-029",
@@ -5360,10 +5381,12 @@
      "area": "discounts-consent",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "On checkout complete, the buyer object (carrying consent) MUST be omitted from the request",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L64",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "ERR-001",

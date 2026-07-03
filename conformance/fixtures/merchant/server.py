@@ -355,6 +355,17 @@ def checkout_body(sess):
            "totals": totals, "links": LINKS}
     if sess.get("codes") or applied:
         out["discounts"] = {"codes": list(sess.get("codes", [])), "applied": applied}
+    # discount.md "Rejected discount code": rejection is communicated via messages[]
+    # (type:warning, path pointing at the offending codes[] entry); the code is still
+    # echoed in discounts.codes but never in discounts.applied.
+    rejected = [(i, c) for i, c in enumerate(sess.get("codes", []))
+                if _match_code(c)[0] is None]
+    if rejected:
+        out["messages"] = [
+            {"type": "warning", "code": "discount_code_invalid",
+             "path": f"$.discounts.codes[{i}]",
+             "content": f"Code '{c}' is not a valid discount code"}
+            for i, c in rejected]
     if VERSION != "2026-04-08":
         # AP2 merchant authorization on checkout responses (PAY-035 is a 01-23/01-11
         # MUST; the id does not exist in the 04-08 register, so 04-08 stays lean)

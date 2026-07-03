@@ -89,7 +89,9 @@ def _module_checks(path):
     stem = os.path.splitext(os.path.basename(path))[0]
     try:
         mod = importlib.import_module(stem)
-        return getattr(mod, "CHECKS", None), mod
+        checks = list(getattr(mod, "CHECKS", []) or [])
+        checks += list(getattr(mod, "RESOLVE_CHECKS", []) or [])   # resolver-level checks
+        return (checks or None), mod
     except Exception as e:
         print(f"(matrix: {stem} not importable — text-scan fallback: {e})", file=sys.stderr)
         return None, None

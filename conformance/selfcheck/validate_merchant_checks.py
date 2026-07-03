@@ -64,6 +64,7 @@ CONTROLLED_CONFIG = {
     "discount": {"valid_code": "10OFF", "second_valid_code": "TEA5",
                  "invalid_code": "NOPE_NOT_A_CODE",      # seeded codes (see server.py)
                  "case_insensitive": True,               # fixture matches codes any-case
+                 "rejected_messages": True,              # fixture emits rejection warnings
                  # scenario carts for the 01-23-scoped checks (DSC-010 / DSC-018):
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},

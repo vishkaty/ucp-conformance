@@ -89,8 +89,29 @@ def validate_profile(profile, version="2026-01-23", role="business"):
     finally:
         os.unlink(path)
 
+def resolve_def(schema_rel, def_name, op, version="2026-04-08", direction="request"):
+    """Resolve a schema $def for a direction+op via the official resolver and return
+    the parsed JSON (the authority on ucp_request/ucp_response annotation semantics —
+    e.g. a property annotated complete:"omit" is REMOVED from the op=complete request
+    resolution). Raises OracleUnavailable if the binary/base is absent."""
+    base = SCHEMA_BASE.get(version)
+    schema = (base / schema_rel) if base else None
+    if not base or not schema or not schema.exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    args = ["resolve", str(schema), "--def", def_name, "--op", op,
+            "--schema-local-base", str(base)]
+    if direction == "request":
+        args.append("--request")
+    elif direction == "response":
+        args.append("--response")
+    r = _run(args)
+    if r.returncode != 0:
+        raise OracleUnavailable(f"resolve failed: {(r.stdout + r.stderr)[:200]}")
+    return json.loads(r.stdout)
+
+
 def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-08",
-                     direction=None):
+                     direction=None, strict=False):
     """Validate a payload object against an explicit schema file + $def under a version's
     schema base. schema_rel is relative to <base> (e.g. 'schemas/shopping/catalog_search.json').
     direction="request"/"response" applies the ucp_request lifecycle filtering for the
@@ -106,6 +127,8 @@ def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-
         pathlib.Path(path).write_text(json.dumps(payload))
         args = ["validate", path, "--schema", str(schema), "--def", def_name,
                 "--op", op, "--schema-local-base", str(base)]
+        if strict:
+            args += ["--strict", "true"]
         if direction == "request":
             args.append("--request")
         elif direction == "response":

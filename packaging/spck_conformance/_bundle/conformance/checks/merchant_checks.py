@@ -829,6 +829,25 @@ def p_disc_reject_one(r, ctx):
     if _dinvalid(ctx) not in codes:              return DEVIATION   # rejected echoed back
     return CLEAN
 
+def p_disc_rejected_msg(r, ctx):
+    """DSC-006@01-era / DSC-007@04-08: a rejected code is COMMUNICATED via messages[]
+    (discount.md 'Rejected discount code': warning naming the offending code), while
+    still echoed in codes[] and absent from applied[]. Config-gated: the official
+    Flower Shop golden does NOT emit these messages, so it skips there (same pattern
+    as case-insensitive codes) and gates on the controlled fixtures."""
+    if r.status != 200:
+        return DEVIATION
+    d = _discounts(r)
+    if not isinstance(d, dict) or _dinvalid(ctx) not in (d.get("codes") or []):
+        return DEVIATION
+    if any(a.get("code") == _dinvalid(ctx) for a in d.get("applied") or []):
+        return DEVIATION
+    msgs = (r.json or {}).get("messages")
+    if not isinstance(msgs, list) or not msgs:
+        return DEVIATION
+    return CLEAN if any(_dinvalid(ctx) in (m.get("content") or "") for m in msgs
+                        if isinstance(m, dict)) else DEVIATION
+
 def p_disc_unknown(r, ctx):
     """DSC-007: an unknown-only code is rejected — echoed in codes, nothing applied, no total."""
     if r.status != 200:
@@ -969,7 +988,7 @@ CHECKS = [
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.second_valid_code",), transport="rest",
            req_ids_map={"2026-04-08": ["DSC-029"]}),
-    MCheck("discount.accept_one_reject_one", ["DSC-006", "DSC-007"], "MUST", disc_reject_resp,
+    MCheck("discount.accept_one_reject_one", ["DSC-007"], "MUST", disc_reject_resp,
            p_disc_reject_one,
            ["status:500", "drop:discounts", "drop:discounts.applied", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DVALID,$DINVALID],\"applied\":[{\"code\":$DVALID},{\"code\":$DINVALID}]}",
@@ -1108,6 +1127,15 @@ CHECKS = [
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest",
            req_ids_map={"2026-04-08": ["DSC-004"]}),
+    MCheck("discount.rejected_via_messages", ["DSC-006"], "MUST", disc_reject_resp,
+           p_disc_rejected_msg,
+           ["status:500", "drop:messages", "set:messages=[]",
+            "set:messages=[{\"type\":\"warning\",\"code\":\"x\",\"content\":\"unrelated\"}]",
+            "set:discounts={\"codes\":[$DVALID],\"applied\":[{\"code\":$DVALID}]}",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.discount", needs=("product",),
+           cfg_needs=("discount.rejected_messages",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-007"]}),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",
@@ -1136,12 +1164,15 @@ def _expand_mut(m, ctx):
       $CRED     -> the merchant's payment credential token (no-echo injection)
       $DVALID   -> a valid discount code
       $DINVALID -> an invalid/unknown discount code
+      $DSECOND  -> a second valid discount code
     """
     if "$CRED" in m:
         toks = _cred_tokens(ctx.config.get("complete_payment"))
         m = m.replace("$CRED", json.dumps(toks[0]) if toks else '"__cred__"')
     if "$DVALID" in m:
         m = m.replace("$DVALID", json.dumps(_dvalid(ctx) or "__v__"))
+    if "$DSECOND" in m:
+        m = m.replace("$DSECOND", json.dumps(_dsecond(ctx) or "__s__"))
     if "$DINVALID" in m:
         m = m.replace("$DINVALID", json.dumps(_dinvalid(ctx) or "__x__"))
     return m
@@ -1160,8 +1191,9 @@ def all_checks():
     Imported lazily to avoid a circular import (the version-scoped modules pull
     MCheck/_hdr from this module at their top level)."""
     from merchant_checks_01_23 import CHECKS_01_23
+    from merchant_checks_04_08 import CHECKS_04_08
     from tls_check_01_11_01_23 import CHECKS_TLS
-    return CHECKS + CHECKS_01_23 + CHECKS_TLS
+    return CHECKS + CHECKS_01_23 + CHECKS_04_08 + CHECKS_TLS
 
 def run_merchant_checks(ctx, checks=None):
     if checks is None:
