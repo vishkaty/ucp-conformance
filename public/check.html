@@ -114,7 +114,7 @@ async function run() {
       card.appendChild(row);
     }
     if (d.disclaimer) card.appendChild(el("p", "note", d.disclaimer));
-    if (d.summary) renderBadge(server);            // offer the embeddable badge
+    if (d.summary) renderNextSteps(server);        // CLI + CI + badge + share, pre-filled
   } catch (e) {
     card.textContent = ""; card.appendChild(el("p", "obs", "Request failed: " + e));
   } finally {
@@ -122,23 +122,63 @@ async function run() {
   }
 }
 
-function renderBadge(server) {
-  const badgeUrl = location.origin + "/api/badge?server=" + encodeURIComponent(server);
-  const reportUrl = location.origin + "/check?server=" + encodeURIComponent(server);
-  const snippet = "[![UCP conformance](" + badgeUrl + ")](" + reportUrl + ")";
+// A card with a code block + a one-click copy button.
+function copyBlock(title, text, btnLabel, note) {
   const c = el("div", "card");
-  c.appendChild(el("div", "verdict", "Show it off — add a badge to your README"));
-  const img = el("img"); img.src = badgeUrl; img.alt = "UCP conformance badge"; img.style.margin = "10px 0";
-  c.appendChild(img);
-  const pre = el("pre"); pre.appendChild(el("code", null, snippet)); c.appendChild(pre);
-  const btn = el("button", null, "Copy badge markdown");
+  c.appendChild(el("div", "verdict", title));
+  if (note) c.appendChild(el("p", "note", note));
+  const pre = el("pre"); pre.appendChild(el("code", null, text)); c.appendChild(pre);
+  const btn = el("button", null, btnLabel);
   btn.addEventListener("click", () => {
-    navigator.clipboard && navigator.clipboard.writeText(snippet);
-    btn.textContent = "Copied ✓"; setTimeout(() => (btn.textContent = "Copy badge markdown"), 1500);
+    navigator.clipboard && navigator.clipboard.writeText(text);
+    btn.textContent = "Copied ✓"; setTimeout(() => (btn.textContent = btnLabel), 1500);
   });
   c.appendChild(btn);
-  c.appendChild(el("p", "note", "Shareable report link: " + reportUrl));
-  $("out").appendChild(c);
+  return c;
+}
+
+// After a check, hand the user every next step PRE-FILLED with their own server —
+// the full CLI suite, the CI gate, the README badge, and the shareable link.
+function renderNextSteps(server) {
+  const out = $("out");
+  const badgeUrl = location.origin + "/api/badge?server=" + encodeURIComponent(server);
+  const reportUrl = location.origin + "/check?server=" + encodeURIComponent(server);
+
+  // 1. The full suite, against THIS server (no placeholder to substitute).
+  out.appendChild(copyBlock(
+    "Run the full suite against this server",
+    "pip install spck-conformance\n"
+    + "spck-conformance --server " + server + " --init merchant.json\n"
+    + "spck-conformance --server " + server + " --config merchant.json",
+    "Copy commands",
+    "The web check covers discovery + profile + read-only probes. The full suite "
+    + "(checkout / order / payment / discount / signatures / OAuth / webhooks / TLS) runs "
+    + "from your shell, pointed at your own server."));
+
+  // 2. Gate it in CI (the Action retention loop).
+  out.appendChild(copyBlock(
+    "Gate it in CI (GitHub Action)",
+    "- uses: vishkaty/ucp-conformance@main\n  with:\n    server: " + server
+    + "\n    config: merchant.json   # optional",
+    "Copy workflow step"));
+
+  // 3. README badge (the visibility loop).
+  const bc = el("div", "card");
+  bc.appendChild(el("div", "verdict", "Add a badge to your README"));
+  const img = el("img"); img.src = badgeUrl; img.alt = "UCP conformance badge"; img.style.margin = "10px 0";
+  bc.appendChild(img);
+  const snippet = "[![UCP conformance](" + badgeUrl + ")](" + reportUrl + ")";
+  const pre = el("pre"); pre.appendChild(el("code", null, snippet)); bc.appendChild(pre);
+  const bbtn = el("button", null, "Copy badge markdown");
+  bbtn.addEventListener("click", () => {
+    navigator.clipboard && navigator.clipboard.writeText(snippet);
+    bbtn.textContent = "Copied ✓"; setTimeout(() => (bbtn.textContent = "Copy badge markdown"), 1500);
+  });
+  bc.appendChild(bbtn);
+  out.appendChild(bc);
+
+  // 4. Shareable permalink (the distribution loop) — the URL itself re-runs the report.
+  out.appendChild(copyBlock("Share this report", reportUrl, "Copy link"));
 }
 
 $("run").addEventListener("click", run);
