@@ -14,7 +14,7 @@ here is anchored to the official validator, not to our own checks (no circularit
 Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
-import json, argparse, uuid, threading, base64, hashlib, hmac, time
+import json, argparse, uuid, threading, base64, hashlib, hmac, time, urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # The spec version this fixture serves. Switchable (--spec-version / set_version) so the
@@ -40,6 +40,7 @@ def set_version(v):
         raise ValueError(f"unsupported spec version: {v} (supported: {SUPPORTED_VERSIONS})")
     VERSION = v
     SESSIONS.clear(); ORDERS.clear(); IDEM.clear()
+    OAUTH_CODES.clear(); OAUTH_TOKENS.clear(); OAUTH_REFRESH.clear()
 
 # ---- controlled seed catalog (stable ids the checks rely on) -----------------
 def _product(pid, vid, title, price, desc):
@@ -184,31 +185,351 @@ IDENTITY_SCOPES = {
                                 "on the user's behalf."}},
 }
 
+# The 01-era identity-linking spec (2026-01-11/01-23 identity-linking.md, identical
+# text) predates the 04-08 capability-scopes rework: businesses adhere to RFC 8414,
+# authenticate platforms with client_id/client_secret via HTTP Basic
+# (client_secret_basic), and support the standard scope ucp:scopes:checkout_session.
+IDENTITY_SCOPES_01ERA = ("ucp:scopes:checkout_session",)
+
+def oauth_scopes_supported():
+    """The OAuth scope vocabulary the fixture's AS accepts, per serving version."""
+    return sorted(IDENTITY_SCOPES) if VERSION == "2026-04-08" \
+        else list(IDENTITY_SCOPES_01ERA)
+
 def oauth_authorization_server_metadata(base):
     """RFC 8414 authorization server metadata, published at
-    /.well-known/oauth-authorization-server (identity-linking.md For Businesses:
-    metadata MUST be published there [IDL-016]; scopes_supported MUST be populated
-    [IDL-017]; token_endpoint_auth_methods_supported MUST declare the accepted
-    client auth methods [IDL-022]; authorization_response_iss_parameter_supported
-    (RFC 9207) and code_challenge_methods_supported ["S256"] (PKCE) MUST both be
-    present [IDL-058]). Mirrors the spec's example metadata document; 'none' is
-    advertised for public clients, which per the spec requires PKCE S256 — also
-    advertised."""
-    return {
+    /.well-known/oauth-authorization-server in EVERY supported version
+    (04-08 identity-linking.md For Businesses [IDL-016]; 01-era identity-linking.md
+    'MUST adhere to RFC 8414' [IDL-006@01-era]).
+    2026-04-08: scopes_supported MUST be populated [IDL-017];
+    token_endpoint_auth_methods_supported MUST declare the accepted client auth
+    methods [IDL-022]; authorization_response_iss_parameter_supported (RFC 9207)
+    and code_challenge_methods_supported ["S256"] (PKCE) MUST both be present
+    [IDL-058]. Only methods the token endpoint actually enforces are advertised
+    (client_secret_basic + none — 'none' requires PKCE S256 per the spec).
+    01-era: mirrors the 01-era spec's example (client_secret_basic only, no PKCE
+    advertisements, scope ucp:scopes:checkout_session)."""
+    md = {
         "issuer": base,
         "authorization_endpoint": base + "/oauth2/authorize",
         "token_endpoint": base + "/oauth2/token",
         "revocation_endpoint": base + "/oauth2/revoke",
-        "jwks_uri": base + "/oauth2/jwks",
-        "scopes_supported": sorted(IDENTITY_SCOPES),
+        "scopes_supported": oauth_scopes_supported(),
         "response_types_supported": ["code"],
         "grant_types_supported": ["authorization_code", "refresh_token"],
-        "code_challenge_methods_supported": ["S256"],
-        "token_endpoint_auth_methods_supported": [
-            "private_key_jwt", "client_secret_basic", "none"],
-        "authorization_response_iss_parameter_supported": True,
         "service_documentation": "https://spck.dev/fixture/docs/oauth2",
     }
+    if VERSION == "2026-04-08":
+        md.update({
+            "jwks_uri": base + "/oauth2/jwks",
+            "code_challenge_methods_supported": ["S256"],
+            "token_endpoint_auth_methods_supported": ["client_secret_basic", "none"],
+            "authorization_response_iss_parameter_supported": True,
+        })
+    else:
+        md["token_endpoint_auth_methods_supported"] = ["client_secret_basic"]
+    return md
+
+def oauth_protected_resource_metadata(base):
+    """RFC 9728 protected resource metadata at /.well-known/oauth-protected-resource
+    (identity-linking.md For Businesses SHOULD [IDL-030]; referenced by the
+    resource_metadata parameter in WWW-Authenticate challenges [IDL-043])."""
+    return {"resource": base,
+            "authorization_servers": [base],
+            "scopes_supported": oauth_scopes_supported(),
+            "bearer_methods_supported": ["header"]}
+
+# ==== OAUTH area (identity-linking OAuth 2.0 server; identity-linking.md) ========
+# A minimal, spec-true OAuth 2.0 authorization server: authorization-code grant with
+# PKCE S256 (RFC 6749 §4.1 + RFC 7636), RFC 9207 iss on authorization responses,
+# RFC 7009 revocation, and Bearer-gated resources emitting the spec's
+# identity_required / insufficient_scope challenges (RFC 6750 §3). Stdlib only.
+# The consent step is AUTO-GRANTED (this is a conformance golden, not a real AS).
+# TEST CREDENTIALS ONLY — committed on purpose.
+#
+# MUTANT flags (each is a deliberately-broken merchant used ONLY by the
+# validate_oauth_checks.py kill-proof gate; never enabled by run_suite goldens):
+OAUTH_ENFORCE_PKCE = True     # --oauth-no-pkce: skip PKCE requirement/verification
+OAUTH_GATE = True             # --oauth-no-gate: serve gated ops without identity
+OAUTH_EXACT_REDIRECT = True   # --oauth-lax-redirect: skip redirect_uri matching
+OAUTH_CLIENT_AUTH = True      # --oauth-no-client-auth: skip client authentication
+OAUTH_CHALLENGE_ERROR = True  # --oauth-challenge-no-error: omit the challenge's
+                              #   error="invalid_token"/"insufficient_scope" param
+
+# Registered platform clients. The public client uses token_endpoint_auth_method
+# 'none' + PKCE (RFC 8252 §8.5); the confidential one uses client_secret_basic.
+# Loopback redirect registration is scheme+host+path — the PORT is ignored at
+# match time (RFC 8252 §7.3; identity-linking.md loopback exception, IDL-021).
+OAUTH_CLIENTS = {
+    "spck-platform-public": {
+        "auth_method": "none",
+        "redirect_uris": ["https://platform.spck.dev/oauth/callback",
+                          "http://127.0.0.1/oauth/cb"]},
+    "spck-platform-confidential": {
+        "auth_method": "client_secret_basic",
+        "secret": "spck-confidential-secret-2026",
+        "redirect_uris": ["https://platform.spck.dev/oauth/callback"]},
+}
+OAUTH_CODES = {}     # code -> {client_id, redirect_uri, scopes, challenge, expires, used}
+OAUTH_TOKENS = {}    # access_token -> {client_id, scopes, revoked, expires}
+OAUTH_REFRESH = {}   # refresh_token -> {client_id, scopes, revoked, access_tokens}
+OAUTH_CODE_TTL, OAUTH_TOKEN_TTL = 300, 3600
+
+def _loopback_match(registered, supplied):
+    """RFC 8252 §7.3 loopback comparison: for 127.0.0.1/[::1] redirect URIs the port
+    component is ignored; scheme, host, and path must match."""
+    r, s = urllib.parse.urlsplit(registered), urllib.parse.urlsplit(supplied)
+    try:
+        rh, sh = r.hostname, s.hostname
+    except ValueError:
+        return False
+    return rh in ("127.0.0.1", "::1") and sh == rh \
+        and (r.scheme, r.path) == (s.scheme, s.path)
+
+def _redirect_matches(registered, supplied):
+    """Exact string match (identity-linking.md: 'exact string matching for the
+    redirect_uri parameter' — IDL-020), with the loopback port exception."""
+    return registered == supplied or _loopback_match(registered, supplied)
+
+def oauth_authorize(params, base):
+    """GET /oauth2/authorize -> (status, extra_headers, payload).
+    Success: 302 redirect carrying code + state + iss (RFC 9207 — the business MUST
+    return iss in the authorization response, IDL-018). Errors follow RFC 6749
+    §4.1.2.1: unknown client / unregistered redirect_uri are answered DIRECTLY
+    (400, never a redirect — open-redirect defense); other failures redirect back
+    with the RFC error code (invalid_scope for out-of-vocabulary scopes;
+    invalid_request for PKCE failures per RFC 7636 §4.4.1 — plain MUST NOT be
+    used and S256 is required for all flows at 2026-04-08, IDL-049/IDL-023)."""
+    client = OAUTH_CLIENTS.get(params.get("client_id") or "")
+    ruri = params.get("redirect_uri") or ""
+    if not client or not any(_redirect_matches(u, ruri) for u in client["redirect_uris"]):
+        return 400, {}, {"error": "invalid_request",
+                         "error_description": "unknown client_id or unregistered "
+                                              "redirect_uri"}
+    state = params.get("state")
+    def bounce(qs):
+        if state is not None:
+            qs["state"] = state
+        qs["iss"] = base                       # RFC 9207: iss on EVERY authz response
+        sep = "&" if "?" in ruri else "?"
+        return 302, {"Location": ruri + sep + urllib.parse.urlencode(qs)}, {}
+    def err(code, desc):
+        return bounce({"error": code, "error_description": desc})
+    if params.get("response_type") != "code":
+        return err("unsupported_response_type", "only response_type=code is supported")
+    scopes = [s for s in (params.get("scope") or "").split() if s]
+    bad = [s for s in scopes if s not in oauth_scopes_supported()]
+    if bad:
+        # scope grants are limited to the advertised vocabulary (RFC 6749 §4.1.2.1)
+        return err("invalid_scope", "unsupported scope(s): " + " ".join(bad))
+    challenge = params.get("code_challenge")
+    method = params.get("code_challenge_method", "plain" if challenge else None)
+    if VERSION == "2026-04-08" and OAUTH_ENFORCE_PKCE:
+        # PKCE S256 is REQUIRED for all authorization code flows; plain MUST NOT
+        # be used (identity-linking.md Security Considerations)
+        if not challenge:
+            return err("invalid_request", "code_challenge is required (PKCE S256)")
+        if method != "S256":
+            return err("invalid_request",
+                       "code_challenge_method must be S256 (plain MUST NOT be used)")
+    code = "ac_" + uuid.uuid4().hex
+    OAUTH_CODES[code] = {"client_id": params["client_id"], "redirect_uri": ruri,
+                         "scopes": scopes,
+                         "challenge": challenge if method == "S256" else None,
+                         "expires": time.time() + OAUTH_CODE_TTL, "used": False}
+    return bounce({"code": code})
+
+def _parse_basic(auth_header):
+    if not isinstance(auth_header, str) or not auth_header.startswith("Basic "):
+        return None
+    try:
+        cid, _, secret = base64.b64decode(auth_header[6:]).decode().partition(":")
+        return urllib.parse.unquote(cid), urllib.parse.unquote(secret)
+    except Exception:
+        return None
+
+def _oauth_client_auth(form, headers):
+    """Authenticate a token/revocation request per the client's registered method
+    (identity-linking.md: requests that fail the negotiated authentication method
+    MUST be rejected with invalid_client — IDL-024; 01-era: businesses MUST enforce
+    Client Authentication at the Token Endpoint — IDL-007@01-era).
+    Returns (client_id, None) on success, else (None, (status, headers, payload))."""
+    h = {k.lower(): v for k, v in headers.items()}
+    basic = _parse_basic(h.get("authorization"))
+    cid = basic[0] if basic else form.get("client_id")
+    client = OAUTH_CLIENTS.get(cid or "")
+    def fail():
+        # RFC 6749 §5.2: invalid_client; 401 + a WWW-Authenticate header matching
+        # the attempted scheme when the client used the Authorization header
+        hdrs = {"WWW-Authenticate": 'Basic realm="oauth2"'} if basic else {}
+        return None, (401, hdrs, {"error": "invalid_client",
+                                  "error_description": "client authentication failed"})
+    if not client:
+        return fail()
+    if not OAUTH_CLIENT_AUTH:                  # MUTANT: accept any credentials
+        return cid, None
+    if client["auth_method"] == "client_secret_basic":
+        if not basic or basic[1] != client["secret"]:
+            return fail()
+    elif basic and basic[1]:                   # public client presenting a secret
+        return fail()
+    return cid, None
+
+def _oauth_issue(cid, scopes, refresh=None):
+    """Mint an access (+refresh) token. RFC 6749 §5.1 response fields; token
+    responses carry Cache-Control: no-store."""
+    at = "at_" + uuid.uuid4().hex
+    if refresh is None:
+        refresh = "rt_" + uuid.uuid4().hex
+        OAUTH_REFRESH[refresh] = {"client_id": cid, "scopes": scopes,
+                                  "revoked": False, "access_tokens": []}
+    OAUTH_REFRESH[refresh]["access_tokens"].append(at)
+    OAUTH_TOKENS[at] = {"client_id": cid, "scopes": scopes, "revoked": False,
+                        "expires": time.time() + OAUTH_TOKEN_TTL}
+    return 200, {"Cache-Control": "no-store", "Pragma": "no-cache"}, {
+        "access_token": at, "token_type": "Bearer", "expires_in": OAUTH_TOKEN_TTL,
+        "refresh_token": refresh, "scope": " ".join(scopes)}
+
+def oauth_token(form, headers, base):
+    """POST /oauth2/token (application/x-www-form-urlencoded) -> (status, headers,
+    payload). Enforces, per identity-linking.md For Businesses:
+      * client authentication per the advertised method -> invalid_client (IDL-024);
+      * 2026-04-08: PKCE at the token endpoint — a missing or non-verifying
+        code_verifier is rejected with invalid_grant (IDL-019/023/024/036/049);
+      * redirect_uri identical to the authorization request's, with the loopback
+        port exception (IDL-020/021) -> invalid_grant;
+      * single-use, unexpired, same-client authorization codes -> invalid_grant."""
+    cid, fail = _oauth_client_auth(form, headers)
+    if fail:
+        return fail
+    def bad(desc):
+        return 400, {}, {"error": "invalid_grant", "error_description": desc}
+    gt = form.get("grant_type")
+    if gt == "refresh_token":
+        rt = OAUTH_REFRESH.get(form.get("refresh_token") or "")
+        if not rt or rt["revoked"] or rt["client_id"] != cid:
+            return bad("refresh_token is unknown, revoked, or issued to another client")
+        return _oauth_issue(cid, rt["scopes"], refresh=form["refresh_token"])
+    if gt != "authorization_code":
+        return 400, {}, {"error": "unsupported_grant_type",
+                         "error_description": f"unsupported grant_type: {gt}"}
+    rec = OAUTH_CODES.get(form.get("code") or "")
+    if not rec or rec["used"] or rec["expires"] < time.time() \
+       or rec["client_id"] != cid:
+        return bad("authorization code is unknown, expired, already used, "
+                   "or issued to another client")
+    if OAUTH_EXACT_REDIRECT and \
+       not _redirect_matches(rec["redirect_uri"], form.get("redirect_uri") or ""):
+        return bad("redirect_uri does not exactly match the authorization request")
+    if VERSION == "2026-04-08" and OAUTH_ENFORCE_PKCE:
+        verifier = form.get("code_verifier")
+        if not verifier:
+            return bad("code_verifier is required (PKCE)")
+        if _b64url(hashlib.sha256(verifier.encode()).digest()) != rec["challenge"]:
+            return bad("code_verifier does not verify against the code_challenge")
+    rec["used"] = True
+    return _oauth_issue(cid, rec["scopes"])
+
+def oauth_revoke(form, headers, base):
+    """POST /oauth2/revoke (RFC 7009) -> (status, headers, payload). Authenticated
+    with the SAME client credentials as the token endpoint (IDL-028; IDL-012@01-era).
+    Revoking a refresh_token immediately invalidates every access_token issued from
+    it (IDL-027; IDL-011@01-era). Unknown/foreign tokens still yield 200 (RFC 7009
+    §2.2 — revocation is idempotent and non-revealing)."""
+    cid, fail = _oauth_client_auth(form, headers)
+    if fail:
+        return fail
+    tok = form.get("token")
+    if tok is None:
+        return 400, {}, {"error": "invalid_request",
+                         "error_description": "the token parameter is required"}
+    rt = OAUTH_REFRESH.get(tok)
+    if rt and rt["client_id"] == cid:
+        rt["revoked"] = True
+        for at in rt["access_tokens"]:
+            if at in OAUTH_TOKENS:
+                OAUTH_TOKENS[at]["revoked"] = True
+    at = OAUTH_TOKENS.get(tok)
+    if at and at["client_id"] == cid:
+        at["revoked"] = True
+    return 200, {}, {}
+
+def require_identity(headers, required_scopes, base):
+    """Bearer gate for user-authenticated operations (2026-04-08 identity-linking.md
+    Error Handling). Returns None when authorized, else (status, headers, payload):
+      * no token         -> 401, WWW-Authenticate: Bearer realm="<issuer>" (+
+        resource_metadata per RFC 9728), error param OMITTED (RFC 6750 §3.1),
+        body message code identity_required + a non-OAuth onboarding continue_url
+        (which MUST NOT be a pre-baked authorization request — IDL-044);
+      * invalid/revoked/expired token -> 401 + error="invalid_token" (IDL-042);
+      * valid token, missing scope    -> 403 + error="insufficient_scope" +
+        scope="<FULL required set>" (IDL-045/046/047).
+    realm always equals the issuer URI from the RFC 8414 metadata (IDL-041/052)."""
+    if not OAUTH_GATE:                         # MUTANT: a non-gating merchant
+        return None
+    h = {k.lower(): v for k, v in headers.items()}
+    def challenge(status, code, error=None, scope=None, desc=None):
+        p = [f'realm="{base}"']
+        if error and OAUTH_CHALLENGE_ERROR:    # MUTANT omits the error param
+            p.append(f'error="{error}"')
+            if desc:
+                p.append(f'error_description="{desc}"')
+        if scope:
+            p.append(f'scope="{scope}"')
+        p.append(f'resource_metadata="{base}/.well-known/oauth-protected-resource"')
+        body = {"messages": [{
+            "type": "error", "code": code,
+            "content": ("User identity is required to access this operation."
+                        if code == "identity_required" else
+                        "This operation requires scopes: " + ", ".join(required_scopes)),
+            "severity": "requires_buyer_review"}]}
+        if code == "identity_required":
+            # a hosted (non-OAuth) onboarding step — NEVER a pre-baked authz request
+            body["continue_url"] = base + "/account/onboarding"
+        return status, {"WWW-Authenticate": "Bearer " + ", ".join(p)}, body
+    authz = h.get("authorization") or ""
+    if not authz.startswith("Bearer "):
+        return challenge(401, "identity_required")
+    tok = OAUTH_TOKENS.get(authz[len("Bearer "):].strip())
+    if not tok or tok["revoked"] or tok["expires"] < time.time():
+        return challenge(401, "identity_required", error="invalid_token",
+                         desc="The access token is invalid, expired, or revoked")
+    missing = [s for s in required_scopes if s not in tok["scopes"]]
+    if missing:
+        return challenge(403, "insufficient_scope", error="insufficient_scope",
+                         scope=" ".join(required_scopes))
+    return None
+
+# The gated user-authenticated operations (2026-04-08 only — config.scopes is the
+# 04-08 capability shape). Scopes per order.md's well-known scope table (ORD-014):
+# order:read gates read access to the user's orders; the post-purchase cancel
+# probe requires BOTH order scopes, matching the spec's own insufficient_scope
+# example challenge (scope="dev.ucp.shopping.order:read dev.ucp.shopping.order:manage")
+# so the FULL-set rule (IDL-047) is genuinely exercised.
+ORDER_READ_SCOPES = ("dev.ucp.shopping.order:read",)
+ORDER_MANAGE_SCOPES = ("dev.ucp.shopping.order:read", "dev.ucp.shopping.order:manage")
+
+def list_orders(headers, base):
+    """GET /orders — the user's order history (identity-linking.md access levels:
+    'full order history' is user-authenticated). Gated by order:read."""
+    denied = require_identity(headers, ORDER_READ_SCOPES, base)
+    if denied:
+        return denied
+    return 200, {}, {"ucp": {"version": VERSION},
+                     "orders": [order_body(o) for o in ORDERS.values()]}
+
+def cancel_order(oid, headers, base):
+    """POST /orders/{id}/cancel — a post-purchase operation gated by order:manage
+    (+ order:read). The scope GATE is the conformance surface here; actual
+    cancellation effects are the ORDER area's adjustment hook territory."""
+    denied = require_identity(headers, ORDER_MANAGE_SCOPES, base)
+    if denied:
+        return denied
+    order = ORDERS.get(oid)
+    if not order:
+        return 404, {}, {"detail": f"order not found: {oid}"}
+    return 200, {}, order_body(order)
+# ==== end OAUTH area ============================================================
 
 # ---- discovery-area profile-serving policy (2026-04-08 overview.md Hosting) -----
 # Profile responses MUST carry Cache-Control with `public` and max-age >= 60 and
@@ -514,6 +835,11 @@ def profile(base):
                  "schema": "https://ucp.dev/schemas/common/identity_linking.json",
                  "config": {"scopes": IDENTITY_SCOPES}}],
         })
+    else:
+        # OAUTH area: 01-era identity-linking (identity-linking.md@2026-01-23/01-11
+        # is capability-plain — no config.scopes shape existed yet; the OAuth layer
+        # carries the 01-era scope vocabulary, see IDENTITY_SCOPES_01ERA)
+        capabilities["dev.ucp.common.identity_linking"] = cap
     out = {"version": VERSION,
            "services": {"dev.ucp.shopping": services},
            "capabilities": capabilities,
@@ -1302,10 +1628,22 @@ class _H(BaseHTTPRequestHandler):
             # DISC-003: profile responses carry the required Cache-Control policy
             return self._send(200, profile(self._base()),
                               {"Cache-Control": PROFILE_CACHE_CONTROL})
-        if path == "/.well-known/oauth-authorization-server" and VERSION == "2026-04-08":
-            # identity-linking (04-08 only, like the capability declaration):
-            # RFC 8414 authorization server metadata on the business domain
+        if path == "/.well-known/oauth-authorization-server":
+            # identity-linking: RFC 8414 authorization server metadata on the
+            # business domain (04-08 IDL-016; 01-era IDL-006 — every version)
             return self._send(200, oauth_authorization_server_metadata(self._base()))
+        if path == "/.well-known/oauth-protected-resource" and VERSION == "2026-04-08":
+            # RFC 9728 protected resource metadata (04-08 identity rework only)
+            return self._send(200, oauth_protected_resource_metadata(self._base()))
+        if path == "/oauth2/authorize":
+            # OAUTH area: authorization endpoint (auto-granting test AS)
+            q = dict(urllib.parse.parse_qsl(self.path.partition("?")[2]))
+            st, hdrs, payload = oauth_authorize(q, self._base())
+            return self._send(st, payload, hdrs)
+        if path == "/orders" and VERSION == "2026-04-08":
+            # OAUTH area: user order history, gated by dev.ucp.shopping.order:read
+            st, hdrs, payload = list_orders(dict(self.headers.items()), self._base())
+            return self._send(st, payload, hdrs)
         if path.startswith("/checkout-sessions/"):
             sid = path.split("/")[2]
             return self._send(*get_checkout(sid, self.headers))
@@ -1332,8 +1670,23 @@ class _H(BaseHTTPRequestHandler):
     def do_POST(self):
         if self._sig_rejected():
             return
-        body = self._body()
         path = self.path.rstrip("/")
+        if path in ("/oauth2/token", "/oauth2/revoke"):
+            # OAUTH area: token/revocation endpoints consume
+            # application/x-www-form-urlencoded (RFC 6749 §4.1.3 / RFC 7009 §2.1),
+            # NOT the JSON the rest of the fixture speaks — handled before _body()
+            form = dict(urllib.parse.parse_qsl(
+                self._raw().decode("utf-8", "replace")))
+            fn = oauth_token if path == "/oauth2/token" else oauth_revoke
+            st, hdrs, payload = fn(form, dict(self.headers.items()), self._base())
+            return self._send(st, payload, hdrs)
+        if VERSION == "2026-04-08" and path.startswith("/orders/") \
+           and path.endswith("/cancel") and path.count("/") == 3:
+            # OAUTH area: post-purchase op gated by the order scopes
+            st, hdrs, payload = cancel_order(path.split("/")[2],
+                                             dict(self.headers.items()), self._base())
+            return self._send(st, payload, hdrs)
+        body = self._body()
         if body is None and path != "/checkout-sessions" \
            and not (path.startswith("/checkout-sessions/") and path.endswith(("/complete", "/cancel"))):
             return self._send(400, {"error_code": "invalid_request"})
@@ -1393,6 +1746,17 @@ def main():
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--no-verify-signatures", action="store_true",
                     help="MUTANT: skip RFC 9421 request verification (SIG-002 kill-proof)")
+    # OAUTH area mutants (validate_oauth_checks.py kill-proof gate ONLY)
+    ap.add_argument("--oauth-no-pkce", action="store_true",
+                    help="MUTANT: skip PKCE requirement/verification")
+    ap.add_argument("--oauth-no-gate", action="store_true",
+                    help="MUTANT: serve gated operations without identity")
+    ap.add_argument("--oauth-lax-redirect", action="store_true",
+                    help="MUTANT: skip redirect_uri exact matching at the token endpoint")
+    ap.add_argument("--oauth-no-client-auth", action="store_true",
+                    help="MUTANT: skip client authentication at token/revocation")
+    ap.add_argument("--oauth-challenge-no-error", action="store_true",
+                    help="MUTANT: omit the error param from Bearer challenges")
     ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
                     help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
@@ -1400,6 +1764,18 @@ def main():
     if args.no_verify_signatures:
         global VERIFY_SIGNATURES
         VERIFY_SIGNATURES = False
+    global OAUTH_ENFORCE_PKCE, OAUTH_GATE, OAUTH_EXACT_REDIRECT, \
+        OAUTH_CLIENT_AUTH, OAUTH_CHALLENGE_ERROR
+    if args.oauth_no_pkce:
+        OAUTH_ENFORCE_PKCE = False
+    if args.oauth_no_gate:
+        OAUTH_GATE = False
+    if args.oauth_lax_redirect:
+        OAUTH_EXACT_REDIRECT = False
+    if args.oauth_no_client_auth:
+        OAUTH_CLIENT_AUTH = False
+    if args.oauth_challenge_no_error:
+        OAUTH_CHALLENGE_ERROR = False
     srv = ThreadingHTTPServer((args.host, args.port), _H)
     print(f"controlled merchant on http://{args.host}:{args.port} "
           f"(checkout/order/discount lifecycle"
