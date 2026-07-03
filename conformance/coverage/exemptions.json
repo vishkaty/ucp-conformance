@@ -1,1 +1,138 @@
-{}
+{
+  "CART-017": {
+    "class": "client-bound",
+    "reason": "Binds the platform's Update Cart PUT body (full replacement, cart.md L176): the business cannot distinguish a deliberately-partial cart from a genuinely-small full cart, so no merchant-side observation can prove the platform sent the entire resource."
+  },
+  "CAT-008": {
+    "class": "client-bound",
+    "reason": "Prohibits a client-side ASSUMPTION (search.md L75): what a platform assumes about response size vs requested limit is internal reasoning state that appears in no protocol message in either direction."
+  },
+  "CAT-034": {
+    "class": "client-bound",
+    "reason": "Binds the client's get_product `selected` input (lookup.md '#### Input', L156); the spec places no rejection duty on the merchant, so a merchant check would be fake coverage — same subject-binding as CAT-008 (see the register note from the 2026-07-02 reclassification)."
+  },
+  "CAT-036": {
+    "class": "client-bound",
+    "reason": "Binds the PROVENANCE of platform-supplied signal values (catalog/index.md L87): a buyer-asserted value and a platform-measured value are byte-identical on the wire, so no protocol message can establish where a signal value came from."
+  },
+  "CAT-038": {
+    "class": "client-bound",
+    "reason": "Binds platform rendering of disclosure-presentation catalog warnings (index.md L168): hiding or dismissing a notice happens in the platform's UI after the protocol exchange ends, leaving no wire trace the suite could observe."
+  },
+  "CHK-011": {
+    "class": "real-world-act",
+    "reason": "[2026-04-08 row; at 2026-01-11/2026-01-23 this id is an unrelated SHOULD (cancelable sessions), which the matrix never buckets.] The confirmation email (checkout.md L531) is dispatched on a channel the protocol does not define; no checkout response field evidences it, and a conformance run has no principled inbox oracle — non-receipt is indistinguishable from spam-filtering or asynchronous delay."
+  },
+  "CHK-055": {
+    "class": "client-bound",
+    "reason": "Prohibits the platform from AUTONOMOUSLY completing a checkout with mismatched totals (checkout.md L811): the business only ever sees a complete request, which carries no evidence of whether the platform verified totals or escalated for buyer review first."
+  },
+  "DISC-009": {
+    "class": "spec-authoring",
+    "reason": "Binds authors of capability transport-definition documents (OpenAPI/OpenRPC, overview.md Requirements L191-192) — the namespace authority publishing the capability, a party distinct from the business or platform under test; no runtime message reflects how those documents were authored."
+  },
+  "DISC-010": {
+    "class": "spec-authoring",
+    "reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business."
+  },
+  "DISC-011": {
+    "class": "client-bound",
+    "reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side — wire traffic from a resolving and a non-resolving client can be byte-identical."
+  },
+  "ERR-011": {
+    "class": "client-bound",
+    "reason": "The MUST is a platform display duty (message_warning.json content: 'message that MUST be displayed'); rendering content to a human buyer happens in the platform UI, outside every message the suite can elicit from the business under test."
+  },
+  "ERR-012": {
+    "class": "client-bound",
+    "reason": "The presentation field's rendering contract (message_warning.json L37-41: display, proximity, no auto-dismiss) binds the platform's UI; no protocol message reflects how a warning was actually rendered."
+  },
+  "ERR-013": {
+    "class": "client-bound",
+    "reason": "Platform display duty from the Warning Presentation contract table (checkout.md L337, 'Display content: MUST / MUST'); whether content reached the buyer is a UI fact with no protocol-observable counterpart."
+  },
+  "ERR-014": {
+    "class": "client-bound",
+    "reason": "Platform display duty for disclosure warnings (checkout.md L358); the rendering happens in the platform UI, and the business — the only party the suite can probe — never observes it."
+  },
+  "ERR-015": {
+    "class": "client-bound",
+    "reason": "Proximity-to-path (checkout.md L359-362) is a UI LAYOUT obligation on the platform: the spatial association between a disclosure and its path-referenced component exists only in the rendered interface, never in a protocol message."
+  },
+  "ERR-016": {
+    "class": "client-bound",
+    "reason": "Prohibits platform UI actions (hide/collapse/auto-dismiss, checkout.md L363); these occur after the protocol exchange ends and leave no trace observable from the business side."
+  },
+  "ERR-017": {
+    "class": "client-bound",
+    "reason": "Platform rendering duty for image_url (checkout.md L364-365); whether the image was actually rendered next to the warning is a UI fact invisible to the business under test."
+  },
+  "ERR-018": {
+    "class": "client-bound",
+    "reason": "Binds platforms whose UI cannot honor the disclosure contract (checkout.md L371-373): both the 'cannot honor' capability judgment and the escalate-vs-silently-downgrade choice are platform-internal; the business merely serves continue_url either way."
+  },
+  "ERR-021": {
+    "class": "client-bound",
+    "reason": "Platform display duty for notice warnings (checkout.md L346-348); rendering in a banner, tray, or toast is UI behavior on the platform side, outside the protocol surface a merchant conformance run can observe."
+  },
+  "ERR-022": {
+    "class": "subjective-judgment",
+    "reason": "The business-side trigger (checkout.md L377-379) — warning content that 'must be displayed alongside a specific component and must not be hidden' (safety, allergen, compliance material) — is a judgment about the content's regulatory character, not a mechanical property of the payload; no predicate can decide which warnings OUGHT to carry presentation: disclosure."
+  },
+  "FUL-010": {
+    "class": "subjective-judgment",
+    "reason": "Whether a title lets a human buyer tell one option from its siblings (fulfillment.md Business Responsibilities) is a comprehension judgment: string uniqueness neither proves it (trivially-differing strings do not distinguish) nor is literally required by it."
+  },
+  "FUL-012": {
+    "class": "subjective-judgment",
+    "reason": "'Sufficient for buyer decision if description is absent' is a human-adequacy judgment about label content; no mechanical predicate separates sufficient titles from insufficient ones."
+  },
+  "FUL-013": {
+    "class": "subjective-judgment",
+    "reason": "'Repeat' covers paraphrase, not just string equality: deciding whether a description merely restates title/total versus supplying supplementary context is linguistic judgment beyond any exact-match test."
+  },
+  "FUL-018": {
+    "class": "subjective-judgment",
+    "reason": "Whether a description is 'a standalone sentence explaining what, when, and where' is a natural-language completeness judgment (does it actually explain all three?) that a parser cannot arbitrate."
+  },
+  "FUL-029": {
+    "class": "spec-authoring",
+    "reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test."
+  },
+  "NEG-007": {
+    "class": "client-bound",
+    "reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant."
+  },
+  "NEG-008": {
+    "class": "client-bound",
+    "reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas."
+  },
+  "PAY-006": {
+    "class": "spec-authoring",
+    "reason": "[2026-01-11/2026-01-23 rows; at 2026-04-08 this id is an unrelated MAY (available_instruments optionality), which the matrix never buckets — the 04-08 twin of this requirement is PAY-025.] Binds authors of payment-handler credential schemas (payment-handler-guide.md): whether a token schema includes 'expiry, ttl, or similar' is a design requirement on a third-party specification document, with an open-ended naming clause ('or similar', 'or mechanism to refresh') that no fixed predicate can arbitrate without false-flagging conforming handlers."
+  },
+  "PAY-013": {
+    "class": "client-bound",
+    "reason": "[2026-01-11/2026-01-23 rows; at 2026-04-08 this id is an unrelated SHOULD NOT (intermediary touching raw credentials), which the matrix never buckets — the 04-08 twin of this requirement is PAY-022.] Prohibits a USAGE by the credential sender — the platform submitting raw PANs at checkout (card_credential.json description). The spec places no rejection duty on the receiving business (the official sample suite itself accepts a raw card credential at checkout with 200), so no merchant response can prove or refute the prohibition."
+  },
+  "TOT-001": {
+    "class": "client-bound",
+    "reason": "Platform rendering-order duty (checkout.md L770): the order in which totals lines are painted exists only in the platform UI; the business cannot observe how its authoritative ordering was displayed."
+  },
+  "TOT-002": {
+    "class": "client-bound",
+    "reason": "Prohibits platform DISPLAY logic (interpret/filter/reorder/aggregate, checkout.md L787-788); display-side processing happens after the response is received and leaves no trace in any message the business sees."
+  },
+  "TOT-007": {
+    "class": "client-bound",
+    "reason": "Prohibits substituting platform-computed totals in the RENDERED output (checkout.md L802-803): what the platform displays to the buyer is not observable from the business side of the protocol."
+  },
+  "TOT-010": {
+    "class": "client-bound",
+    "reason": "Binds the platform's autonomous-completion decision (checkout.md L811, same prohibition as CHK-055): the business cannot tell a totals-verified complete request from an unverified one — the payloads are identical."
+  },
+  "TOT-012": {
+    "class": "client-bound",
+    "reason": "Platform display duty (checkout.md L827): using display_text verbatim instead of a default label is a rendering choice made in the platform UI, invisible to the business under test."
+  }
+}

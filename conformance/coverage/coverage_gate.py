@@ -36,7 +36,18 @@ import matrix  # noqa: E402
 PUBLIC_JSON = os.path.join(ROOT, "public", "coverage.json")
 RATCHET = os.path.join(HERE, "ratchet.json")
 EXEMPT_CLASSES = {"real-world-act", "human-perception", "subjective-judgment",
-                  "out-of-band-legal"}
+                  "out-of-band-legal",
+                  # client-bound: the MUST binds the platform/agent (request author or
+                  # renderer), not the business under test — no message the suite can
+                  # elicit from the party under test can prove or refute it, and
+                  # platforms are autonomous agent surfaces the suite cannot drive.
+                  # (Precedent: CAT-008/CAT-034 register reclassifications.)
+                  "client-bound",
+                  # spec-authoring: the MUST binds authors of ecosystem specification
+                  # documents (capability transport definitions, extension schemas,
+                  # payment-handler specs) — a party distinct from any implementation
+                  # under test; conformance is established by document review.
+                  "spec-authoring"}
 
 def main():
     failures = []
