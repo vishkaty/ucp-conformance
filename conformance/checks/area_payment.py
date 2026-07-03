@@ -75,7 +75,11 @@ CHECKS = [
           # generic break mutations. NOTE: the injected value is the exact token
           # the platform submitted, so a leak of it anywhere in the body deviates.
           ["set:leaked_credential=" + json.dumps(_SUBMITTED_TOKEN),
-           "status:500", "drop:status", "corrupt-json", "empty"]),
+           "status:500", "drop:status", "corrupt-json", "empty"],
+          # PAY-009@2026-04-08 names a DIFFERENT requirement (available_instruments
+          # authority); the 04-08 no-echo rule is PAY-011, covered by
+          # merchant_checks.payment.no_credential_echo via req_ids_map.
+          versions=("2026-01-11", "2026-01-23")),
 ]
 
 # ---- SKIPPED (not clean-pass + kill-safe against this server) ---------------

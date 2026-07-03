@@ -406,9 +406,10 @@ def get_checkout(sid, headers=None):
     return 200, checkout_body(sess)
 
 def update_checkout(sid, body, headers=None):
-    """PUT /checkout-sessions/{id}. Enforces: top-level id required on update
-    (CHK-016), line_items required (CHK-018), stock revalidation -> 400 (VAL-002),
-    completed/canceled sessions immutable."""
+    """PUT /checkout-sessions/{id}. Enforces: line_items required (CHK-018/CHK-038),
+    stock revalidation -> 400 (VAL-002), completed/canceled sessions immutable.
+    Top-level id: REQUIRED on 01-era updates (CHK-016); at 2026-04-08 it is
+    ucp_request:OMIT (CHK-035) — tolerated only if it matches the path id."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
         return _err(400, "UCP-Agent header is required")
@@ -417,9 +418,9 @@ def update_checkout(sid, body, headers=None):
         return _err(404, f"checkout session not found: {sid}")
     if body is None or not isinstance(body, dict):
         return _err(400, "request body must be a JSON object")
-    if not body.get("id"):
+    if VERSION != "2026-04-08" and not body.get("id"):
         return _err(400, "top-level id is required on update requests")
-    if body["id"] != sid:
+    if body.get("id") and body["id"] != sid:
         return _err(400, f"body id {body['id']} does not match path id {sid}")
     if sess["status"] in ("completed", "canceled"):
         return _err(409, f"checkout session is {sess['status']} and cannot be updated")

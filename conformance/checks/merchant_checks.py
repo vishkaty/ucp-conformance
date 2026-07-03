@@ -24,7 +24,8 @@ STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
 
 class MCheck:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 capability=None, needs=(), cfg_needs=(), transport=None, versions=None):
+                 capability=None, needs=(), cfg_needs=(), transport=None, versions=None,
+                 req_ids_map=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         self.capability, self.needs = capability, tuple(needs)
@@ -37,6 +38,17 @@ class MCheck:
         # versions=("2026-01-23",) -> run ONLY against servers of those spec versions
         # (for register ids whose meaning differs across versions); None = any version.
         self.versions = tuple(versions) if versions else None
+        # req_ids_map={"2026-04-08": ["CHK-018"]} -> at those spec versions the SAME
+        # behavior is registered under DIFFERENT ids (the 04-08 registers renumbered);
+        # [] means the check verifies nothing normative at that version. Used for
+        # grading (run_merchant_checks) AND coverage attribution (matrix.py).
+        self.req_ids_map = dict(req_ids_map) if req_ids_map else None
+
+def _rids(chk, version):
+    """The register ids this check verifies AT this spec version."""
+    if chk.req_ids_map and version in chk.req_ids_map:
+        return list(chk.req_ids_map[version])
+    return list(chk.req_ids)
 
 def _cfg_has(config, dotted):
     """Truthy test for a config key that may be dotted, e.g. 'discount.second_valid_code'."""
@@ -128,13 +140,17 @@ def p_checkout_fields(r):
                         for k in ("ucp", "id", "line_items", "currency", "status")) else DEVIATION
 
 def update_resp(ctx):
-    """CHK-003: update a session via PUT -> 200 with a valid checkout back."""
+    """CHK-003 / CHK-020@04-08: update a session via PUT -> 200 with a valid checkout.
+    Top-level id is REQUIRED on 01-era update requests (CHK-016) but ucp_request:OMIT
+    at 2026-04-08 (CHK-035) — send the spec-correct shape for the server's version."""
     c = (create_resp(ctx).json or {})
     cid = c.get("id"); li = (c.get("line_items") or [{}])[0]
-    body = {"id": cid, "currency": c.get("currency", "USD"),
+    body = {"currency": c.get("currency", "USD"),
             "line_items": [{"id": li.get("id"),
                             "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 3}],
             "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])}}
+    if ctx.version != "2026-04-08":
+        body["id"] = cid
     return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
 
 def p_update_ok(r):
@@ -832,27 +848,34 @@ CHECKS = [
     MCheck("discovery.rest_endpoint", ["DISC-007"], "MUST", profile_resp, p_rest_endpoint,
            ["drop:services", "set:services={}", "corrupt-json"], transport="rest"),
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
-           ["drop:capabilities", "set:capabilities={}", "corrupt-json"]),
+           ["drop:capabilities", "set:capabilities={}", "corrupt-json"],
+           req_ids_map={"2026-04-08": []}),
     MCheck("discovery.profile_schema", ["DISC-000"], "MUST", profile_resp, p_profile_schema,
            ["drop:version", "set:capabilities=[]", "set:services=[]", "corrupt-json"]),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-018"]}),
     MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
            ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-019"]}),
     MCheck("checkout.response_fields", ["CHK-014"], "MUST", create_resp, p_checkout_fields,
            ["status:500", "drop:ucp", "drop:line_items", "drop:currency", "empty", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-034"]}),
     MCheck("checkout.update", ["CHK-003"], "MUST", update_resp, p_update_ok,
            ["status:500", "drop:id", "drop:status", "empty", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-020"]}),
     MCheck("checkout.update_requires_id", ["CHK-016"], "MUST", chk_missing_id_resp, p_4xx,
            ["status:200", "status:201", "status:204"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           versions=("2026-01-11", "2026-01-23")),
     MCheck("checkout.create_requires_line_items", ["CHK-018"], "MUST", chk_missing_line_items_resp, p_4xx,
            ["status:200", "status:201"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-038"]}),
     MCheck("negotiation.compatible_version_processed", ["NEG-015"], "MUST", neg_compatible_version_resp, p_create_ok,
            ["status:400", "status:500", "drop:id", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
@@ -861,7 +884,8 @@ CHECKS = [
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
     MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
            ["status:200", "status:201"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-046"]}),
     MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", transport="rest"),
@@ -888,28 +912,34 @@ CHECKS = [
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
     MCheck("checkout.cancel", ["CHK-005"], "MUST", cancel_resp, p_canceled,
            ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-022"]}),
     # --- data-dependent (config-gated) — merchant supplies the concrete inputs ---
     MCheck("checkout.complete_order", ["CHK-004", "CHK-008"], "MUST", complete_resp, p_completed,
            ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",), transport="rest"),
+           cfg_needs=("complete_payment",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-021", "CHK-025"]}),
     MCheck("payment.no_credential_echo", ["PAY-009"], "MUST NOT", complete_resp, p_no_echo,
            ["set:order.leak=$CRED", "set:status=\"incomplete\"", "drop:status"],
-           needs=("product",), cfg_needs=("complete_payment",), transport="rest"),
+           needs=("product",), cfg_needs=("complete_payment",), transport="rest",
+           req_ids_map={"2026-04-08": ["PAY-011"]}),
     MCheck("checkout.completed_immutable", ["CHK-012"], "MUST", completed_immutable_resp,
            p_rejected_4xx, ["status:200", "status:201"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",), transport="rest"),
+           cfg_needs=("complete_payment",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-017"]}),
     MCheck("order.entity_shape", ["ORD-001", "ORD-002"], "MUST", order_get_resp, p_order_shape,
            ["status:404", "drop:ucp", "drop:checkout_id", "drop:permalink_url", "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",), transport="rest"),
+           cfg_needs=("complete_payment",), transport="rest",
+           req_ids_map={"2026-04-08": ["ORD-001"]}),
     MCheck("order.line_item_shape", ["ORD-004"], "MUST", order_get_resp, p_order_line_items,
            ["status:404", "set:line_items=[]", "drop:line_items.0.status",
             "drop:line_items.0.totals", "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",), transport="rest"),
+           cfg_needs=("complete_payment",), transport="rest",
+           req_ids_map={"2026-04-08": ["ORD-005"]}),
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
            ["status:200", "status:201"], needs=("product",),
            cfg_needs=("fail_payment",), transport="rest"),
@@ -925,24 +955,28 @@ CHECKS = [
             "drop:discounts.applied.0.code", "set:totals=[]",
             "set:discounts={\"applied\":[]}", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-006"]}),
     MCheck("discount.applied_fields", ["DSC-012"], "MUST", disc_single_resp, p_disc_applied_fields,
            ["status:500", "drop:discounts.applied.0.title", "drop:discounts.applied.0.amount",
             "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-023"]}),
     MCheck("discount.multiple_accept_both", ["DSC-005"], "MUST", disc_multiple_resp, p_disc_multiple,
            ["status:500", "drop:discounts", "drop:discounts.applied",
             "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount.second_valid_code",), transport="rest"),
+           cfg_needs=("discount.second_valid_code",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-029"]}),
     MCheck("discount.accept_one_reject_one", ["DSC-006", "DSC-007"], "MUST", disc_reject_resp,
            p_disc_reject_one,
            ["status:500", "drop:discounts", "drop:discounts.applied", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DVALID,$DINVALID],\"applied\":[{\"code\":$DVALID},{\"code\":$DINVALID}]}",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-030"]}),
     # --- catalog (capability-gated; product from config/auto-discovery) ---
     MCheck("catalog.search_shape", ["CAT-012"], "MUST", catalog_search_resp, p_catalog_search,
            ["status:500", "drop:products", "set:products=\"x\"",
@@ -1072,13 +1106,15 @@ CHECKS = [
     MCheck("discount.empty_clears", ["DSC-002"], "MUST", disc_empty_clears_resp, p_disc_cleared,
            ["status:500", "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount",), transport="rest",
+           req_ids_map={"2026-04-08": ["DSC-004"]}),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest"),
+           cfg_needs=("discount",), transport="rest",
+           req_ids_map={"2026-04-08": []}),
 ]
 
 # ---- runner: capability-gated, config-gated, kill-rate-validated -------------
@@ -1132,41 +1168,42 @@ def run_merchant_checks(ctx, checks=None):
         checks = all_checks()
     results, detail = [], []
     for chk in checks:
+        rids = _rids(chk, ctx.version)   # register ids AT this server's spec version
         if chk.versions and ctx.version not in chk.versions:
             # this register id means something else (or nothing) at this server's
             # spec version — out of scope, never graded
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": f"not-applicable (spec {ctx.version} out of scope)",
                                   "kill_safe": None})); continue
         if chk.transport and not getattr(ctx, f"has_{chk.transport}", True):
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable
             detail.append((chk, {"status": f"not-applicable (no {chk.transport.upper()} transport)",
                                   "kill_safe": None})); continue
         if chk.capability and chk.capability not in ctx.capabilities:
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))  # not-applicable
             detail.append((chk, {"status": "not-applicable", "kill_safe": None})); continue
         if "product" in chk.needs and not ctx.product_id:
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": "not-tested (no product)", "kill_safe": None})); continue
         missing = [k for k in chk.cfg_needs if not _cfg_has(ctx.config, k)]
         if missing:
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": f"not-tested (needs config: {','.join(missing)})",
                                   "kill_safe": None})); continue
         try:
             golden = chk.fetch_fn(ctx)
         except Exception as e:
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, INCONCLUSIVE))
             detail.append((chk, {"status": f"error:{e}", "kill_safe": False})); continue
         clean = _pred(chk, golden, ctx)
         if clean == INCONCLUSIVE:            # e.g. schema oracle unavailable -> honest skip
-            for rid in chk.req_ids:
+            for rid in rids:
                 results.append(CheckResult(rid, chk.keyword, "not-tested"))
             detail.append((chk, {"status": "not-tested (oracle unavailable)",
                                   "kill_safe": None})); continue
@@ -1174,7 +1211,7 @@ def run_merchant_checks(ctx, checks=None):
         survivors = [m for m in muts if _pred(chk, mutate(golden, m), ctx) != DEVIATION]
         kill_safe = (clean == CLEAN and not survivors)
         status = clean if kill_safe else (clean if clean == DEVIATION else INCONCLUSIVE)
-        for rid in chk.req_ids:
+        for rid in rids:
             results.append(CheckResult(rid, chk.keyword, status, kill_safe))
         detail.append((chk, {"status": clean,
                              "kills": f"{len(chk.mutations)-len(survivors)}/{len(chk.mutations)}",

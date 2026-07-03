@@ -66,31 +66,76 @@ def check_files():
            glob.glob(os.path.join(CONF, "selfcheck", "*.py"))
 
 
+_VERSION_TOKENS = (("04_08", "2026-04-08"), ("04-08", "2026-04-08"),
+                   ("01_23", "2026-01-23"), ("01_11", "2026-01-11"))
+
+
+def _file_targets(path):
+    """Version scope from the FILE name: any embedded version tokens, else all."""
+    name = os.path.basename(path).lower()
+    targets = [v for tok, v in _VERSION_TOKENS if tok in name]
+    return sorted(set(targets)) or list(VERSIONS)
+
+
+def _module_checks(path):
+    """Import a conformance/checks module and return its CHECKS list, or None if the
+    module has none / cannot be imported (caller falls back to the text scan)."""
+    if os.path.basename(os.path.dirname(path)) != "checks":
+        return None, None
+    import importlib
+    for d in (os.path.join(CONF, "checks"), os.path.join(CONF, "selfcheck")):
+        if d not in sys.path:
+            sys.path.insert(0, d)
+    stem = os.path.splitext(os.path.basename(path))[0]
+    try:
+        mod = importlib.import_module(stem)
+        return getattr(mod, "CHECKS", None), mod
+    except Exception as e:
+        print(f"(matrix: {stem} not importable — text-scan fallback: {e})", file=sys.stderr)
+        return None, None
+
+
 def coverage_map():
     """Return {version: {req_id: sorted[check file basenames]}} referenced by shipped
-    checks, attributed per the rules above (the traceability layer of the matrix)."""
+    checks — the traceability layer of the matrix.
+
+    PRIMARY source: runtime INTROSPECTION of each conformance/checks module's CHECKS
+    list. Per check object, the citation scope is:
+      chk.versions  (explicit per-check scope)          — else —
+      module VERSIONS marker (whole file is version-scoped) — else —
+      file-name version tokens (schema_check_04_08.py etc.) — else all versions;
+    and the ids AT a version are chk.req_ids_map[version] when present (the 2026-04-08
+    registers renumbered many CHK/DSC/ORD ids onto DIFFERENT requirements), else
+    chk.req_ids. FALLBACK (module not importable / no CHECKS / selfcheck files): the
+    conservative text scan of Check(/MCheck(/fixture_check( citations + file tokens.
+    Either way an id only attributes where it is a real register row."""
     cov = {v: defaultdict(set) for v in VERSIONS}
     # gather row ids per version so we only attribute real rows
     all_ids = {v: {r.get("id") for r in load_rows(v)} for v in VERSIONS}
     for path in check_files():
-        name = os.path.basename(path).lower()
+        base = os.path.basename(path)
+        file_targets = _file_targets(path)
+        checks, mod = _module_checks(path)
+        if checks:
+            mod_versions = getattr(mod, "VERSIONS", None)
+            for chk in checks:
+                scope = getattr(chk, "versions", None) or mod_versions or file_targets
+                vmap = getattr(chk, "req_ids_map", None) or {}
+                for v in scope:
+                    if v not in file_targets:
+                        continue          # a file token still bounds the scope
+                    for i in vmap.get(v, list(getattr(chk, "req_ids", []) or [])):
+                        if i in all_ids[v]:
+                            cov[v][i].add(base)
+            continue
         txt = open(path).read()
         ids = set()
         for grp in REQIDS_RE.findall(txt):
             ids |= set(ID_RE.findall(grp))
-        if not ids:
-            continue
-        # A file may carry SEVERAL version tokens (e.g. tls_check_01_11_01_23.py for a
-        # requirement verbatim-identical in both older registers); collect them all.
-        # No token at all -> version-adaptive (merchant_checks, area_*, selfcheck).
-        targets = [v for tok, v in (("04_08", "2026-04-08"), ("04-08", "2026-04-08"),
-                                    ("01_23", "2026-01-23"), ("01_11", "2026-01-11"))
-                   if tok in name]
-        targets = sorted(set(targets)) or VERSIONS
-        for v in targets:
+        for v in file_targets:
             for i in ids:
                 if i in all_ids[v]:
-                    cov[v][i].add(os.path.basename(path))
+                    cov[v][i].add(base)
     return {v: {i: sorted(fs) for i, fs in m.items()} for v, m in cov.items()}
 
 

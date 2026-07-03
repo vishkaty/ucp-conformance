@@ -45,8 +45,10 @@ def checkout_artifacts():
     if not ok:
         raise RuntimeError(created)
     sid = created["id"]
-    ok, updated = _expect(200, server.update_checkout(
-        sid, {"id": sid, "line_items": li[:1]}, HDRS), "update")
+    upd = {"line_items": li[:1]}                 # 04-08: id is ucp_request:omit (CHK-035)
+    if server.VERSION != "2026-04-08":
+        upd["id"] = sid                          # 01-era: id required on update (CHK-016)
+    ok, updated = _expect(200, server.update_checkout(sid, upd, HDRS), "update")
     if not ok:
         raise RuntimeError(updated)
     ok, got = _expect(200, server.get_checkout(sid, HDRS), "get")

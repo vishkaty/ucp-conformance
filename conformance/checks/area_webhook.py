@@ -14,6 +14,11 @@ from engine import Check, Resp, fetch, CLEAN, DEVIATION   # noqa: E402
 from webhook_harness import WebhookHarness, SIM_SECRET     # noqa: E402
 import v2026_01_23 as core                                 # noqa: E402
 
+# Citation scope: these checks encode the 2026-01-11/2026-01-23 registers' semantics
+# (the 2026-04-08 registers renumbered these ids onto DIFFERENT requirements — see
+# coverage/matrix.py introspection, which reads this marker for attribution).
+VERSIONS = ("2026-01-11", "2026-01-23")
+
 def _hdr(profile, **extra):
     return {"UCP-Agent": f'profile="{profile}"', "request-signature": "test",
             "idempotency-key": str(uuid.uuid4()), "request-id": str(uuid.uuid4()), **extra}

@@ -120,7 +120,9 @@ CHECKS = [
     Check("negotiation.reverse_domain_names", ["DISC-001"], "MUST",
           core._discovery, chk_reverse_domain_names,
           ["status:500", "drop:services", "set:services={}",
-           "drop:capabilities", "set:capabilities={}", "corrupt-json"]),
+           "drop:capabilities", "set:capabilities={}", "corrupt-json"],
+          # DISC-001@2026-04-08 names a DIFFERENT requirement (profile over HTTPS)
+          versions=("2026-01-11", "2026-01-23")),
     Check("negotiation.version_unsupported_400", ["NEG-016"], "MUST",
           f_incompatible_version, chk_version_unsupported_400,
           ["status:200", "status:201"]),

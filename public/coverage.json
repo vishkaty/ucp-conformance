@@ -3992,15 +3992,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 75,
+   "check": 74,
    "exempt": 0,
-   "gap": 247,
+   "gap": 248,
    "accounted_pct": 23,
    "gap_by_testability": {
     "manual": 41,
-    "needs-oauth": 47,
-    "needs-receiver": 58,
-    "testable": 101
+    "needs-oauth": 48,
+    "needs-receiver": 64,
+    "testable": 95
    },
    "areas": [
     {
@@ -4021,27 +4021,26 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 8,
-     "gap": 25,
+     "check": 11,
+     "gap": 22,
      "gap_manual": 4,
-     "gap_needs-receiver": 9,
-     "gap_testable": 12,
+     "gap_needs-receiver": 14,
+     "gap_testable": 4,
      "musts": 33
     },
     {
      "area": "discounts-consent",
-     "check": 12,
-     "gap": 17,
+     "check": 11,
+     "gap": 18,
      "gap_manual": 1,
      "gap_needs-receiver": 5,
-     "gap_testable": 11,
+     "gap_testable": 12,
      "musts": 29
     },
     {
      "area": "discovery-and-profile",
-     "check": 1,
-     "gap": 5,
-     "gap_testable": 5,
+     "gap": 6,
+     "gap_testable": 6,
      "musts": 6
     },
     {
@@ -4068,10 +4067,11 @@
     },
     {
      "area": "order",
-     "check": 6,
-     "gap": 19,
+     "check": 4,
+     "gap": 21,
+     "gap_needs-oauth": 1,
      "gap_needs-receiver": 8,
-     "gap_testable": 11,
+     "gap_testable": 12,
      "musts": 25
     },
     {
@@ -4079,8 +4079,8 @@
      "check": 2,
      "gap": 25,
      "gap_manual": 5,
-     "gap_needs-receiver": 5,
-     "gap_testable": 15,
+     "gap_needs-receiver": 6,
+     "gap_testable": 14,
      "musts": 27
     },
     {
@@ -4644,36 +4644,30 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "continue_url MUST be provided when status is requires_escalation (Availability section)",
      "source": "ucp:docs/specification/checkout.md#L461",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-004",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "continue_url MUST be an absolute HTTPS URL",
      "source": "ucp:docs/specification/checkout.md#L469",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-008",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L524",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-011",
@@ -4690,24 +4684,20 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "Logic handling the checkout sessions MUST be deterministic",
      "source": "ucp:docs/specification/checkout.md#L533",
-     "covered_by": [
-      "area_lifecycle2.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-014",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "Business MUST provide continue_url when returning status = requires_escalation (Business guideline restatement)",
      "source": "ucp:docs/specification/checkout.md#L534",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-015",
@@ -4724,10 +4714,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "After a checkout session reaches state completed it is considered immutable",
      "source": "ucp:docs/specification/checkout.md#L540",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-018",
@@ -4746,40 +4738,48 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L49",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-020",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L50",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-021",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
      "source": "ucp:docs/specification/checkout-rest.md#L51",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-022",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
      "source": "ucp:docs/specification/checkout-rest.md#L52",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-023",
@@ -4806,10 +4806,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Complete Checkout response is the checkout object with the order field populated",
      "source": "ucp:docs/specification/checkout.md#L595",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-033",
@@ -4832,7 +4834,8 @@
      "requirement": "Checkout response MUST include required top-level fields: ucp, id, line_items, status, currency, totals, links",
      "source": "ucp:source/schemas/shopping/checkout.json#L8",
      "covered_by": [
-      "area_04_08_checkout.py"
+      "area_04_08_checkout.py",
+      "merchant_checks.py"
      ]
     },
     {
@@ -4870,10 +4873,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "line_items is required on create and update requests and omitted on complete requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L34",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-039",
@@ -4920,10 +4925,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/checkout-rest.md#L1237",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "CHK-048",
@@ -4990,13 +4997,10 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "requirement": "Business profile MUST be served over HTTPS.",
      "source": "ucp:docs/specification/overview.md#L1053",
-     "covered_by": [
-      "area_negotiation.py",
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DISC-002",
@@ -5067,7 +5071,6 @@
      "requirement": "Sending an empty array codes:[] removes all discount codes",
      "source": "ucp:docs/specification/discount.md#L134",
      "covered_by": [
-      "area_discount.py",
       "merchant_checks.py"
      ]
     },
@@ -5076,13 +5079,10 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "requirement": "Discount codes are matched case-insensitively by the business",
      "source": "ucp:docs/specification/discount.md#L135",
-     "covered_by": [
-      "area_discount.py",
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DSC-006",
@@ -5093,7 +5093,6 @@
      "requirement": "discounts.applied contains all active discounts (code-based + automatic)",
      "source": "ucp:docs/specification/discount.md#L139",
      "covered_by": [
-      "area_discount.py",
       "merchant_checks.py"
      ]
     },
@@ -5102,13 +5101,10 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "requirement": "Rejected codes are communicated via the messages[] array",
      "source": "ucp:docs/specification/discount.md#L140",
-     "covered_by": [
-      "area_discount.py",
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DSC-008",
@@ -5135,12 +5131,10 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "requirement": "Automatic discounts appear in discounts.applied with automatic:true and no code field",
      "source": "ucp:docs/specification/discount.md#L189",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DSC-013",
@@ -5253,7 +5247,8 @@
      "requirement": "applied_discount MUST include title and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L29",
      "covered_by": [
-      "area_04_08_discount.py"
+      "area_04_08_discount.py",
+      "merchant_checks.py"
      ]
     },
     {
@@ -5317,20 +5312,24 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Multiple valid discount codes are both applied (accept-both)",
      "source": "ucp:docs/specification/discount.md#L139",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "DSC-030",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When multiple codes are submitted and one is invalid, only the valid discount is applied (accept-one-reject-one); rejected appears in messages[] not applied",
      "source": "ucp:docs/specification/discount.md#L490",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "DSC-032",
@@ -6374,7 +6373,6 @@
      "requirement": "Businesses MUST return the full order entity (current-state snapshot) on every response, not deltas",
      "source": "ucp:docs/specification/order.md#L290",
      "covered_by": [
-      "area_order.py",
       "merchant_checks.py"
      ]
     },
@@ -6383,13 +6381,10 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "requirement": "Line items MUST include all line items that ever existed on the order regardless of edits or alterations",
      "source": "ucp:docs/specification/order.md#L34",
-     "covered_by": [
-      "area_order.py",
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "ORD-003",
@@ -6400,8 +6395,7 @@
      "requirement": "order.currency is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
      "covered_by": [
-      "area_04_08_order.py",
-      "area_order.py"
+      "area_04_08_order.py"
      ]
     },
     {
@@ -6413,9 +6407,7 @@
      "requirement": "line_items is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
      "covered_by": [
-      "area_04_08_order.py",
-      "area_order.py",
-      "merchant_checks.py"
+      "area_04_08_order.py"
      ]
     },
     {
@@ -6428,7 +6420,7 @@
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L6",
      "covered_by": [
       "area_04_08_order.py",
-      "area_order.py"
+      "merchant_checks.py"
      ]
     },
     {
@@ -6476,12 +6468,10 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "check",
+     "status": "gap",
      "requirement": "The business MUST authenticate requests to order data before returning a response (API key, OAuth 2.0, mutual TLS, or HTTP Message Signatures)",
      "source": "ucp:docs/specification/order.md#L313",
-     "covered_by": [
-      "area_webhook.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "ORD-015",
@@ -6710,13 +6700,10 @@
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "The available_instruments returned in the response_schema is authoritative; platforms MUST treat it as authoritative and MUST NOT use instrument types or constraints that contradict it",
      "source": "ucp:docs/specification/payment-handler-guide.md#L303",
-     "covered_by": [
-      "area_payment.py",
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "PAY-010",
@@ -6733,10 +6720,12 @@
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Credentials flow Platform -> Business only; businesses MUST NOT echo credentials back in responses",
      "source": "ucp:docs/specification/overview.md#L1151",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ]
     },
     {
      "id": "PAY-012",

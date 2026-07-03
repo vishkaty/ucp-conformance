@@ -128,9 +128,18 @@ def mutate(resp, mut):
 
 # ---- check spec -------------------------------------------------------------
 class Check:
-    def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations):
+    def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
+                 versions=None, req_ids_map=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
+        # versions: spec versions this check's CITATIONS apply to (None = every
+        # version where the id is a MUST). req_ids_map: {version: [ids]} overriding
+        # req_ids at versions whose register renumbered the same requirement (the
+        # 2026-04-08 registers reuse many CHK/DSC/ORD ids for DIFFERENT requirements).
+        # Both are read by coverage/matrix.py introspection — the single source of
+        # truth for per-version traceability.
+        self.versions = tuple(versions) if versions else None
+        self.req_ids_map = dict(req_ids_map) if req_ids_map else None
 
 def run_check(chk, base):
     """Returns (results: list[CheckResult], detail: dict). kill_safe is computed by

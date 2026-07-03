@@ -25,6 +25,11 @@ import v2026_01_23 as core       # noqa: E402
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "selfcheck"))
 from verdict_gate import CLEAN, DEVIATION  # noqa: E402
 
+# Citation scope: these checks encode the 2026-01-11/2026-01-23 registers' semantics
+# (the 2026-04-08 registers renumbered these ids onto DIFFERENT requirements — see
+# coverage/matrix.py introspection, which reads this marker for attribution).
+VERSIONS = ("2026-01-11", "2026-01-23")
+
 ORDER_REQUIRED = ("ucp", "id", "checkout_id", "permalink_url",
                   "line_items", "fulfillment", "totals")
 LINE_ITEM_REQUIRED = ("id", "item", "quantity", "totals", "status")
