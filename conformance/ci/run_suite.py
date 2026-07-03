@@ -84,6 +84,12 @@ def gates(server):
                              "--config", str(ROOT / "conformance" / "ci" / "differential_flower.config.json")),
          "golden", (2,)),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
+        # --- isolation safety net + agent-conformance lane (separate tree; can't move
+        #     merchant numbers). merchant-stability fails if agent work drifts merchant output.
+        ("merchant-stability", _py(ROOT / "conformance" / "ci" / "merchant_stability.py",
+                                   "--server", CONTROLLED),                     "controlled", (2,)),
+        ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py",
+                            "--server", CONTROLLED),                            "controlled", ()),
     ]
 
 def server_up(server, timeout=3):
