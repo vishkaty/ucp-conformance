@@ -4022,24 +4022,23 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 107,
+   "check": 119,
    "exempt": 27,
-   "gap": 188,
-   "accounted_pct": 42,
+   "gap": 176,
+   "accounted_pct": 45,
    "gap_by_testability": {
     "manual": 16,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 60
+    "testable": 48
    },
    "areas": [
     {
      "area": "cart",
-     "check": 4,
+     "check": 7,
      "exempt": 1,
-     "gap": 9,
+     "gap": 6,
      "gap_needs-receiver": 6,
-     "gap_testable": 3,
      "musts": 14
     },
     {
@@ -4052,12 +4051,11 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 11,
+     "check": 15,
      "exempt": 2,
-     "gap": 20,
+     "gap": 16,
      "gap_manual": 2,
      "gap_needs-receiver": 14,
-     "gap_testable": 4,
      "musts": 33
     },
     {
@@ -4133,10 +4131,8 @@
     },
     {
      "area": "totals",
-     "check": 4,
+     "check": 9,
      "exempt": 5,
-     "gap": 5,
-     "gap_testable": 5,
      "musts": 14
     },
     {
@@ -4203,30 +4199,36 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All cart REST request and response bodies MUST be valid JSON as specified in RFC 8259",
      "source": "ucp:docs/specification/cart-rest.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CART-023",
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All cart REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
      "source": "ucp:docs/specification/cart-rest.md#L79",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CART-024",
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All cart requests MUST include the UCP-Agent header containing the platform profile URI",
      "source": "ucp:docs/specification/cart-rest.md#L468",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CART-026",
@@ -4883,10 +4885,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Top-level checkout id is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L23",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CHK-036",
@@ -4925,10 +4929,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "payment is optional on create and update, and required on complete requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L118",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CHK-043",
@@ -4945,20 +4951,24 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST request and response bodies MUST be valid JSON per RFC 8259",
      "source": "ucp:docs/specification/checkout-rest.md#L36",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CHK-045",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
      "source": "ucp:docs/specification/checkout-rest.md#L41",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "CHK-046",
@@ -7498,10 +7508,12 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Unknown (non-well-known) totals types MUST include display_text",
      "source": "ucp:docs/specification/checkout.md#L793",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "TOT-005",
@@ -7592,40 +7604,48 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Sum of a parent entry lines[] amounts MUST equal the parent entry amount",
      "source": "ucp:docs/specification/checkout.md#L848",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "TOT-019",
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each sub-line entry requires both display_text and amount",
      "source": "ucp:source/schemas/shopping/types/totals.json#L19",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "TOT-020",
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each top-level totals entry requires both type and amount",
      "source": "ucp:source/schemas/shopping/types/total.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     },
     {
      "id": "TOT-021",
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Price requires a non-negative integer amount and an ISO 4217 currency code",
      "source": "ucp:source/schemas/shopping/types/price.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_lifecycle.py"
+     ]
     }
    ]
   }
