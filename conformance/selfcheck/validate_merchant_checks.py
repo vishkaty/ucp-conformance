@@ -74,6 +74,11 @@ CONTROLLED_CONFIG = {
     # the removed-line-item scenario (ORD-002/007/009).
     "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
+    # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
+    # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
+    "payment": {"handler_key": "dev.spck.tokenpay",
+                "handler_id": "spck_tokenpay",
+                "escalation_payment": _pay("escalate_token", "9999")},
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
