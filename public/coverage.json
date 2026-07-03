@@ -9,14 +9,14 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 64,
+   "check": 67,
    "exempt": 24,
-   "gap": 84,
-   "accounted_pct": 51,
+   "gap": 81,
+   "accounted_pct": 53,
    "gap_by_testability": {
-    "manual": 10,
+    "manual": 12,
     "needs-oauth": 1,
-    "needs-receiver": 35,
+    "needs-receiver": 30,
     "testable": 38
    },
    "areas": [
@@ -68,9 +68,10 @@
     },
     {
      "area": "order",
-     "check": 8,
-     "gap": 10,
-     "gap_needs-receiver": 7,
+     "check": 11,
+     "gap": 7,
+     "gap_manual": 2,
+     "gap_needs-receiver": 2,
      "gap_testable": 3,
      "musts": 18
     },
@@ -1420,30 +1421,36 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity",
      "source": "ucp:docs/specification/order.md#L296",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-015",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST sign all webhook payloads using a key from their signing_keys array (published in /.well-known/ucp), and the signature MUST be included in the Request-Signature header as a detached JWT (RFC 7797)",
      "source": "ucp:docs/specification/order.md#L335",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-016",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST retry failed webhook deliveries",
      "source": "ucp:docs/specification/order.md#L340",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-017",
@@ -1459,7 +1466,7 @@
      "id": "ORD-018",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
@@ -1469,7 +1476,7 @@
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
@@ -1976,14 +1983,14 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 77,
+   "check": 80,
    "exempt": 25,
-   "gap": 79,
-   "accounted_pct": 56,
+   "gap": 76,
+   "accounted_pct": 58,
    "gap_by_testability": {
-    "manual": 11,
+    "manual": 13,
     "needs-oauth": 1,
-    "needs-receiver": 35,
+    "needs-receiver": 30,
     "testable": 32
    },
    "areas": [
@@ -2035,9 +2042,10 @@
     },
     {
      "area": "order",
-     "check": 8,
-     "gap": 10,
-     "gap_needs-receiver": 7,
+     "check": 11,
+     "gap": 7,
+     "gap_manual": 2,
+     "gap_needs-receiver": 2,
      "gap_testable": 3,
      "musts": 18
     },
@@ -3490,30 +3498,36 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity",
      "source": "ucp:docs/specification/order.md#L296",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-015",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST sign all webhook payloads using a key from their signing_keys array (published in /.well-known/ucp), and the signature MUST be included in the Request-Signature header as a detached JWT (RFC 7797)",
      "source": "ucp:docs/specification/order.md#L335",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-016",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST retry failed webhook deliveries",
      "source": "ucp:docs/specification/order.md#L340",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_events.py"
+     ]
     },
     {
      "id": "ORD-017",
@@ -3529,7 +3543,7 @@
      "id": "ORD-018",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
@@ -3539,7 +3553,7 @@
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
@@ -4073,14 +4087,14 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 185,
+   "check": 204,
    "exempt": 34,
-   "gap": 103,
-   "accounted_pct": 68,
+   "gap": 84,
+   "accounted_pct": 74,
    "gap_by_testability": {
-    "manual": 32,
+    "manual": 34,
     "needs-oauth": 1,
-    "needs-receiver": 70
+    "needs-receiver": 49
    },
    "areas": [
     {
@@ -4148,11 +4162,10 @@
     },
     {
      "area": "order",
-     "check": 14,
-     "gap": 11,
-     "gap_manual": 2,
+     "check": 20,
+     "gap": 5,
+     "gap_manual": 4,
      "gap_needs-oauth": 1,
-     "gap_needs-receiver": 8,
      "musts": 25
     },
     {
@@ -4172,9 +4185,9 @@
     },
     {
      "area": "signatures",
-     "check": 10,
-     "gap": 21,
-     "gap_needs-receiver": 21,
+     "check": 23,
+     "gap": 8,
+     "gap_needs-receiver": 8,
      "musts": 31
     },
     {
@@ -6807,66 +6820,78 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Webhook payloads MUST be signed by the business and verified by the platform",
      "source": "ucp:docs/specification/order.md#L459",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-027",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST sign all webhook payloads per Message Signatures using RFC 9421 headers (Signature, Signature-Input, Content-Digest)",
      "source": "ucp:docs/specification/order.md#L537",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-028",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST include the UCP-Agent header with profile URL for signer identification on webhooks",
      "source": "ucp:docs/specification/order.md#L536",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-029",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST send the 'Order created' event with a fully populated order entity",
      "source": "ucp:docs/specification/order.md#L540",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-030",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST send the full order entity on updates (not incremental deltas)",
      "source": "ucp:docs/specification/order.md#L541",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-031",
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST retry failed webhook deliveries",
      "source": "ucp:docs/specification/order.md#L542",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "ORD-032",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST respond quickly with a 2xx HTTP status code to acknowledge webhook receipt",
      "source": "ucp:docs/specification/order.md#L531",
@@ -6876,7 +6901,7 @@
      "id": "ORD-033",
      "area": "order",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "After verifying the signature, the platform MUST confirm the signer is authorized to send events for the referenced order (profile matches order's business; reject otherwise)",
      "source": "ucp:docs/specification/order.md#L512",
@@ -7462,20 +7487,24 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST request signed components MUST include @method, @authority, and @path (all Required).",
      "source": "ucp:docs/specification/signatures.md#L193",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-015",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST request signed components MUST include content-digest and content-type when the request has a body.",
      "source": "ucp:docs/specification/signatures.md#L199",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-016",
@@ -7492,10 +7521,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "@query MUST be a signed component if the request has query parameters.",
      "source": "ucp:docs/specification/signatures.md#L196",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-018",
@@ -7536,10 +7567,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST response signed components MUST include content-digest and content-type if the response has a body.",
      "source": "ucp:docs/specification/signatures.md#L292",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-022",
@@ -7576,60 +7609,72 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On duplicate idempotency key, return cached response and do not re-execute.",
      "source": "ucp:docs/specification/signatures.md#L485",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-027",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Webhook notifications MUST be signed.",
      "source": "ucp:docs/specification/signatures.md#L499",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-031",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "signature_missing maps to HTTP 401 (required signature header/field not present).",
      "source": "ucp:docs/specification/signatures.md#L551",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-032",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "signature_invalid maps to HTTP 401 (signature verification failed).",
      "source": "ucp:docs/specification/signatures.md#L552",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-033",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "key_not_found maps to HTTP 401 (key ID not found in signer's signing_keys).",
      "source": "ucp:docs/specification/signatures.md#L553",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-034",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "digest_mismatch maps to HTTP 400 (body digest doesn't match Content-Digest header).",
      "source": "ucp:docs/specification/signatures.md#L554",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-035",
@@ -7646,30 +7691,36 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Verification must reconstruct the signature base and reject with signature_invalid if ECDSA verification fails.",
      "source": "ucp:docs/specification/signatures.md#L404",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-037",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Verification must return key_not_found when the kid is not present in the signer's signing_keys.",
      "source": "ucp:docs/specification/signatures.md#L387",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-038",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Verification must return digest_mismatch when Content-Digest does not match the recomputed sha-256 of the body bytes.",
      "source": "ucp:docs/specification/signatures.md#L393",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "TOT-001",

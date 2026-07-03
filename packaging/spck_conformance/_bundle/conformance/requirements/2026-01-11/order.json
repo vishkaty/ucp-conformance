@@ -320,11 +320,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform Guidelines (docs L328-331). 'Process events asynchronously after responding' (L331). The mock webhook server in webhook_test.py returns 2xx, but the test asserts event receipt/content, not the platform's 2xx/async obligation per se, so official_oracle=false. Receiver-dependent."
+      "notes": "Platform Guidelines (docs L328-331). 'Process events asynchronously after responding' (L331). The mock webhook server in webhook_test.py returns 2xx, but the test asserts event receipt/content, not the platform's 2xx/async obligation per se, so official_oracle=false. Receiver-dependent. Reclassified 2026-07-03 (webhook/events area): the MUST binds the PLATFORM (order.md Guidelines 'Platform:' block) — the webhook RECEIVER's acknowledgement behavior, not the business under test. Candidate for a documented client/platform-side exemption in Phase 4."
     },
     {
       "id": "ORD-019",
@@ -338,11 +338,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verification (Platform) steps, docs L307-314. The signer key is selected by 'kid' from the business's signing_keys published at /.well-known/ucp; rejecting on signature mismatch is the anti-spoof control. Receiver-dependent; not asserted by webhook_test.py."
+      "notes": "Verification (Platform) steps, docs L307-314. The signer key is selected by 'kid' from the business's signing_keys published at /.well-known/ucp; rejecting on signature mismatch is the anti-spoof control. Receiver-dependent; not asserted by webhook_test.py. Reclassified 2026-07-03 (webhook/events area): the quoted step is the PLATFORM's verification procedure (order.md 'Verification (Platform)' step 6: the receiver rejects a bad webhook) — receiver-side conduct, not a business obligation observable on the merchant under test. Candidate for a documented client/platform-side exemption in Phase 4."
     }
   ],
   "notes": [
