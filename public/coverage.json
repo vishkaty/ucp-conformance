@@ -4022,15 +4022,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 86,
+   "check": 96,
    "exempt": 27,
-   "gap": 209,
-   "accounted_pct": 35,
+   "gap": 199,
+   "accounted_pct": 38,
    "gap_by_testability": {
-    "manual": 14,
+    "manual": 16,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 83
+    "testable": 71
    },
    "areas": [
     {
@@ -4100,11 +4100,11 @@
     },
     {
      "area": "order",
-     "check": 4,
-     "gap": 21,
+     "check": 14,
+     "gap": 11,
+     "gap_manual": 2,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 8,
-     "gap_testable": 12,
      "musts": 25
     },
     {
@@ -6460,10 +6460,12 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line items MUST include all line items that ever existed on the order regardless of edits or alterations",
      "source": "ucp:docs/specification/order.md#L34",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-003",
@@ -6507,40 +6509,48 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line item quantity requires total and fulfilled (non-negative integers)",
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L24",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-007",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Adjustment quantities and amounts are signed \u2014 negative for reductions (returns, refunds), positive for additions (exchanges)",
      "source": "ucp:docs/specification/order.md#L107",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-008",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each adjustment requires id, type, occurred_at, and status",
      "source": "ucp:source/schemas/shopping/types/adjustment.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-009",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Adjustment totals are signed \u2014 negative for money returned to buyer (refunds, credits), positive for additional charges (exchanges)",
      "source": "ucp:source/schemas/shopping/types/adjustment.json#L59",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-012",
@@ -6556,7 +6566,7 @@
      "id": "ORD-015",
      "area": "order",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST include the UCP-Agent header with profile URL on all order requests",
      "source": "ucp:docs/specification/order.md#L395",
@@ -6567,56 +6577,66 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each expectation requires id, line_items, method_type, and destination",
      "source": "ucp:source/schemas/shopping/types/expectation.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each fulfillment event requires id, occurred_at, type, and line_items",
      "source": "ucp:source/schemas/shopping/types/fulfillment_event.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-020",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Order confirmation requires id and permalink_url",
      "source": "ucp:source/schemas/shopping/types/order_confirmation.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-021",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST response bodies MUST be valid JSON (RFC 8259)",
      "source": "ucp:docs/specification/order-rest.md#L66",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-022",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
      "source": "ucp:docs/specification/order-rest.md#L71",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-023",
      "area": "order",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST check the messages array in responses before accessing order data",
      "source": "ucp:docs/specification/order-rest.md#L253",
