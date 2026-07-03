@@ -55,15 +55,15 @@ configurable product).
 |---|---|---|---|---|
 | 2026-01-11 | 172 | 58 | 0 | 114 (38 / 45 / 31) |
 | 2026-01-23 | 181 | 71 | 0 | 110 (32 / 45 / 33) |
-| 2026-04-08 | 322 | 75 | 0 | 247 (101 / 105 / 41) |
+| 2026-04-08 | 322 | 86 | 0 | 236 (83 / 112 / 41) |
 
 (Live numbers: [spck.dev/coverage](https://spck.dev/coverage) — this table is a
 snapshot; the page and `public/coverage.json` are the enforced source of truth.)
 
 Largest 04-08 gap areas: identity-linking 55 (47 need OAuth), signatures 31,
-error-envelope 25, discounts 18 testable, payment/checkout/order ~15 testable each.
-**Catalog is fully accounted for the testable tier** (27/32 CHECK; the 5 remaining
-are manual/client-bound — Phase-4 exemption candidates).
+error-envelope 25, payment/checkout/order ~15 testable each.
+**Catalog and discounts-consent are fully accounted for the testable tier**
+(27/32 and 23/29 CHECK; the remainder is manual/client-bound/needs-receiver).
 
 ## Phases (each ends by raising the ratchet + a matrix milestone)
 
@@ -72,7 +72,11 @@ The controlled fixture already serves 04-08 with catalog/cart/checkout/order/dis
 so most of these need only check implementation, not new infrastructure:
 ~~catalog (24)~~ **DONE 2026-07-02** (fixture gained get_product + cursor pagination +
 dedup/batch-cap/input-validation; 11 new MChecks + schema_check_04_08.py request-side
-checks; CAT-034 reclassified client-bound) · discounts (18) · signatures-testable (16)
+checks; CAT-034 reclassified client-bound) · ~~discounts (18)~~ **DONE 2026-07-02**
+(merchant_checks_04_08.py version-locked behavioral checks + strict-subtree/resolver-
+level schema checks; preceded by the per-version CITATION RECONCILIATION — req_ids_map
++ matrix introspection — after finding the 04-08 registers renumbered CHK/DSC/ORD/PAY
+ids) · signatures-testable (16)
 · payment (15) · checkout (14) · error-envelope (12; 04-08 error schemas are leaf
 schemas the oracle resolves as-is — unlike the 01-23 root-schema blocker) · order (11)
 · identity-testable (8) · totals (6) · cart (5) · discovery (5) · version-negotiation (4)
