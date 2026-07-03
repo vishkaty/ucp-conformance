@@ -4022,15 +4022,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 149,
+   "check": 159,
    "exempt": 27,
-   "gap": 146,
-   "accounted_pct": 55,
+   "gap": 136,
+   "accounted_pct": 58,
    "gap_by_testability": {
     "manual": 17,
     "needs-oauth": 48,
-    "needs-receiver": 64,
-    "testable": 17
+    "needs-receiver": 70,
+    "testable": 1
    },
    "areas": [
     {
@@ -4123,9 +4123,9 @@
     },
     {
      "area": "signatures",
-     "gap": 31,
-     "gap_needs-receiver": 15,
-     "gap_testable": 16,
+     "check": 10,
+     "gap": 21,
+     "gap_needs-receiver": 21,
      "musts": 31
     },
     {
@@ -7238,50 +7238,60 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "UCP signs and verifies HTTP messages using RFC 9421 HTTP Message Signatures across all HTTP-based transports.",
      "source": "ucp:docs/specification/signatures.md#L42",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-002",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All implementations MUST support verifying P-256 (ES256) signatures.",
      "source": "ucp:docs/specification/signatures.md#L90",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-006",
      "area": "signatures",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The algorithm is derived from the key's crv field in the JWK; alg is NOT included in Signature-Input parameters.",
      "source": "ucp:docs/specification/signatures.md#L97",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-007",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Public keys MUST be represented using JSON Web Key (JWK) format as defined in RFC 7517.",
      "source": "ucp:docs/specification/signatures.md#L102",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-008",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Public keys are published in the signing_keys array of the party's UCP profile at /.well-known/ucp.",
      "source": "ucp:docs/specification/signatures.md#L135",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-009",
@@ -7298,10 +7308,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Content-Digest follows RFC 9530 and hashes the raw body bytes; implementations MUST use sha-256.",
      "source": "ucp:docs/specification/signatures.md#L176",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-011",
@@ -7318,26 +7330,30 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Content-Digest header is required when a request/response has a body.",
      "source": "ucp:docs/specification/signatures.md#L172",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-013",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Signature-Input and Signature headers are required on requests and responses.",
      "source": "ucp:docs/specification/signatures.md#L170",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-014",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "REST request signed components MUST include @method, @authority, and @path (all Required).",
      "source": "ucp:docs/specification/signatures.md#L193",
@@ -7347,7 +7363,7 @@
      "id": "SIG-015",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "REST request signed components MUST include content-digest and content-type when the request has a body.",
      "source": "ucp:docs/specification/signatures.md#L199",
@@ -7357,7 +7373,7 @@
      "id": "SIG-016",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "idempotency-key MUST be a signed component for POST, PUT, DELETE, PATCH requests.",
      "source": "ucp:docs/specification/signatures.md#L198",
@@ -7367,7 +7383,7 @@
      "id": "SIG-017",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "@query MUST be a signed component if the request has query parameters.",
      "source": "ucp:docs/specification/signatures.md#L196",
@@ -7377,7 +7393,7 @@
      "id": "SIG-018",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "ucp-agent MUST be a signed component if the UCP-Agent header is present.",
      "source": "ucp:docs/specification/signatures.md#L197",
@@ -7388,20 +7404,24 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "ECDSA signatures MUST use fixed-width raw r||s encoding per RFC 9421, not ASN.1/DER (64 bytes P-256, 96 bytes P-384).",
      "source": "ucp:docs/specification/signatures.md#L252",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-020",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST response signed components use @status instead of @method (Required).",
      "source": "ucp:docs/specification/signatures.md#L285",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-021",
@@ -7417,7 +7437,7 @@
      "id": "SIG-022",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "needs-receiver",
      "status": "gap",
      "requirement": "Idempotency-Key must have minimum 128 bits of entropy (e.g., UUID v4, 22+ char alphanumeric).",
      "source": "ucp:docs/specification/signatures.md#L482",
