@@ -69,6 +69,21 @@ CONTROLLED_CONFIG = {
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
     "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
+    # RFC 9421 signatures (2026-04-08 signatures.md; SIGNATURES area checks):
+    #   responses: the fixture signs every JSON response (ES256, @status +
+    #     content-digest + content-type) with the key it publishes in the profile's
+    #     signing_keys[].
+    #   request_private_jwk: TEST private key (committed on purpose) whose public
+    #     part the fixture bakes into TRUSTED_PLATFORM_KEYS — supplying it asserts
+    #     the merchant under test verifies ES256-signed requests (SIG-002).
+    "signature": {
+        "responses": True,
+        "request_private_jwk": {
+            "kid": "spck-platform-sig-2026", "kty": "EC", "crv": "P-256",
+            "x": "fdOWNX6FUcEYKQntKv0Pb0wpcIEV6HrDZK4Ud9oF_rY",
+            "y": "-Ie-pMb2OxUqg4GR_B6wObhra9-fRe5YWzWAAv7dNKk",
+            "d": "EymkNYgazGbLoD16l-fw7K-C9WNJEIv4hn_RpRgW5xY"},
+    },
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}

@@ -14,7 +14,7 @@ here is anchored to the official validator, not to our own checks (no circularit
 Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
-import json, argparse, uuid, threading, base64
+import json, argparse, uuid, threading, base64, hashlib, hmac, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # The spec version this fixture serves. Switchable (--spec-version / set_version) so the
@@ -130,6 +130,274 @@ def merchant_authorization():
                                 separators=(",", ":")).encode())
     return header + ".." + _b64url(b"fixture-detached-signature")
 
+# ==== SIGNATURES area (2026-04-08, signatures.md) ==============================
+# RFC 9421 HTTP Message Signatures: the fixture SIGNS its responses (@status +
+# content-digest + content-type, ES256, raw r||s) and VERIFIES any request that
+# carries a Signature-Input header (spec verify_rest_request: key_not_found /
+# digest_mismatch / signature_invalid). Pure stdlib P-256 ECDSA — the signer is
+# cross-anchored against openssl in selfcheck.py (both directions), so its
+# correctness does not rest on our own code alone. TEST KEYS ONLY: the private
+# scalars below are committed on purpose (this is a conformance golden, not a
+# production service).
+_EC_P  = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
+_EC_A  = _EC_P - 3
+_EC_B  = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+_EC_N  = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+_EC_G  = (0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296,
+          0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5)
+
+def _ec_add(p1, p2):
+    if p1 is None: return p2
+    if p2 is None: return p1
+    x1, y1 = p1; x2, y2 = p2
+    if x1 == x2 and (y1 + y2) % _EC_P == 0:
+        return None
+    if p1 == p2:
+        lam = (3 * x1 * x1 + _EC_A) * pow(2 * y1, -1, _EC_P) % _EC_P
+    else:
+        lam = (y2 - y1) * pow(x2 - x1, -1, _EC_P) % _EC_P
+    x3 = (lam * lam - x1 - x2) % _EC_P
+    return (x3, (lam * (x1 - x3) - y1) % _EC_P)
+
+def _ec_mul(k, pt):
+    acc = None
+    while k:
+        if k & 1:
+            acc = _ec_add(acc, pt)
+        pt = _ec_add(pt, pt)
+        k >>= 1
+    return acc
+
+def ec_on_curve(pt):
+    if pt is None: return False
+    x, y = pt
+    return (y * y - (x * x * x + _EC_A * x + _EC_B)) % _EC_P == 0
+
+def _rfc6979_k(d, h1):
+    """Deterministic ECDSA nonce (RFC 6979, SHA-256, qlen == hlen == 256)."""
+    x = d.to_bytes(32, "big")
+    V, K = b"\x01" * 32, b"\x00" * 32
+    K = hmac.new(K, V + b"\x00" + x + h1, hashlib.sha256).digest()
+    V = hmac.new(K, V, hashlib.sha256).digest()
+    K = hmac.new(K, V + b"\x01" + x + h1, hashlib.sha256).digest()
+    V = hmac.new(K, V, hashlib.sha256).digest()
+    while True:
+        V = hmac.new(K, V, hashlib.sha256).digest()
+        k = int.from_bytes(V, "big")
+        if 1 <= k < _EC_N:
+            return k
+        K = hmac.new(K, V + b"\x00", hashlib.sha256).digest()
+        V = hmac.new(K, V, hashlib.sha256).digest()
+
+def ecdsa_p256_sign(msg, d):
+    """ECDSA P-256/SHA-256 over msg bytes -> 64-byte fixed-width raw r||s
+    (RFC 9421 signature encoding — NOT ASN.1/DER)."""
+    h1 = hashlib.sha256(msg).digest()
+    z = int.from_bytes(h1, "big")
+    while True:
+        k = _rfc6979_k(d, h1)
+        x1, _ = _ec_mul(k, _EC_G)
+        r = x1 % _EC_N
+        if r:
+            s = pow(k, -1, _EC_N) * (z + r * d) % _EC_N
+            if s:
+                return r.to_bytes(32, "big") + s.to_bytes(32, "big")
+        h1 = hashlib.sha256(h1).digest()
+
+def ecdsa_p256_verify(msg, sig, Q):
+    """Verify a 64-byte raw r||s ECDSA P-256/SHA-256 signature against point Q."""
+    if not isinstance(sig, (bytes, bytearray)) or len(sig) != 64 or not ec_on_curve(Q):
+        return False
+    r = int.from_bytes(sig[:32], "big"); s = int.from_bytes(sig[32:], "big")
+    if not (1 <= r < _EC_N and 1 <= s < _EC_N):
+        return False
+    z = int.from_bytes(hashlib.sha256(msg).digest(), "big")
+    w = pow(s, -1, _EC_N)
+    pt = _ec_add(_ec_mul(z * w % _EC_N, _EC_G), _ec_mul(r * w % _EC_N, Q))
+    return pt is not None and pt[0] % _EC_N == r
+
+def _keypair(seed):
+    d = (int.from_bytes(hashlib.sha256(seed).digest(), "big") % (_EC_N - 1)) + 1
+    return d, _ec_mul(d, _EC_G)
+
+# The fixture's own (merchant) response-signing key, derived deterministically.
+SIG_KID = "spck-merchant-sig-2026"
+_SIG_D, _SIG_Q = _keypair(b"spck-fixture-merchant-signing-key-2026")
+
+def signing_jwk():
+    """The fixture's PUBLIC signing key as an RFC 7517 JWK (profile signing_keys[])."""
+    return {"kid": SIG_KID, "kty": "EC", "crv": "P-256",
+            "x": _b64url(_SIG_Q[0].to_bytes(32, "big")),
+            "y": _b64url(_SIG_Q[1].to_bytes(32, "big")),
+            "use": "sig", "alg": "ES256"}
+
+# Trusted PLATFORM test key (public part only) for request verification. The
+# matching private JWK lives in CONTROLLED_CONFIG (validate_merchant_checks.py)
+# so the SIG-002 check can sign requests this fixture will verify.
+TRUSTED_PLATFORM_KEYS = {
+    "spck-platform-sig-2026":
+        (int.from_bytes(base64.urlsafe_b64decode("fdOWNX6FUcEYKQntKv0Pb0wpcIEV6HrDZK4Ud9oF_rY="), "big"),
+         int.from_bytes(base64.urlsafe_b64decode("-Ie-pMb2OxUqg4GR_B6wObhra9-fRe5YWzWAAv7dNKk="), "big")),
+}
+
+def content_digest(body_bytes):
+    """RFC 9530 Content-Digest over the raw body bytes, sha-256 (signatures.md)."""
+    return "sha-256=:" + base64.b64encode(hashlib.sha256(body_bytes).digest()).decode() + ":"
+
+def _sf_split(s, seps):
+    """Split a structured-field string on top-level separator chars, respecting
+    quoted strings and inner lists (enough RFC 8941 for signature headers)."""
+    out, cur, depth, quote, i = [], [], 0, False, 0
+    while i < len(s):
+        c = s[i]
+        if quote:
+            cur.append(c)
+            if c == "\\" and i + 1 < len(s):
+                cur.append(s[i + 1]); i += 1
+            elif c == '"':
+                quote = False
+        elif c == '"':
+            quote = True; cur.append(c)
+        elif c == "(":
+            depth += 1; cur.append(c)
+        elif c == ")":
+            depth -= 1; cur.append(c)
+        elif c in seps and depth == 0:
+            out.append("".join(cur).strip()); cur = []
+        else:
+            cur.append(c)
+        i += 1
+    tail = "".join(cur).strip()
+    if tail:
+        out.append(tail)
+    return out
+
+def parse_signature_input(value):
+    """Parse a Signature-Input header -> {label: {raw, components, params}}.
+    `raw` is the member value VERBATIM (what "@signature-params" must echo);
+    `components` are the unquoted component identifiers; `params` maps parameter
+    names to their raw values (quoted strings unquoted). None on malformed input."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    out = {}
+    for member in _sf_split(value, ","):
+        label, eq, val = member.partition("=")
+        label, val = label.strip(), val.strip()
+        if not eq or not label or not val.startswith("("):
+            return None
+        depth, j = 0, 0
+        for j, c in enumerate(val):
+            if c == "(":
+                depth += 1
+            elif c == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+        inner, rest = val[1:j], val[j + 1:]
+        comps = []
+        for tok in _sf_split(inner, " "):
+            if not (tok.startswith('"') and tok.endswith('"')) or ";" in tok:
+                return None            # component parameters are not supported here
+            comps.append(tok[1:-1])
+        params = {}
+        for p in _sf_split(rest, ";"):
+            if not p:
+                continue
+            k, _, v = p.partition("=")
+            if v.startswith('"') and v.endswith('"'):
+                v = v[1:-1]
+            params[k.strip()] = v
+        out[label] = {"raw": val, "components": comps, "params": params}
+    return out or None
+
+def parse_signature(value):
+    """Parse a Signature header -> {label: raw signature bytes}; None on malformed."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    out = {}
+    for member in _sf_split(value, ","):
+        label, eq, val = member.partition("=")
+        label, val = label.strip(), val.strip()
+        if not eq or not val.startswith(":") or not val.endswith(":"):
+            return None
+        try:
+            out[label] = base64.b64decode(val[1:-1], validate=True)
+        except Exception:
+            return None
+    return out or None
+
+def _sig_base(components, raw_params, derived, headers_l):
+    """RFC 9421 signature base: one `"name": value` line per component plus the
+    `"@signature-params"` line echoing the Signature-Input member verbatim.
+    `derived` maps supported @-components to their values; returns None when a
+    component can't be resolved."""
+    lines = []
+    for c in components:
+        if c.startswith("@"):
+            if c not in derived:
+                return None
+            v = derived[c]
+        else:
+            if c not in headers_l:
+                return None
+            v = headers_l[c].strip()
+        lines.append(f'"{c}": {v}')
+    lines.append(f'"@signature-params": {raw_params}')
+    return "\n".join(lines).encode()
+
+def sign_response(status, body_bytes):
+    """RFC 9421 response signature headers for a JSON response body:
+    components @status + content-digest + content-type (signatures.md REST
+    Response Signing), ES256 raw r||s, keyid -> the profile's signing_keys."""
+    digest = content_digest(body_bytes)
+    ctype = "application/json"
+    comps = ["@status", "content-digest", "content-type"]
+    raw_params = ('(' + " ".join(f'"{c}"' for c in comps) + ')'
+                  + f';created={int(time.time())};keyid="{SIG_KID}"')
+    base = _sig_base(comps, raw_params, {"@status": str(status)},
+                     {"content-digest": digest, "content-type": ctype})
+    sig = ecdsa_p256_sign(base, _SIG_D)
+    return {"Content-Digest": digest,
+            "Signature-Input": f"sig1={raw_params}",
+            "Signature": "sig1=:" + base64.b64encode(sig).decode() + ":"}
+
+def verify_signed_request(method, path_qs, headers, raw_body):
+    """Verify an incoming request that carries RFC 9421 signature headers, per the
+    spec's verify_rest_request pseudocode. `headers` is a case-insensitive-ready
+    mapping (we lowercase it here). Returns None when the signature verifies, else
+    (http_status, error_payload) with the spec's signature error codes."""
+    h = {k.lower(): v for k, v in headers.items()}
+    def err(status, code, content):
+        return status, {"code": code, "content": content}
+    si = parse_signature_input(h.get("signature-input", ""))
+    if not si:
+        return err(401, "signature_missing", "Signature-Input header is missing or malformed")
+    sigs = parse_signature(h.get("signature", ""))
+    if not sigs:
+        return err(401, "signature_missing", "Signature header is missing or malformed")
+    label = next((l for l in si if l in sigs), None)
+    if label is None:
+        return err(401, "signature_missing", "no Signature member matches Signature-Input")
+    entry = si[label]
+    kid = entry["params"].get("keyid")
+    pub = TRUSTED_PLATFORM_KEYS.get(kid)
+    if not pub:
+        return err(401, "key_not_found", f"key ID not found in signer's signing_keys: {kid}")
+    if "content-digest" in entry["components"]:
+        if h.get("content-digest") != content_digest(raw_body or b""):
+            return err(400, "digest_mismatch",
+                       "body digest doesn't match Content-Digest header")
+    path, _, query = path_qs.partition("?")
+    derived = {"@method": method.upper(), "@authority": h.get("host", ""), "@path": path}
+    if query:
+        derived["@query"] = "?" + query
+    base = _sig_base(entry["components"], entry["raw"], derived, h)
+    if base is None or not ecdsa_p256_verify(base, sigs[label], pub):
+        return err(401, "signature_invalid",
+                   f"request signature verification failed for key kid={kid}")
+    return None
+# ==== end SIGNATURES area ======================================================
+
 def profile(base):
     cap = [{"version": VERSION}]
     services = [
@@ -152,10 +420,15 @@ def profile(base):
             "dev.ucp.shopping.catalog.lookup": cap,
             "dev.ucp.shopping.cart": cap,
         })
-    return {"version": VERSION,
-            "services": {"dev.ucp.shopping": services},
-            "capabilities": capabilities,
-            "payment_handlers": {}}
+    out = {"version": VERSION,
+           "services": {"dev.ucp.shopping": services},
+           "capabilities": capabilities,
+           "payment_handlers": {}}
+    if VERSION == "2026-04-08":
+        # signatures.md Key Discovery: public keys are published in the profile's
+        # signing_keys[] (official shape: discovery/profile_schema.json $defs/signing_key)
+        out["signing_keys"] = [signing_jwk()]
+    return out
 
 def _unit_price(item_id):
     """Unit price (minor units) for a product or variant id, from the seed catalog."""
@@ -684,6 +957,11 @@ class _H(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        if VERSION == "2026-04-08":
+            # signatures.md REST Response Signing: every JSON response carries
+            # Content-Digest + Signature-Input + Signature (RFC 9421, ES256)
+            for hn, hv in sign_response(code, body).items():
+                self.send_header(hn, hv)
         # permissive CORS: this is a TEST golden — it must be drivable from the
         # browser-based /tool (and its committed smoke tests) on any local origin
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -702,10 +980,27 @@ class _H(BaseHTTPRequestHandler):
     def _base(self):
         host = self.headers.get("Host") or f"localhost:{self.server.server_address[1]}"
         return f"http://{host}"
+    def _raw(self):
+        if not hasattr(self, "_raw_body"):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            self._raw_body = self.rfile.read(n) if n else b""
+        return self._raw_body
     def _body(self):
-        n = int(self.headers.get("Content-Length", 0) or 0)
-        try: return json.loads(self.rfile.read(n)) if n else {}
+        raw = self._raw()
+        try: return json.loads(raw) if raw else {}
         except Exception: return None
+    def _sig_rejected(self):
+        """signatures.md request verification: when a request carries RFC 9421
+        signature headers (2026-04-08), verify them; respond with the spec's
+        signature error codes on failure. Unsigned requests are untouched."""
+        if VERSION != "2026-04-08" or not self.headers.get("Signature-Input"):
+            return False
+        err = verify_signed_request(self.command, self.path,
+                                    dict(self.headers.items()), self._raw())
+        if err:
+            self._send(*err)
+            return True
+        return False
     def do_GET(self):
         path = self.path.rstrip("/").split("?")[0]
         if path == "/__echo":
@@ -721,6 +1016,8 @@ class _H(BaseHTTPRequestHandler):
             return self._send(*get_order(path.split("/")[2], self.headers))
         self._send(404, {"error_code": "not_found"})
     def do_PUT(self):
+        if self._sig_rejected():
+            return
         body = self._body()
         path = self.path.rstrip("/")
         if body is None:
@@ -730,6 +1027,8 @@ class _H(BaseHTTPRequestHandler):
             return self._send(*update_checkout(sid, body, self.headers))
         self._send(404, {"error_code": "not_found"})
     def do_POST(self):
+        if self._sig_rejected():
+            return
         body = self._body()
         path = self.path.rstrip("/")
         if body is None and path != "/checkout-sessions" \
