@@ -141,11 +141,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; not a wire shape testable on the business response."
+      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-001/CHK-014/CHK-043. Not a business-response wire shape."
     },
     {
       "id": "CHK-009",
@@ -411,11 +411,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "REQUIRED normalized to MUST. Full-replacement (PUT) semantics are behavioral on the receiver; a dropped field being lost is only observable against a stateful receiver, not via base schema. Restated in checkout-rest.md L197 'Each PUT replaces the entire session'."
+      "notes": "Request-author (platform) obligation to send the entire checkout resource on PUT; the business full-replacement semantics are checked by the update/replace checks. Not a business-response wire shape."
     },
     {
       "id": "CHK-024",
@@ -429,11 +429,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lower-case 'must' in prose; normative. Reinforces CHK-023."
+      "notes": "Client obligation (clients MUST include all previously set fields on PUT). Not observable on a business response."
     },
     {
       "id": "CHK-025",

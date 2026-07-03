@@ -9,21 +9,22 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 109,
+   "check": 117,
    "exempt": 31,
-   "gap": 32,
-   "accounted_pct": 81,
+   "gap": 24,
+   "accounted_pct": 86,
    "gap_by_testability": {
-    "manual": 2,
-    "needs-receiver": 30
+    "manual": 5,
+    "needs-receiver": 19
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 18,
+     "check": 22,
      "exempt": 2,
-     "gap": 8,
-     "gap_needs-receiver": 8,
+     "gap": 4,
+     "gap_manual": 1,
+     "gap_needs-receiver": 3,
      "musts": 28
     },
     {
@@ -65,10 +66,11 @@
     },
     {
      "area": "payment",
-     "check": 9,
+     "check": 13,
      "exempt": 7,
-     "gap": 17,
-     "gap_needs-receiver": 17,
+     "gap": 13,
+     "gap_manual": 2,
+     "gap_needs-receiver": 11,
      "musts": 33
     }
    ],
@@ -246,26 +248,30 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST provide continue_url when returning status = requires_escalation (Availability)",
      "source": "ucp:docs/specification/checkout.md#L207",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-028",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be an absolute HTTPS URL",
      "source": "ucp:docs/specification/checkout.md#L215",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-032",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
@@ -297,10 +303,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business MUST provide continue_url when returning status = requires_escalation (Business guideline restatement)",
      "source": "ucp:docs/specification/checkout.md#L268",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-039",
@@ -1085,10 +1093,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
      "source": "ucp:docs/specification/checkout-rest.md#L1292",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "IDM-003",
@@ -1731,16 +1741,18 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must embed a cryptographic signature (merchant_authorization) in checkout responses when AP2 is negotiated.",
      "source": "ucp:docs/specification/ap2-mandates.md#L31",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-020",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must provide cryptographically signed proofs (Mandates) for autonomous/non-repudiable authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L33",
@@ -1751,10 +1763,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When ap2_mandate is negotiated, the business must include ap2.merchant_authorization in all relevant checkout responses.",
      "source": "ucp:docs/specification/ap2-mandates.md#L108",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-022",
@@ -1770,7 +1784,7 @@
      "id": "PAY-023",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "The platform must verify the business's merchant signature before presenting checkout terms to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L112",
@@ -1801,20 +1815,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "All AP2 signatures must use one of the approved algorithms (ES256/ES384/ES512).",
      "source": "ucp:docs/specification/ap2-mandates.md#L130",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-027",
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L140",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-028",
@@ -2061,21 +2079,22 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 117,
+   "check": 125,
    "exempt": 32,
-   "gap": 32,
-   "accounted_pct": 82,
+   "gap": 24,
+   "accounted_pct": 87,
    "gap_by_testability": {
-    "manual": 2,
-    "needs-receiver": 30
+    "manual": 5,
+    "needs-receiver": 19
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 22,
+     "check": 26,
      "exempt": 2,
-     "gap": 8,
-     "gap_needs-receiver": 8,
+     "gap": 4,
+     "gap_manual": 1,
+     "gap_needs-receiver": 3,
      "musts": 32
     },
     {
@@ -2117,10 +2136,11 @@
     },
     {
      "area": "payment",
-     "check": 11,
+     "check": 15,
      "exempt": 7,
-     "gap": 17,
-     "gap_needs-receiver": 17,
+     "gap": 13,
+     "gap_manual": 2,
+     "gap_needs-receiver": 11,
      "musts": 35
     }
    ],
@@ -2352,26 +2372,30 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST provide continue_url when returning status = requires_escalation (Availability)",
      "source": "ucp:docs/specification/checkout.md#L207",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-028",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be an absolute HTTPS URL",
      "source": "ucp:docs/specification/checkout.md#L215",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-032",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
@@ -2403,10 +2427,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business MUST provide continue_url when returning status = requires_escalation (Business guideline restatement)",
      "source": "ucp:docs/specification/checkout.md#L268",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-039",
@@ -3218,10 +3244,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
      "source": "ucp:docs/specification/checkout-rest.md#L1217",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "IDM-003",
@@ -3888,16 +3916,18 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must embed a cryptographic signature (merchant_authorization) in checkout responses when AP2 is negotiated.",
      "source": "ucp:docs/specification/ap2-mandates.md#L31",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-020",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must provide cryptographically signed proofs (Mandates) for autonomous/non-repudiable authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L33",
@@ -3908,10 +3938,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When ap2_mandate is negotiated, the business must include ap2.merchant_authorization in all relevant checkout responses.",
      "source": "ucp:docs/specification/ap2-mandates.md#L108",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-022",
@@ -3927,7 +3959,7 @@
      "id": "PAY-023",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "The platform must verify the business's merchant signature before presenting checkout terms to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L112",
@@ -3958,20 +3990,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "All AP2 signatures must use one of the approved algorithms (ES256/ES384/ES512).",
      "source": "ucp:docs/specification/ap2-mandates.md#L130",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-027",
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L140",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-028",
@@ -4233,22 +4269,23 @@
   },
   "2026-04-08": {
    "musts": 323,
-   "check": 205,
+   "check": 228,
    "exempt": 62,
-   "gap": 56,
-   "accounted_pct": 83,
+   "gap": 33,
+   "accounted_pct": 90,
    "gap_by_testability": {
-    "manual": 6,
+    "manual": 17,
     "needs-oauth": 1,
-    "needs-receiver": 49
+    "needs-receiver": 15
    },
    "areas": [
     {
      "area": "cart",
-     "check": 7,
+     "check": 11,
      "exempt": 1,
-     "gap": 6,
-     "gap_needs-receiver": 6,
+     "gap": 2,
+     "gap_manual": 1,
+     "gap_needs-receiver": 1,
      "musts": 14
     },
     {
@@ -4261,18 +4298,19 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 14,
+     "check": 21,
      "exempt": 5,
-     "gap": 14,
-     "gap_needs-receiver": 14,
+     "gap": 7,
+     "gap_manual": 3,
+     "gap_needs-receiver": 4,
      "musts": 33
     },
     {
      "area": "discounts-consent",
-     "check": 23,
+     "check": 27,
      "exempt": 1,
-     "gap": 5,
-     "gap_needs-receiver": 5,
+     "gap": 1,
+     "gap_needs-receiver": 1,
      "musts": 29
     },
     {
@@ -4316,21 +4354,24 @@
      "check": 16,
      "exempt": 5,
      "gap": 6,
-     "gap_needs-receiver": 6,
+     "gap_manual": 4,
+     "gap_needs-receiver": 2,
      "musts": 27
     },
     {
      "area": "signals-attribution-eligibility",
-     "check": 4,
-     "gap": 10,
-     "gap_needs-receiver": 10,
+     "check": 11,
+     "gap": 3,
+     "gap_manual": 1,
+     "gap_needs-receiver": 2,
      "musts": 14
     },
     {
      "area": "signatures",
-     "check": 23,
-     "gap": 8,
-     "gap_needs-receiver": 8,
+     "check": 24,
+     "gap": 7,
+     "gap_manual": 2,
+     "gap_needs-receiver": 5,
      "musts": 31
     },
     {
@@ -4351,20 +4392,24 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On cart-to-checkout conversion, business MUST use cart contents and MUST ignore overlapping fields in the checkout payload",
      "source": "ucp:docs/specification/cart.md#L66",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CART-002",
      "area": "cart",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "If an incomplete checkout already exists for the given cart_id, business MUST return the existing checkout session rather than creating a new one (idempotent conversion)",
      "source": "ucp:docs/specification/cart.md#L73",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CART-017",
@@ -4383,16 +4428,18 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On Cancel Cart, business MUST return the cart state before deletion",
      "source": "ucp:docs/specification/cart.md#L185",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CART-020",
      "area": "cart",
      "keyword": "MUST NOT",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Signal values MUST NOT be buyer-asserted claims",
      "source": "ucp:docs/specification/cart.md#L229",
@@ -4438,10 +4485,12 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours, return the cached result for duplicate keys, and return 409 Conflict if the key is reused with different parameters",
      "source": "ucp:docs/specification/cart-rest.md#L473",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CART-029",
@@ -4888,26 +4937,30 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be provided when status is requires_escalation (Availability section)",
      "source": "ucp:docs/specification/checkout.md#L461",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-004",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be an absolute HTTPS URL",
      "source": "ucp:docs/specification/checkout.md#L469",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-008",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L524",
@@ -4939,20 +4992,24 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business MUST provide continue_url when returning status = requires_escalation (Business guideline restatement)",
      "source": "ucp:docs/specification/checkout.md#L534",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-015",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business MUST include at least one message with severity requires_buyer_input or requires_buyer_review when returning status = requires_escalation",
      "source": "ucp:docs/specification/checkout.md#L536",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-017",
@@ -5030,7 +5087,7 @@
      "id": "CHK-023",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Update Checkout performs a full replacement of the checkout resource; platform is REQUIRED to send the entire checkout resource",
      "source": "ucp:docs/specification/checkout.md#L585",
@@ -5040,7 +5097,7 @@
      "id": "CHK-024",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Each PUT replaces the entire session; clients must include all previously set fields they wish to retain",
      "source": "ucp:docs/specification/checkout-rest.md#L197",
@@ -5146,10 +5203,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be provided when status is requires_escalation (schema field description)",
      "source": "ucp:source/schemas/shopping/checkout.json#L113",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-044",
@@ -5191,10 +5250,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When an Idempotency-Key is provided, server MUST store the key+result >=24h, return cached result for duplicates, and return 409 if reused with different parameters",
      "source": "ucp:docs/specification/checkout-rest.md#L1242",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-050",
@@ -5242,10 +5303,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims; accepted claims MUST be resolved before completion",
      "source": "ucp:docs/specification/checkout.md#L287",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DISC-001",
@@ -5395,10 +5458,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When a cart is converted to a checkout via cart_id, businesses MUST carry forward any discount codes that were applied to the cart",
      "source": "ucp:docs/specification/discount.md#L143",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DSC-012",
@@ -5427,10 +5492,12 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the discount extension is active, businesses that accept eligibility claims MUST surface their effect on pricing as provisional discounts in the applied array",
      "source": "ucp:docs/specification/discount.md#L198",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DSC-015",
@@ -5448,20 +5515,24 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When a business recognizes an eligibility claim that affects pricing, it MUST surface a corresponding provisional discount in discounts.applied",
      "source": "ucp:docs/specification/discount.md#L207",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DSC-017",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "At checkout completion, all remaining provisional claims MUST be resolved",
      "source": "ucp:docs/specification/discount.md#L227",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DSC-018",
@@ -7170,7 +7241,7 @@
      "id": "PAY-008",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST treat the response_schema available_instruments / handler config as authoritative for the checkout",
      "source": "ucp:docs/specification/payment-handler-guide.md#L212",
@@ -7180,7 +7251,7 @@
      "id": "PAY-009",
      "area": "payment",
      "keyword": "MUST NOT",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "The available_instruments returned in the response_schema is authoritative; platforms MUST treat it as authoritative and MUST NOT use instrument types or constraints that contradict it",
      "source": "ucp:docs/specification/payment-handler-guide.md#L303",
@@ -7190,7 +7261,7 @@
      "id": "PAY-010",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST treat the available_instruments in the checkout response as authoritative for that checkout",
      "source": "ucp:docs/specification/overview.md#L1203",
@@ -7244,7 +7315,7 @@
      "id": "PAY-017",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "On 3DS/SCA soft-decline the business returns status requires_escalation with a continue_url; the platform MUST open continue_url for the buyer to complete the bank check then retry completion",
      "source": "ucp:docs/specification/overview.md#L1409",
@@ -7405,7 +7476,7 @@
      "id": "SAE-001",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST NOT",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Signal values MUST NOT be buyer-asserted claims; platforms provide signals from direct observation or independently verifiable third-party attestations",
      "source": "ucp:docs/specification/overview.md#L1689",
@@ -7474,10 +7545,12 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST ignore unrecognized eligibility values without error",
      "source": "ucp:source/schemas/shopping/types/context.json#L35",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-012",
@@ -7494,60 +7567,72 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "All accepted eligibility claims MUST be resolved before the transaction can complete",
      "source": "ucp:docs/specification/checkout.md#L259",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-014",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Unrecognized or inapplicable eligibility claims MUST NOT block the checkout",
      "source": "ucp:docs/specification/checkout.md#L262",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-017",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "At completion, accepted claims that remain unverified MUST result in type 'error' with code 'eligibility_invalid'",
      "source": "ucp:docs/specification/checkout.md#L265",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-018",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims",
      "source": "ucp:docs/specification/checkout.md#L287",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-019",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Eligibility verification failure MUST only affect the messages array",
      "source": "ucp:docs/specification/checkout.md#L293",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-020",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On eligibility verification failure the Business MUST return an error in messages with code 'eligibility_invalid' and severity 'recoverable'",
      "source": "ucp:docs/specification/checkout.md#L294",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SIG-001",
@@ -7635,7 +7720,7 @@
      "id": "SIG-011",
      "area": "signatures",
      "keyword": "MUST NOT",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Proxies, API gateways, and other intermediaries MUST NOT re-serialize JSON bodies, as this would invalidate the signature.",
      "source": "ucp:docs/specification/signatures.md#L182",
@@ -7761,7 +7846,7 @@
      "id": "SIG-022",
      "area": "signatures",
      "keyword": "MUST",
-     "testability": "needs-receiver",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Idempotency-Key must have minimum 128 bits of entropy (e.g., UUID v4, 22+ char alphanumeric).",
      "source": "ucp:docs/specification/signatures.md#L482",
@@ -7864,10 +7949,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "algorithm_unsupported maps to HTTP 400 (signature algorithm not supported).",
      "source": "ucp:docs/specification/signatures.md#L555",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SIG-036",
