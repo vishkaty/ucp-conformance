@@ -4022,15 +4022,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 119,
+   "check": 133,
    "exempt": 27,
-   "gap": 176,
-   "accounted_pct": 45,
+   "gap": 162,
+   "accounted_pct": 50,
    "gap_by_testability": {
     "manual": 16,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 48
+    "testable": 34
    },
    "areas": [
     {
@@ -4108,11 +4108,10 @@
     },
     {
      "area": "payment",
-     "check": 2,
-     "gap": 25,
+     "check": 16,
+     "gap": 11,
      "gap_manual": 5,
      "gap_needs-receiver": 6,
-     "gap_testable": 14,
      "musts": 27
     },
     {
@@ -6754,10 +6753,13 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A business/platform/response profile advertises payment handlers in the payment_handlers registry, keyed by reverse-domain name",
      "source": "ucp:source/schemas/ucp.json#L150",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_payment.py",
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-002",
@@ -6768,7 +6770,9 @@
      "requirement": "Every payment handler declaration MUST include an id (handler instance identifier)",
      "source": "ucp:source/schemas/payment_handler.json#L13",
      "covered_by": [
-      "area_payment.py"
+      "area_payment.py",
+      "merchant_checks_04_08_payment.py",
+      "schema_check_04_08_payment.py"
      ]
     },
     {
@@ -6776,40 +6780,49 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Checkout/Order responses echo handlers in ucp.payment_handlers; the response payment_handlers array is required and each entry conforms to the handler response_schema (which requires id)",
      "source": "ucp:source/schemas/ucp.json#L219",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_payment.py",
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-004",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A platform-schema payment handler declaration MUST additionally include spec and schema URLs",
      "source": "ucp:source/schemas/payment_handler.json#L32",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-005",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When a handler declares available_instruments, the array MUST contain at least one instrument type (minItems 1)",
      "source": "ucp:source/schemas/payment_handler.json#L22",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-007",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An available_payment_instrument MUST include a type (instrument type identifier)",
      "source": "ucp:source/schemas/shopping/types/available_payment_instrument.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-008",
@@ -6858,10 +6871,12 @@
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Token credential value MUST NOT be echoed in responses (token field is omit-on-response)",
      "source": "ucp:source/schemas/shopping/types/token_credential.json#L21",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-014",
@@ -6898,40 +6913,48 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "continue_url MUST be provided when checkout status is requires_escalation",
      "source": "ucp:source/schemas/shopping/checkout.json#L113",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-019",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A payment instrument MUST include id, handler_id, and type",
      "source": "ucp:source/schemas/shopping/types/payment_instrument.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-020",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A payment credential MUST include a type discriminator",
      "source": "ucp:source/schemas/shopping/types/payment_credential.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-021",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A card credential MUST include type and card_number_type",
      "source": "ucp:source/schemas/shopping/types/card_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-022",
@@ -6948,20 +6971,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A card payment instrument MUST have type const 'card'",
      "source": "ucp:source/schemas/shopping/types/card_payment_instrument.json#L41",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-024",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A token credential MUST include type and token",
      "source": "ucp:source/schemas/shopping/types/token_credential.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-025",
@@ -6978,20 +7005,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A token binding MUST include the checkout_id the token is bound to (prevents token reuse across checkouts/participants)",
      "source": "ucp:source/schemas/shopping/types/binding.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-027",
      "area": "payment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A payment identity MUST include an access_token uniquely identifying the participant tokens are bound to",
      "source": "ucp:source/schemas/shopping/types/payment_identity.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-028",
