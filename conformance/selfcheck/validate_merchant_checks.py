@@ -77,6 +77,12 @@ CONTROLLED_CONFIG = {
     # probe (CART-017, merchant_checks_04_08_cartupdate.py) can tell a replaced-away
     # line from a legitimately consolidated one.
     "cart": {"second_product_id": "kettle_copper"},
+    # WEBHOOK/EVENTS area (04-08): the merchant discovers the platform's order
+    # webhook_url from the platform profile named in UCP-Agent and can deliver
+    # signed order events to a LOOPBACK receiver (the fixture's offline policy
+    # fetches loopback harness profiles only). A remote merchant cannot reach a
+    # local receiver, so omitting this key skips the webhook checks honestly.
+    "webhooks": {"simulate": True},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
     # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)

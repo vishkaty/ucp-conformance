@@ -815,6 +815,137 @@ def _sig_request_verification():
         return False, f"unknown kid: expected 401 key_not_found, got {err}"
     return True, "ok"
 
+# ==== WEBHOOK/EVENTS area artifacts (2026-04-08, order.md Events) ==============
+def _order_for_webhook():
+    """Drive create -> complete in-process; return the stored order dict."""
+    ok, created = _expect(201, server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]},
+        HDRS), "webhook create")
+    if not ok:
+        return None, created
+    ok, done = _expect(200, server.complete_checkout(created["id"], {
+        "payment": {"instruments": [{"id": "i1", "type": "card",
+            "credential": {"type": "token", "token": "success_token"}}]}},
+        HDRS), "webhook complete")
+    if not ok:
+        return None, done
+    return server.ORDERS[done["order"]["id"]], None
+
+def _webhook_signing_artifacts():
+    """The fixture's signed order-event delivery headers (order.md 'Webhook
+    Signature Verification' + signatures.md request signing): RFC 9421 headers
+    present, Standard-Webhooks headers present, sha-256 Content-Digest over the
+    raw body, the normative signed-component set (@query included — the test URL
+    carries a query string), keyid = the published signing key, and the ES256
+    signature VERIFIES against the published JWK (tamper rejected)."""
+    order, err = _order_for_webhook()
+    if err:
+        return False, err
+    payload = server.order_body(order)
+    if any(k.startswith("_") for k in payload):
+        return False, f"internal keys leaked into the webhook payload: {list(payload)}"
+    body = json.dumps(payload).encode()
+    url = "http://127.0.0.1:9/webhooks/ucp/orders?channel=selfcheck"
+    h = server.build_webhook_headers(url, body, BASE)
+    for name in ("UCP-Agent", "Webhook-Id", "Webhook-Timestamp", "Content-Digest",
+                 "Signature-Input", "Signature", "Idempotency-Key"):
+        if not h.get(name):
+            return False, f"webhook headers missing {name}"
+    if not h["Webhook-Timestamp"].isdigit():
+        return False, f"Webhook-Timestamp is not a unix integer: {h['Webhook-Timestamp']}"
+    want = "sha-256=:" + base64.b64encode(hashlib.sha256(body).digest()).decode() + ":"
+    if h["Content-Digest"] != want:
+        return False, "webhook Content-Digest is not the sha-256 of the raw body"
+    if f'profile="{BASE}/.well-known/ucp"' != h["UCP-Agent"]:
+        return False, f"UCP-Agent does not name the business profile: {h['UCP-Agent']}"
+    si = server.parse_signature_input(h["Signature-Input"])
+    sigs = server.parse_signature(h["Signature"])
+    if not si or not sigs or "sig1" not in si or "sig1" not in sigs:
+        return False, "webhook signature headers do not parse"
+    e = si["sig1"]
+    if e["components"] != ["@method", "@authority", "@path", "@query", "ucp-agent",
+                           "idempotency-key", "content-digest", "content-type"]:
+        return False, f"unexpected webhook signed components: {e['components']}"
+    if e["params"].get("keyid") != server.SIG_KID or "alg" in e["params"]:
+        return False, f"bad webhook Signature-Input params: {e['params']}"
+    base = server._sig_base(
+        e["components"], e["raw"],
+        {"@method": "POST", "@authority": "127.0.0.1:9",
+         "@path": "/webhooks/ucp/orders", "@query": "?channel=selfcheck"},
+        {k.lower(): v for k, v in h.items()})
+    jwk = server.signing_jwk()
+    Q = (int.from_bytes(base64.urlsafe_b64decode(jwk["x"] + "="), "big"),
+         int.from_bytes(base64.urlsafe_b64decode(jwk["y"] + "="), "big"))
+    if not server.ecdsa_p256_verify(base, sigs["sig1"], Q):
+        return False, "webhook signature does not verify against the published JWK"
+    bad = sigs["sig1"][:-1] + bytes([sigs["sig1"][-1] ^ 1])
+    if server.ecdsa_p256_verify(base, bad, Q):
+        return False, "tampered webhook signature wrongly verifies"
+    return True, "ok"
+
+def _webhook_payload_schema():
+    """The order-event webhook payload MUST be the order entity (rest.openapi.json
+    webhooks.orderEvent requestBody schema = order) — oracle-validate it exactly
+    like an order response."""
+    order, err = _order_for_webhook()
+    if err:
+        return False, err
+    return validate_obj(server.order_body(order), "read")
+
+def _webhook_0123_artifacts():
+    """The 01-era webhook delivery artifacts (run while VERSION=2026-01-23):
+    payload = order entity + required event_id/created_time (openapi.json
+    order_event_webhook allOf), Request-Signature = detached JWS (RFC 7797,
+    ES256, kid = the published signing key) that verifies over the raw body
+    (tamper rejected), UCP-Agent identifies the business."""
+    order, err = _order_for_webhook()
+    if err:
+        return False, err
+    payload = server.webhook_event_payload(order)
+    if not (payload.get("event_id") and payload.get("created_time")):
+        return False, "01-era webhook payload lacks event_id/created_time"
+    ok, detail = validate_obj(payload, "read")     # order entity (+ event fields)
+    if not ok:
+        return False, f"01-era webhook payload is not a valid order entity: {detail}"
+    body = json.dumps(payload).encode()
+    h = server.build_webhook_headers_0123(body, BASE)
+    if f'profile="{BASE}/.well-known/ucp"' != h.get("UCP-Agent"):
+        return False, f"webhook UCP-Agent does not name the business: {h.get('UCP-Agent')}"
+    rs = h.get("Request-Signature", "")
+    parts = rs.split(".")
+    if len(parts) != 3 or parts[1] != "":
+        return False, f"Request-Signature is not a DETACHED JWS: {rs[:60]}"
+    def b64u(s):
+        return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+    hdr = json.loads(b64u(parts[0]))
+    if hdr.get("alg") != "ES256" or hdr.get("kid") != server.SIG_KID:
+        return False, f"bad detached-JWS protected header: {hdr}"
+    sig = b64u(parts[2])
+    jwk = server.signing_jwk()
+    Q = (int.from_bytes(b64u(jwk["x"]), "big"), int.from_bytes(b64u(jwk["y"]), "big"))
+    signing_input = parts[0].encode() + b"." + body       # RFC 7797 b64=false
+    if not server.ecdsa_p256_verify(signing_input, sig, Q):
+        return False, "detached JWS does not verify against the published JWK"
+    if server.ecdsa_p256_verify(parts[0].encode() + b"." + body + b"!", sig, Q):
+        return False, "detached JWS wrongly verifies over a tampered body"
+    return True, "ok"
+
+def _harness_platform_profile():
+    """The SUITE's webhook-harness platform profile (the document the fixture
+    fetches to discover webhook_url) must itself be valid per the official
+    ucp.json platform_schema, and its order capability config must match
+    order.json $defs/platform_schema (webhook_url required)."""
+    sys.path.insert(0, str(HERE.parents[1] / "checks"))
+    from webhook_harness import platform_profile_0408
+    prof = platform_profile_0408("http://127.0.0.1:9/webhooks/ucp/orders?c=x")
+    ok, detail = validate_profile(prof, version="2026-04-08", role="platform")
+    if not ok:
+        return False, f"harness platform profile invalid: {detail}"
+    cfg = prof["capabilities"]["dev.ucp.shopping.order"][0]["config"]
+    return validate_against(cfg, "schemas/shopping/order.json", "platform_schema",
+                            op="read", version="2026-04-08")
+# ==== end WEBHOOK/EVENTS area artifacts ========================================
+
 # ---- openssl cross-anchor: the pure-Python ECDSA must interoperate with an
 # INDEPENDENT implementation (LibreSSL/OpenSSL), both directions. DER/SPKI
 # encoders live here (anchor-only; the fixture itself never emits DER). --------
@@ -910,6 +1041,11 @@ def main():
         ("response signature (RFC 9421 artifacts)", _sig_response_artifacts),
         ("request verification (signature error codes)", _sig_request_verification),
         ("ECDSA openssl cross-anchor (both directions)", _sig_openssl_anchor),
+        # WEBHOOK/EVENTS area: signed order-event delivery artifacts + the suite's
+        # harness platform profile, all anchored on the official oracle/JWK.
+        ("webhook signing (RFC 9421 artifacts)", _webhook_signing_artifacts),
+        ("webhook payload (order entity schema)", _webhook_payload_schema),
+        ("harness platform profile (oracle)", _harness_platform_profile),
         ("catalog.search response", lambda: validate_against(
             server.search_response("*"), "schemas/shopping/catalog_search.json",
             "search_response", op="search", version=server.VERSION)),
@@ -980,6 +1116,10 @@ def main():
                     server.profile(BASE), version=server.VERSION, role="business")))
                 # OAUTH area: the 01-era identity-linking business MUSTs
                 batch.append(("oauth 01-era (Basic auth + RFC 7009)", _oauth_01era))
+            if ver == "2026-01-23":
+                # WEBHOOK/EVENTS area: 01-era delivery format (detached JWS)
+                batch.append(("webhook signing (detached JWS)",
+                              _webhook_0123_artifacts))
             rows += [(name + tag, *fn()) for name, fn in batch]
     except OracleUnavailable as e:
         print(f"oracle unavailable: {e}", file=sys.stderr); return 2
