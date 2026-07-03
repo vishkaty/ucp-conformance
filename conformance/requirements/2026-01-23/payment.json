@@ -276,11 +276,11 @@
       "quote": "**Platforms** **MUST** provide cryptographically signed proofs (Mandates)",
       "versions": ["2026-01-23"],
       "transport": ["rest"],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side signing obligation."
+      "notes": "Platform-bound MUST (platforms provide cryptographically signed Mandates). The business AP2 duties are checked by PAY-019/021/026/027/035/036."
     },
     {
       "id": "PAY-021",
@@ -318,11 +318,11 @@
       "quote": "The platform **MUST** verify the business's signature before presenting",
       "versions": ["2026-01-23"],
       "transport": ["rest"],
-      "testability": "needs-receiver",
+      "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side verification obligation."
+      "notes": "Platform-bound MUST (the PLATFORM verifies the business's merchant signature before presenting terms). The business duty to embed a valid ES* signature is checked by PAY-019/026/027/035."
     },
     {
       "id": "PAY-024",
