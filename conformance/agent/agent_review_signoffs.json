@@ -1,0 +1,4 @@
+{
+ "_about": "Agent-side adversarial-review sign-offs: every agent CHECK id must be reviewed before it counts \u2014 mirrors the merchant review-signoff gate.",
+ "signoffs": []
+}

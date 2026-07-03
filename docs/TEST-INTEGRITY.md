@@ -76,3 +76,13 @@ Read the register row → read the pinned spec at its source → write the check
 mutants that must kill it → reference-gate it (clean-pass + kill-safe on the golden) →
 `python3 conformance/coverage/gen_coverage_lock.py` to extend the lock →
 `bash packaging/preflight.sh`. Coverage only grows.
+
+## Both lanes, same policy
+
+This policy applies identically to the **merchant** lane and the **agent** lane. The agent
+lane mirrors every mechanism here — reference-gate + kill-rate (against a reference agent +
+mutation agents), coverage-lock, review-signoff, completeness, ratchet — via
+`conformance/agent/agent_governance.py`. The two lanes cannot break each other: the agent
+tree is structurally invisible to the merchant machinery, both lanes run on every change,
+and the `merchant-stability` + `shared-api` gates pin the contracts they share. See
+[TWO-LANE.md](TWO-LANE.md) for the full architecture and maintenance rules.

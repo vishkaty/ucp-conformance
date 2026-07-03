@@ -88,6 +88,8 @@ def gates(server):
         #     merchant numbers). merchant-stability fails if agent work drifts merchant output.
         ("merchant-stability", _py(ROOT / "conformance" / "ci" / "merchant_stability.py",
                                    "--server", CONTROLLED),                     "controlled", (2,)),
+        ("shared-api",  _py(ROOT / "conformance" / "ci" / "shared_api_guard.py"), None, ()),
+        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py",
                             "--server", CONTROLLED),                            "controlled", ()),
     ]
