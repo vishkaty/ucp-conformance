@@ -51,7 +51,26 @@ def p_sends_ucp_agent(log):
     return CLEAN
 
 
+def p_follows_escalation(log):
+    """CHK-008: on `requires_escalation`, the platform MUST use (follow) the
+    business-provided continue_url. We require the agent to have (a) received a
+    requires_escalation status carrying a continue_url and (b) made a request to exactly
+    that continue_url."""
+    esc_url = None
+    for e in log:
+        b = (e.get("response") or {}).get("body") or {}
+        if b.get("status") == "requires_escalation":
+            esc_url = b.get("continue_url")
+    if not esc_url:
+        return DEVIATION      # the sandbox always escalates; not seeing it = broken flow
+    followed = any(e["op"] == "follow_escalation" and e["request"]["path"] == esc_url
+                   for e in log)
+    return CLEAN if followed else DEVIATION
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
+    ACheck("agent.follows_escalation", ["CHK-008"], "MUST",
+           p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
 ]

@@ -12,6 +12,18 @@
      "DISC-006"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B2-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "author review vs pinned checkout spec (behavioral flow check; independent-agent review reserved for the crypto/OAuth checks in B.3)",
+   "spec_reverified": true,
+   "notes": "agent.follows_escalation cites CHK-008 ('Platform MUST use continue_url when checkout status is requires_escalation'). The adversarial sandbox returns requires_escalation + a continue_url it serves; the check requires the agent to have made a request to exactly that continue_url. Subject = platform/agent (correct). Kill-safe: the ignore_escalation mutant skips the follow -> DEVIATION. Hermetic (in-process sandbox controls the continue_url).",
+   "ids": {
+    "2026-04-08": [
+     "CHK-008"
+    ]
+   }
   }
  ]
 }

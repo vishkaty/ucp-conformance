@@ -22,7 +22,8 @@ import json, urllib.request, urllib.error, uuid
 DEFECTS = {
     None: "conformant reference agent (no defect)",
     "no_ucp_agent": "omit the required UCP-Agent header",
-    # Phase B: "skip_sig_verify", "skip_iss_validation", "reuse_pkce", "ignore_escalation", ...
+    "ignore_escalation": "do NOT follow continue_url on requires_escalation",
+    # Phase B.3: "skip_sig_verify", "skip_iss_validation", "reuse_pkce", ...
 }
 
 
@@ -76,10 +77,41 @@ class ReferenceAgent:
                 "ucp": {"version": "2026-04-08"}, "totals": [], "links": []}
         return self._send("create_checkout", "POST", "/checkout-sessions", body)
 
+    def complete(self, sid, token="escalate_token"):
+        """Complete a checkout with a payment credential (default: the 3DS/SCA soft-decline
+        token, which the sandbox answers with requires_escalation + a continue_url)."""
+        body = {"payment": {"instruments": [{"credential": {"token": token}}]}}
+        return self._send("complete", "POST", f"/checkout-sessions/{sid}/complete", body)
+
+    def follow_continue_url(self, url):
+        """Open the business-provided continue_url (CHK-008: platform MUST use it on
+        requires_escalation). Recorded as an op so the check can see the follow."""
+        import urllib.request
+        req = urllib.request.Request(url, headers=self._headers(), method="GET")
+        entry = {"op": "follow_escalation", "request": {"method": "GET", "path": url,
+                                                        "headers": dict(self._headers())}}
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                entry["response"] = {"status": r.status}
+        except Exception as e:
+            entry["response"] = {"status": 0, "error": str(e)}
+        self.log.append(entry)
+        return entry["response"]
+
     def run_flow(self, product_id="teapot_ceramic"):
-        """Drive a basic conformant shopping flow; return the session log for grading."""
+        """Drive a conformant shopping flow (discover -> create -> complete -> handle
+        escalation); return the session log for grading."""
         self.discover()
-        self.create_checkout(product_id)
+        c = self.create_checkout(product_id)
+        sid = (c.get("body") or {}).get("id")
+        if sid:
+            resp = self.complete(sid)
+            b = resp.get("body") or {}
+            # CHK-008: on requires_escalation, a conformant platform follows continue_url.
+            if b.get("status") == "requires_escalation" and self.defect != "ignore_escalation":
+                cu = b.get("continue_url")
+                if cu:
+                    self.follow_continue_url(cu)
         return self.log
 
 

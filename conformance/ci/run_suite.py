@@ -90,8 +90,7 @@ def gates(server):
                                    "--server", CONTROLLED),                     "controlled", (2,)),
         ("shared-api",  _py(ROOT / "conformance" / "ci" / "shared_api_guard.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
-        ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py",
-                            "--server", CONTROLLED),                            "controlled", ()),
+        ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
     ]
 
 def server_up(server, timeout=3):
