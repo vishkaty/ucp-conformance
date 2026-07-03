@@ -38,6 +38,13 @@ from merchant_checks_04_08_signatures import (                          # noqa: 
 # (the 2026-04-08 registers renumbered these ids onto DIFFERENT requirements).
 VERSIONS = ("2026-01-11", "2026-01-23")
 
+def _wh_wait(ctx):
+    """Delivery/retry wait window. order.md pins NO delivery timing, so a fixed
+    window can false-deviate a conformant queued-delivery merchant (W2-F2):
+    config webhooks.wait_seconds widens it; webhooks.simulate therefore asserts
+    'delivers (and first-retries) within this window', not just reachability."""
+    return float((ctx.config.get("webhooks") or {}).get("wait_seconds", 8.0))
+
 def _drive_webhook_flow_0123(ctx, fail_first=0):
     """create -> complete with the official 01-era platform-profile template
     naming a local capture-full receiver as webhook_url; return the captured
@@ -55,7 +62,7 @@ def _drive_webhook_flow_0123(ctx, fail_first=0):
         c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete",
                   "POST", ctx.config.get("complete_payment"), hd)
         oid = ((c.json or {}).get("order") or {}).get("id")
-        events = h.wait_events(1 + fail_first)
+        events = h.wait_events(timeout=_wh_wait(ctx), n=1 + fail_first)
         body = {"events": events, "checkout_id": cid, "order_id": oid}
     return Resp(200, {"Content-Type": "application/json"}, json.dumps(body).encode())
 

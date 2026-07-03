@@ -42,7 +42,7 @@ before merchant_checks (it pulls MCheck/_hdr from there).
 """
 import sys, pathlib, urllib.parse
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import fetch, CLEAN, DEVIATION                    # noqa: E402
+from engine import fetch, Resp, CLEAN, DEVIATION, INCONCLUSIVE  # noqa: E402
 from merchant_checks import MCheck, _hdr                      # noqa: E402
 import oauth_harness as oh                                    # noqa: E402
 
@@ -125,7 +125,7 @@ def p_token_ok(r, ctx):
     if t.get("scope") is not None:
         want = set(_icfg(ctx).get("scopes") or [])
         if not want <= set(str(t["scope"]).split()):
-            return DEVIATION
+            return INCONCLUSIVE            # narrowed grant is RFC-legal (W2-F8)
     return CLEAN
 
 
@@ -139,12 +139,19 @@ def p_authz_iss(r, ctx):
     """The authorization response carries code AND iss; iss equals the discovery
     base URI (the business domain — per IDL-033 the metadata issuer MUST equal it
     byte-for-byte, so the base is the correct comparison anchor)."""
-    if r.status not in (302, 303):
+    if not (300 <= r.status < 400):        # RFC 6749 pins no redirect status (W2-F7)
         return DEVIATION
     q = oh.location_params(r)
     if not q.get("code"):
         return DEVIATION
-    return CLEAN if q.get("iss") == ctx.base else DEVIATION
+    want = {ctx.base}
+    try:
+        md = oh.discover(ctx.base)
+        if isinstance(md, dict) and md.get("issuer"):
+            want.add(md["issuer"])         # the metadata issuer is the true anchor
+    except Exception:
+        pass
+    return CLEAN if q.get("iss") in want else DEVIATION
 
 
 # ---- IDL-033 (business half): metadata issuer == discovery base, byte-for-byte --
@@ -160,10 +167,9 @@ def p_issuer_exact(r, ctx):
 
 # ---- IDL-050 (business half): client_secret_basic MUST NOT be the only method ---
 def p_not_secret_basic_only(r, ctx):
-    """UCP platforms are agent runtimes (RFC 8252 §8.5), so a UCP business is
-    'serving native or agent platforms' by definition — its advertised method set
-    must offer something beyond client_secret_basic (e.g. 'none' or an asymmetric
-    method)."""
+    """IDL-050's MUST NOT is CONDITIONAL ('when serving native or agent
+    platforms'). Config identity.serves_public_clients asserts the condition holds
+    for this merchant; only then may basic-only deviate (W2-F1)."""
     if r.status != 200 or not isinstance(r.json, dict):
         return DEVIATION
     methods = r.json.get("token_endpoint_auth_methods_supported")
@@ -412,7 +418,11 @@ def f_revocation(ctx):
     before = _gated(ctx, token=tok["access_token"])
     if before.status != 200:
         return before                      # scenario failed: token never worked
-    rev = oh.revoke(fl["metadata"], tok.get("refresh_token") or tok["access_token"],
+    if not tok.get("refresh_token"):
+        # the cited IDL-027 refresh->access cascade cannot be exercised without a
+        # refresh token — grade not-tested rather than a partial pass (W2-F9)
+        return Resp(0, {}, b'{"probe":"no refresh_token issued; revocation cascade untestable"}')
+    rev = oh.revoke(fl["metadata"], tok["refresh_token"],
                     client_id=ic.get("client_id"))
     if rev.status != 200:
         return rev                         # revocation itself failed (IDL-028)
@@ -452,7 +462,7 @@ CHECKS_04_08_OAUTH = [
     MCheck("identity.oauth_code_flow", ["IDL-001", "IDL-015", "IDL-029"], "MUST",
            f_code_flow, p_token_ok,
            ["status:400", "drop:access_token", "set:token_type=\"mac\"",
-            "set:scope=\"spck:mutant:scope\"", "empty", "corrupt-json"],
+            "empty", "corrupt-json"],
            capability=IDL_CAP, transport="rest", versions=V0408,
            cfg_needs=("identity.client_id", "identity.redirect_uri",
                       "identity.scopes")),
@@ -468,6 +478,10 @@ CHECKS_04_08_OAUTH = [
            ["status:404", "drop:issuer", "set:issuer=\"https://evil.example\"",
             "corrupt-json"],
            capability=IDL_CAP, transport="rest", versions=V0408),
+    # cfg identity.serves_public_clients asserts the conditional clause of the
+    # MUST NOT ("when serving native or agent platforms") — a business serving only
+    # confidential server-side platforms may legitimately offer client_secret_basic
+    # alone (adversarial-review W2-F1)
     MCheck("identity.public_client_method_offered", ["IDL-050"], "MUST",
            f_metadata, p_not_secret_basic_only,
            ["status:404", "drop:token_endpoint_auth_methods_supported",
@@ -480,7 +494,7 @@ CHECKS_04_08_OAUTH = [
            ["status:200", "set:error=\"invalid_client\"", "drop:error",
             "empty", "corrupt-json"],
            capability=IDL_CAP, transport="rest", versions=V0408,
-           cfg_needs=("identity.client_id", "identity.redirect_uri")),
+           cfg_needs=("identity.serves_public_clients",)),
     MCheck("identity.pkce_plain_rejected", ["IDL-049"], "MUST NOT",
            f_pkce_plain, p_authz_rejected,
            ["status:200", f"hset:Location={_MUT_CB}?code=ac_mutant&iss=x",
@@ -520,7 +534,10 @@ CHECKS_04_08_OAUTH = [
             "set:messages=[]", "drop:messages", "corrupt-json"],
            capability=IDL_CAP, transport="rest", versions=V0408,
            cfg_needs=("identity.gated",)),
-    MCheck("identity.invalid_token_challenge", ["IDL-025", "IDL-042"], "MUST",
+    # IDL-025 (full RFC 9068 claims validation) is NOT cited: only the observable
+    # garbage-token core is exercised here; counting the row would overstate
+    # coverage (W2-F5). It stays GAP pending an expired/wrong-aud token scenario.
+    MCheck("identity.invalid_token_challenge", ["IDL-042"], "MUST",
            f_gated_bad_token, p_invalid_token_challenge,
            ["status:200", "hdrop:WWW-Authenticate",
             "hset:WWW-Authenticate=Bearer realm=\"https://wrong.example\", error=\"invalid_token\"",

@@ -4224,14 +4224,14 @@
    ]
   },
   "2026-04-08": {
-   "musts": 322,
+   "musts": 323,
    "check": 204,
    "exempt": 34,
-   "gap": 84,
+   "gap": 85,
    "accounted_pct": 74,
    "gap_by_testability": {
     "manual": 34,
-    "needs-oauth": 1,
+    "needs-oauth": 2,
     "needs-receiver": 49
    },
    "areas": [
@@ -4293,9 +4293,10 @@
     },
     {
      "area": "identity-linking",
-     "check": 34,
-     "gap": 21,
+     "check": 33,
+     "gap": 22,
      "gap_manual": 21,
+     "gap_needs-oauth": 1,
      "musts": 55
     },
     {
@@ -4336,8 +4337,8 @@
     },
     {
      "area": "version-negotiation-and-protocol-errors",
-     "check": 4,
-     "musts": 4
+     "check": 5,
+     "musts": 5
     }
    ],
    "rows": [
@@ -4426,7 +4427,7 @@
      "requirement": "All cart requests MUST include the UCP-Agent header containing the platform profile URI",
      "source": "ucp:docs/specification/cart-rest.md#L468",
      "covered_by": [],
-     "exempt_reason": "'All requests MUST include the UCP-Agent header' on cart operations (cart-rest.md L468-470) binds the REQUEST AUTHOR \u2014 the platform \u2014 per the suite-wide F2 policy (adversarial review 2026-07-03, register note applied): the spec mandates no business-side rejection of header-less requests, so no merchant response can prove or refute the platform's compliance. [Cart exists only at 2026-04-08; scoped explicitly.]"
+     "exempt_reason": "Binds the REQUEST AUTHOR: 'All requests MUST include the UCP-Agent header' places the include-duty on the platform, and the suite's own probe traffic satisfies it. The business-side ENFORCEMENT duty exists SEPARATELY \u2014 overview.md L696 maps a malformed/MISSING/unresolvable profile URL to a 400 invalid_profile_url rejection \u2014 and is covered by register row NEG-005 with its own check, so exempting this row hides no observable obligation (rewritten 2026-07-03, wave-2 review F4: the earlier reason wrongly claimed no business-side duty exists)."
     },
     {
      "id": "CART-026",
@@ -5177,7 +5178,7 @@
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/checkout-rest.md#L1237",
      "covered_by": [],
-     "exempt_reason": "'All requests MUST include the UCP-Agent header containing the platform profile URI' (checkout-rest.md L1237-1239) binds the REQUEST AUTHOR \u2014 the platform \u2014 per the suite-wide F2 policy (adversarial review 2026-07-03, register note applied): the spec mandates no business-side rejection of header-less requests, so no message the suite can elicit from the merchant proves or refutes it; the tester, being the platform, simply sends the header. [Scoped: at 2026-01-11/2026-01-23 this id is an unrelated SHOULD (platform starts a new session on canceled); the 01-era twin of this header rule is CHK-052.]"
+     "exempt_reason": "Binds the REQUEST AUTHOR: 'All requests MUST include the UCP-Agent header' places the include-duty on the platform, and the suite's own probe traffic satisfies it. The business-side ENFORCEMENT duty exists SEPARATELY \u2014 overview.md L696 maps a malformed/MISSING/unresolvable profile URL to a 400 invalid_profile_url rejection \u2014 and is covered by register row NEG-005 with its own check, so exempting this row hides no observable obligation (rewritten 2026-07-03, wave-2 review F4: the earlier reason wrongly claimed no business-side duty exists)."
     },
     {
      "id": "CHK-048",
@@ -6332,13 +6333,11 @@
      "id": "IDL-025",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "testable",
-     "status": "check",
+     "testability": "needs-oauth",
+     "status": "gap",
      "requirement": "Businesses MUST validate user identity tokens on every user-authenticated request (iss, aud, exp, scopes, and client_id/azp).",
      "source": "ucp:docs/specification/identity-linking.md#L195-L199",
-     "covered_by": [
-      "merchant_checks_04_08_oauth.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "IDL-026",
@@ -6750,6 +6749,18 @@
      "status": "check",
      "requirement": "A fetched profile that is not valid JSON or violates schema maps to profile_malformed, HTTP 422.",
      "source": "ucp:docs/specification/overview.md#L698",
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
+    },
+    {
+     "id": "NEG-005",
+     "area": "version-negotiation-and-protocol-errors",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "check",
+     "requirement": "A request whose platform profile URL is malformed, MISSING, or unresolvable is rejected with invalid_profile_url (REST 400 / MCP -32001)",
+     "source": "ucp:docs/specification/overview.md#L696",
      "covered_by": [
       "merchant_checks_04_08_discovery.py"
      ]

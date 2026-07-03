@@ -1171,7 +1171,7 @@ def create_cart(body, headers=None):
     Returns (http_status, payload) so selfcheck.py can validate it in-process."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
-        return _err(400, "UCP-Agent header is required")
+        return _missing_agent_err()
     cart = cart_response(body)
     with _CART_LOCK:
         CARTS[cart["id"]] = cart
@@ -1193,7 +1193,7 @@ def update_cart(cid, body, headers=None):
     recomputed. Same UCP-Agent enforcement as create (CART-024)."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
-        return _err(400, "UCP-Agent header is required")
+        return _missing_agent_err()
     with _CART_LOCK:
         if cid not in CARTS:
             return _cart_not_found()
@@ -1248,6 +1248,16 @@ def _ucp_envelope():
 
 LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
          {"type": "privacy_policy", "url": "https://spck.dev/fixture/privacy"}]
+
+def _missing_agent_err():
+    """A request without a UCP-Agent header has a MISSING platform profile URL —
+    overview.md Negotiation Errors: invalid_profile_url -> REST 400 (NEG-005).
+    04-08 uses the flat transport-error body; 01-era keeps the legacy detail shape
+    (its registers carry no such error-table row)."""
+    if VERSION == "2026-04-08":
+        return 400, {"code": "invalid_profile_url",
+                     "content": "UCP-Agent header with a platform profile URL is required"}
+    return 400, {"detail": "UCP-Agent header is required"}
 
 def _err(status, detail):
     """Structured error body: a populated `detail` string (the shape VAL-006 requires
@@ -1432,7 +1442,7 @@ def create_checkout(body, headers=None):
     conflict -> 409 (IDM-004)."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
-        return _err(400, "UCP-Agent header is required")
+        return _missing_agent_err()
     if VERSION == "2026-04-08":
         # negotiation precedes request processing (discovery/negotiation area);
         # 04-08-scoped: the 01-era registers map these errors differently
@@ -1504,7 +1514,7 @@ def update_checkout(sid, body, headers=None):
     ucp_request:OMIT (CHK-035) — tolerated only if it matches the path id."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
-        return _err(400, "UCP-Agent header is required")
+        return _missing_agent_err()
     sess = SESSIONS.get(sid)
     if not sess:
         return _err(404, f"checkout session not found: {sid}")

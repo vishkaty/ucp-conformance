@@ -195,6 +195,26 @@ def _neg_probe(ctx, cfg_key):
                   _create_payload(ctx), h)
     return r
 
+def f_missing_profile_url(ctx):
+    """Otherwise-valid create with NO UCP-Agent header at all — the 'missing'
+    case of the invalid_profile_url row (NEG-005)."""
+    h = _hdr(); h.pop("UCP-Agent", None)
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+                 _create_payload(ctx), h)
+
+def p_invalid_profile_url(r):
+    """NEG-005@04-08: overview.md L696 — a request whose platform profile URL is
+    malformed/MISSING/unresolvable is rejected 400 with code invalid_profile_url.
+    (The header INCLUDE-duty itself is requester-bound — CHK-046/CART-024 are
+    exempted client-bound; THIS row is the business-side enforcement mapping.)"""
+    if r.status != 400 or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    codes = {m.get("code") for m in j.get("messages", []) if isinstance(m, dict)}
+    if j.get("code") == "invalid_profile_url" or "invalid_profile_url" in codes:
+        return CLEAN
+    return DEVIATION
+
 def f_neg_unsupported_version(ctx):
     return _neg_probe(ctx, "unsupported_version_profile_url")
 
@@ -249,6 +269,12 @@ def p_profile_malformed(r):
 _SVC_BAD = '{"dev.ucp.shopping":[{"transport":"rest","endpoint":%s}]}'
 
 CHECKS_04_08_DISCOVERY = [
+    MCheck("negotiation.missing_profile_url_400", ["NEG-005"], "MUST",
+           f_missing_profile_url, p_invalid_profile_url,
+           ["status:200", "status:201",
+            "set:code=\"invalid_request\"", "drop:code", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           transport="rest", versions=V0408),
     MCheck("discovery.profile_https", ["DISC-001"], "MUST", f_profile_https,
            p_profile_https,
            ["set:handshake_ok=false", "corrupt-json", "empty"],

@@ -54,8 +54,10 @@ def p_cap_meta_01_11(r):
     carry spec and schema (capability.json $defs/discovery also requires them —
     the fixture's selfcheck.py anchors the whole profile on that oracle def)."""
     caps = (r.json or {}).get("capabilities") if isinstance(r.json, dict) else None
-    if not isinstance(caps, list) or not caps:
+    if not isinstance(caps, list):
         return DEVIATION
+    if not caps:
+        return CLEAN                       # empty-but-valid: vacuous truth (W2-F10)
     for e in caps:
         if not isinstance(e, dict):
             return DEVIATION
@@ -68,8 +70,10 @@ def p_cap_meta_01_23(r):
     """DISC-002 @2026-01-23: keyed-object capabilities; every declared entry MUST
     carry spec and schema (prose MUST; the 01-23 profile schema does not enforce it)."""
     caps = (r.json or {}).get("capabilities") if isinstance(r.json, dict) else None
-    if not isinstance(caps, dict) or not caps:
+    if not isinstance(caps, dict):
         return DEVIATION
+    if not caps:
+        return CLEAN                       # empty-but-valid: vacuous truth (W2-F10)
     for entries in caps.values():
         if not isinstance(entries, list) or not entries:
             return DEVIATION
@@ -83,8 +87,10 @@ def p_cap_meta_01_23(r):
 
 def p_origin_binding_01_11(r):
     caps = (r.json or {}).get("capabilities") if isinstance(r.json, dict) else None
-    if not isinstance(caps, list) or not caps:
+    if not isinstance(caps, list):
         return DEVIATION
+    if not caps:
+        return CLEAN                       # empty-but-valid: vacuous truth (W2-F10)
     for e in caps:
         if not isinstance(e, dict):
             return DEVIATION
@@ -96,8 +102,10 @@ def p_origin_binding_01_11(r):
 
 def p_origin_binding_01_23(r):
     caps = (r.json or {}).get("capabilities") if isinstance(r.json, dict) else None
-    if not isinstance(caps, dict) or not caps:
+    if not isinstance(caps, dict):
         return DEVIATION
+    if not caps:
+        return CLEAN                       # empty-but-valid: vacuous truth (W2-F10)
     for name, entries in caps.items():
         auth = _authority(name)
         if not auth or not isinstance(entries, list) or not entries:
@@ -431,7 +439,7 @@ CHECKS_01_11_01_23 = [
     MCheck("discovery.capability_spec_schema_01_23", ["DISC-002"], "MUST",
            profile_resp, p_cap_meta_01_23,
            ['set:capabilities={"dev.ucp.shopping.checkout":[{"version":"2026-01-23"}]}',
-            'set:capabilities={}', "drop:capabilities", "corrupt-json"],
+            "drop:capabilities", "corrupt-json"],
            versions=V_23),
     MCheck("discovery.capability_origin_binding_01_11", ["DISC-003"], "MUST",
            profile_resp, p_origin_binding_01_11,

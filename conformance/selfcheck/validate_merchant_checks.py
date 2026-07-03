@@ -82,10 +82,16 @@ CONTROLLED_CONFIG = {
     "cart": {"second_product_id": "kettle_copper"},
     # WEBHOOK/EVENTS area (04-08): the merchant discovers the platform's order
     # webhook_url from the platform profile named in UCP-Agent and can deliver
-    # signed order events to a LOOPBACK receiver (the fixture's offline policy
-    # fetches loopback harness profiles only). A remote merchant cannot reach a
-    # local receiver, so omitting this key skips the webhook checks honestly.
-    "webhooks": {"simulate": True},
+    # signed order events to a LOOPBACK receiver. Supplying `simulate` asserts
+    # THREE things about the merchant under test (W2-F2/F3, adversarial review):
+    #   1. it can reach a local receiver (omit for remote merchants -> honest skip);
+    #   2. it delivers (and first-retries) within `wait_seconds` (default 8s —
+    #      order.md pins no timing, so slow queued delivery needs a wider window);
+    #   3. HARNESS CONVENTION: it will fetch a plain-HTTP LOOPBACK platform-profile
+    #      URL for this test, a documented carve-out from the HTTPS-only profile
+    #      rules (DISC-004 / signatures.md rule 5) that no spec text sanctions —
+    #      a strictly-conformant merchant needs the HTTPS harness variant (backlog).
+    "webhooks": {"simulate": True, "wait_seconds": 8.0},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
     # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
@@ -122,6 +128,8 @@ CONTROLLED_CONFIG = {
     # committed on purpose. A real merchant supplies its own registered client(s)
     # and the operation(s) its config.scopes gate.
     "identity": {
+        # asserts IDL-050's conditional clause (serves native/agent platforms)
+        "serves_public_clients": True,
         # public client: token_endpoint_auth 'none' + PKCE S256 (RFC 8252 agent)
         "client_id": "spck-platform-public",
         "redirect_uri": "https://platform.spck.dev/oauth/callback",

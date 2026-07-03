@@ -8,8 +8,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L699,L1912",
       "quote": "| `version_unsupported` | Platform's protocol version not supported | 422 | -32001 |  ...  Business **MUST** return a `version_unsupported`",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -22,8 +26,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L700,L1916",
       "quote": "| `capabilities_incompatible` | No compatible capabilities in intersection | 200 | result |  ...  business **MUST** return a `capabilities_incompatible` error",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -36,8 +44,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L697",
       "quote": "| `profile_unreachable` | Resolved URL but fetch failed (timeout, non-2xx) | 424 | -32001 |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -50,13 +62,35 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L698",
       "quote": "| `profile_malformed` | Fetched content is not valid JSON or violates schema | 422 | -32001 |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
       "notes": "Schema validity is checked via the ucp-schema oracle (profile/ucp.json)."
+    },
+    {
+      "id": "NEG-005",
+      "requirement": "A request whose platform profile URL is malformed, MISSING, or unresolvable is rejected with invalid_profile_url (REST 400 / MCP -32001)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview.md#L696",
+      "quote": "| `invalid_profile_url`       | Profile URL is malformed, missing, or unresolvable   | 400  | -32001 |",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Added 2026-07-03 (wave-2 adversarial review F4): the Negotiation Errors table binds the BUSINESS to reject a request without a resolvable platform profile URL (the 'missing' case = no/empty UCP-Agent). MUST inferred from the table's normative error-code mapping (CAT-019 precedent for inferred keywords). This is the merchant-observable ENFORCEMENT dual of the requester-bound header rows CHK-046/CART-024 (exempted client-bound) \u2014 those exemption reasons reference this row."
     }
   ]
 }

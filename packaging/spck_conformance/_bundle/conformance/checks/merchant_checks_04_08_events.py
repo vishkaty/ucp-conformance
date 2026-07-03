@@ -54,6 +54,14 @@ from merchant_checks_04_08_signatures import (                          # noqa: 
 V0408 = ("2026-04-08",)
 
 # ---- SIG-031..034/036..038: request-verification error-code mapping -------------
+
+def _wh_wait(ctx):
+    """Delivery/retry wait window. order.md pins NO delivery timing, so a fixed
+    window can false-deviate a conformant queued-delivery merchant (W2-F2):
+    config webhooks.wait_seconds widens it; webhooks.simulate therefore asserts
+    'delivers (and first-retries) within this window', not just reachability."""
+    return float((ctx.config.get("webhooks") or {}).get("wait_seconds", 8.0))
+
 def _sig_key(ctx):
     """(private scalar d, kid) from config signature.request_private_jwk, or None."""
     jwk = (ctx.config.get("signature") or {}).get("request_private_jwk") or {}
@@ -204,11 +212,11 @@ def _drive_webhook_flow(ctx, fail_first=0, adjust=False):
         c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete",
                   "POST", ctx.config.get("complete_payment"), hd)
         oid = ((c.json or {}).get("order") or {}).get("id")
-        events = h.wait_events(1 + fail_first)
+        events = h.wait_events(timeout=_wh_wait(ctx), n=1 + fail_first)
         if adjust and oid:
             fetch(ctx.shopping_endpoint, f"/testing/orders/{oid}/adjust", "POST",
                   {"line_item_id": li_id, "quantity": 1, "type": "refund"}, hd)
-            events = h.wait_events(len(events) + 1)
+            events = h.wait_events(timeout=_wh_wait(ctx), n=len(events) + 1)
         body = {"events": events, "checkout_id": cid, "order_id": oid,
                 "webhook_query": h.webhook_url.partition("?")[2]}
     return Resp(200, {"Content-Type": "application/json"}, json.dumps(body).encode())
