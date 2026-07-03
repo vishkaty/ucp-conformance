@@ -22,19 +22,21 @@ Covered (business-bound): IDL-005 (implement OAuth 2.0) + IDL-009 (standard UCP
 scopes granted) via the code flow; IDL-006 (RFC 8414 metadata); IDL-007 (client
 authentication enforced at the token endpoint); IDL-010/011/012 (RFC 7009
 revocation with the same client credentials; the revoked token is dead).
-NOT covered: IDL-013 (a scope must grant all of its capability's operations) —
-the 01-era spec defines no gated operation to observe a token against, and gating
-the 01-era checkout lifecycle would contradict every existing unauthenticated
-check; left needs-oauth with a register note. IDL-001..004 bind the PLATFORM —
-reclassified manual in both registers.
+Also covered: IDL-013 (a scope must grant ALL of its capability's operations) —
+wave-3 added the fixture's --require-checkout-scope mode (config-gated on
+identity.checkout_scope_gated, default OFF so the golden's unauthenticated checks
+stay sound) so one checkout_session token can be observed granting Create+Get+Cancel;
+the --checkout-scope-partial mutant (a per-operation scope) is the IDL-013 violation
+the check catches. IDL-001..004 bind the PLATFORM — reclassified manual in both
+registers.
 
 NOTE: imported lazily by merchant_checks.all_checks() — do not import this module
 before merchant_checks (it pulls MCheck from there).
 """
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import fetch, CLEAN, DEVIATION                    # noqa: E402
-from merchant_checks import MCheck                            # noqa: E402
+from engine import fetch, Resp, CLEAN, DEVIATION              # noqa: E402
+from merchant_checks import MCheck, _hdr, _create_payload     # noqa: E402
 import oauth_harness as oh                                    # noqa: E402
 
 V01ERA = ("2026-01-11", "2026-01-23")
@@ -165,7 +167,69 @@ def p_revoked_grant01(r, ctx):
     return CLEAN if r.json.get("error") == "invalid_grant" else DEVIATION
 
 
+# ---- IDL-013: a scope covering a capability MUST grant access to ALL operations
+# associated to it (checkout_session: Get/Create/Update/Cancel/Complete). Observing
+# this needs a scope-GATED checkout lifecycle: gating the DEFAULT golden would
+# contradict every existing unauthenticated 01-era check, so it lives behind the
+# fixture's --require-checkout-scope mode (config.identity.checkout_scope_gated). The
+# check drives THREE distinct operations (Create, Get, Cancel) with ONE
+# checkout_session token and shows they are all granted; the --checkout-scope-partial
+# MUTANT makes one operation demand an extra per-operation scope (the IDL-013
+# violation), which this check catches. Kill-proof: selfcheck/validate_checkout_scope_check.py.
+def _mint_scoped_01(ctx):
+    ic = _icfg(ctx)
+    fl = _to_code01(ctx)
+    if not fl["code"]:
+        return None
+    t = oh.token_request(fl["metadata"], fl["code"], ic.get("redirect_uri"),
+                         None, basic=_basic_creds(ctx))
+    return (t.json or {}).get("access_token") if t.status == 200 else None
+
+
+def _bearer(tok):
+    h = _hdr()
+    h["Authorization"] = "Bearer " + tok
+    return h
+
+
+def f_capability_scope_grants_ops(ctx):
+    tok = _mint_scoped_01(ctx)
+    if not tok:
+        return Resp(596, {}, b'{"probe":"could not mint a checkout_session-scoped token"}')
+    base = ctx.shopping_endpoint
+    # negative: an UNauthenticated checkout op MUST be refused (the gate is real)
+    noauth = fetch(base, "/checkout-sessions", "POST", _create_payload(ctx), _hdr())
+    if noauth.status not in (401, 403):
+        return Resp(597, {}, b'{"probe":"checkout op not scope-gated (unauth accepted)"}')
+    bh = _bearer(tok)
+    # positive: the SINGLE capability scope grants Create, then Get, then Cancel
+    cr = fetch(base, "/checkout-sessions", "POST", _create_payload(ctx), bh)
+    if cr.status not in (200, 201):
+        return cr
+    sid = (cr.json or {}).get("id")
+    gt = fetch(base, f"/checkout-sessions/{sid}", "GET", None, bh)
+    if gt.status != 200:
+        return gt
+    return fetch(base, f"/checkout-sessions/{sid}/cancel", "POST", None, bh)
+
+
+def p_scope_grants_all_ops(r, ctx):
+    """One ucp:scopes:checkout_session token unlocked Create+Get+Cancel; the returned
+    response is the terminal Cancel (200). A merchant that scopes operations
+    individually (the IDL-013 violation) refuses one op with 401/403 — that response
+    is what gets returned, and it fails here."""
+    return CLEAN if r.status == 200 and isinstance(r.json, dict) else DEVIATION
+
+
 CHECKS_01_11_01_23_OAUTH = [
+    MCheck("identity01.capability_scope_grants_ops", ["IDL-013"], "MUST",
+           f_capability_scope_grants_ops, p_scope_grants_all_ops,
+           ["status:401", "status:403", "status:500"],
+           capability=IDL_CAP, transport="rest", versions=V01ERA,
+           cfg_needs=("identity.confidential.client_id",
+                      "identity.confidential.client_secret",
+                      "identity.scope_01era", "identity.redirect_uri",
+                      "identity.checkout_scope_gated")),
     MCheck("identity01.oauth_code_flow", ["IDL-005", "IDL-009"], "MUST",
            f_flow01, p_token_ok01,
            ["status:400", "drop:access_token", "set:token_type=\"mac\"",

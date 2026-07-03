@@ -3,22 +3,18 @@
 _Every MUST is CHECK (has a kill-rate check), EXEMPT (documented), or GAP (unaccounted)._
 
 
-## 2026-01-11 — 80% accounted (107 check · 31 exempt · 34 gap of 172 MUSTs)
+## 2026-01-11 — 81% accounted (109 check · 31 exempt · 32 gap of 172 MUSTs)
 
 - GAP/manual: ERR-008, FUL-017
-- GAP/needs-oauth: IDL-013
 - GAP/needs-receiver: CHK-015, CHK-025, CHK-028, CHK-032, CHK-037, CHK-038, CHK-039, IDM-002, NEG-009, NEG-010, NEG-011, ORD-011, ORD-017, PAY-012, PAY-018, PAY-019, PAY-020, PAY-021, PAY-022, PAY-023, PAY-024, PAY-025, PAY-026, PAY-027, PAY-028, PAY-030, PAY-031, PAY-032, PAY-033, PAY-034
-- GAP/testable: DISC-014
 
-## 2026-01-23 — 81% accounted (115 check · 32 exempt · 34 gap of 181 MUSTs)
+## 2026-01-23 — 82% accounted (117 check · 32 exempt · 32 gap of 181 MUSTs)
 
 - GAP/manual: ERR-008, FUL-017
-- GAP/needs-oauth: IDL-013
 - GAP/needs-receiver: CHK-015, CHK-025, CHK-028, CHK-032, CHK-037, CHK-038, CHK-039, IDM-002, NEG-009, NEG-010, NEG-011, ORD-011, ORD-017, PAY-012, PAY-018, PAY-019, PAY-020, PAY-021, PAY-022, PAY-023, PAY-024, PAY-025, PAY-026, PAY-027, PAY-028, PAY-030, PAY-031, PAY-032, PAY-033, PAY-034
-- GAP/testable: DISC-014
 
-## 2026-04-08 — 82% accounted (204 check · 62 exempt · 57 gap of 323 MUSTs)
+## 2026-04-08 — 83% accounted (205 check · 62 exempt · 56 gap of 323 MUSTs)
 
 - GAP/manual: CAT-035, ERR-004, ERR-006, ERR-034, FUL-009, FUL-017
-- GAP/needs-oauth: IDL-025, ORD-012
+- GAP/needs-oauth: IDL-025
 - GAP/needs-receiver: CART-001, CART-002, CART-018, CART-020, CART-026, CART-030, CHK-001, CHK-004, CHK-008, CHK-013, CHK-014, CHK-015, CHK-023, CHK-024, CHK-043, CHK-048, CHK-050, CHK-051, CHK-053, CHK-056, DSC-009, DSC-013, DSC-014, DSC-016, DSC-017, PAY-008, PAY-009, PAY-010, PAY-014, PAY-015, PAY-017, SAE-001, SAE-008, SAE-011, SAE-012, SAE-013, SAE-014, SAE-017, SAE-018, SAE-019, SAE-020, SIG-009, SIG-011, SIG-016, SIG-018, SIG-022, SIG-023, SIG-024, SIG-035

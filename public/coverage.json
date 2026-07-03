@@ -9,15 +9,13 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 107,
+   "check": 109,
    "exempt": 31,
-   "gap": 34,
-   "accounted_pct": 80,
+   "gap": 32,
+   "accounted_pct": 81,
    "gap_by_testability": {
     "manual": 2,
-    "needs-oauth": 1,
-    "needs-receiver": 30,
-    "testable": 1
+    "needs-receiver": 30
    },
    "areas": [
     {
@@ -30,19 +28,16 @@
     },
     {
      "area": "discount-consent-identity",
-     "check": 24,
+     "check": 25,
      "exempt": 4,
-     "gap": 1,
-     "gap_needs-oauth": 1,
      "musts": 29
     },
     {
      "area": "discovery-negotiation",
-     "check": 15,
+     "check": 16,
      "exempt": 11,
-     "gap": 4,
+     "gap": 3,
      "gap_needs-receiver": 3,
-     "gap_testable": 1,
      "musts": 30
     },
     {
@@ -484,10 +479,12 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All spec and schema URLs advertised in the discovery profile MUST be valid and resolvable (return 200 with valid HTML/JSON)",
      "source": "ucp:docs/specification/overview.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_disc.py"
+     ]
     },
     {
      "id": "DSC-001",
@@ -1076,10 +1073,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
      "source": "ucp:docs/specification/identity-linking.md#L129",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDM-002",
@@ -2062,15 +2061,13 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 115,
+   "check": 117,
    "exempt": 32,
-   "gap": 34,
-   "accounted_pct": 81,
+   "gap": 32,
+   "accounted_pct": 82,
    "gap_by_testability": {
     "manual": 2,
-    "needs-oauth": 1,
-    "needs-receiver": 30,
-    "testable": 1
+    "needs-receiver": 30
    },
    "areas": [
     {
@@ -2083,19 +2080,16 @@
     },
     {
      "area": "discount-consent-identity",
-     "check": 26,
+     "check": 27,
      "exempt": 4,
-     "gap": 1,
-     "gap_needs-oauth": 1,
      "musts": 31
     },
     {
      "area": "discovery-negotiation",
-     "check": 15,
+     "check": 16,
      "exempt": 12,
-     "gap": 4,
+     "gap": 3,
      "gap_needs-receiver": 3,
-     "gap_testable": 1,
      "musts": 31
     },
     {
@@ -2593,10 +2587,12 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All spec and schema URLs advertised in the discovery profile MUST be valid and resolvable (return 200 with valid HTML/JSON)",
      "source": "ucp:docs/specification/overview.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_disc.py"
+     ]
     },
     {
      "id": "DSC-001",
@@ -3210,10 +3206,12 @@
      "area": "discount-consent-identity",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
      "source": "ucp:docs/specification/identity-linking.md#L129",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDM-002",
@@ -4235,13 +4233,13 @@
   },
   "2026-04-08": {
    "musts": 323,
-   "check": 204,
+   "check": 205,
    "exempt": 62,
-   "gap": 57,
-   "accounted_pct": 82,
+   "gap": 56,
+   "accounted_pct": 83,
    "gap_by_testability": {
     "manual": 6,
-    "needs-oauth": 2,
+    "needs-oauth": 1,
     "needs-receiver": 49
    },
    "areas": [
@@ -4309,10 +4307,8 @@
     },
     {
      "area": "order",
-     "check": 20,
+     "check": 21,
      "exempt": 4,
-     "gap": 1,
-     "gap_needs-oauth": 1,
      "musts": 25
     },
     {
@@ -6911,10 +6907,12 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "The business MUST authenticate requests to order data before returning a response (API key, OAuth 2.0, mutual TLS, or HTTP Message Signatures)",
      "source": "ucp:docs/specification/order.md#L313",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_order.py"
+     ]
     },
     {
      "id": "ORD-015",

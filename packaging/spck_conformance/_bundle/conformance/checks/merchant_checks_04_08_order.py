@@ -23,7 +23,7 @@ before merchant_checks (it pulls MCheck/_hdr from there).
 """
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import fetch, CLEAN, DEVIATION                          # noqa: E402
+from engine import fetch, Resp, CLEAN, DEVIATION                    # noqa: E402
 from merchant_checks import MCheck, _hdr, order_get_resp            # noqa: E402
 from tls_check_01_11_01_23 import chk051_resp, p_tls13_minimum      # noqa: E402
 
@@ -150,7 +150,61 @@ def p_valid_json_body(r, ctx):
 
 _CFG_ADJ = ("order.simulate_adjustment", "order.second_product_id", "complete_payment")
 
+
+# ---- ORD-012: the business MUST authenticate requests to order data before
+# returning a response (API key / OAuth 2.0 / mutual TLS / HTTP Message
+# Signatures). The DEFAULT golden serves order reads UNauthenticated (so the
+# existing ORD-* checks stay sound); this check is gated on config.order.require_auth
+# and only runs against a merchant that CLAIMS to authenticate order reads. It
+# proves BOTH sides: a valid credential unlocks the data (positive control, so a
+# deny-all endpoint can't false-pass) and an UNauthenticated request is refused.
+def _make_order_id(ctx):
+    p = {"currency": ctx.config.get("currency", "USD"),
+         "line_items": [{"id": "li_1", "quantity": 1,
+                         "item": {"id": ctx.product_id, "price": 1000}, "totals": []}],
+         "payment": {"instruments": [], "handlers": ctx.config.get("payment_handlers", [])},
+         "status": "incomplete", "ucp": {"version": ctx.version}, "totals": [], "links": []}
+    c = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
+    cid = (c.json or {}).get("id")
+    done = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+                 ctx.config.get("complete_payment"), _hdr())
+    return ((done.json or {}).get("order") or {}).get("id")
+
+
+def _mint_valid_token(ctx):
+    r = fetch(ctx.base, "/testing/oauth/mint", "POST", {"kind": "valid"}, _hdr())
+    return (r.json or {}).get("access_token") if r.status == 200 else None
+
+
+def f_order_requires_auth(ctx):
+    oid = _make_order_id(ctx)
+    tok = _mint_valid_token(ctx)
+    hdr = dict(_hdr())
+    hdr["Authorization"] = "Bearer " + (tok or "")
+    authed = fetch(ctx.shopping_endpoint, f"/orders/{oid}", "GET", None, hdr)
+    if authed.status != 200:
+        # positive control failed — a valid credential MUST unlock order data.
+        # Return a sentinel the 401-predicate rejects, so a deny-all/broken
+        # endpoint is never mistaken for "authentication enforced".
+        return Resp(598, {}, b'{"probe":"valid credential did not unlock order data"}')
+    return fetch(ctx.shopping_endpoint, f"/orders/{oid}", "GET", None, _hdr())  # unauth
+
+
+def p_order_auth_required(r, ctx):
+    """ORD-012 is mechanism-agnostic (any UCP auth mechanism): an unauthenticated
+    order-data request MUST be refused. 401 Unauthorized is the correct signal;
+    the positive control already proved a valid credential is accepted."""
+    return CLEAN if r.status == 401 else DEVIATION
+
+
 CHECKS_04_08_ORDER = [
+    MCheck("order.data_requires_auth", ["ORD-012"], "MUST",
+           f_order_requires_auth, p_order_auth_required,
+           ["status:200", "status:404", "status:403"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=("order.require_auth", "complete_payment",
+                      "identity.token_mint"),
+           transport="rest", versions=V0408),
     MCheck("order.line_items_ever_existed", ["ORD-002"], "MUST",
            _order_after_refund, p_ever_existed,
            ["status:500",

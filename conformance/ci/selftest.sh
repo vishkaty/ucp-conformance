@@ -37,14 +37,16 @@ echo "selftest: pre-cleaning harness ports ${PORTS[*]} ..." >&2
 free_ports
 rm -rf "$DB_DIR"
 
-# pip-bundle drift guard (was CI-only; now local too — an em-dash/ensure_ascii
-# JSON re-encode in a register/exemption edit can desync the bundle copy, which
-# run_suite's gates don't see because they read source, not the bundle)
-bash "$ROOT/packaging/sync_bundle.sh" >/dev/null 2>&1 || true
-if ! git -C "$ROOT" diff --quiet packaging/spck_conformance/_bundle 2>/dev/null; then
-  echo "selftest: ✗ pip bundle is STALE vs source — run packaging/sync_bundle.sh and commit" >&2
-  git -C "$ROOT" checkout -- packaging/spck_conformance/_bundle 2>/dev/null || true
-  exit 1
+# pip-bundle freshness (CI hard-fails on a stale bundle; locally we AUTO-SYNC so
+# the pending commit always carries a fresh bundle — an em-dash/ensure_ascii JSON
+# re-encode in a register/exemption edit can desync the copy, which run_suite's
+# gates never see because they read source, not the bundle). Non-fatal locally:
+# it corrects + stages, so "forgot to sync" can't reach a commit.
+if bash "$ROOT/packaging/sync_bundle.sh" >/dev/null 2>&1; then
+  if ! git -C "$ROOT" diff --quiet packaging/spck_conformance/_bundle 2>/dev/null; then
+    echo "selftest: pip bundle was stale vs source — re-synced + staged for commit" >&2
+    git -C "$ROOT" add packaging/spck_conformance/_bundle 2>/dev/null || true
+  fi
 fi
 
 bash "$ROOT/conformance/ci/serve_golden.sh"
