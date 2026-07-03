@@ -80,11 +80,11 @@
       "quote": "Platforms **MUST** include their profile URI in every request using the transport-appropriate mechanism.",
       "versions": ["2026-04-08"],
       "transport": ["rest"],
-      "testability": "testable",
+      "testability": "manual",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it. Distinct from the 01-23/suite header set (request-signature/request-id are NOT 04-08 spec headers)."
+      "notes": "REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it. Distinct from the 01-23/suite header set (request-signature/request-id are NOT 04-08 spec headers). Reclassified 2026-07-02: the MUST binds the PLATFORM (request author), not the merchant \u2014 same subject-binding as CAT-008/CAT-034. No merchant-observable obligation exists in THIS row (the spec does not mandate that businesses reject requests lacking the profile URI), so a merchant check would grade something the spec never requires of merchants. The tester itself satisfies the obligation as the platform: every suite request carries UCP-Agent profile=... (merchant_checks._hdr). Candidate for a documented client-side exemption in Phase 4."
     }
   ]
 }

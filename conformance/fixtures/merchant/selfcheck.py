@@ -200,6 +200,64 @@ def _dedup_lookup():
     return validate_against(resp, "schemas/shopping/catalog_lookup.json",
                             "lookup_response", op="lookup", version=server.VERSION)
 
+# ---- discovery/negotiation-area artifacts (2026-04-08) --------------------------
+def _profile_cache_control():
+    """DISC-003 hosting policy: Cache-Control has `public` + max-age >= 60 and none
+    of private/no-store/no-cache. Headers are not schema territory, so this is a
+    rule-check against the pinned spec text (overview.md #L1055-L1057)."""
+    directives = [d.strip().lower() for d in server.PROFILE_CACHE_CONTROL.split(",")]
+    if "public" not in directives:
+        return False, f"missing `public` in {server.PROFILE_CACHE_CONTROL!r}"
+    for bad in ("private", "no-store", "no-cache"):
+        if bad in directives:
+            return False, f"forbidden directive {bad!r} in {server.PROFILE_CACHE_CONTROL!r}"
+    ages = [d for d in directives if d.startswith("max-age=")]
+    if not ages or int(ages[0].split("=", 1)[1]) < 60:
+        return False, f"max-age missing or < 60 in {server.PROFILE_CACHE_CONTROL!r}"
+    return True, "ok"
+
+def _neg_flat(url, want_status, want_code):
+    """Discovery/version failures are TRANSPORT errors: flat {code, content[,
+    continue_url]} at the mapped HTTP status (overview.md Transport Bindings).
+    No official schema exists for that body, so the shape is rule-checked against
+    the pinned examples; the status/code mapping is the register row's MUST."""
+    got = server.negotiate_platform(f'profile="{url}"')
+    if not got:
+        return False, f"negotiate_platform did not fail for {url}"
+    status, payload = got
+    if status != want_status:
+        return False, f"expected HTTP {want_status}, got {status}"
+    if payload.get("code") != want_code:
+        return False, f"expected code {want_code!r}, got {payload.get('code')!r}"
+    if not isinstance(payload.get("content"), str) or not payload["content"]:
+        return False, "transport error body must carry a human-readable `content`"
+    return True, "ok"
+
+def _neg_caps_incompatible():
+    """NEG-002: empty capability intersection -> HTTP 200 with the error in the UCP
+    body (error_response envelope, ucp.status=error) — oracle-validated."""
+    got = server.negotiate_platform(f'profile="{server.SIM_NO_COMMON_CAPS}"')
+    if not got or got[0] != 200:
+        return False, f"expected HTTP 200 (error in UCP body), got {got and got[0]}"
+    payload = got[1]
+    if (payload.get("ucp") or {}).get("status") != "error":
+        return False, "capabilities_incompatible response is missing ucp.status=error"
+    if not any(m.get("code") == "capabilities_incompatible"
+               for m in payload.get("messages", [])):
+        return False, "messages[] is missing code=capabilities_incompatible"
+    return validate_root(payload, "schemas/shopping/types/error_response.json",
+                         op="create", version=server.VERSION)
+
+def _neg_compatible_default():
+    """The default platform profile (spck.dev/agent, used by every existing check)
+    must keep negotiating cleanly — the simulation only fires on seeded URLs."""
+    if server.negotiate_platform('profile="https://spck.dev/agent"') is not None:
+        return False, "default platform profile unexpectedly failed negotiation"
+    st, _ = server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]},
+        {"UCP-Agent": 'profile="https://spck.dev/agent"'})
+    return (st == 201), f"create with the default profile returned HTTP {st}"
+
 def main():
     artifacts = [
         ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
@@ -228,6 +286,19 @@ def main():
         ("cart response", lambda: validate_against(
             server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
             "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
+        # discovery/negotiation area (04-08): profile hosting policy + the simulated
+        # negotiation failures (seeded platform-profile URLs; see server.py)
+        ("profile Cache-Control policy", _profile_cache_control),
+        ("negotiation invalid_profile_url (http)", lambda: _neg_flat(
+            "http://spck.dev/agent", 400, "invalid_profile_url")),
+        ("negotiation profile_unreachable (424)", lambda: _neg_flat(
+            server.SIM_UNREACHABLE, 424, "profile_unreachable")),
+        ("negotiation profile_malformed (422)", lambda: _neg_flat(
+            server.SIM_MALFORMED, 422, "profile_malformed")),
+        ("negotiation version_unsupported (422)", lambda: _neg_flat(
+            server.SIM_LEGACY_VERSION, 422, "version_unsupported")),
+        ("negotiation capabilities_incompatible", _neg_caps_incompatible),
+        ("negotiation default profile still clean", _neg_compatible_default),
         # the MCP transport must return the SAME schema-valid payload in structuredContent
         ("mcp search_catalog result", lambda: validate_against(
             server.mcp_dispatch({"id": 1, "method": "tools/call", "params": {

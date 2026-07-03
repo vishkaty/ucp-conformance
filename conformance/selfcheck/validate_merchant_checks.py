@@ -69,6 +69,16 @@ CONTROLLED_CONFIG = {
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
     "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
+    # negotiation-failure platform profiles (discovery area, 04-08): each URL makes a
+    # fetching business exhibit one negotiation error. The fixture recognizes these
+    # SEEDED URLs (server.py negotiate_platform simulates the fetch outcome); a real
+    # merchant needs config URLs that genuinely exhibit each failure.
+    "negotiation": {
+        "unsupported_version_profile_url": "https://spck.dev/fixture/platform/legacy-version.json",
+        "incompatible_caps_profile_url": "https://spck.dev/fixture/platform/no-common-caps.json",
+        "unreachable_profile_url": "https://spck.dev/fixture/platform/unreachable-profile.json",
+        "malformed_profile_url": "https://spck.dev/fixture/platform/malformed-profile.json",
+    },
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
