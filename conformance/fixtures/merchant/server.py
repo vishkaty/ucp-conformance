@@ -130,6 +130,46 @@ def merchant_authorization():
                                 separators=(",", ":")).encode())
     return header + ".." + _b64url(b"fixture-detached-signature")
 
+# ---- identity-linking (2026-04-08 rework; identity-linking.md) ----------------
+# The user-authenticated scopes this business offers (identity_linking.json:
+# config.scopes — each key is a '{capability}:{scope}' scope_token, each value a
+# per-scope policy object; {} = "user auth required, nothing else"). Shared by the
+# profile declaration AND the RFC 8414 metadata's scopes_supported, so the two
+# artifacts stay consistent (the spec's scope-mismatch fail-fast story).
+IDENTITY_SCOPES = {
+    "dev.ucp.shopping.order:read": {},
+    "dev.ucp.shopping.order:manage": {},
+    "dev.ucp.shopping.checkout:manage": {
+        "description": {"text": "Create, update, and complete checkout sessions "
+                                "on the user's behalf."}},
+}
+
+def oauth_authorization_server_metadata(base):
+    """RFC 8414 authorization server metadata, published at
+    /.well-known/oauth-authorization-server (identity-linking.md For Businesses:
+    metadata MUST be published there [IDL-016]; scopes_supported MUST be populated
+    [IDL-017]; token_endpoint_auth_methods_supported MUST declare the accepted
+    client auth methods [IDL-022]; authorization_response_iss_parameter_supported
+    (RFC 9207) and code_challenge_methods_supported ["S256"] (PKCE) MUST both be
+    present [IDL-058]). Mirrors the spec's example metadata document; 'none' is
+    advertised for public clients, which per the spec requires PKCE S256 — also
+    advertised."""
+    return {
+        "issuer": base,
+        "authorization_endpoint": base + "/oauth2/authorize",
+        "token_endpoint": base + "/oauth2/token",
+        "revocation_endpoint": base + "/oauth2/revoke",
+        "jwks_uri": base + "/oauth2/jwks",
+        "scopes_supported": sorted(IDENTITY_SCOPES),
+        "response_types_supported": ["code"],
+        "grant_types_supported": ["authorization_code", "refresh_token"],
+        "code_challenge_methods_supported": ["S256"],
+        "token_endpoint_auth_methods_supported": [
+            "private_key_jwt", "client_secret_basic", "none"],
+        "authorization_response_iss_parameter_supported": True,
+        "service_documentation": "https://spck.dev/fixture/docs/oauth2",
+    }
+
 def profile(base):
     cap = [{"version": VERSION}]
     services = [
@@ -151,6 +191,14 @@ def profile(base):
             "dev.ucp.shopping.catalog.search": cap,
             "dev.ucp.shopping.catalog.lookup": cap,
             "dev.ucp.shopping.cart": cap,
+            # identity-linking: the business declares its user-authenticated scopes
+            # in config.scopes (identity_linking.json business_schema requires
+            # config + config.scopes; keys are scope_tokens). 04-08 only — the
+            # identity-linking rework and its IDL register ids are 2026-04-08.
+            "dev.ucp.common.identity_linking": [
+                {"version": VERSION,
+                 "schema": "https://ucp.dev/schemas/common/identity_linking.json",
+                 "config": {"scopes": IDENTITY_SCOPES}}],
         })
     return {"version": VERSION,
             "services": {"dev.ucp.shopping": services},
@@ -714,6 +762,10 @@ class _H(BaseHTTPRequestHandler):
             return self._send(200, {"headers": {k.lower(): v for k, v in self.headers.items()}})
         if path == "/.well-known/ucp":
             return self._send(200, profile(self._base()))
+        if path == "/.well-known/oauth-authorization-server" and VERSION == "2026-04-08":
+            # identity-linking (04-08 only, like the capability declaration):
+            # RFC 8414 authorization server metadata on the business domain
+            return self._send(200, oauth_authorization_server_metadata(self._base()))
         if path.startswith("/checkout-sessions/"):
             sid = path.split("/")[2]
             return self._send(*get_checkout(sid, self.headers))

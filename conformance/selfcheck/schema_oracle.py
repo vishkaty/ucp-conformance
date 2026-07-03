@@ -138,6 +138,39 @@ def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-
     finally:
         os.unlink(path)
 
+def validate_nested_def(payload, schema_rel, def_path, op="read", version="2026-04-08"):
+    """Validate a payload against a NESTED $defs entry (e.g. a capability schema's
+    role branch: $defs['dev.ucp.common.identity_linking'].business_schema).
+
+    The CLI's --def only selects TOP-LEVEL $defs names, and selecting the capability
+    container def validates vacuously (its platform_schema/business_schema keys are
+    not JSON-Schema keywords) — a false-PASS trap. So we point the validator at a
+    tiny wrapper schema whose $ref targets the nested def INSIDE the official pinned
+    schema by its https://ucp.dev/ URL + JSON pointer; --schema-remote-base maps the
+    URL back to the pinned local tree, so the OFFICIAL schema content remains the
+    only validation authority (the wrapper carries no keywords of its own).
+
+    def_path is the JSON-pointer tail under $defs, '/'-separated
+    (e.g. 'dev.ucp.common.identity_linking/business_schema').
+    Returns (ok, detail); raises OracleUnavailable if the binary/base is absent."""
+    import tempfile, os
+    base = SCHEMA_BASE.get(version)
+    if not base or not (base / schema_rel).exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    wrapper = {"$schema": "https://json-schema.org/draft/2020-12/schema",
+               "$ref": f"https://ucp.dev/{schema_rel}#/$defs/{def_path}"}
+    fd, wpath = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    fd, ppath = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    try:
+        pathlib.Path(wpath).write_text(json.dumps(wrapper))
+        pathlib.Path(ppath).write_text(json.dumps(payload))
+        r = _run(["validate", ppath, "--schema", wpath, "--op", op,
+                  "--schema-local-base", str(base),
+                  "--schema-remote-base", "https://ucp.dev"])
+        return (r.returncode == 0, (r.stdout + r.stderr).strip())
+    finally:
+        os.unlink(wpath); os.unlink(ppath)
+
 def validate_root(payload, schema_rel, op="read", version="2026-04-08", direction="response"):
     """Validate a payload against a ROOT schema (one with no named $defs — e.g.
     types/message_error.json): pass --schema WITHOUT --def and the validator uses the

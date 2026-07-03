@@ -14,7 +14,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "selfcheck"))
 import server                                              # noqa: E402
-from schema_oracle import validate, validate_against, validate_root, validate_profile, OracleUnavailable  # noqa: E402
+from schema_oracle import validate, validate_against, validate_root, validate_profile, validate_nested_def, OracleUnavailable  # noqa: E402
 
 BASE = "http://localhost:8184"
 HDRS = {"UCP-Agent": 'profile="https://spck.dev/agent"'}   # minimal valid headers
@@ -200,6 +200,54 @@ def _dedup_lookup():
     return validate_against(resp, "schemas/shopping/catalog_lookup.json",
                             "lookup_response", op="lookup", version=server.VERSION)
 
+def _identity_capability_config():
+    """The profile's identity_linking declaration MUST validate against the OFFICIAL
+    nested business_schema def (identity_linking.json requires config + config.scopes;
+    scope keys match the scope_token pattern). validate_profile alone cannot prove
+    this — the profile oracle does not recurse into capability config schemas."""
+    entries = server.profile(BASE)["capabilities"].get("dev.ucp.common.identity_linking")
+    if not entries:
+        return False, "profile does not declare dev.ucp.common.identity_linking"
+    for e in entries:
+        ok, detail = validate_nested_def(e, "schemas/common/identity_linking.json",
+                                         "dev.ucp.common.identity_linking/business_schema",
+                                         op="read", version=server.VERSION)
+        if not ok:
+            return False, detail
+    return True, "ok"
+
+def _oauth_metadata():
+    """RFC 8414 metadata invariants (no UCP schema exists for this artifact — the
+    assertions below are RFC 8414 / identity-linking.md requirements, plus the
+    cross-artifact consistency the spec's scope-mismatch story relies on: every
+    scope declared in the profile's config.scopes appears in scopes_supported)."""
+    md = server.oauth_authorization_server_metadata(BASE)
+    for f in ("issuer", "authorization_endpoint", "token_endpoint"):
+        if not (isinstance(md.get(f), str) and md[f]):
+            return False, f"metadata is missing {f}"
+    if md["issuer"] != BASE:
+        return False, f"issuer must be the business base URL, got {md['issuer']}"
+    if not (isinstance(md.get("response_types_supported"), list)
+            and "code" in md["response_types_supported"]):
+        return False, "response_types_supported must include 'code'"
+    if not (isinstance(md.get("scopes_supported"), list) and md["scopes_supported"]
+            and all(isinstance(s, str) and s for s in md["scopes_supported"])):
+        return False, "scopes_supported must be a populated list of scope strings (IDL-017)"
+    missing = set(server.IDENTITY_SCOPES) - set(md["scopes_supported"])
+    if missing:
+        return False, f"profile config.scopes not in scopes_supported: {sorted(missing)}"
+    if not (isinstance(md.get("token_endpoint_auth_methods_supported"), list)
+            and md["token_endpoint_auth_methods_supported"]):
+        return False, "token_endpoint_auth_methods_supported must be populated (IDL-022)"
+    if md.get("authorization_response_iss_parameter_supported") is not True:
+        return False, "authorization_response_iss_parameter_supported must be true (IDL-058)"
+    if "S256" not in (md.get("code_challenge_methods_supported") or []):
+        return False, "code_challenge_methods_supported must include S256 (IDL-058)"
+    if "none" in md["token_endpoint_auth_methods_supported"] \
+       and "S256" not in md["code_challenge_methods_supported"]:
+        return False, "advertising 'none' requires PKCE S256"
+    return True, "ok"
+
 def main():
     artifacts = [
         ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
@@ -225,6 +273,9 @@ def main():
                                  "lookup batch exceeds the maximum"),
             "schemas/shopping/types/error_response.json", op="lookup",
             version=server.VERSION)),
+        # identity-linking (04-08): capability declaration + RFC 8414 metadata
+        ("identity_linking capability config", _identity_capability_config),
+        ("oauth metadata (RFC 8414)", _oauth_metadata),
         ("cart response", lambda: validate_against(
             server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
             "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
