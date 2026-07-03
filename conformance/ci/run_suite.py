@@ -45,6 +45,7 @@ def gates(server):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
+        ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),
