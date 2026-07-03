@@ -4022,15 +4022,15 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 133,
+   "check": 149,
    "exempt": 27,
-   "gap": 162,
-   "accounted_pct": 50,
+   "gap": 146,
+   "accounted_pct": 55,
    "gap_by_testability": {
-    "manual": 16,
+    "manual": 17,
     "needs-oauth": 48,
     "needs-receiver": 64,
-    "testable": 34
+    "testable": 17
    },
    "areas": [
     {
@@ -4068,17 +4068,17 @@
     },
     {
      "area": "discovery-and-profile",
-     "gap": 6,
-     "gap_testable": 6,
+     "check": 5,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 6
     },
     {
      "area": "error-envelope",
-     "check": 5,
+     "check": 12,
      "exempt": 10,
-     "gap": 10,
+     "gap": 3,
      "gap_manual": 3,
-     "gap_testable": 7,
      "musts": 25
     },
     {
@@ -4136,8 +4136,7 @@
     },
     {
      "area": "version-negotiation-and-protocol-errors",
-     "gap": 4,
-     "gap_testable": 4,
+     "check": 4,
      "musts": 4
     }
    ],
@@ -5047,56 +5046,66 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business profile MUST be served over HTTPS.",
      "source": "ucp:docs/specification/overview.md#L1053",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "DISC-002",
      "area": "discovery-and-profile",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them.",
      "source": "ucp:docs/specification/overview.md#L1054",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "DISC-003",
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Profile responses MUST send Cache-Control with public and max-age>=60, and MUST NOT use private/no-store/no-cache.",
      "source": "ucp:docs/specification/overview.md#L1055-L1057",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "DISC-004",
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Implementations MUST reject profile URLs not served over HTTPS.",
      "source": "ucp:docs/specification/overview.md#L1098",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "DISC-005",
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "service endpoint MUST be a valid HTTPS URL.",
      "source": "ucp:docs/specification/overview.md#L147",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "DISC-006",
      "area": "discovery-and-profile",
      "keyword": "MUST",
-     "testability": "testable",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST include their profile URI in every request.",
      "source": "ucp:docs/specification/overview.md#L622-L623",
@@ -5456,10 +5465,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message type discriminator MUST be the constant \"error\".",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L13",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-003",
@@ -5488,10 +5499,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message content_type, when present, MUST be one of plain or markdown (default plain).",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L25",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-006",
@@ -5508,20 +5521,24 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Warning message MUST include type, code, and content fields.",
      "source": "ucp:source/schemas/shopping/types/message_warning.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-010",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Warning message type discriminator MUST be the constant \"warning\".",
      "source": "ucp:source/schemas/shopping/types/message_warning.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-011",
@@ -5638,20 +5655,24 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Info message MUST include type and content fields.",
      "source": "ucp:source/schemas/shopping/types/message_info.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-026",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Info message type discriminator MUST be the constant \"info\".",
      "source": "ucp:source/schemas/shopping/types/message_info.json#L11",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-028",
@@ -5694,10 +5715,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A Message MUST be exactly one of error, warning, or info (oneOf discriminated container).",
      "source": "ucp:source/schemas/shopping/types/message.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_discovery.py"
+     ]
     },
     {
      "id": "ERR-034",
@@ -6434,40 +6457,48 @@
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
      "source": "ucp:docs/specification/overview.md#L699,L1912",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "NEG-002",
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When no compatible capabilities exist in the intersection, the business MUST return a capabilities_incompatible error, mapped to HTTP 200 with the error in the UCP body (NOT a 4xx).",
      "source": "ucp:docs/specification/overview.md#L700,L1916",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "NEG-003",
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A resolved-but-unfetchable profile (timeout/non-2xx) maps to profile_unreachable, HTTP 424.",
      "source": "ucp:docs/specification/overview.md#L697",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "NEG-004",
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A fetched profile that is not valid JSON or violates schema maps to profile_malformed, HTTP 422.",
      "source": "ucp:docs/specification/overview.md#L698",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "ORD-001",
