@@ -53,9 +53,9 @@ configurable product).
 
 | Version | MUSTs | CHECK | EXEMPT | GAP (testable / needs-harness / manual) |
 |---|---|---|---|---|
-| 2026-01-11 | 172 | 58 | 0 | 114 (38 / 45 / 31) |
-| 2026-01-23 | 181 | 71 | 0 | 110 (32 / 45 / 33) |
-| 2026-04-08 | 322 | 86 | 0 | 236 (83 / 112 / 41) |
+| 2026-01-11 | 172 | 58 | 12 | 102 (38 / 45 / 19) |
+| 2026-01-23 | 181 | 71 | 12 | 98 (32 / 45 / 21) |
+| 2026-04-08 | 322 | 159 | 27 | 136 (1 / 118 / 17) |
 
 (Live numbers: [spck.dev/coverage](https://spck.dev/coverage) — this table is a
 snapshot; the page and `public/coverage.json` are the enforced source of truth.)
