@@ -65,6 +65,15 @@ def chk_no_credential_echo(r):
 
 # ---- registry ---------------------------------------------------------------
 CHECKS = [
+    # PAY-002 is deliberately UNSCOPED (version-adaptive): scoping consistency
+    # re-verified 2026-07-03 (wave-2 accounting, reviewer follow-up) against all
+    # three pinned registers AND schemas — the id names the SAME normative rule
+    # everywhere ("a payment handler base/declaration must include an id"):
+    #   2026-01-11  shopping/types/payment_handler.json  base.required ⊇ ["id"]
+    #   2026-01-23  payment_handler.json                 $defs/base allOf required ["id"]
+    #   2026-04-08  payment_handler.json#L13             $defs/base allOf required ["id"]
+    # (platform/business/response handler schemas compose base at every version),
+    # so the citation cannot leak to a different requirement at any version.
     Check("payment.handler_ids_advertised", ["PAY-002"], "MUST",
           core._discovery, chk_handler_ids,
           ["status:500", "drop:payment_handlers", "set:payment_handlers={}",
