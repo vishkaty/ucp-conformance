@@ -192,15 +192,17 @@ def f_order_requires_auth(ctx):
 
 def p_order_auth_required(r, ctx):
     """ORD-012 is mechanism-agnostic (any UCP auth mechanism): an unauthenticated
-    order-data request MUST be refused. 401 Unauthorized is the correct signal;
-    the positive control already proved a valid credential is accepted."""
-    return CLEAN if r.status == 401 else DEVIATION
+    order-data request MUST be refused. 401 (RFC 6750 missing-bearer) OR 403
+    (credential-less refusal, common in the wild) both count as 'refused' — the
+    spec pins no status here (wave-3 review F2); the positive control already
+    proved a valid credential is accepted."""
+    return CLEAN if r.status in (401, 403) else DEVIATION
 
 
 CHECKS_04_08_ORDER = [
     MCheck("order.data_requires_auth", ["ORD-012"], "MUST",
            f_order_requires_auth, p_order_auth_required,
-           ["status:200", "status:404", "status:403"],
+           ["status:200", "status:404"],  # 403 removed: it is a valid refusal (F2)
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("order.require_auth", "complete_payment",
                       "identity.token_mint"),

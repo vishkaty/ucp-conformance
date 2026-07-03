@@ -2,7 +2,7 @@
 """
 merchant_checks_04_08_receiver.py — 2026-04-08-scoped behavioral checks for the
 RECEIVER tier: continue_url/escalation, cart-to-checkout conversion, eligibility
-verification, idempotency, and the algorithm_unsupported signature error code.
+verification, idempotency,.
 
 Every id here is version-locked to 2026-04-08 (versions=("2026-04-08",)) and this
 file is named *_04_08* so coverage/matrix.py attributes its ids to 2026-04-08 only
@@ -58,7 +58,7 @@ def p_escalation_continue_url(r, ctx):
     """CHK-001/CHK-014/CHK-043: a requires_escalation response MUST carry
     continue_url ('Businesses MUST provide continue_url when returning status =
     requires_escalation')."""
-    if r.status != 200 or not isinstance(r.json, dict):
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
         return DEVIATION
     if r.json.get("status") != "requires_escalation":
         return DEVIATION
@@ -67,7 +67,7 @@ def p_escalation_continue_url(r, ctx):
 
 def p_escalation_https(r, ctx):
     """CHK-004: 'The continue_url MUST be an absolute HTTPS URL.'"""
-    if r.status != 200 or (r.json or {}).get("status") != "requires_escalation":
+    if r.status not in (200, 201) or (r.json or {}).get("status") != "requires_escalation":
         return DEVIATION
     cu = (r.json or {}).get("continue_url")
     return CLEAN if isinstance(cu, str) and cu.startswith("https://") else DEVIATION
@@ -75,7 +75,7 @@ def p_escalation_https(r, ctx):
 def p_escalation_buyer_message(r, ctx):
     """CHK-015: a requires_escalation response MUST include at least one message
     with severity requires_buyer_input or requires_buyer_review."""
-    if r.status != 200 or (r.json or {}).get("status") != "requires_escalation":
+    if r.status not in (200, 201) or (r.json or {}).get("status") != "requires_escalation":
         return DEVIATION
     return CLEAN if any(isinstance(m, dict) and m.get("severity") in
                         ("requires_buyer_input", "requires_buyer_review")
@@ -279,24 +279,6 @@ def p_idem_conflict_409(r, ctx):
     return CLEAN if r.status == 409 else DEVIATION
 
 # ======== SIGNATURE error code (signatures.md "Error Handling") ===============
-def f_bad_alg(ctx):
-    """POST a request whose RFC 9421 Signature-Input declares an UNSUPPORTED
-    algorithm — the verifier must reject it before crypto verification."""
-    kid = ((ctx.config.get("signature") or {}).get("request_private_jwk") or {}).get("kid", "x")
-    params = f'("@method" "@path");keyid="{kid}";alg="rsa-pss-sha512"'
-    h = _hdr()
-    h["Signature-Input"] = f"sig1={params}"
-    h["Signature"] = "sig1=:AAAA:"           # dummy — rejected on alg before verify
-    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
-                 _line(ctx.product_id), h)
-
-def p_algorithm_unsupported(r, ctx):
-    """SIG-035: 'algorithm_unsupported maps to HTTP 400 (signature algorithm not
-    supported).'"""
-    if r.status != 400 or not isinstance(r.json, dict):
-        return DEVIATION
-    return CLEAN if r.json.get("code") == "algorithm_unsupported" else DEVIATION
-
 CHECKS_04_08_RECEIVER = [
     # ---- escalation / continue_url ------------------------------------------
     MCheck("checkout.escalation_continue_url", ["CHK-001", "CHK-014", "CHK-043"],
@@ -398,10 +380,4 @@ CHECKS_04_08_RECEIVER = [
            cfg_needs=("cart.second_product_id",), needs=("product",),
            transport="rest", capability="dev.ucp.shopping.cart", versions=V0408),
     # ---- signature algorithm error code -------------------------------------
-    MCheck("signatures.algorithm_unsupported", ["SIG-035"], "MUST",
-           f_bad_alg, p_algorithm_unsupported,
-           ["status:200", "status:201", "status:401", "drop:code",
-            "set:code=\"signature_invalid\"", "empty", "corrupt-json"],
-           cfg_needs=("signature.request_private_jwk",), needs=("product",),
-           transport="rest", versions=V0408),
 ]

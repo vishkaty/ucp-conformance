@@ -396,7 +396,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate."
+      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-002",
@@ -414,7 +414,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate."
+      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-003",
@@ -432,7 +432,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
+      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-004",
@@ -450,7 +450,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate."
+      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-005",
@@ -612,7 +612,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden."
+      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token \u2014 a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded \u2014 Complete needs the full payment flow)."
     }
   ],
   "notes": [

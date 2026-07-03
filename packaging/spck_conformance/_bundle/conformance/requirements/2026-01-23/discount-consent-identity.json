@@ -8,8 +8,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L125",
       "quote": "**Replacement semantics**: Submitting `discounts.codes` replaces any previously submitted codes",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -22,8 +26,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L126",
       "quote": "**Clear codes**: Send empty array `\"codes\": []` to remove all discount codes",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -36,8 +44,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L127",
       "quote": "**Case-insensitive**: Codes are matched case-insensitively by business",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -50,8 +62,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L131",
       "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -64,8 +80,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L131",
       "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -78,8 +98,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L137",
       "quote": "When a submitted discount code cannot be applied, businesses communicate this\nvia the `messages[]` array:",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -92,8 +116,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L314",
       "quote": "The code still appears in `discounts.codes` (echoed back)\nbut not in `discounts.applied`.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -106,8 +134,12 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/discount.md#L153",
       "quote": "Operations that affect order totals, or the\n> user's expectation of the total, **SHOULD** use `type: \"warning\"` to ensure\n> they are surfaced to the user rather than silently handled by platforms.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -120,8 +152,12 @@
       "keyword": "MAY",
       "source": "ucp:docs/specification/discount.md#L161",
       "quote": "**Error codes for rejected discounts:**",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -134,8 +170,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L175",
       "quote": "Appear in `discounts.applied` with `automatic: true` and no `code` field",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -148,8 +188,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L131",
       "quote": "Discount amounts reflected in `totals[]` and `line_items[].discount`",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -162,8 +206,12 @@
       "keyword": "MUST",
       "source": "ucp:source/schemas/shopping/discount.json#L29",
       "quote": "\"required\": [\"title\", \"amount\"]",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -176,8 +224,12 @@
       "keyword": "MUST",
       "source": "ucp:source/schemas/shopping/discount.json#L51",
       "quote": "\"enum\": [\"each\", \"across\"]",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -190,8 +242,12 @@
       "keyword": "MUST",
       "source": "ucp:source/schemas/shopping/discount.json#L12",
       "quote": "\"required\": [\"path\", \"amount\"]",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -204,13 +260,17 @@
       "keyword": "MUST NOT",
       "source": "ucp:source/schemas/shopping/discount.json#L98",
       "quote": "\"complete\": \"omit\"",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "ucp_request annotation (create optional, update optional, complete omit) — convention metadata, not a standard JSON-Schema validation keyword."
+      "notes": "ucp_request annotation (create optional, update optional, complete omit) \u2014 convention metadata, not a standard JSON-Schema validation keyword."
     },
     {
       "id": "DSC-016",
@@ -218,8 +278,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L117",
       "quote": "**Invariant:** Sum of `allocations[].amount` equals `applied_discount.amount`.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -232,8 +296,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L205",
       "quote": "**Amount convention:** All discount amounts are positive integers in minor\ncurrency units.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -246,8 +314,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/discount.md#L199",
       "quote": "**Invariant:** `totals[type=items_discount].amount` equals\n`sum(line_items[].discount)`.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -260,8 +332,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/buyer-consent.md#L29",
       "quote": "the `buyer` object in checkout is extended\nwith a `consent` field containing boolean consent states.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -274,8 +350,12 @@
       "keyword": "MUST",
       "source": "ucp:source/schemas/shopping/buyer_consent.json#L14",
       "quote": "\"type\": \"boolean\"",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
@@ -288,8 +368,12 @@
       "keyword": "MUST NOT",
       "source": "ucp:source/schemas/shopping/buyer_consent.json#L63",
       "quote": "\"complete\": \"omit\"",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -302,8 +386,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/buyer-consent.md#L132",
       "quote": "**Consent is declarative** - The protocol communicates consent, it does not enforce it",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
@@ -316,8 +404,12 @@
       "keyword": "SHOULD NOT",
       "source": "ucp:docs/specification/buyer-consent.md#L134",
       "quote": "**Platforms should not** assume consent without explicit user action",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
@@ -330,13 +422,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L42",
       "quote": "**MUST** authenticate using their `client_id` and `client_secret`",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate."
+      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-002",
@@ -344,13 +440,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L52",
       "quote": "**MUST** implement the OAuth 2.0 Authorization Code flow",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate."
+      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-003",
@@ -358,13 +458,17 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/identity-linking.md#L55",
       "quote": "**SHOULD** include a unique, unguessable state parameter in the\n    authorization request to prevent Cross-Site Request Forgery (CSRF)",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
+      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-004",
@@ -372,13 +476,17 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/identity-linking.md#L62",
       "quote": "**SHOULD** call the business's revocation endpoint",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate."
+      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate."
     },
     {
       "id": "IDL-005",
@@ -386,8 +494,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L72",
       "quote": "**MUST** implement OAuth 2.0",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -400,8 +512,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L74",
       "quote": "**MUST** adhere to [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) to\n    declare the location of their OAuth 2.0 endpoints\n    (`/.well-known/oauth-authorization-server`)",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -414,8 +530,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L83",
       "quote": "**MUST** enforce Client Authentication at the Token Endpoint.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -428,8 +548,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L84",
       "quote": "**MUST** provide an account creation flow if the user does not already have\n    an account.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": true,
@@ -442,8 +566,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L86",
       "quote": "**MUST** support standard UCP scopes, as defined in the Scopes section,\n    granting the tokens permission to all associated Operations for a given\n    resource.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -456,8 +584,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L94",
       "quote": "**MUST** implement standard Token Revocation as defined in\n        [RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009).",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -470,8 +602,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L96",
       "quote": "**MUST** revoke the specified token and **SHOULD** recursively revoke\n        all associated tokens (e.g., revoking a `refresh_token` **MUST** also\n        immediately revoke all active `access_token`s issued from it).",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -484,8 +620,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L99",
       "quote": "**MUST** support revocation requests authenticated with the same client\n        credentials used for the token endpoint.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -498,13 +638,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/identity-linking.md#L129",
       "quote": "A scope covering a capability must grant access to all operations associated to\nthe capability.",
-      "versions": ["2026-01-23"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-01-23"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-oauth",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden."
+      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token \u2014 a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded \u2014 Complete needs the full payment flow)."
     }
   ],
   "notes": [

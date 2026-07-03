@@ -1041,13 +1041,9 @@ def _sig_request_verification():
     err = server.verify_signed_request("POST", "/checkout-sessions", u, raw)
     if not err or err[0] != 401 or err[1].get("code") != "key_not_found":
         return False, f"unknown kid: expected 401 key_not_found, got {err}"
-    # SIG-035: a PRESENT-but-unsupported algorithm parameter -> 400
-    # algorithm_unsupported (signatures.md Error Handling table)
-    a = dict(hdrs)
-    a["Signature-Input"] = f'sig1={raw_params};alg="rsa-pss-sha512"'
-    err = server.verify_signed_request("POST", "/checkout-sessions", a, raw)
-    if not err or err[0] != 400 or err[1].get("code") != "algorithm_unsupported":
-        return False, f"unsupported alg: expected 400 algorithm_unsupported, got {err}"
+    # NB: no `alg`-param assertion — signatures.md derives the algorithm from the
+    # key crv; `alg` is NOT a Signature-Input parameter, so the golden neither reads
+    # nor rejects it (SIG-035 has no conformant wire trigger — wave-3 review F1).
     return True, "ok"
 
 # ==== WEBHOOK/EVENTS area artifacts (2026-04-08, order.md Events) ==============

@@ -8,8 +8,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L42",
       "quote": "UCP uses HTTP Message Signatures ([RFC 9421](https://www.rfc-editor.org/rfc/rfc9421))\nfor all HTTP-based transports:",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -22,8 +26,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L90",
       "quote": "All implementations **MUST** support verifying P-256 (`ES256`) signatures",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -36,8 +44,12 @@
       "keyword": "MAY",
       "source": "ucp:docs/specification/signatures.md#L91",
       "quote": "Support for P-384 (`ES384`) is **OPTIONAL**",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -50,8 +62,12 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/signatures.md#L95",
       "quote": "Signers **SHOULD** use P-256 for maximum compatibility",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -64,8 +80,12 @@
       "keyword": "MAY",
       "source": "ucp:docs/specification/signatures.md#L96",
       "quote": "Signers **MAY** use P-384 when both parties support it",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -78,8 +98,12 @@
       "keyword": "MUST NOT",
       "source": "ucp:docs/specification/signatures.md#L97",
       "quote": "The algorithm is derived from the key's `crv` field in the JWK;\n  `alg` is **NOT** included in `Signature-Input` parameters",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -92,8 +116,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L102",
       "quote": "Public keys **MUST** be represented using **JSON Web Key (JWK)** format as\ndefined in [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517).",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -106,8 +134,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L135",
       "quote": "Public keys are published in the `signing_keys` array of the party's UCP\nprofile at `/.well-known/ucp`.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
@@ -119,9 +151,13 @@
       "requirement": "During key rotation, continue accepting signatures from old keys for a grace period of minimum 7 days.",
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L146",
-      "quote": "**Grace period** — Continue accepting signatures from old keys (minimum 7 days)",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "quote": "**Grace period** \u2014 Continue accepting signatures from old keys (minimum 7 days)",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -134,8 +170,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L176",
       "quote": "`Content-Digest` follows [RFC 9530](https://www.rfc-editor.org/rfc/rfc9530) and\nhashes the raw body bytes. This binds the message body to the signature without\nrequiring JSON canonicalization. Implementations **MUST** use `sha-256`.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -148,8 +188,12 @@
       "keyword": "MUST NOT",
       "source": "ucp:docs/specification/signatures.md#L182",
       "quote": "Proxies, API gateways, and other intermediaries\n**MUST NOT** re-serialize JSON bodies, as this would invalidate the signature.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": false,
@@ -162,8 +206,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L172",
       "quote": "| `Content-Digest`  | Request/Response | Cond.*   | SHA-256 hash of request/response body |\n...\n\\* Required when request/response has a body",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -176,8 +224,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L170",
       "quote": "| `Signature-Input` | Request/Response | Yes      | Describes signed components           |\n| `Signature`       | Request/Response | Yes      | Contains signature value              |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -190,27 +242,35 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L193",
       "quote": "| `@method`         | Yes       | HTTP method (GET, POST, etc.)          |\n| `@authority`      | Yes       | Target host (prevents cross-host relay)|\n| `@path`           | Yes       | Request path                           |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Reclassified from testable (signatures area pass): binds the REQUEST SIGNER. Requests to a merchant are platform-authored (client-bound); the merchant-authored requests subject to this component table are webhook notifications, so merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Not observable by probing merchant endpoints: verify_rest_request verifies only the components listed in Signature-Input — the receiver is not required to enforce the signer's component table."
+      "notes": "Reclassified from testable (signatures area pass): binds the REQUEST SIGNER. Requests to a merchant are platform-authored (client-bound); the merchant-authored requests subject to this component table are webhook notifications, so merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Not observable by probing merchant endpoints: verify_rest_request verifies only the components listed in Signature-Input \u2014 the receiver is not required to enforce the signer's component table."
     },
     {
       "id": "SIG-015",
       "requirement": "REST request signed components MUST include content-digest and content-type when the request has a body.",
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L199",
-      "quote": "| `content-digest`  | Cond.†    | Body digest (if body present)          |\n| `content-type`    | Cond.†    | Content-Type (if body present)         |\n...\n† Required if request has a body",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "quote": "| `content-digest`  | Cond.\u2020    | Body digest (if body present)          |\n| `content-type`    | Cond.\u2020    | Content-Type (if body present)         |\n...\n\u2020 Required if request has a body",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
     },
     {
       "id": "SIG-016",
@@ -218,13 +278,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L198",
       "quote": "| `idempotency-key` | Cond.\\*** | Idempotency header (state-changing)    |\n...\n\\*** Required for POST, PUT, DELETE, PATCH",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+      "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
     },
     {
       "id": "SIG-017",
@@ -232,13 +296,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L196",
       "quote": "| `@query`          | Cond.\\*   | Query string (if present)              |\n...\n\\* Required if request has query parameters",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
     },
     {
       "id": "SIG-018",
@@ -246,13 +314,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L197",
       "quote": "| `ucp-agent`       | Cond.\\**  | Profile URL (binds identity)           |\n...\n\\** Required if `UCP-Agent` header is present",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+      "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
     },
     {
       "id": "SIG-019",
@@ -260,8 +332,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L252",
       "quote": "ECDSA signatures **MUST** use fixed-width raw `r||s`\nencoding per RFC 9421, **not** ASN.1/DER. The signature value is the\nconcatenation of `r` and `s` as fixed-length unsigned big-endian integers:\n64 bytes for P-256 (32 + 32), 96 bytes for P-384 (48 + 48).",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -274,8 +350,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L285",
       "quote": "Response signatures use `@status` instead of `@method`:\n...\n| `@status`        | Yes      | HTTP status code (200, 201, etc.) |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -288,8 +368,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L292",
       "quote": "| `content-digest` | Cond.*   | Body digest (if body present)     |\n| `content-type`   | Cond.*   | Content-Type (if body present)    |\n...\n\\* Required if response has a body",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -302,8 +386,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L482",
       "quote": "| **Entropy** | Minimum 128 bits (e.g., UUID v4, 22+ char alphanumeric) |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": false,
@@ -316,8 +404,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L484",
       "quote": "| **Server storage** | Minimum 24 hours, recommended 48 hours |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -330,8 +422,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L486",
       "quote": "| **On storage failure** | Fail closed (reject request with 503) |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -344,8 +440,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L485",
       "quote": "| **On duplicate** | Return cached response, do not re-execute |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -358,8 +458,12 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/signatures.md#L495",
       "quote": "Platforms **SHOULD** sign all requests when using HTTP Message\nSignatures.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -372,8 +476,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L499",
       "quote": "Webhook notifications **MUST** be signed. Recipients cannot\notherwise verify authenticity of server-initiated push messages.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -386,8 +494,12 @@
       "keyword": "SHOULD",
       "source": "ucp:docs/specification/signatures.md#L502",
       "quote": "Signatures are **RECOMMENDED** for:\n\n* Payment authorization responses\n* Checkout completion responses",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -400,8 +512,12 @@
       "keyword": "MAY",
       "source": "ucp:docs/specification/signatures.md#L507",
       "quote": "Signatures are **OPTIONAL** for:\n\n* Cart operations (low-value, synchronous)\n* Catalog queries (read-only)\n* Error responses (4xx, 5xx)",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": false,
       "browser_capable": false,
@@ -414,8 +530,12 @@
       "keyword": "MAY",
       "source": "ucp:docs/specification/signatures.md#L488",
       "quote": "The RFC 9421 `created` parameter is **OPTIONAL**. UCP handles replay\nprotection at the business layer through idempotency keys, not signature timestamps.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
@@ -428,8 +548,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L551",
       "quote": "| `signature_missing`     | 401  | Required signature header/field not present          |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -442,8 +566,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L552",
       "quote": "| `signature_invalid`     | 401  | Signature verification failed                        |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -456,8 +584,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L553",
       "quote": "| `key_not_found`         | 401  | Key ID not found in signer's `signing_keys`          |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -470,8 +602,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L554",
       "quote": "| `digest_mismatch`       | 400  | Body digest doesn't match `Content-Digest` header    |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -484,13 +620,17 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L555",
       "quote": "| `algorithm_unsupported` | 400  | Signature algorithm not supported                    |",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "Wave-3 review F1 (2026-07-03): a live check was removed \u2014 algorithm_unsupported has NO spec-conformant wire trigger. signatures.md: the algorithm is derived from the key crv; `alg` is NOT a Signature-Input parameter, so a conformant signer never sends an unsupported alg and a conformant verifier returns signature_invalid, not algorithm_unsupported. No normative 'MUST emit' text, no official-oracle test. Stays GAP (needs-receiver) unless a crv-based unsupported-key scenario is devised."
     },
     {
       "id": "SIG-036",
@@ -498,8 +638,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L404",
       "quote": "if not ecdsa_verify(signature_base, signature, public_key):\n        return error(\"signature_invalid\")",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -512,8 +656,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L387",
       "quote": "if not public_key:\n        return error(\"key_not_found\")",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -526,8 +674,12 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/signatures.md#L393",
       "quote": "if request.headers[\"Content-Digest\"] != expected:\n            return error(\"digest_mismatch\")",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "needs-receiver",
       "official_oracle": false,
       "browser_capable": false,
@@ -537,7 +689,7 @@
   ],
   "notes": [
     "Area is NEW in the 2026-04-08 spec (docs/specification/signatures.md).",
-    "OFFICIAL ORACLE: The vendored conformance suite STUBS the request signature. integration_test_utils.get_headers() (.vendor/conformance/integration_test_utils.py:133) sets the header request-signature: \"test\" — a literal placeholder, not an RFC 9421 Signature/Signature-Input. The suite therefore does NOT actually generate, sign, or verify any signature. Consequently official_oracle=false for ALL signature rows, including verification, error-code, and digest rows.",
+    "OFFICIAL ORACLE: The vendored conformance suite STUBS the request signature. integration_test_utils.get_headers() (.vendor/conformance/integration_test_utils.py:133) sets the header request-signature: \"test\" \u2014 a literal placeholder, not an RFC 9421 Signature/Signature-Input. The suite therefore does NOT actually generate, sign, or verify any signature. Consequently official_oracle=false for ALL signature rows, including verification, error-code, and digest rows.",
     "Note the suite uses a non-standard header name 'request-signature' rather than the spec's RFC 9421 'Signature'/'Signature-Input' headers, further confirming the stub is not a real implementation.",
     "browser_capable=false for all signature verification rows (CORS + WebCrypto ECDSA raw r||s constraints). Only the two pure-doc-structural rows (SIG-007 JWK format, SIG-008 signing_keys publication) are marked browser_capable=true.",
     "Webhook-signing (SIG-027) and receiver-side behaviors (key-rotation grace, idempotency storage/fail-closed, response signing, error-code status bindings) are marked needs-receiver: they require a counterparty that actually signs/verifies, which the stubbed suite does not provide.",

@@ -872,7 +872,6 @@ def sign_response(status, body_bytes):
             "Signature-Input": f"sig1={raw_params}",
             "Signature": "sig1=:" + base64.b64encode(sig).decode() + ":"}
 
-SUPPORTED_SIG_ALGS = ("ecdsa-p256-sha256",)   # signatures.md: ES256 over P-256
 
 def verify_signed_request(method, path_qs, headers, raw_body):
     """Verify an incoming request that carries RFC 9421 signature headers, per the
@@ -892,14 +891,11 @@ def verify_signed_request(method, path_qs, headers, raw_body):
     if label is None:
         return err(401, "signature_missing", "no Signature member matches Signature-Input")
     entry = si[label]
-    # signatures.md Error Handling: an unsupported signature algorithm maps to
-    # HTTP 400 algorithm_unsupported (SIG-035). The `alg` parameter is optional in
-    # RFC 9421 (the verifier may derive it from key material), so this rejects only
-    # a PRESENT-but-unsupported alg; the fixture verifies ES256 (ecdsa-p256-sha256).
-    alg = entry["params"].get("alg")
-    if alg is not None and alg not in SUPPORTED_SIG_ALGS:
-        return err(400, "algorithm_unsupported",
-                   f"signature algorithm not supported: {alg}")
+    # NB: signatures.md derives the algorithm from the key's crv — `alg` is NOT a
+    # Signature-Input parameter (a conformant signer never sends it, a conformant
+    # verifier never reads it), so the golden deliberately does NOT branch on `alg`.
+    # (SIG-035 'algorithm_unsupported' has no spec-conformant wire trigger and is
+    # left GAP — wave-3 adversarial review F1.)
     kid = entry["params"].get("keyid")
     pub = TRUSTED_PLATFORM_KEYS.get(kid)
     if not pub:

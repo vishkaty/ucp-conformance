@@ -4269,14 +4269,14 @@
   },
   "2026-04-08": {
    "musts": 323,
-   "check": 228,
+   "check": 227,
    "exempt": 62,
-   "gap": 33,
-   "accounted_pct": 90,
+   "gap": 34,
+   "accounted_pct": 89,
    "gap_by_testability": {
     "manual": 17,
     "needs-oauth": 1,
-    "needs-receiver": 15
+    "needs-receiver": 16
    },
    "areas": [
     {
@@ -4368,10 +4368,10 @@
     },
     {
      "area": "signatures",
-     "check": 24,
-     "gap": 7,
+     "check": 23,
+     "gap": 8,
      "gap_manual": 2,
-     "gap_needs-receiver": 5,
+     "gap_needs-receiver": 6,
      "musts": 31
     },
     {
@@ -7949,12 +7949,10 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "check",
+     "status": "gap",
      "requirement": "algorithm_unsupported maps to HTTP 400 (signature algorithm not supported).",
      "source": "ucp:docs/specification/signatures.md#L555",
-     "covered_by": [
-      "merchant_checks_04_08_receiver.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "SIG-036",
