@@ -1156,7 +1156,16 @@ def _expand_mut(m, ctx):
       $DVALID   -> a valid discount code
       $DINVALID -> an invalid/unknown discount code
       $DSECOND  -> a second valid discount code
+      $PRODUCT  -> the merchant's primary product id (ctx.product_id)
+      $PRODUCT2 -> a second distinct product id (config cart.second_product_id,
+                   falling back to order.second_product_id)
     """
+    if "$PRODUCT2" in m:                     # before $PRODUCT ($PRODUCT is a prefix)
+        p2 = (ctx.config.get("cart") or {}).get("second_product_id") \
+            or (ctx.config.get("order") or {}).get("second_product_id")
+        m = m.replace("$PRODUCT2", json.dumps(p2 or "__p2__"))
+    if "$PRODUCT" in m:
+        m = m.replace("$PRODUCT", json.dumps(ctx.product_id or "__p__"))
     if "$CRED" in m:
         toks = _cred_tokens(ctx.config.get("complete_payment"))
         m = m.replace("$CRED", json.dumps(toks[0]) if toks else '"__cred__"')

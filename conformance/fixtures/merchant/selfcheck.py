@@ -352,6 +352,52 @@ def _cart_artifact():
     return validate_against(cart, "schemas/shopping/cart.json", "checkout",
                             op="read", version=server.VERSION)
 
+def _cart_update_artifact():
+    """PUT /carts/{id} full-replacement behavior (update_cart — CART-017, cart.md
+    'Update Cart'): create a 2-item cart, PUT the entire resource with ONE different
+    line item; the response and a subsequent GET must show ONLY the replaced state
+    (no merge) with totals recomputed from the replaced items; a ghost-id PUT/GET is
+    the HTTP-200 not_found business outcome (cart-rest.md 'Business Outcomes');
+    header enforcement mirrors create (CART-024). Both artifacts oracle-validated."""
+    st, cart = server.create_cart(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1},
+                        {"item": {"id": "kettle_copper"}, "quantity": 1}]}, HDRS)
+    if st != 201 or len(cart["line_items"]) != 2:
+        return False, f"seed cart create failed: {st}"
+    cid = cart["id"]
+    put_body = {"id": cid, "currency": "USD",
+                "line_items": [{"item": {"id": "mug_enamel"}, "quantity": 3}]}
+    st, _ = server.update_cart(cid, put_body, {})
+    if st != 400:
+        return False, f"cart update without UCP-Agent must return 400, got {st}"
+    st, upd = server.update_cart(cid, put_body, HDRS)
+    if st != 200:
+        return False, f"cart update must return 200, got {st}"
+    items = upd.get("line_items") or []
+    if len(items) != 1 or (items[0].get("item") or {}).get("id") != "mug_enamel" \
+       or items[0].get("quantity") != 3:
+        return False, f"PUT must fully REPLACE line_items, got {items}"
+    want = 3 * 1200                                   # mug_enamel unit price
+    sub = [t["amount"] for t in upd.get("totals", []) if t.get("type") == "subtotal"]
+    if sub != [want]:
+        return False, f"totals must be recomputed from the replaced items: {upd.get('totals')}"
+    st, got = server.get_cart(cid)
+    if st != 200 or got != upd:
+        return False, "GET after PUT must return exactly the replaced state"
+    st, nf = server.get_cart("cart_ghost")
+    if st != 200 or (nf.get("ucp") or {}).get("status") != "error" \
+       or not any(m.get("code") == "not_found" for m in nf.get("messages", [])):
+        return False, f"ghost-cart GET must be the 200 not_found outcome, got {st} {nf}"
+    st, nf2 = server.update_cart("cart_ghost", put_body, HDRS)
+    if st != 200 or (nf2.get("ucp") or {}).get("status") != "error":
+        return False, f"ghost-cart PUT must be the 200 not_found outcome, got {st}"
+    ok, why = validate_against(upd, "schemas/shopping/cart.json", "checkout",
+                               op="read", version=server.VERSION)
+    if not ok:
+        return ok, f"updated cart: {why}"
+    return validate_root(nf, "schemas/shopping/types/error_response.json",
+                         op="read", version=server.VERSION)
+
 # ---- discovery/negotiation-area artifacts (2026-04-08) --------------------------
 def _profile_cache_control():
     """DISC-003 hosting policy: Cache-Control has `public` + max-age >= 60 and none
@@ -615,6 +661,7 @@ def main():
         ("identity_linking capability config", _identity_capability_config),
         ("oauth metadata (RFC 8414)", _oauth_metadata),
         ("cart response (UCP-Agent enforced)", _cart_artifact),
+        ("cart update replace-not-merge (CART-017)", _cart_update_artifact),
         # discovery/negotiation area (04-08): profile hosting policy + the simulated
         # negotiation failures (seeded platform-profile URLs; see server.py)
         ("profile Cache-Control policy", _profile_cache_control),

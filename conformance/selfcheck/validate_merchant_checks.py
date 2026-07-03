@@ -73,6 +73,10 @@ CONTROLLED_CONFIG = {
     # (POST /testing/orders/{id}/adjust); second product = the surviving line item in
     # the removed-line-item scenario (ORD-002/007/009).
     "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
+    # CART area (04-08): a second distinct product so the update-replaces-not-merges
+    # probe (CART-017, merchant_checks_04_08_cartupdate.py) can tell a replaced-away
+    # line from a legitimately consolidated one.
+    "cart": {"second_product_id": "kettle_copper"},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
     # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)

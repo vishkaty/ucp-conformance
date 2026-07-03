@@ -588,8 +588,13 @@ def _unit_price(item_id):
         return (v or {}).get("price", {}).get("amount", p["price_range"]["min"]["amount"])
     return 1000
 
-def cart_response(body):
-    """Build a spec-valid cart (checkout.json + cart_id) from requested line_items."""
+def cart_response(body, cid=None):
+    """Build a spec-valid cart (checkout.json + cart_id) from requested line_items.
+    The cart is computed from the REQUEST BODY ALONE (never from previously stored
+    state), which is exactly the full-replacement semantics cart.md 'Update Cart'
+    mandates: 'The provided resource replaces the existing cart state on the
+    business side' (CART-017). Line-item and cart totals are recomputed from the
+    catalog's unit prices on every call."""
     reqs = (body or {}).get("line_items") or []
     line_items, subtotal = [], 0
     for i, li in enumerate(reqs):
@@ -599,22 +604,62 @@ def cart_response(body):
         subtotal += amt
         line_items.append({"id": f"li_{i+1}", "item": {"id": iid}, "quantity": qty,
                            "totals": [{"type": "subtotal", "amount": amt}]})
-    cid = "cart_" + ((reqs[0].get("item") or {}).get("id", "empty") if reqs else "empty")
+    cid = cid or "cart_" + uuid.uuid4().hex[:10]
     return {"ucp": {"version": VERSION}, "id": cid, "cart_id": cid,
             "currency": (body or {}).get("currency", "USD"), "status": "incomplete",
             "line_items": line_items,
             "totals": [{"type": "subtotal", "amount": subtotal},
                        {"type": "total", "amount": subtotal}]}
 
+CARTS = {}          # cart id -> latest cart state (2026-04-08 only; guarded by _CART_LOCK)
+_CART_LOCK = threading.Lock()
+
+def _cart_not_found():
+    """Cart not-found is a BUSINESS OUTCOME (cart-rest.md 'Business Outcomes'):
+    HTTP 200 with ucp.status=error + messages[code=not_found]."""
+    return 200, {"ucp": {"version": VERSION, "status": "error",
+                         "capabilities": {"dev.ucp.shopping.cart": [{"version": VERSION}]}},
+                 "messages": [{"type": "error", "code": "not_found",
+                               "content": "Cart not found or has expired",
+                               "severity": "unrecoverable"}]}
+
 def create_cart(body, headers=None):
     """POST /carts (2026-04-08 only). Enforces the mandatory UCP-Agent header
     (cart-rest.md 'All requests MUST include the UCP-Agent header' — CART-024),
     mirroring create_checkout's enforcement for checkout (CHK-052/CHK-046).
+    Stores the cart so GET/PUT /carts/{id} can act on it (CART-017).
     Returns (http_status, payload) so selfcheck.py can validate it in-process."""
     headers = headers or {}
     if not headers.get("UCP-Agent"):
         return _err(400, "UCP-Agent header is required")
-    return 201, cart_response(body)
+    cart = cart_response(body)
+    with _CART_LOCK:
+        CARTS[cart["id"]] = cart
+    return 201, cart
+
+def get_cart(cid):
+    """GET /carts/{id} (2026-04-08 only) — 'retrieves the latest state of a cart
+    session. Returns not_found if the cart does not exist' (cart.md 'Get Cart')."""
+    with _CART_LOCK:
+        cart = CARTS.get(cid)
+    return (200, cart) if cart else _cart_not_found()
+
+def update_cart(cid, body, headers=None):
+    """PUT /carts/{id} (2026-04-08 only) — cart.md 'Update Cart': 'Performs a full
+    replacement of the cart session. The platform MUST send the entire cart
+    resource. The provided resource replaces the existing cart state on the
+    business side.' (CART-017). The stored state is REBUILT from the request body
+    alone (no merge with the previous line_items), and all prices/totals are
+    recomputed. Same UCP-Agent enforcement as create (CART-024)."""
+    headers = headers or {}
+    if not headers.get("UCP-Agent"):
+        return _err(400, "UCP-Agent header is required")
+    with _CART_LOCK:
+        if cid not in CARTS:
+            return _cart_not_found()
+        cart = cart_response(body, cid=cid)   # replace, never merge
+        CARTS[cid] = cart
+    return 200, cart
 
 # ---- checkout lifecycle (create/get/update/complete/cancel) ------------------
 # Pure functions returning (http_status, payload) so selfcheck.py can validate every
@@ -1266,6 +1311,9 @@ class _H(BaseHTTPRequestHandler):
             return self._send(*get_checkout(sid, self.headers))
         if path.startswith("/orders/"):
             return self._send(*get_order(path.split("/")[2], self.headers))
+        if path.startswith("/carts/") and path.count("/") == 2 \
+           and VERSION == "2026-04-08":      # cart exists only in 04-08
+            return self._send(*get_cart(path.split("/")[2]))
         self._send(404, {"error_code": "not_found"})
     def do_PUT(self):
         if self._sig_rejected():
@@ -1277,6 +1325,9 @@ class _H(BaseHTTPRequestHandler):
         if path.startswith("/checkout-sessions/") and path.count("/") == 2:
             sid = path.split("/")[2]
             return self._send(*update_checkout(sid, body, self.headers))
+        if path.startswith("/carts/") and path.count("/") == 2 \
+           and VERSION == "2026-04-08":      # cart exists only in 04-08 (CART-017)
+            return self._send(*update_cart(path.split("/")[2], body, self.headers))
         self._send(404, {"error_code": "not_found"})
     def do_POST(self):
         if self._sig_rejected():
