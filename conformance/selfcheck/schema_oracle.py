@@ -69,10 +69,13 @@ def _ucp_schema_path(base):
             return cand
     return None
 
-def validate_profile(profile, version="2026-01-23", role="business"):
+def validate_profile(profile, version="2026-01-23", role="business", def_name=None):
     """Validate a discovered /.well-known/ucp document against the official profile
     schema (ucp.json, $def {role}_schema) using the ucp-schema validator.
       role="business" for a merchant profile, "platform" for an agent profile.
+      def_name overrides the $def selection for schema generations whose profile def
+      is not named {role}_schema — 2026-01-11's is `discovery_profile` (additive
+      parameter for the 01-11 fixture mode; existing callers are unaffected).
     Returns (ok: bool, detail: str). Raises OracleUnavailable if the binary or the
     version's schema base isn't present (caller -> inconclusive / not-tested)."""
     import tempfile, os
@@ -83,7 +86,8 @@ def validate_profile(profile, version="2026-01-23", role="business"):
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     try:
         pathlib.Path(path).write_text(json.dumps(profile))
-        r = _run(["validate", path, "--schema", str(schema), "--def", f"{role}_schema",
+        r = _run(["validate", path, "--schema", str(schema),
+                  "--def", def_name or f"{role}_schema",
                   "--op", "read", "--schema-local-base", str(base)])
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
@@ -100,6 +104,27 @@ def resolve_def(schema_rel, def_name, op, version="2026-04-08", direction="reque
         raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
     args = ["resolve", str(schema), "--def", def_name, "--op", op,
             "--schema-local-base", str(base)]
+    if direction == "request":
+        args.append("--request")
+    elif direction == "response":
+        args.append("--response")
+    r = _run(args)
+    if r.returncode != 0:
+        raise OracleUnavailable(f"resolve failed: {(r.stdout + r.stderr)[:200]}")
+    return json.loads(r.stdout)
+
+
+def resolve_root(schema_rel, op, version="2026-01-23", direction="request"):
+    """Resolve a ROOT schema (no --def; e.g. shopping/checkout.json) for a
+    direction+op via the official resolver and return the parsed JSON. This is the
+    authority on ucp_request lifecycle annotations at the checkout ROOT (the 01-era
+    CHK-017/019/020 omit family). Raises OracleUnavailable if the binary/base is
+    absent. Additive companion to resolve_def (which requires a named $def)."""
+    base = SCHEMA_BASE.get(version)
+    schema = (base / schema_rel) if base else None
+    if not base or not schema or not schema.exists():
+        raise OracleUnavailable(f"schema {schema_rel} for {version} not found under {base}")
+    args = ["resolve", str(schema), "--op", op, "--schema-local-base", str(base)]
     if direction == "request":
         args.append("--request")
     elif direction == "response":

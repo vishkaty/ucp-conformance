@@ -50,11 +50,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Origin-vs-authority binding cannot be expressed in JSON-Schema (cross-field URL-origin check). Not asserted by the suite."
+      "notes": "Origin-vs-authority binding cannot be expressed in JSON-Schema (cross-field URL-origin check). Not asserted by the suite. RECLASSIFIED manual->testable (2026-07-03): the origin-vs-authority binding is not JSON-Schema-expressible but IS a mechanical URL-origin comparison; covered by the coded checks discovery.capability_origin_binding_01_11/_01_23 (merchant_checks_01_11_01_23.py)."
     },
     {
       "id": "DISC-004",
@@ -266,11 +266,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "testable",
+      "testability": "manual",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L438-L439. Header-level requirement, not a body-schema constraint. Oracle: ProtocolTest.test_version_negotiation sends the UCP-Agent header on requests."
+      "notes": "Quote spans L438-L439. Header-level requirement, not a body-schema constraint. Oracle: ProtocolTest.test_version_negotiation sends the UCP-Agent header on requests. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — the MUST binds the PLATFORM's request authoring, not the business under test (suite-wide policy F2: no merchant-rejection checks for requester header MUSTs; precedent CHK-046/DISC-006@2026-04-08). Exemption candidate."
     },
     {
       "id": "NEG-002",
@@ -284,11 +284,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "testable",
+      "testability": "manual",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "UCP-Agent header carries profile=\"...\" (and version=\"...\"). Oracle: ProtocolTest.test_version_negotiation sets headers['UCP-Agent'] = 'profile=\"...\"; version=\"2026-01-23\"'."
+      "notes": "UCP-Agent header carries profile=\"...\" (and version=\"...\"). Oracle: ProtocolTest.test_version_negotiation sets headers['UCP-Agent'] = 'profile=\"...\"; version=\"2026-01-23\"'. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — RFC 8941 header syntax is authored by the platform; policy F2 (precedent CHK-046@2026-04-08). Exemption candidate."
     },
     {
       "id": "NEG-004",
@@ -302,11 +302,11 @@
       "transport": [
         "rest"
       ],
-      "testability": "testable",
+      "testability": "manual",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L479-L480. Oracle: ProtocolTest.test_version_negotiation includes UCP-Agent header on every checkout request."
+      "notes": "Quote spans L479-L480. Oracle: ProtocolTest.test_version_negotiation includes UCP-Agent header on every checkout request. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — profile-URI advertisement is the platform's duty; policy F2 (precedent DISC-006@2026-04-08). Exemption candidate."
     },
     {
       "id": "NEG-005",

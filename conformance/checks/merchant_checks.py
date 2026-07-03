@@ -691,8 +691,13 @@ def p_version(r):
     v = (r.json or {}).get("version")
     return CLEAN if isinstance(v, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", v) else DEVIATION
 
-def p_rest_endpoint(r):
+def p_rest_endpoint(r, ctx):
     svc = ((r.json or {}).get("services") or {}).get("dev.ucp.shopping") or []
+    if ctx.version == "2026-01-11":
+        # 2026-01-11 service OBJECT (service_schema.json): the rest binding is the
+        # `rest` member carrying the endpoint, not a transport-list entry
+        rest = svc.get("rest") if isinstance(svc, dict) else None
+        return CLEAN if isinstance(rest, dict) and rest.get("endpoint") else DEVIATION
     rest = next((s for s in svc if isinstance(s, dict) and s.get("transport") == "rest"), None)
     return CLEAN if rest and rest.get("endpoint") else DEVIATION
 
@@ -715,13 +720,23 @@ def p_profile_schema(r, ctx):
         return INCONCLUSIVE
     return CLEAN if ok else DEVIATION
 
-def p_reverse_domain(r):
+def p_reverse_domain(r, ctx):
     caps = (r.json or {}).get("capabilities")
+    import re
+    if ctx.version == "2026-01-11":
+        # 2026-01-11 declares capabilities as an ARRAY of entries whose reverse-domain
+        # name lives in each entry's `name` (capability.json $defs/discovery); any
+        # other shape (incl. the newer keyed object) is non-conformant THERE.
+        if not isinstance(caps, list) or not caps:
+            return DEVIATION
+        names = [e.get("name") for e in caps if isinstance(e, dict)]
+        return CLEAN if names and all(
+            isinstance(n, str) and re.match(r"^[a-z0-9.]+\.[a-z0-9_]+", n)
+            for n in names) else DEVIATION
     # DISC-001: capabilities MUST be a keyed object whose names are reverse-domain form.
     # A list/array (or missing) is non-conformant -> deviation (never iterate it blindly).
     if not isinstance(caps, dict) or not caps:
         return DEVIATION
-    import re
     return CLEAN if all(re.match(r"^[a-z0-9.]+\.[a-z0-9_]+", k) for k in caps) else DEVIATION
 
 def p_create_ok(r):
@@ -864,8 +879,14 @@ CHECKS = [
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"],
            req_ids_map={"2026-04-08": []}),
+    # versions: DISC-000 is not a register row at 2026-01-11, and this check's
+    # mutation set targets the keyed-object profile generation (capabilities=[] is
+    # VALID at 01-11, where the array form is canonical). The 01-11 profile-schema
+    # anchor is discovery.capability_spec_schema_01_11 (merchant_checks_01_11_01_23.py),
+    # which oracle-validates the discovery_profile def.
     MCheck("discovery.profile_schema", ["DISC-000"], "MUST", profile_resp, p_profile_schema,
-           ["drop:version", "set:capabilities=[]", "set:services=[]", "corrupt-json"]),
+           ["drop:version", "set:capabilities=[]", "set:services=[]", "corrupt-json"],
+           versions=("2026-01-23", "2026-04-08")),
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",

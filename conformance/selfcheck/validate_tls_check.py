@@ -29,6 +29,7 @@ sys.path.insert(0, str(HERE.parents[0] / "checks"))
 sys.path.insert(0, str(HERE))
 from tls_check_01_11_01_23 import tls_probe, p_tls13_minimum, chk051_resp  # noqa: E402
 from merchant_checks_04_08_discovery import f_profile_https, p_profile_https  # noqa: E402
+from merchant_checks_01_11_01_23 import https_resp, p_https_service        # noqa: E402
 from engine import Resp, CLEAN, DEVIATION                                  # noqa: E402
 from verdict_gate import INCONCLUSIVE                                      # noqa: E402
 
@@ -69,14 +70,27 @@ def main():
          grade_disc001(f"https://127.0.0.1:{args.plain_port}"), DEVIATION),
         (f"DISC-001 plain http :{args.plain_port} (dev golden)", grade_disc001(p),
          INCONCLUSIVE),
+        # NEG-018/SEC-004 @ 2026-01-11/2026-01-23 ("All UCP communication MUST occur
+        # over HTTPS"; ANY TLS version satisfies the row — the 1.3 minimum is
+        # CHK-051's separate requirement. Check: merchant_checks_01_11_01_23.py)
+        (f"NEG-018/SEC-004 golden :{args.golden_port} (https)",
+         p_https_service(https_resp(_Ctx(g))), CLEAN),
+        (f"NEG-018/SEC-004 :{args.negative_port} (1.2 is still https)",
+         p_https_service(https_resp(_Ctx(n))), CLEAN),
+        (f"NEG-018/SEC-004 mutant https->plain :{args.plain_port}",
+         p_https_service(https_resp(_Ctx(f"https://127.0.0.1:{args.plain_port}"))),
+         DEVIATION),
+        (f"NEG-018/SEC-004 plain http :{args.plain_port} (dev golden)",
+         p_https_service(https_resp(_Ctx(p))), INCONCLUSIVE),
     ]
     ok = True
     for name, got, want in rows:
         good = (got == want)
         ok &= good
         print(f"  {'✓' if good else '✗'} {name:44} -> {got} (want {want})")
-    print("tls-check gate:", "PASS — CHK-051 + DISC-001 are sound (clean on their "
-          "goldens, kill their mutants, honest on plain HTTP)" if ok else "FAIL")
+    print("tls-check gate:", "PASS — CHK-051 + DISC-001 + NEG-018/SEC-004 are sound "
+          "(clean on their goldens, kill their mutants, honest on plain HTTP)"
+          if ok else "FAIL")
     return 0 if ok else 1
 
 if __name__ == "__main__":

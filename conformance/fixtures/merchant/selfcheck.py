@@ -19,10 +19,17 @@ from schema_oracle import validate, validate_against, validate_root, validate_pr
 BASE = "http://localhost:8184"
 HDRS = {"UCP-Agent": 'profile="https://spck.dev/agent"'}   # minimal valid headers
 
-def validate_obj(payload, op):
+def validate_obj(payload, op, schema_rel="schemas/shopping/checkout.json"):
     """Validate an in-memory response object via the oracle's op/direction resolution
     (for ROOT schemas like checkout.json that have no named $def): the payload's own
-    ucp.capabilities schema URL selects the schema, --op picks the lifecycle filter."""
+    ucp.capabilities schema URL selects the schema, --op picks the lifecycle filter.
+    2026-01-11 responses carry the ARRAY-form envelope, which the validator's
+    capability auto-inference predates — there the explicit pinned ROOT schema is
+    selected instead (same oracle, explicit --schema selection; schema_rel says
+    whether the artifact is a checkout or an order response)."""
+    if server.VERSION == "2026-01-11":
+        return validate_root(payload, schema_rel, op=op, version=server.VERSION,
+                             direction="response")
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     try:
         pathlib.Path(path).write_text(json.dumps(payload))
@@ -75,6 +82,7 @@ def checkout_artifacts():
     ok, order = _expect(200, server.get_order(completed["order"]["id"], HDRS), "order get")
     if not ok:
         raise RuntimeError(order)
+    ORDER_SCHEMA = "schemas/shopping/order.json"          # for the 01-11 root path
     ok, canceled = _expect(200, server.cancel_checkout(
         server.create_checkout({"line_items": li}, HDRS)[1]["id"], HDRS), "cancel")
     if not ok:
@@ -84,14 +92,24 @@ def checkout_artifacts():
     # the oracle validations returned below (validate_profile covers the profile
     # registry; every checkout-response validation now covers the ucp envelope's
     # payment_handlers; the escalation response validates as a complete response).
-    ph = server.profile(BASE).get("payment_handlers")
-    if not (isinstance(ph, dict) and ph.get(server.PAYMENT_HANDLER_KEY)
-            and all(h.get("id") for h in ph[server.PAYMENT_HANDLER_KEY])):
-        raise RuntimeError(f"profile payment_handlers registry is malformed: {ph}")
-    rph = (created.get("ucp") or {}).get("payment_handlers")
-    if not (isinstance(rph, dict) and rph.get(server.PAYMENT_HANDLER_KEY)
-            and all(h.get("id") for h in rph[server.PAYMENT_HANDLER_KEY])):
-        raise RuntimeError(f"response ucp.payment_handlers is malformed: {rph}")
+    if server.VERSION == "2026-01-11":
+        # 01-11 payment declarations: profile-level `payment.handlers` and the
+        # REQUIRED root `payment.handlers` on checkout responses (payment.json)
+        ph = (server.profile(BASE).get("payment") or {}).get("handlers")
+        if not (isinstance(ph, list) and ph and all(h.get("id") for h in ph)):
+            raise RuntimeError(f"01-11 profile payment.handlers is malformed: {ph}")
+        rph = (created.get("payment") or {}).get("handlers")
+        if not (isinstance(rph, list) and rph and all(h.get("id") for h in rph)):
+            raise RuntimeError(f"01-11 response payment.handlers is malformed: {rph}")
+    else:
+        ph = server.profile(BASE).get("payment_handlers")
+        if not (isinstance(ph, dict) and ph.get(server.PAYMENT_HANDLER_KEY)
+                and all(h.get("id") for h in ph[server.PAYMENT_HANDLER_KEY])):
+            raise RuntimeError(f"profile payment_handlers registry is malformed: {ph}")
+        rph = (created.get("ucp") or {}).get("payment_handlers")
+        if not (isinstance(rph, dict) and rph.get(server.PAYMENT_HANDLER_KEY)
+                and all(h.get("id") for h in rph[server.PAYMENT_HANDLER_KEY])):
+            raise RuntimeError(f"response ucp.payment_handlers is malformed: {rph}")
     ok, esc = _expect(201, server.create_checkout({"line_items": li}, HDRS),
                       "escalation create")
     if not ok:
@@ -146,10 +164,13 @@ def checkout_artifacts():
     if not any("NOPE_NOT_A_CODE" in (m.get("content") or "")
                for m in rejected.get("messages") or []):
         raise RuntimeError("rejected code was not communicated via messages[]")
-    # ORDER area (04-08 only — the hook 404s at 01-23, whose adjustment schema is
-    # unsigned): drive the test-only post-order adjustment and assert the pinned
+    # ORDER area: drive the test-only post-order adjustment and assert the pinned
     # semantics IN-PROCESS, then oracle-validate the adjusted order response.
-    adjusted = None
+    # 04-08 = SIGNED adjustments (+removed status); 01-era = UNSIGNED log entries
+    # that leave the order's line items untouched (ORD-006/ORD-007) plus the
+    # fulfillment-event hook (ORD-009), the buyer-consent echo (DSC-019) and the
+    # negotiation-failure envelope (NEG-013/NEG-014/ERR-007).
+    adjusted = fulfilled = neg_msg = buyer_echo = None
     if server.VERSION == "2026-04-08":
         ok, o2c = _expect(201, server.create_checkout(
             {"line_items": [{"id": "li_1", "item": {"id": "teapot_ceramic"}, "quantity": 1},
@@ -180,13 +201,75 @@ def checkout_artifacts():
         ok, refetched = _expect(200, server.get_order(oid2, HDRS), "adjusted order get")
         if not ok or refetched != adjusted:
             raise RuntimeError("adjusted order GET does not match the hook's snapshot")
+    else:
+        # ---- OLD-VERSIONS (01-era) artifacts ----------------------------------
+        # adjust: append-only UNSIGNED log entry; line items retained untouched
+        ok, o3c = _expect(201, server.create_checkout(
+            {"line_items": [{"id": "li_1", "item": {"id": "teapot_ceramic"}, "quantity": 2},
+                            {"id": "li_2", "item": {"id": "mug_enamel"}, "quantity": 1}]},
+            HDRS), "01-era adjust-scenario create")
+        if not ok:
+            raise RuntimeError(o3c)
+        ok, o3done = _expect(200, server.complete_checkout(o3c["id"], payment, HDRS),
+                             "01-era adjust-scenario complete")
+        if not ok:
+            raise RuntimeError(o3done)
+        oid3 = o3done["order"]["id"]
+        before = json.loads(json.dumps(server.get_order(oid3, HDRS)[1]["line_items"]))
+        ok, adjusted = _expect(200, server.simulate_order_adjustment(
+            oid3, {"line_item_id": "li_1", "quantity": 1, "type": "refund"}, HDRS),
+            "01-era adjust hook")
+        if not ok:
+            raise RuntimeError(adjusted)
+        adjs = adjusted.get("adjustments") or []
+        if len(adjs) != 1 or not all(adjs[0].get(k) for k in
+                                     ("id", "type", "occurred_at", "status")):
+            raise RuntimeError(f"01-era adjustment lacks required fields: {adjs}")
+        if adjs[0]["line_items"][0]["quantity"] < 1 or adjs[0].get("amount", 1) < 1:
+            raise RuntimeError(f"01-era adjustment must be UNSIGNED/positive: {adjs}")
+        if adjusted["line_items"] != before:
+            raise RuntimeError("01-era adjust rewrote order line items "
+                               "(ORD-006 immutability): they must stay retained verbatim")
+        # fulfill: append-only fulfillment EVENT (id/occurred_at/type/line_items)
+        ok, fulfilled = _expect(200, server.simulate_order_fulfillment(
+            oid3, {"line_item_id": "li_2", "quantity": 1}, HDRS), "01-era fulfill hook")
+        if not ok:
+            raise RuntimeError(fulfilled)
+        evs = (fulfilled.get("fulfillment") or {}).get("events") or []
+        if len(evs) != 1 or not all(evs[0].get(k) for k in
+                                    ("id", "occurred_at", "type", "line_items")):
+            raise RuntimeError(f"01-era fulfillment event lacks required fields: {evs}")
+        # buyer-consent echo (DSC-019): boolean states submitted on create come back
+        consent = {"analytics": True, "marketing": False,
+                   "preferences": True, "sale_of_data": False}
+        ok, bres = _expect(201, server.create_checkout(
+            {"line_items": [{"item": {"id": "mug_enamel"}, "quantity": 1}],
+             "buyer": {"first_name": "Ada", "consent": dict(consent)}}, HDRS),
+            "01-era buyer-consent create")
+        if not ok:
+            raise RuntimeError(bres)
+        buyer_echo = bres.get("buyer")
+        if not buyer_echo or buyer_echo.get("consent") != consent:
+            raise RuntimeError(f"buyer.consent was not echoed verbatim: {buyer_echo}")
+        # negotiation failure (NEG-013/NEG-014/ERR-007): unsupported platform
+        # version -> the spec's example error envelope
+        st, neg = server.create_checkout(
+            {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]},
+            {"UCP-Agent": f'profile="{server.SIM_LEGACY_VERSION}"'})
+        if not (400 <= st < 500) or neg.get("status") != "requires_escalation":
+            raise RuntimeError(f"01-era negotiation failure wrong: {st} {neg}")
+        neg_msg = next((m for m in neg.get("messages") or []
+                        if m.get("type") == "error"), None)
+        if not neg_msg or neg_msg.get("severity") != "requires_buyer_input":
+            raise RuntimeError(f"01-era negotiation failure lacks the type:error "
+                               f"requires_buyer_input message: {neg}")
     out = [
         ("checkout create response",   lambda: validate_obj(created, "create")),
         ("checkout get response",      lambda: validate_obj(got, "read")),
         ("checkout update response",   lambda: validate_obj(updated, "update")),
         ("checkout complete response", lambda: validate_obj(completed, "complete")),
         ("checkout cancel response",   lambda: validate_obj(canceled, "cancel")),
-        ("order get response",         lambda: validate_obj(order, "read")),
+        ("order get response",         lambda: validate_obj(order, "read", ORDER_SCHEMA)),
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
         ("rejected-code checkout response", lambda: validate_obj(rejected, "create")),
         # PAYMENT AREA: the requires_escalation + continue_url response and the
@@ -195,7 +278,11 @@ def checkout_artifacts():
         ("post-escalation complete response", lambda: validate_obj(esc_done, "complete")),
     ]
     if adjusted is not None:
-        out.append(("adjusted order response", lambda: validate_obj(adjusted, "read")))
+        out.append(("adjusted order response", lambda: validate_obj(
+            adjusted, "read", ORDER_SCHEMA)))
+    if fulfilled is not None:
+        out.append(("fulfilled order response", lambda: validate_obj(
+            fulfilled, "read", ORDER_SCHEMA)))
     if server.VERSION != "2026-04-08":
         # pre-04-08 extension schemas can't be COMPOSED by the oracle (their extension
         # def is named e.g. 'checkout', not the capability name), so the extension
@@ -203,9 +290,23 @@ def checkout_artifacts():
         out.append(("discounts subtree (discounts_object)", lambda: validate_against(
             discounted["discounts"], "schemas/shopping/discount.json",
             "discounts_object", op="read", version=server.VERSION)))
+        # the def carrying {merchant_authorization} is named per generation:
+        # 01-23 ap2_with_merchant_authorization / 01-11 ap2_checkout_response
+        ap2_def = ("ap2_with_merchant_authorization"
+                   if server.VERSION == "2026-01-23" else "ap2_checkout_response")
         out.append(("ap2 subtree (merchant_authorization)", lambda: validate_against(
             created["ap2"], "schemas/shopping/ap2_mandate.json",
-            "ap2_with_merchant_authorization", op="read", version=server.VERSION)))
+            ap2_def, op="read", version=server.VERSION)))
+        # buyer-consent echo anchored to the official buyer_consent.json $defs/buyer
+        out.append(("buyer-consent echo subtree", lambda: validate_against(
+            buyer_echo, "schemas/shopping/buyer_consent.json", "buyer",
+            op="read", version=server.VERSION)))
+        # the negotiation-failure envelope is a prose example (no official root
+        # schema); its message object IS schema territory — message_error.json
+        out.append(("negotiation-failure message (message_error)",
+                    lambda: validate_root(neg_msg,
+                                          "schemas/shopping/types/message_error.json",
+                                          op="create", version=server.VERSION)))
     return out
 
 def _getproduct_configurable():
@@ -648,7 +749,17 @@ def main():
             server.set_version(ver)
             tag = f" [{ver[5:]}]"
             batch = list(checkout_artifacts())
-            if ver != "2026-04-08":
+            if ver == "2026-01-11":
+                # 01-11 discovery document: UCP metadata nests under `ucp`
+                # (ucp.json $defs/discovery_profile) with a sibling top-level
+                # `payment.handlers` member (payment.json) — both oracle-anchored
+                batch.insert(0, ("profile (discovery_profile)", lambda: validate_profile(
+                    server.profile(BASE)["ucp"], version=server.VERSION,
+                    def_name="discovery_profile")))
+                batch.insert(1, ("profile payment member", lambda: validate_root(
+                    server.profile(BASE)["payment"], "schemas/shopping/payment.json",
+                    op="read", version=server.VERSION, direction="response")))
+            elif ver != "2026-04-08":
                 batch.insert(0, ("profile", lambda: validate_profile(
                     server.profile(BASE), version=server.VERSION, role="business")))
             rows += [(name + tag, *fn()) for name, fn in batch]
