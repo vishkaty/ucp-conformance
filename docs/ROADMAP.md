@@ -84,6 +84,14 @@ error-envelope 25, payment/checkout/order ~15 testable each.
 
 ## Phases (each ends by raising the ratchet + a matrix milestone)
 
+> **Status 2026-07-03 — Phases 1–4 substantially COMPLETE.** Phase 1 (04-08 testable
+> tier) is CLOSED and CI-guarded (`matrix --require testable --version 2026-04-08`).
+> Phase 2 harnesses all built (TLS incl. sub-1.2 negative, webhook receiver + RFC 9421
+> verification, RFC 9421 request/response signing, OAuth 2.0 + PKCE). Phase 3 (2026-01-11
+> fixture mode) done — three controlled goldens run in CI. Phase 4 exemptions
+> classified (version-scoped, multi-class). Result: **88 / 88 / 93% accounted.** What
+> remains is the categorized residue in "State of play" above, not a phase.
+
 ### Phase 1 — 2026-04-08 testable grind (~143 MUSTs, biggest single win)
 The controlled fixture already serves 04-08 with catalog/cart/checkout/order/discount,
 so most of these need only check implementation, not new infrastructure:
