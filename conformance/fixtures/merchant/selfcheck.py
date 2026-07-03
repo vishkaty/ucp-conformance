@@ -44,6 +44,17 @@ def checkout_artifacts():
     ok, created = _expect(201, server.create_checkout({"line_items": li}, HDRS), "create")
     if not ok:
         raise RuntimeError(created)
+    if server.VERSION == "2026-04-08":
+        # totals sub-lines (checkout.md "Sub-Lines"): the 04-08 renderer itemizes the
+        # subtotal entry per line item; sum(lines[].amount) MUST equal the parent
+        # amount (TOT-017) — the schema-validity of the lines shape itself is proven
+        # by the oracle runs below (validate_obj of every lifecycle response).
+        with_lines = [t for t in created["totals"] if t.get("lines")]
+        if not with_lines:
+            raise RuntimeError("04-08 checkout totals carry no sub-lines (TOT-017 scenario)")
+        for t in with_lines:
+            if sum(l["amount"] for l in t["lines"]) != t["amount"]:
+                raise RuntimeError(f"sub-lines do not sum to the parent amount (TOT-017): {t}")
     sid = created["id"]
     upd = {"line_items": li[:1]}                 # 04-08: id is ucp_request:omit (CHK-035)
     if server.VERSION != "2026-04-08":
@@ -284,6 +295,20 @@ def _oauth_metadata():
         return False, "advertising 'none' requires PKCE S256"
     return True, "ok"
 
+def _cart_artifact():
+    """POST /carts behavior (create_cart): a request WITHOUT the mandatory UCP-Agent
+    header MUST be rejected 400 (cart-rest.md — CART-024); a well-formed request
+    yields 201 with a cart the official cart.json schema accepts."""
+    cart_req = {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}
+    st, _ = server.create_cart(cart_req, {})
+    if st != 400:
+        return False, f"cart create without UCP-Agent must return 400, got {st}"
+    st, cart = server.create_cart(cart_req, HDRS)
+    if st != 201:
+        return False, f"cart create with UCP-Agent must return 201, got {st}"
+    return validate_against(cart, "schemas/shopping/cart.json", "checkout",
+                            op="read", version=server.VERSION)
+
 def main():
     artifacts = [
         ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
@@ -312,9 +337,7 @@ def main():
         # identity-linking (04-08): capability declaration + RFC 8414 metadata
         ("identity_linking capability config", _identity_capability_config),
         ("oauth metadata (RFC 8414)", _oauth_metadata),
-        ("cart response", lambda: validate_against(
-            server.cart_response({"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 2}]}),
-            "schemas/shopping/cart.json", "checkout", op="read", version=server.VERSION)),
+        ("cart response (UCP-Agent enforced)", _cart_artifact),
         # the MCP transport must return the SAME schema-valid payload in structuredContent
         ("mcp search_catalog result", lambda: validate_against(
             server.mcp_dispatch({"id": 1, "method": "tools/call", "params": {

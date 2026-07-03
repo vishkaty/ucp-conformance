@@ -73,6 +73,7 @@ CONTROLLED_CONFIG = {
     # (POST /testing/orders/{id}/adjust); second product = the surviving line item in
     # the removed-line-item scenario (ORD-002/007/009).
     "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
+    "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}

@@ -233,6 +233,16 @@ def cart_response(body):
             "totals": [{"type": "subtotal", "amount": subtotal},
                        {"type": "total", "amount": subtotal}]}
 
+def create_cart(body, headers=None):
+    """POST /carts (2026-04-08 only). Enforces the mandatory UCP-Agent header
+    (cart-rest.md 'All requests MUST include the UCP-Agent header' — CART-024),
+    mirroring create_checkout's enforcement for checkout (CHK-052/CHK-046).
+    Returns (http_status, payload) so selfcheck.py can validate it in-process."""
+    headers = headers or {}
+    if not headers.get("UCP-Agent"):
+        return _err(400, "UCP-Agent header is required")
+    return 201, cart_response(body)
+
 # ---- checkout lifecycle (create/get/update/complete/cancel) ------------------
 # Pure functions returning (http_status, payload) so selfcheck.py can validate every
 # artifact against the official schemas without going through HTTP.
@@ -378,6 +388,11 @@ def checkout_body(sess):
     items_disc = sum(line_disc.values())
     totals = [{"type": "subtotal", "display_text": "Subtotal", "amount": subtotal}]
     if VERSION == "2026-04-08":
+        # Sub-lines (checkout.md "Sub-Lines", 04-08 only): itemize the subtotal entry
+        # per line item; the invariant sum(lines[].amount) == parent amount (TOT-017)
+        # holds by construction (subtotal IS the sum of the line-item subtotals).
+        totals[0]["lines"] = [{"display_text": li["item"]["title"],
+                               "amount": li["totals"][0]["amount"]} for li in lines]
         for i, a in line_disc.items():
             lines[i]["totals"] = lines[i]["totals"] + [
                 {"type": "items_discount", "display_text": "Item discount", "amount": -a}]
@@ -871,7 +886,7 @@ class _H(BaseHTTPRequestHandler):
             if path == "/catalog/product":
                 return self._send(*get_product_response(body))
             if path == "/carts":
-                return self._send(201, cart_response(body))
+                return self._send(*create_cart(body, self.headers))
             # ORDER area test-only hook (see simulate_order_adjustment docstring)
             if path.startswith("/testing/orders/") and path.endswith("/adjust"):
                 parts = path.split("/")      # '', 'testing', 'orders', oid, 'adjust'
