@@ -151,6 +151,10 @@ CONTROLLED_CONFIG = {
                         "have_scopes": ["dev.ucp.shopping.order:read"]},
         "continue_url": True,        # 401 bodies carry an onboarding continue_url
         "resource_metadata": True,   # challenges carry resource_metadata (RFC 9728)
+        # the fixture exposes POST /testing/oauth/mint (deterministic expired/revoked
+        # tokens) so the suite can probe "the business validates exp/revocation on
+        # every request" (IDL-042) — a real merchant opts in by exposing the hook.
+        "token_mint": True,
         # 01-era (2026-01-11/01-23) standard scope vocabulary
         "scope_01era": "ucp:scopes:checkout_session",
     },

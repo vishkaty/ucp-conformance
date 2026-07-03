@@ -334,6 +334,32 @@ def p_invalid_token_challenge(r, ctx):
     return CLEAN if _body_code(r, "identity_required") else DEVIATION
 
 
+# ---- IDL-042 (expired/revoked half): the business rejects an ISSUED-but-invalid
+# token on a user-authenticated request. A platform cannot manufacture the
+# business's expired/revoked token, so these probes use the config-gated
+# /testing/oauth/mint hook (identity.token_mint) to obtain a deterministic
+# expired / revoked access token, then present it on the gated op — the business
+# MUST answer with the invalid_token challenge (IDL-042 quote names "expired").
+# This is the fixture scenario the wave-2 review (W2-F5) flagged as needed; it
+# strengthens IDL-042's kill-proof from "syntactic garbage rejected" to "the
+# business actually validates exp/revocation on every request". It does NOT close
+# IDL-025 (full RFC 9068 iss/aud/azp claim validation is not black-box
+# distinguishable for an OPAQUE-token business — see the register note).
+def _mint_bad(ctx, kind):
+    r = fetch(ctx.base, "/testing/oauth/mint", "POST", {"kind": kind}, _hdr())
+    return ((r.json or {}).get("access_token") if r.status == 200 else None), r
+
+
+def f_expired_token(ctx):
+    tok, r = _mint_bad(ctx, "expired")
+    return _gated(ctx, token=tok) if tok else r
+
+
+def f_revoked_token(ctx):
+    tok, r = _mint_bad(ctx, "revoked")
+    return _gated(ctx, token=tok) if tok else r
+
+
 # ---- IDL-043 (SHOULD): resource_metadata pointer on the challenge ---------------
 def p_resource_metadata(r, ctx):
     if r.status != 401:
@@ -545,6 +571,27 @@ CHECKS_04_08_OAUTH = [
             "set:messages=[]"],
            capability=IDL_CAP, transport="rest", versions=V0408,
            cfg_needs=("identity.gated",)),
+    # IDL-042 explicitly names an EXPIRED token: mint one via the test hook and
+    # confirm the gated op answers with the invalid_token challenge. The
+    # --oauth-accept-any-token mutant (validate_oauth_checks) skips exactly the
+    # token-validity check, so this DEVIATES there — proving the probe tests real
+    # exp enforcement, not just syntactic-garbage rejection.
+    MCheck("identity.expired_token_rejected", ["IDL-042"], "MUST",
+           f_expired_token, p_invalid_token_challenge,
+           ["status:200", "hdrop:WWW-Authenticate",
+            "hset:WWW-Authenticate=Bearer realm=\"https://wrong.example\", error=\"invalid_token\"",
+            "hset:WWW-Authenticate=Bearer error=\"invalid_token\"",
+            "set:messages=[]"],
+           capability=IDL_CAP, transport="rest", versions=V0408,
+           cfg_needs=("identity.gated", "identity.token_mint")),
+    MCheck("identity.revoked_token_rejected", ["IDL-042"], "MUST",
+           f_revoked_token, p_invalid_token_challenge,
+           ["status:200", "hdrop:WWW-Authenticate",
+            "hset:WWW-Authenticate=Bearer realm=\"https://wrong.example\", error=\"invalid_token\"",
+            "hset:WWW-Authenticate=Bearer error=\"invalid_token\"",
+            "set:messages=[]"],
+           capability=IDL_CAP, transport="rest", versions=V0408,
+           cfg_needs=("identity.gated", "identity.token_mint")),
     MCheck("identity.challenge_resource_metadata", ["IDL-043"], "SHOULD",
            f_gated_no_token, p_resource_metadata,
            ["status:200", "hdrop:WWW-Authenticate",

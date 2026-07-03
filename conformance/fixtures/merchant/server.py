@@ -265,6 +265,33 @@ OAUTH_EXACT_REDIRECT = True   # --oauth-lax-redirect: skip redirect_uri matching
 OAUTH_CLIENT_AUTH = True      # --oauth-no-client-auth: skip client authentication
 OAUTH_CHALLENGE_ERROR = True  # --oauth-challenge-no-error: omit the challenge's
                               #   error="invalid_token"/"insufficient_scope" param
+OAUTH_VALIDATE_TOKEN = True   # --oauth-accept-any-token: accept a PRESENT Bearer
+                              #   token without checking it is known, unexpired, and
+                              #   unrevoked (IDL-042 expired/revoked-token kill-proof)
+# ORDER area (ORD-012): --require-order-auth makes GET /orders/{id} authenticate the
+# request before returning order data. Default OFF so the DEFAULT golden keeps its
+# existing UNauthenticated order checks sound; only the validate_order_auth gate
+# (and its no-auth mutant, which is the default OFF mode) exercise this.
+REQUIRE_ORDER_AUTH = False
+# IDL-013 (01-era): --require-checkout-scope gates every 01-era checkout-session
+# operation behind the ucp:scopes:checkout_session capability scope, so one token
+# with that scope must unlock ALL of them. --checkout-scope-partial is the mutant:
+# it makes ONE operation demand an extra per-operation scope the capability scope
+# does not grant (the IDL-013 violation). Both default OFF (golden untouched).
+REQUIRE_CHECKOUT_SCOPE = False
+CHECKOUT_SCOPE_PARTIAL = False
+# DISC-014 (01-era): the capability spec/schema URLs a conformant profile advertises
+# point at the namespace authority (https://ucp.dev/...), which the DISC-014 live-URL
+# check can only resolve over the NETWORK. To reference-gate that check HERMETICALLY,
+# --local-spec-urls repoints every spec/schema/config_schema URL to a LOOPBACK path
+# this fixture serves 200 for; --break-spec-url makes ONE of them 404 (the mutant).
+# Neither mode is ever used by CONTROLLED_CONFIG/run_suite goldens (which advertise
+# the real authority-origin URLs and are never fetched) — ONLY by the dedicated
+# DISC-014 reference gate, so no gate ever depends on the network.
+LOCAL_SPEC_URLS = False
+BREAK_SPEC_URL = False
+_LOCAL_SPEC_KEYS = ("spec", "schema", "config_schema")
+_LOCAL_BROKEN_PATH = "/__localspec/BROKEN"
 
 # Registered platform clients. The public client uses token_endpoint_auth_method
 # 'none' + PKCE (RFC 8252 §8.5); the confidential one uses client_secret_basic.
@@ -501,10 +528,15 @@ def require_identity(headers, required_scopes, base):
     if not authz.startswith("Bearer "):
         return challenge(401, "identity_required")
     tok = OAUTH_TOKENS.get(authz[len("Bearer "):].strip())
-    if not tok or tok["revoked"] or tok["expires"] < time.time():
+    # IDL-025/042: a business MUST validate the token on EVERY request — reject one
+    # that is unknown, revoked, or expired with the invalid_token challenge. The
+    # --oauth-accept-any-token mutant skips exactly this validation (proving the
+    # expired/revoked-token checks test something real).
+    if OAUTH_VALIDATE_TOKEN and (not tok or tok["revoked"] or tok["expires"] < time.time()):
         return challenge(401, "identity_required", error="invalid_token",
                          desc="The access token is invalid, expired, or revoked")
-    missing = [s for s in required_scopes if s not in tok["scopes"]]
+    scopes = tok["scopes"] if tok else list(IDENTITY_SCOPES)   # mutant: unknown->full
+    missing = [s for s in required_scopes if s not in scopes]
     if missing:
         return challenge(403, "insufficient_scope", error="insufficient_scope",
                          scope=" ".join(required_scopes))
@@ -539,6 +571,68 @@ def cancel_order(oid, headers, base):
     if not order:
         return 404, {}, {"detail": f"order not found: {oid}"}
     return 200, {}, order_body(order)
+
+# ---- TEST-ONLY bad-token mint hook (IDL-025/IDL-042 kill-proof, 04-08) ----------
+# A platform cannot manufacture a business's EXPIRED or REVOKED access token to
+# probe "the business validates the token on every request" — only the business
+# can (by waiting, or by exposing a test hook). Precedent: the /testing/orders/*
+# hooks and the webhooks `simulate` contract. POST /testing/oauth/mint {kind} mints
+# a deterministic access token in the requested (in)validity state, gated on the
+# config.identity.token_mint capability a merchant opts into. Scopes = the full
+# vocabulary so the ONLY defect a probe can surface is the (in)validity itself.
+def mint_test_token(kind):
+    """kind: valid | expired | revoked. Returns (status, payload)."""
+    scopes = list(IDENTITY_SCOPES)
+    at = "at_test_" + uuid.uuid4().hex
+    rec = {"client_id": "spck-platform-public", "scopes": scopes,
+           "revoked": False, "expires": time.time() + OAUTH_TOKEN_TTL}
+    if kind == "expired":
+        rec["expires"] = time.time() - 10            # issued, but past its exp (IDL-025 exp)
+    elif kind == "revoked":
+        rec["revoked"] = True                        # issued, then revoked (RFC 7009)
+    elif kind != "valid":
+        return 400, {"error": "invalid_request",
+                     "error_description": f"unsupported mint kind: {kind}"}
+    OAUTH_TOKENS[at] = rec
+    return 200, {"access_token": at, "token_type": "Bearer",
+                 "kind": kind, "scope": " ".join(scopes)}
+
+# ---- 01-era checkout-scope gate (IDL-013 kill-proof) ----------------------------
+# IDL-013@01-era: "a scope covering a capability must grant access to ALL operations
+# associated to the capability" (checkout_session: Get/Create/Update/Cancel/Complete).
+# Under --require-checkout-scope every 01-era checkout-session operation demands a
+# Bearer token carrying ucp:scopes:checkout_session, so ONE such token must unlock
+# all of them. The --checkout-scope-partial MUTANT makes the "read" (Get) operation
+# additionally demand a fictional per-operation scope the capability scope does NOT
+# grant — the exact IDL-013 violation the check must catch.
+_CHECKOUT_PARTIAL_OP = "read"
+_CHECKOUT_EXTRA_SCOPE = "ucp:scopes:checkout_session_get"
+
+def require_checkout_scope(headers, base, op):
+    """Return None when authorized, else (status, headers, payload). Only active in
+    01-era modes with REQUIRE_CHECKOUT_SCOPE set."""
+    if not REQUIRE_CHECKOUT_SCOPE or VERSION == "2026-04-08":
+        return None
+    required = [IDENTITY_SCOPES_01ERA[0]]
+    if CHECKOUT_SCOPE_PARTIAL and op == _CHECKOUT_PARTIAL_OP:
+        required.append(_CHECKOUT_EXTRA_SCOPE)
+    h = {k.lower(): v for k, v in headers.items()}
+    authz = h.get("authorization") or ""
+
+    def deny(status, code):
+        return status, {"WWW-Authenticate": f'Bearer realm="{base}"'}, {
+            "messages": [{"type": "error", "code": code,
+                          "content": "Checkout operations require the "
+                                     "ucp:scopes:checkout_session scope.",
+                          "severity": "requires_buyer_review"}]}
+    if not authz.startswith("Bearer "):
+        return deny(401, "identity_required")
+    tok = OAUTH_TOKENS.get(authz[len("Bearer "):].strip())
+    if not tok or tok["revoked"] or tok["expires"] < time.time():
+        return deny(401, "identity_required")
+    if any(s not in tok["scopes"] for s in required):
+        return deny(403, "insufficient_scope")
+    return None
 # ==== end OAUTH area ============================================================
 
 # ---- discovery-area profile-serving policy (2026-04-08 overview.md Hosting) -----
@@ -1059,6 +1153,38 @@ def profile(base):
     # Oracle-validated per version in selfcheck.py.
     out["signing_keys"] = [signing_jwk()]
     return out
+
+# ---- DISC-014 loopback spec/schema URLs (reference-gate hermeticity) -------------
+def _localize_spec_urls(node, base, ctr):
+    """Recursively repoint every spec/schema/config_schema (+ instrument_schemas)
+    URL to a LOOPBACK path this fixture serves, so the DISC-014 live-URL check can
+    be reference-gated without any network. ctr is a 1-element list (mutable counter);
+    the FIRST URL becomes a 404 sentinel under BREAK_SPEC_URL."""
+    def loc():
+        ctr[0] += 1
+        if BREAK_SPEC_URL and ctr[0] == 1:
+            return base + _LOCAL_BROKEN_PATH
+        return f"{base}/__localspec/u{ctr[0]}"
+    if isinstance(node, dict):
+        for k, v in list(node.items()):
+            if k in _LOCAL_SPEC_KEYS and isinstance(v, str) and "://" in v:
+                node[k] = loc()
+            elif k == "instrument_schemas" and isinstance(v, list):
+                node[k] = [loc() if isinstance(s, str) and "://" in s else s for s in v]
+            else:
+                _localize_spec_urls(v, base, ctr)
+    elif isinstance(node, list):
+        for item in node:
+            _localize_spec_urls(item, base, ctr)
+    return node
+
+def profile_served(base):
+    """The profile as served on /.well-known/ucp — normally the real profile, but
+    with loopback spec/schema URLs under --local-spec-urls (DISC-014 gate only)."""
+    p = profile(base)
+    if LOCAL_SPEC_URLS:
+        p = _localize_spec_urls(json.loads(json.dumps(p)), base, [0])
+    return p
 
 # ---- version-negotiation / discovery-error simulation (2026-04-08 only) ----------
 # The negotiation protocol (overview.md "Negotiation Protocol" + "Error Handling")
@@ -1976,6 +2102,17 @@ class _H(BaseHTTPRequestHandler):
             self._send(*err)
             return True
         return False
+    def _checkout_scope_denied(self, op):
+        """IDL-013 (01-era): enforce the checkout_session capability scope on `op`
+        when --require-checkout-scope is set. Sends the challenge and returns True
+        when denied, else False. No-op in 04-08 mode / when the flag is off."""
+        denied = require_checkout_scope(dict(self.headers.items()), self._base(), op)
+        if denied:
+            st, hdrs, payload = denied
+            self._send(st, payload, hdrs)
+            return True
+        return False
+
     def do_GET(self):
         path = self.path.rstrip("/").split("?")[0]
         if path == "/__echo":
@@ -1983,9 +2120,17 @@ class _H(BaseHTTPRequestHandler):
             # can assert what actually arrived on the wire (custom headers etc.)
             return self._send(200, {"headers": {k.lower(): v for k, v in self.headers.items()}})
         if path == "/.well-known/ucp":
-            # DISC-003: profile responses carry the required Cache-Control policy
-            return self._send(200, profile(self._base()),
+            # DISC-003: profile responses carry the required Cache-Control policy.
+            # profile_served applies the DISC-014 loopback repoint when --local-spec-urls
+            # is set (otherwise it is the real authority-origin profile, unchanged).
+            return self._send(200, profile_served(self._base()),
                               {"Cache-Control": PROFILE_CACHE_CONTROL})
+        if path.startswith("/__localspec/"):
+            # DISC-014 reference-gate loopback targets: every declared spec/schema URL
+            # resolves 200 here (valid JSON), except the BREAK_SPEC_URL sentinel (404).
+            if path == _LOCAL_BROKEN_PATH:
+                return self._send(404, {"error_code": "not_found"})
+            return self._send(200, {"ok": True})
         if path == "/.well-known/oauth-authorization-server":
             # identity-linking: RFC 8414 authorization server metadata on the
             # business domain (04-08 IDL-016; 01-era IDL-006 — every version)
@@ -2004,8 +2149,19 @@ class _H(BaseHTTPRequestHandler):
             return self._send(st, payload, hdrs)
         if path.startswith("/checkout-sessions/"):
             sid = path.split("/")[2]
+            if self._checkout_scope_denied("read"):   # IDL-013 Get gate (01-era)
+                return
             return self._send(*get_checkout(sid, self.headers))
         if path.startswith("/orders/"):
+            # ORD-012: the business MUST authenticate requests to order data before
+            # returning a response. Only enforced under --require-order-auth (04-08),
+            # so the DEFAULT golden's unauthenticated order checks stay sound.
+            if REQUIRE_ORDER_AUTH and VERSION == "2026-04-08":
+                denied = require_identity(dict(self.headers.items()),
+                                          ORDER_READ_SCOPES, self._base())
+                if denied:
+                    st, hdrs, payload = denied
+                    return self._send(st, payload, hdrs)
             return self._send(*get_order(path.split("/")[2], self.headers))
         if path.startswith("/carts/") and path.count("/") == 2 \
            and VERSION == "2026-04-08":      # cart exists only in 04-08
@@ -2020,6 +2176,8 @@ class _H(BaseHTTPRequestHandler):
             return self._send(400, {"detail": "request body is not valid JSON"})
         if path.startswith("/checkout-sessions/") and path.count("/") == 2:
             sid = path.split("/")[2]
+            if self._checkout_scope_denied("update"):   # IDL-013 Update gate (01-era)
+                return
             return self._send(*update_checkout(sid, body, self.headers))
         if path.startswith("/carts/") and path.count("/") == 2 \
            and VERSION == "2026-04-08":      # cart exists only in 04-08 (CART-017)
@@ -2089,13 +2247,22 @@ class _H(BaseHTTPRequestHandler):
                 fn = (simulate_order_adjustment if parts[4] == "adjust"
                       else simulate_order_fulfillment)
                 return self._send(*fn(parts[3], body, self.headers))
+        if path == "/testing/oauth/mint":
+            # TEST-ONLY bad-token mint (IDL-025/042): deterministic (in)valid tokens
+            return self._send(*mint_test_token((body or {}).get("kind")))
         if path == "/checkout-sessions":
+            if self._checkout_scope_denied("create"):   # IDL-013 Create gate (01-era)
+                return
             return self._send(*create_checkout(body, self.headers))
         if path.startswith("/checkout-sessions/"):
             parts = path.split("/")          # '', 'checkout-sessions', sid, action
             if len(parts) == 4 and parts[3] == "complete":
+                if self._checkout_scope_denied("complete"):  # IDL-013 Complete gate
+                    return
                 return self._send(*complete_checkout(parts[2], body, self.headers))
             if len(parts) == 4 and parts[3] == "cancel":
+                if self._checkout_scope_denied("cancel"):    # IDL-013 Cancel gate
+                    return
                 return self._send(*cancel_checkout(parts[2], self.headers))
         if path == "/ucp/mcp" and VERSION == "2026-04-08":   # MCP (JSON-RPC tools/call)
             return self._send(200, mcp_dispatch(body))
@@ -2118,8 +2285,25 @@ def main():
                     help="MUTANT: skip client authentication at token/revocation")
     ap.add_argument("--oauth-challenge-no-error", action="store_true",
                     help="MUTANT: omit the error param from Bearer challenges")
+    ap.add_argument("--oauth-accept-any-token", action="store_true",
+                    help="MUTANT: accept a present Bearer token without validating it "
+                         "is known/unexpired/unrevoked (IDL-042 expired/revoked kill-proof)")
     ap.add_argument("--no-webhooks", action="store_true",
                     help="MUTANT: never send order-event webhooks (webhook kill-proof)")
+    # ORD-012 / IDL-013 config-gated auth MODES (not mutants — opt-in golden modes):
+    ap.add_argument("--require-order-auth", action="store_true",
+                    help="ORD-012 golden mode: authenticate GET /orders/{id} (04-08)")
+    ap.add_argument("--require-checkout-scope", action="store_true",
+                    help="IDL-013 golden mode: gate 01-era checkout ops behind "
+                         "ucp:scopes:checkout_session")
+    ap.add_argument("--checkout-scope-partial", action="store_true",
+                    help="MUTANT (with --require-checkout-scope): make ONE checkout op "
+                         "demand an extra per-operation scope (IDL-013 violation)")
+    ap.add_argument("--local-spec-urls", action="store_true",
+                    help="DISC-014 gate: repoint profile spec/schema URLs to loopback "
+                         "paths this fixture serves (hermetic reference-gate ONLY)")
+    ap.add_argument("--break-spec-url", action="store_true",
+                    help="MUTANT (with --local-spec-urls): make ONE spec/schema URL 404")
     ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
                     help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
@@ -2128,7 +2312,9 @@ def main():
         global VERIFY_SIGNATURES
         VERIFY_SIGNATURES = False
     global OAUTH_ENFORCE_PKCE, OAUTH_GATE, OAUTH_EXACT_REDIRECT, \
-        OAUTH_CLIENT_AUTH, OAUTH_CHALLENGE_ERROR
+        OAUTH_CLIENT_AUTH, OAUTH_CHALLENGE_ERROR, OAUTH_VALIDATE_TOKEN, \
+        REQUIRE_ORDER_AUTH, REQUIRE_CHECKOUT_SCOPE, CHECKOUT_SCOPE_PARTIAL, \
+        LOCAL_SPEC_URLS, BREAK_SPEC_URL
     if args.oauth_no_pkce:
         OAUTH_ENFORCE_PKCE = False
     if args.oauth_no_gate:
@@ -2139,6 +2325,18 @@ def main():
         OAUTH_CLIENT_AUTH = False
     if args.oauth_challenge_no_error:
         OAUTH_CHALLENGE_ERROR = False
+    if args.oauth_accept_any_token:
+        OAUTH_VALIDATE_TOKEN = False
+    if args.require_order_auth:
+        REQUIRE_ORDER_AUTH = True
+    if args.require_checkout_scope:
+        REQUIRE_CHECKOUT_SCOPE = True
+    if args.checkout_scope_partial:
+        CHECKOUT_SCOPE_PARTIAL = True
+    if args.local_spec_urls:
+        LOCAL_SPEC_URLS = True
+    if args.break_spec_url:
+        BREAK_SPEC_URL = True
     if args.no_webhooks:
         global SEND_WEBHOOKS
         SEND_WEBHOOKS = False
