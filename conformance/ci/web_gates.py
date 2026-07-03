@@ -72,11 +72,18 @@ def browser():
     try:
         env = {**os.environ, "CHROME_PATH": chrome,
                "PAGE_URL": "http://127.0.0.1:8189/tool.html",
+               "BASE": "http://127.0.0.1:8189",
                "FIXTURE": "http://127.0.0.1:8184"}
-        r = subprocess.run(["node", str(webdir / "browser" / "tool_smoke.mjs")],
-                           cwd=str(webdir), env=env, capture_output=True, text=True, timeout=180)
-        print((r.stdout + r.stderr).strip()[-1200:])
-        return 0 if r.returncode == 0 else (2 if r.returncode == 2 else 1)
+        rc = 0
+        for script in ("tool_smoke.mjs", "responsive_smoke.mjs"):
+            r = subprocess.run(["node", str(webdir / "browser" / script)],
+                               cwd=str(webdir), env=env, capture_output=True, text=True, timeout=180)
+            print(f"[{script}]"); print((r.stdout + r.stderr).strip()[-1000:])
+            if r.returncode == 1:              # a real failure wins over any skip
+                rc = 1
+            elif r.returncode == 2 and rc == 0:
+                rc = 2
+        return rc
     finally:
         static.terminate()
 

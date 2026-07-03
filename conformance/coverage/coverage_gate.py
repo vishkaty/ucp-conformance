@@ -279,21 +279,30 @@ def main():
     covered = matrix.covered_ids_by_version()
     failures += validate_exemptions(exempt, must_ids, covered)
 
-    # 4. site copy: the advertised check count must equal the real MCheck count
+    # 4. copy freshness: any advertised check count — on the public site OR in the
+    #    tracked docs (README, ROADMAP, packaging README) — must equal the real
+    #    MCheck count. This is what stops a doc drifting to a stale "38 checks" claim.
     actual = 0
     for f in glob.glob(os.path.join(ROOT, "conformance", "checks", "merchant_checks*.py")):
         actual += len(re.findall(r"^    MCheck\(", open(f).read(), re.M))
     claim_res = [re.compile(r"(\d+)\+? kill-rate-validated checks?"),
+                 re.compile(r"(\d+)\+? checks across"),
                  # the landing-page hero stat: <div class="stat-num">47</div>...Kill-rate-validated
                  re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Kill-rate-validated')]
-    for page in glob.glob(os.path.join(ROOT, "public", "*.html")):
+    copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
+        os.path.join(ROOT, "README.md"),
+        os.path.join(ROOT, "docs", "ROADMAP.md"),
+        os.path.join(ROOT, "packaging", "README.md")]
+    for page in copy_files:
+        if not os.path.exists(page):
+            continue
         txt = open(page).read()
         for cre in claim_res:
             for m in cre.finditer(txt):
                 if int(m.group(1)) != actual:
-                    failures.append(f"{os.path.basename(page)} claims '{m.group(0)}' but the "
-                                    f"suite has {actual} — update the page copy")
-    print(f"  site copy: advertised check count vs actual ({actual}) "
+                    failures.append(f"{os.path.relpath(page, ROOT)} claims '{m.group(0)}' but the "
+                                    f"suite has {actual} — update the copy")
+    print(f"  copy freshness: advertised check count vs actual ({actual}) "
           f"{'✓' if not any('claims' in f for f in failures) else '✗'}")
 
     if failures:
