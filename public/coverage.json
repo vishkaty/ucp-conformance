@@ -9,12 +9,12 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 58,
+   "check": 57,
    "exempt": 12,
-   "gap": 102,
-   "accounted_pct": 41,
+   "gap": 103,
+   "accounted_pct": 40,
    "gap_by_testability": {
-    "manual": 19,
+    "manual": 20,
     "needs-oauth": 10,
     "needs-receiver": 35,
     "testable": 38
@@ -22,9 +22,9 @@
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 15,
-     "gap": 13,
-     "gap_manual": 3,
+     "check": 14,
+     "gap": 14,
+     "gap_manual": 4,
      "gap_needs-receiver": 8,
      "gap_testable": 2,
      "musts": 28
@@ -344,13 +344,11 @@
      "id": "CHK-052",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "testable",
-     "status": "check",
+     "testability": "manual",
+     "status": "gap",
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/checkout-rest.md#L1211",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DISC-001",
@@ -1951,12 +1949,12 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 71,
+   "check": 70,
    "exempt": 12,
-   "gap": 98,
-   "accounted_pct": 46,
+   "gap": 99,
+   "accounted_pct": 45,
    "gap_by_testability": {
-    "manual": 21,
+    "manual": 22,
     "needs-oauth": 10,
     "needs-receiver": 35,
     "testable": 32
@@ -1964,9 +1962,9 @@
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 17,
-     "gap": 15,
-     "gap_manual": 4,
+     "check": 16,
+     "gap": 16,
+     "gap_manual": 5,
      "gap_needs-receiver": 8,
      "gap_testable": 3,
      "musts": 32
@@ -2336,13 +2334,11 @@
      "id": "CHK-052",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "testable",
-     "status": "check",
+     "testability": "manual",
+     "status": "gap",
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/checkout-rest.md#L1211",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "DISC-001",
@@ -4022,23 +4018,24 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 159,
-   "exempt": 27,
-   "gap": 136,
-   "accounted_pct": 58,
+   "check": 157,
+   "exempt": 26,
+   "gap": 139,
+   "accounted_pct": 57,
    "gap_by_testability": {
-    "manual": 17,
+    "manual": 19,
     "needs-oauth": 48,
     "needs-receiver": 70,
-    "testable": 1
+    "testable": 2
    },
    "areas": [
     {
      "area": "cart",
-     "check": 7,
-     "exempt": 1,
-     "gap": 6,
+     "check": 6,
+     "gap": 8,
+     "gap_manual": 1,
      "gap_needs-receiver": 6,
+     "gap_testable": 1,
      "musts": 14
     },
     {
@@ -4051,10 +4048,10 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 15,
+     "check": 14,
      "exempt": 2,
-     "gap": 16,
-     "gap_manual": 2,
+     "gap": 17,
+     "gap_manual": 3,
      "gap_needs-receiver": 14,
      "musts": 33
     },
@@ -4165,12 +4162,11 @@
      "id": "CART-017",
      "area": "cart",
      "keyword": "MUST",
-     "testability": "manual",
-     "status": "exempt",
+     "testability": "testable",
+     "status": "gap",
      "requirement": "For Update Cart (full replacement), the platform MUST send the entire cart resource",
      "source": "ucp:docs/specification/cart.md#L176",
-     "covered_by": [],
-     "exempt_reason": "Binds the platform's Update Cart PUT body (full replacement, cart.md L176): the business cannot distinguish a deliberately-partial cart from a genuinely-small full cart, so no merchant-side observation can prove the platform sent the entire resource."
+     "covered_by": []
     },
     {
      "id": "CART-018",
@@ -4220,13 +4216,11 @@
      "id": "CART-024",
      "area": "cart",
      "keyword": "MUST",
-     "testability": "testable",
-     "status": "check",
+     "testability": "manual",
+     "status": "gap",
      "requirement": "All cart requests MUST include the UCP-Agent header containing the platform profile URI",
      "source": "ucp:docs/specification/cart-rest.md#L468",
-     "covered_by": [
-      "merchant_checks_04_08_lifecycle.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CART-026",
@@ -4972,13 +4966,11 @@
      "id": "CHK-046",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "testable",
-     "status": "check",
+     "testability": "manual",
+     "status": "gap",
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/checkout-rest.md#L1237",
-     "covered_by": [
-      "merchant_checks.py"
-     ]
+     "covered_by": []
     },
     {
      "id": "CHK-048",

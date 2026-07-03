@@ -50,8 +50,10 @@ def _registry_ok(ph):
     for k, group in ph.items():
         if not isinstance(k, str) or not _RDN.match(k):
             return False
-        if not isinstance(group, list) or not group:
+        if not isinstance(group, list):
             return False
+        # an EMPTY group is schema-valid (ucp.json: plain array, no minItems) —
+        # over-strictness fixed per adversarial-review F3
         for h in group:
             if not isinstance(h, dict) or not isinstance(h.get("id"), str) \
                or not h["id"]:
@@ -110,7 +112,6 @@ CHECKS_04_08_PAYMENT = [
             # declaration missing id (PAY-002)
             "set:payment_handlers={\"dev.spck.tokenpay\":[{\"version\":\"2026-04-08\"}]}",
             # empty declaration group
-            "set:payment_handlers={\"dev.spck.tokenpay\":[]}",
             "corrupt-json", "empty"],
            transport="rest", versions=V0408),
     MCheck("payment.response_handlers_echo", ["PAY-003"], "MUST",

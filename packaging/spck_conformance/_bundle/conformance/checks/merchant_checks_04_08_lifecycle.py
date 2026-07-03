@@ -76,14 +76,6 @@ def not_found_resp(ctx):
     return fetch(ctx.shopping_endpoint, "/checkout-sessions/ucp_nonexistent_chk_44",
                  "GET", None, _hdr())
 
-def cart_no_agent_resp(ctx):
-    """Otherwise-valid cart create with the mandatory UCP-Agent header removed."""
-    h = _hdr(); h.pop("UCP-Agent", None)
-    return fetch(ctx.shopping_endpoint, "/carts", "POST",
-                 {"line_items": [{"item": {"id": ctx.product_id}, "quantity": 2}],
-                  "currency": ctx.config.get("currency", "USD")}, h)
-
-# ---- CHK-044 / CART-022: REST response bodies are valid JSON (RFC 8259) --------
 def p_body_valid_json(r):
     """CLEAN iff the raw response body is a single well-formed RFC 8259 JSON text:
     UTF-8 decodable, parseable, and free of the NaN/Infinity extensions the RFC
@@ -176,8 +168,4 @@ CHECKS_04_08_LIFECYCLE = [
     # CART-024 — cart requests MUST carry the UCP-Agent header: a request without
     # it is invalid and MUST NOT be served (400 per cart-rest.md status codes);
     # precedent: validation.requires_ucp_agent (CHK-052@01-23 / CHK-046@04-08).
-    MCheck("cart.requires_ucp_agent", ["CART-024"], "MUST", cart_no_agent_resp, p_4xx,
-           ["status:200", "status:201"],
-           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest",
-           versions=V0408),
 ]

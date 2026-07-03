@@ -58,6 +58,7 @@ def gates(server):
                                     "--server", CONTROLLED_0123, "--golden", "controlled"),
          "controlled-01-23", ()),
         ("tls-check",   _py(SELF / "validate_tls_check.py"),                 "controlled", (2,)),
+        ("sig-check",   _py(SELF / "validate_sig_check.py"),                    None, (2,)),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),

@@ -2,39 +2,600 @@
   "_area": "cart",
   "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
   "rows": [
-    {"id":"CART-001","requirement":"On cart-to-checkout conversion, business MUST use cart contents and MUST ignore overlapping fields in the checkout payload","keyword":"MUST","source":"ucp:docs/specification/cart.md#L66","quote":"Business MUST use cart contents and MUST ignore overlapping fields in checkout payload.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Receiver-side behavior on Create Checkout with cart_id; not expressible in cart.json JSON-Schema. official_oracle false: conformance suite pinned to spec 2026-01-23 has no cart tests."},
-    {"id":"CART-002","requirement":"If an incomplete checkout already exists for the given cart_id, business MUST return the existing checkout session rather than creating a new one (idempotent conversion)","keyword":"MUST","source":"ucp:docs/specification/cart.md#L73","quote":"MUST return the existing checkout session rather than creating a new one. This","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Idempotent cart-to-checkout conversion; stateful receiver behavior, not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-003","requirement":"When checkout is initialized via cart_id, the cart and checkout sessions SHOULD be linked for the duration of the checkout","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L79","quote":"SHOULD be linked for the duration of the checkout.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Lifecycle linkage behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-004","requirement":"During active checkout, business SHOULD maintain the cart and reflect relevant checkout modifications back to the cart","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L81","quote":"During active checkout** — Business SHOULD maintain the cart and reflect","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Receiver-side sync behavior. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-005","requirement":"After checkout completion, business MAY clear the cart based on TTL, completion of the checkout, or other business logic","keyword":"MAY","source":"ucp:docs/specification/cart.md#L86","quote":"After checkout completion** — Business MAY clear the cart based on TTL,","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Optional cleanup behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-006","requirement":"Platform MAY use carts for pre-purchase exploration and session persistence","keyword":"MAY","source":"ucp:docs/specification/cart.md#L107","quote":"**MAY** use carts for pre-purchase exploration and session persistence.","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Platform guideline; optional behavior. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-007","requirement":"Platform SHOULD convert cart to checkout when user expresses purchase intent","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L108","quote":"**SHOULD** convert cart to checkout when user expresses purchase intent.","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Platform behavioral guideline. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-008","requirement":"Platform MAY display continue_url for handoff to business UI","keyword":"MAY","source":"ucp:docs/specification/cart.md#L109","quote":"**MAY** display `continue_url` for handoff to business UI.","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Platform display guideline. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-009","requirement":"Platform SHOULD handle not_found gracefully when cart expires or is canceled","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L110","quote":"**SHOULD** handle `not_found` gracefully when cart expires or is canceled.","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Platform error-handling guideline. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-010","requirement":"Business SHOULD provide continue_url for cart handoff and session recovery","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L114","quote":"**SHOULD** provide `continue_url` for cart handoff and session recovery.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"continue_url is optional in cart.json (ucp_request:omit on response), so schema does not require it. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-011","requirement":"Business SHOULD provide estimated totals when calculable","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L116","quote":"**SHOULD** provide estimated totals when calculable.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Business guideline. totals is schema-required in cart.json but content adequacy is not. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-012","requirement":"Business MAY omit fulfillment totals until checkout when address is unknown","keyword":"MAY","source":"ucp:docs/specification/cart.md#L117","quote":"**MAY** omit fulfillment totals until checkout when address is unknown.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Optional partial-totals behavior. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-013","requirement":"Business SHOULD return informational messages for validation warnings","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L118","quote":"**SHOULD** return informational messages for validation warnings.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Business guideline. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-014","requirement":"Business MAY set cart expiry via expires_at","keyword":"MAY","source":"ucp:docs/specification/cart.md#L119","quote":"**MAY** set cart expiry via `expires_at`.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"expires_at is optional in cart.json. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-015","requirement":"Business SHOULD follow cart lifecycle requirements when checkout is initialized via cart_id","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L120","quote":"**SHOULD** follow [cart lifecycle requirements](#cart-to-checkout-conversion)","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Lifecycle guideline; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-016","requirement":"When all requested items are unavailable, the business MAY return an error response instead of creating a cart resource","keyword":"MAY","source":"ucp:docs/specification/cart.md#L143","quote":"When **all** requested items are unavailable, the business MAY return an","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Create Cart error behavior; ucp.status is discriminator, absence of id is secondary. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-017","requirement":"For Update Cart (full replacement), the platform MUST send the entire cart resource","keyword":"MUST","source":"ucp:docs/specification/cart.md#L176","quote":"the entire cart resource. The provided resource replaces the existing cart","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-018","requirement":"On Cancel Cart, business MUST return the cart state before deletion","keyword":"MUST","source":"ucp:docs/specification/cart.md#L185","quote":"Cancels a cart session. Business MUST return the cart state before deletion.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Cancel Cart response behavior. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-019","requirement":"After cancellation, subsequent operations for the cart ID SHOULD return not_found","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L186","quote":"Subsequent operations for this cart ID SHOULD return `not_found`.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Stateful receiver behavior. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-020","requirement":"Signal values MUST NOT be buyer-asserted claims","keyword":"MUST NOT","source":"ucp:docs/specification/cart.md#L229","quote":"Signal values MUST NOT be buyer-asserted claims.","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Provenance constraint on signals; not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-021","requirement":"Taxes MAY be included in cart totals where calculable; platforms SHOULD assume cart totals are estimates","keyword":"SHOULD","source":"ucp:docs/specification/cart.md#L252","quote":"Taxes MAY be included where calculable. Platforms SHOULD assume cart totals","versions":["2026-04-08"],"transport":["rest"],"testability":"manual","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Estimate-handling guideline; quote spans L252-L253. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-022","requirement":"All cart REST request and response bodies MUST be valid JSON as specified in RFC 8259","keyword":"MUST","source":"ucp:docs/specification/cart-rest.md#L74","quote":"All request and response bodies **MUST** be valid JSON as specified in","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Well-formedness is a JSON-parse check, not a cart.json schema construct. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-023","requirement":"All cart REST endpoints MUST be served over HTTPS with minimum TLS version 1.3","keyword":"MUST","source":"ucp:docs/specification/cart-rest.md#L79","quote":"All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Transport security; verifiable at connection layer, not via JSON-Schema. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-024","requirement":"All cart requests MUST include the UCP-Agent header containing the platform profile URI","keyword":"MUST","source":"ucp:docs/specification/cart-rest.md#L468","quote":"**UCP-Agent**: All requests **MUST** include the `UCP-Agent` header","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"HTTP header requirement on cart operations; not a body-schema constraint. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-025","requirement":"Operations that modify cart state SHOULD support idempotency via the Idempotency-Key header","keyword":"SHOULD","source":"ucp:docs/specification/cart-rest.md#L472","quote":"**Idempotency-Key**: Operations that modify state **SHOULD** support","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Quote is verbatim L472 segment; the conditional MUST sub-steps (store key 24h, return cached result, 409 on reuse with different params) follow at L473-L476. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-026","requirement":"When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours, return the cached result for duplicate keys, and return 409 Conflict if the key is reused with different parameters","keyword":"MUST","source":"ucp:docs/specification/cart-rest.md#L473","quote":"idempotency. When provided, the server **MUST**:","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Conditional MUST; the three numbered obligations are at L474-L476. Receiver-side. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-027","requirement":"When cart authentication is required, the REST transport MAY use Open API, API Keys, OAuth 2.0, or Mutual TLS","keyword":"MAY","source":"ucp:docs/specification/cart-rest.md#L536","quote":"authentication is required, the REST transport **MAY** use:","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-oauth","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Authentication is optional; OAuth path requires credentials to exercise. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-028","requirement":"Businesses MAY require authentication for some cart operations while leaving others open","keyword":"MAY","source":"ucp:docs/specification/cart-rest.md#L545","quote":"Businesses **MAY** require authentication for some operations while leaving","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-oauth","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"Optional per-operation auth. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-029","requirement":"A cart response object MUST include ucp, id, line_items, currency, and totals","keyword":"MUST","source":"ucp:source/schemas/shopping/cart.json#L32","quote":"\"required\": [\n    \"ucp\",\n    \"id\",\n    \"line_items\",\n    \"currency\",\n    \"totals\"\n  ],","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":true,"notes":"Schema-enforced via cart.json top-level required array (applies to response; ucp_request annotations on create/update are non-standard and not validator-enforced). Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-030","requirement":"cart_id is only available on create_checkout (create:optional) and MUST be omitted on update","keyword":"MUST NOT","source":"ucp:source/schemas/shopping/cart.json#L21","quote":"\"ucp_request\": {\n                \"create\": \"optional\",\n                \"update\": \"omit\"\n              }","versions":["2026-04-08"],"transport":["rest"],"testability":"needs-receiver","official_oracle":false,"browser_capable":true,"schema_enforced":false,"notes":"ucp_request annotation is NOT standard JSON-Schema, so a validator on cart.json will NOT catch a cart_id on update => schema_enforced false. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-031","requirement":"Each cart line item MUST include id, item, quantity, and totals","keyword":"MUST","source":"ucp:source/schemas/shopping/types/line_item.json#L7","quote":"\"required\": [\n    \"id\",\n    \"item\",\n    \"quantity\",\n    \"totals\"\n  ],","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":true,"notes":"Schema-enforced via line_item.json required array (cart reuses checkout line_item entity). Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-032","requirement":"Line item quantity MUST be an integer of at least 1","keyword":"MUST","source":"ucp:source/schemas/shopping/types/line_item.json#L27","quote":"\"minimum\": 1","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":true,"notes":"Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle."},
-    {"id":"CART-033","requirement":"Each line item's item MUST include id, title, and price","keyword":"MUST","source":"ucp:source/schemas/shopping/types/item.json#L6","quote":"\"required\": [\n    \"id\",\n    \"title\",\n    \"price\"\n  ],","versions":["2026-04-08"],"transport":["rest"],"testability":"testable","official_oracle":false,"browser_capable":true,"schema_enforced":true,"notes":"Schema-enforced via item.json required array. Suite pinned to 2026-01-23 has no cart oracle."}
+    {
+      "id": "CART-001",
+      "requirement": "On cart-to-checkout conversion, business MUST use cart contents and MUST ignore overlapping fields in the checkout payload",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart.md#L66",
+      "quote": "Business MUST use cart contents and MUST ignore overlapping fields in checkout payload.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Receiver-side behavior on Create Checkout with cart_id; not expressible in cart.json JSON-Schema. official_oracle false: conformance suite pinned to spec 2026-01-23 has no cart tests."
+    },
+    {
+      "id": "CART-002",
+      "requirement": "If an incomplete checkout already exists for the given cart_id, business MUST return the existing checkout session rather than creating a new one (idempotent conversion)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart.md#L73",
+      "quote": "MUST return the existing checkout session rather than creating a new one. This",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Idempotent cart-to-checkout conversion; stateful receiver behavior, not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-003",
+      "requirement": "When checkout is initialized via cart_id, the cart and checkout sessions SHOULD be linked for the duration of the checkout",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L79",
+      "quote": "SHOULD be linked for the duration of the checkout.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lifecycle linkage behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-004",
+      "requirement": "During active checkout, business SHOULD maintain the cart and reflect relevant checkout modifications back to the cart",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L81",
+      "quote": "During active checkout** \u2014 Business SHOULD maintain the cart and reflect",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Receiver-side sync behavior. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-005",
+      "requirement": "After checkout completion, business MAY clear the cart based on TTL, completion of the checkout, or other business logic",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L86",
+      "quote": "After checkout completion** \u2014 Business MAY clear the cart based on TTL,",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Optional cleanup behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-006",
+      "requirement": "Platform MAY use carts for pre-purchase exploration and session persistence",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L107",
+      "quote": "**MAY** use carts for pre-purchase exploration and session persistence.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform guideline; optional behavior. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-007",
+      "requirement": "Platform SHOULD convert cart to checkout when user expresses purchase intent",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L108",
+      "quote": "**SHOULD** convert cart to checkout when user expresses purchase intent.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform behavioral guideline. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-008",
+      "requirement": "Platform MAY display continue_url for handoff to business UI",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L109",
+      "quote": "**MAY** display `continue_url` for handoff to business UI.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform display guideline. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-009",
+      "requirement": "Platform SHOULD handle not_found gracefully when cart expires or is canceled",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L110",
+      "quote": "**SHOULD** handle `not_found` gracefully when cart expires or is canceled.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Platform error-handling guideline. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-010",
+      "requirement": "Business SHOULD provide continue_url for cart handoff and session recovery",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L114",
+      "quote": "**SHOULD** provide `continue_url` for cart handoff and session recovery.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "continue_url is optional in cart.json (ucp_request:omit on response), so schema does not require it. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-011",
+      "requirement": "Business SHOULD provide estimated totals when calculable",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L116",
+      "quote": "**SHOULD** provide estimated totals when calculable.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business guideline. totals is schema-required in cart.json but content adequacy is not. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-012",
+      "requirement": "Business MAY omit fulfillment totals until checkout when address is unknown",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L117",
+      "quote": "**MAY** omit fulfillment totals until checkout when address is unknown.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Optional partial-totals behavior. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-013",
+      "requirement": "Business SHOULD return informational messages for validation warnings",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L118",
+      "quote": "**SHOULD** return informational messages for validation warnings.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Business guideline. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-014",
+      "requirement": "Business MAY set cart expiry via expires_at",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L119",
+      "quote": "**MAY** set cart expiry via `expires_at`.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "expires_at is optional in cart.json. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-015",
+      "requirement": "Business SHOULD follow cart lifecycle requirements when checkout is initialized via cart_id",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L120",
+      "quote": "**SHOULD** follow [cart lifecycle requirements](#cart-to-checkout-conversion)",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lifecycle guideline; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-016",
+      "requirement": "When all requested items are unavailable, the business MAY return an error response instead of creating a cart resource",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart.md#L143",
+      "quote": "When **all** requested items are unavailable, the business MAY return an",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Create Cart error behavior; ucp.status is discriminator, absence of id is secondary. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-017",
+      "requirement": "For Update Cart (full replacement), the platform MUST send the entire cart resource",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart.md#L176",
+      "quote": "the entire cart resource. The provided resource replaces the existing cart",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause \u2014 'the provided resource replaces the existing cart state on the business side' \u2014 IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog)."
+    },
+    {
+      "id": "CART-018",
+      "requirement": "On Cancel Cart, business MUST return the cart state before deletion",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart.md#L185",
+      "quote": "Cancels a cart session. Business MUST return the cart state before deletion.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Cancel Cart response behavior. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-019",
+      "requirement": "After cancellation, subsequent operations for the cart ID SHOULD return not_found",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L186",
+      "quote": "Subsequent operations for this cart ID SHOULD return `not_found`.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Stateful receiver behavior. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-020",
+      "requirement": "Signal values MUST NOT be buyer-asserted claims",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/cart.md#L229",
+      "quote": "Signal values MUST NOT be buyer-asserted claims.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Provenance constraint on signals; not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-021",
+      "requirement": "Taxes MAY be included in cart totals where calculable; platforms SHOULD assume cart totals are estimates",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart.md#L252",
+      "quote": "Taxes MAY be included where calculable. Platforms SHOULD assume cart totals",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Estimate-handling guideline; quote spans L252-L253. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-022",
+      "requirement": "All cart REST request and response bodies MUST be valid JSON as specified in RFC 8259",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart-rest.md#L74",
+      "quote": "All request and response bodies **MUST** be valid JSON as specified in",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Well-formedness is a JSON-parse check, not a cart.json schema construct. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-023",
+      "requirement": "All cart REST endpoints MUST be served over HTTPS with minimum TLS version 1.3",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart-rest.md#L79",
+      "quote": "All REST endpoints **MUST** be served over HTTPS with minimum TLS version 1.3.",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Transport security; verifiable at connection layer, not via JSON-Schema. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-024",
+      "requirement": "All cart requests MUST include the UCP-Agent header containing the platform profile URI",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart-rest.md#L468",
+      "quote": "**UCP-Agent**: All requests **MUST** include the `UCP-Agent` header",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "HTTP header requirement on cart operations; not a body-schema constraint. Suite pinned to 2026-01-23 has no cart oracle. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
+    },
+    {
+      "id": "CART-025",
+      "requirement": "Operations that modify cart state SHOULD support idempotency via the Idempotency-Key header",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/cart-rest.md#L472",
+      "quote": "**Idempotency-Key**: Operations that modify state **SHOULD** support",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Quote is verbatim L472 segment; the conditional MUST sub-steps (store key 24h, return cached result, 409 on reuse with different params) follow at L473-L476. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-026",
+      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours, return the cached result for duplicate keys, and return 409 Conflict if the key is reused with different parameters",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/cart-rest.md#L473",
+      "quote": "idempotency. When provided, the server **MUST**:",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Conditional MUST; the three numbered obligations are at L474-L476. Receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-027",
+      "requirement": "When cart authentication is required, the REST transport MAY use Open API, API Keys, OAuth 2.0, or Mutual TLS",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart-rest.md#L536",
+      "quote": "authentication is required, the REST transport **MAY** use:",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-oauth",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Authentication is optional; OAuth path requires credentials to exercise. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-028",
+      "requirement": "Businesses MAY require authentication for some cart operations while leaving others open",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/cart-rest.md#L545",
+      "quote": "Businesses **MAY** require authentication for some operations while leaving",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-oauth",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Optional per-operation auth. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-029",
+      "requirement": "A cart response object MUST include ucp, id, line_items, currency, and totals",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/cart.json#L32",
+      "quote": "\"required\": [\n    \"ucp\",\n    \"id\",\n    \"line_items\",\n    \"currency\",\n    \"totals\"\n  ],",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-enforced via cart.json top-level required array (applies to response; ucp_request annotations on create/update are non-standard and not validator-enforced). Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-030",
+      "requirement": "cart_id is only available on create_checkout (create:optional) and MUST be omitted on update",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/shopping/cart.json#L21",
+      "quote": "\"ucp_request\": {\n                \"create\": \"optional\",\n                \"update\": \"omit\"\n              }",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "ucp_request annotation is NOT standard JSON-Schema, so a validator on cart.json will NOT catch a cart_id on update => schema_enforced false. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-031",
+      "requirement": "Each cart line item MUST include id, item, quantity, and totals",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/line_item.json#L7",
+      "quote": "\"required\": [\n    \"id\",\n    \"item\",\n    \"quantity\",\n    \"totals\"\n  ],",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-enforced via line_item.json required array (cart reuses checkout line_item entity). Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-032",
+      "requirement": "Line item quantity MUST be an integer of at least 1",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/line_item.json#L27",
+      "quote": "\"minimum\": 1",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle."
+    },
+    {
+      "id": "CART-033",
+      "requirement": "Each line item's item MUST include id, title, and price",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/item.json#L6",
+      "quote": "\"required\": [\n    \"id\",\n    \"title\",\n    \"price\"\n  ],",
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Schema-enforced via item.json required array. Suite pinned to 2026-01-23 has no cart oracle."
+    }
   ],
   "notes": [
     "Cart capability (dev.ucp.shopping.cart) is NEW in spec version 2026-04-08; it does not exist in 2026-01-23.",

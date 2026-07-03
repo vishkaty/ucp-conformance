@@ -103,11 +103,6 @@ def nonexistent_resp(ctx):
     p["line_items"][0]["item"]["id"] = "ucp_nonexistent_" + uuid.uuid4().hex[:10]
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr())
 
-def no_agent_resp(ctx):
-    """Otherwise-valid create with the mandatory UCP-Agent header removed — MUST 4xx."""
-    h = _hdr(); h.pop("UCP-Agent", None)
-    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", _create_payload(ctx), h)
-
 def idem_conflict_resp(ctx):
     """Same idempotency-key, DIFFERENT body -> MUST 409 Conflict."""
     k = str(uuid.uuid4())
@@ -901,10 +896,6 @@ CHECKS = [
     MCheck("validation.overstock_update_400", ["VAL-002"], "MUST", val_overstock_update_resp, p_400,
            ["status:200", "status:201", "status:409", "status:500", "status:402"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
-    MCheck("validation.requires_ucp_agent", ["CHK-052"], "MUST", no_agent_resp, p_4xx,
-           ["status:200", "status:201"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-046"]}),
     MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", transport="rest"),

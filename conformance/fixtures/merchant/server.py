@@ -26,6 +26,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 # schema_oracle.validate_profile can't select) — needs its own increment.
 VERSION = "2026-04-08"
 SUPPORTED_VERSIONS = ("2026-04-08", "2026-01-23")
+# MUTANT switch (--no-verify-signatures): a deliberately-NON-VERIFYING merchant —
+# accepts requests with tampered/garbage RFC 9421 signatures. Exists ONLY so the
+# SIG-002 check's kill-proof gate can show the check DEVIATES on such a merchant
+# (adversarial-review F6). Never enabled by run_suite's goldens.
+VERIFY_SIGNATURES = True
 
 def set_version(v):
     """Switch the spec version the fixture serves (also resets lifecycle state, so a
@@ -1236,7 +1241,7 @@ class _H(BaseHTTPRequestHandler):
         signature error codes on failure. Unsigned requests are untouched."""
         if VERSION != "2026-04-08" or not self.headers.get("Signature-Input"):
             return False
-        err = verify_signed_request(self.command, self.path,
+        err = None if not VERIFY_SIGNATURES else verify_signed_request(self.command, self.path,
                                     dict(self.headers.items()), self._raw())
         if err:
             self._send(*err)
@@ -1335,10 +1340,15 @@ def main():
     ap = argparse.ArgumentParser(description="Controlled UCP merchant fixture (version-switchable).")
     ap.add_argument("--port", type=int, default=8184)
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--no-verify-signatures", action="store_true",
+                    help="MUTANT: skip RFC 9421 request verification (SIG-002 kill-proof)")
     ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
                     help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
     set_version(args.spec_version)
+    if args.no_verify_signatures:
+        global VERIFY_SIGNATURES
+        VERIFY_SIGNATURES = False
     srv = ThreadingHTTPServer((args.host, args.port), _H)
     print(f"controlled merchant on http://{args.host}:{args.port} "
           f"(checkout/order/discount lifecycle"

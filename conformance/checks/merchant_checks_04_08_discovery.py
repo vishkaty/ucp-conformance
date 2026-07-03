@@ -26,7 +26,7 @@ additionally prove the predicate is live wherever the probe DOES run.
 NOTE: imported lazily by merchant_checks.all_checks() — do not import this module
 before merchant_checks (it pulls MCheck/_hdr from there).
 """
-import json, sys, pathlib, urllib.request, urllib.error
+import json, sys, pathlib, time, urllib.request, urllib.error
 from urllib.parse import urlsplit, urlunsplit
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -177,11 +177,23 @@ def p_endpoints_https(r, ctx):
 # ---- NEG-001..004: negotiation error mapping (config-gated probe URLs) ----------
 def _neg_probe(ctx, cfg_key):
     """Otherwise-valid create with UCP-Agent naming the config-supplied platform
-    profile URL that exhibits one negotiation failure."""
+    profile URL that exhibits one negotiation failure. overview.md L1090-1093
+    sanctions ASYNCHRONOUS discovery (503 + Retry-After while the business resolves
+    the profile) — honor ONE such deferral before grading, so a conformant
+    async-discovery merchant never false-deviates (adversarial-review F7)."""
     h = _hdr()
     h["UCP-Agent"] = f'profile="{_ncfg(ctx).get(cfg_key)}"'
-    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
-                 _create_payload(ctx), h)
+    r = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+              _create_payload(ctx), h)
+    retry_after = {k.lower(): v for k, v in (r.headers or {}).items()}.get("retry-after")
+    if r.status == 503 and retry_after:
+        try:
+            time.sleep(min(float(retry_after), 5.0))
+        except ValueError:
+            time.sleep(1.0)
+        r = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+                  _create_payload(ctx), h)
+    return r
 
 def f_neg_unsupported_version(ctx):
     return _neg_probe(ctx, "unsupported_version_profile_url")

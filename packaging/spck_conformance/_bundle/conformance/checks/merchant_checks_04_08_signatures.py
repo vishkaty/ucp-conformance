@@ -174,9 +174,18 @@ def parse_signature_input(value):
                     break
         inner, rest = val[1:j], val[j + 1:]
         comps = []
+        unsupported = False
         for tok in _sf_split(inner, " "):
-            if not (tok.startswith('"') and tok.endswith('"')) or ";" in tok:
-                return None                 # component parameters: unsupported here
+            if tok.startswith('"') and ";" in tok:
+                # RFC 9421 component parameters (;req/;sf/;key/;bs) are LEGAL —
+                # this verifier just cannot rebuild such bases. Mark the entry
+                # unsupported so predicates grade INCONCLUSIVE, never deviation
+                # (adversarial-review F4).
+                unsupported = True
+                comps.append(tok.split(";", 1)[0][1:].rstrip('"'))
+                continue
+            if not (tok.startswith('"') and tok.endswith('"')):
+                return None                 # genuinely malformed member
             comps.append(tok[1:-1])
         params = {}
         for p in _sf_split(rest, ";"):
@@ -186,7 +195,8 @@ def parse_signature_input(value):
             if v.startswith('"') and v.endswith('"'):
                 v = v[1:-1]
             params[k.strip()] = v
-        out[label] = {"raw": val, "components": comps, "params": params}
+        out[label] = {"raw": val, "components": comps, "params": params,
+                      "unsupported": unsupported}
     return out or None
 
 def parse_signature(value):
@@ -269,7 +279,10 @@ def p_sig_headers_present(r):
     common label whose value parses (RFC 8941 inner-list / byte-sequence shapes)."""
     if r.status not in (200, 201):
         return DEVIATION
-    return CLEAN if _matched(r) else DEVIATION
+    m = _matched(r)
+    if m and m[0].get("unsupported"):
+        return INCONCLUSIVE                 # RFC-legal component parameters (F4)
+    return CLEAN if m else DEVIATION
 
 def p_content_digest(r):
     """SIG-012 (Content-Digest required when a body is present) + SIG-010 (RFC 9530,
@@ -288,6 +301,8 @@ def p_status_component(r):
     m = _matched(r)
     if not m:
         return DEVIATION
+    if m[0].get("unsupported"):
+        return INCONCLUSIVE                 # RFC-legal component parameters (F4)
     comps = m[0]["components"]
     return CLEAN if "@status" in comps and "@method" not in comps else DEVIATION
 
@@ -299,6 +314,8 @@ def p_no_alg_param(r):
     m = _matched(r)
     if not m:
         return DEVIATION
+    if m[0].get("unsupported"):
+        return INCONCLUSIVE                 # RFC-legal component parameters (F4)
     return DEVIATION if "alg" in m[0]["params"] else CLEAN
 
 def p_signing_keys_jwk(r):
@@ -379,6 +396,8 @@ def p_response_verifies(r, ctx):
     Q = _jwk_point(jwk)
     if Q is None:
         return DEVIATION
+    if entry.get("unsupported"):
+        return INCONCLUSIVE                 # RFC-legal component parameters (F4)
     # reconstruct the RFC 9421 signature base from the declared components
     lines = []
     for c in entry["components"]:
@@ -403,7 +422,9 @@ def _signed_headers(ctx, method, path, raw_body, d, kid, tamper=False):
     u = urlsplit(ctx.shopping_endpoint)
     digest = ("sha-256=:" + base64.b64encode(hashlib.sha256(raw_body).digest()).decode()
               + ":")
-    agent = 'profile="https://spck.dev/agent"'
+    profile_url = ((ctx.config.get("signature") or {}).get("platform_profile_url")
+                   or "https://spck.dev/agent")
+    agent = f'profile="{profile_url}"'
     idem = str(uuid.uuid4())
     hdrs = {"UCP-Agent": agent, "idempotency-key": idem,
             "request-id": str(uuid.uuid4()), "Content-Type": "application/json",
@@ -439,10 +460,17 @@ def verified_request_resp(ctx):
     bad = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload,
                 _signed_headers(ctx, "POST", "/checkout-sessions", raw, d, kid,
                                 tamper=True))
-    if not (400 <= bad.status < 500):
+    body_txt = json.dumps(bad.json) if isinstance(bad.json, dict) else ""
+    if not (400 <= bad.status < 500) or "signature_invalid" not in body_txt:
+        # spec verify_rest_request error table: a bad signature is rejected with
+        # code signature_invalid — any OTHER rejection (e.g. key_not_found because
+        # the merchant could not resolve our test key) is NOT proof of verification
+        # (adversarial-review F1)
         return Resp(0, {}, json.dumps(
             {"probe": "a request with a TAMPERED ES256 signature was not rejected "
-                      "(the merchant did not verify it)",
+                      "with code signature_invalid (the merchant did not verifiably "
+                      "check it; if it answered key_not_found, host the test public "
+                      "JWK in the profile named by config signature.platform_profile_url)",
              "observed_status": bad.status}).encode())
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload,
                  _signed_headers(ctx, "POST", "/checkout-sessions", raw, d, kid))
@@ -506,7 +534,7 @@ CHECKS_04_08_SIGNATURES = [
            ["drop:signing_keys", "set:signing_keys=[]",
             "drop:signing_keys.0.kid", "set:signing_keys.0.x=\"%%%\"",
             "set:signing_keys.0.x=\"AAAA\"", "corrupt-json"],
-           cfg_needs=("signature",), transport="rest", versions=V0408),
+           cfg_needs=("signature.responses",), transport="rest", versions=V0408),
     MCheck("signature.keyid_published", ["SIG-008"], "MUST",
            signed_create_resp, p_keyid_published,
            ["status:500", "hdrop:Signature-Input",

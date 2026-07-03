@@ -97,7 +97,10 @@ def _reductions(r):
 
 
 def p_adj_quantities_signed(r, ctx):
-    """ORD-007@04-08: a reduction adjustment's line_items[].quantity values are
+    """[Scope note (adversarial-review F8): adjustment.json makes line_items/totals
+    OPTIONAL — this predicate's stricter shape is the contract of OUR config-gated
+    test hook (order.simulate_adjustment), so it grades merchants implementing that
+    scenario, not all conformant adjustment emitters.] ORD-007@04-08: a reduction adjustment's line_items[].quantity values are
     NEGATIVE integers (signed — negative for reductions)."""
     if r.status != 200:
         return DEVIATION
@@ -116,7 +119,8 @@ def p_adj_quantities_signed(r, ctx):
 
 
 def p_adj_totals_signed(r, ctx):
-    """ORD-009@04-08: a reduction adjustment's totals[].amount values are NEGATIVE
+    """[Scope note: see ORD-007 note — hook-contract scoping applies equally
+    (adversarial-review F8).] ORD-009@04-08: a reduction adjustment's totals[].amount values are NEGATIVE
     integers (signed — negative for money returned to the buyer)."""
     if r.status != 200:
         return DEVIATION
