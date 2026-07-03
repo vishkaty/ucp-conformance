@@ -106,6 +106,41 @@ def _stock(iid):
 # success/fail tokens so the same config pattern drives both goldens).
 FAIL_TOKEN = "fail_token"
 
+# ---- PAYMENT AREA block (04-08 grind) -----------------------------------------
+# Seeded 3DS/SCA soft-decline token: completing with it returns HTTP 200 with
+# status=requires_escalation + continue_url (checkout.json: continue_url "MUST be
+# provided when status is requires_escalation") and a requires_buyer_input error
+# message (overview.md Scenario B, code requires_3ds). A retried completion with a
+# normal token then succeeds — the platform-side flow after opening continue_url.
+ESCALATE_TOKEN = "escalate_token"
+
+# Seeded payment handler declaration. Profiles advertise it in the payment_handlers
+# registry (ucp.json business_schema REQUIRES the key; registry keyed by
+# reverse-domain name per shopping/types/reverse_domain_name.json) and checkout
+# responses echo the RESOLVED runtime declaration in ucp.payment_handlers
+# (ucp.json response_checkout_schema REQUIRES it; entries per
+# payment_handler.json $defs/response_schema — id required via $defs/base).
+# The response variant narrows available_instruments (payment-handler-guide.md
+# "Resolving available_instruments": the business intersects the declarations and
+# the RESPONSE value is the authoritative, possibly narrower, set).
+PAYMENT_HANDLER_KEY = "dev.spck.tokenpay"
+PAYMENT_HANDLER_ID = "spck_tokenpay"
+
+def payment_handlers_registry(response=False):
+    """The payment_handlers registry, keyed by reverse-domain handler name.
+    Valid at every SUPPORTED_VERSION: payment_handler.json $defs/base requires
+    id (+ version via ucp.json entity) at both 04-08 and 01-23;
+    available_instruments is schema-declared at 04-08 (minItems 1) and an
+    allowed additional property at 01-23."""
+    brands = ["visa"] if response else ["visa", "mastercard"]
+    return {PAYMENT_HANDLER_KEY: [{
+        "id": PAYMENT_HANDLER_ID, "version": VERSION,
+        "spec": "https://spck.dev/fixture/handlers/tokenpay",
+        "schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
+        "available_instruments": [{"type": "card", "constraints": {"brands": brands}}],
+    }]}
+# ---- end PAYMENT AREA block -----------------------------------------------------
+
 # Seeded discount rules. Codes match case-insensitively (discount.md: "Case-insensitive").
 #   order_pct/order_flat -> order-level (no allocations -> totals[type=discount])
 #   item_pct             -> line-item level (allocations -> line discounts + items_discount)
@@ -155,7 +190,8 @@ def profile(base):
     return {"version": VERSION,
             "services": {"dev.ucp.shopping": services},
             "capabilities": capabilities,
-            "payment_handlers": {}}
+            # PAYMENT AREA: the business-profile handler declaration (PAY-001/PAY-002)
+            "payment_handlers": payment_handlers_registry()}
 
 def _unit_price(item_id):
     """Unit price (minor units) for a product or variant id, from the seed catalog."""
@@ -219,7 +255,9 @@ def _ucp_envelope():
             {"version": VERSION,
              "schema": "https://ucp.dev/schemas/shopping/discount.json",
              "extends": "dev.ucp.shopping.checkout"}]
-    return {"version": VERSION, "capabilities": caps, "payment_handlers": {}}
+    # PAYMENT AREA: checkout responses echo the resolved handler (PAY-003)
+    return {"version": VERSION, "capabilities": caps,
+            "payment_handlers": payment_handlers_registry(response=True)}
 
 LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
          {"type": "privacy_policy", "url": "https://spck.dev/fixture/privacy"}]
@@ -360,12 +398,25 @@ def checkout_body(sess):
     # echoed in discounts.codes but never in discounts.applied.
     rejected = [(i, c) for i, c in enumerate(sess.get("codes", []))
                 if _match_code(c)[0] is None]
-    if rejected:
-        out["messages"] = [
-            {"type": "warning", "code": "discount_code_invalid",
-             "path": f"$.discounts.codes[{i}]",
-             "content": f"Code '{c}' is not a valid discount code"}
-            for i, c in rejected]
+    messages = [
+        {"type": "warning", "code": "discount_code_invalid",
+         "path": f"$.discounts.codes[{i}]",
+         "content": f"Code '{c}' is not a valid discount code"}
+        for i, c in rejected]
+    # PAYMENT AREA: escalated sessions carry continue_url (checkout.json: "MUST be
+    # provided when status is requires_escalation" — PAY-018) plus the soft-decline
+    # error message whose requires_buyer_input severity "contributes to
+    # status: requires_escalation" (types/message_error.json; overview.md Scenario B).
+    if sess["status"] == "requires_escalation":
+        out["continue_url"] = sess.get(
+            "continue_url", f"https://spck.dev/fixture/3ds/{sess['id']}")
+        messages.append(
+            {"type": "error", "code": "requires_3ds",
+             "content": "The bank requires additional verification "
+                        "to complete this payment.",
+             "severity": "requires_buyer_input"})
+    if messages:
+        out["messages"] = messages
     if VERSION != "2026-04-08":
         # AP2 merchant authorization on checkout responses (PAY-035 is a 01-23/01-11
         # MUST; the id does not exist in the 04-08 register, so 04-08 stays lean)
@@ -481,6 +532,14 @@ def complete_checkout(sid, body, headers=None):
         return _err(409, "checkout session is already completed")
     if FAIL_TOKEN in _payment_tokens(body):
         return _err(402, "payment declined by the payment handler")
+    # PAYMENT AREA: 3DS/SCA soft-decline (overview.md Scenario B). HTTP 200 with
+    # status=requires_escalation; checkout_body adds continue_url + the requires_3ds
+    # message. A retried completion (normal token) then completes the session.
+    if ESCALATE_TOKEN in _payment_tokens(body):
+        with _LOCK:
+            sess["status"] = "requires_escalation"
+            sess["continue_url"] = f"https://spck.dev/fixture/3ds/{sid}"
+        return 200, checkout_body(sess)
     oid = "ord_" + uuid.uuid4().hex[:12]
     permalink = f"https://spck.dev/fixture/orders/{oid}"
     checkout = checkout_body(sess)          # totals before flipping status

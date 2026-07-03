@@ -69,6 +69,11 @@ CONTROLLED_CONFIG = {
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
     "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
+    # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
+    # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
+    "payment": {"handler_key": "dev.spck.tokenpay",
+                "handler_id": "spck_tokenpay",
+                "escalation_payment": _pay("escalate_token", "9999")},
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}

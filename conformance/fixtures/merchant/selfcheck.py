@@ -68,6 +68,45 @@ def checkout_artifacts():
         server.create_checkout({"line_items": li}, HDRS)[1]["id"], HDRS), "cancel")
     if not ok:
         raise RuntimeError(canceled)
+    # PAYMENT AREA: profile/response handler declarations + 3DS escalation scenario
+    # (PAY-001/002/003/018). Hard behavioral assertions here; the schema anchor is
+    # the oracle validations returned below (validate_profile covers the profile
+    # registry; every checkout-response validation now covers the ucp envelope's
+    # payment_handlers; the escalation response validates as a complete response).
+    ph = server.profile(BASE).get("payment_handlers")
+    if not (isinstance(ph, dict) and ph.get(server.PAYMENT_HANDLER_KEY)
+            and all(h.get("id") for h in ph[server.PAYMENT_HANDLER_KEY])):
+        raise RuntimeError(f"profile payment_handlers registry is malformed: {ph}")
+    rph = (created.get("ucp") or {}).get("payment_handlers")
+    if not (isinstance(rph, dict) and rph.get(server.PAYMENT_HANDLER_KEY)
+            and all(h.get("id") for h in rph[server.PAYMENT_HANDLER_KEY])):
+        raise RuntimeError(f"response ucp.payment_handlers is malformed: {rph}")
+    ok, esc = _expect(201, server.create_checkout({"line_items": li}, HDRS),
+                      "escalation create")
+    if not ok:
+        raise RuntimeError(esc)
+    esc_pay = {"payment": {"instruments": [{"id": "instr_esc", "type": "card",
+        "credential": {"type": "token", "token": server.ESCALATE_TOKEN}}]}}
+    ok, escalated = _expect(200, server.complete_checkout(esc["id"], esc_pay, HDRS),
+                            "escalation complete")
+    if not ok:
+        raise RuntimeError(escalated)
+    if escalated.get("status") != "requires_escalation":
+        raise RuntimeError(f"escalation token did not escalate: {escalated.get('status')}")
+    cu = escalated.get("continue_url")
+    if not (isinstance(cu, str) and "://" in cu):
+        raise RuntimeError(f"requires_escalation response lacks continue_url: {cu!r}")
+    if not any(m.get("severity") == "requires_buyer_input"
+               for m in escalated.get("messages") or []):
+        raise RuntimeError("escalation response lacks a requires_buyer_input message")
+    ok, esc_done = _expect(200, server.complete_checkout(esc["id"], {
+        "payment": {"instruments": [{"id": "instr_esc2", "type": "card",
+            "credential": {"type": "token", "token": "success_token"}}]}}, HDRS),
+        "post-escalation complete")
+    if not ok:
+        raise RuntimeError(esc_done)
+    if esc_done.get("status") != "completed" or "continue_url" in esc_done:
+        raise RuntimeError("post-escalation retry did not complete cleanly")
     # one response exercising ALL discount kinds: code-based order-level (10OFF),
     # item-level with allocations (MUGLOVE), and threshold-automatic (subtotal>=5000)
     ok, discounted = _expect(201, server.create_checkout(
@@ -105,6 +144,10 @@ def checkout_artifacts():
         ("order get response",         lambda: validate_obj(order, "read")),
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
         ("rejected-code checkout response", lambda: validate_obj(rejected, "create")),
+        # PAYMENT AREA: the requires_escalation + continue_url response and the
+        # post-escalation completed response must BOTH be schema-valid
+        ("escalation checkout response", lambda: validate_obj(escalated, "complete")),
+        ("post-escalation complete response", lambda: validate_obj(esc_done, "complete")),
     ]
     if server.VERSION != "2026-04-08":
         # pre-04-08 extension schemas can't be COMPOSED by the oracle (their extension
