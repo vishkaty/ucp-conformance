@@ -9,7 +9,7 @@ fixture serves against the pinned 2026-04-08 schemas using the ucp-schema oracle
 Exit 0 = every artifact schema-valid; 1 = a deviation (the fixture is buggy, fix it
 before it can be a golden); 2 = oracle unavailable (skip).
 """
-import sys, json, pathlib, tempfile, os
+import sys, json, pathlib, tempfile, os, base64, hashlib
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1] / "selfcheck"))
@@ -409,11 +409,187 @@ def _neg_compatible_default():
         {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]},
         {"UCP-Agent": 'profile="https://spck.dev/agent"'})
     return (st == 201), f"create with the default profile returned HTTP {st}"
+# ==== SIGNATURES area artifacts (2026-04-08) ===================================
+# The committed platform TEST private scalar (public part is baked into
+# server.TRUSTED_PLATFORM_KEYS; the full JWK lives in CONTROLLED_CONFIG).
+_PLATFORM_D = int.from_bytes(base64.urlsafe_b64decode(
+    "EymkNYgazGbLoD16l-fw7K-C9WNJEIv4hn_RpRgW5xY="), "big")
+_PLATFORM_KID = "spck-platform-sig-2026"
+
+def _sig_response_artifacts():
+    """The fixture's RFC 9421 response signature over a REAL lifecycle body:
+    sha-256 Content-Digest over the raw bytes, parseable headers, @status
+    component, no alg parameter, 64-byte raw r||s that verifies against the
+    published JWK — and defect injections (tampered sig/body) are rejected."""
+    body = json.dumps(server.create_checkout(
+        {"line_items": [{"item": {"id": "teapot_ceramic"}, "quantity": 1}]},
+        {"UCP-Agent": 'profile="x"'})[1]).encode()
+    h = server.sign_response(201, body)
+    want = "sha-256=:" + base64.b64encode(hashlib.sha256(body).digest()).decode() + ":"
+    if h["Content-Digest"] != want:
+        return False, "Content-Digest is not the sha-256 of the raw body bytes"
+    si = server.parse_signature_input(h["Signature-Input"])
+    sigs = server.parse_signature(h["Signature"])
+    if not si or not sigs or "sig1" not in si or "sig1" not in sigs:
+        return False, "signature headers do not parse"
+    e = si["sig1"]
+    if e["components"] != ["@status", "content-digest", "content-type"]:
+        return False, f"unexpected response components: {e['components']}"
+    if "alg" in e["params"] or e["params"].get("keyid") != server.SIG_KID:
+        return False, f"bad Signature-Input params: {e['params']}"
+    if len(sigs["sig1"]) != 64:
+        return False, f"signature is not 64-byte raw r||s ({len(sigs['sig1'])} bytes)"
+    jwk = server.signing_jwk()
+    Q = (int.from_bytes(base64.urlsafe_b64decode(jwk["x"] + "="), "big"),
+         int.from_bytes(base64.urlsafe_b64decode(jwk["y"] + "="), "big"))
+    if not server.ec_on_curve(Q):
+        return False, "published JWK point is not on P-256"
+    base = server._sig_base(e["components"], e["raw"], {"@status": "201"},
+                            {"content-digest": h["Content-Digest"],
+                             "content-type": "application/json"})
+    if not server.ecdsa_p256_verify(base, sigs["sig1"], Q):
+        return False, "response signature does not verify against the published JWK"
+    bad = sigs["sig1"][:-1] + bytes([sigs["sig1"][-1] ^ 1])
+    if server.ecdsa_p256_verify(base, bad, Q):
+        return False, "tampered signature wrongly verifies"
+    return True, "ok"
+
+def _sig_request_verification():
+    """server.verify_signed_request round-trip with the committed platform test key:
+    valid ES256 accepted; tampered sig -> 401 signature_invalid; wrong body ->
+    400 digest_mismatch; unknown kid -> 401 key_not_found (signatures.md codes)."""
+    raw = json.dumps({"line_items": [{"item": {"id": "teapot_ceramic"},
+                                      "quantity": 1}]}).encode()
+    digest = "sha-256=:" + base64.b64encode(hashlib.sha256(raw).digest()).decode() + ":"
+    comps = ["@method", "@authority", "@path", "ucp-agent", "idempotency-key",
+             "content-digest", "content-type"]
+    raw_params = ("(" + " ".join(f'"{c}"' for c in comps) + ")"
+                  + f';keyid="{_PLATFORM_KID}"')
+    hdrs = {"Host": "localhost:8184", "UCP-Agent": 'profile="https://spck.dev/agent"',
+            "Idempotency-Key": "selfcheck-idem-1", "Content-Type": "application/json",
+            "Content-Digest": digest}
+    values = {"@method": "POST", "@authority": "localhost:8184",
+              "@path": "/checkout-sessions", "ucp-agent": hdrs["UCP-Agent"],
+              "idempotency-key": hdrs["Idempotency-Key"],
+              "content-digest": digest, "content-type": "application/json"}
+    base = "\n".join([f'"{c}": {values[c]}' for c in comps]
+                     + [f'"@signature-params": {raw_params}']).encode()
+    sig = server.ecdsa_p256_sign(base, _PLATFORM_D)
+    hdrs["Signature-Input"] = f"sig1={raw_params}"
+    hdrs["Signature"] = "sig1=:" + base64.b64encode(sig).decode() + ":"
+    if server.verify_signed_request("POST", "/checkout-sessions", hdrs, raw) is not None:
+        return False, "valid ES256-signed request was rejected"
+    t = dict(hdrs)
+    t["Signature"] = ("sig1=:" + base64.b64encode(
+        sig[:-1] + bytes([sig[-1] ^ 1])).decode() + ":")
+    err = server.verify_signed_request("POST", "/checkout-sessions", t, raw)
+    if not err or err[0] != 401 or err[1].get("code") != "signature_invalid":
+        return False, f"tampered signature: expected 401 signature_invalid, got {err}"
+    err = server.verify_signed_request("POST", "/checkout-sessions", hdrs, raw + b" ")
+    if not err or err[0] != 400 or err[1].get("code") != "digest_mismatch":
+        return False, f"body/digest mismatch: expected 400 digest_mismatch, got {err}"
+    u = dict(hdrs)
+    u["Signature-Input"] = "sig1=" + raw_params.replace(_PLATFORM_KID, "ucp-nope")
+    err = server.verify_signed_request("POST", "/checkout-sessions", u, raw)
+    if not err or err[0] != 401 or err[1].get("code") != "key_not_found":
+        return False, f"unknown kid: expected 401 key_not_found, got {err}"
+    return True, "ok"
+
+# ---- openssl cross-anchor: the pure-Python ECDSA must interoperate with an
+# INDEPENDENT implementation (LibreSSL/OpenSSL), both directions. DER/SPKI
+# encoders live here (anchor-only; the fixture itself never emits DER). --------
+def _der(tag, content):
+    n = len(content)
+    if n < 0x80:
+        ln = bytes([n])
+    else:
+        b = n.to_bytes((n.bit_length() + 7) // 8, "big")
+        ln = bytes([0x80 | len(b)]) + b
+    return bytes([tag]) + ln + content
+
+def _der_int(x):
+    b = x.to_bytes((x.bit_length() + 7) // 8 or 1, "big")
+    if b[0] & 0x80:
+        b = b"\x00" + b
+    return _der(0x02, b)
+
+def _der_oid(*arcs):
+    out = bytes([arcs[0] * 40 + arcs[1]])
+    for a in arcs[2:]:
+        chunk = [a & 0x7F]; a >>= 7
+        while a:
+            chunk.append((a & 0x7F) | 0x80); a >>= 7
+        out += bytes(reversed(chunk))
+    return _der(0x06, out)
+
+def _spki_pem(Q):
+    algo = _der(0x30, _der_oid(1, 2, 840, 10045, 2, 1)
+                + _der_oid(1, 2, 840, 10045, 3, 1, 7))
+    point = b"\x04" + Q[0].to_bytes(32, "big") + Q[1].to_bytes(32, "big")
+    b64 = base64.encodebytes(_der(0x30, algo + _der(0x03, b"\x00" + point))).decode()
+    return ("-----BEGIN PUBLIC KEY-----\n"
+            + "".join(b64.split()) + "\n-----END PUBLIC KEY-----\n")
+
+def _sig_openssl_anchor():
+    import shutil, subprocess
+    if not shutil.which("openssl"):
+        return True, "skipped (no openssl binary on PATH)"
+    tmp = tempfile.mkdtemp()
+    msg = b"spck ucp signatures openssl anchor"
+    mp = os.path.join(tmp, "msg"); open(mp, "wb").write(msg)
+    # direction 1: openssl verifies OUR signature
+    sig = server.ecdsa_p256_sign(msg, server._SIG_D)
+    r, s = int.from_bytes(sig[:32], "big"), int.from_bytes(sig[32:], "big")
+    sp = os.path.join(tmp, "sig.der")
+    open(sp, "wb").write(_der(0x30, _der_int(r) + _der_int(s)))
+    pp = os.path.join(tmp, "pub.pem"); open(pp, "w").write(_spki_pem(server._SIG_Q))
+    v = subprocess.run(["openssl", "dgst", "-sha256", "-verify", pp,
+                        "-signature", sp, mp], capture_output=True, text=True)
+    if v.returncode != 0:
+        return False, f"openssl rejected our signature: {v.stdout} {v.stderr}"
+    # direction 2: WE verify an openssl-produced signature
+    kp = os.path.join(tmp, "key.pem")
+    subprocess.run(["openssl", "ecparam", "-name", "prime256v1", "-genkey", "-noout",
+                    "-out", kp], check=True, capture_output=True)
+    sp2 = os.path.join(tmp, "sig2.der")
+    subprocess.run(["openssl", "dgst", "-sha256", "-sign", kp, "-out", sp2, mp],
+                   check=True, capture_output=True)
+    txt = subprocess.run(["openssl", "ec", "-in", kp, "-text", "-noout"],
+                         capture_output=True, text=True).stdout
+    hexs = "".join(c for c in txt.split("pub:")[1].split("ASN1")[0]
+                   if c in "0123456789abcdef")
+    pub = bytes.fromhex(hexs)
+    if pub[:1] != b"\x04" or len(pub) != 65:
+        return False, f"could not extract the openssl public point ({len(pub)} bytes)"
+    Q2 = (int.from_bytes(pub[1:33], "big"), int.from_bytes(pub[33:], "big"))
+    der = open(sp2, "rb").read()
+
+    def read_int(i):
+        ln = der[i + 1]
+        return int.from_bytes(der[i + 2:i + 2 + ln], "big"), i + 2 + ln
+    i = 2 if der[1] < 0x80 else 2 + (der[1] & 0x7F)
+    r2, i = read_int(i)
+    s2, _ = read_int(i)
+    raw2 = r2.to_bytes(32, "big") + s2.to_bytes(32, "big")
+    if not server.ecdsa_p256_verify(msg, raw2, Q2):
+        return False, "our verifier rejected a genuine openssl ECDSA signature"
+    if server.ecdsa_p256_verify(msg + b"!", raw2, Q2):
+        return False, "our verifier accepted a signature over a DIFFERENT message"
+    return True, "ok"
+# ==== end SIGNATURES area artifacts ============================================
 
 def main():
     artifacts = [
         ("profile [04-08]", lambda: validate_profile(server.profile(BASE), version=server.VERSION,
                                                      role="business")),
+        # SIGNATURES area: the published JWK is validated against the OFFICIAL
+        # signing_key def; the signature artifacts are cross-anchored on openssl.
+        ("signing_keys JWK (official signing_key def)", lambda: validate_against(
+            server.signing_jwk(), "discovery/profile_schema.json", "signing_key",
+            op="read", version=server.VERSION)),
+        ("response signature (RFC 9421 artifacts)", _sig_response_artifacts),
+        ("request verification (signature error codes)", _sig_request_verification),
+        ("ECDSA openssl cross-anchor (both directions)", _sig_openssl_anchor),
         ("catalog.search response", lambda: validate_against(
             server.search_response("*"), "schemas/shopping/catalog_search.json",
             "search_response", op="search", version=server.VERSION)),
