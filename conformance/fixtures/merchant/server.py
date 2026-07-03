@@ -15,6 +15,8 @@ Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
 import json, argparse, uuid, threading, base64, hashlib, hmac, time
+import urllib.request
+from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # The spec version this fixture serves. Switchable (--spec-version / set_version) so the
@@ -31,6 +33,10 @@ SUPPORTED_VERSIONS = ("2026-04-08", "2026-01-23")
 # SIG-002 check's kill-proof gate can show the check DEVIATES on such a merchant
 # (adversarial-review F6). Never enabled by run_suite's goldens.
 VERIFY_SIGNATURES = True
+# MUTANT switch (--no-webhooks): a merchant that NEVER sends order-event webhooks.
+# Exists ONLY so the webhook checks' kill-proof gate can show they DEVIATE on such
+# a merchant (WEBHOOK/EVENTS area). Never enabled by run_suite's goldens.
+SEND_WEBHOOKS = True
 
 def set_version(v):
     """Switch the spec version the fixture serves (also resets lifecycle state, so a
@@ -484,6 +490,136 @@ def verify_signed_request(method, path_qs, headers, raw_body):
     return None
 # ==== end SIGNATURES area ======================================================
 
+# ==== WEBHOOK/EVENTS area (2026-04-08, order.md "Events") ======================
+# Order lifecycle events: the business POSTs the FULL order entity (current-state
+# snapshot, order.md "Events"/"Order Event Webhook") to the webhook URL the
+# platform provides in its order capability's config (order.json
+# $defs/platform_schema: webhook_url). Every webhook is signed per order.md
+# "Webhook Signature Verification" + signatures.md REST Request Signing: RFC 9421
+# headers (Signature, Signature-Input, Content-Digest), UCP-Agent naming the
+# business profile, Standard-Webhooks headers (Webhook-Id, Webhook-Timestamp),
+# signed with the key published in the profile's signing_keys[] (ES256 raw r||s).
+# Failed deliveries are RETRIED (order.md Business guidelines). Signed components
+# follow the NORMATIVE signatures.md request table: @method/@authority/@path
+# always, @query when the URL has one, ucp-agent + idempotency-key (POST) +
+# content-digest + content-type (body present). The Webhook-Id doubles as the
+# Idempotency-Key so redelivery of the same event is idempotent.
+WEBHOOK_RETRY_DELAYS = (0.4, 0.8)   # short backoff: this is a test golden
+
+def _is_loopback(url):
+    """True for http(s)://127.0.0.1/localhost URLs (the suite's local harness)."""
+    try:
+        host = (urlsplit(url).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in ("127.0.0.1", "localhost", "::1")
+
+def resolve_platform_webhook_url(agent_header):
+    """The platform's order-capability webhook_url, discovered by FETCHING the
+    platform profile named in UCP-Agent (order.md Webhook URL Configuration).
+    OFFLINE POLICY: this golden only fetches LOOPBACK profile URLs (the suite's
+    webhook harness); non-loopback URLs use the seeded simulation
+    (negotiate_platform) and are never fetched. Returns webhook_url or None."""
+    url = _agent_profile_url(agent_header)
+    if not url or not _is_loopback(url):
+        return None
+    try:
+        with urllib.request.urlopen(url, timeout=3) as r:
+            doc = json.loads(r.read())
+    except Exception:
+        return None                          # unreachable harness -> no webhooks
+    ucp = doc.get("ucp", doc) if isinstance(doc, dict) else {}
+    caps = ucp.get("capabilities") if isinstance(ucp, dict) else None
+    for entry in (caps or {}).get("dev.ucp.shopping.order") or []:
+        wu = ((entry or {}).get("config") or {}).get("webhook_url")
+        if isinstance(wu, str) and wu:
+            return wu
+    return None
+
+def build_webhook_headers(url, body_bytes, base, webhook_id=None):
+    """The signed request headers for one order-event webhook delivery (pure —
+    selfcheck.py validates these artifacts in-process, no ports)."""
+    u = urlsplit(url)
+    agent = f'profile="{base}/.well-known/ucp"'
+    wid = webhook_id or str(uuid.uuid4())
+    digest = content_digest(body_bytes)
+    comps = ["@method", "@authority", "@path"]
+    if u.query:
+        comps.append("@query")               # signatures.md: @query when present
+    comps += ["ucp-agent", "idempotency-key", "content-digest", "content-type"]
+    hdrs = {"Content-Type": "application/json", "UCP-Agent": agent,
+            "Webhook-Id": wid, "Webhook-Timestamp": str(int(time.time())),
+            "Idempotency-Key": wid, "Content-Digest": digest}
+    values = {"@method": "POST", "@authority": u.netloc, "@path": u.path or "/",
+              "@query": "?" + u.query, "ucp-agent": agent, "idempotency-key": wid,
+              "content-digest": digest, "content-type": "application/json"}
+    raw_params = ("(" + " ".join(f'"{c}"' for c in comps) + ")"
+                  + f';keyid="{SIG_KID}"')
+    sig_base = "\n".join([f'"{c}": {values[c]}' for c in comps]
+                         + [f'"@signature-params": {raw_params}']).encode()
+    sig = ecdsa_p256_sign(sig_base, _SIG_D)
+    hdrs["Signature-Input"] = f"sig1={raw_params}"
+    hdrs["Signature"] = "sig1=:" + base64.b64encode(sig).decode() + ":"
+    return hdrs
+
+def build_webhook_headers_0123(body_bytes, base):
+    """The signed request headers for one 2026-01-23/01-11 order-event delivery:
+    the signature is a DETACHED JWS (RFC 7797, b64=false + crit) over the raw
+    body bytes, ES256 with the key published in the profile's signing_keys[],
+    kid in the protected header, carried in Request-Signature (01-era order.md
+    'Signing (Business)'). UCP-Agent identifies the business ('MUST include
+    business identifier in webhook path or headers')."""
+    header = _b64url(json.dumps(
+        {"alg": "ES256", "kid": SIG_KID, "b64": False, "crit": ["b64"]},
+        separators=(",", ":")).encode())
+    signing_input = header.encode() + b"." + body_bytes    # RFC 7797 b64=false
+    sig = ecdsa_p256_sign(signing_input, _SIG_D)
+    return {"Content-Type": "application/json",
+            "UCP-Agent": f'profile="{base}/.well-known/ucp"',
+            "Request-Signature": header + ".." + _b64url(sig)}
+
+def webhook_event_payload(order):
+    """The per-version order-event payload. 2026-04-08: the order entity itself
+    (rest.openapi.json webhooks.orderEvent requestBody schema = order).
+    2026-01-23/01-11: the order entity plus the required event_id/created_time
+    (openapi.json order_event_webhook: allOf [order, {event_id, created_time}])."""
+    payload = order_body(order)
+    if VERSION != "2026-04-08":
+        payload["event_id"] = "evt_" + uuid.uuid4().hex[:12]
+        payload["created_time"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    return payload
+
+def _deliver_webhook(url, payload, base):
+    """POST one order event (full order entity) to the platform's webhook URL.
+    First attempt is synchronous (keeps event ordering deterministic for the
+    reference gates); on failure the remaining attempts run on a background
+    thread with backoff — 'MUST retry failed webhook deliveries'."""
+    if not (SEND_WEBHOOKS and url):
+        return
+    body = json.dumps(payload).encode()
+    wid = str(uuid.uuid4())
+    def attempt():
+        hdrs = (build_webhook_headers(url, body, base, wid)
+                if VERSION == "2026-04-08" else build_webhook_headers_0123(body, base))
+        req = urllib.request.Request(url, data=body, method="POST", headers=hdrs)
+        with urllib.request.urlopen(req, timeout=5) as r:
+            return 200 <= r.status < 300
+    def retries():
+        for delay in WEBHOOK_RETRY_DELAYS:
+            time.sleep(delay)
+            try:
+                if attempt():
+                    return
+            except Exception:
+                pass
+    try:
+        if attempt():
+            return
+    except Exception:
+        pass
+    threading.Thread(target=retries, daemon=True).start()
+# ==== end WEBHOOK/EVENTS area ==================================================
+
 def profile(base):
     cap = [{"version": VERSION}]
     services = [
@@ -519,10 +655,11 @@ def profile(base):
            "capabilities": capabilities,
            # PAYMENT AREA: the business-profile handler declaration (PAY-001/PAY-002)
            "payment_handlers": payment_handlers_registry()}
-    if VERSION == "2026-04-08":
-        # signatures.md Key Discovery: public keys are published in the profile's
-        # signing_keys[] (official shape: discovery/profile_schema.json $defs/signing_key)
-        out["signing_keys"] = [signing_jwk()]
+    # Key discovery in EVERY served version: 04-08 signatures.md Key Discovery
+    # (RFC 9421 response/request keys) and 01-era order.md webhook signing
+    # ("a key from their signing_keys array, published in /.well-known/ucp").
+    # Oracle-validated per version in selfcheck.py.
+    out["signing_keys"] = [signing_jwk()]
     return out
 
 # ---- version-negotiation / discovery-error simulation (2026-04-08 only) ----------
@@ -556,7 +693,12 @@ def negotiate_platform(agent_header):
         return None                               # header-presence is enforced elsewhere
     def flat(code, content):                      # transport-error body per overview.md
         return {"code": code, "content": content, "continue_url": CONTINUE_URL}
-    if url.startswith("http://"):                 # DISC-004: reject non-HTTPS profile URLs
+    if url.startswith("http://") and not _is_loopback(url):
+        # DISC-004: reject non-HTTPS profile URLs. TEST-GOLDEN ALLOWANCE: loopback
+        # http URLs are exempt so the suite's local webhook harness can serve the
+        # platform profile (mirrors the official Flower golden, which fetches the
+        # harness profile over loopback http). Real platform profiles are never
+        # loopback, so the DISC-004 checks (non-loopback http URLs) stay sound.
         return 400, flat("invalid_profile_url",
                          f"Profile URLs must use https, got: {url}")
     if url == SIM_UNREACHABLE:                    # NEG-003: resolved but fetch failed -> 424
@@ -859,6 +1001,15 @@ def create_checkout(body, headers=None):
     sess = {"id": "chk_" + uuid.uuid4().hex[:12], "status": "ready_for_complete",
             "currency": body.get("currency", "USD"), "line_items": line_items,
             "codes": codes or []}
+    # WEBHOOK/EVENTS area (every served version): remember where THIS platform
+    # wants order events (order.md Webhook URL Configuration — the platform
+    # profile's order capability config, at 01-era and 04-08 alike; loopback-only
+    # fetch, see resolve_platform_webhook_url). Internal keys, never rendered —
+    # checkout_body builds its output explicitly.
+    wu = resolve_platform_webhook_url(headers.get("UCP-Agent"))
+    if wu:
+        sess["webhook_url"] = wu
+        sess["base"] = "http://" + headers.get("Host", "localhost")
     with _LOCK:
         SESSIONS[sess["id"]] = sess
         result = 201, checkout_body(sess)
@@ -963,8 +1114,15 @@ def complete_checkout(sid, body, headers=None):
              "totals": checkout["totals"]}
     with _LOCK:
         ORDERS[oid] = order
+        order["_webhook_url"] = sess.get("webhook_url")   # internal, never rendered
+        order["_base"] = sess.get("base")
         sess["status"] = "completed"
         sess["order"] = {"id": oid, "permalink_url": permalink}
+    # WEBHOOK/EVENTS area: "MUST send 'Order created' event with fully populated
+    # order entity" — the payload IS the order response snapshot (order.md Events).
+    if order.get("_webhook_url"):
+        _deliver_webhook(order["_webhook_url"], webhook_event_payload(order),
+                         order["_base"])
     return 200, checkout_body(sess)
 
 def get_order(oid, headers=None):
@@ -1021,6 +1179,11 @@ def simulate_order_adjustment(oid, body, headers=None):
             "totals": [{"type": "total", "display_text": "Refund",
                         "amount": -amount}],                  # signed: money returned
             "description": f"Test-driven {atype} of {qty} unit(s)"})
+    # WEBHOOK/EVENTS area: "MUST send full order entity on updates (not
+    # incremental deltas)" — the update event is the same current-state snapshot.
+    if order.get("_webhook_url"):
+        _deliver_webhook(order["_webhook_url"], webhook_event_payload(order),
+                         order["_base"])
     return 200, order_body(order)
 
 def cancel_checkout(sid, headers=None):
@@ -1342,6 +1505,8 @@ def main():
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--no-verify-signatures", action="store_true",
                     help="MUTANT: skip RFC 9421 request verification (SIG-002 kill-proof)")
+    ap.add_argument("--no-webhooks", action="store_true",
+                    help="MUTANT: never send order-event webhooks (webhook kill-proof)")
     ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
                     help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
@@ -1349,6 +1514,9 @@ def main():
     if args.no_verify_signatures:
         global VERIFY_SIGNATURES
         VERIFY_SIGNATURES = False
+    if args.no_webhooks:
+        global SEND_WEBHOOKS
+        SEND_WEBHOOKS = False
     srv = ThreadingHTTPServer((args.host, args.port), _H)
     print(f"controlled merchant on http://{args.host}:{args.port} "
           f"(checkout/order/discount lifecycle"

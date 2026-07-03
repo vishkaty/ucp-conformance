@@ -73,6 +73,12 @@ CONTROLLED_CONFIG = {
     # (POST /testing/orders/{id}/adjust); second product = the surviving line item in
     # the removed-line-item scenario (ORD-002/007/009).
     "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
+    # WEBHOOK/EVENTS area (04-08): the merchant discovers the platform's order
+    # webhook_url from the platform profile named in UCP-Agent and can deliver
+    # signed order events to a LOOPBACK receiver (the fixture's offline policy
+    # fetches loopback harness profiles only). A remote merchant cannot reach a
+    # local receiver, so omitting this key skips the webhook checks honestly.
+    "webhooks": {"simulate": True},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
     # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
