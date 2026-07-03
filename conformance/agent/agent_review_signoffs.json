@@ -1,4 +1,17 @@
 {
  "_about": "Agent-side adversarial-review sign-offs: every agent CHECK id must be reviewed before it counts \u2014 mirrors the merchant review-signoff gate.",
- "signoffs": []
+ "signoffs": [
+  {
+   "batch": "agent-P0-B1-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "author review vs pinned discovery spec (presence check; independent-agent review reserved for the substantive signature/OAuth checks in B.2/B.3)",
+   "spec_reverified": true,
+   "notes": "agent.sends_ucp_agent cites DISC-006 ('Platforms MUST include their profile URI in every request'). Check asserts every API request (create_checkout) carries a UCP-Agent header declaring a profile; deliberately excludes the unauthenticated discovery GET (where the profile is first learned) to avoid over-strictness. Subject = platform/agent (correct). Kill-safe: the no_ucp_agent mutant omits the header -> DEVIATION.",
+   "ids": {
+    "2026-04-08": [
+     "DISC-006"
+    ]
+   }
+  }
+ ]
 }

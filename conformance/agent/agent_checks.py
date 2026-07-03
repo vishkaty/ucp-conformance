@@ -35,13 +35,23 @@ class ACheck:
         self.needs = tuple(needs)
 
 
-# --- P0 example predicates will live here in Phase B, e.g.:
-# def p_sends_ucp_agent(log):
-#     reqs = [e["request"] for e in log]
-#     ok = all('UCP-Agent' in (r["headers"] or {}) for r in reqs)
-#     return CLEAN if ok else DEVIATION
-# CHECKS = [ ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
-#                   p_sends_ucp_agent, kill_mutation="no_ucp_agent",
-#                   versions=["2026-04-08"]) ]
+# ---- P0 predicates (each asserts on the agent's session log) ----------------
+def p_sends_ucp_agent(log):
+    """DISC-006: platforms MUST include their profile URI in every request. We assert it
+    on the agent's API requests (the create_checkout POST), which MUST carry a UCP-Agent
+    header whose value declares a profile. (The unauthenticated discovery GET is where
+    the profile is first learned, so we grade the subsequent API calls.)"""
+    api = [e for e in log if e["op"] != "discover"]
+    if not api:
+        return DEVIATION
+    for e in api:
+        ua = (e["request"]["headers"] or {}).get("UCP-Agent")
+        if not (isinstance(ua, str) and "profile" in ua):
+            return DEVIATION
+    return CLEAN
 
-CHECKS = []   # Phase A: intentionally empty — the lane must run green with zero checks.
+
+CHECKS = [
+    ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
+           p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
+]
