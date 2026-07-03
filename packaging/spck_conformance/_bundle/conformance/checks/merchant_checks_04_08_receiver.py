@@ -72,6 +72,19 @@ def p_escalation_https(r, ctx):
     cu = (r.json or {}).get("continue_url")
     return CLEAN if isinstance(cu, str) and cu.startswith("https://") else DEVIATION
 
+def p_requires_star_implies_escalation(r, ctx):
+    """ERR-004: a response carrying any message with requires_* severity MUST have
+    ucp/checkout status requires_escalation (checkout.md: 'Errors with requires_*
+    severity contribute to status: requires_escalation'). Verified on the soft-
+    decline response, which carries a requires_buyer_input message."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    has_star = any(isinstance(m, dict) and str(m.get("severity", "")).startswith("requires_")
+                   for m in _messages(r))
+    if not has_star:
+        return DEVIATION                    # scenario must produce a requires_* message
+    return CLEAN if r.json.get("status") == "requires_escalation" else DEVIATION
+
 def p_escalation_buyer_message(r, ctx):
     """CHK-015: a requires_escalation response MUST include at least one message
     with severity requires_buyer_input or requires_buyer_review."""
@@ -291,6 +304,12 @@ CHECKS_04_08_RECEIVER = [
            f_escalate, p_escalation_https,
            ["status:402", "drop:continue_url", "set:continue_url=\"http://insecure/3ds\"",
             "set:continue_url=\"/3ds/relative\"", "set:status=\"completed\"", "empty"],
+           cfg_needs=("payment.escalation_payment",), needs=("product",),
+           transport="rest", versions=V0408),
+    MCheck("checkout.requires_star_implies_escalation", ["ERR-004"], "MUST",
+           f_escalate, p_requires_star_implies_escalation,
+           ["status:402", "set:status=\"incomplete\"", "set:status=\"ready_for_complete\"",
+            "drop:status", "set:messages=[]", "empty", "corrupt-json"],
            cfg_needs=("payment.escalation_payment",), needs=("product",),
            transport="rest", versions=V0408),
     MCheck("checkout.escalation_buyer_message", ["CHK-015"], "MUST",

@@ -4271,12 +4271,12 @@
   },
   "2026-04-08": {
    "musts": 323,
-   "check": 227,
-   "exempt": 73,
-   "gap": 23,
+   "check": 228,
+   "exempt": 74,
+   "gap": 21,
    "accounted_pct": 93,
    "gap_by_testability": {
-    "manual": 6,
+    "manual": 4,
     "needs-oauth": 1,
     "needs-receiver": 16
    },
@@ -4321,18 +4321,18 @@
     },
     {
      "area": "error-envelope",
-     "check": 12,
+     "check": 13,
      "exempt": 10,
-     "gap": 3,
-     "gap_manual": 3,
+     "gap": 2,
+     "gap_manual": 2,
      "musts": 25
     },
     {
      "area": "fulfillment",
      "check": 6,
-     "exempt": 5,
-     "gap": 2,
-     "gap_manual": 2,
+     "exempt": 6,
+     "gap": 1,
+     "gap_manual": 1,
      "musts": 13
     },
     {
@@ -5771,10 +5771,12 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "check",
      "requirement": "Errors with requires_* severity contribute to status: requires_escalation.",
      "source": "ucp:source/schemas/shopping/types/message_error.json#L46",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "ERR-005",
@@ -6073,10 +6075,11 @@
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "manual",
-     "status": "gap",
+     "status": "exempt",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L168",
-     "covered_by": []
+     "covered_by": [],
+     "exempt_reason": "The schema-enforceable half (title present) is already validated by FUL-008; FUL-009's DISTINCT requirement \u2014 the title 'distinguishes the option from its siblings' \u2014 is human content judgment: two options each with a non-empty, schema-valid title but indistinguishable labels violate it, yet no protocol message reveals that. Present at 04-08 (fulfillment_option required[]); at 01-era the same subjective clause holds."
     },
     {
      "id": "FUL-010",

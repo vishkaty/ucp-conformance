@@ -659,5 +659,12 @@
       "2026-01-11",
       "2026-01-23"
     ]
+  },
+  "FUL-009": {
+    "class": "subjective-judgment",
+    "reason": "The schema-enforceable half (title present) is already validated by FUL-008; FUL-009's DISTINCT requirement \u2014 the title 'distinguishes the option from its siblings' \u2014 is human content judgment: two options each with a non-empty, schema-valid title but indistinguishable labels violate it, yet no protocol message reveals that. Present at 04-08 (fulfillment_option required[]); at 01-era the same subjective clause holds.",
+    "versions": [
+      "2026-04-08"
+    ]
   }
 }
