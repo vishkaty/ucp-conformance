@@ -280,6 +280,18 @@ REQUIRE_ORDER_AUTH = False
 # does not grant (the IDL-013 violation). Both default OFF (golden untouched).
 REQUIRE_CHECKOUT_SCOPE = False
 CHECKOUT_SCOPE_PARTIAL = False
+# DISC-014 (01-era): the capability spec/schema URLs a conformant profile advertises
+# point at the namespace authority (https://ucp.dev/...), which the DISC-014 live-URL
+# check can only resolve over the NETWORK. To reference-gate that check HERMETICALLY,
+# --local-spec-urls repoints every spec/schema/config_schema URL to a LOOPBACK path
+# this fixture serves 200 for; --break-spec-url makes ONE of them 404 (the mutant).
+# Neither mode is ever used by CONTROLLED_CONFIG/run_suite goldens (which advertise
+# the real authority-origin URLs and are never fetched) — ONLY by the dedicated
+# DISC-014 reference gate, so no gate ever depends on the network.
+LOCAL_SPEC_URLS = False
+BREAK_SPEC_URL = False
+_LOCAL_SPEC_KEYS = ("spec", "schema", "config_schema")
+_LOCAL_BROKEN_PATH = "/__localspec/BROKEN"
 
 # Registered platform clients. The public client uses token_endpoint_auth_method
 # 'none' + PKCE (RFC 8252 §8.5); the confidential one uses client_secret_basic.
@@ -1141,6 +1153,38 @@ def profile(base):
     # Oracle-validated per version in selfcheck.py.
     out["signing_keys"] = [signing_jwk()]
     return out
+
+# ---- DISC-014 loopback spec/schema URLs (reference-gate hermeticity) -------------
+def _localize_spec_urls(node, base, ctr):
+    """Recursively repoint every spec/schema/config_schema (+ instrument_schemas)
+    URL to a LOOPBACK path this fixture serves, so the DISC-014 live-URL check can
+    be reference-gated without any network. ctr is a 1-element list (mutable counter);
+    the FIRST URL becomes a 404 sentinel under BREAK_SPEC_URL."""
+    def loc():
+        ctr[0] += 1
+        if BREAK_SPEC_URL and ctr[0] == 1:
+            return base + _LOCAL_BROKEN_PATH
+        return f"{base}/__localspec/u{ctr[0]}"
+    if isinstance(node, dict):
+        for k, v in list(node.items()):
+            if k in _LOCAL_SPEC_KEYS and isinstance(v, str) and "://" in v:
+                node[k] = loc()
+            elif k == "instrument_schemas" and isinstance(v, list):
+                node[k] = [loc() if isinstance(s, str) and "://" in s else s for s in v]
+            else:
+                _localize_spec_urls(v, base, ctr)
+    elif isinstance(node, list):
+        for item in node:
+            _localize_spec_urls(item, base, ctr)
+    return node
+
+def profile_served(base):
+    """The profile as served on /.well-known/ucp — normally the real profile, but
+    with loopback spec/schema URLs under --local-spec-urls (DISC-014 gate only)."""
+    p = profile(base)
+    if LOCAL_SPEC_URLS:
+        p = _localize_spec_urls(json.loads(json.dumps(p)), base, [0])
+    return p
 
 # ---- version-negotiation / discovery-error simulation (2026-04-08 only) ----------
 # The negotiation protocol (overview.md "Negotiation Protocol" + "Error Handling")
@@ -2076,9 +2120,17 @@ class _H(BaseHTTPRequestHandler):
             # can assert what actually arrived on the wire (custom headers etc.)
             return self._send(200, {"headers": {k.lower(): v for k, v in self.headers.items()}})
         if path == "/.well-known/ucp":
-            # DISC-003: profile responses carry the required Cache-Control policy
-            return self._send(200, profile(self._base()),
+            # DISC-003: profile responses carry the required Cache-Control policy.
+            # profile_served applies the DISC-014 loopback repoint when --local-spec-urls
+            # is set (otherwise it is the real authority-origin profile, unchanged).
+            return self._send(200, profile_served(self._base()),
                               {"Cache-Control": PROFILE_CACHE_CONTROL})
+        if path.startswith("/__localspec/"):
+            # DISC-014 reference-gate loopback targets: every declared spec/schema URL
+            # resolves 200 here (valid JSON), except the BREAK_SPEC_URL sentinel (404).
+            if path == _LOCAL_BROKEN_PATH:
+                return self._send(404, {"error_code": "not_found"})
+            return self._send(200, {"ok": True})
         if path == "/.well-known/oauth-authorization-server":
             # identity-linking: RFC 8414 authorization server metadata on the
             # business domain (04-08 IDL-016; 01-era IDL-006 — every version)
@@ -2247,6 +2299,11 @@ def main():
     ap.add_argument("--checkout-scope-partial", action="store_true",
                     help="MUTANT (with --require-checkout-scope): make ONE checkout op "
                          "demand an extra per-operation scope (IDL-013 violation)")
+    ap.add_argument("--local-spec-urls", action="store_true",
+                    help="DISC-014 gate: repoint profile spec/schema URLs to loopback "
+                         "paths this fixture serves (hermetic reference-gate ONLY)")
+    ap.add_argument("--break-spec-url", action="store_true",
+                    help="MUTANT (with --local-spec-urls): make ONE spec/schema URL 404")
     ap.add_argument("--spec-version", default=VERSION, choices=SUPPORTED_VERSIONS,
                     help="UCP spec version to serve (default: %(default)s)")
     args = ap.parse_args()
@@ -2256,7 +2313,8 @@ def main():
         VERIFY_SIGNATURES = False
     global OAUTH_ENFORCE_PKCE, OAUTH_GATE, OAUTH_EXACT_REDIRECT, \
         OAUTH_CLIENT_AUTH, OAUTH_CHALLENGE_ERROR, OAUTH_VALIDATE_TOKEN, \
-        REQUIRE_ORDER_AUTH, REQUIRE_CHECKOUT_SCOPE, CHECKOUT_SCOPE_PARTIAL
+        REQUIRE_ORDER_AUTH, REQUIRE_CHECKOUT_SCOPE, CHECKOUT_SCOPE_PARTIAL, \
+        LOCAL_SPEC_URLS, BREAK_SPEC_URL
     if args.oauth_no_pkce:
         OAUTH_ENFORCE_PKCE = False
     if args.oauth_no_gate:
@@ -2275,6 +2333,10 @@ def main():
         REQUIRE_CHECKOUT_SCOPE = True
     if args.checkout_scope_partial:
         CHECKOUT_SCOPE_PARTIAL = True
+    if args.local_spec_urls:
+        LOCAL_SPEC_URLS = True
+    if args.break_spec_url:
+        BREAK_SPEC_URL = True
     if args.no_webhooks:
         global SEND_WEBHOOKS
         SEND_WEBHOOKS = False

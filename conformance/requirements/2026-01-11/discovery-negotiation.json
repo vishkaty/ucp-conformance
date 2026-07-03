@@ -252,7 +252,7 @@
       "official_oracle": true,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "URL resolvability is a network fetch, not a JSON-Schema construct; spec REQUIRES the fields (L74). Oracle: ProtocolTest.test_discovery_urls fetches every spec/schema/config_schema URL in the profile and asserts 200 + parseable JSON or valid HTML. browser_capable=false: cross-origin fetch of external spec URLs."
+      "notes": "URL resolvability is a network fetch, not a JSON-Schema construct; spec REQUIRES the fields (L74). Oracle: ProtocolTest.test_discovery_urls fetches every spec/schema/config_schema URL in the profile and asserts 200 + parseable JSON or valid HTML. browser_capable=false: cross-origin fetch of external spec URLs. W3 (2026-07-03): shipped as discovery.spec_urls_resolvable (merchant_checks_01_11_01_23_disc.py), OPT-IN via config.discovery.live_url_checks (deliberately absent from CONTROLLED_CONFIG so NO run_suite/selftest gate performs a network fetch); reference-gated HERMETICALLY by selfcheck/validate_disc014_check.py via the fixture's --local-spec-urls loopback mode (+ --break-spec-url mutant)."
     },
     {
       "id": "NEG-001",
