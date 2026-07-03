@@ -9,13 +9,13 @@
  "versions": {
   "2026-01-11": {
    "musts": 172,
-   "check": 57,
+   "check": 64,
    "exempt": 24,
-   "gap": 91,
-   "accounted_pct": 47,
+   "gap": 84,
+   "accounted_pct": 51,
    "gap_by_testability": {
-    "manual": 8,
-    "needs-oauth": 10,
+    "manual": 10,
+    "needs-oauth": 1,
     "needs-receiver": 35,
     "testable": 38
    },
@@ -32,10 +32,11 @@
     },
     {
      "area": "discount-consent-identity",
-     "check": 7,
+     "check": 14,
      "exempt": 2,
-     "gap": 20,
-     "gap_needs-oauth": 10,
+     "gap": 13,
+     "gap_manual": 2,
+     "gap_needs-oauth": 1,
      "gap_testable": 10,
      "musts": 29
     },
@@ -918,7 +919,7 @@
      "id": "IDL-001",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens.",
      "source": "ucp:docs/specification/identity-linking.md#L42",
@@ -928,7 +929,7 @@
      "id": "IDL-002",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L52",
@@ -938,31 +939,37 @@
      "id": "IDL-005",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must implement OAuth 2.0 (RFC 6749).",
      "source": "ucp:docs/specification/identity-linking.md#L72",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-006",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must adhere to RFC 8414 to declare the location of their OAuth 2.0 endpoints at /.well-known/oauth-authorization-server.",
      "source": "ucp:docs/specification/identity-linking.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-007",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must enforce Client Authentication at the Token Endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L83",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-008",
@@ -979,41 +986,49 @@
      "id": "IDL-009",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must support standard UCP scopes, granting tokens permission to all associated Operations for a given resource.",
      "source": "ucp:docs/specification/identity-linking.md#L86",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-010",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must implement standard Token Revocation as defined in RFC 7009.",
      "source": "ucp:docs/specification/identity-linking.md#L94",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-011",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must revoke the specified token and should recursively revoke all associated tokens (revoking a refresh_token must also immediately revoke all access_tokens issued from it).",
      "source": "ucp:docs/specification/identity-linking.md#L96",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-012",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must support revocation requests authenticated with the same client credentials used for the token endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L99",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-013",
@@ -1961,13 +1976,13 @@
   },
   "2026-01-23": {
    "musts": 181,
-   "check": 70,
+   "check": 77,
    "exempt": 25,
-   "gap": 86,
-   "accounted_pct": 52,
+   "gap": 79,
+   "accounted_pct": 56,
    "gap_by_testability": {
-    "manual": 9,
-    "needs-oauth": 10,
+    "manual": 11,
+    "needs-oauth": 1,
     "needs-receiver": 35,
     "testable": 32
    },
@@ -1984,10 +1999,11 @@
     },
     {
      "area": "discount-consent-identity",
-     "check": 13,
+     "check": 20,
      "exempt": 2,
-     "gap": 16,
-     "gap_needs-oauth": 10,
+     "gap": 9,
+     "gap_manual": 2,
+     "gap_needs-oauth": 1,
      "gap_testable": 6,
      "musts": 31
     },
@@ -2961,7 +2977,7 @@
      "id": "IDL-001",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must authenticate using their client_id and client_secret through HTTP Basic Authentication when exchanging codes for tokens.",
      "source": "ucp:docs/specification/identity-linking.md#L42",
@@ -2971,7 +2987,7 @@
      "id": "IDL-002",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms must implement the OAuth 2.0 Authorization Code flow (RFC 6749 4.1) as the primary linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L52",
@@ -2981,31 +2997,37 @@
      "id": "IDL-005",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must implement OAuth 2.0 (RFC 6749).",
      "source": "ucp:docs/specification/identity-linking.md#L72",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-006",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must adhere to RFC 8414 to declare the location of their OAuth 2.0 endpoints at /.well-known/oauth-authorization-server.",
      "source": "ucp:docs/specification/identity-linking.md#L74",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-007",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must enforce Client Authentication at the Token Endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L83",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-008",
@@ -3022,41 +3044,49 @@
      "id": "IDL-009",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must support standard UCP scopes, granting tokens permission to all associated Operations for a given resource.",
      "source": "ucp:docs/specification/identity-linking.md#L86",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-010",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must implement standard Token Revocation as defined in RFC 7009.",
      "source": "ucp:docs/specification/identity-linking.md#L94",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-011",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must revoke the specified token and should recursively revoke all associated tokens (revoking a refresh_token must also immediately revoke all access_tokens issued from it).",
      "source": "ucp:docs/specification/identity-linking.md#L96",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-012",
      "area": "discount-consent-identity",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses must support revocation requests authenticated with the same client credentials used for the token endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L99",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_oauth.py"
+     ]
     },
     {
      "id": "IDL-013",
@@ -4043,13 +4073,13 @@
   },
   "2026-04-08": {
    "musts": 322,
-   "check": 159,
+   "check": 185,
    "exempt": 34,
-   "gap": 129,
-   "accounted_pct": 60,
+   "gap": 103,
+   "accounted_pct": 68,
    "gap_by_testability": {
-    "manual": 11,
-    "needs-oauth": 48,
+    "manual": 32,
+    "needs-oauth": 1,
     "needs-receiver": 70
    },
    "areas": [
@@ -4111,9 +4141,9 @@
     },
     {
      "area": "identity-linking",
-     "check": 8,
-     "gap": 47,
-     "gap_needs-oauth": 47,
+     "check": 34,
+     "gap": 21,
+     "gap_manual": 21,
      "musts": 55
     },
     {
@@ -5909,17 +5939,19 @@
      "id": "IDL-001",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Identity linking uses OAuth 2.0 as the v1 auth mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L34-L35",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-002",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata.",
      "source": "ucp:docs/specification/identity-linking.md#L98-L100",
@@ -5929,7 +5961,7 @@
      "id": "IDL-004",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
      "source": "ucp:docs/specification/identity-linking.md#L111-L116",
@@ -5939,7 +5971,7 @@
      "id": "IDL-005",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Public clients MUST NOT embed a client_secret.",
      "source": "ucp:docs/specification/identity-linking.md#L116-L117",
@@ -5949,7 +5981,7 @@
      "id": "IDL-006",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model.",
      "source": "ucp:docs/specification/identity-linking.md#L119-L120",
@@ -5959,7 +5991,7 @@
      "id": "IDL-007",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme.",
      "source": "ucp:docs/specification/identity-linking.md#L121-L122",
@@ -5969,7 +6001,7 @@
      "id": "IDL-008",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
      "source": "ucp:docs/specification/identity-linking.md#L124-L126",
@@ -5979,7 +6011,7 @@
      "id": "IDL-009",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests.",
      "source": "ucp:docs/specification/identity-linking.md#L127-L128",
@@ -5989,7 +6021,7 @@
      "id": "IDL-010",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
      "source": "ucp:docs/specification/identity-linking.md#L132-L134",
@@ -5999,7 +6031,7 @@
      "id": "IDL-011",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges.",
      "source": "ucp:docs/specification/identity-linking.md#L135-L137",
@@ -6009,7 +6041,7 @@
      "id": "IDL-012",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST validate the iss parameter in the authorization response to prevent Mix-Up Attacks, verifying it matches the AS issuer URI; if it does not match they MUST abort and discard the authorization response.",
      "source": "ucp:docs/specification/identity-linking.md#L138-L144",
@@ -6019,7 +6051,7 @@
      "id": "IDL-014",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side.",
      "source": "ucp:docs/specification/identity-linking.md#L149-L151",
@@ -6029,11 +6061,13 @@
      "id": "IDL-015",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST implement OAuth 2.0.",
      "source": "ucp:docs/specification/identity-linking.md#L159-L160",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-016",
@@ -6063,41 +6097,49 @@
      "id": "IDL-018",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST return the iss parameter in the authorization response.",
      "source": "ucp:docs/specification/identity-linking.md#L168-L169",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-019",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST enforce PKCE validation at the token endpoint for all authorization code exchanges; requests without a valid code_verifier MUST be rejected.",
      "source": "ucp:docs/specification/identity-linking.md#L170-L173",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-020",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST enforce exact string matching for the redirect_uri parameter during authorization requests; the token-request redirect_uri MUST be identical to the authorization-request one.",
      "source": "ucp:docs/specification/identity-linking.md#L174-L177",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-021",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "For loopback redirect URIs (127.0.0.1 or [::1]) businesses MUST ignore the port component and match on scheme, host, and path only.",
      "source": "ucp:docs/specification/identity-linking.md#L177-L181",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-022",
@@ -6115,77 +6157,91 @@
      "id": "IDL-023",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "When 'none' is advertised, businesses MUST require PKCE with S256 and MUST reject any authorization code redemption lacking a valid code_verifier.",
      "source": "ucp:docs/specification/identity-linking.md#L190-L192",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-024",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Requests that fail the negotiated authentication method MUST be rejected with invalid_client; requests that fail PKCE MUST be rejected with invalid_grant.",
      "source": "ucp:docs/specification/identity-linking.md#L192-L194",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-025",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST validate user identity tokens on every user-authenticated request (iss, aud, exp, scopes, and client_id/azp).",
      "source": "ucp:docs/specification/identity-linking.md#L195-L199",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-026",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 Unauthorized (identity_required) and 403 Forbidden (insufficient_scope) responses to user-authenticated operations.",
      "source": "ucp:docs/specification/identity-linking.md#L200-L203",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-027",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST implement token revocation; revoking a refresh_token MUST also immediately invalidate all access_tokens issued from it.",
      "source": "ucp:docs/specification/identity-linking.md#L206-L209",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-028",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST support revocation requests authenticated with the same client credentials used at the token endpoint.",
      "source": "ucp:docs/specification/identity-linking.md#L210-L211",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-029",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Businesses MUST support standard UCP scopes as defined in the Scopes section.",
      "source": "ucp:docs/specification/identity-linking.md#L216-L217",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-031",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback.",
      "source": "ucp:docs/specification/identity-linking.md#L240-L241",
@@ -6195,7 +6251,7 @@
      "id": "IDL-032",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery.",
      "source": "ucp:docs/specification/identity-linking.md#L249-L251",
@@ -6205,17 +6261,19 @@
      "id": "IDL-033",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The issuer value in discovered metadata MUST match the discovery base URI exactly; platforms MUST NOT normalize before comparison (byte-for-byte match).",
      "source": "ucp:docs/specification/identity-linking.md#L253-L257",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-034",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
      "source": "ucp:docs/specification/identity-linking.md#L297-L299",
@@ -6225,7 +6283,7 @@
      "id": "IDL-035",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response.",
      "source": "ucp:docs/specification/identity-linking.md#L301-L305",
@@ -6235,11 +6293,13 @@
      "id": "IDL-036",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The token-request code_verifier MUST correspond to the code_challenge sent in the authorization request; businesses MUST reject token requests where code_verifier is absent or does not verify.",
      "source": "ucp:docs/specification/identity-linking.md#L307-L310",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-037",
@@ -6257,7 +6317,7 @@
      "id": "IDL-038",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
      "source": "ucp:docs/specification/identity-linking.md#L348-L350",
@@ -6267,7 +6327,7 @@
      "id": "IDL-039",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST ignore unrecognized fields in a per-scope policy object.",
      "source": "ucp:docs/specification/identity-linking.md#L358-L359",
@@ -6277,77 +6337,91 @@
      "id": "IDL-040",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "On identity_required the business MUST return 401 Unauthorized, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'identity_required'.",
      "source": "ucp:docs/specification/identity-linking.md#L414-L422",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-041",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The identity_required WWW-Authenticate header MUST include a realm parameter set to the business's issuer URI from RFC 8414 metadata.",
      "source": "ucp:docs/specification/identity-linking.md#L424-L426",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-042",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "When the request included a token that was invalid/expired/unverifiable, the identity_required header MUST also include error=\"invalid_token\".",
      "source": "ucp:docs/specification/identity-linking.md#L427-L429",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-044",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "continue_url MUST NOT be used to convey a pre-baked OAuth authorization request; the platform constructs its own authorization request.",
      "source": "ucp:docs/specification/identity-linking.md#L440-L443",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-045",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "On insufficient_scope the business MUST return 403 Forbidden, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'insufficient_scope'.",
      "source": "ucp:docs/specification/identity-linking.md#L489-L496",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-046",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The insufficient_scope WWW-Authenticate header MUST include realm, error=\"insufficient_scope\", and scope=\"<space-separated full required scope set>\".",
      "source": "ucp:docs/specification/identity-linking.md#L498-L502",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-047",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The insufficient_scope scope parameter MUST list the full set of scopes required for the operation, not just the missing ones.",
      "source": "ucp:docs/specification/identity-linking.md#L507-L509",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-048",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
      "source": "ucp:docs/specification/identity-linking.md#L535-L538",
@@ -6357,27 +6431,31 @@
      "id": "IDL-049",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Plain PKCE (plain) MUST NOT be used; PKCE S256 is REQUIRED for all authorization code flows, and businesses MUST reject exchanges without a valid code_verifier.",
      "source": "ucp:docs/specification/identity-linking.md#L570-L572",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-050",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Public clients cannot keep a client_secret confidential and MUST use 'none'; businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms.",
      "source": "ucp:docs/specification/identity-linking.md#L578-L585",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-051",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions.",
      "source": "ucp:docs/specification/identity-linking.md#L596-L599",
@@ -6387,11 +6465,13 @@
      "id": "IDL-052",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "The realm parameter MUST match the business's issuer URI so platforms can correlate the challenge with the correct authorization server.",
      "source": "ucp:docs/specification/identity-linking.md#L599-L601",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-053",
@@ -6409,17 +6489,19 @@
      "id": "IDL-055",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
-     "status": "gap",
+     "testability": "testable",
+     "status": "check",
      "requirement": "Platforms MUST revoke user identity tokens at the business's revocation endpoint when a user unlinks; businesses MUST reject subsequent requests that present revoked tokens.",
      "source": "ucp:docs/specification/identity-linking.md#L617-L619",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-056",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.",
      "source": "ucp:docs/specification/identity-linking.md#L646-L649",
@@ -6429,7 +6511,7 @@
      "id": "IDL-057",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "needs-oauth",
+     "testability": "manual",
      "status": "gap",
      "requirement": "When config contains fields not defined in this version, platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain.",
      "source": "ucp:docs/specification/identity-linking.md#L651-L654",
