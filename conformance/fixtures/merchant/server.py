@@ -460,13 +460,15 @@ def _payment_tokens(body):
 
 def order_body(order):
     """Render a stored order as a spec-valid order response (order.json requires ucp,
-    id, checkout_id, permalink_url, line_items, fulfillment, currency, totals)."""
+    id, checkout_id, permalink_url, line_items, fulfillment, currency, totals;
+    adjustments is the post-order event log — present in both supported versions)."""
     return {"ucp": {"version": VERSION,
                     "capabilities": {"dev.ucp.shopping.order": [
                         {"version": VERSION,
                          "schema": "https://ucp.dev/schemas/shopping/order.json"}]}},
             **{k: order[k] for k in ("id", "checkout_id", "permalink_url", "currency",
-                                     "line_items", "fulfillment", "totals")}}
+                                     "line_items", "fulfillment", "adjustments",
+                                     "totals")}}
 
 def complete_checkout(sid, body, headers=None):
     """POST /checkout-sessions/{id}/complete -> 'completed' + an order confirmation.
@@ -492,6 +494,7 @@ def complete_checkout(sid, body, headers=None):
                              "totals": li["totals"], "status": "processing"}
                             for li in sess["line_items"]],
              "fulfillment": {"expectations": [], "events": []},
+             "adjustments": [],
              "totals": checkout["totals"]}
     with _LOCK:
         ORDERS[oid] = order
@@ -504,6 +507,55 @@ def get_order(oid, headers=None):
     order = ORDERS.get(oid)
     if not order:
         return _err(404, f"order not found: {oid}")
+    return 200, order_body(order)
+
+# ---- ORDER area: test-only post-order adjustment hook (2026-04-08 only) ------
+# TEST-ONLY (precedent: the Flower golden's /testing/simulate-shipping): a real
+# merchant reaches this state through its own ops tooling; the conformance golden
+# needs a wire-drivable way to exhibit it. POST /testing/orders/{id}/adjust appends
+# a REDUCTION adjustment (refund/cancellation/return) per the pinned 04-08 spec:
+#   * adjustment line-item quantities are SIGNED — negative for reductions
+#     (order.md "Quantities and amounts are signed", ORD-007);
+#   * adjustment totals are SIGNED — negative for money returned (ORD-009);
+#   * the affected order line item's quantity.total is reduced, its status derived
+#     per order.md Status Derivation (total==0 -> "removed"), and the line item is
+#     RETAINED in line_items — "all line items that ever existed" (ORD-002).
+# 04-08 only: the 2026-01-23 adjustment schema is UNSIGNED (quantity minimum 1) and
+# its order_line_item status enum has no "removed", so the hook 404s there.
+def simulate_order_adjustment(oid, body, headers=None):
+    """POST /testing/orders/{id}/adjust  {line_item_id, quantity>=1, [type]}."""
+    if VERSION != "2026-04-08":
+        return _err(404, "testing adjustment hook is only served in 2026-04-08 mode")
+    order = ORDERS.get(oid)
+    if not order:
+        return _err(404, f"order not found: {oid}")
+    body = body if isinstance(body, dict) else {}
+    lid = body.get("line_item_id")
+    li = next((x for x in order["line_items"] if x["id"] == lid), None)
+    if not li:
+        return _err(400, f"unknown line_item_id: {lid}")
+    try:
+        qty = int(body.get("quantity", 1))
+    except (TypeError, ValueError):
+        return _err(400, "quantity must be an integer")
+    if qty < 1 or qty > li["quantity"]["total"]:
+        return _err(400, f"quantity must be between 1 and the line item's "
+                         f"remaining total ({li['quantity']['total']})")
+    atype = body.get("type") or "refund"
+    amount = li["item"]["price"] * qty
+    with _LOCK:
+        li["quantity"]["total"] -= qty
+        q = li["quantity"]
+        li["status"] = ("removed" if q["total"] == 0
+                        else "fulfilled" if q["fulfilled"] == q["total"]
+                        else "partial" if q["fulfilled"] > 0 else "processing")
+        order["adjustments"].append({
+            "id": "adj_" + uuid.uuid4().hex[:12], "type": atype,
+            "occurred_at": "2026-04-08T12:00:00Z", "status": "completed",
+            "line_items": [{"id": lid, "quantity": -qty}],   # signed: reduction < 0
+            "totals": [{"type": "total", "display_text": "Refund",
+                        "amount": -amount}],                  # signed: money returned
+            "description": f"Test-driven {atype} of {qty} unit(s)"})
     return 200, order_body(order)
 
 def cancel_checkout(sid, headers=None):
@@ -768,6 +820,11 @@ class _H(BaseHTTPRequestHandler):
                 return self._send(*get_product_response(body))
             if path == "/carts":
                 return self._send(201, cart_response(body))
+            # ORDER area test-only hook (see simulate_order_adjustment docstring)
+            if path.startswith("/testing/orders/") and path.endswith("/adjust"):
+                parts = path.split("/")      # '', 'testing', 'orders', oid, 'adjust'
+                if len(parts) == 5:
+                    return self._send(*simulate_order_adjustment(parts[3], body, self.headers))
         if path == "/checkout-sessions":
             return self._send(*create_checkout(body, self.headers))
         if path.startswith("/checkout-sessions/"):

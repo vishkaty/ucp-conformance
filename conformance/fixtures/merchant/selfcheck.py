@@ -96,6 +96,40 @@ def checkout_artifacts():
     if not any("NOPE_NOT_A_CODE" in (m.get("content") or "")
                for m in rejected.get("messages") or []):
         raise RuntimeError("rejected code was not communicated via messages[]")
+    # ORDER area (04-08 only — the hook 404s at 01-23, whose adjustment schema is
+    # unsigned): drive the test-only post-order adjustment and assert the pinned
+    # semantics IN-PROCESS, then oracle-validate the adjusted order response.
+    adjusted = None
+    if server.VERSION == "2026-04-08":
+        ok, o2c = _expect(201, server.create_checkout(
+            {"line_items": [{"id": "li_1", "item": {"id": "teapot_ceramic"}, "quantity": 1},
+                            {"id": "li_2", "item": {"id": "mug_enamel"}, "quantity": 2}]},
+            HDRS), "adjust-scenario create")
+        if not ok:
+            raise RuntimeError(o2c)
+        ok, o2done = _expect(200, server.complete_checkout(o2c["id"], payment, HDRS),
+                             "adjust-scenario complete")
+        if not ok:
+            raise RuntimeError(o2done)
+        oid2 = o2done["order"]["id"]
+        ok, adjusted = _expect(200, server.simulate_order_adjustment(
+            oid2, {"line_item_id": "li_1", "quantity": 1, "type": "refund"}, HDRS),
+            "adjust hook")
+        if not ok:
+            raise RuntimeError(adjusted)
+        lis = {li["id"]: li for li in adjusted["line_items"]}
+        if set(lis) != {"li_1", "li_2"}:
+            raise RuntimeError("adjusted order dropped a line item that ever existed "
+                               f"(ORD-002 retention): {sorted(lis)}")
+        if lis["li_1"]["quantity"]["total"] != 0 or lis["li_1"]["status"] != "removed":
+            raise RuntimeError(f"fully-refunded line item not rendered removed: {lis['li_1']}")
+        adjs = adjusted.get("adjustments") or []
+        if not adjs or adjs[0]["line_items"][0]["quantity"] >= 0 \
+           or adjs[0]["totals"][0]["amount"] >= 0:
+            raise RuntimeError(f"adjustment is not signed negative (reduction): {adjs}")
+        ok, refetched = _expect(200, server.get_order(oid2, HDRS), "adjusted order get")
+        if not ok or refetched != adjusted:
+            raise RuntimeError("adjusted order GET does not match the hook's snapshot")
     out = [
         ("checkout create response",   lambda: validate_obj(created, "create")),
         ("checkout get response",      lambda: validate_obj(got, "read")),
@@ -106,6 +140,8 @@ def checkout_artifacts():
         ("discounted checkout response", lambda: validate_obj(discounted, "create")),
         ("rejected-code checkout response", lambda: validate_obj(rejected, "create")),
     ]
+    if adjusted is not None:
+        out.append(("adjusted order response", lambda: validate_obj(adjusted, "read")))
     if server.VERSION != "2026-04-08":
         # pre-04-08 extension schemas can't be COMPOSED by the oracle (their extension
         # def is named e.g. 'checkout', not the capability name), so the extension

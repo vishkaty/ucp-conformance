@@ -69,6 +69,10 @@ CONTROLLED_CONFIG = {
                  "automatic": {"product_id": "teapot_ceramic", "quantity": 2},
                  "item": {"code": "MUGLOVE", "product_id": "mug_enamel", "quantity": 2}},
     "ap2": True,   # 01-23 mode emits ap2.merchant_authorization on checkout responses
+    # ORDER area (04-08): the fixture serves the TEST-ONLY post-order adjustment hook
+    # (POST /testing/orders/{id}/adjust); second product = the surviving line item in
+    # the removed-line-item scenario (ORD-002/007/009).
+    "order": {"simulate_adjustment": True, "second_product_id": "mug_enamel"},
 }
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
