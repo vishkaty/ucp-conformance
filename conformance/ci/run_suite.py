@@ -92,6 +92,12 @@ def gates(server):
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
+        # the public interop demo (public/agent-demo.json) must stay real + in sync with the
+        # harness: every case's catching check still kills its defect, no drift.
+        ("agent-demo",  _py(ROOT / "conformance" / "agent" / "build_demo_data.py", "--check"), None, ()),
+        # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
+        # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
+        ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
     ]
 
 def server_up(server, timeout=3):

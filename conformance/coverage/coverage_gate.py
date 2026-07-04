@@ -288,7 +288,10 @@ def main():
     claim_res = [re.compile(r"(\d+)\+? kill-rate-validated checks?"),
                  re.compile(r"(\d+)\+? checks across"),
                  # the landing-page hero stat: <div class="stat-num">47</div>...Kill-rate-validated
-                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Kill-rate-validated')]
+                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Kill-rate-validated'),
+                 # two-sided reframe (2026-07): the merchant-side hero stat + the "which side" band
+                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Merchant-side checks'),
+                 re.compile(r"(\d+)\+? checks, from the browser")]
     copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
         os.path.join(ROOT, "README.md"),
         os.path.join(ROOT, "docs", "ROADMAP.md"),

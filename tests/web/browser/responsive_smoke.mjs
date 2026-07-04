@@ -14,7 +14,7 @@ if (!CHROME) { console.error("CHROME_PATH not set"); process.exit(2); }
 
 // the content/marketing pages (the /tool SPA has its own gate: tool_smoke.mjs — and
 // its long-lived connections never reach network-idle, so it's excluded here)
-const PAGES = ["index.html", "check.html", "guide.html", "coverage.html"];
+const PAGES = ["index.html", "check.html", "guide.html", "coverage.html", "agent.html", "sandbox.html"];
 const WIDTHS = [375, 320];   // iPhone SE / small Android — the tightest common widths
 
 const results = [];

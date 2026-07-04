@@ -34,24 +34,25 @@
 <body>
 <div class="wrap">
   <div style="font-size:13px;margin-bottom:18px">
-    <a href="/" style="margin-right:14px">&larr; spck.dev</a>
+    <a href="/" style="margin-right:14px">Merchant Platforms</a>
+    <a href="/agent" style="margin-right:14px">Shopping Agents</a>
     <a href="/coverage" style="margin-right:14px">Coverage</a>
     <a href="/guide" style="margin-right:14px">Guide</a>
     <a href="/tool" style="margin-right:14px">Tool</a>
     <a href="https://github.com/vishkaty/ucp-conformance">GitHub</a>
   </div>
-  <h1>UCP Conformance Check <span class="note">(unofficial)</span></h1>
-  <p class="sub">Independent tool. Not affiliated with, endorsed by, or a substitute for the official UCP conformance suite.</p>
+  <h1>Can AI agents buy from your store? <span class="note">(unofficial)</span></h1>
+  <p class="sub">Check your store&rsquo;s UCP setup so AI shopping agents can actually find and buy from you. Independent tool &mdash; not affiliated with or a substitute for the official UCP conformance suite.</p>
 
   <div class="card">
-    <label for="server">Merchant server URL</label>
+    <label for="server">Your store&rsquo;s URL</label>
     <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
     <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-firmly-host</code>)</summary>
       <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-firmly-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
       <input id="cquery" type="text" style="margin-top:8px" placeholder="catalog search query (default: *) — e.g. sunglasses" autocomplete="off" spellcheck="false">
     </details>
     <button id="run">Check discovery + profile + catalog</button>
-    <p class="meta">Fetches <code>/.well-known/ucp</code> server-side and runs the discovery + profile-structure checks, plus read-only catalog probes when the server declares that capability. Write-path checks (checkout, order, cart) run only in the CLI &mdash; run those against your own server, never someone else's.</p>
+    <p class="meta">We fetch your store&rsquo;s <code>/.well-known/ucp</code> and run the discovery + profile-structure checks, plus read-only catalog probes when your store supports them. Write-path checks (checkout, order, cart) run only in the CLI &mdash; run those against your own store, never someone else&rsquo;s.</p>
   </div>
 
   <div id="out"></div>

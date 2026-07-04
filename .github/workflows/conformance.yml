@@ -10,9 +10,10 @@ on:
     branches: [main, "feat/**", "fix/**"]
     # public/** is included because the `coverage` gate cross-checks the published
     # coverage.json and the site's advertised check counts against reality.
-    paths: ["conformance/**", "public/**", "tests/**", "functions/**", ".github/workflows/conformance.yml"]
+    # packaging/** is included because the bundle-drift step + package-agent gate validate it.
+    paths: ["conformance/**", "public/**", "tests/**", "functions/**", "packaging/**", ".github/workflows/conformance.yml"]
   pull_request:
-    paths: ["conformance/**", "public/**", "tests/**", "functions/**", ".github/workflows/conformance.yml"]
+    paths: ["conformance/**", "public/**", "tests/**", "functions/**", "packaging/**", ".github/workflows/conformance.yml"]
   workflow_dispatch: {}
   schedule:
     # Weekly heartbeat (Mon 06:17 UTC): sources are pinned, so this catches

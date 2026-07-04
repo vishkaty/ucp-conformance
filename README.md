@@ -14,6 +14,24 @@ or your CI — and get an honest, capability-scoped conformance report. Every ch
 
 **→ Try it in your browser: [spck.dev/check](https://spck.dev/check)**
 
+## Two sides of the checkout
+
+A UCP checkout takes two systems, and we test both:
+
+- **Merchant platforms** — you expose a UCP agentic interface over your catalog, cart,
+  payments, and checkout orchestration. The suite below verifies AI shopping agents can
+  actually discover and buy from you. **193 kill-rate-validated checks.**
+- **Shopping agents** — you build a shopping-orchestration AI that carts and checks out
+  across merchant platforms over UCP. The **agent lane** (`conformance/agent/`) grades your
+  agent's *own* behavior — OAuth mix-up / PKCE, request signing, refusing mismatched totals,
+  phishing defense, revoke-on-unlink — the reliability and security bugs a schema check can't
+  see. **38 checks (39 defects modeled); watch six fail live at [spck.dev/sandbox](https://spck.dev/sandbox).**
+
+> Conformance is not reliability: ~99% of UCP stores pass conformance, yet real agent
+> checkouts still fail. Run it yourself: `python3 conformance/agent/run_agent.py`.
+
+Merchant-platform quick start below; agent-lane details in [`conformance/agent/`](conformance/agent/).
+
 ## Quick start
 
 ```bash
