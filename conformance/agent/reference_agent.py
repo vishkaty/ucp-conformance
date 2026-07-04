@@ -15,7 +15,7 @@ are Phase B — each added as a method + a matching defect.
 
 Stdlib only. This same client hardens into the real "find & buy" agent in Phase B'.
 """
-import json, os, sys, urllib.request, urllib.error, uuid
+import hashlib, json, os, sys, urllib.request, urllib.error, urllib.parse, uuid
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common import crypto   # noqa: E402
@@ -27,7 +27,8 @@ DEFECTS = {
     "no_ucp_agent": "omit the required UCP-Agent header",
     "ignore_escalation": "do NOT follow continue_url on requires_escalation",
     "skip_sig_verify": "do NOT verify the business's RFC 9421 response signature",
-    # Phase B.4: "skip_iss_validation", "reuse_pkce", ...
+    "no_pkce": "omit PKCE (code_challenge / S256) from the authorization request",
+    "skip_iss_validation": "do NOT validate the iss in the authorization response",
 }
 
 
@@ -40,6 +41,7 @@ class ReferenceAgent:
         self.defect = defect
         self.log = []          # [{op, request:{...}, response:{...}, sig_verified?, rejected?}]
         self.jwks = []         # business signing keys, learned at discovery
+        self.identity = {}     # OAuth2 identity metadata, learned at discovery
 
     # --- client obligations (each maps to agent-side spec rows) ---
     def _headers(self, idem=None):
@@ -90,8 +92,35 @@ class ReferenceAgent:
 
     def discover(self):
         r = self._send("discover", "GET", "/.well-known/ucp")
-        self.jwks = ((r.get("body") or {}).get("ucp") or {}).get("signing_keys") or []
+        prof = (r.get("body") or {}).get("ucp") or {}
+        self.jwks = prof.get("signing_keys") or []
+        self.identity = prof.get("identity") or {}
         return r
+
+    def oauth_authorize(self):
+        """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
+        the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207)."""
+        ident = self.identity or {}
+        ae = ident.get("authorization_endpoint")
+        if not ae:
+            return None
+        verifier = uuid.uuid4().hex + uuid.uuid4().hex
+        challenge = crypto.b64url(hashlib.sha256(verifier.encode()).digest())
+        params = {"response_type": "code", "client_id": "spck-agent",
+                  "redirect_uri": self.PROFILE + "/cb", "state": uuid.uuid4().hex,
+                  "scope": "openid"}
+        if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
+            params["code_challenge"] = challenge
+            params["code_challenge_method"] = "S256"
+        resp = self._send("authorize", "GET",
+                          "/oauth2/authorize?" + urllib.parse.urlencode(params))
+        b = resp.get("body") or {}
+        if self.defect != "skip_iss_validation":           # IDL-012: validate iss (Mix-Up)
+            entry = self.log[-1]
+            entry["iss_validated"] = (b.get("iss") == ident.get("issuer"))
+            if not entry["iss_validated"]:
+                entry["rejected"] = True                   # reject a mismatched issuer
+        return resp
 
     def create_checkout(self, product_id="teapot_ceramic"):
         body = {"id": str(uuid.uuid4()), "currency": "USD",
@@ -126,6 +155,7 @@ class ReferenceAgent:
         """Drive a conformant shopping flow (discover -> create -> complete -> handle
         escalation); return the session log for grading."""
         self.discover()
+        self.oauth_authorize()             # identity-linking (OAuth2 + PKCE + iss), if advertised
         c = self.create_checkout(product_id)
         if self.log[-1].get("rejected"):   # rejected a bad business signature -> stop here
             return self.log

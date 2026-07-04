@@ -18,6 +18,8 @@ Isolation: this tree (conformance/agent/) is NOT globbed by the merchant coverag
 adding agent checks here cannot move the merchant coverage numbers.
 """
 
+import urllib.parse
+
 CLEAN = "CLEAN"
 DEVIATION = "DEVIATION"
 
@@ -84,6 +86,28 @@ def p_verifies_business_signature(log):
     return DEVIATION
 
 
+def p_uses_pkce(log):
+    """IDL-011: platforms MUST use PKCE with code_challenge_method=S256 for all
+    authorization-code exchanges. Assert the authorization request carries code_challenge
+    and code_challenge_method=S256."""
+    for e in log:
+        if e["op"] == "authorize":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            ok = bool(q.get("code_challenge")) and q.get("code_challenge_method") == ["S256"]
+            return CLEAN if ok else DEVIATION
+    return DEVIATION
+
+
+def p_validates_iss(log):
+    """IDL-012: platforms MUST validate the iss parameter in the authorization response to
+    prevent Mix-Up Attacks (RFC 9207). Run against the bad_iss sandbox, a conformant agent
+    detects the mismatched issuer and rejects."""
+    for e in log:
+        if e["op"] == "authorize" and e.get("iss_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
@@ -92,4 +116,9 @@ CHECKS = [
     ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
            p_verifies_business_signature, kill_mutation="skip_sig_verify",
            versions=["2026-04-08"], scenario="bad_signature"),
+    ACheck("agent.uses_pkce", ["IDL-011"], "MUST",
+           p_uses_pkce, kill_mutation="no_pkce", versions=["2026-04-08"]),
+    ACheck("agent.validates_iss", ["IDL-012"], "MUST",
+           p_validates_iss, kill_mutation="skip_iss_validation",
+           versions=["2026-04-08"], scenario="bad_iss"),
 ]

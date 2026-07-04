@@ -15,7 +15,7 @@ hosted verification later.
 Conformant by default; adversarial behaviors are triggered by explicit inputs (e.g. the
 `escalate_token` in a completion payment), so the default surface stays clean.
 """
-import base64, json, os, sys, threading, uuid
+import base64, json, os, sys, threading, urllib.parse, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from contextlib import contextmanager
 
@@ -67,11 +67,18 @@ class _Handler(BaseHTTPRequestHandler):
             return {}
 
     def do_GET(self):
+        base = self._base()
         if self.path == "/.well-known/ucp":
-            base = self._base()
             return self._send(200, {"ucp": {
                 "version": "2026-04-08", "status": "ok",
                 "signing_keys": [crypto.jwk_from_pub(SIG_KID, _SIG_Q)],
+                # OAuth2 identity-linking metadata (RFC 8414 subset) the agent uses to
+                # run an authorization-code + PKCE flow and validate `iss` (RFC 9207).
+                "identity": {"issuer": base,
+                             "authorization_endpoint": base + "/oauth2/authorize",
+                             "token_endpoint": base + "/oauth2/token",
+                             "code_challenge_methods_supported": ["S256"],
+                             "authorization_response_iss_parameter_supported": True},
                 "services": {"dev.ucp.shopping": [
                     {"transport": "rest", "endpoint": base}]},
                 "capabilities": {"dev.ucp.shopping.checkout": [{}]}}})
@@ -79,6 +86,14 @@ class _Handler(BaseHTTPRequestHandler):
             # the escalation continue_url landing — reaching it means the agent FOLLOWED it
             self.server.observed.append(("follow", self.path))
             return self._send(200, {"escalation": "landing", "ok": True})
+        if self.path.startswith("/oauth2/authorize"):
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            self.server.observed.append(("authorize", q))
+            # RFC 9207: the authorization response echoes `iss`. In "bad_iss" the auth
+            # server returns a DIFFERENT issuer (Mix-Up) — a conformant agent MUST reject.
+            iss = "https://mixup-attacker.example" if self.server.scenario == "bad_iss" else base
+            return self._send(200, {"code": "authcode_" + uuid.uuid4().hex[:10],
+                                    "state": (q.get("state") or [""])[0], "iss": iss})
         return self._send(404, {"error": "not found"})
 
     def do_POST(self):

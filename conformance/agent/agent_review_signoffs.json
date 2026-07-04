@@ -37,6 +37,19 @@
      "SIG-002"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B4-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read identity-linking.md + the OAuth flow; author citation-check corroborated",
+   "spec_reverified": true,
+   "notes": "Two OAuth checks under the '### For Platforms' section (identity-linking.md L96, governing L98-155) — correct Platform subject for the agent lane; IDL-011/IDL-012 were reclassified 'manual' in the merchant register precisely because they bind the platform (request author), not the business. (1) agent.uses_pkce cites IDL-011 (L135-137: 'MUST use PKCE ... with code_challenge_method=S256 for all authorization code exchanges'). Asserts the authorization request carries code_challenge + code_challenge_method=S256; requiring S256 explicitly is mandated (plain forbidden, IDL-049 L570) and RFC 7636 defaults an omitted method to plain. Kill-safe: no_pkce omits both params -> DEVIATION. (2) agent.validates_iss cites IDL-012 (L138-144: 'MUST validate the iss parameter ... verify that the iss value matches the authorization server's issuer URI ... If the values do not match, the platform MUST abort and discard'). Runs against the bad_iss sandbox (iss=https://mixup-attacker.example != issuer); the reference compares iss == discovered metadata issuer (RFC 9207 AS issuer identifier, NOT the token endpoint — confirmed correct) and rejects. Kill-safe: skip_iss_validation -> agent accepts mismatched issuer -> DEVIATION. Non-blocking notes: sandbox returns {code,state,iss} as JSON (transport-only simplification; iss-compare logic identical to a real redirect); scope is authorization-request/response observables (the business-side PKCE-enforcement / iss-emission counterparts live in the merchant lane).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-011",
+     "IDL-012"
+    ]
+   }
   }
  ]
 }
