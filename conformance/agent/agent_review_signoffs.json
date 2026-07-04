@@ -259,6 +259,19 @@
      "DSC-034"
     ]
    }
+  },
+  {
+   "batch": "agent-undercount-cover-c2-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "under-count adjudication (independent subject+schema analysis incl. PAY-019 allOf inheritance) + author schema-citation verification + diagonal-isolation + no-regression check",
+   "spec_reverified": true,
+   "notes": "Payment-shape under-count rows (the complete request's payment instrument/credential). agent.instrument_has_ids PAY-019 (payment_instrument.json required:[id,handler_id,type]; id 'assigned by the platform' — agent authors it on complete; kill omit_instrument_ids). agent.credential_has_type PAY-024 (token_credential inherits `type` via allOf payment_credential.json + requires token; kill omit_credential_type). Enriched the reference complete instrument to {id, handler_id, type, credential:{type, token}}. Verified schema required sets directly (payment_instrument required=[id,handler_id,type]; token_credential type+token). Diagonal isolation confirmed (omit_instrument_ids -> only PAY-019; omit_credential_type -> only PAY-024) and NO regression — the enrichment doesn't break PAY-009 honors_available_instruments (instrument.type still present) nor the escalation flow (credential.token unchanged); 38/38 sound. These are trivial field-presence assertions whose subject/schema basis was already independently adjudicated in the under-count audit, so a full separate implementation-review was not re-run (efficiency for presence checks; the tricky allOf call was the adjudication's, verified here). Denominator membership unchanged (rows added by the under-count audit; this covers them).",
+   "ids": {
+    "2026-04-08": [
+     "PAY-019",
+     "PAY-024"
+    ]
+   }
   }
  ]
 }

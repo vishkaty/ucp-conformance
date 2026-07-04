@@ -66,6 +66,8 @@ DEFECTS = {
     "omit_payment_on_complete": "omit payment on the complete request (CHK-039)",
     "send_discounts_on_request": "send the response-only `discounts` object on a request (DSC-027/028)",
     "send_buyer_on_complete": "send the `buyer` (consent) object on the complete request (DSC-034)",
+    "omit_instrument_ids": "omit id/handler_id from a payment instrument on complete (PAY-019)",
+    "omit_credential_type": "omit the `type` discriminator from a payment credential (PAY-024)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -425,8 +427,16 @@ class ReferenceAgent:
         token, which the sandbox answers with requires_escalation + a continue_url). PAY-009:
         the credential's instrument `type` MUST be one the checkout's available_instruments
         offered — a conformant agent pays only with an authoritative type."""
-        body = {"payment": {"instruments": [
-            {"type": instrument_type, "credential": {"token": token}}]}}
+        # PAY-019: a payment instrument MUST include id, handler_id, type (id assigned by the
+        # platform). PAY-024: the token credential MUST include type + token.
+        inst = {"id": "pi_" + uuid.uuid4().hex[:10], "handler_id": "com.spck.sandbox_pay",
+                "type": instrument_type,
+                "credential": {"type": "token", "token": token}}
+        if self.defect == "omit_instrument_ids":           # PAY-019 violation
+            inst.pop("id", None); inst.pop("handler_id", None)
+        if self.defect == "omit_credential_type":          # PAY-024 violation
+            inst["credential"].pop("type", None)
+        body = {"payment": {"instruments": [inst]}}
         if self.defect == "omit_payment_on_complete":      # CHK-039: payment required on complete
             body.pop("payment", None)
         if self.defect == "send_discounts_on_request":     # DSC-027/028: discounts omit on request

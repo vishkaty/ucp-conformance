@@ -378,6 +378,37 @@ def p_omits_discounts_on_request(log):
     return CLEAN
 
 
+def _complete_instruments(log):
+    for e in log:
+        if e["op"] == "complete":
+            return ((e["request"].get("body") or {}).get("payment") or {}).get("instruments") or []
+    return None
+
+
+def p_instrument_has_ids(log):
+    """PAY-019: a payment instrument MUST include id, handler_id, and type (the platform
+    authors these on the complete request)."""
+    insts = _complete_instruments(log)
+    if not insts:
+        return DEVIATION
+    for i in insts:
+        if not (isinstance(i, dict) and i.get("id") and i.get("handler_id") and i.get("type")):
+            return DEVIATION
+    return CLEAN
+
+
+def p_credential_has_type(log):
+    """PAY-024: a token credential MUST include type and token."""
+    insts = _complete_instruments(log)
+    if not insts:
+        return DEVIATION
+    for i in insts:
+        c = (i or {}).get("credential") or {}
+        if not (c.get("type") and c.get("token")):
+            return DEVIATION
+    return CLEAN
+
+
 def p_omits_buyer_on_complete(log):
     """DSC-034: the `buyer` object (carrying consent) MUST be omitted from the complete request."""
     comps = _req_bodies(log, ("complete",))
@@ -748,4 +779,8 @@ CHECKS = [
     ACheck("agent.omits_buyer_on_complete", ["DSC-034"], "MUST NOT",
            p_omits_buyer_on_complete, kill_mutation="send_buyer_on_complete",
            versions=["2026-04-08"]),
+    ACheck("agent.instrument_has_ids", ["PAY-019"], "MUST",
+           p_instrument_has_ids, kill_mutation="omit_instrument_ids", versions=["2026-04-08"]),
+    ACheck("agent.credential_has_type", ["PAY-024"], "MUST",
+           p_credential_has_type, kill_mutation="omit_credential_type", versions=["2026-04-08"]),
 ]
