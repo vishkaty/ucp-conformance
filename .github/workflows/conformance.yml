@@ -33,7 +33,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
         with:
           enable-cache: false   # avoid the flaky cache-prune post-step (hangs then errors)
 
