@@ -54,6 +54,8 @@ DEFECTS = {
     "abort_on_future_config": "abort linking on an unrecognized future config field (IDL-057)",
     "oidc_fallback_no_abort": "do NOT abort when the OIDC-fallback discovery fetch fails (IDL-062)",
     "normalize_iss": "normalize (strip trailing slash) before comparing iss to issuer (IDL-061)",
+    "skip_revocation": "unlink locally but do NOT revoke tokens at the revocation endpoint (IDL-014/055)",
+    "adopt_prebaked_authz": "adopt the pre-baked OAuth request from continue_url instead of own (IDL-044)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -85,6 +87,7 @@ class ReferenceAgent:
         self._pkce_verifier = None   # PKCE verifier from the last authorize (proof at /token)
         self.link_scopes = []        # config.scopes from the identity_linking capability
         self.unknown_config_fields = []   # unrecognized future config fields (IDL-057)
+        self.issued_tokens = []      # access tokens minted this session (to revoke on unlink)
 
     @staticmethod
     def signing_jwk():
@@ -228,7 +231,7 @@ class ReferenceAgent:
             self.log[-1]["aborted"] = True
         return None
 
-    def oauth_authorize(self, scope="openid", op="authorize"):
+    def oauth_authorize(self, scope="openid", op="authorize", prebaked=None):
         """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
         the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207).
         Returns the authorization `code`. `scope` is carried on the request (IDL-009 derives
@@ -241,12 +244,20 @@ class ReferenceAgent:
         self._pkce_verifier = verifier                     # kept to prove possession at /token
         challenge = crypto.b64url(hashlib.sha256(verifier.encode()).digest())
         sent_state = uuid.uuid4().hex
+        redirect_uri = self.PROFILE + "/cb"                # IDL-044: a redirect_uri WE own
+        # IDL-044: a conformant platform constructs its OWN authorization request from the
+        # challenge + discovered metadata. adopt_prebaked_authz instead copies the business's
+        # pre-baked (attacker-controlled) redirect_uri / state / code_challenge.
+        if prebaked and self.defect == "adopt_prebaked_authz":
+            redirect_uri = prebaked.get("redirect_uri") or redirect_uri
+            sent_state = prebaked.get("state") or sent_state
+            challenge = prebaked.get("code_challenge") or challenge
         # IDL-010: the account-linking mechanism MUST be the OAuth 2.0 Authorization Code flow
         # (response_type=code). The implicit_grant defect requests the RFC 6749 §4.2 implicit
         # grant (response_type=token) instead.
         rt = "token" if self.defect == "implicit_grant" else "code"
         params = {"response_type": rt, "client_id": "spck-agent",
-                  "redirect_uri": self.PROFILE + "/cb", "state": sent_state,
+                  "redirect_uri": redirect_uri, "state": sent_state,
                   "scope": scope}
         if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
             params["code_challenge"] = challenge
@@ -287,7 +298,22 @@ class ReferenceAgent:
             body["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
             body["client_assertion"] = "eyJhbGciOiJFUzI1NiJ9.e30.sig"
         resp = self._send("token", "POST", "/oauth2/token", body)
-        return (resp.get("body") or {}).get("access_token")
+        tok = (resp.get("body") or {}).get("access_token")
+        if tok:
+            self.issued_tokens.append(tok)
+        return tok
+
+    def unlink(self):
+        """IDL-014 / IDL-055: when the user unlinks their account, the platform MUST call the
+        business's RFC 7009 revocation endpoint for each identity token it holds. The
+        skip_revocation defect performs the local unlink but leaves the tokens live."""
+        re_ep = (self.identity or {}).get("revocation_endpoint")
+        if not re_ep or self.defect == "skip_revocation":
+            return
+        path = urllib.parse.urlparse(re_ep).path or "/oauth2/revoke"
+        for tok in self.issued_tokens:
+            self._send("revoke", "POST", path,
+                       {"token": tok, "token_type_hint": "access_token"})
 
     def fetch_gated(self, path="/orders", max_rounds=4):
         """Access a user-authenticated (identity-gated) operation, driving the RFC 6750 §3
@@ -309,7 +335,15 @@ class ReferenceAgent:
                     scope = "dev.ucp.shopping.unrelated:read"   # not derived from the challenge
             else:
                 scope = "openid"                           # 401 has no scope -> initial default
-            code = self.oauth_authorize(scope=scope, op="authorize_gated")
+            # IDL-044: a pre-baked OAuth request may ride in continue_url; capture it so the
+            # defect can (wrongly) adopt it — the conformant agent constructs its own instead.
+            prebaked = None
+            cu = (resp.get("body") or {}).get("continue_url")
+            if cu:
+                pq = urllib.parse.parse_qs(urllib.parse.urlparse(cu).query)
+                prebaked = {k: (pq.get(k) or [None])[0]
+                            for k in ("redirect_uri", "state", "code_challenge")}
+            code = self.oauth_authorize(scope=scope, op="authorize_gated", prebaked=prebaked)
             token = self.oauth_token(code, scope)
             h = self._headers()
             if self.defect != "no_bearer_header":          # IDL-007: Authorization: Bearer
@@ -420,6 +454,9 @@ class ReferenceAgent:
         # A user-authenticated operation (order history): ungated except in the
         # auth_challenge scenario, where it exercises the WWW-Authenticate: Bearer flow.
         self.fetch_gated()
+        # IDL-014/055: simulate the user unlinking — revoke every identity token at the
+        # business's RFC 7009 revocation endpoint (a no-op when no token was minted).
+        self.unlink()
         return self.log
 
 

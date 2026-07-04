@@ -95,6 +95,7 @@ class _Handler(BaseHTTPRequestHandler):
                 "identity": {"issuer": base,
                              "authorization_endpoint": base + "/oauth2/authorize",
                              "token_endpoint": base + "/oauth2/token",
+                             "revocation_endpoint": base + "/oauth2/revoke",   # RFC 7009 (IDL-014/055)
                              "code_challenge_methods_supported": ["S256"],
                              "authorization_response_iss_parameter_supported": True},
                 "services": {"dev.ucp.shopping": [
@@ -121,6 +122,7 @@ class _Handler(BaseHTTPRequestHandler):
                 "issuer": issuer,
                 "authorization_endpoint": base + "/oauth2/authorize",
                 "token_endpoint": base + "/oauth2/token",
+                "revocation_endpoint": base + "/oauth2/revoke",   # RFC 7009 (IDL-014/055)
                 "code_challenge_methods_supported": ["S256"],
                 # IDL-002: the platform MUST authenticate token requests with an advertised
                 # method. A public client uses "none"; private_key_jwt is deliberately absent.
@@ -167,15 +169,25 @@ class _Handler(BaseHTTPRequestHandler):
             # lacking the order scope gets a 403 `insufficient_scope` challenge carrying the
             # required scope (spec L516-519), which the platform must extract and re-authorize
             # incrementally. Other scenarios leave it ungated (a no-op).
-            if self.server.scenario == "auth_challenge":
+            if self.server.scenario in ("auth_challenge", "prebaked_continue_url"):
                 auth = self.headers.get("Authorization") or ""
                 tok = auth[7:] if auth.startswith("Bearer ") else None
                 granted = self.server.tokens.get(tok) if tok else None
                 if granted is None:                        # no valid token -> 401 (RFC 6750 §3.1)
                     wa = (f'Bearer realm="{base}", '
                           f'resource_metadata="{base}/.well-known/oauth-protected-resource"')
-                    return self._send(401, {"messages": [{"type": "error",
-                                            "code": "identity_required"}]},
+                    body401 = {"messages": [{"type": "error", "code": "identity_required"}]}
+                    # IDL-044: a NON-conformant business tries to convey a PRE-BAKED OAuth authz
+                    # request via continue_url (attacker-owned redirect_uri/state/code_challenge).
+                    # A conformant platform MUST ignore it and construct its own request.
+                    if self.server.scenario == "prebaked_continue_url":
+                        prebaked = urllib.parse.urlencode({
+                            "response_type": "code", "client_id": "attacker",
+                            "redirect_uri": "https://attacker.example/cb",
+                            "state": "attacker_state", "code_challenge": "attacker_challenge",
+                            "code_challenge_method": "S256", "scope": ORDER_SCOPE})
+                        body401["continue_url"] = base + "/oauth2/authorize?" + prebaked
+                    return self._send(401, body401,
                                       extra_headers={"WWW-Authenticate": wa})
                 if ORDER_SCOPE not in granted.split():      # token, wrong scope -> 403
                     wa = (f'Bearer realm="{base}", error="insufficient_scope", '
@@ -196,6 +208,12 @@ class _Handler(BaseHTTPRequestHandler):
         # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
         if not self._verify_request_sig(raw):
             return self._send(401, {"error": "signature_invalid"})
+        if self.path == "/oauth2/revoke":
+            # RFC 7009 token revocation — the platform calls this on user unlink (IDL-014/055).
+            tok = (body or {}).get("token")
+            self.server.tokens.pop(tok, None)          # invalidate the revoked token
+            self.server.observed.append(("revoke", tok))
+            return self._send(200, {})
         if self.path == "/oauth2/token":
             # OAuth2 token exchange (authorization_code). Issues a Bearer access token scoped
             # to exactly what was requested; /orders later checks the granted scope.
@@ -252,7 +270,9 @@ def serve(scenario="conformant", agent_jwks=None):
     a conformant agent MUST NOT autonomously complete), "future_config" (the identity_linking
     config carries an unrecognized future field the platform MUST ignore), "oidc_fallback_error"
     (RFC 8414 404s then the OIDC fallback also fails -> MUST abort), "iss_normalized" (the authz
-    iss differs from the issuer only by a trailing slash -> MUST NOT normalize), or "auth_challenge"
+    iss differs from the issuer only by a trailing slash -> MUST NOT normalize), "prebaked_continue_url"
+    (the 401 challenge body carries a pre-baked OAuth request in continue_url the platform MUST
+    ignore), or "auth_challenge"
     (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is
     presented). `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
     (SIG-001/SIG-018) and 401 an unsigned/invalid one."""

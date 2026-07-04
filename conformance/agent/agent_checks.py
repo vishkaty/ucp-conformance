@@ -309,6 +309,47 @@ def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
 
+def p_owns_authz_request(log):
+    """IDL-044: continue_url MUST NOT convey a pre-baked OAuth authorization request — the
+    platform constructs its OWN request (its own redirect_uri, state, PKCE). Against a challenge
+    whose continue_url carries a pre-baked request, the agent's authorize MUST differ from it."""
+    prebaked = None
+    for e in log:
+        if e["op"] == "fetch_gated":
+            cu = ((e.get("response") or {}).get("body") or {}).get("continue_url")
+            if cu:
+                q = urllib.parse.parse_qs(urllib.parse.urlparse(cu).query)
+                prebaked = {k: (q.get(k) or [None])[0]
+                            for k in ("redirect_uri", "state", "code_challenge")}
+    if not prebaked:
+        return CLEAN                         # no pre-baked continue_url present -> N/A
+    for e in log:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            own = {k: (q.get(k) or [None])[0]
+                   for k in ("redirect_uri", "state", "code_challenge")}
+            # the agent MUST own each: none may equal the attacker's pre-baked value
+            if any(own[k] is not None and own[k] == prebaked[k] for k in own):
+                return DEVIATION
+            return CLEAN
+    return DEVIATION
+
+
+def p_revokes_token_on_unlink(log):
+    """IDL-014 / IDL-055: on user unlink the platform MUST call the business's RFC 7009 token
+    revocation endpoint for each identity token it holds. Require a `revoke` op that POSTs one
+    of the session-issued access tokens to the revocation endpoint."""
+    issued = {((e.get("response") or {}).get("body") or {}).get("access_token")
+              for e in log if e["op"] == "token"}
+    issued.discard(None)
+    if not issued:
+        return DEVIATION                     # the flow must have minted a token to revoke
+    for e in log:
+        if e["op"] == "revoke" and (e["request"].get("body") or {}).get("token") in issued:
+            return CLEAN
+    return DEVIATION
+
+
 def p_aborts_on_oidc_fallback_error(log):
     """IDL-062: when RFC 8414 discovery 404s (routing to the OIDC fallback) and the OIDC
     fetch then fails (non-2xx/error), the platform MUST abort the identity-linking process —
@@ -532,4 +573,10 @@ CHECKS = [
     ACheck("agent.no_iss_normalization", ["IDL-061"], "MUST",
            p_no_iss_normalization, kill_mutation="normalize_iss",
            versions=["2026-04-08"], scenario="iss_normalized"),
+    ACheck("agent.revokes_token_on_unlink", ["IDL-014", "IDL-055"], "MUST",
+           p_revokes_token_on_unlink, kill_mutation="skip_revocation",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.owns_authz_request", ["IDL-044"], "MUST",
+           p_owns_authz_request, kill_mutation="adopt_prebaked_authz",
+           versions=["2026-04-08"], scenario="prebaked_continue_url"),
 ]

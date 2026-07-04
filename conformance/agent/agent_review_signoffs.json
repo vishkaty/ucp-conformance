@@ -176,6 +176,20 @@
      "IDL-062"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-c3b-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "Wave A design cards + INDEPENDENT implementation review; author verified citations verbatim + diagonal isolation + applied both cosmetic fixes the review suggested",
+   "spec_reverified": true,
+   "notes": "Revocation + pre-baked-authz cluster. agent.revokes_token_on_unlink co-cites IDL-014 (L149-151: 'MUST call the business's token revocation endpoint (RFC 7009) ... when a user initiates an unlink action on the platform side') + IDL-055 (L617-618: 'Platforms MUST revoke user identity tokens at the business's revocation endpoint (RFC 7009) when a user unlinks their account') — the register's own IDL-014 note says 'Restated at Security Considerations L617-L618', so they are the SAME platform obligation (safe to co-cite; IDL-055's business half 'Businesses MUST reject subsequent requests' is graded merchant-side). The sandbox advertises a revocation_endpoint + serves POST /oauth2/revoke; the reference agent's unlink() (called after fetch_gated) POSTs each session-issued token; kill skip_revocation returns without POSTing. The predicate ties the revoked token back to a session-issued access_token (can't pass by revoking a fabricated token). RFC 7009 form-encoding vs signed-JSON: the review confirmed encoding is not what IDL-014/055 emphasize and signed-JSON is the coherent UCP transport — no fix. agent.owns_authz_request cites IDL-044 (L440-443: 'continue_url MUST NOT be used to convey a pre-baked OAuth authorization request; the platform constructs its own authorization request ... including PKCE values, state, and redirect_uri it owns') — DUAL; the MUST NOT binds the business emitter (merchant-graded), the agent half is 'constructs its own', so the check grades that the authorize_gated redirect_uri/state/code_challenge ALL differ from the pre-baked (attacker) continue_url triple; kill adopt_prebaked_authz copies them (account-takeover). Independent review: BOTH SOUND, kill-safe, cleanly isolated, non-vacuous. Applied its two optional fixes: retagged IDL-044 keyword MUST NOT -> MUST (the agent-side obligation is affirmative 'constructs its own'); hardened the revoke predicate's token-body .get against a null body. Regression-checked: unlink()/revoke ops don't perturb p_sends_ucp_agent (revoke is UCP-Agent + RFC-9421 signed); the prebaked continue_url doesn't perturb IDL-007/008/009 (auth_challenge has no continue_url on its 401). Denominator membership unchanged (drift gate green).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-014",
+     "IDL-044",
+     "IDL-055"
+    ]
+   }
   }
  ]
 }
