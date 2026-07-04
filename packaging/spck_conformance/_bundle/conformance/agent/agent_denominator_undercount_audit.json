@@ -1,0 +1,21 @@
+{
+  "_about": "UNDER-count completeness audit of the AGENT denominator (2026-07-04). The agent_rows subject heuristic (AGENT_WORDS) misses PASSIVELY-phrased agent obligations (no 'platform'/'client' keyword) — request-body-shape rows ('X is omitted on request'), request-signer rows, and agent-authored object shapes. The over-count audit (agent_denominator_audit.json) only removed business rows wrongly IN; this adds agent/DUAL rows wrongly OUT. Found by scanning all 2026-04-08 MUST/MUST NOT rows NOT in the denominator + an independent spec/schema-grounded adjudication of the 55 candidates + author spot-verification. These 15 are added via agent_matrix.AGENT_EXTRA. Adding them GROWS the denominator (90->105 @04-08) and HONESTLY lowers the % — the denominator was incomplete. The ~40 business response-shape candidates ('the response MUST include X') were correctly kept OUT.",
+  "add": {
+    "CHK-035": "checkout.json id ucp_request:omit — agent MUST NOT send top-level id on a request (AGENT)",
+    "CHK-038": "checkout.json line_items required on create/update requests, omitted on complete — agent request shape (AGENT)",
+    "CHK-039": "checkout.json payment required on the complete request — agent request shape (AGENT)",
+    "CART-030": "cart_id ucp_request update:omit — agent MUST omit cart_id on an update request (AGENT; NEEDS an update op)",
+    "CAT-009": "a valid search REQUEST MUST include query|filters|input — agent request-author (AGENT; NEEDS a search op)",
+    "DSC-027": "discounts.applied ucp_request:omit — agent MUST NOT send it on a request (AGENT)",
+    "DSC-028": "discounts object MUST be omitted from the complete request (AGENT)",
+    "DSC-034": "buyer(consent) object MUST be omitted from the complete request (AGENT)",
+    "PAY-019": "payment_instrument MUST include id/handler_id/type; id 'assigned by the platform' — agent authors it on complete (AGENT)",
+    "PAY-024": "token_credential MUST include type+token — agent authors the credential on the complete request (AGENT)",
+    "OVR-008": "REST requests AND responses MUST use Content-Type application/json — graded from the agent's request side (DUAL)",
+    "SIG-010": "Content-Digest MUST use sha-256 — the agent computes it on its own signed requests (DUAL)",
+    "SIG-012": "Content-Digest header required when a request/response has a body — required on the agent's request (DUAL)",
+    "SIG-013": "Signature-Input and Signature required on requests and responses — on the agent's request, conditional on signing (DUAL)",
+    "SIG-017": "@query MUST be a signed component if the request has query parameters — agent request-signer (AGENT)"
+  },
+  "kept_out_business_examples": "CART-029/031/033, CAT-001/018/029/030/031/033, CHK-034, ERR-001/009/025/028, FUL-003/007/008/030, ORD-002, TOT-004 (response shape); IDL-024/046/058 (business AS/challenge); PAY-002/007/012/021/025/026/027/045 (business handler decl / tokenizer sub-protocol / server enforcement); SIG-020/021 (response-signing); SIG-023/024/025/034 (server idempotency storage / error mapping)."
+}

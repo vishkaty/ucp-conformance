@@ -25,7 +25,7 @@ A UCP checkout takes two systems, and we test both:
   across merchant platforms over UCP. The **agent lane** (`conformance/agent/`) grades your
   agent's *own* behavior — OAuth mix-up / PKCE, request signing, refusing mismatched totals,
   phishing defense, revoke-on-unlink — the reliability and security bugs a schema check can't
-  see. **39 checks; watch six fail live at [spck.dev/sandbox](https://spck.dev/sandbox).**
+  see. **38 checks (39 defects modeled); watch six fail live at [spck.dev/sandbox](https://spck.dev/sandbox).**
 
 > Conformance is not reliability: ~99% of UCP stores pass conformance, yet real agent
 > checkouts still fail. Run it yourself: `python3 conformance/agent/run_agent.py`.

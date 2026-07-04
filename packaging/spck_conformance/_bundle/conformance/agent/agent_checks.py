@@ -1,0 +1,786 @@
+#!/usr/bin/env python3
+"""
+agent_checks.py — the agent-side conformance check registry.
+
+An agent check asserts on a platform/agent's OBSERVED behavior — the requests it sent and
+how it handled the sandbox's stimuli — captured in a ReferenceAgent-style session log.
+Each check names the single `kill_mutation` (a defect id from reference_agent.DEFECTS)
+that MUST make it fail: the kill-rate gate requires predicate(reference_log)==CLEAN AND
+predicate(mutant_log[kill_mutation])==DEVIATION, exactly mirroring the merchant kill-rate
+discipline.
+
+Phase A: the model + an EMPTY registry (zero coverage — the foundation runs green before
+any check exists). Phase B adds the P0 rounded slice (UCP-Agent, signature verification,
+identity/OAuth/iss, escalation-follow).
+
+Isolation: this tree (conformance/agent/) is NOT globbed by the merchant coverage_map
+(which scans conformance/checks/*.py, non-recursive) nor the merchant collectors — so
+adding agent checks here cannot move the merchant coverage numbers.
+"""
+
+import re
+import urllib.parse
+
+CLEAN = "CLEAN"
+DEVIATION = "DEVIATION"
+
+
+class ACheck:
+    def __init__(self, cid, req_ids, keyword, predicate, kill_mutation,
+                 versions=None, capability=None, needs=(), scenario="conformant"):
+        self.id = cid
+        self.req_ids = list(req_ids)
+        self.keyword = keyword
+        self.predicate = predicate          # predicate(session_log) -> CLEAN | DEVIATION
+        self.kill_mutation = kill_mutation  # the defect id that MUST make this check fail
+        self.versions = tuple(versions) if versions else None
+        self.capability = capability
+        self.needs = tuple(needs)
+        # which sandbox stimulus the reference agent runs against ("conformant" |
+        # "bad_signature" | ...). The reference-gate boots one sandbox per scenario.
+        self.scenario = scenario
+
+
+# ---- P0 predicates (each asserts on the agent's session log) ----------------
+def p_sends_ucp_agent(log):
+    """DISC-006: platforms MUST include their profile URI in every request. We assert it
+    on the agent's API requests (the create_checkout POST), which MUST carry a UCP-Agent
+    header whose value declares a profile. (The unauthenticated discovery GET is where
+    the profile is first learned, so we grade the subsequent API calls.)"""
+    api = [e for e in log if e["op"] != "discover"]
+    if not api:
+        return DEVIATION
+    for e in api:
+        ua = (e["request"]["headers"] or {}).get("UCP-Agent")
+        if not (isinstance(ua, str) and "profile" in ua):
+            return DEVIATION
+    return CLEAN
+
+
+def p_follows_escalation(log):
+    """CHK-008: on `requires_escalation`, the platform MUST use (follow) the
+    business-provided continue_url. We require the agent to have (a) received a
+    requires_escalation status carrying a continue_url and (b) made a request to exactly
+    that continue_url."""
+    esc_url = None
+    for e in log:
+        b = (e.get("response") or {}).get("body") or {}
+        if b.get("status") == "requires_escalation":
+            esc_url = b.get("continue_url")
+    if not esc_url:
+        return DEVIATION      # the sandbox always escalates; not seeing it = broken flow
+    followed = any(e["op"] == "follow_escalation" and e["request"]["path"] == esc_url
+                   for e in log)
+    return CLEAN if followed else DEVIATION
+
+
+def p_verifies_business_signature(log):
+    """SIG-036: a verifier MUST reconstruct the signature base and reject with
+    signature_invalid if ECDSA verification fails. The platform/agent is the verifier of
+    the business's RFC 9421 response signatures (SIG-001/002). Run against the
+    bad_signature sandbox, a conformant agent detects the invalid signature and rejects
+    (does not proceed) — we require an API response flagged sig_verified=False AND
+    rejected."""
+    for e in log:
+        if e["op"] != "discover" and e.get("sig_verified") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+def p_uses_pkce(log):
+    """IDL-011: platforms MUST use PKCE with code_challenge_method=S256 for all
+    authorization-code exchanges. Assert the authorization request carries code_challenge
+    and code_challenge_method=S256."""
+    for e in log:
+        if e["op"] == "authorize":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            ok = bool(q.get("code_challenge")) and q.get("code_challenge_method") == ["S256"]
+            return CLEAN if ok else DEVIATION
+    return DEVIATION
+
+
+def p_validates_iss(log):
+    """IDL-012: platforms MUST validate the iss parameter in the authorization response to
+    prevent Mix-Up Attacks (RFC 9207). Run against the bad_iss sandbox, a conformant agent
+    detects the mismatched issuer and rejects."""
+    for e in log:
+        if e["op"] == "authorize" and e.get("iss_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+def _req_sig_components(entry):
+    """Parse the covered components out of a request's RFC 9421 Signature-Input, or None
+    when the request is unsigned."""
+    si = (entry["request"]["headers"] or {}).get("Signature-Input")
+    if not si:
+        return None
+    try:
+        inner = si[si.index("(") + 1:si.index(")")]
+        return [c.strip().strip('"') for c in inner.split()]
+    except Exception:
+        return None
+
+
+def _signed_api(log):
+    return [e for e in log if e["op"] in ("create_checkout", "complete")]
+
+
+# NOTE ON SUBJECT: request signing itself is SHOULD (SIG-026: "Platforms SHOULD sign all
+# requests ... Alternative authentication mechanisms may be used instead"), so an UNSIGNED
+# request is conformant and is skipped, never failed. What binds unconditionally is: WHEN an
+# agent signs, the signature MUST verify (SIG-001) and MUST cover the required components
+# (SIG-014/015/016/018). The kill mutations are therefore a signing agent that corrupts or
+# drops a component — never one that declines to sign.
+def p_request_signature_verifies(log):
+    """SIG-001: a signed request is a REAL RFC 9421 signature the receiver accepts (the
+    sandbox verifies it and 401s an invalid one). Require >=1 signed request that verified
+    (non-401). Mirrors the merchant SIG-001 'the signature really verifies' check."""
+    accepted = False
+    for e in _signed_api(log):
+        if _req_sig_components(e) is None:
+            continue                                   # unsigned: allowed (SIG-026), skip
+        if (e.get("response") or {}).get("status") == 401:
+            return DEVIATION                           # signed but did not verify
+        accepted = True
+    return CLEAN if accepted else DEVIATION
+
+
+def _covers(log, required, body_only=False, post_only=False):
+    """A signed request MUST cover `required`. Unsigned requests are skipped (SIG-026)."""
+    for e in _signed_api(log):
+        comps = _req_sig_components(e)
+        if comps is None:
+            continue
+        if body_only and e["request"].get("body") is None:
+            continue
+        if post_only and e["request"]["method"] != "POST":
+            continue
+        if not required <= set(comps):
+            return DEVIATION
+    return CLEAN
+
+
+def p_signs_core_components(log):
+    """SIG-014: REST request signed components MUST include @method, @authority, @path."""
+    return _covers(log, {"@method", "@authority", "@path"})
+
+
+def p_signs_body_components(log):
+    """SIG-015: signed components MUST include content-digest and content-type when the
+    request has a body."""
+    return _covers(log, {"content-digest", "content-type"}, body_only=True)
+
+
+def p_signs_idempotency_key(log):
+    """SIG-016: idempotency-key MUST be a signed component for POST/PUT/DELETE/PATCH."""
+    return _covers(log, {"idempotency-key"}, post_only=True)
+
+
+def p_signs_ucp_agent_component(log):
+    """SIG-018: ucp-agent MUST be a signed component if the UCP-Agent header is present."""
+    return _covers(log, {"ucp-agent"})
+
+
+# ---- WWW-Authenticate: Bearer challenge handling (RFC 6750) -------------------
+# The gated op 401s (identity_required) then 403s (insufficient_scope, carrying the required
+# scope); a conformant agent processes each challenge, obtains/upgrades a token, and retries.
+# Predicates use "vacuous CLEAN when the prerequisite step is absent" so each defect trips
+# exactly one check (the missing-retry case is IDL-008's).
+def _challenge_scope(log):
+    """The scope advertised in any WWW-Authenticate challenge (the 403 insufficient_scope),
+    or None when no challenge carried a scope ('when present' in IDL-009)."""
+    scope = None
+    for e in log:
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        m = re.search(r'scope="([^"]*)"', wa)
+        if m:
+            scope = m.group(1)
+    return scope
+
+
+def _gated_challenged(log):
+    for e in log:
+        r = e.get("response") or {}
+        if e["op"] in ("fetch_gated", "fetch_gated_retry") and r.get("status") in (401, 403) \
+                and "www-authenticate" in (r.get("headers") or {}):
+            return True
+    return False
+
+
+def p_processes_auth_challenge(log):
+    """IDL-008: platforms MUST process WWW-Authenticate: Bearer challenges on 401/403 to
+    user-authenticated operations. Require the agent to have seen a challenge AND made a
+    follow-up authenticated retry (rather than giving up)."""
+    if not _gated_challenged(log):
+        return DEVIATION                     # sandbox always challenges here; not seeing it = broken
+    retried = any(e["op"] == "fetch_gated_retry" for e in log)
+    return CLEAN if retried else DEVIATION
+
+
+def p_sends_bearer_token(log):
+    """IDL-007: platforms MUST include user identity tokens in the Authorization header using
+    the Bearer scheme. Every gated retry MUST carry `Authorization: Bearer <token>`. (No
+    retry at all is IDL-008's failure, not this one — vacuously CLEAN here.)"""
+    retries = [e for e in log if e["op"] == "fetch_gated_retry"]
+    for e in retries:
+        auth = (e["request"]["headers"] or {}).get("Authorization", "")
+        if not (auth.startswith("Bearer ") and len(auth) > len("Bearer ")):
+            return DEVIATION
+    return CLEAN
+
+
+def p_extracts_challenge_scope(log):
+    """IDL-009: platforms MUST extract the scope from the WWW-Authenticate challenge to
+    construct the subsequent authorization request. Some gated re-auth MUST carry exactly the
+    scope the challenge advertised (derived from the log, not hard-coded). No scoped challenge
+    -> nothing to extract ('when present'); no re-auth -> IDL-008's failure — both CLEAN."""
+    want = _challenge_scope(log)
+    if want is None:
+        return CLEAN
+    for e in log:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            if q.get("scope") == [want]:
+                return CLEAN
+    return DEVIATION
+
+
+def p_validates_issuer_match(log):
+    """IDL-033: the issuer in RFC 8414 metadata MUST match the discovery base URI byte-for-byte
+    (no normalization). Against the bad_issuer sandbox (issuer has a trailing slash) a
+    conformant agent detects the mismatch and rejects."""
+    for e in log:
+        if e["op"] == "as_discovery" and e.get("issuer_matched") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+def p_aborts_on_discovery_error(log):
+    """IDL-031/032: on a non-404 RFC 8414 discovery response (error/timeout) the platform MUST
+    abort and MUST NOT silently fall through to the OIDC fallback. Against the discovery_error
+    sandbox (a 500) a conformant agent aborts and does NOT fetch the OIDC config."""
+    got_error = any(e["op"] == "as_discovery"
+                    and (st := (e.get("response") or {}).get("status")) is not None
+                    and not (200 <= st < 300) and st != 404
+                    for e in log)
+    fell_through = any(e["op"] == "oidc_discovery" for e in log)
+    return CLEAN if (got_error and not fell_through) else DEVIATION
+
+
+def p_honors_available_instruments(log):
+    """PAY-008/009/010: the available_instruments in the checkout response is AUTHORITATIVE —
+    the platform MUST pay only with a type it offered and MUST NOT use an instrument type not
+    present. Compare the complete request's credential type(s) against the create response's
+    available_instruments."""
+    avail = None
+    for e in log:
+        if e["op"] == "create_checkout":
+            handlers = (((e.get("response") or {}).get("body") or {}).get("ucp")
+                        or {}).get("payment_handlers")
+            if handlers:
+                avail = {i.get("type") for entries in handlers.values()
+                         for h in (entries or []) for i in (h.get("available_instruments") or [])
+                         if isinstance(i, dict)}
+    if not avail:
+        return DEVIATION                     # the sandbox always advertises available_instruments
+    for e in log:
+        if e["op"] == "complete":
+            insts = ((e["request"].get("body") or {}).get("payment") or {}).get("instruments") or []
+            typed = [i.get("type") for i in insts if i.get("type")]
+            if not typed:
+                return DEVIATION             # a credential MUST carry a type discriminator
+            if any(t not in avail for t in typed):
+                return DEVIATION             # used a type the business did not offer
+            return CLEAN
+    return DEVIATION
+
+
+_RESPONSE_ONLY = {"status", "currency", "totals", "messages", "links",
+                  "expires_at", "continue_url", "order"}
+
+
+def p_omits_ucp_on_request(log):
+    """CHK-036: the `ucp` envelope is ucp_request:omit — the platform MUST NOT include a
+    top-level `ucp` object on a REQUEST body (create/complete)."""
+    reqs = [e for e in log if e["op"] in ("create_checkout", "complete")]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        b = e["request"].get("body")
+        if isinstance(b, dict) and "ucp" in b:
+            return DEVIATION
+    return CLEAN
+
+
+def p_omits_response_only_fields(log):
+    """CHK-037: status/currency/totals/messages/links/expires_at/continue_url/order are
+    response-only (ucp_request:omit) — the platform MUST NOT send them on a REQUEST body."""
+    reqs = [e for e in log if e["op"] in ("create_checkout", "complete")]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        b = e["request"].get("body")
+        if isinstance(b, dict) and (set(b) & _RESPONSE_ONLY):
+            return DEVIATION
+    return CLEAN
+
+
+def _req_bodies(log, ops):
+    return [(e["op"], e["request"].get("body")) for e in log if e["op"] in ops]
+
+
+def p_omits_checkout_id(log):
+    """CHK-035: top-level checkout `id` is ucp_request:omit — MUST NOT be sent on a request."""
+    bs = _req_bodies(log, ("create_checkout", "complete"))
+    if not bs:
+        return DEVIATION
+    return DEVIATION if any(isinstance(b, dict) and "id" in b for _, b in bs) else CLEAN
+
+
+def p_line_items_create_not_complete(log):
+    """CHK-038: line_items is required on create/update requests and omitted on complete."""
+    create = next((b for op, b in _req_bodies(log, ("create_checkout",))), None)
+    if not isinstance(create, dict) or "line_items" not in create:
+        return DEVIATION                     # required on create
+    for op, b in _req_bodies(log, ("complete",)):
+        if isinstance(b, dict) and "line_items" in b:
+            return DEVIATION                 # omitted on complete
+    return CLEAN
+
+
+def p_payment_on_complete(log):
+    """CHK-039: payment is required on the complete request."""
+    comps = _req_bodies(log, ("complete",))
+    if not comps:
+        return DEVIATION
+    return CLEAN if all(isinstance(b, dict) and "payment" in b for _, b in comps) else DEVIATION
+
+
+def p_omits_discounts_on_request(log):
+    """DSC-027: `discounts.applied` is response-only (ucp_request:omit) and MUST NOT appear on
+    ANY request body. DSC-028: the whole `discounts` object MUST be omitted on the COMPLETE
+    request. (On CREATE the object is OPTIONAL — a buyer may legitimately send discounts.codes,
+    so we only fail create when the response-only `applied` subfield is present.)"""
+    bs = _req_bodies(log, ("create_checkout", "complete"))
+    if not bs:
+        return DEVIATION
+    for op, b in bs:
+        if not isinstance(b, dict):
+            continue
+        disc = b.get("discounts")
+        if disc is None:
+            continue
+        if op == "complete":                           # DSC-028: discounts omit on complete
+            return DEVIATION
+        if isinstance(disc, dict) and "applied" in disc:   # DSC-027: applied response-only on any request
+            return DEVIATION
+    return CLEAN
+
+
+def _complete_instruments(log):
+    for e in log:
+        if e["op"] == "complete":
+            return ((e["request"].get("body") or {}).get("payment") or {}).get("instruments") or []
+    return None
+
+
+def p_instrument_has_ids(log):
+    """PAY-019: a payment instrument MUST include id, handler_id, and type (the platform
+    authors these on the complete request)."""
+    insts = _complete_instruments(log)
+    if not insts:
+        return DEVIATION
+    for i in insts:
+        if not (isinstance(i, dict) and i.get("id") and i.get("handler_id") and i.get("type")):
+            return DEVIATION
+    return CLEAN
+
+
+def p_credential_has_type(log):
+    """PAY-024: a token credential MUST include type and token."""
+    insts = _complete_instruments(log)
+    if not insts:
+        return DEVIATION
+    for i in insts:
+        c = (i or {}).get("credential") or {}
+        if not (c.get("type") and c.get("token")):
+            return DEVIATION
+    return CLEAN
+
+
+def p_omits_buyer_on_complete(log):
+    """DSC-034: the `buyer` object (carrying consent) MUST be omitted from the complete request."""
+    comps = _req_bodies(log, ("complete",))
+    if not comps:
+        return DEVIATION
+    return DEVIATION if any(isinstance(b, dict) and "buyer" in b for _, b in comps) else CLEAN
+
+
+def p_no_autocomplete_mismatched_totals(log):
+    """CHK-055 / TOT-010: platforms MUST NOT autonomously complete a checkout with mismatched
+    totals (SHOULD reject/escalate for buyer review). Against the mismatched_totals sandbox a
+    conformant agent detects the broken totals arithmetic and does NOT send a complete."""
+    detected = any(e.get("totals_mismatch") for e in log)
+    completed = any(e["op"] == "complete" for e in log)
+    return CLEAN if (detected and not completed) else DEVIATION
+
+
+def _token_bodies(log):
+    return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
+
+
+def p_owns_authz_request(log):
+    """IDL-044: continue_url MUST NOT convey a pre-baked OAuth authorization request — the
+    platform constructs its OWN request (its own redirect_uri, state, PKCE). Against a challenge
+    whose continue_url carries a pre-baked request, the agent's authorize MUST differ from it."""
+    prebaked = None
+    for e in log:
+        if e["op"] == "fetch_gated":
+            cu = ((e.get("response") or {}).get("body") or {}).get("continue_url")
+            if cu:
+                q = urllib.parse.parse_qs(urllib.parse.urlparse(cu).query)
+                prebaked = {k: (q.get(k) or [None])[0]
+                            for k in ("redirect_uri", "state", "code_challenge")}
+    if not prebaked:
+        return CLEAN                         # no pre-baked continue_url present -> N/A
+    for e in log:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            own = {k: (q.get(k) or [None])[0]
+                   for k in ("redirect_uri", "state", "code_challenge")}
+            # the agent MUST own each: none may equal the attacker's pre-baked value
+            if any(own[k] is not None and own[k] == prebaked[k] for k in own):
+                return DEVIATION
+            return CLEAN
+    return DEVIATION
+
+
+def p_ignores_error_description(log):
+    """IDL-051: platforms MUST process the STRUCTURED scope/error parameters to drive
+    authorization-flow decisions; error_description MUST NOT be used for control-flow. Against
+    a challenge whose error_description names a decoy authorization endpoint, a conformant agent
+    authorizes at the DISCOVERED endpoint — never the decoy from the prose."""
+    decoy = None
+    for e in log:
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        md = re.search(r'error_description="([^"]*)"', wa)
+        um = re.search(r'https?://[^\s"]+', md.group(1)) if md else None
+        if um:
+            decoy = urllib.parse.urlparse(um.group(0)).path
+    if not decoy:
+        return CLEAN                         # no misleading error_description -> N/A
+    for e in log:
+        if e["op"] == "authorize_gated" \
+                and urllib.parse.urlparse(e["request"]["path"]).path == decoy:
+            return DEVIATION                 # authorized at the prose-supplied decoy endpoint
+    return CLEAN
+
+
+def p_incremental_scope_only(log):
+    """IDL-048: platforms MUST NOT retry an insufficient_scope response by re-initiating a
+    fresh flow requesting the FULL scope set — they MUST request only the MISSING scope(s) via
+    incremental authorization, preserving prior grants. (The spec is prescriptive: request
+    only the scopes not yet held; a cumulative re-request is a DEVIATION, not softened.) Find
+    the superset (>1 scope) insufficient_scope challenge; the subsequent authorize_gated MUST
+    request a scope set disjoint from what the current token already grants."""
+    # (Single superset challenge in the modelled flow; if multi-superset flows are added,
+    # freeze `granted` at each challenge rather than only the first.)
+    idx, granted = None, set()
+    for i, e in enumerate(log):
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        mm = re.search(r'scope="([^"]*)"', wa)
+        if mm and len(mm.group(1).split()) > 1:            # the superset challenge
+            idx = i
+        if e["op"] == "token" and idx is None:             # granted just before the challenge
+            sc = ((e.get("response") or {}).get("body") or {}).get("scope")
+            if sc is not None:
+                granted = set(sc.split())
+    if idx is None:
+        return CLEAN                         # no superset challenge -> N/A (single-scope flows)
+    for e in log[idx + 1:]:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            req = set((q.get("scope") or [""])[0].split())
+            if not req:
+                return DEVIATION             # requested nothing
+            return CLEAN if req.isdisjoint(granted) else DEVIATION   # no already-granted scope
+    return DEVIATION
+
+
+def p_revokes_token_on_unlink(log):
+    """IDL-014 / IDL-055: on user unlink the platform MUST call the business's RFC 7009 token
+    revocation endpoint for each identity token it holds. Require a `revoke` op that POSTs one
+    of the session-issued access tokens to the revocation endpoint."""
+    issued = {((e.get("response") or {}).get("body") or {}).get("access_token")
+              for e in log if e["op"] == "token"}
+    issued.discard(None)
+    if not issued:
+        return DEVIATION                     # the flow must have minted a token to revoke
+    for e in log:
+        if e["op"] == "revoke" and (e["request"].get("body") or {}).get("token") in issued:
+            return CLEAN
+    return DEVIATION
+
+
+def p_aborts_on_oidc_fallback_error(log):
+    """IDL-062: when RFC 8414 discovery 404s (routing to the OIDC fallback) and the OIDC
+    fetch then fails (non-2xx/error), the platform MUST abort the identity-linking process —
+    MUST NOT proceed to authorization. Require an OIDC fetch that failed AND no authorize/token."""
+    oidc_failed = any(e["op"] == "oidc_discovery"
+                      and (st := (e.get("response") or {}).get("status")) is not None
+                      and not (200 <= st < 300) for e in log)
+    proceeded = any(e["op"] in ("authorize", "authorize_gated", "token") for e in log)
+    return CLEAN if (oidc_failed and not proceeded) else DEVIATION
+
+
+def p_no_iss_normalization(log):
+    """IDL-061: the RFC 8414 issuer and the authorization-response iss MUST be identical
+    byte-for-byte; platforms MUST NOT normalize before comparison. Against iss_normalized
+    (iss = issuer + '/') a conformant agent detects the mismatch and rejects."""
+    for e in log:
+        if e["op"] in ("authorize", "authorize_gated") \
+                and e.get("iss_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+def p_requests_only_derived_scopes(log):
+    """IDL-034: platforms MUST request only the derived scope set (config.scopes) — not a
+    superset. The linking authorize's scope tokens MUST all be within the advertised
+    config.scopes ceiling (requesting a subset is allowed; a superset is not)."""
+    ceiling = None
+    for e in log:
+        if e["op"] == "discover":
+            caps = (((e.get("response") or {}).get("body") or {}).get("ucp") or {}).get("capabilities") or {}
+            il = caps.get("dev.ucp.common.identity_linking") or [{}]
+            sc = ((il[0] or {}).get("config") or {}).get("scopes")
+            if sc is not None:
+                ceiling = set(sc.keys())
+    if not ceiling:
+        return DEVIATION                     # the sandbox advertises config.scopes here
+    for e in log:
+        if e["op"] == "authorize":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            requested = set((q.get("scope") or [""])[0].split())
+            ucp_tokens = {t for t in requested if ":" in t}   # ignore OIDC baseline scopes
+            if ucp_tokens - ceiling:                          # a scope outside config.scopes
+                return DEVIATION
+    return CLEAN
+
+
+def p_ignores_future_config(log):
+    """IDL-057: when config carries fields not defined in this version, platforms MUST ignore
+    them and proceed with OAuth 2.0 + RFC 8414 discovery. Require the agent to have SEEN an
+    unknown config field AND still performed as_discovery + authorize (did not abort)."""
+    saw_unknown = any(e["op"] == "discover" and e.get("unknown_config_fields") for e in log)
+    if not saw_unknown:
+        return DEVIATION                     # the future_config sandbox always injects one
+    aborted = any(e.get("aborted_on_unknown_config") for e in log)
+    proceeded = any(e["op"] == "as_discovery" for e in log) and any(e["op"] == "authorize" for e in log)
+    return CLEAN if (proceeded and not aborted) else DEVIATION
+
+
+def p_authorization_code_flow(log):
+    """IDL-010: the account-linking mechanism MUST be the OAuth 2.0 Authorization Code flow.
+    Every authorization request MUST declare response_type=code, and every token exchange
+    MUST use grant_type=authorization_code."""
+    auth = [e for e in log if e["op"] in ("authorize", "authorize_gated")]
+    if not auth:
+        return DEVIATION                     # identity is advertised; an authorize op is expected
+    for e in auth:
+        q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+        if q.get("response_type") != ["code"]:
+            return DEVIATION
+    for b in _token_bodies(log):
+        if b.get("grant_type") != "authorization_code":
+            return DEVIATION
+    return CLEAN
+
+
+def _token_auth_method(entry):
+    """Infer the RFC 8414 token-endpoint auth method used on a token request. (Scope: the
+    sandbox models none/client_secret_basic/client_secret_post/private_key_jwt; it does not
+    model tls_client_auth (would read as none) or client_secret_jwt (read as private_key_jwt)
+    — neither is advertised here, so this doesn't affect grading.)"""
+    h = entry["request"]["headers"] or {}
+    b = entry["request"].get("body") or {}
+    if h.get("Authorization", "").startswith("Basic "):
+        return "client_secret_basic"
+    if b.get("client_secret"):
+        return "client_secret_post"
+    if b.get("client_assertion") and b.get("client_assertion_type"):
+        return "private_key_jwt"
+    return "none"
+
+
+def p_uses_advertised_auth_method(log):
+    """IDL-002: platforms MUST authenticate token-endpoint requests using a method advertised
+    in the business's token_endpoint_auth_methods_supported metadata. The public-client
+    reference uses 'none' (advertised); an unadvertised method (private_key_jwt) is a violation."""
+    advertised = None
+    for e in log:
+        if e["op"] == "as_discovery":
+            m = (e.get("response") or {}).get("body") or {}
+            if m.get("token_endpoint_auth_methods_supported") is not None:
+                advertised = set(m["token_endpoint_auth_methods_supported"])
+    if advertised is None:
+        return DEVIATION                     # the sandbox advertises it in this scenario
+    toks = [e for e in log if e["op"] == "token"]
+    if not toks:
+        return DEVIATION                     # the auth_challenge flow must reach a token exchange
+    for e in toks:
+        if _token_auth_method(e) not in advertised:
+            return DEVIATION
+    return CLEAN
+
+
+def p_public_client_pkce_proof(log):
+    """IDL-004: public clients MUST use token-endpoint auth method 'none' and rely on PKCE
+    (S256) as proof-of-possession of the authorization code. Every token exchange MUST
+    present a code_verifier."""
+    bodies = _token_bodies(log)
+    if not bodies:
+        return DEVIATION                     # the flow must reach a token exchange here
+    for b in bodies:
+        if not b.get("code_verifier"):
+            return DEVIATION
+    return CLEAN
+
+
+def p_no_client_secret(log):
+    """IDL-005: public clients MUST NOT embed a client_secret. Reject a token request carrying
+    one anywhere a client_secret can hide: the request body, an `Authorization: Basic` header
+    (client_secret_basic — the spec's own token example uses this form), or the query string."""
+    for e in log:
+        if e["op"] != "token":
+            continue
+        if (e["request"].get("body") or {}).get("client_secret"):
+            return DEVIATION
+        if (e["request"]["headers"] or {}).get("Authorization", "").startswith("Basic "):
+            return DEVIATION
+        if "client_secret=" in (e["request"].get("path") or ""):
+            return DEVIATION
+    return CLEAN
+
+
+def p_validates_oauth_state(log):
+    """IDL-035: on the authorization response the platform MUST verify state matches the sent
+    value and discard on mismatch. Against the bad_state sandbox a conformant agent detects
+    the mismatched state and rejects."""
+    for e in log:
+        if e["op"] in ("authorize", "authorize_gated") \
+                and e.get("state_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+CHECKS = [
+    ACheck("agent.sends_ucp_agent", ["DISC-006", "CHK-046", "ORD-015"], "MUST",
+           p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
+    ACheck("agent.follows_escalation", ["CHK-008", "PAY-017"], "MUST",
+           p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
+    # (IDL-001 "uses OAuth 2.0 as the v1 auth mechanism" co-cited on uses_authorization_code_flow
+    #  below; IDL-038 "treat config.scopes as gating ops behind user auth" on processes_auth_challenge)
+    ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
+           p_verifies_business_signature, kill_mutation="skip_sig_verify",
+           versions=["2026-04-08"], scenario="bad_signature"),
+    ACheck("agent.uses_pkce", ["IDL-011"], "MUST",
+           p_uses_pkce, kill_mutation="no_pkce", versions=["2026-04-08"]),
+    ACheck("agent.validates_iss", ["IDL-012"], "MUST",
+           p_validates_iss, kill_mutation="skip_iss_validation",
+           versions=["2026-04-08"], scenario="bad_iss"),
+    ACheck("agent.request_signature_verifies", ["SIG-001"], "MUST",
+           p_request_signature_verifies, kill_mutation="sign_corrupt", versions=["2026-04-08"]),
+    ACheck("agent.signs_core_components", ["SIG-014"], "MUST",
+           p_signs_core_components, kill_mutation="sign_omit_authority", versions=["2026-04-08"]),
+    ACheck("agent.signs_body_components", ["SIG-015"], "MUST",
+           p_signs_body_components, kill_mutation="sign_omit_digest", versions=["2026-04-08"]),
+    ACheck("agent.signs_idempotency_key", ["SIG-016"], "MUST",
+           p_signs_idempotency_key, kill_mutation="sign_omit_idem", versions=["2026-04-08"]),
+    ACheck("agent.signs_ucp_agent_component", ["SIG-018"], "MUST",
+           p_signs_ucp_agent_component, kill_mutation="ucp_agent_not_signed",
+           versions=["2026-04-08"]),
+    ACheck("agent.processes_auth_challenge", ["IDL-008", "IDL-038"], "MUST",
+           p_processes_auth_challenge, kill_mutation="no_bearer_retry",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.sends_bearer_token", ["IDL-007"], "MUST",
+           p_sends_bearer_token, kill_mutation="no_bearer_header",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.extracts_challenge_scope", ["IDL-009"], "MUST",
+           p_extracts_challenge_scope, kill_mutation="ignore_challenge_scope",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.public_client_pkce_proof", ["IDL-004"], "MUST",
+           p_public_client_pkce_proof, kill_mutation="no_pkce_verifier",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.no_client_secret", ["IDL-005"], "MUST NOT",
+           p_no_client_secret, kill_mutation="embed_client_secret",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.validates_oauth_state", ["IDL-035"], "MUST",
+           p_validates_oauth_state, kill_mutation="skip_state_validation",
+           versions=["2026-04-08"], scenario="bad_state"),
+    ACheck("agent.validates_issuer_match", ["IDL-033"], "MUST",
+           p_validates_issuer_match, kill_mutation="normalize_issuer",
+           versions=["2026-04-08"], scenario="bad_issuer"),
+    ACheck("agent.aborts_on_discovery_error", ["IDL-031", "IDL-032"], "MUST",
+           p_aborts_on_discovery_error, kill_mutation="oidc_fallthrough_on_error",
+           versions=["2026-04-08"], scenario="discovery_error"),
+    ACheck("agent.no_autocomplete_mismatched_totals", ["CHK-055", "TOT-010"], "MUST NOT",
+           p_no_autocomplete_mismatched_totals, kill_mutation="complete_on_mismatch",
+           versions=["2026-04-08"], scenario="mismatched_totals"),
+    ACheck("agent.honors_available_instruments", ["PAY-009", "PAY-010"], "MUST NOT",
+           p_honors_available_instruments, kill_mutation="use_unavailable_instrument",
+           versions=["2026-04-08"]),
+    ACheck("agent.uses_authorization_code_flow", ["IDL-010", "IDL-001"], "MUST",
+           p_authorization_code_flow, kill_mutation="implicit_grant", versions=["2026-04-08"]),
+    ACheck("agent.uses_advertised_auth_method", ["IDL-002"], "MUST",
+           p_uses_advertised_auth_method, kill_mutation="unadvertised_auth_method",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.requests_only_derived_scopes", ["IDL-034"], "MUST",
+           p_requests_only_derived_scopes, kill_mutation="request_scope_superset",
+           versions=["2026-04-08"]),
+    ACheck("agent.ignores_future_config", ["IDL-057"], "MUST",
+           p_ignores_future_config, kill_mutation="abort_on_future_config",
+           versions=["2026-04-08"], scenario="future_config"),
+    ACheck("agent.aborts_on_oidc_fallback_error", ["IDL-062"], "MUST",
+           p_aborts_on_oidc_fallback_error, kill_mutation="oidc_fallback_no_abort",
+           versions=["2026-04-08"], scenario="oidc_fallback_error"),
+    ACheck("agent.no_iss_normalization", ["IDL-061"], "MUST",
+           p_no_iss_normalization, kill_mutation="normalize_iss",
+           versions=["2026-04-08"], scenario="iss_normalized"),
+    ACheck("agent.revokes_token_on_unlink", ["IDL-014", "IDL-055"], "MUST",
+           p_revokes_token_on_unlink, kill_mutation="skip_revocation",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.owns_authz_request", ["IDL-044"], "MUST",
+           p_owns_authz_request, kill_mutation="adopt_prebaked_authz",
+           versions=["2026-04-08"], scenario="prebaked_continue_url"),
+    ACheck("agent.incremental_scope_only", ["IDL-048"], "MUST NOT",
+           p_incremental_scope_only, kill_mutation="reinit_fresh_link",
+           versions=["2026-04-08"], scenario="incremental_scope"),
+    ACheck("agent.ignores_error_description", ["IDL-051"], "MUST NOT",
+           p_ignores_error_description, kill_mutation="follow_error_description",
+           versions=["2026-04-08"], scenario="misleading_error_description"),
+    ACheck("agent.omits_ucp_on_request", ["CHK-036"], "MUST NOT",
+           p_omits_ucp_on_request, kill_mutation="send_ucp_envelope", versions=["2026-04-08"]),
+    ACheck("agent.omits_response_only_fields", ["CHK-037"], "MUST NOT",
+           p_omits_response_only_fields, kill_mutation="send_response_only_fields",
+           versions=["2026-04-08"]),
+    ACheck("agent.omits_checkout_id", ["CHK-035"], "MUST NOT",
+           p_omits_checkout_id, kill_mutation="send_checkout_id", versions=["2026-04-08"]),
+    ACheck("agent.line_items_create_not_complete", ["CHK-038"], "MUST",
+           p_line_items_create_not_complete, kill_mutation="omit_line_items_on_create",
+           versions=["2026-04-08"]),
+    # (CHK-039 payment-required-on-complete DEFERRED: its only kill — omit payment — cascades
+    #  into follows_escalation/honors_available_instruments since the escalate-token+instrument
+    #  live in payment; needs a non-cascading design, not a muddy diagonal.)
+    ACheck("agent.omits_discounts_on_request", ["DSC-027", "DSC-028"], "MUST NOT",
+           p_omits_discounts_on_request, kill_mutation="send_discounts_on_request",
+           versions=["2026-04-08"]),
+    ACheck("agent.omits_buyer_on_complete", ["DSC-034"], "MUST NOT",
+           p_omits_buyer_on_complete, kill_mutation="send_buyer_on_complete",
+           versions=["2026-04-08"]),
+    ACheck("agent.instrument_has_ids", ["PAY-019"], "MUST",
+           p_instrument_has_ids, kill_mutation="omit_instrument_ids", versions=["2026-04-08"]),
+    ACheck("agent.credential_has_type", ["PAY-024"], "MUST",
+           p_credential_has_type, kill_mutation="omit_credential_type", versions=["2026-04-08"]),
+]

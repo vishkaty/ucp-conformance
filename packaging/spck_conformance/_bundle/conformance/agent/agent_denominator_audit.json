@@ -1,0 +1,21 @@
+{
+  "_about": "Denominator-accuracy audit of the AGENT lane (2026-07-03). Each id below carries a MUST/MUST NOT whose SOLE obligated party is the business/server, so it does NOT belong in the AGENT (platform/client) denominator — it entered via the subject heuristic or the merchant 'client-bound' class ('not-merchant' != 'agent'). Removing them makes 100% agent coverage achievable-by-construction. Every classification was spec-grounded (independent adjudication of all 101 rows + author spot-verification against the pinned spec). Referenced by agent_matrix.NOT_AGENT_BOUND.",
+  "not_agent_bound": {
+    "A2A-001": "checkout-a2a.md#L142 — 'The Checkout entity must be returned by the business agent to the platform' (business response construction)",
+    "MCP-001": "catalog/mcp.md#L690 — 'a conforming MCP transport implementation MUST ... both tools MUST be available' (the server/endpoint exposes the tools)",
+    "NEG-001": "overview.md#L1912 — 'Business MUST return a version_unsupported error'",
+    "NEG-002": "overview.md#L1916 — 'business MUST return a capabilities_incompatible error'",
+    "NEG-003": "overview.md#L697 — profile_unreachable -> 424, a server-emitted error response",
+    "NEG-004": "overview.md#L698 — profile_malformed -> 422, a server-emitted error response",
+    "OVR-011": "overview.md#L1974 — 'Businesses MUST include only capabilities compatible ... in their response'",
+    "OVR-012": "overview.md#L632-640 — under '#### Business Requirements': 'Extensions ... MUST be excluded' from the business response",
+    "PAY-038": "ap2-mandates.md#L122 — 'If a public key cannot be resolved ... the business MUST return an error'",
+    "ORD-018": "expectation.json#L7 / order.md#L39 — required fields of the business-authored 'expectation' (order is GET-only for the platform)",
+    "ORD-019": "fulfillment_event.json#L7 / order.md#L40 — required fields of 'fulfillment_event' = the business's append-only log of actual shipments"
+  },
+  "kept_after_review": {
+    "OVR-001": "DUAL — overview.md#L59 'All capability and service names MUST use the format' binds both platform and business profiles",
+    "PAY-037": "DUAL/agent — ap2-mandates.md#L118 the signing key is provided in the PLATFORM profile's signing_keys; 'for the business to verify' names the consumer, not the obligated party",
+    "DSC-013": "AGENT — discount.md#L191 'Cannot be removed by the platform' is a prohibition on the platform"
+  }
+}

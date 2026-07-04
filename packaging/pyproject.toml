@@ -35,4 +35,7 @@ spck_conformance = [
   "_bundle/conformance/checks/*.py",
   "_bundle/conformance/selfcheck/*.py",
   "_bundle/conformance/requirements/*/*.json",
+  "_bundle/conformance/agent/*.py",
+  "_bundle/conformance/agent/*.json",
+  "_bundle/conformance/common/*.py",
 ]

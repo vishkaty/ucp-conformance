@@ -1,0 +1,15 @@
+{
+  "_about": "Agent-side EXEMPT rows: agent-bound MUSTs that are IRREDUCIBLE in an in-process request/response reverse harness (no isolable kill_mutation, or not observable with the public-client reference agent, or the unconditional base flow already covered by other checks). This is NOT a pass — it is a documented non-testability claim, mirroring the merchant exemptions.json discipline. Each row was independently designed as EXEMPT by the Wave-A design fan-out (one agent per gap) + vetted by the completeness critic + author-verified against the pinned spec. A row here is counted as accounted (check+exempt) but must never become a silent CHECK-substitute; to CHECK it later, remove it from here.",
+  "IDL-006": {
+    "reason": "L119-120 'Platforms MUST select the strongest token-endpoint auth method ... compatible with the platform's deployment model'. Our reference agent is a PUBLIC client whose only valid method is 'none' (IDL-004), so 'selecting the strongest' is not observable — it requires a confidential-capable client choosing among methods. A downgrade mutation cannot be isolated (a downgraded token request collides with IDL-002 unadvertised-method / IDL-005 no-secret). Not gradable in this harness's deployment model.",
+    "source": "identity-linking.md#L119-L120"
+  },
+  "IDL-039": {
+    "reason": "L358-359 'Platforms MUST ignore unrecognized fields in a per-scope policy object'. The reference agent never consumes per-scope policy objects (min_acr/max_token_age/require_mfa/claims), so it satisfies this vacuously; the only violation is aborting/rejecting on the unknown key, which manifests as a generic failure-to-proceed already caught by the flow-completion checks. No diagonal, independently-gradable kill_mutation exists. (Distinct from IDL-057 = config-LEVEL unknown fields, which IS checked.)",
+    "source": "identity-linking.md#L358-L359"
+  },
+  "IDL-056": {
+    "reason": "L646-649 'When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery'. The antecedent (config.providers present) never arises in a v1 fixture, so the consequent is exactly the unconditional base flow run_flow already performs (discover -> RFC 8414 discover_oauth_metadata -> oauth_authorize). Any defect breaking it breaks the base flow already caught by IDL-010/IDL-031/IDL-062, so no isolable diagonal exists.",
+    "source": "identity-linking.md#L646-L649"
+  }
+}

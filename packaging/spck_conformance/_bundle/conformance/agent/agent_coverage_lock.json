@@ -1,0 +1,71 @@
+{
+ "_about": "Agent-side coverage lock (add-only): an agent CHECK/EXEMPT id, once here, stays accounted for the life of the pinned spec \u2014 mirrors the merchant coverage-lock. Grows as Phase B agent checks land.",
+ "versions": {
+  "2026-01-11": {
+   "check": [],
+   "exempt": []
+  },
+  "2026-01-23": {
+   "check": [],
+   "exempt": []
+  },
+  "2026-04-08": {
+   "check": [
+    "CHK-008",
+    "CHK-035",
+    "CHK-036",
+    "CHK-037",
+    "CHK-038",
+    "CHK-046",
+    "CHK-055",
+    "DISC-006",
+    "DSC-027",
+    "DSC-028",
+    "DSC-034",
+    "IDL-004",
+    "IDL-005",
+    "IDL-007",
+    "IDL-008",
+    "IDL-001",
+    "IDL-002",
+    "IDL-009",
+    "IDL-010",
+    "IDL-011",
+    "IDL-012",
+    "IDL-014",
+    "IDL-031",
+    "IDL-032",
+    "IDL-033",
+    "IDL-034",
+    "IDL-035",
+    "IDL-038",
+    "IDL-044",
+    "IDL-048",
+    "IDL-051",
+    "IDL-055",
+    "IDL-057",
+    "IDL-061",
+    "IDL-062",
+    "ORD-015",
+    "PAY-009",
+    "PAY-010",
+    "PAY-017",
+    "PAY-019",
+    "PAY-024",
+    "SIG-001",
+    "SIG-002",
+    "SIG-014",
+    "SIG-015",
+    "SIG-016",
+    "SIG-018",
+    "SIG-036",
+    "TOT-010"
+   ],
+   "exempt": [
+    "IDL-006",
+    "IDL-039",
+    "IDL-056"
+   ]
+  }
+ }
+}

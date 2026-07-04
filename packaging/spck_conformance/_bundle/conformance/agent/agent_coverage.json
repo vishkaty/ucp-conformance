@@ -1,0 +1,23 @@
+{
+ "2026-01-11": {
+  "agent_musts": 46,
+  "check": 0,
+  "exempt": 1,
+  "gap": 45,
+  "accounted_pct": 2
+ },
+ "2026-01-23": {
+  "agent_musts": 47,
+  "check": 0,
+  "exempt": 1,
+  "gap": 46,
+  "accounted_pct": 2
+ },
+ "2026-04-08": {
+  "agent_musts": 105,
+  "check": 49,
+  "exempt": 3,
+  "gap": 53,
+  "accounted_pct": 50
+ }
+}

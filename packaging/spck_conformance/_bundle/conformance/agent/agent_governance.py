@@ -31,7 +31,6 @@ import agent_checks   # noqa: E402
 from reference_agent import DEFECTS   # noqa: E402
 
 COV = os.path.join(HERE, "agent_coverage.json")
-PUBLIC_COV = os.path.join(ROOT, "public", "agent-coverage.json")
 RATCHET = os.path.join(HERE, "agent_ratchet.json")
 LOCK = os.path.join(HERE, "agent_coverage_lock.json")
 SIGN = os.path.join(HERE, "agent_review_signoffs.json")
@@ -61,16 +60,6 @@ def run():
                          "conformance/agent/agent_coverage.json")
     else:
         fails.append("agent_coverage.json missing — generate it")
-
-    # 1b. the PUBLIC agent coverage (rendered by /coverage) must match the live matrix too —
-    #     the two-sided coverage page can't drift from reality.
-    if os.path.exists(PUBLIC_COV):
-        if json.load(open(PUBLIC_COV)) != live:
-            fails.append("public/agent-coverage.json is STALE — regenerate: "
-                         "python3 conformance/agent/agent_matrix.py --json public/agent-coverage.json")
-    else:
-        fails.append("public/agent-coverage.json missing — the /coverage agent lane needs it: "
-                     "python3 conformance/agent/agent_matrix.py --json public/agent-coverage.json")
 
     # 2. ratchet
     if os.path.exists(RATCHET):
