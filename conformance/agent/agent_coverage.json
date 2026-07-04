@@ -2,22 +2,22 @@
  "2026-01-11": {
   "agent_musts": 41,
   "check": 0,
-  "exempt": 0,
-  "gap": 41,
-  "accounted_pct": 0
+  "exempt": 1,
+  "gap": 40,
+  "accounted_pct": 2
  },
  "2026-01-23": {
   "agent_musts": 42,
   "check": 0,
-  "exempt": 0,
-  "gap": 42,
-  "accounted_pct": 0
+  "exempt": 1,
+  "gap": 41,
+  "accounted_pct": 2
  },
  "2026-04-08": {
   "agent_musts": 90,
   "check": 36,
-  "exempt": 0,
-  "gap": 54,
-  "accounted_pct": 40
+  "exempt": 3,
+  "gap": 51,
+  "accounted_pct": 43
  }
 }
