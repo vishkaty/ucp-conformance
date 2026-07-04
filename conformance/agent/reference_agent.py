@@ -47,6 +47,8 @@ DEFECTS = {
     # RFC 8414 authorization-server metadata discovery
     "normalize_issuer": "normalize (strip trailing slash) before the issuer match (IDL-033)",
     "oidc_fallthrough_on_error": "fall through to OIDC on a non-404 discovery error (IDL-031/032)",
+    # checkout completion safety
+    "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
 }
 
 # request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
@@ -266,6 +268,17 @@ class ReferenceAgent:
             resp = self._send("fetch_gated_retry", "GET", path, headers=h)
         return resp
 
+    @staticmethod
+    def _totals_consistent(checkout_body):
+        """checkout.md L806: the sum of every non-`total` totals entry MUST equal the `total`
+        entry's amount. Returns True when consistent (or unverifiable — no `total` entry)."""
+        totals = (checkout_body or {}).get("totals") or []
+        total_entry = next((t for t in totals if t.get("type") == "total"), None)
+        if total_entry is None:
+            return True
+        s = sum(t.get("amount", 0) for t in totals if t.get("type") != "total")
+        return s == total_entry.get("amount")
+
     def create_checkout(self, product_id="teapot_ceramic"):
         body = {"id": str(uuid.uuid4()), "currency": "USD",
                 "line_items": [{"id": "li_1", "quantity": 1,
@@ -308,6 +321,13 @@ class ReferenceAgent:
         self.oauth_authorize()             # identity-linking (OAuth2 + PKCE + iss), if advertised
         c = self.create_checkout(product_id)
         if self.log[-1].get("rejected"):   # rejected a bad business signature -> stop here
+            return self.log
+        # CHK-055 / TOT-010: MUST NOT autonomously complete a checkout with mismatched totals
+        # (SHOULD reject/escalate for buyer review). A conformant agent verifies the totals
+        # arithmetic and refuses to complete when it does not reconcile.
+        if not self._totals_consistent(c.get("body")) and self.defect != "complete_on_mismatch":
+            self.log[-1]["totals_mismatch"] = True
+            self.log[-1]["refused_completion"] = True
             return self.log
         sid = (c.get("body") or {}).get("id")
         if sid:

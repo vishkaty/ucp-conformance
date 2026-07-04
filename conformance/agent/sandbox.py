@@ -176,9 +176,17 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path == "/checkout-sessions":
             sid = "chk_" + uuid.uuid4().hex[:12]
             self.server.sessions[sid] = "incomplete"
+            # totals (checkout.md L800-813): sum of non-`total` entries MUST equal the `total`.
+            # "mismatched_totals" returns a `total` that breaks that arithmetic so a conformant
+            # agent MUST NOT autonomously complete (CHK-055 / TOT-010).
+            if self.server.scenario == "mismatched_totals":
+                totals = [{"type": "subtotal", "amount": 1000}, {"type": "tax", "amount": 100},
+                          {"type": "total", "amount": 9999}]      # 1100 != 9999
+            else:
+                totals = [{"type": "subtotal", "amount": 1000}, {"type": "total", "amount": 1000}]
             return self._send(201, {"ucp": {"version": "2026-04-08"}, "id": sid,
                                     "status": "incomplete", "currency": "USD",
-                                    "line_items": body.get("line_items", []), "totals": []})
+                                    "line_items": body.get("line_items", []), "totals": totals})
         if self.path.endswith("/complete") and self.path.startswith("/checkout-sessions/"):
             sid = self.path.split("/")[2]
             if ESCALATE_TOKEN in _payment_tokens(body):
@@ -202,10 +210,11 @@ def serve(scenario="conformant", agent_jwks=None):
     "bad_state" (the authorization response echoes a mismatched `state` — a conformant agent
     MUST discard it), "bad_issuer" (RFC 8414 metadata issuer doesn't byte-match the discovery
     base), "discovery_error" (RFC 8414 returns a non-404 error — MUST abort, no OIDC
-    fall-through), or "auth_challenge" (the gated /orders op emits a WWW-Authenticate: Bearer
-    401 until a valid Bearer token is presented). `agent_jwks`, when provided, makes the
-    sandbox VERIFY the platform's request signatures (SIG-001/SIG-018) and 401 an
-    unsigned/invalid one."""
+    fall-through), "mismatched_totals" (the checkout's `total` breaks the totals arithmetic —
+    a conformant agent MUST NOT autonomously complete), or "auth_challenge" (the gated /orders
+    op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is presented).
+    `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
+    (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}

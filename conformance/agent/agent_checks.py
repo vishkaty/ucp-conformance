@@ -268,6 +268,15 @@ def p_aborts_on_discovery_error(log):
     return CLEAN if (got_error and not fell_through) else DEVIATION
 
 
+def p_no_autocomplete_mismatched_totals(log):
+    """CHK-055 / TOT-010: platforms MUST NOT autonomously complete a checkout with mismatched
+    totals (SHOULD reject/escalate for buyer review). Against the mismatched_totals sandbox a
+    conformant agent detects the broken totals arithmetic and does NOT send a complete."""
+    detected = any(e.get("totals_mismatch") for e in log)
+    completed = any(e["op"] == "complete" for e in log)
+    return CLEAN if (detected and not completed) else DEVIATION
+
+
 def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
@@ -313,9 +322,9 @@ def p_validates_oauth_state(log):
 
 
 CHECKS = [
-    ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
+    ACheck("agent.sends_ucp_agent", ["DISC-006", "CHK-046", "ORD-015"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
-    ACheck("agent.follows_escalation", ["CHK-008"], "MUST",
+    ACheck("agent.follows_escalation", ["CHK-008", "PAY-017"], "MUST",
            p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
     ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
            p_verifies_business_signature, kill_mutation="skip_sig_verify",
@@ -360,4 +369,7 @@ CHECKS = [
     ACheck("agent.aborts_on_discovery_error", ["IDL-031", "IDL-032"], "MUST",
            p_aborts_on_discovery_error, kill_mutation="oidc_fallthrough_on_error",
            versions=["2026-04-08"], scenario="discovery_error"),
+    ACheck("agent.no_autocomplete_mismatched_totals", ["CHK-055", "TOT-010"], "MUST NOT",
+           p_no_autocomplete_mismatched_totals, kill_mutation="complete_on_mismatch",
+           versions=["2026-04-08"], scenario="mismatched_totals"),
 ]

@@ -108,6 +108,22 @@
      "IDL-033"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B9-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read checkout.md/order.md/overview.md; new check + 2 citation extensions all SOUND, every extended citation genuinely EXERCISED (no coverage inflation); author verified quotes verbatim",
+   "spec_reverified": true,
+   "notes": "Checkout/order lifecycle increment. NEW CHECK agent.no_autocomplete_mismatched_totals cites CHK-055 + TOT-010 (both quote the identical sentence at checkout.md#L811: 'platforms MUST NOT autonomously complete a checkout with mismatched totals' — two distinct denominator rows, checkout-lifecycle vs totals area, indexing the same normative sentence; both Platform-subject). _totals_consistent() is a byte-faithful transcription of the spec's own assert (checkout.md L806: sum(e.amount for non-'total') == total.amount); the mismatched_totals sandbox returns subtotal=1000/tax=100/total=9999 (1100!=9999, two well-known additive types). Predicate requires DETECTED-mismatch AND NOT-completed (the positive-detection conjunct closes a trivial-pass hole a bare not-completed would leave). Kill complete_on_mismatch bypasses the guard and completes -> DEVIATION. CITATION EXTENSIONS (existing predicates unchanged, only req_ids grew, each verified genuinely exercised): agent.sends_ucp_agent += CHK-046 (checkout-rest.md#L1237 'All requests MUST include the UCP-Agent header') + ORD-015 (order.md#L395 'MUST include UCP-Agent header with profile URL on all requests') — create_checkout/complete are checkout requests and GET /orders (fetch_gated, issued in the conformant scenario where this check runs) is an order request, all carrying UCP-Agent and in the graded api list. agent.follows_escalation += PAY-017 (overview.md#L1409 'The platform MUST now open continue_url in a WebView/Window ... then retry the completion') — the escalate_token->requires_escalation+continue_url stimulus is a faithful 3DS/SCA soft-decline, and following the exact continue_url is the load-bearing MUST. NON-BLOCKING CAVEATS recorded by the review (no code change): (1) verification is a MAY (checkout.md L803) so requiring the detection flag is marginally stronger than the bare MUST NOT — accepted tradeoff vs the trivial-pass hole; (2) PAY-017's secondary 'then retry the completion' sub-clause is unexercised (only the primary open-continue_url MUST is graded). All five rows Platform-subject (the merchant lane exempts them as client-bound).",
+   "ids": {
+    "2026-04-08": [
+     "CHK-046",
+     "CHK-055",
+     "ORD-015",
+     "PAY-017",
+     "TOT-010"
+    ]
+   }
   }
  ]
 }
