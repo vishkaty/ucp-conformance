@@ -184,9 +184,16 @@ class _Handler(BaseHTTPRequestHandler):
                           {"type": "total", "amount": 9999}]      # 1100 != 9999
             else:
                 totals = [{"type": "subtotal", "amount": 1000}, {"type": "total", "amount": 1000}]
-            return self._send(201, {"ucp": {"version": "2026-04-08"}, "id": sid,
-                                    "status": "incomplete", "currency": "USD",
-                                    "line_items": body.get("line_items", []), "totals": totals})
+            return self._send(201, {
+                # payment_handlers live in the ucp envelope (checkout-rest.md L83-104); each
+                # handler's available_instruments is authoritative (PAY-009/010) — the platform
+                # MUST pay only with a type offered here.
+                "ucp": {"version": "2026-04-08", "payment_handlers": {
+                    "com.spck.sandbox_pay": [{"id": "h1", "version": "2026-04-08",
+                        "available_instruments": [{"type": "card"}, {"type": "digital_wallet"}],
+                        "config": {}}]}},
+                "id": sid, "status": "incomplete", "currency": "USD",
+                "line_items": body.get("line_items", []), "totals": totals})
         if self.path.endswith("/complete") and self.path.startswith("/checkout-sessions/"):
             sid = self.path.split("/")[2]
             if ESCALATE_TOKEN in _payment_tokens(body):

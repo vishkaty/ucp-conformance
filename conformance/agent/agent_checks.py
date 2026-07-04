@@ -268,6 +268,34 @@ def p_aborts_on_discovery_error(log):
     return CLEAN if (got_error and not fell_through) else DEVIATION
 
 
+def p_honors_available_instruments(log):
+    """PAY-008/009/010: the available_instruments in the checkout response is AUTHORITATIVE —
+    the platform MUST pay only with a type it offered and MUST NOT use an instrument type not
+    present. Compare the complete request's credential type(s) against the create response's
+    available_instruments."""
+    avail = None
+    for e in log:
+        if e["op"] == "create_checkout":
+            handlers = (((e.get("response") or {}).get("body") or {}).get("ucp")
+                        or {}).get("payment_handlers")
+            if handlers:
+                avail = {i.get("type") for entries in handlers.values()
+                         for h in (entries or []) for i in (h.get("available_instruments") or [])
+                         if isinstance(i, dict)}
+    if not avail:
+        return DEVIATION                     # the sandbox always advertises available_instruments
+    for e in log:
+        if e["op"] == "complete":
+            insts = ((e["request"].get("body") or {}).get("payment") or {}).get("instruments") or []
+            typed = [i.get("type") for i in insts if i.get("type")]
+            if not typed:
+                return DEVIATION             # a credential MUST carry a type discriminator
+            if any(t not in avail for t in typed):
+                return DEVIATION             # used a type the business did not offer
+            return CLEAN
+    return DEVIATION
+
+
 def p_no_autocomplete_mismatched_totals(log):
     """CHK-055 / TOT-010: platforms MUST NOT autonomously complete a checkout with mismatched
     totals (SHOULD reject/escalate for buyer review). Against the mismatched_totals sandbox a
@@ -372,4 +400,7 @@ CHECKS = [
     ACheck("agent.no_autocomplete_mismatched_totals", ["CHK-055", "TOT-010"], "MUST NOT",
            p_no_autocomplete_mismatched_totals, kill_mutation="complete_on_mismatch",
            versions=["2026-04-08"], scenario="mismatched_totals"),
+    ACheck("agent.honors_available_instruments", ["PAY-009", "PAY-010"], "MUST NOT",
+           p_honors_available_instruments, kill_mutation="use_unavailable_instrument",
+           versions=["2026-04-08"]),
 ]

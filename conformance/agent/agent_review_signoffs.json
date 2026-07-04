@@ -124,6 +124,19 @@
      "TOT-010"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B10-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read payment-handler-guide.md/overview.md + payment schemas; SOUND after 2 fixes applied before locking; author verified structure vs the pinned schema",
+   "spec_reverified": true,
+   "notes": "agent.honors_available_instruments cites PAY-009 (payment-handler-guide.md#L303-304: 'Platforms MUST treat it as authoritative and MUST NOT attempt to use instrument types ... that contradict it') + PAY-010 (overview.md#L1203: 'Platforms MUST treat the available_instruments in the response as authoritative for that checkout'). The check asserts the complete request's credential instrument `type` is one the checkout advertised, and that a type is present at all (payment_instrument.json requires type). Kill use_unavailable_instrument pays with crypto_wallet (not offered) -> DEVIATION. PAY-008 DELIBERATELY EXCLUDED (it bundles the whole response_schema/handler config — tokenization specs, merchant identity — which this check does not exercise; PAY-009/010 pin the available_instruments-authority precisely) — review confirmed this conservative call correct. TWO REVIEW FINDINGS FIXED BEFORE LOCKING: (1) STRUCTURAL — the first cut placed available_instruments at a fabricated flat `payment.available_instruments`; the pinned schema puts it ONLY under `ucp.payment_handlers.<handler_name>[].available_instruments` (payment_handler.json#L18; overview.md examples), which IS the response_schema PAY-009 names. Fixed the sandbox + agent reader + predicate to read the union of types across `ucp.payment_handlers.*[].available_instruments` (would otherwise false-fail a real merchant). (2) KEYWORD — retagged the ACheck keyword MUST -> MUST NOT to match PAY-009 and the kill semantics (paying with an unoffered type is a prohibition violation). Both Platform-subject. Kill-safe with all evasions fail-closed (no create, no complete, absent available_instruments, untyped instrument all -> DEVIATION).",
+   "ids": {
+    "2026-04-08": [
+     "PAY-009",
+     "PAY-010"
+    ]
+   }
   }
  ]
 }

@@ -49,6 +49,7 @@ DEFECTS = {
     "oidc_fallthrough_on_error": "fall through to OIDC on a non-404 discovery error (IDL-031/032)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
+    "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
 }
 
 # request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
@@ -287,11 +288,27 @@ class ReferenceAgent:
                 "ucp": {"version": "2026-04-08"}, "totals": [], "links": []}
         return self._send("create_checkout", "POST", "/checkout-sessions", body)
 
-    def complete(self, sid, token="escalate_token"):
+    def complete(self, sid, token="escalate_token", instrument_type="card"):
         """Complete a checkout with a payment credential (default: the 3DS/SCA soft-decline
-        token, which the sandbox answers with requires_escalation + a continue_url)."""
-        body = {"payment": {"instruments": [{"credential": {"token": token}}]}}
+        token, which the sandbox answers with requires_escalation + a continue_url). PAY-009:
+        the credential's instrument `type` MUST be one the checkout's available_instruments
+        offered — a conformant agent pays only with an authoritative type."""
+        body = {"payment": {"instruments": [
+            {"type": instrument_type, "credential": {"token": token}}]}}
         return self._send("complete", "POST", f"/checkout-sessions/{sid}/complete", body)
+
+    @staticmethod
+    def _available_instrument_types(checkout_body):
+        """The authoritative instrument types = the union across every payment handler's
+        available_instruments (ucp.payment_handlers.<name>[].available_instruments)."""
+        handlers = ((checkout_body or {}).get("ucp") or {}).get("payment_handlers") or {}
+        types = []
+        for entries in handlers.values():
+            for h in (entries or []):
+                for i in (h.get("available_instruments") or []):
+                    if isinstance(i, dict) and i.get("type"):
+                        types.append(i["type"])
+        return types
 
     def follow_continue_url(self, url):
         """Open the business-provided continue_url (CHK-008: platform MUST use it on
@@ -331,7 +348,12 @@ class ReferenceAgent:
             return self.log
         sid = (c.get("body") or {}).get("id")
         if sid:
-            resp = self.complete(sid)
+            # PAY-008/009/010: available_instruments is authoritative — pay only with an
+            # offered type. The defect pays with a type the business never offered.
+            avail = self._available_instrument_types(c.get("body"))
+            itype = "crypto_wallet" if self.defect == "use_unavailable_instrument" \
+                else (avail[0] if avail else "card")
+            resp = self.complete(sid, instrument_type=itype)
             b = resp.get("body") or {}
             # CHK-008: on requires_escalation, a conformant platform follows continue_url.
             if b.get("status") == "requires_escalation" and self.defect != "ignore_escalation":
