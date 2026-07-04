@@ -108,6 +108,79 @@ def p_validates_iss(log):
     return DEVIATION
 
 
+def _req_sig_components(entry):
+    """Parse the covered components out of a request's RFC 9421 Signature-Input, or None
+    when the request is unsigned."""
+    si = (entry["request"]["headers"] or {}).get("Signature-Input")
+    if not si:
+        return None
+    try:
+        inner = si[si.index("(") + 1:si.index(")")]
+        return [c.strip().strip('"') for c in inner.split()]
+    except Exception:
+        return None
+
+
+def _signed_api(log):
+    return [e for e in log if e["op"] in ("create_checkout", "complete")]
+
+
+# NOTE ON SUBJECT: request signing itself is SHOULD (SIG-026: "Platforms SHOULD sign all
+# requests ... Alternative authentication mechanisms may be used instead"), so an UNSIGNED
+# request is conformant and is skipped, never failed. What binds unconditionally is: WHEN an
+# agent signs, the signature MUST verify (SIG-001) and MUST cover the required components
+# (SIG-014/015/016/018). The kill mutations are therefore a signing agent that corrupts or
+# drops a component — never one that declines to sign.
+def p_request_signature_verifies(log):
+    """SIG-001: a signed request is a REAL RFC 9421 signature the receiver accepts (the
+    sandbox verifies it and 401s an invalid one). Require >=1 signed request that verified
+    (non-401). Mirrors the merchant SIG-001 'the signature really verifies' check."""
+    accepted = False
+    for e in _signed_api(log):
+        if _req_sig_components(e) is None:
+            continue                                   # unsigned: allowed (SIG-026), skip
+        if (e.get("response") or {}).get("status") == 401:
+            return DEVIATION                           # signed but did not verify
+        accepted = True
+    return CLEAN if accepted else DEVIATION
+
+
+def _covers(log, required, body_only=False, post_only=False):
+    """A signed request MUST cover `required`. Unsigned requests are skipped (SIG-026)."""
+    for e in _signed_api(log):
+        comps = _req_sig_components(e)
+        if comps is None:
+            continue
+        if body_only and e["request"].get("body") is None:
+            continue
+        if post_only and e["request"]["method"] != "POST":
+            continue
+        if not required <= set(comps):
+            return DEVIATION
+    return CLEAN
+
+
+def p_signs_core_components(log):
+    """SIG-014: REST request signed components MUST include @method, @authority, @path."""
+    return _covers(log, {"@method", "@authority", "@path"})
+
+
+def p_signs_body_components(log):
+    """SIG-015: signed components MUST include content-digest and content-type when the
+    request has a body."""
+    return _covers(log, {"content-digest", "content-type"}, body_only=True)
+
+
+def p_signs_idempotency_key(log):
+    """SIG-016: idempotency-key MUST be a signed component for POST/PUT/DELETE/PATCH."""
+    return _covers(log, {"idempotency-key"}, post_only=True)
+
+
+def p_signs_ucp_agent_component(log):
+    """SIG-018: ucp-agent MUST be a signed component if the UCP-Agent header is present."""
+    return _covers(log, {"ucp-agent"})
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
@@ -121,4 +194,15 @@ CHECKS = [
     ACheck("agent.validates_iss", ["IDL-012"], "MUST",
            p_validates_iss, kill_mutation="skip_iss_validation",
            versions=["2026-04-08"], scenario="bad_iss"),
+    ACheck("agent.request_signature_verifies", ["SIG-001"], "MUST",
+           p_request_signature_verifies, kill_mutation="sign_corrupt", versions=["2026-04-08"]),
+    ACheck("agent.signs_core_components", ["SIG-014"], "MUST",
+           p_signs_core_components, kill_mutation="sign_omit_authority", versions=["2026-04-08"]),
+    ACheck("agent.signs_body_components", ["SIG-015"], "MUST",
+           p_signs_body_components, kill_mutation="sign_omit_digest", versions=["2026-04-08"]),
+    ACheck("agent.signs_idempotency_key", ["SIG-016"], "MUST",
+           p_signs_idempotency_key, kill_mutation="sign_omit_idem", versions=["2026-04-08"]),
+    ACheck("agent.signs_ucp_agent_component", ["SIG-018"], "MUST",
+           p_signs_ucp_agent_component, kill_mutation="ucp_agent_not_signed",
+           versions=["2026-04-08"]),
 ]

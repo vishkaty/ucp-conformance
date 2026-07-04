@@ -15,7 +15,7 @@ are Phase B — each added as a method + a matching defect.
 
 Stdlib only. This same client hardens into the real "find & buy" agent in Phase B'.
 """
-import hashlib, json, os, sys, urllib.request, urllib.error, urllib.parse, uuid
+import base64, hashlib, json, os, sys, urllib.request, urllib.error, urllib.parse, uuid
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common import crypto   # noqa: E402
@@ -29,7 +29,26 @@ DEFECTS = {
     "skip_sig_verify": "do NOT verify the business's RFC 9421 response signature",
     "no_pkce": "omit PKCE (code_challenge / S256) from the authorization request",
     "skip_iss_validation": "do NOT validate the iss in the authorization response",
+    # request-signing defects — a SIGNING agent that produces a bad/incomplete signature.
+    # (Not signing at all is allowed — SIG-026 is SHOULD — so there is no 'unsigned' defect.)
+    "sign_corrupt": "sign, but the request signature does NOT verify (SIG-001)",
+    "sign_omit_authority": "sign, but omit @authority from the covered components (SIG-014)",
+    "sign_omit_digest": "sign, but omit content-digest/content-type from covered (SIG-015)",
+    "sign_omit_idem": "sign, but omit idempotency-key from the covered components (SIG-016)",
+    "ucp_agent_not_signed": "sign, but omit ucp-agent from the covered components (SIG-018)",
 }
+
+# request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
+_SIGN_OMIT = {
+    "sign_omit_authority": {"@authority"},
+    "sign_omit_digest": {"content-digest", "content-type"},
+    "sign_omit_idem": {"idempotency-key"},
+    "ucp_agent_not_signed": {"ucp-agent"},
+}
+
+# the reference agent's own RFC 9421 request-signing key (published in its profile)
+_AGENT_SIG_KID = "spck-agent-sig-2026"
+_AGENT_D, _AGENT_Q = crypto.keypair(b"spck-reference-agent-request-signing-key-2026")
 
 
 class ReferenceAgent:
@@ -43,21 +62,44 @@ class ReferenceAgent:
         self.jwks = []         # business signing keys, learned at discovery
         self.identity = {}     # OAuth2 identity metadata, learned at discovery
 
+    @staticmethod
+    def signing_jwk():
+        """The agent's public signing key (the sandbox/business fetches this to verify the
+        agent's RFC 9421 request signatures)."""
+        return crypto.jwk_from_pub(_AGENT_SIG_KID, _AGENT_Q)
+
     # --- client obligations (each maps to agent-side spec rows) ---
     def _headers(self, idem=None):
         h = {"Content-Type": "application/json"}
         # DISC-006 / CART-024: a conformant platform sends UCP-Agent (profile) on every request.
         if self.defect != "no_ucp_agent":
             h["UCP-Agent"] = f'profile="{self.PROFILE}"'
-        h["request-signature"] = "test"     # placeholder; real RFC 9421 signing = Phase B
         h["request-id"] = str(uuid.uuid4())
         h["idempotency-key"] = idem or str(uuid.uuid4())
         return h
+
+    def _sign_request(self, h, method, path, data):
+        """Sign the outbound request with RFC 9421 ES256. When signing, the covered
+        components MUST include @method/@authority/@path (SIG-014), content-digest+
+        content-type for a body (SIG-015), idempotency-key for POST (SIG-016), and ucp-agent
+        (SIG-018). The sign_* defects model a signing agent that drops a required component or
+        emits a signature that does not verify."""
+        authority = urllib.parse.urlparse(self.server).netloc
+        sig = crypto.sign_request_headers(
+            method, authority, path, data, _AGENT_D, _AGENT_SIG_KID,
+            ucp_agent=h.get("UCP-Agent"), idem=h.get("idempotency-key"),
+            omit=_SIGN_OMIT.get(self.defect, ()))
+        if self.defect == "sign_corrupt":                  # SIG-001: signature must verify
+            raw = base64.b64decode(sig["Signature"].split(":", 1)[1].rsplit(":", 1)[0])
+            raw = bytes([raw[0] ^ 0xFF]) + raw[1:]
+            sig["Signature"] = "sig1=:" + base64.b64encode(raw).decode() + ":"
+        h.update(sig)
 
     def _send(self, op, method, path, body=None, headers=None):
         url = self.server + path
         h = headers if headers is not None else self._headers()
         data = json.dumps(body).encode() if body is not None else None
+        self._sign_request(h, method, path, data)
         req = urllib.request.Request(url, data=data, headers=h, method=method)
         entry = {"op": op, "request": {"method": method, "path": path, "headers": dict(h),
                                        "body": body}}

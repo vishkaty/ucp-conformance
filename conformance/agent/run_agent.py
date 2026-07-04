@@ -31,8 +31,9 @@ def reference_gate():
     for chk in agent_checks.CHECKS:
         by_scenario[chk.scenario].append(chk)
     results, unsound, ref_ops = [], [], 0
+    agent_jwks = [ReferenceAgent.signing_jwk()]
     for scenario in sorted(by_scenario):
-        with sandbox.serve(scenario=scenario) as (base, _srv):
+        with sandbox.serve(scenario=scenario, agent_jwks=agent_jwks) as (base, _srv):
             clean_log = ReferenceAgent(base).run_flow()
             if scenario == "conformant":
                 ref_ops = len(clean_log)
@@ -56,7 +57,7 @@ def main():
 
     # The agent lane is self-contained: it boots its own adversarial sandbox(es) in-process,
     # so it's hermetic and never depends on the merchant fixture.
-    with sandbox.serve() as (base, _srv):
+    with sandbox.serve(agent_jwks=[ReferenceAgent.signing_jwk()]) as (base, _srv):
         log = ReferenceAgent(base).run_flow()      # conformant sanity flow
         booted = all(e["response"]["status"] in (200, 201) for e in log)
     results, unsound, ref_ops = reference_gate()

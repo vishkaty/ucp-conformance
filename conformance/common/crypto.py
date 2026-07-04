@@ -158,6 +158,75 @@ def sign_response_headers(status, body_bytes, d, kid, created=None):
             "Signature": "sig1=:" + base64.b64encode(sig).decode() + ":"}
 
 
+def sign_request_headers(method, authority, path, body_bytes, d, kid,
+                         ucp_agent=None, idem=None, omit=()):
+    """RFC 9421 REQUEST-signing headers (signatures.md L193-204). Covered components:
+    @method/@authority/@path always (SIG-014); content-digest+content-type when there is a
+    body (SIG-015); idempotency-key on state-changing requests (SIG-016); `ucp-agent` when
+    the UCP-Agent header is present (SIG-018). The Content-Digest / Idempotency-Key / UCP-Agent
+    HEADERS are still emitted for integrity even when `omit` drops them from the COVERED set
+    (that omission is how a defective signer is modelled). Built from the same interop-anchored
+    ES256 primitives as sign_response_headers; mirrors the merchant webhook signer's scheme."""
+    omit = set(omit)
+    comps = [c for c in ("@method", "@authority", "@path") if c not in omit]
+    hdrs = {}
+    out = {}
+    if body_bytes is not None:
+        digest = content_digest(body_bytes)
+        out["Content-Digest"] = digest
+        hdrs["content-digest"] = digest
+        hdrs["content-type"] = "application/json"
+        comps += [c for c in ("content-digest", "content-type") if c not in omit]
+    if ucp_agent:                               # SIG-018: bind the platform identity
+        hdrs["ucp-agent"] = ucp_agent
+        if "ucp-agent" not in omit:
+            comps.append("ucp-agent")
+    if idem:                                    # SIG-016: bind idempotency to the request
+        hdrs["idempotency-key"] = idem
+        if "idempotency-key" not in omit:
+            comps.append("idempotency-key")
+    raw_params = '(' + " ".join(f'"{c}"' for c in comps) + ')' + f';keyid="{kid}"'
+    derived = {"@method": method.upper(), "@authority": authority, "@path": path}
+    base = _sig_base(comps, raw_params, derived, hdrs)
+    sig = ecdsa_p256_sign(base, d)
+    out["Signature-Input"] = f"sig1={raw_params}"
+    out["Signature"] = "sig1=:" + base64.b64encode(sig).decode() + ":"
+    return out
+
+
+def verify_request(method, authority, path, body_bytes, headers, jwks):
+    """Verify a platform's RFC 9421 REQUEST signature (the business/receiver's obligation).
+    -> (ok, reason). The sandbox uses this to actually check what the reference agent signs,
+    so the agent's request signature is real (round-trip anchored), not merely well-formed."""
+    h = {k.lower(): v for k, v in (headers or {}).items()}
+    si, sg = h.get("signature-input"), h.get("signature")
+    if not (si and sg):
+        return False, "signature_missing"
+    try:
+        _, _, params = si.partition("=")
+        inner = params[params.index("(") + 1:params.index(")")]
+        comps = [c.strip().strip('"') for c in inner.split()]
+        raw_params = params[params.index("("):]
+        kid = params.split('keyid="')[1].split('"')[0]
+    except Exception:
+        return False, "malformed_signature_input"
+    if body_bytes is not None and h.get("content-digest") != content_digest(body_bytes):
+        return False, "digest_mismatch"
+    jwk = next((j for j in (jwks or []) if j.get("kid") == kid), None)
+    if not jwk:
+        return False, "key_not_found"
+    derived = {"@method": method.upper(), "@authority": authority, "@path": path}
+    base = _sig_base(comps, raw_params, derived, h)
+    if base is None:
+        return False, "unresolved_component"
+    try:
+        sigb = base64.b64decode(sg.split(":", 1)[1].rsplit(":", 1)[0])
+    except Exception:
+        return False, "malformed_signature"
+    ok = ecdsa_p256_verify(base, sigb, pub_from_jwk(jwk))
+    return (ok, "ok" if ok else "signature_invalid")
+
+
 def verify_response(status, body_bytes, headers, jwks):
     """Verify a business RFC 9421 response signature. -> (ok: bool, reason: str).
     This is the platform/agent's obligation: fetch the business signing key from its

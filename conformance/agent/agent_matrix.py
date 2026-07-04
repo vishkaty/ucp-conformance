@@ -28,12 +28,15 @@ VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
 
-# Obligations that bind the platform/agent AS A VERIFIER of business RESPONSES. The
-# subject heuristic misses these (they read "Verification must…" / "All implementations
-# MUST support verifying…" with no platform keyword), but a UCP client receiving signed
-# responses IS the verifying party — so they belong on the agent axis too (they can also
-# be merchant obligations for request verification — shared, different axes).
-AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036"}
+# Obligations that bind the platform/agent AS A VERIFIER of business RESPONSES or AS THE
+# SIGNER of its own REQUESTS. The subject heuristic misses these (they read "Verification
+# must…" / "REST request signed components MUST include…" with no platform keyword), but a
+# UCP client that receives signed responses IS the verifier and that signs its API requests
+# IS the request-signer — so they belong on the agent axis too. (They are ALSO merchant
+# obligations — the business verifies inbound request signatures and signs its webhook
+# requests — so these ids are shared across the two axes, graded independently on each.)
+AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (agent verifies)
+               "SIG-014", "SIG-015", "SIG-016", "SIG-018"}  # request signing (agent signs)
 
 
 def _client_bound_ids():

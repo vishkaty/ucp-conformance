@@ -50,6 +50,22 @@
      "IDL-012"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B5-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read signatures.md + the request-signer; found 2 real problems, both FIXED before locking; author re-verified citations verbatim + defect isolation",
+   "spec_reverified": true,
+   "notes": "The reference agent now SIGNS its own RFC 9421 requests (before it only verified business responses); the sandbox verifies them (agent_jwks) and 401s an invalid one, so signing is round-trip anchored. Independent review of the request-signing family REFUTED the initial design on two points and both were fixed before this sign-off: (1) MISCITATION — a single check citing SIG-001 asserted the covered-component SET; SIG-001 (L42) is only the architectural umbrella ('UCP uses HTTP Message Signatures for all transports') and names no components. Fixed by re-citing to the precise register rows and splitting into per-row checks: SIG-014 (L193: 'REST request signed components MUST include @method, @authority, @path'), SIG-015 (L199: 'MUST include content-digest and content-type when the request has a body'), SIG-016 (L198: 'idempotency-key MUST be a signed component for POST/PUT/DELETE/PATCH'), SIG-018 (L197: 'ucp-agent MUST be a signed component if the UCP-Agent header is present'). SIG-001 is retained as a distinct check that the signature REALLY VERIFIES (crypto-anchored by the sandbox receiver), mirroring the merchant lane's own SIG-001 'signature.rfc9421_response_verifies'. (2) OVER-STRICTNESS — the original treated an UNSIGNED request as a MUST defect, but request signing is SHOULD (SIG-026, L495: 'Platforms SHOULD sign all requests ... Alternative authentication mechanisms (API keys, OAuth, mTLS) may be used instead'). Fixed: unsigned requests are now skipped (never failed); the checks are conditional-on-signing (WHEN the agent signs, the signature MUST verify and MUST cover the required components), and the kill mutations are a signing agent that corrupts the signature or drops a required component (sign_corrupt / sign_omit_authority / sign_omit_digest / sign_omit_idem / ucp_agent_not_signed) — never one that declines to sign. Defect isolation verified diagonal (each mutation trips exactly its own row's check). Component scheme matches the merchant webhook signer (p_webhook_components, SIG-014/015). Denominator grew honestly to 101 (SIG-014/015/016 added to AGENT_EXTRA as platform-request-signer obligations; SIG-011 proxy-re-serialization and SIG-022 idempotency-entropy remain honest gaps, not reverse-harness-testable).",
+   "ids": {
+    "2026-04-08": [
+     "SIG-001",
+     "SIG-014",
+     "SIG-015",
+     "SIG-016",
+     "SIG-018"
+    ]
+   }
   }
  ]
 }

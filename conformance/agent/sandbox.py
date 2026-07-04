@@ -59,12 +59,21 @@ class _Handler(BaseHTTPRequestHandler):
         host = self.headers.get("Host") or f"127.0.0.1:{self.server.server_address[1]}"
         return f"http://{host}"
 
-    def _read(self):
+    def _read_raw(self):
         n = int(self.headers.get("Content-Length") or 0)
-        try:
-            return json.loads(self.rfile.read(n) or b"{}")
-        except Exception:
-            return {}
+        return self.rfile.read(n)
+
+    def _verify_request_sig(self, raw):
+        """The business/receiver's obligation: verify the platform's RFC 9421 request
+        signature (SIG-001/SIG-018). Enabled when the harness hands us the agent's key. An
+        unsigned/invalid request is rejected 401 — so the agent's request signing is real."""
+        jwks = getattr(self.server, "agent_jwks", None)
+        if not jwks:
+            return True
+        authority = self.headers.get("Host") or f"127.0.0.1:{self.server.server_address[1]}"
+        ok, _reason = crypto.verify_request("POST", authority, self.path, raw,
+                                            dict(self.headers), jwks)
+        return ok
 
     def do_GET(self):
         base = self._base()
@@ -97,8 +106,15 @@ class _Handler(BaseHTTPRequestHandler):
         return self._send(404, {"error": "not found"})
 
     def do_POST(self):
-        body = self._read()
+        raw = self._read_raw()
+        try:
+            body = json.loads(raw or b"{}")
+        except Exception:
+            body = {}
         self.server.observed.append(("request", self.path, dict(self.headers)))
+        # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
+        if not self._verify_request_sig(raw):
+            return self._send(401, {"error": "signature_invalid"})
         if self.path == "/checkout-sessions":
             sid = "chk_" + uuid.uuid4().hex[:12]
             self.server.sessions[sid] = "incomplete"
@@ -121,14 +137,17 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 @contextmanager
-def serve(scenario="conformant"):
+def serve(scenario="conformant", agent_jwks=None):
     """Boot the sandbox on an ephemeral port; yield (base_url, server). `scenario` selects
-    the stimulus: "conformant" (default) or "bad_signature" (responses carry an invalid
-    RFC 9421 signature, which a conformant agent MUST reject)."""
+    the stimulus: "conformant" (default), "bad_signature" (responses carry an invalid RFC
+    9421 signature, which a conformant agent MUST reject), or "bad_iss" (OAuth Mix-Up).
+    `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
+    (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}
     httpd.scenario = scenario
+    httpd.agent_jwks = agent_jwks
     t = threading.Thread(target=httpd.serve_forever, daemon=True)
     t.start()
     try:
