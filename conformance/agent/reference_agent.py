@@ -56,6 +56,7 @@ DEFECTS = {
     "normalize_iss": "normalize (strip trailing slash) before comparing iss to issuer (IDL-061)",
     "skip_revocation": "unlink locally but do NOT revoke tokens at the revocation endpoint (IDL-014/055)",
     "adopt_prebaked_authz": "adopt the pre-baked OAuth request from continue_url instead of own (IDL-044)",
+    "reinit_fresh_link": "on insufficient_scope, re-request the FULL scope set not just the missing (IDL-048)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -88,6 +89,8 @@ class ReferenceAgent:
         self.link_scopes = []        # config.scopes from the identity_linking capability
         self.unknown_config_fields = []   # unrecognized future config fields (IDL-057)
         self.issued_tokens = []      # access tokens minted this session (to revoke on unlink)
+        self.current_token = None    # the Bearer token currently held
+        self.current_granted = set()  # the scope set granted to current_token (IDL-048)
 
     @staticmethod
     def signing_jwk():
@@ -298,9 +301,14 @@ class ReferenceAgent:
             body["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
             body["client_assertion"] = "eyJhbGciOiJFUzI1NiJ9.e30.sig"
         resp = self._send("token", "POST", "/oauth2/token", body)
-        tok = (resp.get("body") or {}).get("access_token")
+        rb = resp.get("body") or {}
+        tok = rb.get("access_token")
         if tok:
             self.issued_tokens.append(tok)
+            self.current_token = tok
+            # IDL-048: track the scope the AS granted this token (it may UNION prior grants
+            # under incremental authorization), so we can request only what is still missing.
+            self.current_granted = set((rb.get("scope") or "").split())
         return tok
 
     def unlink(self):
@@ -315,24 +323,37 @@ class ReferenceAgent:
             self._send("revoke", "POST", path,
                        {"token": tok, "token_type_hint": "access_token"})
 
-    def fetch_gated(self, path="/orders", max_rounds=4):
+    def fetch_gated(self, path="/orders", method="GET", max_rounds=5):
         """Access a user-authenticated (identity-gated) operation, driving the RFC 6750 §3
         WWW-Authenticate: Bearer flow. On a 401 `identity_required` (no scope) the platform
         derives an initial scope; on a 403 `insufficient_scope` it MUST extract the challenge
-        scope (IDL-009) and re-authorize incrementally. Each challenge MUST be processed
-        (IDL-008) and each retry MUST carry Authorization: Bearer (IDL-007)."""
-        resp = self._send("fetch_gated", "GET", path)      # first request: no token
+        scope (IDL-009) and re-authorize. IDL-048: it MUST request only the MISSING scope(s)
+        (challenge − already-granted), preserving prior grants via incremental authorization —
+        NOT re-initiate a fresh flow requesting the full set. The reinit_fresh_link defect
+        re-lists already-granted scopes. Each challenge MUST be processed (IDL-008); each retry
+        MUST carry Authorization: Bearer (IDL-007). Presents any token already held so a second
+        (higher-privilege) operation upgrades it incrementally rather than starting over."""
+        op = "fetch_gated"
         for _ in range(max_rounds):
+            h = self._headers()
+            if self.current_token and self.defect != "no_bearer_header":
+                h["Authorization"] = f"Bearer {self.current_token}"   # IDL-007
+            resp = self._send(op, method, path, headers=h)
             if resp.get("status") not in (401, 403):
                 return resp                                # success (or unhandled) -> done
             if self.defect == "no_bearer_retry":           # IDL-008: ignore the challenge
                 return resp
             wa = (resp.get("headers") or {}).get("www-authenticate", "")
-            m = re.search(r'scope="([^"]*)"', wa)          # IDL-009: scope from the challenge
-            if m:
-                scope = m.group(1)
+            m = re.search(r'scope="([^"]*)"', wa)
+            if m:                                          # IDL-009: scope from the challenge
+                challenge = set(m.group(1).split())
+                if self.defect == "reinit_fresh_link":     # IDL-048: re-list already-granted
+                    request = challenge
+                else:                                      # incremental: only the missing scope
+                    request = challenge - self.current_granted
                 if self.defect == "ignore_challenge_scope":
-                    scope = "dev.ucp.shopping.unrelated:read"   # not derived from the challenge
+                    request = {"dev.ucp.shopping.unrelated:read"}
+                scope = " ".join(sorted(request)) or " ".join(sorted(challenge))
             else:
                 scope = "openid"                           # 401 has no scope -> initial default
             # IDL-044: a pre-baked OAuth request may ride in continue_url; capture it so the
@@ -344,11 +365,8 @@ class ReferenceAgent:
                 prebaked = {k: (pq.get(k) or [None])[0]
                             for k in ("redirect_uri", "state", "code_challenge")}
             code = self.oauth_authorize(scope=scope, op="authorize_gated", prebaked=prebaked)
-            token = self.oauth_token(code, scope)
-            h = self._headers()
-            if self.defect != "no_bearer_header":          # IDL-007: Authorization: Bearer
-                h["Authorization"] = f"Bearer {token}"
-            resp = self._send("fetch_gated_retry", "GET", path, headers=h)
+            self.oauth_token(code, scope)                  # updates current_token / current_granted
+            op = "fetch_gated_retry"
         return resp
 
     @staticmethod
@@ -454,6 +472,11 @@ class ReferenceAgent:
         # A user-authenticated operation (order history): ungated except in the
         # auth_challenge scenario, where it exercises the WWW-Authenticate: Bearer flow.
         self.fetch_gated()
+        # IDL-048: a HIGHER-privilege operation (order cancel) — in the incremental_scope
+        # scenario it 403s a superset challenge (read+manage) while the agent already holds
+        # read, exercising incremental authorization (request only the missing `manage`). In
+        # other scenarios this endpoint 404s and is a no-op.
+        self.fetch_gated("/orders/ord_hist/cancel", method="POST")
         # IDL-014/055: simulate the user unlinking — revoke every identity token at the
         # business's RFC 7009 revocation endpoint (a no-op when no token was minted).
         self.unlink()

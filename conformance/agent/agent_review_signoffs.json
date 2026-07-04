@@ -204,6 +204,18 @@
      "IDL-056"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-c4-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "Wave A design card + INDEPENDENT implementation review (ran the gate, traced logs, checked the shared-fetch_gated rewrite for regressions); author verified citation verbatim + fixed the 2 real bugs the build surfaced + applied the review's cosmetic fix",
+   "spec_reverified": true,
+   "notes": "The most complex Wave-A check (rewrote the SHARED fetch_gated). agent.incremental_scope_only cites IDL-048 (L535-538: 'Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow — they MUST instead request only the missing scope(s) via incremental authorization to preserve previously granted scopes'; reinforced L509-511 'request only the scopes it does not yet have'). New incremental_scope scenario: GET /orders requires order:read; POST /orders/{id}/cancel requires order:read+order:manage and 403s a SUPERSET challenge while the token already holds order:read; /oauth2/token UNIONs grants per session. The reference agent requests ONLY the missing order:manage; kill reinit_fresh_link re-lists the granted order:read. Predicate: the post-superset-challenge authorize_gated scope MUST be non-empty AND disjoint from the current token's granted set (disjoint, not merely not-superset, is the correct encoding of 'only the missing'). TWO REAL BUGS found+fixed during the build: (1) the reference-gate shares one sandbox across clean+mutant runs, so incremental grant accumulation LEAKED between them (mutant pre-satisfied, no challenge fired) -> fixed by resetting server.granted+tokens on /.well-known/ucp discovery (each run_flow discovers once, before minting; reviewer confirmed it masks nothing — the predicate reads the agent's own log, not server state). (2) the bodyless cancel POST is signed WITHOUT content-digest, so sandbox._verify_request_sig now passes `raw or None` (empty body -> None) so the receiver reconstructs the same base; reviewer confirmed real-bodied POSTs are unaffected. Independent review: SOUND, kill-safe, faithful, and the shared fetch_gated rewrite preserves ALL other checks (29/29 sound; reinit_fresh_link is a genuine NO-OP in auth_challenge's single-scope flow so IDL-007/008/009/044 stay clean). Applied the review's one cosmetic fix (the cancel legitimately 404s in the conformant sanity flow -> run_agent's booted check now tolerates the expected /cancel 404 so the 'FLOW FAILED' message stops mis-firing). Denominator membership unchanged (drift gate green).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-048"
+    ]
+   }
   }
  ]
 }

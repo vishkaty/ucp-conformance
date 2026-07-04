@@ -74,7 +74,9 @@ class _Handler(BaseHTTPRequestHandler):
         if not jwks:
             return True
         authority = self.headers.get("Host") or f"127.0.0.1:{self.server.server_address[1]}"
-        ok, _reason = crypto.verify_request("POST", authority, self.path, raw,
+        # a bodyless POST (empty raw) is signed WITHOUT content-digest — pass None so the
+        # receiver reconstructs the same base (no spurious digest check).
+        ok, _reason = crypto.verify_request("POST", authority, self.path, raw or None,
                                             dict(self.headers), jwks)
         return ok
 
@@ -87,6 +89,11 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         base = self._base()
         if self.path == "/.well-known/ucp":
+            # discovery marks a NEW agent session — reset per-session grant state so the
+            # reference-gate's clean and mutant runs (which share one sandbox) don't leak
+            # accumulated scope/tokens into each other (IDL-048 incremental accumulation).
+            self.server.granted = set()
+            self.server.tokens = {}
             return self._send(200, {"ucp": {
                 "version": "2026-04-08", "status": "ok",
                 "signing_keys": [crypto.jwk_from_pub(SIG_KID, _SIG_Q)],
@@ -169,7 +176,8 @@ class _Handler(BaseHTTPRequestHandler):
             # lacking the order scope gets a 403 `insufficient_scope` challenge carrying the
             # required scope (spec L516-519), which the platform must extract and re-authorize
             # incrementally. Other scenarios leave it ungated (a no-op).
-            if self.server.scenario in ("auth_challenge", "prebaked_continue_url"):
+            if self.server.scenario in ("auth_challenge", "prebaked_continue_url",
+                                        "incremental_scope"):
                 auth = self.headers.get("Authorization") or ""
                 tok = auth[7:] if auth.startswith("Bearer ") else None
                 granted = self.server.tokens.get(tok) if tok else None
@@ -208,6 +216,29 @@ class _Handler(BaseHTTPRequestHandler):
         # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
         if not self._verify_request_sig(raw):
             return self._send(401, {"error": "signature_invalid"})
+        if self.path.startswith("/orders/") and self.path.endswith("/cancel"):
+            # a HIGHER-privilege order operation. In "incremental_scope" it requires the full
+            # {order:read, order:manage} set; a token holding only order:read gets a 403 whose
+            # challenge carries BOTH scopes — the platform must request only the missing
+            # order:manage (IDL-048). Other scenarios: not modelled (404).
+            if self.server.scenario != "incremental_scope":
+                return self._send(404, {"error": "not found"})
+            base = self._base()
+            MANAGE = "dev.ucp.shopping.order:manage"
+            auth = self.headers.get("Authorization") or ""
+            tok = auth[7:] if auth.startswith("Bearer ") else None
+            granted = self.server.tokens.get(tok) if tok else None
+            if granted is None:
+                wa = (f'Bearer realm="{base}", '
+                      f'resource_metadata="{base}/.well-known/oauth-protected-resource"')
+                return self._send(401, {"messages": [{"type": "error", "code": "identity_required"}]},
+                                  extra_headers={"WWW-Authenticate": wa})
+            if MANAGE not in granted.split():
+                wa = (f'Bearer realm="{base}", error="insufficient_scope", '
+                      f'scope="{ORDER_SCOPE} {MANAGE}"')
+                return self._send(403, {"messages": [{"type": "error", "code": "insufficient_scope"}]},
+                                  extra_headers={"WWW-Authenticate": wa})
+            return self._send(200, {"cancelled": True})
         if self.path == "/oauth2/revoke":
             # RFC 7009 token revocation — the platform calls this on user unlink (IDL-014/055).
             tok = (body or {}).get("token")
@@ -219,6 +250,11 @@ class _Handler(BaseHTTPRequestHandler):
             # to exactly what was requested; /orders later checks the granted scope.
             tok = "tok_" + uuid.uuid4().hex[:16]
             scope = body.get("scope") or ""
+            if self.server.scenario == "incremental_scope":
+                # incremental authorization: the AS UNIONs the new grant with prior grants,
+                # so a previously-granted scope is preserved (IDL-048).
+                self.server.granted |= set(scope.split())
+                scope = " ".join(sorted(self.server.granted))
             self.server.tokens[tok] = scope
             return self._send(200, {"access_token": tok, "token_type": "Bearer",
                                     "scope": scope, "expires_in": 3600})
@@ -272,7 +308,8 @@ def serve(scenario="conformant", agent_jwks=None):
     (RFC 8414 404s then the OIDC fallback also fails -> MUST abort), "iss_normalized" (the authz
     iss differs from the issuer only by a trailing slash -> MUST NOT normalize), "prebaked_continue_url"
     (the 401 challenge body carries a pre-baked OAuth request in continue_url the platform MUST
-    ignore), or "auth_challenge"
+    ignore), "incremental_scope" (a superset insufficient_scope challenge while the agent already
+    holds part of it -> MUST request only the missing scope), or "auth_challenge"
     (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is
     presented). `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
     (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
@@ -280,6 +317,7 @@ def serve(scenario="conformant", agent_jwks=None):
     httpd.observed = []
     httpd.sessions = {}
     httpd.tokens = {}                  # issued Bearer access token -> granted scope string
+    httpd.granted = set()              # accumulated granted scope set (incremental_scope, IDL-048)
     httpd.scenario = scenario
     httpd.agent_jwks = agent_jwks
     t = threading.Thread(target=httpd.serve_forever, daemon=True)

@@ -335,6 +335,37 @@ def p_owns_authz_request(log):
     return DEVIATION
 
 
+def p_incremental_scope_only(log):
+    """IDL-048: platforms MUST NOT retry an insufficient_scope response by re-initiating a
+    fresh flow requesting the FULL scope set — they MUST request only the MISSING scope(s) via
+    incremental authorization, preserving prior grants. (The spec is prescriptive: request
+    only the scopes not yet held; a cumulative re-request is a DEVIATION, not softened.) Find
+    the superset (>1 scope) insufficient_scope challenge; the subsequent authorize_gated MUST
+    request a scope set disjoint from what the current token already grants."""
+    # (Single superset challenge in the modelled flow; if multi-superset flows are added,
+    # freeze `granted` at each challenge rather than only the first.)
+    idx, granted = None, set()
+    for i, e in enumerate(log):
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        mm = re.search(r'scope="([^"]*)"', wa)
+        if mm and len(mm.group(1).split()) > 1:            # the superset challenge
+            idx = i
+        if e["op"] == "token" and idx is None:             # granted just before the challenge
+            sc = ((e.get("response") or {}).get("body") or {}).get("scope")
+            if sc is not None:
+                granted = set(sc.split())
+    if idx is None:
+        return CLEAN                         # no superset challenge -> N/A (single-scope flows)
+    for e in log[idx + 1:]:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            req = set((q.get("scope") or [""])[0].split())
+            if not req:
+                return DEVIATION             # requested nothing
+            return CLEAN if req.isdisjoint(granted) else DEVIATION   # no already-granted scope
+    return DEVIATION
+
+
 def p_revokes_token_on_unlink(log):
     """IDL-014 / IDL-055: on user unlink the platform MUST call the business's RFC 7009 token
     revocation endpoint for each identity token it holds. Require a `revoke` op that POSTs one
@@ -579,4 +610,7 @@ CHECKS = [
     ACheck("agent.owns_authz_request", ["IDL-044"], "MUST",
            p_owns_authz_request, kill_mutation="adopt_prebaked_authz",
            versions=["2026-04-08"], scenario="prebaked_continue_url"),
+    ACheck("agent.incremental_scope_only", ["IDL-048"], "MUST NOT",
+           p_incremental_scope_only, kill_mutation="reinit_fresh_link",
+           versions=["2026-04-08"], scenario="incremental_scope"),
 ]
