@@ -3,7 +3,7 @@
 agent_governance.py — the agent side's requirement-tracking governance, mirroring the
 merchant coverage/lock/review machinery so BOTH lanes are held to the same rigor.
 
-Four checks (all pass trivially at zero agent checks; they bite as coverage grows):
+Five checks (all pass trivially at zero agent checks; they bite as coverage grows):
   1. FRESHNESS  — committed agent_coverage.json matches what agent_matrix regenerates.
   2. RATCHET    — agent accounted (check+exempt) per version never drops below the floors
                   in agent_ratchet.json (floors only ever raised deliberately).
@@ -11,6 +11,12 @@ Four checks (all pass trivially at zero agent checks; they bite as coverage grow
                   agent check/exemption can't silently vanish (agent tests are permanent).
   4. SIGN-OFF   — every agent CHECK id carries an adversarial-review sign-off in
                   agent_review_signoffs.json (coverage can't grow without review).
+  5. DENOMINATOR-DRIFT — the live agent-denominator MEMBERSHIP matches the reviewed snapshot
+                  in agent_denominator_lock.json. Fails if any row silently enters/leaves the
+                  denominator (a new spec row, a heuristic change, a mis-classified business
+                  row) — the accuracy audit can't erode as coverage scales. Normal coverage
+                  growth never trips it (covering a gap doesn't change membership); moving the
+                  denominator requires a deliberate re-review + snapshot update.
 
 Run standalone or via run_agent (the agent lane calls it), so the single agent lane
 enforces the whole agent governance loop.
@@ -26,6 +32,7 @@ COV = os.path.join(HERE, "agent_coverage.json")
 RATCHET = os.path.join(HERE, "agent_ratchet.json")
 LOCK = os.path.join(HERE, "agent_coverage_lock.json")
 SIGN = os.path.join(HERE, "agent_review_signoffs.json")
+DENOM = os.path.join(HERE, "agent_denominator_lock.json")
 
 
 def _live_coverage():
@@ -83,6 +90,22 @@ def run():
             if rid not in signed:
                 fails.append(f"agent SIGN-OFF: check {chk.id} covers {rid} with no recorded "
                              f"adversarial review — add it to agent_review_signoffs.json")
+
+    # 5. denominator-drift: live membership must equal the reviewed snapshot
+    if os.path.exists(DENOM):
+        snap = json.load(open(DENOM)).get("versions", {})
+        for ver in agent_matrix.VERSIONS:
+            live_ids = set(agent_matrix.agent_rows(ver))
+            locked_ids = set(snap.get(ver, []))
+            added = sorted(live_ids - locked_ids)
+            removed = sorted(locked_ids - live_ids)
+            if added or removed:
+                fails.append(f"agent DENOMINATOR-DRIFT {ver}: membership changed vs the reviewed "
+                             f"snapshot (added {added}, removed {removed}). Re-adjudicate the "
+                             f"subject of each changed row (agent_denominator_audit.json), then "
+                             f"regenerate agent_denominator_lock.json deliberately.")
+    else:
+        fails.append("agent_denominator_lock.json missing — snapshot the reviewed denominator")
     return fails, live
 
 
