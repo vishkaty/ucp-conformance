@@ -309,6 +309,42 @@ def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
 
+def p_requests_only_derived_scopes(log):
+    """IDL-034: platforms MUST request only the derived scope set (config.scopes) — not a
+    superset. The linking authorize's scope tokens MUST all be within the advertised
+    config.scopes ceiling (requesting a subset is allowed; a superset is not)."""
+    ceiling = None
+    for e in log:
+        if e["op"] == "discover":
+            caps = (((e.get("response") or {}).get("body") or {}).get("ucp") or {}).get("capabilities") or {}
+            il = caps.get("dev.ucp.common.identity_linking") or [{}]
+            sc = ((il[0] or {}).get("config") or {}).get("scopes")
+            if sc is not None:
+                ceiling = set(sc.keys())
+    if not ceiling:
+        return DEVIATION                     # the sandbox advertises config.scopes here
+    for e in log:
+        if e["op"] == "authorize":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            requested = set((q.get("scope") or [""])[0].split())
+            ucp_tokens = {t for t in requested if ":" in t}   # ignore OIDC baseline scopes
+            if ucp_tokens - ceiling:                          # a scope outside config.scopes
+                return DEVIATION
+    return CLEAN
+
+
+def p_ignores_future_config(log):
+    """IDL-057: when config carries fields not defined in this version, platforms MUST ignore
+    them and proceed with OAuth 2.0 + RFC 8414 discovery. Require the agent to have SEEN an
+    unknown config field AND still performed as_discovery + authorize (did not abort)."""
+    saw_unknown = any(e["op"] == "discover" and e.get("unknown_config_fields") for e in log)
+    if not saw_unknown:
+        return DEVIATION                     # the future_config sandbox always injects one
+    aborted = any(e.get("aborted_on_unknown_config") for e in log)
+    proceeded = any(e["op"] == "as_discovery" for e in log) and any(e["op"] == "authorize" for e in log)
+    return CLEAN if (proceeded and not aborted) else DEVIATION
+
+
 def p_authorization_code_flow(log):
     """IDL-010: the account-linking mechanism MUST be the OAuth 2.0 Authorization Code flow.
     Every authorization request MUST declare response_type=code, and every token exchange
@@ -462,4 +498,10 @@ CHECKS = [
     ACheck("agent.uses_advertised_auth_method", ["IDL-002"], "MUST",
            p_uses_advertised_auth_method, kill_mutation="unadvertised_auth_method",
            versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.requests_only_derived_scopes", ["IDL-034"], "MUST",
+           p_requests_only_derived_scopes, kill_mutation="request_scope_superset",
+           versions=["2026-04-08"]),
+    ACheck("agent.ignores_future_config", ["IDL-057"], "MUST",
+           p_ignores_future_config, kill_mutation="abort_on_future_config",
+           versions=["2026-04-08"], scenario="future_config"),
 ]

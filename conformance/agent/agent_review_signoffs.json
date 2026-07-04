@@ -150,6 +150,19 @@
      "IDL-010"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-c2-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "Wave A parallel design card + INDEPENDENT implementation review; author verified citations verbatim + config.scopes shape vs the spec example + diagonal isolation empirically",
+   "spec_reverified": true,
+   "notes": "Config/scope cluster (Wave A). Both under identity-linking.md '### For Platforms'. IDL-034 (L297-299: 'Platforms MUST request only the derived scope set — not a superset') -> agent.requests_only_derived_scopes: the linking authorize's UCP scope tokens (those with ':') MUST be a subset of the advertised config.scopes ceiling; grades the SUPERSET direction only (a subset/empty request is conformant per Scope Derivation step 3 L387-394); kill request_scope_superset appends dev.ucp.shopping.order:admin (not in config.scopes). The sandbox profile now advertises capabilities['dev.ucp.common.identity_linking'][0].config.scopes = {order:read:{}, order:manage:{}} — a wire-scope->policy-object map matching the spec example L714-722 byte-for-byte — and the reference agent's main authorize requests exactly that derived set (was 'openid'). IDL-057 (L651-654: 'When config contains fields not defined in this version of the spec (providers or any other future field), platforms MUST ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery') -> agent.ignores_future_config (new future_config scenario injects an unrecognized `providers` field): the agent recorded a non-empty unknown_config_fields AND still performed as_discovery (the RFC 8414 op) + authorize (did not abort); the predicate is NOT coupled to the field name (any key other than scopes trips it); kill abort_on_future_config returns after discover. Independent review returned BOTH SOUND, no fixes — faithful citations, correct platform subject, genuine kills, spec-accurate shapes, no trivial pass, and confirmed the main-authorize scope change ('openid'->derived) perturbs NO existing check (only IDL-034 reads scope; IDL-009 reads authorize_gated; IDL-011/012/035 read PKCE/iss/state) and that adding the identity_linking capability perturbs nothing (no existing predicate reads capabilities). Denominator membership unchanged (both were gaps) so the drift gate stays green.",
+   "ids": {
+    "2026-04-08": [
+     "IDL-034",
+     "IDL-057"
+    ]
+   }
   }
  ]
 }

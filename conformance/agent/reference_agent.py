@@ -50,6 +50,8 @@ DEFECTS = {
     # OAuth flow shape
     "implicit_grant": "use the implicit grant (response_type=token) not the code flow (IDL-010)",
     "unadvertised_auth_method": "authenticate the token request with an unadvertised method (IDL-002)",
+    "request_scope_superset": "request a scope outside the advertised config.scopes (IDL-034)",
+    "abort_on_future_config": "abort linking on an unrecognized future config field (IDL-057)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -79,6 +81,8 @@ class ReferenceAgent:
         self.jwks = []         # business signing keys, learned at discovery
         self.identity = {}     # OAuth2 identity metadata, learned at discovery
         self._pkce_verifier = None   # PKCE verifier from the last authorize (proof at /token)
+        self.link_scopes = []        # config.scopes from the identity_linking capability
+        self.unknown_config_fields = []   # unrecognized future config fields (IDL-057)
 
     @staticmethod
     def signing_jwk():
@@ -162,7 +166,23 @@ class ReferenceAgent:
         prof = (r.get("body") or {}).get("ucp") or {}
         self.jwks = prof.get("signing_keys") or []
         self.identity = prof.get("identity") or {}
+        # dev.ucp.common.identity_linking: capture config.scopes (the derived scope set) and any
+        # unrecognized future config fields (IDL-034 / IDL-057).
+        il = (prof.get("capabilities") or {}).get("dev.ucp.common.identity_linking") or [{}]
+        cfg = (il[0] or {}).get("config") or {}
+        self.link_scopes = list((cfg.get("scopes") or {}).keys())
+        self.unknown_config_fields = [k for k in cfg if k != "scopes"]
+        self.log[-1]["unknown_config_fields"] = list(self.unknown_config_fields)
         return r
+
+    def _derive_link_scopes(self):
+        """IDL-034: the derived scope set = the config.scopes keys (a conformant platform MAY
+        request a subset; it MUST NOT request a superset). The request_scope_superset defect
+        appends a scope the business never advertised."""
+        scopes = list(self.link_scopes)
+        if self.defect == "request_scope_superset":
+            scopes.append("dev.ucp.shopping.order:admin")   # not in config.scopes
+        return scopes
 
     def discover_oauth_metadata(self):
         """RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257):
@@ -341,13 +361,20 @@ class ReferenceAgent:
         """Drive a conformant shopping flow (discover -> create -> complete -> handle
         escalation); return the session log for grading."""
         self.discover()
+        # IDL-057: when config carries unrecognized future fields, a conformant platform MUST
+        # IGNORE them and proceed with OAuth 2.0 + RFC 8414 discovery. The abort_on_future_config
+        # defect instead chokes and stops (forward-incompatible).
+        if self.unknown_config_fields and self.defect == "abort_on_future_config":
+            self.log[-1]["aborted_on_unknown_config"] = True
+            return self.log
         self.discover_oauth_metadata()     # RFC 8414 AS-metadata discovery (issuer/abort rules)
         # IDL-031/033: a discovery abort (non-404 error) or a rejected issuer MUST abort the
         # identity-linking process — do not proceed to authorization with unverified metadata.
         as_entry = next((e for e in reversed(self.log) if e["op"] == "as_discovery"), None)
         if as_entry and (as_entry.get("aborted") or as_entry.get("rejected")):
             return self.log
-        self.oauth_authorize()             # identity-linking (OAuth2 + PKCE + iss), if advertised
+        # IDL-034: request exactly the derived config.scopes set (no superset) on the linking leg.
+        self.oauth_authorize(scope=" ".join(self._derive_link_scopes()) or "openid")
         c = self.create_checkout(product_id)
         if self.log[-1].get("rejected"):   # rejected a bad business signature -> stop here
             return self.log

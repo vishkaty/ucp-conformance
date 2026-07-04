@@ -78,6 +78,12 @@ class _Handler(BaseHTTPRequestHandler):
                                             dict(self.headers), jwks)
         return ok
 
+    def _identity_linking_config(self):
+        cfg = {"scopes": {"dev.ucp.shopping.order:read": {}, "dev.ucp.shopping.order:manage": {}}}
+        if self.server.scenario == "future_config":
+            cfg["providers"] = {"com.example.idp": {"type": "oauth2"}}   # unrecognized future field
+        return cfg
+
     def do_GET(self):
         base = self._base()
         if self.path == "/.well-known/ucp":
@@ -93,7 +99,14 @@ class _Handler(BaseHTTPRequestHandler):
                              "authorization_response_iss_parameter_supported": True},
                 "services": {"dev.ucp.shopping": [
                     {"transport": "rest", "endpoint": base}]},
-                "capabilities": {"dev.ucp.shopping.checkout": [{}]}}})
+                "capabilities": {"dev.ucp.shopping.checkout": [{}],
+                                 # dev.ucp.common.identity_linking config.scopes (the derived
+                                 # scope set the platform MUST request — no superset, IDL-034).
+                                 # In "future_config" the config also carries an unrecognized
+                                 # future field the platform MUST ignore (IDL-057).
+                                 "dev.ucp.common.identity_linking": [{
+                                     "version": "2026-04-08",
+                                     "config": self._identity_linking_config()}]}}})
         if self.path == "/.well-known/oauth-authorization-server":
             # RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257).
             # "discovery_error" returns a non-404 error (agent MUST abort, MUST NOT fall through
@@ -222,9 +235,10 @@ def serve(scenario="conformant", agent_jwks=None):
     MUST discard it), "bad_issuer" (RFC 8414 metadata issuer doesn't byte-match the discovery
     base), "discovery_error" (RFC 8414 returns a non-404 error — MUST abort, no OIDC
     fall-through), "mismatched_totals" (the checkout's `total` breaks the totals arithmetic —
-    a conformant agent MUST NOT autonomously complete), or "auth_challenge" (the gated /orders
-    op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is presented).
-    `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
+    a conformant agent MUST NOT autonomously complete), "future_config" (the identity_linking
+    config carries an unrecognized future field the platform MUST ignore), or "auth_challenge"
+    (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is
+    presented). `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
     (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
