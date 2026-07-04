@@ -335,6 +335,27 @@ def p_owns_authz_request(log):
     return DEVIATION
 
 
+def p_ignores_error_description(log):
+    """IDL-051: platforms MUST process the STRUCTURED scope/error parameters to drive
+    authorization-flow decisions; error_description MUST NOT be used for control-flow. Against
+    a challenge whose error_description names a decoy authorization endpoint, a conformant agent
+    authorizes at the DISCOVERED endpoint — never the decoy from the prose."""
+    decoy = None
+    for e in log:
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        md = re.search(r'error_description="([^"]*)"', wa)
+        um = re.search(r'https?://[^\s"]+', md.group(1)) if md else None
+        if um:
+            decoy = urllib.parse.urlparse(um.group(0)).path
+    if not decoy:
+        return CLEAN                         # no misleading error_description -> N/A
+    for e in log:
+        if e["op"] == "authorize_gated" \
+                and urllib.parse.urlparse(e["request"]["path"]).path == decoy:
+            return DEVIATION                 # authorized at the prose-supplied decoy endpoint
+    return CLEAN
+
+
 def p_incremental_scope_only(log):
     """IDL-048: platforms MUST NOT retry an insufficient_scope response by re-initiating a
     fresh flow requesting the FULL scope set — they MUST request only the MISSING scope(s) via
@@ -538,6 +559,8 @@ CHECKS = [
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
     ACheck("agent.follows_escalation", ["CHK-008", "PAY-017"], "MUST",
            p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
+    # (IDL-001 "uses OAuth 2.0 as the v1 auth mechanism" co-cited on uses_authorization_code_flow
+    #  below; IDL-038 "treat config.scopes as gating ops behind user auth" on processes_auth_challenge)
     ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
            p_verifies_business_signature, kill_mutation="skip_sig_verify",
            versions=["2026-04-08"], scenario="bad_signature"),
@@ -557,7 +580,7 @@ CHECKS = [
     ACheck("agent.signs_ucp_agent_component", ["SIG-018"], "MUST",
            p_signs_ucp_agent_component, kill_mutation="ucp_agent_not_signed",
            versions=["2026-04-08"]),
-    ACheck("agent.processes_auth_challenge", ["IDL-008"], "MUST",
+    ACheck("agent.processes_auth_challenge", ["IDL-008", "IDL-038"], "MUST",
            p_processes_auth_challenge, kill_mutation="no_bearer_retry",
            versions=["2026-04-08"], scenario="auth_challenge"),
     ACheck("agent.sends_bearer_token", ["IDL-007"], "MUST",
@@ -587,7 +610,7 @@ CHECKS = [
     ACheck("agent.honors_available_instruments", ["PAY-009", "PAY-010"], "MUST NOT",
            p_honors_available_instruments, kill_mutation="use_unavailable_instrument",
            versions=["2026-04-08"]),
-    ACheck("agent.uses_authorization_code_flow", ["IDL-010"], "MUST",
+    ACheck("agent.uses_authorization_code_flow", ["IDL-010", "IDL-001"], "MUST",
            p_authorization_code_flow, kill_mutation="implicit_grant", versions=["2026-04-08"]),
     ACheck("agent.uses_advertised_auth_method", ["IDL-002"], "MUST",
            p_uses_advertised_auth_method, kill_mutation="unadvertised_auth_method",
@@ -613,4 +636,7 @@ CHECKS = [
     ACheck("agent.incremental_scope_only", ["IDL-048"], "MUST NOT",
            p_incremental_scope_only, kill_mutation="reinit_fresh_link",
            versions=["2026-04-08"], scenario="incremental_scope"),
+    ACheck("agent.ignores_error_description", ["IDL-051"], "MUST NOT",
+           p_ignores_error_description, kill_mutation="follow_error_description",
+           versions=["2026-04-08"], scenario="misleading_error_description"),
 ]

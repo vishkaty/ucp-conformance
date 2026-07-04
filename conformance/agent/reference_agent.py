@@ -57,6 +57,7 @@ DEFECTS = {
     "skip_revocation": "unlink locally but do NOT revoke tokens at the revocation endpoint (IDL-014/055)",
     "adopt_prebaked_authz": "adopt the pre-baked OAuth request from continue_url instead of own (IDL-044)",
     "reinit_fresh_link": "on insufficient_scope, re-request the FULL scope set not just the missing (IDL-048)",
+    "follow_error_description": "authorize at a decoy endpoint named in error_description prose (IDL-051)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -234,7 +235,7 @@ class ReferenceAgent:
             self.log[-1]["aborted"] = True
         return None
 
-    def oauth_authorize(self, scope="openid", op="authorize", prebaked=None):
+    def oauth_authorize(self, scope="openid", op="authorize", prebaked=None, authorize_path=None):
         """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
         the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207).
         Returns the authorization `code`. `scope` is carried on the request (IDL-009 derives
@@ -265,8 +266,11 @@ class ReferenceAgent:
         if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
             params["code_challenge"] = challenge
             params["code_challenge_method"] = "S256"
-        resp = self._send(op, "GET",
-                          "/oauth2/authorize?" + urllib.parse.urlencode(params))
+        # IDL-051: authorize at the DISCOVERED authorization_endpoint. authorize_path is an
+        # override the follow_error_description defect uses to (wrongly) target a decoy from a
+        # hostile error_description.
+        ep = authorize_path or (urllib.parse.urlparse(ae).path or "/oauth2/authorize")
+        resp = self._send(op, "GET", ep + "?" + urllib.parse.urlencode(params))
         b = resp.get("body") or {}
         entry = self.log[-1]
         if self.defect != "skip_state_validation":         # IDL-035: state must match sent value
@@ -364,7 +368,17 @@ class ReferenceAgent:
                 pq = urllib.parse.parse_qs(urllib.parse.urlparse(cu).query)
                 prebaked = {k: (pq.get(k) or [None])[0]
                             for k in ("redirect_uri", "state", "code_challenge")}
-            code = self.oauth_authorize(scope=scope, op="authorize_gated", prebaked=prebaked)
+            # IDL-051: a conformant agent drives control-flow from the STRUCTURED scope/error,
+            # never from error_description prose. follow_error_description (wrongly) extracts a
+            # decoy authorization endpoint from error_description and authorizes there.
+            authorize_path = None
+            if self.defect == "follow_error_description":
+                md = re.search(r'error_description="([^"]*)"', wa)
+                um = re.search(r'https?://[^\s"]+', md.group(1)) if md else None
+                if um:
+                    authorize_path = urllib.parse.urlparse(um.group(0)).path
+            code = self.oauth_authorize(scope=scope, op="authorize_gated", prebaked=prebaked,
+                                        authorize_path=authorize_path)
             self.oauth_token(code, scope)                  # updates current_token / current_granted
             op = "fetch_gated_retry"
         return resp

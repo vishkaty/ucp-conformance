@@ -216,6 +216,20 @@
      "IDL-048"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-defer-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "INDEPENDENT adjudication of the 3 Wave-A DEFER rows (disposition: co-cite/build/exempt) + INDEPENDENT implementation review of the IDL-051 build (both SOUND); author verified co-cite faithfulness + citations verbatim + diagonal isolation",
+   "spec_reverified": true,
+   "notes": "Closes Wave A: the 3 rows the design-critic deferred, resolved by an independent adjudication (refused to lazily exempt). IDL-001 (L34-35 declarative 'This specification uses OAuth 2.0 as the v1 auth mechanism') -> CO-CITE onto agent.uses_authorization_code_flow: no standalone diagonal exists (any 'not OAuth 2.0' also trips IDL-004/007/010/011), but that check's CLEAN state (response_type=code + grant_type=authorization_code) exercises a live OAuth 2.0 auth-code grant; its kill implicit_grant breaks 'uses OAuth 2.0'. IDL-038 (L348-350 'MUST treat any config.scopes scope as gating its operations behind user authentication') -> CO-CITE onto agent.processes_auth_challenge: a proactive-auth BUILD would be over-strict (the reference is reactive-but-correct) and the weaker observable ('obtained gated data only after auth') is entirely IDL-007/008 territory + its negative is unobservable (the business enforces the gate); processes_auth_challenge's CLEAN = 'saw the ORDER_SCOPE-gated /orders return a Bearer challenge and honored it by authenticating+retrying' = treating the scope as gating the op; kill no_bearer_retry breaks it. IDL-051 (L596-599 'error_description is a human-readable hint only and MUST NOT be used for control-flow decisions') -> BUILD (the adjudicator found a genuine ORTHOGONAL diagonal): new misleading_error_description scenario — the 403 has correct structured params but a hostile error_description naming a decoy /oauth2/altauthorize; kill follow_error_description parses the prose URL and authorizes at the decoy (a real phishing/open-redirect), while STILL retrying (IDL-008 CLEAN) and using order:read (IDL-009 CLEAN) — so only agent.ignores_error_description catches it. Independent implementation review: SOUND, no fixes, confirmed the orthogonal diagonal by running all 30 predicates (0 decoy hits clean / 1 mutant), no regressions (authorize_path defaults to the discovered endpoint). All 30 checks sound. Denominator membership unchanged (all 3 were GAPs).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-001",
+     "IDL-038",
+     "IDL-051"
+    ]
+   }
   }
  ]
 }
