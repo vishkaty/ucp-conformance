@@ -137,6 +137,19 @@
      "PAY-010"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-c1-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "Wave A parallel design (independent design agent + batch completeness-critic) THEN an INDEPENDENT implementation review of the built checks; author verified citations verbatim + diagonal isolation empirically",
+   "spec_reverified": true,
+   "notes": "First serial-integration cluster of the parallel-coverage plan (design cards in ops/agent-waves/wave-a-cards.json). Both under identity-linking.md '### For Platforms' (agent subject). IDL-010 (L132-134: 'MUST implement the OAuth 2.0 Authorization Code flow (RFC 6749 section 4.1) as the account linking mechanism') -> agent.uses_authorization_code_flow asserts every authorize/authorize_gated op carries response_type=code and every token op grant_type=authorization_code; kill implicit_grant sets response_type=token (RFC 6749 section 4.2 implicit — a different flow). IDL-002 (L98-100: 'MUST authenticate token endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata') -> agent.uses_advertised_auth_method infers the token-request method (Basic->client_secret_basic, body.client_secret->client_secret_post, client_assertion->private_key_jwt, else none) and requires it in the advertised set; the sandbox RFC 8414 metadata advertises [none, client_secret_basic, client_secret_post] and the public-client reference uses 'none'; kill unadvertised_auth_method authenticates with private_key_jwt (unadvertised) while keeping code_verifier and no client_secret. Independent implementation review returned BOTH SOUND, no fixes required — faithful citations, correct subject, genuine violations, fail-closed guards (absent metadata / no token op -> DEVIATION), and empirically-verified one-check isolation (implicit_grant trips ONLY IDL-010; unadvertised_auth_method ONLY IDL-002). Two cosmetic notes recorded (IDL-010's grant_type half is vacuous in the conformant scenario since /orders is ungated there — belt-and-suspenders; _token_auth_method doesn't model tls_client_auth/client_secret_jwt — out of sandbox scope, code-commented). Denominator membership unchanged (both were already gaps) so the drift gate stays green.",
+   "ids": {
+    "2026-04-08": [
+     "IDL-002",
+     "IDL-010"
+    ]
+   }
   }
  ]
 }

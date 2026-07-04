@@ -309,6 +309,60 @@ def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
 
+def p_authorization_code_flow(log):
+    """IDL-010: the account-linking mechanism MUST be the OAuth 2.0 Authorization Code flow.
+    Every authorization request MUST declare response_type=code, and every token exchange
+    MUST use grant_type=authorization_code."""
+    auth = [e for e in log if e["op"] in ("authorize", "authorize_gated")]
+    if not auth:
+        return DEVIATION                     # identity is advertised; an authorize op is expected
+    for e in auth:
+        q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+        if q.get("response_type") != ["code"]:
+            return DEVIATION
+    for b in _token_bodies(log):
+        if b.get("grant_type") != "authorization_code":
+            return DEVIATION
+    return CLEAN
+
+
+def _token_auth_method(entry):
+    """Infer the RFC 8414 token-endpoint auth method used on a token request. (Scope: the
+    sandbox models none/client_secret_basic/client_secret_post/private_key_jwt; it does not
+    model tls_client_auth (would read as none) or client_secret_jwt (read as private_key_jwt)
+    — neither is advertised here, so this doesn't affect grading.)"""
+    h = entry["request"]["headers"] or {}
+    b = entry["request"].get("body") or {}
+    if h.get("Authorization", "").startswith("Basic "):
+        return "client_secret_basic"
+    if b.get("client_secret"):
+        return "client_secret_post"
+    if b.get("client_assertion") and b.get("client_assertion_type"):
+        return "private_key_jwt"
+    return "none"
+
+
+def p_uses_advertised_auth_method(log):
+    """IDL-002: platforms MUST authenticate token-endpoint requests using a method advertised
+    in the business's token_endpoint_auth_methods_supported metadata. The public-client
+    reference uses 'none' (advertised); an unadvertised method (private_key_jwt) is a violation."""
+    advertised = None
+    for e in log:
+        if e["op"] == "as_discovery":
+            m = (e.get("response") or {}).get("body") or {}
+            if m.get("token_endpoint_auth_methods_supported") is not None:
+                advertised = set(m["token_endpoint_auth_methods_supported"])
+    if advertised is None:
+        return DEVIATION                     # the sandbox advertises it in this scenario
+    toks = [e for e in log if e["op"] == "token"]
+    if not toks:
+        return DEVIATION                     # the auth_challenge flow must reach a token exchange
+    for e in toks:
+        if _token_auth_method(e) not in advertised:
+            return DEVIATION
+    return CLEAN
+
+
 def p_public_client_pkce_proof(log):
     """IDL-004: public clients MUST use token-endpoint auth method 'none' and rely on PKCE
     (S256) as proof-of-possession of the authorization code. Every token exchange MUST
@@ -403,4 +457,9 @@ CHECKS = [
     ACheck("agent.honors_available_instruments", ["PAY-009", "PAY-010"], "MUST NOT",
            p_honors_available_instruments, kill_mutation="use_unavailable_instrument",
            versions=["2026-04-08"]),
+    ACheck("agent.uses_authorization_code_flow", ["IDL-010"], "MUST",
+           p_authorization_code_flow, kill_mutation="implicit_grant", versions=["2026-04-08"]),
+    ACheck("agent.uses_advertised_auth_method", ["IDL-002"], "MUST",
+           p_uses_advertised_auth_method, kill_mutation="unadvertised_auth_method",
+           versions=["2026-04-08"], scenario="auth_challenge"),
 ]

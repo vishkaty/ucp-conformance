@@ -107,6 +107,10 @@ class _Handler(BaseHTTPRequestHandler):
                 "authorization_endpoint": base + "/oauth2/authorize",
                 "token_endpoint": base + "/oauth2/token",
                 "code_challenge_methods_supported": ["S256"],
+                # IDL-002: the platform MUST authenticate token requests with an advertised
+                # method. A public client uses "none"; private_key_jwt is deliberately absent.
+                "token_endpoint_auth_methods_supported": ["none", "client_secret_basic",
+                                                          "client_secret_post"],
                 "authorization_response_iss_parameter_supported": True})
         if self.path == "/.well-known/openid-configuration":
             # OIDC Discovery fallback (step 2) — only legitimately reached after a 404 above.

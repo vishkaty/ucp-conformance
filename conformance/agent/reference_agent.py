@@ -47,6 +47,9 @@ DEFECTS = {
     # RFC 8414 authorization-server metadata discovery
     "normalize_issuer": "normalize (strip trailing slash) before the issuer match (IDL-033)",
     "oidc_fallthrough_on_error": "fall through to OIDC on a non-404 discovery error (IDL-031/032)",
+    # OAuth flow shape
+    "implicit_grant": "use the implicit grant (response_type=token) not the code flow (IDL-010)",
+    "unadvertised_auth_method": "authenticate the token request with an unadvertised method (IDL-002)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -206,7 +209,11 @@ class ReferenceAgent:
         self._pkce_verifier = verifier                     # kept to prove possession at /token
         challenge = crypto.b64url(hashlib.sha256(verifier.encode()).digest())
         sent_state = uuid.uuid4().hex
-        params = {"response_type": "code", "client_id": "spck-agent",
+        # IDL-010: the account-linking mechanism MUST be the OAuth 2.0 Authorization Code flow
+        # (response_type=code). The implicit_grant defect requests the RFC 6749 §4.2 implicit
+        # grant (response_type=token) instead.
+        rt = "token" if self.defect == "implicit_grant" else "code"
+        params = {"response_type": rt, "client_id": "spck-agent",
                   "redirect_uri": self.PROFILE + "/cb", "state": sent_state,
                   "scope": scope}
         if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
@@ -238,6 +245,11 @@ class ReferenceAgent:
             body["code_verifier"] = self._pkce_verifier
         if self.defect == "embed_client_secret":           # IDL-005 violation (public client)
             body["client_secret"] = "shhh-should-not-exist"
+        if self.defect == "unadvertised_auth_method":      # IDL-002: method not in advertised set
+            # authenticate with private_key_jwt (client_assertion) — a method the business's
+            # token_endpoint_auth_methods_supported does NOT advertise (it lists none/basic/post)
+            body["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+            body["client_assertion"] = "eyJhbGciOiJFUzI1NiJ9.e30.sig"
         resp = self._send("token", "POST", "/oauth2/token", body)
         return (resp.get("body") or {}).get("access_token")
 
