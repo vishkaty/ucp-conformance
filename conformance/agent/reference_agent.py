@@ -40,6 +40,10 @@ DEFECTS = {
     "no_bearer_retry": "ignore the 401 WWW-Authenticate: Bearer challenge; do NOT retry (IDL-008)",
     "no_bearer_header": "retry the gated op WITHOUT an Authorization: Bearer header (IDL-007)",
     "ignore_challenge_scope": "do NOT derive the authz scope from the challenge (IDL-009)",
+    # OAuth public-client + authorization-response hygiene
+    "no_pkce_verifier": "omit the PKCE code_verifier from the token exchange (IDL-004)",
+    "embed_client_secret": "embed a client_secret in the token request (public client) (IDL-005)",
+    "skip_state_validation": "do NOT validate the authorization-response state (IDL-035)",
 }
 
 # request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
@@ -65,6 +69,7 @@ class ReferenceAgent:
         self.log = []          # [{op, request:{...}, response:{...}, sig_verified?, rejected?}]
         self.jwks = []         # business signing keys, learned at discovery
         self.identity = {}     # OAuth2 identity metadata, learned at discovery
+        self._pkce_verifier = None   # PKCE verifier from the last authorize (proof at /token)
 
     @staticmethod
     def signing_jwk():
@@ -160,9 +165,11 @@ class ReferenceAgent:
         if not ae:
             return None
         verifier = uuid.uuid4().hex + uuid.uuid4().hex
+        self._pkce_verifier = verifier                     # kept to prove possession at /token
         challenge = crypto.b64url(hashlib.sha256(verifier.encode()).digest())
+        sent_state = uuid.uuid4().hex
         params = {"response_type": "code", "client_id": "spck-agent",
-                  "redirect_uri": self.PROFILE + "/cb", "state": uuid.uuid4().hex,
+                  "redirect_uri": self.PROFILE + "/cb", "state": sent_state,
                   "scope": scope}
         if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
             params["code_challenge"] = challenge
@@ -170,19 +177,29 @@ class ReferenceAgent:
         resp = self._send(op, "GET",
                           "/oauth2/authorize?" + urllib.parse.urlencode(params))
         b = resp.get("body") or {}
+        entry = self.log[-1]
+        if self.defect != "skip_state_validation":         # IDL-035: state must match sent value
+            entry["state_validated"] = (b.get("state") == sent_state)
+            if not entry["state_validated"]:
+                entry["rejected"] = True                   # discard a mismatched state (CSRF)
         if self.defect != "skip_iss_validation":           # IDL-012: validate iss (Mix-Up)
-            entry = self.log[-1]
             entry["iss_validated"] = (b.get("iss") == ident.get("issuer"))
             if not entry["iss_validated"]:
                 entry["rejected"] = True                   # reject a mismatched issuer
         return b.get("code")
 
     def oauth_token(self, code, scope):
-        """Exchange the authorization code for a Bearer access token (OAuth2 token endpoint)."""
+        """Exchange the authorization code for a Bearer access token. As a PUBLIC client the
+        agent authenticates with PKCE (code_verifier, IDL-004) and MUST NOT embed a
+        client_secret (IDL-005)."""
         if not (self.identity or {}).get("token_endpoint"):
             return None
         body = {"grant_type": "authorization_code", "code": code,
                 "redirect_uri": self.PROFILE + "/cb", "scope": scope}
+        if self.defect != "no_pkce_verifier":              # IDL-004: PKCE proof-of-possession
+            body["code_verifier"] = self._pkce_verifier
+        if self.defect == "embed_client_secret":           # IDL-005 violation (public client)
+            body["client_secret"] = "shhh-should-not-exist"
         resp = self._send("token", "POST", "/oauth2/token", body)
         return (resp.get("body") or {}).get("access_token")
 

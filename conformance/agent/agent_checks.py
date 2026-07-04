@@ -246,6 +246,50 @@ def p_extracts_challenge_scope(log):
     return DEVIATION
 
 
+def _token_bodies(log):
+    return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
+
+
+def p_public_client_pkce_proof(log):
+    """IDL-004: public clients MUST use token-endpoint auth method 'none' and rely on PKCE
+    (S256) as proof-of-possession of the authorization code. Every token exchange MUST
+    present a code_verifier."""
+    bodies = _token_bodies(log)
+    if not bodies:
+        return DEVIATION                     # the flow must reach a token exchange here
+    for b in bodies:
+        if not b.get("code_verifier"):
+            return DEVIATION
+    return CLEAN
+
+
+def p_no_client_secret(log):
+    """IDL-005: public clients MUST NOT embed a client_secret. Reject a token request carrying
+    one anywhere a client_secret can hide: the request body, an `Authorization: Basic` header
+    (client_secret_basic — the spec's own token example uses this form), or the query string."""
+    for e in log:
+        if e["op"] != "token":
+            continue
+        if (e["request"].get("body") or {}).get("client_secret"):
+            return DEVIATION
+        if (e["request"]["headers"] or {}).get("Authorization", "").startswith("Basic "):
+            return DEVIATION
+        if "client_secret=" in (e["request"].get("path") or ""):
+            return DEVIATION
+    return CLEAN
+
+
+def p_validates_oauth_state(log):
+    """IDL-035: on the authorization response the platform MUST verify state matches the sent
+    value and discard on mismatch. Against the bad_state sandbox a conformant agent detects
+    the mismatched state and rejects."""
+    for e in log:
+        if e["op"] in ("authorize", "authorize_gated") \
+                and e.get("state_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
@@ -279,4 +323,13 @@ CHECKS = [
     ACheck("agent.extracts_challenge_scope", ["IDL-009"], "MUST",
            p_extracts_challenge_scope, kill_mutation="ignore_challenge_scope",
            versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.public_client_pkce_proof", ["IDL-004"], "MUST",
+           p_public_client_pkce_proof, kill_mutation="no_pkce_verifier",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.no_client_secret", ["IDL-005"], "MUST NOT",
+           p_no_client_secret, kill_mutation="embed_client_secret",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.validates_oauth_state", ["IDL-035"], "MUST",
+           p_validates_oauth_state, kill_mutation="skip_state_validation",
+           versions=["2026-04-08"], scenario="bad_state"),
 ]

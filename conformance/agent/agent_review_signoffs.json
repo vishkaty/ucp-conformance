@@ -80,6 +80,20 @@
      "IDL-009"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B7-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read identity-linking.md + RFC 7636/8252; all three SOUND, one non-blocking hardening applied; author verified citations verbatim + off-diagonal isolation empirically",
+   "spec_reverified": true,
+   "notes": "OAuth public-client + authorization-response hygiene, all under '### For Platforms'. IDL-004 (L111-116: public clients — incl. on-device agent runtimes per RFC 8252 section 8.5 — 'MUST use none and rely on PKCE with S256 as proof-of-possession of the authorization code') -> agent.public_client_pkce_proof asserts the token exchange presents a code_verifier (the RFC 7636 proof; IDL-011 already grades the code_challenge/S256 half at /authorize). IDL-005 (L116-117, MUST NOT: 'Public clients MUST NOT embed a client_secret') -> agent.no_client_secret. IDL-035 (L301-305: 'the platform MUST verify that the state parameter matches the value sent ... and that the iss parameter matches ... If either check fails, the platform MUST discard the authorization response') -> agent.validates_oauth_state grades the STATE half via a new bad_state sandbox scenario (tampered state echo, iss left correct so it rejects on state alone); the iss half stays with IDL-012 (bad_iss) — clean decomposition of a compound row across two scenarios (IDL-035 is the only MUST row requiring state verification; IDL-013 is merely SHOULD-include-state). This also completed the reference agent's PKCE flow (it now presents the verifier at /token, not just the challenge at /authorize). Independent review confirmed all three SOUND with correct req_ids and empirically-verified diagonal isolation (no_pkce_verifier->IDL-004, embed_client_secret->IDL-005, skip_state_validation->IDL-035, each trips ONLY its own check). One non-blocking hardening APPLIED per the review: p_no_client_secret now also rejects a client_secret hidden in an Authorization: Basic header (client_secret_basic — the spec's own token example uses that form) or the query string, not just the body — robustness for grading arbitrary agents. Known modeling caveat (shared with IDL-012): 'rejected' models detection; run_flow doesn't literally abort after authorize — adequate as a detection signal.",
+   "ids": {
+    "2026-04-08": [
+     "IDL-004",
+     "IDL-005",
+     "IDL-035"
+    ]
+   }
   }
  ]
 }

@@ -104,8 +104,12 @@ class _Handler(BaseHTTPRequestHandler):
             # RFC 9207: the authorization response echoes `iss`. In "bad_iss" the auth
             # server returns a DIFFERENT issuer (Mix-Up) — a conformant agent MUST reject.
             iss = "https://mixup-attacker.example" if self.server.scenario == "bad_iss" else base
+            # In "bad_state" it echoes a DIFFERENT state (CSRF/injection) — a conformant agent
+            # MUST verify state matches the value it sent and discard on mismatch (IDL-035).
+            state = ("tampered_" + uuid.uuid4().hex[:8] if self.server.scenario == "bad_state"
+                     else (q.get("state") or [""])[0])
             return self._send(200, {"code": "authcode_" + uuid.uuid4().hex[:10],
-                                    "state": (q.get("state") or [""])[0], "iss": iss})
+                                    "state": state, "iss": iss})
         if self.path == "/orders":
             # A user-authenticated (identity-gated) operation. In "auth_challenge" it drives
             # the full RFC 6750 §3 flow (IDL-007/008/009): a no-token request gets a 401
@@ -175,10 +179,12 @@ class _Handler(BaseHTTPRequestHandler):
 def serve(scenario="conformant", agent_jwks=None):
     """Boot the sandbox on an ephemeral port; yield (base_url, server). `scenario` selects
     the stimulus: "conformant" (default), "bad_signature" (responses carry an invalid RFC
-    9421 signature, which a conformant agent MUST reject), "bad_iss" (OAuth Mix-Up), or
-    "auth_challenge" (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid
-    Bearer token is presented). `agent_jwks`, when provided, makes the sandbox VERIFY the
-    platform's request signatures (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
+    9421 signature, which a conformant agent MUST reject), "bad_iss" (OAuth Mix-Up),
+    "bad_state" (the authorization response echoes a mismatched `state` — a conformant agent
+    MUST discard it), or "auth_challenge" (the gated /orders op emits a WWW-Authenticate:
+    Bearer 401 until a valid Bearer token is presented). `agent_jwks`, when provided, makes
+    the sandbox VERIFY the platform's request signatures (SIG-001/SIG-018) and 401 an
+    unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}
