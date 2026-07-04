@@ -36,7 +36,16 @@ AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
 # obligations — the business verifies inbound request signatures and signs its webhook
 # requests — so these ids are shared across the two axes, graded independently on each.)
 AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (agent verifies)
-               "SIG-014", "SIG-015", "SIG-016", "SIG-018"}  # request signing (agent signs)
+               "SIG-014", "SIG-015", "SIG-016", "SIG-018",  # request signing (agent signs)
+               # UNDER-count audit (2026-07-04, agent_denominator_undercount_audit.json): agent
+               # request-AUTHOR / request-SIGNER obligations the subject heuristic misses because
+               # they're passively phrased (no platform/client keyword).
+               "CHK-035", "CHK-038", "CHK-039",       # checkout request-body shape
+               "CART-030", "CAT-009",                 # cart/catalog request shape (need new ops)
+               "DSC-027", "DSC-028", "DSC-034",       # discount/buyer omit-on-request
+               "PAY-019", "PAY-024",                  # agent-authored payment instrument/credential
+               "OVR-008",                             # Content-Type on requests (DUAL)
+               "SIG-010", "SIG-012", "SIG-013", "SIG-017"}  # request-signing (Content-Digest/Sig/@query)
 
 # Denominator-accuracy exclusions: rows the heuristic/client-bound class wrongly pulled in
 # whose MUST binds ONLY the business/server (a business error response, a business-authored
