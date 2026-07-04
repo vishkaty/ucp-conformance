@@ -76,5 +76,29 @@ axes, no conflict.
   (see `TEST-INTEGRITY.md`) — pinned specs are immutable, so tests are permanent on both
   lanes.
 
+## Public surface & naming (spck.dev)
+
+The two internal lanes are presented publicly as two **audiences**, framed by what each
+team builds. Keep these labels consistent across the site, README, and outreach:
+
+| Internal lane | Public label (site nav) | Audience | Live surfaces |
+|---|---|---|---|
+| Merchant lane | **Merchant Platforms** | teams exposing a UCP agentic interface over catalog / cart / payments / checkout orchestration | `/` (home, sell side), `/check` (instant check), `/coverage`, `/tool` |
+| Agent lane | **Shopping Agents** | teams building a shopping-orchestration AI that carts & checks out across merchant platforms over UCP | `/agent` (offering), `/sandbox` (interop demo) |
+
+Messaging rules (set 2026-07-04):
+- **Value-first, not spec-first.** Lead with the outcome ("ship an agent that checks out
+  safely"), not the mechanism ("kill-rate validated").
+- **No visitor-facing "server."** Say *store* / *merchant platform*. The only kept use is the
+  real `--server` CLI flag.
+- **The wedge line:** "conformance ≠ reliability — ~99% of stores pass conformance yet real
+  agent checkouts still fail." This is the reason the agent lane exists commercially.
+
+Public assets added 2026-07-04: `public/agent.html`, `public/sandbox.html`,
+`public/agent-demo.json` (6 real recorded harness runs powering the demo),
+`functions/api/track.js` (anonymous engagement beacon). All additive — no `conformance/`
+code touched, so merchant 87/87/87 and the agent lane are unchanged.
+
 See also: `TEST-INTEGRITY.md` (the immutability/retirement policy, both lanes),
-`ROADMAP.md` (the agent workstream phases), `ops/agent-conformance-plan.md` (the full plan).
+`ROADMAP.md` (the agent workstream phases), `ops/agent-conformance-plan.md` (the full plan),
+`ops/plan-engagement-2026-07.md` (the 6-week engagement-first GTM plan this site serves).
