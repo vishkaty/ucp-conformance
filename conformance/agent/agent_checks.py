@@ -326,6 +326,66 @@ def p_omits_response_only_fields(log):
     return CLEAN
 
 
+def _req_bodies(log, ops):
+    return [(e["op"], e["request"].get("body")) for e in log if e["op"] in ops]
+
+
+def p_omits_checkout_id(log):
+    """CHK-035: top-level checkout `id` is ucp_request:omit — MUST NOT be sent on a request."""
+    bs = _req_bodies(log, ("create_checkout", "complete"))
+    if not bs:
+        return DEVIATION
+    return DEVIATION if any(isinstance(b, dict) and "id" in b for _, b in bs) else CLEAN
+
+
+def p_line_items_create_not_complete(log):
+    """CHK-038: line_items is required on create/update requests and omitted on complete."""
+    create = next((b for op, b in _req_bodies(log, ("create_checkout",))), None)
+    if not isinstance(create, dict) or "line_items" not in create:
+        return DEVIATION                     # required on create
+    for op, b in _req_bodies(log, ("complete",)):
+        if isinstance(b, dict) and "line_items" in b:
+            return DEVIATION                 # omitted on complete
+    return CLEAN
+
+
+def p_payment_on_complete(log):
+    """CHK-039: payment is required on the complete request."""
+    comps = _req_bodies(log, ("complete",))
+    if not comps:
+        return DEVIATION
+    return CLEAN if all(isinstance(b, dict) and "payment" in b for _, b in comps) else DEVIATION
+
+
+def p_omits_discounts_on_request(log):
+    """DSC-027: `discounts.applied` is response-only (ucp_request:omit) and MUST NOT appear on
+    ANY request body. DSC-028: the whole `discounts` object MUST be omitted on the COMPLETE
+    request. (On CREATE the object is OPTIONAL — a buyer may legitimately send discounts.codes,
+    so we only fail create when the response-only `applied` subfield is present.)"""
+    bs = _req_bodies(log, ("create_checkout", "complete"))
+    if not bs:
+        return DEVIATION
+    for op, b in bs:
+        if not isinstance(b, dict):
+            continue
+        disc = b.get("discounts")
+        if disc is None:
+            continue
+        if op == "complete":                           # DSC-028: discounts omit on complete
+            return DEVIATION
+        if isinstance(disc, dict) and "applied" in disc:   # DSC-027: applied response-only on any request
+            return DEVIATION
+    return CLEAN
+
+
+def p_omits_buyer_on_complete(log):
+    """DSC-034: the `buyer` object (carrying consent) MUST be omitted from the complete request."""
+    comps = _req_bodies(log, ("complete",))
+    if not comps:
+        return DEVIATION
+    return DEVIATION if any(isinstance(b, dict) and "buyer" in b for _, b in comps) else CLEAN
+
+
 def p_no_autocomplete_mismatched_totals(log):
     """CHK-055 / TOT-010: platforms MUST NOT autonomously complete a checkout with mismatched
     totals (SHOULD reject/escalate for buyer review). Against the mismatched_totals sandbox a
@@ -673,5 +733,19 @@ CHECKS = [
            p_omits_ucp_on_request, kill_mutation="send_ucp_envelope", versions=["2026-04-08"]),
     ACheck("agent.omits_response_only_fields", ["CHK-037"], "MUST NOT",
            p_omits_response_only_fields, kill_mutation="send_response_only_fields",
+           versions=["2026-04-08"]),
+    ACheck("agent.omits_checkout_id", ["CHK-035"], "MUST NOT",
+           p_omits_checkout_id, kill_mutation="send_checkout_id", versions=["2026-04-08"]),
+    ACheck("agent.line_items_create_not_complete", ["CHK-038"], "MUST",
+           p_line_items_create_not_complete, kill_mutation="omit_line_items_on_create",
+           versions=["2026-04-08"]),
+    # (CHK-039 payment-required-on-complete DEFERRED: its only kill — omit payment — cascades
+    #  into follows_escalation/honors_available_instruments since the escalate-token+instrument
+    #  live in payment; needs a non-cascading design, not a muddy diagonal.)
+    ACheck("agent.omits_discounts_on_request", ["DSC-027", "DSC-028"], "MUST NOT",
+           p_omits_discounts_on_request, kill_mutation="send_discounts_on_request",
+           versions=["2026-04-08"]),
+    ACheck("agent.omits_buyer_on_complete", ["DSC-034"], "MUST NOT",
+           p_omits_buyer_on_complete, kill_mutation="send_buyer_on_complete",
            versions=["2026-04-08"]),
 ]

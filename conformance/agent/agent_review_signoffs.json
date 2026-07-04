@@ -243,6 +243,22 @@
      "CHK-037"
     ]
    }
+  },
+  {
+   "batch": "agent-undercount-cover-c1-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "INDEPENDENT implementation review; found + FIXED a real over-strictness bug on the discounts check before locking",
+   "spec_reverified": true,
+   "notes": "First batch covering the UNDER-count rows (all request-body-shape, ucp_request annotations in the shopping schemas; scenario conformant; grade the create_checkout+complete REQUEST bodies). agent.omits_checkout_id CHK-035 (checkout.json id ucp_request:omit — MUST NOT send top-level id; kill send_checkout_id). agent.line_items_create_not_complete CHK-038 (line_items {create:required, complete:omit} — assert create HAS + complete OMITS; kill omit_line_items_on_create). agent.omits_discounts_on_request DSC-027 + DSC-028 (co-cited). agent.omits_buyer_on_complete DSC-034 (buyer_consent.json buyer omit on complete; kill send_buyer_on_complete). Independent review: CHK-035/038/DSC-034 SOUND; but caught a REAL over-strictness BUG on the discounts check — the whole `discounts` object is omit ONLY on complete (on create it is OPTIONAL: a buyer may send discounts.codes), and DSC-027 is specifically the `applied` SUBFIELD (response-only on any request). The first cut failed a conformant discounts.codes-on-create. FIXED before locking (verified: discounts.codes-on-create -> CLEAN, discounts.applied-on-create -> DEVIATION [DSC-027], discounts-on-complete -> DEVIATION [DSC-028]); the send_discounts_on_request kill injects `applied` so DSC-027 gets a real create-leg kill. All 4 diagonally isolated (each defect trips only its own check). CHK-039 (payment-required-on-complete) DEFERRED — its only kill (omit payment) cascades into follows_escalation/honors_available_instruments (escalate-token+instrument live in payment); review confirmed no clean non-cascading kill without a flow restructure. Denominator membership unchanged (these 5 rows were just added to the 105 by the under-count audit; this covers them).",
+   "ids": {
+    "2026-04-08": [
+     "CHK-035",
+     "CHK-038",
+     "DSC-027",
+     "DSC-028",
+     "DSC-034"
+    ]
+   }
   }
  ]
 }

@@ -15,9 +15,9 @@
  },
  "2026-04-08": {
   "agent_musts": 105,
-  "check": 42,
+  "check": 47,
   "exempt": 3,
-  "gap": 60,
-  "accounted_pct": 43
+  "gap": 55,
+  "accounted_pct": 48
  }
 }

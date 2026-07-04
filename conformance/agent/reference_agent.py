@@ -61,6 +61,11 @@ DEFECTS = {
     # request-body hygiene (ucp_request:omit)
     "send_ucp_envelope": "send the response-only `ucp` envelope on a request body (CHK-036)",
     "send_response_only_fields": "send response-only fields (status/currency/totals/...) on a request (CHK-037)",
+    "send_checkout_id": "send a top-level `id` on a checkout request body (CHK-035)",
+    "omit_line_items_on_create": "omit line_items on the create request (CHK-038)",
+    "omit_payment_on_complete": "omit payment on the complete request (CHK-039)",
+    "send_discounts_on_request": "send the response-only `discounts` object on a request (DSC-027/028)",
+    "send_buyer_on_complete": "send the `buyer` (consent) object on the complete request (DSC-034)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -407,6 +412,12 @@ class ReferenceAgent:
             body["ucp"] = {"version": "2026-04-08"}
         if self.defect == "send_response_only_fields":     # CHK-037 violation
             body.update({"status": "incomplete", "currency": "USD", "totals": [], "links": []})
+        if self.defect == "send_checkout_id":              # CHK-035: id is ucp_request:omit
+            body["id"] = str(uuid.uuid4())
+        if self.defect == "omit_line_items_on_create":     # CHK-038: line_items required on create
+            body.pop("line_items", None)
+        if self.defect == "send_discounts_on_request":     # DSC-027/028: discounts omit on request
+            body["discounts"] = {"applied": [{"title": "x", "amount": -1}]}
         return self._send("create_checkout", "POST", "/checkout-sessions", body)
 
     def complete(self, sid, token="escalate_token", instrument_type="card"):
@@ -416,6 +427,12 @@ class ReferenceAgent:
         offered — a conformant agent pays only with an authoritative type."""
         body = {"payment": {"instruments": [
             {"type": instrument_type, "credential": {"token": token}}]}}
+        if self.defect == "omit_payment_on_complete":      # CHK-039: payment required on complete
+            body.pop("payment", None)
+        if self.defect == "send_discounts_on_request":     # DSC-027/028: discounts omit on request
+            body["discounts"] = {"applied": [{"title": "x", "amount": -1}]}
+        if self.defect == "send_buyer_on_complete":        # DSC-034: buyer(consent) omit on complete
+            body["buyer"] = {"consent": {"marketing": True}}
         return self._send("complete", "POST", f"/checkout-sessions/{sid}/complete", body)
 
     @staticmethod
