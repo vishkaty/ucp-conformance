@@ -94,6 +94,20 @@
      "IDL-035"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B8-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read identity-linking.md L236-257 + RFC 8414; both SOUND, one modeling note addressed; author verified citations verbatim + isolation empirically",
+   "spec_reverified": true,
+   "notes": "RFC 8414 authorization-server metadata discovery (a new discover_oauth_metadata() step in run_flow fetches /.well-known/oauth-authorization-server and populates identity from it). IDL-033 (L253-257: 'The issuer value in the discovered metadata MUST match the discovery base URI exactly ... Platforms MUST NOT normalize (e.g., strip trailing slashes) before comparison — the value must be a byte-for-byte match') -> agent.validates_issuer_match: against the bad_issuer sandbox (issuer = base + trailing slash) the agent compares issuer == self.server (the discovery base the well-known was fetched from) byte-for-byte and rejects; kill normalize_issuer does an rstrip('/') compare (the forbidden normalization) and wrongly matches. IDL-031 (L240-241: 'Any other non-2xx response, network error, or timeout: MUST abort. MUST NOT proceed to step 2') + IDL-032 (L249-251: 'Platforms MUST NOT silently fall through on any error other than 404 in step 1') -> agent.aborts_on_discovery_error: against the discovery_error sandbox (a 500) the agent aborts and does NOT fetch the OIDC fallback; kill oidc_fallthrough_on_error wrongly proceeds to OIDC. A legitimate 404 still falls through (not penalized). Independent review confirmed both SOUND, correct Platform subject (register marks these platform-bound), correct req_ids (no closer match; IDL-031/032 are the restated-pair for abort/no-fallthrough), fair stimuli, genuine kill-safe defects, isolated (separate scenarios). Review's one non-blocking modeling note ADDRESSED: run_flow now truly HALTS the flow on a discovery abort/issuer-rejection (was continuing with stale profile identity) — models IDL-031's 'MUST abort the identity-linking process' fully. No interference with IDL-011/012 (RFC 8414 metadata carries the same issuer/endpoints; bad_iss still tampers only the /authorize response so validates_iss still fires).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-031",
+     "IDL-032",
+     "IDL-033"
+    ]
+   }
   }
  ]
 }

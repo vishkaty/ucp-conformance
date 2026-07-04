@@ -44,6 +44,9 @@ DEFECTS = {
     "no_pkce_verifier": "omit the PKCE code_verifier from the token exchange (IDL-004)",
     "embed_client_secret": "embed a client_secret in the token request (public client) (IDL-005)",
     "skip_state_validation": "do NOT validate the authorization-response state (IDL-035)",
+    # RFC 8414 authorization-server metadata discovery
+    "normalize_issuer": "normalize (strip trailing slash) before the issuer match (IDL-033)",
+    "oidc_fallthrough_on_error": "fall through to OIDC on a non-404 discovery error (IDL-031/032)",
 }
 
 # request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
@@ -155,6 +158,38 @@ class ReferenceAgent:
         self.identity = prof.get("identity") or {}
         return r
 
+    def discover_oauth_metadata(self):
+        """RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257):
+        fetch {base}/.well-known/oauth-authorization-server. On 2xx the `issuer` MUST match the
+        discovery base URI byte-for-byte, with NO normalization (IDL-033). On 404 fall back to
+        OIDC discovery; on any OTHER non-2xx/error the platform MUST abort and MUST NOT proceed
+        to the OIDC fallback (IDL-031/032)."""
+        r = self._send("as_discovery", "GET", "/.well-known/oauth-authorization-server")
+        entry = self.log[-1]
+        st = r.get("status") or 0
+        if 200 <= st < 300:
+            meta = r.get("body") or {}
+            issuer = meta.get("issuer")
+            if self.defect == "normalize_issuer":
+                matched = (issuer or "").rstrip("/") == self.server.rstrip("/")   # WRONG
+            else:
+                matched = (issuer == self.server)              # IDL-033: byte-for-byte
+            entry["issuer_matched"] = matched
+            if not matched:
+                entry["rejected"] = True
+                return None
+            self.identity = meta                               # use the discovered metadata
+            return meta
+        if st == 404:
+            return self.discover_oidc()                        # legitimate OIDC fallback
+        entry["aborted"] = True                                # IDL-031/032: non-404 -> abort
+        if self.defect == "oidc_fallthrough_on_error":
+            return self.discover_oidc()                        # WRONG: silent fall-through
+        return None
+
+    def discover_oidc(self):
+        return self._send("oidc_discovery", "GET", "/.well-known/openid-configuration")
+
     def oauth_authorize(self, scope="openid", op="authorize"):
         """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
         the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207).
@@ -264,6 +299,12 @@ class ReferenceAgent:
         """Drive a conformant shopping flow (discover -> create -> complete -> handle
         escalation); return the session log for grading."""
         self.discover()
+        self.discover_oauth_metadata()     # RFC 8414 AS-metadata discovery (issuer/abort rules)
+        # IDL-031/033: a discovery abort (non-404 error) or a rejected issuer MUST abort the
+        # identity-linking process — do not proceed to authorization with unverified metadata.
+        as_entry = next((e for e in reversed(self.log) if e["op"] == "as_discovery"), None)
+        if as_entry and (as_entry.get("aborted") or as_entry.get("rejected")):
+            return self.log
         self.oauth_authorize()             # identity-linking (OAuth2 + PKCE + iss), if advertised
         c = self.create_checkout(product_id)
         if self.log[-1].get("rejected"):   # rejected a bad business signature -> stop here

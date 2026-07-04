@@ -94,6 +94,25 @@ class _Handler(BaseHTTPRequestHandler):
                 "services": {"dev.ucp.shopping": [
                     {"transport": "rest", "endpoint": base}]},
                 "capabilities": {"dev.ucp.shopping.checkout": [{}]}}})
+        if self.path == "/.well-known/oauth-authorization-server":
+            # RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257).
+            # "discovery_error" returns a non-404 error (agent MUST abort, MUST NOT fall through
+            # to OIDC); "bad_issuer" returns an issuer that does NOT byte-match the discovery
+            # base URI (a trailing slash — the exact non-normalization case IDL-033 forbids).
+            if self.server.scenario == "discovery_error":
+                return self._send(500, {"error": "server_error"})
+            issuer = base + "/" if self.server.scenario == "bad_issuer" else base
+            return self._send(200, {
+                "issuer": issuer,
+                "authorization_endpoint": base + "/oauth2/authorize",
+                "token_endpoint": base + "/oauth2/token",
+                "code_challenge_methods_supported": ["S256"],
+                "authorization_response_iss_parameter_supported": True})
+        if self.path == "/.well-known/openid-configuration":
+            # OIDC Discovery fallback (step 2) — only legitimately reached after a 404 above.
+            return self._send(200, {"issuer": base,
+                                    "authorization_endpoint": base + "/oauth2/authorize",
+                                    "token_endpoint": base + "/oauth2/token"})
         if self.path.startswith("/3ds/"):
             # the escalation continue_url landing — reaching it means the agent FOLLOWED it
             self.server.observed.append(("follow", self.path))
@@ -181,9 +200,11 @@ def serve(scenario="conformant", agent_jwks=None):
     the stimulus: "conformant" (default), "bad_signature" (responses carry an invalid RFC
     9421 signature, which a conformant agent MUST reject), "bad_iss" (OAuth Mix-Up),
     "bad_state" (the authorization response echoes a mismatched `state` — a conformant agent
-    MUST discard it), or "auth_challenge" (the gated /orders op emits a WWW-Authenticate:
-    Bearer 401 until a valid Bearer token is presented). `agent_jwks`, when provided, makes
-    the sandbox VERIFY the platform's request signatures (SIG-001/SIG-018) and 401 an
+    MUST discard it), "bad_issuer" (RFC 8414 metadata issuer doesn't byte-match the discovery
+    base), "discovery_error" (RFC 8414 returns a non-404 error — MUST abort, no OIDC
+    fall-through), or "auth_challenge" (the gated /orders op emits a WWW-Authenticate: Bearer
+    401 until a valid Bearer token is presented). `agent_jwks`, when provided, makes the
+    sandbox VERIFY the platform's request signatures (SIG-001/SIG-018) and 401 an
     unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []

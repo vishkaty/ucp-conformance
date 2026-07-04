@@ -246,6 +246,28 @@ def p_extracts_challenge_scope(log):
     return DEVIATION
 
 
+def p_validates_issuer_match(log):
+    """IDL-033: the issuer in RFC 8414 metadata MUST match the discovery base URI byte-for-byte
+    (no normalization). Against the bad_issuer sandbox (issuer has a trailing slash) a
+    conformant agent detects the mismatch and rejects."""
+    for e in log:
+        if e["op"] == "as_discovery" and e.get("issuer_matched") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
+def p_aborts_on_discovery_error(log):
+    """IDL-031/032: on a non-404 RFC 8414 discovery response (error/timeout) the platform MUST
+    abort and MUST NOT silently fall through to the OIDC fallback. Against the discovery_error
+    sandbox (a 500) a conformant agent aborts and does NOT fetch the OIDC config."""
+    got_error = any(e["op"] == "as_discovery"
+                    and (st := (e.get("response") or {}).get("status")) is not None
+                    and not (200 <= st < 300) and st != 404
+                    for e in log)
+    fell_through = any(e["op"] == "oidc_discovery" for e in log)
+    return CLEAN if (got_error and not fell_through) else DEVIATION
+
+
 def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
@@ -332,4 +354,10 @@ CHECKS = [
     ACheck("agent.validates_oauth_state", ["IDL-035"], "MUST",
            p_validates_oauth_state, kill_mutation="skip_state_validation",
            versions=["2026-04-08"], scenario="bad_state"),
+    ACheck("agent.validates_issuer_match", ["IDL-033"], "MUST",
+           p_validates_issuer_match, kill_mutation="normalize_issuer",
+           versions=["2026-04-08"], scenario="bad_issuer"),
+    ACheck("agent.aborts_on_discovery_error", ["IDL-031", "IDL-032"], "MUST",
+           p_aborts_on_discovery_error, kill_mutation="oidc_fallthrough_on_error",
+           versions=["2026-04-08"], scenario="discovery_error"),
 ]
