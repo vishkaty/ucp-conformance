@@ -163,6 +163,19 @@
      "IDL-057"
     ]
    }
+  },
+  {
+   "batch": "agent-waveA-c3a-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "Wave A design card + INDEPENDENT implementation review (empirically proved IDL-061 distinctness); author verified citations verbatim + diagonal isolation",
+   "spec_reverified": true,
+   "notes": "Discovery/iss cluster. IDL-062 (identity-linking.md L246-247: 'Any non-2xx response, network error, or timeout: MUST abort the identity linking process' — the OIDC Discovery FALLBACK step 2) -> agent.aborts_on_oidc_fallback_error (new oidc_fallback_error scenario: RFC 8414 404s -> OIDC fallback 500s): the agent aborts and does NOT proceed to authorize/token; kill oidc_fallback_no_abort (discover_oidc skips the abort). Predicate grades only identity-linking ops (authorize/token), not the checkout, matching the spec's 'abort the identity linking process'. Genuinely distinct from IDL-031/032 (discovery_error = RFC 8414 non-404, no fall-through). IDL-061 (L605-607: 'The issuer value in RFC 8414 metadata and the iss parameter in authorization responses MUST be identical (byte-for-byte). Platforms MUST NOT normalize before comparison') -> agent.no_iss_normalization (new iss_normalized scenario: authz iss = issuer + '/', metadata issuer byte-equal to base so IDL-033 not tripped); kill normalize_iss compares rstrip('/') both sides. The review EMPIRICALLY PROVED IDL-061 is NOT a double-count of IDL-012/IDL-033: normalize_iss evades IDL-012 (in bad_iss the mismatch is gross, still rejected) while failing IDL-061 — it catches a bypass IDL-012 cannot see; distinct value pair from IDL-033 (authz-iss-vs-metadata-issuer, not issuer-vs-base). Both SOUND, no fixes. Regression-checked: the discover_oidc change (adopt-on-2xx / abort-on-non-2xx) + generalized run_flow halt (as_discovery OR oidc_discovery) did NOT break IDL-031/032. Cosmetic-only nits: the register row `source` start lines could be tighter (IDL-062 #L246-247, IDL-061 #L605-607) — quotes + req_ids are correct. Denominator membership unchanged (drift gate green).",
+   "ids": {
+    "2026-04-08": [
+     "IDL-061",
+     "IDL-062"
+    ]
+   }
   }
  ]
 }

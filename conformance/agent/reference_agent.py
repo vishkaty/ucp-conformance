@@ -52,6 +52,8 @@ DEFECTS = {
     "unadvertised_auth_method": "authenticate the token request with an unadvertised method (IDL-002)",
     "request_scope_superset": "request a scope outside the advertised config.scopes (IDL-034)",
     "abort_on_future_config": "abort linking on an unrecognized future config field (IDL-057)",
+    "oidc_fallback_no_abort": "do NOT abort when the OIDC-fallback discovery fetch fails (IDL-062)",
+    "normalize_iss": "normalize (strip trailing slash) before comparing iss to issuer (IDL-061)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -214,7 +216,17 @@ class ReferenceAgent:
         return None
 
     def discover_oidc(self):
-        return self._send("oidc_discovery", "GET", "/.well-known/openid-configuration")
+        """OIDC Discovery fallback (step 2). IDL-062: on any non-2xx/error the platform MUST
+        abort the identity-linking process (do not proceed to authorization). The
+        oidc_fallback_no_abort defect skips that abort and proceeds anyway."""
+        r = self._send("oidc_discovery", "GET", "/.well-known/openid-configuration")
+        st = r.get("status") or 0
+        if 200 <= st < 300:
+            self.identity = r.get("body") or self.identity
+            return r
+        if self.defect != "oidc_fallback_no_abort":
+            self.log[-1]["aborted"] = True
+        return None
 
     def oauth_authorize(self, scope="openid", op="authorize"):
         """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
@@ -247,10 +259,14 @@ class ReferenceAgent:
             entry["state_validated"] = (b.get("state") == sent_state)
             if not entry["state_validated"]:
                 entry["rejected"] = True                   # discard a mismatched state (CSRF)
-        if self.defect != "skip_iss_validation":           # IDL-012: validate iss (Mix-Up)
-            entry["iss_validated"] = (b.get("iss") == ident.get("issuer"))
+        if self.defect != "skip_iss_validation":           # IDL-012/IDL-061: validate iss
+            got, want = b.get("iss"), ident.get("issuer")
+            if self.defect == "normalize_iss":             # IDL-061 violation: normalize first
+                entry["iss_validated"] = ((got or "").rstrip("/") == (want or "").rstrip("/"))
+            else:
+                entry["iss_validated"] = (got == want)     # byte-for-byte (RFC 9207)
             if not entry["iss_validated"]:
-                entry["rejected"] = True                   # reject a mismatched issuer
+                entry["rejected"] = True                   # discard a mismatched issuer
         return b.get("code")
 
     def oauth_token(self, code, scope):
@@ -368,10 +384,12 @@ class ReferenceAgent:
             self.log[-1]["aborted_on_unknown_config"] = True
             return self.log
         self.discover_oauth_metadata()     # RFC 8414 AS-metadata discovery (issuer/abort rules)
-        # IDL-031/033: a discovery abort (non-404 error) or a rejected issuer MUST abort the
-        # identity-linking process — do not proceed to authorization with unverified metadata.
-        as_entry = next((e for e in reversed(self.log) if e["op"] == "as_discovery"), None)
-        if as_entry and (as_entry.get("aborted") or as_entry.get("rejected")):
+        # IDL-031/033/062: a discovery abort (non-404 error, or an OIDC-fallback failure) or a
+        # rejected issuer MUST abort the identity-linking process — do not proceed to
+        # authorization with unverified metadata.
+        disc = next((e for e in reversed(self.log)
+                     if e["op"] in ("as_discovery", "oidc_discovery")), None)
+        if disc and (disc.get("aborted") or disc.get("rejected")):
             return self.log
         # IDL-034: request exactly the derived config.scopes set (no superset) on the linking leg.
         self.oauth_authorize(scope=" ".join(self._derive_link_scopes()) or "openid")

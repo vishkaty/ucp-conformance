@@ -114,6 +114,8 @@ class _Handler(BaseHTTPRequestHandler):
             # base URI (a trailing slash — the exact non-normalization case IDL-033 forbids).
             if self.server.scenario == "discovery_error":
                 return self._send(500, {"error": "server_error"})
+            if self.server.scenario == "oidc_fallback_error":
+                return self._send(404, {"error": "not_found"})   # route to the OIDC fallback
             issuer = base + "/" if self.server.scenario == "bad_issuer" else base
             return self._send(200, {
                 "issuer": issuer,
@@ -127,6 +129,10 @@ class _Handler(BaseHTTPRequestHandler):
                 "authorization_response_iss_parameter_supported": True})
         if self.path == "/.well-known/openid-configuration":
             # OIDC Discovery fallback (step 2) — only legitimately reached after a 404 above.
+            # In "oidc_fallback_error" this ALSO fails (500) — the platform MUST abort the
+            # identity-linking process (IDL-062), not proceed to authorization.
+            if self.server.scenario == "oidc_fallback_error":
+                return self._send(500, {"error": "server_error"})
             return self._send(200, {"issuer": base,
                                     "authorization_endpoint": base + "/oauth2/authorize",
                                     "token_endpoint": base + "/oauth2/token"})
@@ -139,7 +145,15 @@ class _Handler(BaseHTTPRequestHandler):
             self.server.observed.append(("authorize", q))
             # RFC 9207: the authorization response echoes `iss`. In "bad_iss" the auth
             # server returns a DIFFERENT issuer (Mix-Up) — a conformant agent MUST reject.
-            iss = "https://mixup-attacker.example" if self.server.scenario == "bad_iss" else base
+            # In "iss_normalized" the authorization `iss` differs from the RFC 8414 issuer
+            # ONLY by a trailing slash (issuer stays byte-equal to base so IDL-033 isn't
+            # tripped) — a conformant platform MUST NOT normalize before comparing (IDL-061).
+            if self.server.scenario == "bad_iss":
+                iss = "https://mixup-attacker.example"
+            elif self.server.scenario == "iss_normalized":
+                iss = base + "/"
+            else:
+                iss = base
             # In "bad_state" it echoes a DIFFERENT state (CSRF/injection) — a conformant agent
             # MUST verify state matches the value it sent and discard on mismatch (IDL-035).
             state = ("tampered_" + uuid.uuid4().hex[:8] if self.server.scenario == "bad_state"
@@ -236,7 +250,9 @@ def serve(scenario="conformant", agent_jwks=None):
     base), "discovery_error" (RFC 8414 returns a non-404 error — MUST abort, no OIDC
     fall-through), "mismatched_totals" (the checkout's `total` breaks the totals arithmetic —
     a conformant agent MUST NOT autonomously complete), "future_config" (the identity_linking
-    config carries an unrecognized future field the platform MUST ignore), or "auth_challenge"
+    config carries an unrecognized future field the platform MUST ignore), "oidc_fallback_error"
+    (RFC 8414 404s then the OIDC fallback also fails -> MUST abort), "iss_normalized" (the authz
+    iss differs from the issuer only by a trailing slash -> MUST NOT normalize), or "auth_challenge"
     (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid Bearer token is
     presented). `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
     (SIG-001/SIG-018) and 401 an unsigned/invalid one."""

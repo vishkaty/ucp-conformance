@@ -309,6 +309,28 @@ def _token_bodies(log):
     return [e["request"].get("body") or {} for e in log if e["op"] == "token"]
 
 
+def p_aborts_on_oidc_fallback_error(log):
+    """IDL-062: when RFC 8414 discovery 404s (routing to the OIDC fallback) and the OIDC
+    fetch then fails (non-2xx/error), the platform MUST abort the identity-linking process —
+    MUST NOT proceed to authorization. Require an OIDC fetch that failed AND no authorize/token."""
+    oidc_failed = any(e["op"] == "oidc_discovery"
+                      and (st := (e.get("response") or {}).get("status")) is not None
+                      and not (200 <= st < 300) for e in log)
+    proceeded = any(e["op"] in ("authorize", "authorize_gated", "token") for e in log)
+    return CLEAN if (oidc_failed and not proceeded) else DEVIATION
+
+
+def p_no_iss_normalization(log):
+    """IDL-061: the RFC 8414 issuer and the authorization-response iss MUST be identical
+    byte-for-byte; platforms MUST NOT normalize before comparison. Against iss_normalized
+    (iss = issuer + '/') a conformant agent detects the mismatch and rejects."""
+    for e in log:
+        if e["op"] in ("authorize", "authorize_gated") \
+                and e.get("iss_validated") is False and e.get("rejected"):
+            return CLEAN
+    return DEVIATION
+
+
 def p_requests_only_derived_scopes(log):
     """IDL-034: platforms MUST request only the derived scope set (config.scopes) — not a
     superset. The linking authorize's scope tokens MUST all be within the advertised
@@ -504,4 +526,10 @@ CHECKS = [
     ACheck("agent.ignores_future_config", ["IDL-057"], "MUST",
            p_ignores_future_config, kill_mutation="abort_on_future_config",
            versions=["2026-04-08"], scenario="future_config"),
+    ACheck("agent.aborts_on_oidc_fallback_error", ["IDL-062"], "MUST",
+           p_aborts_on_oidc_fallback_error, kill_mutation="oidc_fallback_no_abort",
+           versions=["2026-04-08"], scenario="oidc_fallback_error"),
+    ACheck("agent.no_iss_normalization", ["IDL-061"], "MUST",
+           p_no_iss_normalization, kill_mutation="normalize_iss",
+           versions=["2026-04-08"], scenario="iss_normalized"),
 ]
