@@ -58,6 +58,9 @@ DEFECTS = {
     "adopt_prebaked_authz": "adopt the pre-baked OAuth request from continue_url instead of own (IDL-044)",
     "reinit_fresh_link": "on insufficient_scope, re-request the FULL scope set not just the missing (IDL-048)",
     "follow_error_description": "authorize at a decoy endpoint named in error_description prose (IDL-051)",
+    # request-body hygiene (ucp_request:omit)
+    "send_ucp_envelope": "send the response-only `ucp` envelope on a request body (CHK-036)",
+    "send_response_only_fields": "send response-only fields (status/currency/totals/...) on a request (CHK-037)",
     # checkout completion safety
     "complete_on_mismatch": "autonomously complete a checkout with mismatched totals (CHK-055/TOT-010)",
     "use_unavailable_instrument": "pay with an instrument type not in available_instruments (PAY-009)",
@@ -395,11 +398,15 @@ class ReferenceAgent:
         return s == total_entry.get("amount")
 
     def create_checkout(self, product_id="teapot_ceramic"):
-        body = {"id": str(uuid.uuid4()), "currency": "USD",
-                "line_items": [{"id": "li_1", "quantity": 1,
-                                "item": {"id": product_id, "price": 1000}, "totals": []}],
-                "payment": {"instruments": [], "handlers": []}, "status": "incomplete",
-                "ucp": {"version": "2026-04-08"}, "totals": [], "links": []}
+        # CHK-036/037: a REQUEST body carries only request-authorable fields. The `ucp` envelope
+        # (CHK-036) and the response-only fields status/currency/totals/messages/links/
+        # expires_at/continue_url/order (CHK-037) are ucp_request:omit and MUST NOT be sent.
+        body = {"line_items": [{"item": {"id": product_id}, "quantity": 1}],
+                "payment": {"instruments": []}}
+        if self.defect == "send_ucp_envelope":             # CHK-036 violation
+            body["ucp"] = {"version": "2026-04-08"}
+        if self.defect == "send_response_only_fields":     # CHK-037 violation
+            body.update({"status": "incomplete", "currency": "USD", "totals": [], "links": []})
         return self._send("create_checkout", "POST", "/checkout-sessions", body)
 
     def complete(self, sid, token="escalate_token", instrument_type="card"):

@@ -230,6 +230,19 @@
      "IDL-051"
     ]
    }
+  },
+  {
+   "batch": "agent-waveB-c1-2026-07-04",
+   "date": "2026-07-04",
+   "reviewer": "Wave B design cards (+ critic, which caught the two cards' inconsistent conformant body) + INDEPENDENT implementation review; author reconciled the omit-set from the authoritative schema + verified diagonal isolation + no regressions",
+   "spec_reverified": true,
+   "notes": "Wave B request-body-hygiene pair. Both MUST NOT, schema-annotation-derived from shopping/checkout.json ucp_request:'omit'. CHK-036 (checkout.json#L19-22 `ucp` is ucp_request:omit) -> agent.omits_ucp_on_request: no create_checkout/complete REQUEST body carries a top-level `ucp` key; kill send_ucp_envelope. CHK-037 (the 8 response-only fields status/currency/totals/messages/links/expires_at/continue_url/order, each ucp_request:omit) -> agent.omits_response_only_fields (top-level-only intersection, so a nested line_item.totals can't false-trip); kill send_response_only_fields. RECONCILED the omit-set: the reference create_checkout body was wrongly sending ucp/currency/status/totals/links; changed to the minimal request-authorable {line_items:[{item:{id},quantity}], payment:{instruments:[]}} so it's genuinely conformant for both. Independent review: BOTH SOUND, diagonally isolated (each defect trips only its own check), kill-safe, and REGRESSION-FREE (32/32 sound; the body change didn't break CHK-055/PAY-009 [response-based] nor SIG-014/015/016/018 [sign the actual bytes] nor sends_ucp_agent [header-based]; sandbox still reads body.line_items). FOLLOW-UP FLAGGED by the review (see agent_denominator_undercount note): CHK-035 ('id omitted on request') is the same request-author omit family but is NOT in the agent denominator (the agent_rows heuristic misses passively-phrased agent obligations) — a denominator UNDER-count; the 2026-07-03 audit only checked OVER-count. An under-count completeness pass is queued next. Denominator membership unchanged by THIS commit (CHK-036/037 were already in the 90).",
+   "ids": {
+    "2026-04-08": [
+     "CHK-036",
+     "CHK-037"
+    ]
+   }
   }
  ]
 }

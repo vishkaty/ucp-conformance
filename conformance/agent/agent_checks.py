@@ -296,6 +296,36 @@ def p_honors_available_instruments(log):
     return DEVIATION
 
 
+_RESPONSE_ONLY = {"status", "currency", "totals", "messages", "links",
+                  "expires_at", "continue_url", "order"}
+
+
+def p_omits_ucp_on_request(log):
+    """CHK-036: the `ucp` envelope is ucp_request:omit — the platform MUST NOT include a
+    top-level `ucp` object on a REQUEST body (create/complete)."""
+    reqs = [e for e in log if e["op"] in ("create_checkout", "complete")]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        b = e["request"].get("body")
+        if isinstance(b, dict) and "ucp" in b:
+            return DEVIATION
+    return CLEAN
+
+
+def p_omits_response_only_fields(log):
+    """CHK-037: status/currency/totals/messages/links/expires_at/continue_url/order are
+    response-only (ucp_request:omit) — the platform MUST NOT send them on a REQUEST body."""
+    reqs = [e for e in log if e["op"] in ("create_checkout", "complete")]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        b = e["request"].get("body")
+        if isinstance(b, dict) and (set(b) & _RESPONSE_ONLY):
+            return DEVIATION
+    return CLEAN
+
+
 def p_no_autocomplete_mismatched_totals(log):
     """CHK-055 / TOT-010: platforms MUST NOT autonomously complete a checkout with mismatched
     totals (SHOULD reject/escalate for buyer review). Against the mismatched_totals sandbox a
@@ -639,4 +669,9 @@ CHECKS = [
     ACheck("agent.ignores_error_description", ["IDL-051"], "MUST NOT",
            p_ignores_error_description, kill_mutation="follow_error_description",
            versions=["2026-04-08"], scenario="misleading_error_description"),
+    ACheck("agent.omits_ucp_on_request", ["CHK-036"], "MUST NOT",
+           p_omits_ucp_on_request, kill_mutation="send_ucp_envelope", versions=["2026-04-08"]),
+    ACheck("agent.omits_response_only_fields", ["CHK-037"], "MUST NOT",
+           p_omits_response_only_fields, kill_mutation="send_response_only_fields",
+           versions=["2026-04-08"]),
 ]
