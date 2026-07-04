@@ -66,6 +66,20 @@
      "SIG-018"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B6-2026-07-03",
+   "date": "2026-07-03",
+   "reviewer": "INDEPENDENT adversarial review (agent) re-read identity-linking.md + RFC 6750; checks SOUND, one sandbox-fidelity PROBLEM found and FIXED before locking; author verified citations verbatim + diagonal isolation",
+   "spec_reverified": true,
+   "notes": "The RFC 6750 WWW-Authenticate: Bearer 401-challenge flow (a gated /orders op in the auth_challenge sandbox). All three rows are under '### For Platforms' (identity-linking.md L96) — correct agent subject; they are 'manual' in the merchant register because they bind the platform (request author), so the agent lane is their home. Citations verbatim: IDL-007 (L121-123: 'MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme: Authorization: Bearer <access_token>') -> agent.sends_bearer_token; IDL-008 (L124-126: 'MUST process WWW-Authenticate: Bearer challenges per RFC 6750 section 3 on 401 and 403 responses to user-authenticated operations') -> agent.processes_auth_challenge; IDL-009 (L127-128: 'MUST extract the scope parameter (when present) ... to construct subsequent authorization requests') -> agent.extracts_challenge_scope. Independent review confirmed all three SOUND with correct req_ids (no better match; IDL-051 only partially overlaps IDL-009) and DIAGONAL kill-isolation (no_bearer_retry->IDL-008 only via the vacuous-CLEAN-when-prerequisite-absent design; no_bearer_header->IDL-007; ignore_challenge_scope->IDL-009). The review found one genuine PROBLEM in the sandbox STIMULUS (not the checks), FIXED before this sign-off: the 401 challenge used error=\"identity_required\" (not an RFC 6750 section 3.1 error code — only invalid_request/invalid_token/insufficient_scope are valid; and a no-token 401 should omit error per spec L429-430) and a non-schema scope token orders.read. Rebuilt as the faithful two-round flow: 401 identity_required (no error, no scope; spec L448-450) -> initial token -> 403 insufficient_scope carrying scope=dev.ucp.shopping.order:read (valid IDL-037 token; spec L516-519) -> incremental re-authorization -> 200. This also closed the review's noted coverage gap (IDL-008 binds 401 AND 403; the 403 half is now exercised) and the nit that IDL-009 compared a hard-coded constant (it now derives the expected scope from the logged challenge). Business-side scope enforcement remains the merchant lane's job.",
+   "ids": {
+    "2026-04-08": [
+     "IDL-007",
+     "IDL-008",
+     "IDL-009"
+    ]
+   }
   }
  ]
 }

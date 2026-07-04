@@ -15,7 +15,7 @@ are Phase B — each added as a method + a matching defect.
 
 Stdlib only. This same client hardens into the real "find & buy" agent in Phase B'.
 """
-import base64, hashlib, json, os, sys, urllib.request, urllib.error, urllib.parse, uuid
+import base64, hashlib, json, os, re, sys, urllib.request, urllib.error, urllib.parse, uuid
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common import crypto   # noqa: E402
@@ -36,6 +36,10 @@ DEFECTS = {
     "sign_omit_digest": "sign, but omit content-digest/content-type from covered (SIG-015)",
     "sign_omit_idem": "sign, but omit idempotency-key from the covered components (SIG-016)",
     "ucp_agent_not_signed": "sign, but omit ucp-agent from the covered components (SIG-018)",
+    # WWW-Authenticate: Bearer challenge handling (RFC 6750)
+    "no_bearer_retry": "ignore the 401 WWW-Authenticate: Bearer challenge; do NOT retry (IDL-008)",
+    "no_bearer_header": "retry the gated op WITHOUT an Authorization: Bearer header (IDL-007)",
+    "ignore_challenge_scope": "do NOT derive the authz scope from the challenge (IDL-009)",
 }
 
 # request-signing defect -> the covered components it drops (sign_corrupt tampers the bytes)
@@ -113,7 +117,14 @@ class ReferenceAgent:
                     "body": json.loads(raw.decode("utf-8", "replace") or "null")}
                 self._verify_sig(entry, r.status, raw, rhdrs)
         except urllib.error.HTTPError as e:
-            entry["response"] = {"status": e.code, "body": None, "error": True}
+            # A 4xx/5xx (e.g. the 401 WWW-Authenticate: Bearer challenge) still carries
+            # headers + a body the agent must read (RFC 6750 §3) — capture them.
+            raw = e.read() if hasattr(e, "read") else b""
+            rhdrs = {k: v for k, v in e.headers.items()} if e.headers else {}
+            entry["response"] = {
+                "status": e.code, "error": True,
+                "headers": {k.lower(): v for k, v in rhdrs.items()},
+                "body": json.loads(raw.decode("utf-8", "replace") or "null") if raw else None}
         except Exception as e:
             entry["response"] = {"status": 0, "body": None, "error": str(e)}
         self.log.append(entry)
@@ -139,9 +150,11 @@ class ReferenceAgent:
         self.identity = prof.get("identity") or {}
         return r
 
-    def oauth_authorize(self):
+    def oauth_authorize(self, scope="openid", op="authorize"):
         """Run an OAuth2 authorization-code request with PKCE S256 (IDL-011) and validate
-        the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207)."""
+        the `iss` in the authorization response to prevent Mix-Up (IDL-012, RFC 9207).
+        Returns the authorization `code`. `scope` is carried on the request (IDL-009 derives
+        it from a WWW-Authenticate challenge); `op` distinguishes the gated re-auth."""
         ident = self.identity or {}
         ae = ident.get("authorization_endpoint")
         if not ae:
@@ -150,11 +163,11 @@ class ReferenceAgent:
         challenge = crypto.b64url(hashlib.sha256(verifier.encode()).digest())
         params = {"response_type": "code", "client_id": "spck-agent",
                   "redirect_uri": self.PROFILE + "/cb", "state": uuid.uuid4().hex,
-                  "scope": "openid"}
+                  "scope": scope}
         if self.defect != "no_pkce":                       # IDL-011: PKCE S256 required
             params["code_challenge"] = challenge
             params["code_challenge_method"] = "S256"
-        resp = self._send("authorize", "GET",
+        resp = self._send(op, "GET",
                           "/oauth2/authorize?" + urllib.parse.urlencode(params))
         b = resp.get("body") or {}
         if self.defect != "skip_iss_validation":           # IDL-012: validate iss (Mix-Up)
@@ -162,6 +175,43 @@ class ReferenceAgent:
             entry["iss_validated"] = (b.get("iss") == ident.get("issuer"))
             if not entry["iss_validated"]:
                 entry["rejected"] = True                   # reject a mismatched issuer
+        return b.get("code")
+
+    def oauth_token(self, code, scope):
+        """Exchange the authorization code for a Bearer access token (OAuth2 token endpoint)."""
+        if not (self.identity or {}).get("token_endpoint"):
+            return None
+        body = {"grant_type": "authorization_code", "code": code,
+                "redirect_uri": self.PROFILE + "/cb", "scope": scope}
+        resp = self._send("token", "POST", "/oauth2/token", body)
+        return (resp.get("body") or {}).get("access_token")
+
+    def fetch_gated(self, path="/orders", max_rounds=4):
+        """Access a user-authenticated (identity-gated) operation, driving the RFC 6750 §3
+        WWW-Authenticate: Bearer flow. On a 401 `identity_required` (no scope) the platform
+        derives an initial scope; on a 403 `insufficient_scope` it MUST extract the challenge
+        scope (IDL-009) and re-authorize incrementally. Each challenge MUST be processed
+        (IDL-008) and each retry MUST carry Authorization: Bearer (IDL-007)."""
+        resp = self._send("fetch_gated", "GET", path)      # first request: no token
+        for _ in range(max_rounds):
+            if resp.get("status") not in (401, 403):
+                return resp                                # success (or unhandled) -> done
+            if self.defect == "no_bearer_retry":           # IDL-008: ignore the challenge
+                return resp
+            wa = (resp.get("headers") or {}).get("www-authenticate", "")
+            m = re.search(r'scope="([^"]*)"', wa)          # IDL-009: scope from the challenge
+            if m:
+                scope = m.group(1)
+                if self.defect == "ignore_challenge_scope":
+                    scope = "dev.ucp.shopping.unrelated:read"   # not derived from the challenge
+            else:
+                scope = "openid"                           # 401 has no scope -> initial default
+            code = self.oauth_authorize(scope=scope, op="authorize_gated")
+            token = self.oauth_token(code, scope)
+            h = self._headers()
+            if self.defect != "no_bearer_header":          # IDL-007: Authorization: Bearer
+                h["Authorization"] = f"Bearer {token}"
+            resp = self._send("fetch_gated_retry", "GET", path, headers=h)
         return resp
 
     def create_checkout(self, product_id="teapot_ceramic"):
@@ -210,6 +260,9 @@ class ReferenceAgent:
                 cu = b.get("continue_url")
                 if cu:
                     self.follow_continue_url(cu)
+        # A user-authenticated operation (order history): ungated except in the
+        # auth_challenge scenario, where it exercises the WWW-Authenticate: Bearer flow.
+        self.fetch_gated()
         return self.log
 
 

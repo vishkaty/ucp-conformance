@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common import crypto   # noqa: E402
 
 ESCALATE_TOKEN = "escalate_token"
+ORDER_SCOPE = "dev.ucp.shopping.order:read"   # scope the gated op requires (IDL-037 pattern)
 
 # the sandbox's own RFC 9421 response-signing key (published in its profile)
 SIG_KID = "spck-sandbox-sig-2026"
@@ -38,11 +39,13 @@ class _Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):  # quiet
         pass
 
-    def _send(self, code, obj):
+    def _send(self, code, obj, extra_headers=None):
         body = json.dumps(obj).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        for hn, hv in (extra_headers or {}).items():   # e.g. WWW-Authenticate (RFC 6750 §3)
+            self.send_header(hn, hv)
         # RFC 9421 response signing (signatures.md). In the "bad_signature" scenario the
         # Signature is corrupted so a conformant agent MUST reject the response.
         sig = crypto.sign_response_headers(code, body, _SIG_D, SIG_KID)
@@ -103,6 +106,30 @@ class _Handler(BaseHTTPRequestHandler):
             iss = "https://mixup-attacker.example" if self.server.scenario == "bad_iss" else base
             return self._send(200, {"code": "authcode_" + uuid.uuid4().hex[:10],
                                     "state": (q.get("state") or [""])[0], "iss": iss})
+        if self.path == "/orders":
+            # A user-authenticated (identity-gated) operation. In "auth_challenge" it drives
+            # the full RFC 6750 §3 flow (IDL-007/008/009): a no-token request gets a 401
+            # `identity_required` challenge (no error/scope, per spec L448-450); a token
+            # lacking the order scope gets a 403 `insufficient_scope` challenge carrying the
+            # required scope (spec L516-519), which the platform must extract and re-authorize
+            # incrementally. Other scenarios leave it ungated (a no-op).
+            if self.server.scenario == "auth_challenge":
+                auth = self.headers.get("Authorization") or ""
+                tok = auth[7:] if auth.startswith("Bearer ") else None
+                granted = self.server.tokens.get(tok) if tok else None
+                if granted is None:                        # no valid token -> 401 (RFC 6750 §3.1)
+                    wa = (f'Bearer realm="{base}", '
+                          f'resource_metadata="{base}/.well-known/oauth-protected-resource"')
+                    return self._send(401, {"messages": [{"type": "error",
+                                            "code": "identity_required"}]},
+                                      extra_headers={"WWW-Authenticate": wa})
+                if ORDER_SCOPE not in granted.split():      # token, wrong scope -> 403
+                    wa = (f'Bearer realm="{base}", error="insufficient_scope", '
+                          f'scope="{ORDER_SCOPE}"')
+                    return self._send(403, {"messages": [{"type": "error",
+                                            "code": "insufficient_scope"}]},
+                                      extra_headers={"WWW-Authenticate": wa})
+            return self._send(200, {"orders": [{"id": "ord_history_1"}]})
         return self._send(404, {"error": "not found"})
 
     def do_POST(self):
@@ -115,6 +142,14 @@ class _Handler(BaseHTTPRequestHandler):
         # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
         if not self._verify_request_sig(raw):
             return self._send(401, {"error": "signature_invalid"})
+        if self.path == "/oauth2/token":
+            # OAuth2 token exchange (authorization_code). Issues a Bearer access token scoped
+            # to exactly what was requested; /orders later checks the granted scope.
+            tok = "tok_" + uuid.uuid4().hex[:16]
+            scope = body.get("scope") or ""
+            self.server.tokens[tok] = scope
+            return self._send(200, {"access_token": tok, "token_type": "Bearer",
+                                    "scope": scope, "expires_in": 3600})
         if self.path == "/checkout-sessions":
             sid = "chk_" + uuid.uuid4().hex[:12]
             self.server.sessions[sid] = "incomplete"
@@ -140,12 +175,14 @@ class _Handler(BaseHTTPRequestHandler):
 def serve(scenario="conformant", agent_jwks=None):
     """Boot the sandbox on an ephemeral port; yield (base_url, server). `scenario` selects
     the stimulus: "conformant" (default), "bad_signature" (responses carry an invalid RFC
-    9421 signature, which a conformant agent MUST reject), or "bad_iss" (OAuth Mix-Up).
-    `agent_jwks`, when provided, makes the sandbox VERIFY the platform's request signatures
-    (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
+    9421 signature, which a conformant agent MUST reject), "bad_iss" (OAuth Mix-Up), or
+    "auth_challenge" (the gated /orders op emits a WWW-Authenticate: Bearer 401 until a valid
+    Bearer token is presented). `agent_jwks`, when provided, makes the sandbox VERIFY the
+    platform's request signatures (SIG-001/SIG-018) and 401 an unsigned/invalid one."""
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}
+    httpd.tokens = {}                  # issued Bearer access token -> granted scope string
     httpd.scenario = scenario
     httpd.agent_jwks = agent_jwks
     t = threading.Thread(target=httpd.serve_forever, daemon=True)

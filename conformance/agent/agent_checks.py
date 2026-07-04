@@ -18,6 +18,7 @@ Isolation: this tree (conformance/agent/) is NOT globbed by the merchant coverag
 adding agent checks here cannot move the merchant coverage numbers.
 """
 
+import re
 import urllib.parse
 
 CLEAN = "CLEAN"
@@ -181,6 +182,70 @@ def p_signs_ucp_agent_component(log):
     return _covers(log, {"ucp-agent"})
 
 
+# ---- WWW-Authenticate: Bearer challenge handling (RFC 6750) -------------------
+# The gated op 401s (identity_required) then 403s (insufficient_scope, carrying the required
+# scope); a conformant agent processes each challenge, obtains/upgrades a token, and retries.
+# Predicates use "vacuous CLEAN when the prerequisite step is absent" so each defect trips
+# exactly one check (the missing-retry case is IDL-008's).
+def _challenge_scope(log):
+    """The scope advertised in any WWW-Authenticate challenge (the 403 insufficient_scope),
+    or None when no challenge carried a scope ('when present' in IDL-009)."""
+    scope = None
+    for e in log:
+        wa = ((e.get("response") or {}).get("headers") or {}).get("www-authenticate", "")
+        m = re.search(r'scope="([^"]*)"', wa)
+        if m:
+            scope = m.group(1)
+    return scope
+
+
+def _gated_challenged(log):
+    for e in log:
+        r = e.get("response") or {}
+        if e["op"] in ("fetch_gated", "fetch_gated_retry") and r.get("status") in (401, 403) \
+                and "www-authenticate" in (r.get("headers") or {}):
+            return True
+    return False
+
+
+def p_processes_auth_challenge(log):
+    """IDL-008: platforms MUST process WWW-Authenticate: Bearer challenges on 401/403 to
+    user-authenticated operations. Require the agent to have seen a challenge AND made a
+    follow-up authenticated retry (rather than giving up)."""
+    if not _gated_challenged(log):
+        return DEVIATION                     # sandbox always challenges here; not seeing it = broken
+    retried = any(e["op"] == "fetch_gated_retry" for e in log)
+    return CLEAN if retried else DEVIATION
+
+
+def p_sends_bearer_token(log):
+    """IDL-007: platforms MUST include user identity tokens in the Authorization header using
+    the Bearer scheme. Every gated retry MUST carry `Authorization: Bearer <token>`. (No
+    retry at all is IDL-008's failure, not this one — vacuously CLEAN here.)"""
+    retries = [e for e in log if e["op"] == "fetch_gated_retry"]
+    for e in retries:
+        auth = (e["request"]["headers"] or {}).get("Authorization", "")
+        if not (auth.startswith("Bearer ") and len(auth) > len("Bearer ")):
+            return DEVIATION
+    return CLEAN
+
+
+def p_extracts_challenge_scope(log):
+    """IDL-009: platforms MUST extract the scope from the WWW-Authenticate challenge to
+    construct the subsequent authorization request. Some gated re-auth MUST carry exactly the
+    scope the challenge advertised (derived from the log, not hard-coded). No scoped challenge
+    -> nothing to extract ('when present'); no re-auth -> IDL-008's failure — both CLEAN."""
+    want = _challenge_scope(log)
+    if want is None:
+        return CLEAN
+    for e in log:
+        if e["op"] == "authorize_gated":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(e["request"]["path"]).query)
+            if q.get("scope") == [want]:
+                return CLEAN
+    return DEVIATION
+
+
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
@@ -205,4 +270,13 @@ CHECKS = [
     ACheck("agent.signs_ucp_agent_component", ["SIG-018"], "MUST",
            p_signs_ucp_agent_component, kill_mutation="ucp_agent_not_signed",
            versions=["2026-04-08"]),
+    ACheck("agent.processes_auth_challenge", ["IDL-008"], "MUST",
+           p_processes_auth_challenge, kill_mutation="no_bearer_retry",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.sends_bearer_token", ["IDL-007"], "MUST",
+           p_sends_bearer_token, kill_mutation="no_bearer_header",
+           versions=["2026-04-08"], scenario="auth_challenge"),
+    ACheck("agent.extracts_challenge_scope", ["IDL-009"], "MUST",
+           p_extracts_challenge_scope, kill_mutation="ignore_challenge_scope",
+           versions=["2026-04-08"], scenario="auth_challenge"),
 ]
