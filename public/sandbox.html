@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCP Agent Interop Sandbox — watch a conformant agent, then break it</title>
+<meta name="description" content="Replay real recorded runs of the spck reference agent against an adversarial UCP merchant. Toggle a single client-side defect and see exactly what an agent does wrong — and which conformance check catches it.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>A</text></svg>">
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--card2:#12151d;--fg:#e6e8ee;--mut:#9aa3b2;--ok:#3fb950;--bad:#f85149;--warn:#d29922;--acc:#58a6ff;--acc2:#a78bfa;--line:#2b2f3a}
+*{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:hidden}
+body{font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.topnav{max-width:1040px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.topnav .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--fg)}
+.topnav .brand .mk{width:26px;height:26px;border-radius:6px;background:#5b5bd6;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+.topnav .links{display:flex;gap:18px;font-size:13px}
+.topnav .links a{color:var(--mut)}.topnav .links a:hover{color:var(--fg);text-decoration:none}
+.topnav .links a.active{color:var(--acc);font-weight:600}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 20px 72px}
+h1{font-size:27px;font-weight:800;letter-spacing:-0.6px;margin-bottom:8px}
+h1 em{font-style:normal;color:var(--acc2)}
+.sub{color:var(--mut);font-size:15px;line-height:1.6;max-width:720px;margin-bottom:8px}
+.realnote{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--mut);background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:5px 13px;margin:14px 0 22px}
+.realnote .g{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(63,185,80,0.15)}
+/* case selector */
+.cases{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.case-btn{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 14px;cursor:pointer;text-align:left;transition:all .12s;min-width:150px;flex:1 1 150px;color:var(--fg)}
+.case-btn:hover{border-color:#3d4351}
+.case-btn.active{border-color:var(--acc);background:#182031;box-shadow:0 0 0 1px var(--acc)}
+.case-btn .ct{font-size:12.5px;font-weight:700;line-height:1.3}
+.case-btn .cd{font-size:10.5px;color:var(--mut);margin-top:3px;font-family:ui-monospace,Menlo,monospace}
+.case-btn.conf.active{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok);background:#131f19}
+/* split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.flow{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.flow-head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700}
+.flow-head .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 8px;border-radius:5px}
+.flow.good .flow-head{color:#d7f5df}.flow.good .tag{background:rgba(63,185,80,.16);color:var(--ok)}
+.flow.bad .flow-head{color:#fbe3e1}.flow.bad .tag{background:rgba(248,81,73,.16);color:var(--bad)}
+.ops{padding:8px 8px 10px}
+.op{display:grid;grid-template-columns:20px 1fr auto;gap:9px;align-items:start;padding:8px 9px;border-radius:7px;font-size:12.5px}
+.op + .op{margin-top:2px}
+.op .idx{font-family:ui-monospace,Menlo,monospace;color:#5b6472;font-size:11px;text-align:right;padding-top:1px}
+.op .main .oname{font-weight:600}
+.op .main .path{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:11px;word-break:break-all;margin-top:1px}
+.op .status{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;padding-top:1px}
+.op .status.s2{color:var(--ok)}.op .status.s4{color:var(--warn)}.op .status.s5{color:var(--bad)}
+.op.diverge{background:rgba(248,81,73,.10);box-shadow:inset 2px 0 0 var(--bad)}
+.op.safe{background:rgba(63,185,80,.09);box-shadow:inset 2px 0 0 var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.chip{font-size:9.5px;font-family:ui-monospace,Menlo,monospace;padding:1px 6px;border-radius:4px;background:#232833;color:#8b94a3;border:1px solid #2c323d}
+.chip.g{background:rgba(63,185,80,.14);color:#5ed17a;border-color:transparent}
+.chip.b{background:rgba(248,81,73,.16);color:#ff8480;border-color:transparent}
+.chip.w{background:rgba(210,153,34,.16);color:#e3b341;border-color:transparent}
+.chip.i{background:#1c2431;color:#9db2d0;border-color:#26324a}
+/* highlight banner — the punchline diff */
+.hl{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.hl-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--acc2);margin-bottom:11px}
+.hl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hl-cell{border-radius:9px;padding:11px 13px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.5;position:relative;padding-top:26px;word-break:break-word}
+.hl-cell.good{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.28);color:#c9e9d2}
+.hl-cell.bad{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.28);color:#f4cfcc}
+.hl-tag{position:absolute;top:8px;left:13px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-family:-apple-system,sans-serif}
+.hl-cell.good .hl-tag{color:var(--ok)}.hl-cell.bad .hl-tag{color:var(--bad)}
+@media(max-width:760px){.hl-grid{grid-template-columns:1fr}}
+.stopnote{padding:9px 14px;font-size:11.5px;color:var(--ok);border-top:1px dashed var(--line);font-style:italic}
+.contnote{padding:9px 14px;font-size:11.5px;color:var(--bad);border-top:1px dashed var(--line)}
+/* verdict */
+.verdict{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+.verdict.pass{border-color:rgba(63,185,80,.4)}
+.verdict.fail{border-color:rgba(248,81,73,.4)}
+.v-head{padding:15px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.v-badge{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:5px 12px;border-radius:6px}
+.verdict.pass .v-badge{background:rgba(63,185,80,.16);color:var(--ok)}
+.verdict.fail .v-badge{background:rgba(248,81,73,.16);color:var(--bad)}
+.v-head .vt{font-size:15px;font-weight:700}
+.v-body{padding:16px 18px;display:grid;grid-template-columns:1fr 300px;gap:20px}
+.v-body .why{font-size:13.5px;line-height:1.6;color:#c7cdd8}
+.v-body .why strong{color:var(--fg)}
+.v-meta{border-left:1px solid var(--line);padding-left:18px;font-size:12px}
+.v-meta .row{margin-bottom:11px}
+.v-meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:3px}
+.v-meta .v{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--fg)}
+.v-meta .reqs{display:flex;gap:5px;flex-wrap:wrap}
+.v-meta .req{background:#232833;border:1px solid #2c323d;border-radius:5px;padding:2px 7px;font-size:11px;font-family:ui-monospace,Menlo,monospace;color:var(--acc)}
+.v-meta .kw{display:inline-block;background:rgba(248,81,73,.14);color:#ff8480;padding:2px 8px;border-radius:5px;font-weight:700;font-size:11px;font-family:ui-monospace,Menlo,monospace}
+.missed{margin-top:14px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;font-size:12.5px;color:var(--mut);line-height:1.6;display:flex;gap:11px;align-items:flex-start}
+.missed .ic{font-size:15px;line-height:1.2}.missed strong{color:#e3b341}
+/* explainer / cta */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-top:22px}
+.panel h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.panel p{font-size:13.5px;color:var(--mut);line-height:1.65;margin-bottom:10px}
+.panel .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.panel .two .b{border:1px solid var(--line);border-radius:9px;padding:14px}
+.panel .two .b h4{font-size:13px;margin-bottom:5px}
+.panel .two .b p{font-size:12px;margin-bottom:0}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{padding:10px 18px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--fg)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#08131f}
+.btn.pri:hover{text-decoration:none;filter:brightness(1.06)}
+.disc{font-size:11.5px;color:#6b7280;line-height:1.6;margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:760px){.split{grid-template-columns:1fr}.v-body{grid-template-columns:1fr}.v-meta{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:14px}.panel .two{grid-template-columns:1fr}.topnav .links a:not(.active){display:none}}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <a href="/" class="brand"><span class="mk">U</span>spck.dev</a>
+  <div class="links">
+    <a href="/">Merchant Platforms</a>
+    <a href="agent" class="active">Shopping Agents</a>
+    <a href="coverage">Coverage</a>
+    <a href="guide">Guide</a>
+    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>Watch an agent check out &mdash; <em>then break it.</em></h1>
+  <p class="sub">These are real recorded runs of a correct shopping agent buying from a store that behaves badly on purpose. Flip one flaw and see exactly what the agent does wrong &mdash; and how it&rsquo;s caught. Every broken agent here would still <em>pass</em> a normal conformance test.</p>
+  <div class="realnote"><span class="g"></span> Real recorded runs &mdash; not a mock-up. Each flaw is proven to be caught.</div>
+
+  <div class="cases" id="cases"></div>
+  <div id="view"></div>
+
+  <div class="panel">
+    <h3>What am I looking at?</h3>
+    <p>An AI shopping agent has to do a lot right when it buys something: link the user&rsquo;s account, verify the store&rsquo;s responses, check the total, pay with an allowed method. This sandbox puts a real agent through a checkout against a store that misbehaves &mdash; bad signatures, fake login servers, wrong totals, phishing links &mdash; and shows exactly where a flawed agent slips up. That&rsquo;s the difference between <strong style="color:var(--fg)">passing conformance</strong> and <strong style="color:var(--fg)">actually being safe</strong>.</p>
+    <div class="two">
+      <div class="b"><h4>Building a shopping agent?</h4><p>Point your shopping-orchestration AI at our verified merchant sandbox and we grade how it behaves &mdash; the failures above are exactly what we look for.</p></div>
+      <div class="b"><h4>Building a merchant platform?</h4><p>Our verified agent shops your catalog, cart &amp; checkout, so you learn whether a real AI agent can actually complete a purchase against your UCP interface.</p></div>
+    </div>
+    <div class="cta-row">
+      <a href="agent" class="btn pri">How agent testing works &rarr;</a>
+      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" class="btn">Run it on your own agent</a>
+    </div>
+  </div>
+
+  <p class="disc"><strong>Unofficial.</strong> spck.dev is an independent community effort, not affiliated with or endorsed by the Universal Commerce Protocol project. These checks grade observed agent behavior against the spec&rsquo;s normative requirements; a pass reflects only the checks run, not certified compliance. The <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">official conformance suite</a> is authoritative.</p>
+</div>
+
+<script>
+var DATA=null, SEL='conformant';
+function statusClass(s){ if(s==null)return''; var f=String(s)[0]; return f==='2'?'s2':f==='4'?'s4':f==='5'?'s5':''; }
+function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+// which flags read as good / bad / warn, for chip coloring
+var GOOD=['sig_verified','iss_validated','state_validated','issuer_matched','refused_completion'];
+var WARN=['totals_mismatch','unknown_config_fields'];
+var BAD_IF_FALSE=['sig_verified','iss_validated','state_validated','issuer_matched'];
+
+function chipClass(k,v){
+  if(k==='refused_completion'&&v===true)return'g';
+  if(k==='totals_mismatch'&&v===true)return'w';
+  if(BAD_IF_FALSE.indexOf(k)>=0)return v===true?'g':'b';
+  if(GOOD.indexOf(k)>=0)return v===true?'g':'';
+  if(k==='aborted'||k==='rejected'||k==='aborted_on_unknown_config')return'g';
+  return'';
+}
+function kvChip(k,v,cls){
+  var val=(v===true)?k:(v===false?('no '+k):(k+'='+(typeof v==='string'?v:JSON.stringify(v))));
+  return '<span class="chip '+(cls||'')+'">'+esc(val)+'</span>';
+}
+function detailChips(e){
+  var out='';
+  var q=e.query||{}; for(var k in q) out+=kvChip(k,q[k],'i');
+  var b=e.body||{}; for(var k2 in b) out+=kvChip(k2,b[k2],'i');
+  var f=e.flags||{}; for(var k3 in f){var v=f[k3];
+    if(k3==='unknown_config_fields'&&Array.isArray(v)&&v.length===0)continue;
+    out+=kvChip(k3,v,chipClass(k3,v));}
+  return out?'<div class="chips">'+out+'</div>':'';
+}
+function opRow(e,i,cls){
+  return '<div class="op '+(cls||'')+'"><div class="idx">'+(i+1)+'</div>'+
+    '<div class="main"><div class="oname">'+esc(e.op)+'</div>'+
+    '<div class="path"><span style="color:#7d8595">'+esc(e.method||'')+'</span> '+esc(e.path||'')+'</div>'+
+    detailChips(e)+'</div>'+
+    '<div class="status '+statusClass(e.status)+'">'+esc(e.status==null?'':e.status)+'</div></div>';
+}
+// full-row signature — a defect can differ in path, query, body, status OR flags
+function rowSig(e){return JSON.stringify([e.path,e.query||{},e.body||{},e.status,e.flags||{}]);}
+function sameRow(a,b){return rowSig(a)===rowSig(b);}
+function fmtSide(x){
+  if(x==null||x==='')return'&mdash;';
+  if(typeof x==='string')return esc(x);
+  var parts=[];for(var k in x)parts.push(k+'='+(x[k]===null?'<absent>':(typeof x[k]==='string'?x[k]:JSON.stringify(x[k]))));
+  return esc(parts.join(', '));
+}
+function highlightBanner(h){
+  if(!h||h.kind==='none')return'';
+  var label={stopped:'Where the agent went wrong',flags:'Client-side check that differs',
+    query:'Authorization request differs',body:'Payment request differs',path:'Endpoint differs',status:'Response differs'}[h.kind]||'The difference';
+  return '<div class="hl"><div class="hl-t">&#8646; The one thing that differs &mdash; '+esc(label)+'</div>'+
+    '<div class="hl-grid"><div class="hl-cell good"><span class="hl-tag">Conformant</span>'+fmtSide(h.clean)+'</div>'+
+    '<div class="hl-cell bad"><span class="hl-tag">This agent</span>'+fmtSide(h.mutant)+'</div></div></div>';
+}
+
+function renderCases(){
+  var html='<button class="case-btn conf'+(SEL==='conformant'?' active':'')+'" data-k="conformant">'+
+    '<div class="ct">&#10003; Conformant agent</div><div class="cd">no defect &middot; baseline</div></button>';
+  DATA.cases.forEach(function(c){
+    html+='<button class="case-btn'+(SEL===c.defect?' active':'')+'" data-k="'+esc(c.defect)+'">'+
+      '<div class="ct">'+esc(c.title)+'</div><div class="cd">'+esc(c.defect)+'</div></button>';
+  });
+  document.getElementById('cases').innerHTML=html;
+  Array.prototype.forEach.call(document.querySelectorAll('.case-btn'),function(b){
+    b.onclick=function(){SEL=b.getAttribute('data-k');
+      try{history.replaceState(null,'',SEL==='conformant'?location.pathname:location.pathname+'?case='+SEL);}catch(e){}
+      try{fetch('/api/track?event=sandbox_case',{method:'POST',keepalive:true}).catch(function(){});}catch(e){}
+      render();window.scrollTo({top:0,behavior:'smooth'});};});
+}
+
+function render(){
+  renderCases();
+  var v=document.getElementById('view');
+  if(SEL==='conformant'){
+    var rows=DATA.conformant.map(function(e,i){
+      var cls=(e.flags&&e.flags.refused_completion)?'safe':'';return opRow(e,i,cls);}).join('');
+    v.innerHTML='<div class="split"><div class="flow good" style="grid-column:1/-1">'+
+      '<div class="flow-head"><span class="tag">Pass</span> Conformant reference agent &middot; full checkout flow</div>'+
+      '<div class="ops">'+rows+'</div></div></div>'+
+      '<div class="verdict pass"><div class="v-head"><span class="v-badge">Conformant</span>'+
+      '<span class="vt">The agent completes the checkout and does everything a safe agent must.</span></div>'+
+      '<div class="v-body"><div class="why">This is the known-good baseline: it discovers the merchant, links identity over OAuth 2.0 with PKCE, validates <code>state</code> and <code>iss</code>, verifies every RFC 9421 response signature, checks the totals reconcile, pays with an advertised instrument, follows the escalation, and revokes its token on unlink. Pick a defect above to break exactly one of these.</div>'+
+      '<div class="v-meta"><div class="row"><div class="k">Ops</div><div class="v">'+DATA.conformant.length+' requests</div></div>'+
+      '<div class="row"><div class="k">Checks satisfied</div><div class="v">all 38 agent checks</div></div></div></div></div>';
+    return;
+  }
+  var c=null;for(var i=0;i<DATA.cases.length;i++)if(DATA.cases[i].defect===SEL)c=DATA.cases[i];
+  if(!c){v.innerHTML='';return;}
+  var clean=c.clean,mut=c.mutant;
+  // conformant column: mark the safe-stop op
+  var cleanRows=clean.map(function(e,i){
+    var cls=(e.flags&&(e.flags.refused_completion||e.flags.aborted||e.flags.rejected))?'safe':'';
+    return opRow(e,i,cls);}).join('');
+  var cleanStop=clean.length<mut.length?'<div class="stopnote">&#10003; The conformant agent stopped safely here &mdash; it did not proceed.</div>':'';
+  // defective column: mark divergent ops (extra ops beyond clean, or flag differences)
+  var mutRows=mut.map(function(e,i){
+    var diverge=false;
+    if(i>=clean.length)diverge=true;
+    else if(!sameRow(clean[i],e))diverge=true;
+    return opRow(e,i,diverge?'diverge':'');}).join('');
+  var mutCont=mut.length>clean.length?'<div class="contnote">&#10007; This agent kept going and completed the purchase anyway.</div>':'';
+  var catch0=c.catching[0]||{};
+  var reqs=(catch0.req_ids||[]).map(function(r){return'<span class="req">'+esc(r)+'</span>';}).join('');
+  v.innerHTML=
+    '<div class="split">'+
+    '<div class="flow good"><div class="flow-head"><span class="tag">Conformant</span> How a correct agent behaves</div><div class="ops">'+cleanRows+'</div>'+cleanStop+'</div>'+
+    '<div class="flow bad"><div class="flow-head"><span class="tag">Defective</span> This agent &middot; '+esc(c.defect)+'</div><div class="ops">'+mutRows+'</div>'+mutCont+'</div>'+
+    '</div>'+
+    highlightBanner(c.highlight)+
+    '<div class="verdict fail"><div class="v-head"><span class="v-badge">Fails</span><span class="vt">'+esc(c.title)+'</span></div>'+
+    '<div class="v-body"><div class="why"><strong>What went wrong:</strong> '+esc(c.why)+'<br><br>'+
+    '<strong>The defect:</strong> <code>'+esc(c.spec_desc)+'</code>'+
+    '<div class="missed"><span class="ic">&#9888;&#65039;</span><div>A schema-conformance checker would still mark this agent <strong>&ldquo;pass&rdquo;</strong> &mdash; every message is well-formed. Only a behavioral check catches it.</div></div></div>'+
+    '<div class="v-meta">'+
+    '<div class="row"><div class="k">Caught by check</div><div class="v">'+esc(catch0.id||'')+'</div></div>'+
+    '<div class="row"><div class="k">Spec requirement</div><div class="reqs">'+reqs+'</div></div>'+
+    '<div class="row"><div class="k">Normative keyword</div><div><span class="kw">'+esc(catch0.keyword||'')+'</span></div></div>'+
+    '<div class="row"><div class="k">Kill-rate verified</div><div class="v" style="color:var(--ok)">&#10003; passes clean, fails defect</div></div>'+
+    '</div></div></div>';
+}
+
+fetch('agent-demo.json').then(function(r){return r.json();}).then(function(d){
+    DATA=d;
+    try{var q=new URLSearchParams(location.search).get('case');
+      if(q&&DATA.cases.some(function(c){return c.defect===q;}))SEL=q;}catch(e){}
+    render();})
+  .catch(function(){document.getElementById('view').innerHTML='<div class="panel">Could not load demo data.</div>';});
+try{fetch('/api/track?event=sandbox_view',{method:'POST',keepalive:true}).catch(function(){});}catch(e){}
+</script>
+</body>
+</html>

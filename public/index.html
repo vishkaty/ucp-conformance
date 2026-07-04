@@ -21,6 +21,7 @@ nav .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px
 nav .nav-links{display:flex;gap:20px;align-items:center;font-size:13px}
 nav .nav-links a{color:var(--muted);font-weight:500}
 nav .nav-links a:hover{color:var(--dark);text-decoration:none}
+nav .nav-links a.active{color:var(--accent);font-weight:700}
 .btn-nav{background:var(--accent) !important;color:#fff !important;padding:7px 18px;border-radius:6px;font-weight:600;font-size:13px}
 .btn-nav:hover{background:#4f4fc4 !important;text-decoration:none !important}
 
@@ -141,6 +142,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
   .hero-stats{gap:24px}
   .hero-stats .stat-num{font-size:22px}
   .ucp-intro{grid-template-columns:1fr}
+  .two-paths{grid-template-columns:1fr !important}
   .version-grid{grid-template-columns:1fr}
   .module-grid{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr;gap:16px}
@@ -157,10 +159,10 @@ footer .copy{font-size:11px;color:#a1a1aa}
     UCP Conformance
   </div>
   <div class="nav-links">
+    <a href="/" class="active">Merchant Platforms</a>
+    <a href="agent">Shopping Agents</a>
     <a href="coverage">Coverage</a>
     <a href="guide">Guide</a>
-    <a href="check">Instant Check</a>
-    <a href="#cli">CLI</a>
     <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
     <a href="tool" class="btn-nav">Launch Tool &rarr;</a>
   </div>
@@ -171,31 +173,49 @@ footer .copy{font-size:11px;color:#a1a1aa}
   <div class="hero-content">
     <div class="badge">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-      UNIVERSAL COMMERCE PROTOCOL
+      BOTH SIDES OF THE AI CHECKOUT
     </div>
-    <h1>Test Your <em>UCP Implementation</em></h1>
-    <p class="hero-sub">An honest, capability-scoped conformance checker for the Universal Commerce Protocol. Every check is <strong>proven to catch the bug it's for</strong> — no false greens. Run it from the browser, <code>pip</code>, or your CI, across REST <em>and</em> MCP.</p>
+    <h1>Make AI checkout <em>actually work</em>.</h1>
+    <p class="hero-sub">A UCP checkout takes two systems: a <strong>merchant platform</strong> that exposes catalog, cart, payments &amp; checkout, and a <strong>shopping agent</strong> that buys across them. spck tests both sides &mdash; and every check is proven to catch the bug it&rsquo;s for, so there are no false greens.</p>
     <div class="hero-actions">
-      <a href="check" class="btn-hero btn-hero-primary">Check your server &rarr;</a>
-      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" class="btn-hero btn-hero-secondary">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        Star on GitHub
-      </a>
+      <a href="check" class="btn-hero btn-hero-primary">Merchant platform &mdash; check yours &rarr;</a>
+      <a href="agent" class="btn-hero btn-hero-secondary">Shopping agent &mdash; test yours &rarr;</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">193</div><div class="stat-label">Kill-rate-validated checks</div></div>
-      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Transports (REST + MCP)</div></div>
-      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Spec versions</div></div>
+      <div class="stat"><div class="stat-num">193</div><div class="stat-label">Merchant-side checks</div></div>
+      <div class="stat"><div class="stat-num">39</div><div class="stat-label">Agent-side checks</div></div>
+      <div class="stat"><div class="stat-num">0</div><div class="stat-label">False greens</div></div>
     </div>
     <p class="hero-cov">
-      Every normative <strong>MUST</strong> in all three spec versions is accounted for &mdash;
-      a kill-rate-validated check, a documented exemption, or a tracked gap.
+      Every normative <strong>MUST</strong> across three spec versions is accounted for &mdash;
+      a proven check, a documented exemption, or a tracked gap.
       <a href="#coverage-live">See the live coverage &darr;</a>
     </p>
   </div>
 </div>
 
 <!-- Live coverage -->
+<section>
+  <div class="section-inner">
+    <div class="section-label" style="text-align:center">Which side are you building?</div>
+    <div class="section-title" style="text-align:center;margin-bottom:32px">A UCP checkout takes two systems. We test both.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="two-paths">
+      <a href="check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafafa,#f6f7f9);transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">The sell side</div>
+        <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Merchant platforms</div>
+        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you &mdash; 193 checks, from the browser or your CI.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--accent)">Check your platform &rarr;</span>
+      </a>
+      <a href="agent" style="display:block;text-decoration:none;border:1px solid var(--accent);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafaff,#f5f3ff);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(91,91,214,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">The buy side</div>
+        <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Shopping agents</div>
+        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You build a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. We catch the wrong-amount, phishing, and failed-checkout bugs conformance misses &mdash; with real money on the line.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--accent)">Test your agent &rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section class="alt" id="coverage-live">
   <div class="section-inner">
     <div class="section-label">Transparency</div>
@@ -335,7 +355,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
   <div class="section-inner">
     <div class="section-label">Coverage</div>
     <div class="section-title">What We Test</div>
-    <div class="section-desc">Capability-adaptive: it discovers what your server declares and runs only the checks that apply — so a lean-but-correct server isn't penalized. Anything it can't test is reported <strong>not-tested</strong>, never silently passed.</div>
+    <div class="section-desc">Capability-adaptive: it discovers what your store declares and runs only the checks that apply — so a lean-but-correct store isn't penalized. Anything it can't test is reported <strong>not-tested</strong>, never silently passed.</div>
     <div class="module-grid">
       <div class="module-card"><div class="mod-badge">1</div><div><h4>Discovery &amp; profile</h4><p>Dated version, reverse-domain capabilities, service transports, and the whole <code>/.well-known/ucp</code> validated against the official schema</p></div></div>
       <div class="module-card"><div class="mod-badge">2</div><div><h4>Checkout lifecycle</h4><p>Create, get, update, cancel, complete&rarr;order, required fields, terminal-state immutability</p></div></div>
@@ -364,12 +384,12 @@ footer .copy{font-size:11px;color:#a1a1aa}
       <div class="step">
         <div class="step-num">1</div>
         <h4>In the browser</h4>
-        <p>Paste your server URL at <a href="check">spck.dev/check</a> for an instant discovery + profile check — no install. The result URL is shareable, and you get an embeddable conformance badge.</p>
+        <p>Paste your store&rsquo;s URL at <a href="check">spck.dev/check</a> for an instant discovery + profile check — no install. The result URL is shareable, and you get an embeddable conformance badge.</p>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <h4>From your terminal</h4>
-        <p><code>pip install spck-conformance</code>, then <code>--init</code> scaffolds a config for your server and it runs the full suite. Deviations show <strong>expected vs your actual response</strong>, so you can fix them directly.</p>
+        <p><code>pip install spck-conformance</code>, then <code>--init</code> scaffolds a config for your store and it runs the full suite. Deviations show <strong>expected vs your actual response</strong>, so you can fix them directly.</p>
         <a href="https://pypi.org/project/spck-conformance/" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px">
           <img src="https://img.shields.io/pypi/v/spck-conformance?label=PyPI&amp;color=5b5bd6" alt="Latest spck-conformance version on PyPI" height="20" style="vertical-align:middle">
         </a>
@@ -399,7 +419,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
         </div>
         <div class="cli-step">
           <h4><span class="cli-num">2</span> Scaffold &amp; run</h4>
-          <p><code>--init</code> probes your server and writes a config tailored to its capabilities; fill the placeholders, then run.</p>
+          <p><code>--init</code> probes your store and writes a config tailored to its capabilities; fill the placeholders, then run.</p>
           <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
           <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--init</span> merchant.json
 <span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--config</span> merchant.json
@@ -444,9 +464,9 @@ footer .copy{font-size:11px;color:#a1a1aa}
 
 <!-- CTA -->
 <div class="cta">
-  <h2>Ready to check your UCP server?</h2>
+  <h2>Ready to check your store?</h2>
   <p>Paste a URL for an instant check — or <code style="background:rgba(255,255,255,.12);padding:2px 8px;border-radius:5px;color:#fff">pip install spck-conformance</code>. Free, open source, unofficial.</p>
-  <a href="check" class="btn-cta">Check your server &rarr;</a>
+  <a href="check" class="btn-cta">Check your store &rarr;</a>
 </div>
 
 <!-- Footer -->
