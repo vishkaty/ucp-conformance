@@ -38,6 +38,14 @@ AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
 AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (agent verifies)
                "SIG-014", "SIG-015", "SIG-016", "SIG-018"}  # request signing (agent signs)
 
+# Denominator-accuracy exclusions: rows the heuristic/client-bound class wrongly pulled in
+# whose MUST binds ONLY the business/server (a business error response, a business-authored
+# order-schema shape, an MCP endpoint the server exposes, an A2A response the business agent
+# returns). They are NOT achievable on the agent axis and must not inflate the denominator.
+# Every id is spec-cited in agent_denominator_audit.json (independent adjudication + verify).
+NOT_AGENT_BOUND = {"A2A-001", "MCP-001", "NEG-001", "NEG-002", "NEG-003", "NEG-004",
+                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019"}
+
 
 def _client_bound_ids():
     if not os.path.exists(EXEMPT):
@@ -60,6 +68,8 @@ def agent_rows(ver):
             if ver not in (r.get("versions") or [ver]):
                 continue
             if r.get("keyword") not in ("MUST", "MUST NOT"):
+                continue
+            if r["id"] in NOT_AGENT_BOUND:         # business-only (denominator-accuracy audit)
                 continue
             text = (r.get("requirement", "") + " " + r.get("quote", "")).lower()
             if any(w in text for w in AGENT_WORDS) or r["id"] in cb or r["id"] in AGENT_EXTRA:
