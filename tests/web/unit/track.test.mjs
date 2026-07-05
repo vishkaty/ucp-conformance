@@ -35,12 +35,14 @@ test("repeated events accumulate", async () => {
   assert.equal((await stats(env)).sandbox_case, 3);
 });
 
-test("every allow-listed event is accepted", async () => {
+test("every allow-listed event is accepted (incl. the returning-visitor depth signals)", async () => {
   const env = mockEnv();
-  for (const ev of ["agent_view", "sandbox_view", "sandbox_case", "agent_cta"])
+  const events = ["agent_view", "sandbox_view", "sandbox_case", "agent_cta",
+                  "agent_return", "sandbox_return"];
+  for (const ev of events)
     await onRequestPost(ctx(post(`${B}/api/track?event=${ev}`, {}), env));
   const s = await stats(env);
-  for (const ev of ["agent_view", "sandbox_view", "sandbox_case", "agent_cta"])
+  for (const ev of events)
     assert.equal(s[ev], 1, `${ev} should be recorded`);
 });
 

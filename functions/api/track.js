@@ -14,6 +14,10 @@ const EVENTS = new Set([
   "sandbox_view",     // /sandbox interop demo opened
   "sandbox_case",     // a defect case selected in the demo
   "agent_cta",        // clicked through from an agent-side CTA
+  // depth signal: a RETURNING visitor (localStorage flag set on a prior visit). A return is
+  // worth far more than a first-view — it's the "they came back / rely on it" signal.
+  "agent_return",     // /agent viewed by a returning visitor
+  "sandbox_return",   // /sandbox opened by a returning visitor
 ]);
 
 function done() {
