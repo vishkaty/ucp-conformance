@@ -242,7 +242,13 @@ footer .copy{font-size:12px;color:var(--muted)}
   </div>
 </footer>
 <script>
-try{fetch('/api/track?event=agent_view',{method:'POST',keepalive:true}).catch(function(){});}catch(e){}
+// anonymous, cookieless: count the view; if we've been seen before (localStorage flag),
+// also count a RETURN — a returning visitor is the depth signal that matters.
+try{
+  var b=function(ev){fetch('/api/track?event='+ev,{method:'POST',keepalive:true}).catch(function(){});};
+  b('agent_view');
+  try{ if(localStorage.getItem('spck_seen')) b('agent_return'); localStorage.setItem('spck_seen','1'); }catch(e){}
+}catch(e){}
 </script>
 </body>
 </html>

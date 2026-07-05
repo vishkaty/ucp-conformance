@@ -269,7 +269,11 @@ fetch('agent-demo.json').then(function(r){return r.json();}).then(function(d){
       if(q&&DATA.cases.some(function(c){return c.defect===q;}))SEL=q;}catch(e){}
     render();})
   .catch(function(){document.getElementById('view').innerHTML='<div class="panel">Could not load demo data.</div>';});
-try{fetch('/api/track?event=sandbox_view',{method:'POST',keepalive:true}).catch(function(){});}catch(e){}
+try{
+  var _b=function(ev){fetch('/api/track?event='+ev,{method:'POST',keepalive:true}).catch(function(){});};
+  _b('sandbox_view');
+  try{ if(localStorage.getItem('spck_seen')) _b('sandbox_return'); localStorage.setItem('spck_seen','1'); }catch(e){}
+}catch(e){}
 </script>
 </body>
 </html>
