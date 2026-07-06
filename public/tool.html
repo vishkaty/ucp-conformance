@@ -487,7 +487,7 @@ function ep(v){
 // ── Discovery & Auto-config ──
 async function discover(){
   let{status,data}=await http('GET',cfg('base')+'/.well-known/ucp');
-  // Multi-tenant platform gateways (e.g. Firmly) select the merchant via a
+  // Multi-tenant platform gateways select the merchant via a
   // ?domain= query param — retry with it when the bare fetch can't route.
   if(cfg('domain')&&(status!==200||(data.messages||[]).some(m=>m.code==='merchant_not_found'))){
     const r2=await http('GET',cfg('base')+'/.well-known/ucp?domain='+encodeURIComponent(cfg('domain')));
@@ -595,7 +595,7 @@ async function completeSession(V,s){
 // flags: 'deviation' = server deviates from spec, 'adjusted' = test modified from official suite
 // note: explains what differs
 function getTests(V){return[
-{m:'A. protocol_test',n:'test_discovery',flags:'adjusted',note:'Official suite expects flat profile (version at root). Firmly nests under ucp envelope (2026-04-08 format).',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('No discovery');if(u.version!==V)throw new Error('Version '+u.version);if(!u.services?.['dev.ucp.shopping']?.some(s=>s.transport==='rest'))throw new Error('No REST');return`v${u.version}, ${Object.keys(u.capabilities||{}).length} caps`}},
+{m:'A. protocol_test',n:'test_discovery',flags:'adjusted',note:'Official suite expects flat profile (version at root); some platforms nest under the ucp envelope (2026-04-08 format).',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('No discovery');if(u.version!==V)throw new Error('Version '+u.version);if(!u.services?.['dev.ucp.shopping']?.some(s=>s.transport==='rest'))throw new Error('No REST');return`v${u.version}, ${Object.keys(u.capabilities||{}).length} caps`}},
 {m:'A. protocol_test',n:'test_discovery_urls',fn:async()=>{const u=sessionData.discovery?.ucp;if(!u)throw new Error('SKIP:No discovery');for(const s of u.services['dev.ucp.shopping'])if(!s.endpoint||!s.schema)throw new Error('Missing URL');return'All URLs present'}},
 {m:'A. protocol_test',n:'test_version_negotiation',fn:async()=>{if(!sessionData.discovery)throw new Error('SKIP:No discovery');const sv=sessionData.discovery.ucp.supported_versions||{};if(!sv[V])throw new Error(V+' not supported');return'Supports: '+Object.keys(sv).join(', ')}},
 {m:'A. protocol_test',n:'test_discovery_error',fn:async()=>{const saved=getSettingsHeaders();const blank={};Object.keys(saved).forEach(k=>blank[k]='');const{data}=await http('GET',cfg('base')+'/.well-known/ucp',null,blank);if(!(data.messages||[]).some(m=>m.code==='merchant_not_found'))throw new Error('Expected error');return'Error for missing host'}},

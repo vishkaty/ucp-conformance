@@ -14,7 +14,7 @@
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const REV_DOMAIN_RE = /^[a-z0-9]+(\.[a-z0-9_]+)+$/;
 
-// Optional caller-supplied headers (e.g. x-firmly-host for multi-tenant staging
+// Optional caller-supplied headers (e.g. x-tenant-host for multi-tenant staging
 // routing). Strictly sanitized: x-* names only, no proxy-identity headers, ≤3
 // headers, values ≤200 chars, no CR/LF injection.
 const HEADER_NAME_RE = /^x-[a-z0-9-]{1,40}$/;

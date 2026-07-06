@@ -12,13 +12,13 @@ const { cleanHeaders, runPreviewChecks, preview } =
 // ── cleanHeaders: the sanitizer between users and outbound requests ──────────
 test("cleanHeaders keeps only sane x-* headers", () => {
   const out = cleanHeaders({
-    "x-firmly-host": "staging.example.com",
+    "x-tenant-host": "staging.example.com",
     "Authorization": "Bearer evil",           // not x-*
     "x-forwarded-for": "1.2.3.4",             // proxy-identity: denied
     "X-Ok": "line1\r\ninjected",              // CRLF stripped
     "x-a": 1, "x-b": 2, "x-c": 3, "x-d": 4,   // capped at 3 total
   });
-  assert.equal(out["x-firmly-host"], "staging.example.com");
+  assert.equal(out["x-tenant-host"], "staging.example.com");
   assert.ok(!("authorization" in out) && !("Authorization" in out));
   assert.ok(!("x-forwarded-for" in out));
   assert.equal(out["x-ok"], "line1injected");
@@ -103,12 +103,12 @@ test("deep preview runs catalog probes, forwards headers + custom query", async 
     ["/catalog/lookup", () => jsonResp({ products: [PRODUCT] })],
   ]);
   const out = await preview("https://m.example.com",
-    { deep: true, headers: { "x-firmly-host": "s.example.com" }, query: "sunglasses" });
+    { deep: true, headers: { "x-tenant-host": "s.example.com" }, query: "sunglasses" });
   assert.equal(out.summary.total, 7);
   assert.equal(out.summary.deviations, 0);
-  assert.deepEqual(out.custom_headers_sent, ["x-firmly-host"]);
+  assert.deepEqual(out.custom_headers_sent, ["x-tenant-host"]);
   for (const c of calls)                     // header forwarded to EVERY request
-    assert.equal(c.opts.headers["x-firmly-host"], "s.example.com");
+    assert.equal(c.opts.headers["x-tenant-host"], "s.example.com");
   assert.equal(JSON.parse(calls[1].opts.body).query, "sunglasses");
 });
 

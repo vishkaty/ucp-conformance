@@ -122,7 +122,7 @@ schemas the oracle resolves as-is — unlike the 01-23 root-schema blocker) · o
 1. ~~**TLS 1.3 harness** (CHK-051)~~ **DONE 2026-07-02**: tls_proxy.py (1.3-only golden
    + 1.2-accepting negative, boot-minted cert) + version-scoped check counting for
    01-23 AND 01-11 + dedicated soundness gate. WF#1 backlog: 16/16 complete.
-   Real-world pull for the next harness: production luma.gift answers 401
+   Real-world pull for the next harness: a signature-gated production merchant answers 401
    agent_signature_required even for reads — a working RFC 9421 signer is both
    coverage AND the key to testing signature-gated merchants.
 2. **Webhook receiver extension** (`webhook_harness.py` exists with ORD-012/013):

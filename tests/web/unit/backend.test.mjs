@@ -131,10 +131,10 @@ test("settings save/load round-trips custom headers", async () => {
   const env = mockEnv({ RESEND_API_KEY: "re_test" });
   const token = await login(env, "user2@example.com");
   const save = await call(env, post(`${B}/api/settings`,
-    { headers: { "x-firmly-host": "staging.example.com" }, defaultBase: "https://gw.example.com" },
+    { headers: { "x-tenant-host": "staging.example.com" }, defaultBase: "https://gw.example.com" },
     { Authorization: `Bearer ${token}` }));
   assert.equal(save.status, 200);
   const load = await call(env, get(`${B}/api/settings`,
     { Authorization: `Bearer ${token}` }));
-  assert.equal(load.body.settings.headers["x-firmly-host"], "staging.example.com");
+  assert.equal(load.body.settings.headers["x-tenant-host"], "staging.example.com");
 });

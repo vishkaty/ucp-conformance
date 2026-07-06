@@ -47,8 +47,8 @@
   <div class="card">
     <label for="server">Your store&rsquo;s URL</label>
     <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
-    <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-firmly-host</code>)</summary>
-      <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-firmly-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
+    <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-tenant-host</code>)</summary>
+      <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-tenant-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
       <input id="cquery" type="text" style="margin-top:8px" placeholder="catalog search query (default: *) — e.g. sunglasses" autocomplete="off" spellcheck="false">
     </details>
     <button id="run">Check discovery + profile + catalog</button>

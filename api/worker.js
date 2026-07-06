@@ -18,7 +18,7 @@
  *
  * Environment variables:
  * - RESEND_API_KEY — API key for Resend (email delivery)
- * - FROM_EMAIL     — sender email (e.g., otp@ucp-conformance.firmly.ai)
+ * - FROM_EMAIL     — sender email (e.g., otp@example.com)
  */
 
 export default {
