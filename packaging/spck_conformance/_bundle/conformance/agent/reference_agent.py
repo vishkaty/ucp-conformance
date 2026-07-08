@@ -36,6 +36,9 @@ DEFECTS = {
     "sign_omit_digest": "sign, but omit content-digest/content-type from covered (SIG-015)",
     "sign_omit_idem": "sign, but omit idempotency-key from the covered components (SIG-016)",
     "ucp_agent_not_signed": "sign, but omit ucp-agent from the covered components (SIG-018)",
+    "wrong_content_type": "send a request body with Content-Type != application/json (OVR-008)",
+    "assume_count_is_limit": "stop the search page loop on a short page (len < limit) instead of following has_next_page (CAT-008)",
+    "empty_search_request": "send a search request with no query and no filters (CAT-009)",
     # WWW-Authenticate: Bearer challenge handling (RFC 6750)
     "no_bearer_retry": "ignore the 401 WWW-Authenticate: Bearer challenge; do NOT retry (IDL-008)",
     "no_bearer_header": "retry the gated op WITHOUT an Authorization: Bearer header (IDL-007)",
@@ -111,7 +114,11 @@ class ReferenceAgent:
 
     # --- client obligations (each maps to agent-side spec rows) ---
     def _headers(self, idem=None):
-        h = {"Content-Type": "application/json"}
+        # OVR-008: REST requests MUST use Content-Type application/json. The
+        # wrong_content_type defect models a platform that sends a non-JSON media type.
+        ctype = "text/plain; charset=utf-8" if self.defect == "wrong_content_type" \
+            else "application/json"
+        h = {"Content-Type": ctype}
         # DISC-006 / CART-024: a conformant platform sends UCP-Agent (profile) on every request.
         if self.defect != "no_ucp_agent":
             h["UCP-Agent"] = f'profile="{self.PROFILE}"'
@@ -129,7 +136,8 @@ class ReferenceAgent:
         sig = crypto.sign_request_headers(
             method, authority, path, data, _AGENT_D, _AGENT_SIG_KID,
             ucp_agent=h.get("UCP-Agent"), idem=h.get("idempotency-key"),
-            omit=_SIGN_OMIT.get(self.defect, ()))
+            omit=_SIGN_OMIT.get(self.defect, ()),
+            content_type=h.get("Content-Type", "application/json"))
         if self.defect == "sign_corrupt":                  # SIG-001: signature must verify
             raw = base64.b64decode(sig["Signature"].split(":", 1)[1].rsplit(":", 1)[0])
             raw = bytes([raw[0] ^ 0xFF]) + raw[1:]
@@ -172,6 +180,9 @@ class ReferenceAgent:
         signatures and reject with signature_invalid when ECDSA verification fails. A
         conformant agent rejects a response whose signature is missing/invalid. The
         skip_sig_verify defect omits this check entirely."""
+        # Only discovery is exempt (its response is where the signing keys are first
+        # learned — chicken-and-egg). Every other signed response, incl. catalog search,
+        # is verified (SIG-002).
         if entry["op"] == "discover" or self.defect == "skip_sig_verify" or not self.jwks:
             return
         ok, reason = crypto.verify_response(status, raw, rhdrs, self.jwks)
@@ -404,6 +415,26 @@ class ReferenceAgent:
         s = sum(t.get("amount", 0) for t in totals if t.get("type") != "total")
         return s == total_entry.get("amount")
 
+    def search(self, query, limit=10):
+        """Browse the catalog with cursor pagination. CAT-009: a valid search request
+        MUST include a recognized input (query/filters) — the conformant agent sends a
+        `query`. CAT-008: MUST NOT assume the response size equals the requested limit —
+        the loop decides "more results" from `pagination.has_next_page`, NEVER from
+        len(products) < limit (the sandbox silently clamps to a short first page)."""
+        body = {} if self.defect == "empty_search_request" else {"query": query}
+        body["pagination"] = {"limit": limit}
+        resp = self._send("search", "POST", "/catalog/search", body)
+        pg = (resp.get("body") or {}).get("pagination") or {}
+        while pg.get("has_next_page"):
+            if self.defect == "assume_count_is_limit":
+                prods = (resp.get("body") or {}).get("products") or []
+                if len(prods) < limit:
+                    break                      # WRONG: a short page is not end-of-results
+            nxt = {"query": query,
+                   "pagination": {"limit": limit, "cursor": pg.get("cursor")}}
+            resp = self._send("search_page", "POST", "/catalog/search", nxt)
+            pg = (resp.get("body") or {}).get("pagination") or {}
+
     def create_checkout(self, product_id="teapot_ceramic"):
         # CHK-036/037: a REQUEST body carries only request-authorable fields. The `ucp` envelope
         # (CHK-036) and the response-only fields status/currency/totals/messages/links/
@@ -477,6 +508,8 @@ class ReferenceAgent:
         """Drive a conformant shopping flow (discover -> create -> complete -> handle
         escalation); return the session log for grading."""
         self.discover()
+        # CAT-008/009: browse the catalog first (cursor pagination + valid search input).
+        self.search("teapot")
         # IDL-057: when config carries unrecognized future fields, a conformant platform MUST
         # IGNORE them and proceed with OAuth 2.0 + RFC 8414 discovery. The abort_on_future_config
         # defect instead chokes and stops (forward-incompatible).

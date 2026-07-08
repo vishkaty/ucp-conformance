@@ -11,6 +11,26 @@
    }
   },
   {
+   "op": "search",
+   "method": "POST",
+   "path": "/catalog/search",
+   "status": 200,
+   "flags": {
+    "sig_verified": true,
+    "sig_reason": "ok"
+   }
+  },
+  {
+   "op": "search_page",
+   "method": "POST",
+   "path": "/catalog/search",
+   "status": 200,
+   "flags": {
+    "sig_verified": true,
+    "sig_reason": "ok"
+   }
+  },
+  {
    "op": "as_discovery",
    "method": "GET",
    "path": "/.well-known/oauth-authorization-server",
@@ -109,6 +129,26 @@
      }
     },
     {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -198,6 +238,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -322,6 +382,26 @@
      }
     },
     {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -410,6 +490,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -533,6 +633,26 @@
      }
     },
     {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -586,6 +706,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -671,8 +811,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 4 ops (at create_checkout)",
-    "mutant": "kept going \u2014 reached complete (8 ops)"
+    "clean": "stopped safely after 6 ops (at create_checkout)",
+    "mutant": "kept going \u2014 reached complete (10 ops)"
    },
    "catching": [
     {
@@ -702,6 +842,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -885,6 +1045,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -1096,6 +1276,26 @@
      }
     },
     {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1184,6 +1384,26 @@
      "status": 200,
      "flags": {
       "unknown_config_fields": []
+     }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
      }
     },
     {
@@ -1308,6 +1528,28 @@
      }
     },
     {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": false,
+      "sig_reason": "signature_invalid",
+      "rejected": true
+     }
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": false,
+      "sig_reason": "signature_invalid",
+      "rejected": true
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1329,6 +1571,20 @@
      "flags": {
       "unknown_config_fields": []
      }
+    },
+    {
+     "op": "search",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {}
+    },
+    {
+     "op": "search_page",
+     "method": "POST",
+     "path": "/catalog/search",
+     "status": 200,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -1400,8 +1656,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 2 ops (at as_discovery)",
-    "mutant": "kept going \u2014 reached authorize (8 ops)"
+    "clean": "stopped safely after 4 ops (at as_discovery)",
+    "mutant": "kept going \u2014 reached authorize (10 ops)"
    },
    "catching": [
     {

@@ -230,6 +230,20 @@ class _Handler(BaseHTTPRequestHandler):
         # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
         if not self._verify_request_sig(raw):
             return self._send(401, {"error": "signature_invalid"})
+        if self.path == "/catalog/search":
+            # Catalog search with SILENT CLAMPING (search.md Page Size): the requested
+            # `limit` is ignored — page 1 returns fewer products than any sane limit with
+            # has_next_page=true, page 2 (cursor follow-up) closes the set. A conformant
+            # client follows has_next_page (CAT-008); it must also send a recognized input
+            # (query/filters) on the request (CAT-009). The body is accepted regardless so
+            # the client's request shape is observable rather than rejected.
+            cursor = (body.get("pagination") or {}).get("cursor")
+            if not cursor:
+                return self._send(200, {"products": [{"id": "p1"}, {"id": "p2"}],
+                                        "pagination": {"has_next_page": True,
+                                                       "cursor": "PAGE2"}})
+            return self._send(200, {"products": [{"id": "p3"}, {"id": "p4"}],
+                                    "pagination": {"has_next_page": False}})
         if self.path.startswith("/orders/") and self.path.endswith("/cancel"):
             # a HIGHER-privilege order operation. In "incremental_scope" it requires the full
             # {order:read, order:manage} set; a token holding only order:read gets a 403 whose

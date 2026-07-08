@@ -284,6 +284,19 @@
      "OVR-008"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B12-2026-07-07",
+   "date": "2026-07-07",
+   "reviewer": "independent adversarial review (general-purpose subagent), ran reference-gate + diagonal probe",
+   "spec_reverified": true,
+   "notes": "Catalog search cluster (new /catalog/search sandbox route + search() flow step). agent.paginates_by_has_next_page cites CAT-008 ('Clients MUST NOT assume the response size equals the requested limit', search.md#L75): the sandbox silently clamps page 1 to 2 products with has_next_page=true; a conformant agent follows the cursor (issues a search_page request) rather than stopping on the short page. Kill assume_count_is_limit stops when len(products)<limit -> no follow-up -> DEVIATION. agent.sends_valid_search_input cites CAT-009 ('A valid search request MUST include at least one of: a query string, one or more filters, or an extension-defined input', search.md#L40): the agent's initial search request MUST carry query or filters. Kill empty_search_request sends neither -> DEVIATION. Diagonal isolation verified empirically (each defect trips ONLY its own check; SIG/other checks untouched). search/search_page skip response-sig verification like discover (unauthenticated catalog browse). Agent-only change (merchant lane byte-identical; crypto untouched this increment).",
+   "ids": {
+    "2026-04-08": [
+     "CAT-008",
+     "CAT-009"
+    ]
+   }
   }
  ]
 }
