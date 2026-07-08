@@ -36,6 +36,7 @@ DEFECTS = {
     "sign_omit_digest": "sign, but omit content-digest/content-type from covered (SIG-015)",
     "sign_omit_idem": "sign, but omit idempotency-key from the covered components (SIG-016)",
     "ucp_agent_not_signed": "sign, but omit ucp-agent from the covered components (SIG-018)",
+    "wrong_content_type": "send a request body with Content-Type != application/json (OVR-008)",
     # WWW-Authenticate: Bearer challenge handling (RFC 6750)
     "no_bearer_retry": "ignore the 401 WWW-Authenticate: Bearer challenge; do NOT retry (IDL-008)",
     "no_bearer_header": "retry the gated op WITHOUT an Authorization: Bearer header (IDL-007)",
@@ -111,7 +112,11 @@ class ReferenceAgent:
 
     # --- client obligations (each maps to agent-side spec rows) ---
     def _headers(self, idem=None):
-        h = {"Content-Type": "application/json"}
+        # OVR-008: REST requests MUST use Content-Type application/json. The
+        # wrong_content_type defect models a platform that sends a non-JSON media type.
+        ctype = "text/plain; charset=utf-8" if self.defect == "wrong_content_type" \
+            else "application/json"
+        h = {"Content-Type": ctype}
         # DISC-006 / CART-024: a conformant platform sends UCP-Agent (profile) on every request.
         if self.defect != "no_ucp_agent":
             h["UCP-Agent"] = f'profile="{self.PROFILE}"'
@@ -129,7 +134,8 @@ class ReferenceAgent:
         sig = crypto.sign_request_headers(
             method, authority, path, data, _AGENT_D, _AGENT_SIG_KID,
             ucp_agent=h.get("UCP-Agent"), idem=h.get("idempotency-key"),
-            omit=_SIGN_OMIT.get(self.defect, ()))
+            omit=_SIGN_OMIT.get(self.defect, ()),
+            content_type=h.get("Content-Type", "application/json"))
         if self.defect == "sign_corrupt":                  # SIG-001: signature must verify
             raw = base64.b64decode(sig["Signature"].split(":", 1)[1].rsplit(":", 1)[0])
             raw = bytes([raw[0] ^ 0xFF]) + raw[1:]

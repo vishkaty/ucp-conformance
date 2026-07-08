@@ -159,7 +159,8 @@ def sign_response_headers(status, body_bytes, d, kid, created=None):
 
 
 def sign_request_headers(method, authority, path, body_bytes, d, kid,
-                         ucp_agent=None, idem=None, omit=()):
+                         ucp_agent=None, idem=None, omit=(),
+                         content_type="application/json"):
     """RFC 9421 REQUEST-signing headers (signatures.md L193-204). Covered components:
     @method/@authority/@path always (SIG-014); content-digest+content-type when there is a
     body (SIG-015); idempotency-key on state-changing requests (SIG-016); `ucp-agent` when
@@ -175,7 +176,11 @@ def sign_request_headers(method, authority, path, body_bytes, d, kid,
         digest = content_digest(body_bytes)
         out["Content-Digest"] = digest
         hdrs["content-digest"] = digest
-        hdrs["content-type"] = "application/json"
+        # Sign the ACTUAL Content-Type the request carries (RFC 9421 signs the real
+        # header value). Defaults to application/json, so every existing caller is
+        # byte-identical; a non-JSON content_type (OVR-008 defect) still signs
+        # consistently, keeping the signature valid and the violation isolated.
+        hdrs["content-type"] = content_type
         comps += [c for c in ("content-digest", "content-type") if c not in omit]
     if ucp_agent:                               # SIG-018: bind the platform identity
         hdrs["ucp-agent"] = ucp_agent

@@ -326,6 +326,22 @@ def p_omits_response_only_fields(log):
     return CLEAN
 
 
+def p_uses_json_content_type(log):
+    """OVR-008: REST requests MUST use Content-Type application/json. We grade every
+    request the agent sends with a body (Content-Type describes that body's media type);
+    each MUST declare application/json."""
+    bodied = [e for e in log if e["request"].get("body") is not None]
+    if not bodied:
+        return DEVIATION
+    for e in bodied:
+        ct = (e["request"]["headers"] or {}).get("Content-Type", "")
+        # Compare the media type only (ignore any ;charset= parameter); an exact
+        # match rejects impostors like application/json-patch+json.
+        if ct.split(";")[0].strip().lower() != "application/json":
+            return DEVIATION
+    return CLEAN
+
+
 def _req_bodies(log, ops):
     return [(e["op"], e["request"].get("body")) for e in log if e["op"] in ops]
 
@@ -767,6 +783,9 @@ CHECKS = [
            versions=["2026-04-08"]),
     ACheck("agent.omits_checkout_id", ["CHK-035"], "MUST NOT",
            p_omits_checkout_id, kill_mutation="send_checkout_id", versions=["2026-04-08"]),
+    ACheck("agent.uses_json_content_type", ["OVR-008"], "MUST",
+           p_uses_json_content_type, kill_mutation="wrong_content_type",
+           versions=["2026-04-08"]),
     ACheck("agent.line_items_create_not_complete", ["CHK-038"], "MUST",
            p_line_items_create_not_complete, kill_mutation="omit_line_items_on_create",
            versions=["2026-04-08"]),
