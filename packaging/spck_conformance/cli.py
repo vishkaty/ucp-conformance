@@ -7,8 +7,8 @@ Merchant platforms — grade your UCP server against the spec:
                      [--json] [--junit report.xml]
 
 Shopping agents — run the agent-conformance lane (the reverse harness: a reference
-agent shops an adversarial sandbox; every one of the 38 agent checks must pass a
-conformant agent and catch its targeted defect):
+agent shops an adversarial sandbox; every agent check must pass a conformant agent
+and catch its targeted defect):
 
     spck-conformance --agent [--json]
 

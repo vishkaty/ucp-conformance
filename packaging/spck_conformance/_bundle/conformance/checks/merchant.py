@@ -258,7 +258,12 @@ def junit_xml(ctx, detail, meta):
     return '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites>\n' + suite + "\n</testsuites>\n"
 
 def main():
-    ap = argparse.ArgumentParser(description="Merchant-agnostic UCP conformance (unofficial).")
+    ap = argparse.ArgumentParser(
+        description="Merchant-agnostic UCP conformance (unofficial).",
+        epilog="Grading a shopping agent instead of a merchant server? "
+               "Run `spck-conformance --agent` for the agent-conformance lane "
+               "(a reference agent vs an adversarial sandbox; no --server needed).",
+    )
     ap.add_argument("--server", required=True)
     ap.add_argument("--config", help="optional merchant config JSON (product_id, out_of_stock_id, fail_token, discount_codes, ...)")
     ap.add_argument("--json", action="store_true", help="emit the report as JSON")
@@ -270,7 +275,16 @@ def main():
     args = ap.parse_args()
     if args.insecure:
         import engine; engine.set_insecure(True)
-    config = json.loads(pathlib.Path(args.config).read_text()) if args.config else {}
+    if args.config:
+        try:
+            config = json.loads(pathlib.Path(args.config).read_text())
+        except FileNotFoundError:
+            ap.error(f"--config file not found: {args.config} "
+                     f"(use --init to scaffold one)")
+        except json.JSONDecodeError as e:
+            ap.error(f"--config {args.config} is not valid JSON: {e}")
+    else:
+        config = {}
     ctx, ctype, areas = report(args.server, config)
     if args.init:
         cfg = scaffold_config(ctx)
