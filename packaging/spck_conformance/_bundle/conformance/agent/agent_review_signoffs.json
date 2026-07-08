@@ -297,6 +297,18 @@
      "CAT-009"
     ]
    }
+  },
+  {
+   "batch": "agent-P0-B13-2026-07-07",
+   "date": "2026-07-07",
+   "reviewer": "independent adversarial review (general-purpose subagent), ran reference-gate + diagonal probe",
+   "spec_reverified": true,
+   "notes": "agent.selected_option_names_unique cites CAT-034 ('Each option name MUST appear at most once', catalog/lookup.md#L156) \u2014 the `selected` array of option choices in the get_product REQUEST the client constructs. New POST /catalog/product sandbox route + get_product() flow step; the conformant agent collapses the user's progressive choices by name (last-write-wins) so each name is emitted once. Kill duplicate_option_name sends the same name twice -> DEVIATION. Register marks CAT-034 testability 'manual' but it is an observable request-shape assertion like CHK-035/036/037; graded from the agent's request side. get_product response is signature-verified like every non-discovery response. Diagonal isolation verified empirically. Agent-only change; merchant lane byte-identical.",
+   "ids": {
+    "2026-04-08": [
+     "CAT-034"
+    ]
+   }
   }
  ]
 }

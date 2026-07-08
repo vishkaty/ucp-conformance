@@ -380,6 +380,25 @@ def p_sends_valid_search_input(log):
     return CLEAN
 
 
+def p_selected_option_names_unique(log):
+    """CAT-034: in a get_product request's `selected` array of option choices, each option
+    name MUST appear at most once. We grade the agent's get_product request body."""
+    reqs = [e for e in log if e["op"] == "get_product"]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        b = e["request"].get("body")
+        selected = (b or {}).get("selected") if isinstance(b, dict) else None
+        if selected is None:
+            continue                       # `selected` is OPTIONAL — nothing to check
+        if not isinstance(selected, list):
+            return DEVIATION               # present but malformed
+        names = [s.get("name") for s in selected if isinstance(s, dict)]
+        if len(names) != len(set(names)):
+            return DEVIATION
+    return CLEAN
+
+
 def _req_bodies(log, ops):
     return [(e["op"], e["request"].get("body")) for e in log if e["op"] in ops]
 
@@ -829,6 +848,9 @@ CHECKS = [
            versions=["2026-04-08"]),
     ACheck("agent.sends_valid_search_input", ["CAT-009"], "MUST",
            p_sends_valid_search_input, kill_mutation="empty_search_request",
+           versions=["2026-04-08"]),
+    ACheck("agent.selected_option_names_unique", ["CAT-034"], "MUST",
+           p_selected_option_names_unique, kill_mutation="duplicate_option_name",
            versions=["2026-04-08"]),
     ACheck("agent.line_items_create_not_complete", ["CHK-038"], "MUST",
            p_line_items_create_not_complete, kill_mutation="omit_line_items_on_create",

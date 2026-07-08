@@ -39,6 +39,7 @@ DEFECTS = {
     "wrong_content_type": "send a request body with Content-Type != application/json (OVR-008)",
     "assume_count_is_limit": "stop the search page loop on a short page (len < limit) instead of following has_next_page (CAT-008)",
     "empty_search_request": "send a search request with no query and no filters (CAT-009)",
+    "duplicate_option_name": "send a duplicate option name in the get_product `selected` array (CAT-034)",
     # WWW-Authenticate: Bearer challenge handling (RFC 6750)
     "no_bearer_retry": "ignore the 401 WWW-Authenticate: Bearer challenge; do NOT retry (IDL-008)",
     "no_bearer_header": "retry the gated op WITHOUT an Authorization: Bearer header (IDL-007)",
@@ -435,6 +436,22 @@ class ReferenceAgent:
             resp = self._send("search_page", "POST", "/catalog/search", nxt)
             pg = (resp.get("body") or {}).get("pagination") or {}
 
+    def get_product(self, product_id="teapot_ceramic"):
+        """Look up a product's configurable options (catalog/lookup.md). CAT-034: in the
+        `selected` array of option choices, each option name MUST appear at most once. The
+        conformant agent collapses the user's progressive choices by name (last-write-wins)
+        so every name is emitted once; the duplicate_option_name defect sends the same name
+        twice."""
+        choices = [("Color", "Red"), ("Size", "10"), ("Color", "Blue")]  # user changed Color
+        by_name = {}
+        for name, label in choices:
+            by_name[name] = label                          # de-dupe: each name once
+        selected = [{"name": n, "label": l} for n, l in by_name.items()]
+        if self.defect == "duplicate_option_name":
+            selected = [{"name": n, "label": l} for n, l in choices]     # keeps the dup
+        self._send("get_product", "POST", "/catalog/product",
+                   {"id": product_id, "selected": selected})
+
     def create_checkout(self, product_id="teapot_ceramic"):
         # CHK-036/037: a REQUEST body carries only request-authorable fields. The `ucp` envelope
         # (CHK-036) and the response-only fields status/currency/totals/messages/links/
@@ -510,6 +527,8 @@ class ReferenceAgent:
         self.discover()
         # CAT-008/009: browse the catalog first (cursor pagination + valid search input).
         self.search("teapot")
+        # CAT-034: look up the product's options (each selected option name at most once).
+        self.get_product()
         # IDL-057: when config carries unrecognized future fields, a conformant platform MUST
         # IGNORE them and proceed with OAuth 2.0 + RFC 8414 discovery. The abort_on_future_config
         # defect instead chokes and stops (forward-incompatible).

@@ -31,6 +31,16 @@
    }
   },
   {
+   "op": "get_product",
+   "method": "POST",
+   "path": "/catalog/product",
+   "status": 200,
+   "flags": {
+    "sig_verified": true,
+    "sig_reason": "ok"
+   }
+  },
+  {
    "op": "as_discovery",
    "method": "GET",
    "path": "/.well-known/oauth-authorization-server",
@@ -149,6 +159,16 @@
      }
     },
     {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -254,6 +274,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -402,6 +432,16 @@
      }
     },
     {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -506,6 +546,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -653,6 +703,16 @@
      }
     },
     {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -722,6 +782,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -811,8 +881,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 6 ops (at create_checkout)",
-    "mutant": "kept going \u2014 reached complete (10 ops)"
+    "clean": "stopped safely after 7 ops (at create_checkout)",
+    "mutant": "kept going \u2014 reached complete (11 ops)"
    },
    "catching": [
     {
@@ -858,6 +928,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -1061,6 +1141,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -1296,6 +1386,16 @@
      }
     },
     {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1400,6 +1500,16 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {
+      "sig_verified": true,
+      "sig_reason": "ok"
+     }
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {
       "sig_verified": true,
@@ -1550,6 +1660,17 @@
      }
     },
     {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
+     "status": 200,
+     "flags": {
+      "sig_verified": false,
+      "sig_reason": "signature_invalid",
+      "rejected": true
+     }
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1583,6 +1704,13 @@
      "op": "search_page",
      "method": "POST",
      "path": "/catalog/search",
+     "status": 200,
+     "flags": {}
+    },
+    {
+     "op": "get_product",
+     "method": "POST",
+     "path": "/catalog/product",
      "status": 200,
      "flags": {}
     },
@@ -1656,8 +1784,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 4 ops (at as_discovery)",
-    "mutant": "kept going \u2014 reached authorize (10 ops)"
+    "clean": "stopped safely after 5 ops (at as_discovery)",
+    "mutant": "kept going \u2014 reached authorize (11 ops)"
    },
    "catching": [
     {

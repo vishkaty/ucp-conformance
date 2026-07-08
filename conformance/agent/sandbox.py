@@ -230,6 +230,17 @@ class _Handler(BaseHTTPRequestHandler):
         # SIG-001/SIG-018: reject an unsigned/invalid platform request signature (401).
         if not self._verify_request_sig(raw):
             return self._send(401, {"error": "signature_invalid"})
+        if self.path == "/catalog/product":
+            # get_product lookup (catalog/lookup.md): returns a product with two
+            # configurable options and its effective product.selected. The check grades the
+            # REQUEST `selected` shape (each option name at most once), so the response is a
+            # fixed valid product regardless of the request body.
+            return self._send(200, {"product": {
+                "id": (body.get("id") or "teapot_ceramic"),
+                "options": [{"name": "Color", "labels": ["Blue", "Red"]},
+                            {"name": "Size", "labels": ["10", "12"]}],
+                "selected": [{"name": "Color", "label": "Blue"},
+                             {"name": "Size", "label": "10"}]}})
         if self.path == "/catalog/search":
             # Catalog search with SILENT CLAMPING (search.md Page Size): the requested
             # `limit` is ignored — page 1 returns fewer products than any sane limit with
