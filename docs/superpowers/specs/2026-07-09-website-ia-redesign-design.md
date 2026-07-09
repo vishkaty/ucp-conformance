@@ -89,51 +89,107 @@ Site copy follows the content-voice-rule (memory + here, machine-enforced below)
 4. Every page carries the "independent, unofficial, not a substitute; the official
    suite is authoritative" disclaimer.
 
-## Site governance — the automatic checklist (new CI gates, mirrors the suite's own)
-A new `site-governance` lane in run_suite (runs on every public/** or coverage change),
-so accuracy/messaging/TDD are enforced on EVERY future enhancement automatically:
-- **site-claims gate**: `public/site_claims.json` registers every hardcoded factual
-  claim (text, page, evidence). Gate scans built pages: any numeric/factual claim not
-  data-rendered and not registered → RED. Numbers that exist in coverage JSON MUST be
-  rendered from it (no hardcoded drift possible). Generalizes today's copy-count gate
-  to the whole site.
-- **voice-lint gate**: banned-pattern list (bragging/superlatives: "we were first",
-  "merged upstream" counts, "certified", named third parties per no-names rule,
-  unverifiable stats) + required-pattern list (disclaimer on every page, collaboration
-  clause form). Plain-text rules file so it's auditable and extendable.
-- **freshness**: when checks/defects/coverage/features change, the gates go RED until
-  the site reflects them — the site cannot silently lag the product.
-- **security gate**: asserts `public/_headers` ships CSP + X-Content-Type-Options +
-  X-Frame-Options + Referrer-Policy on all routes; greps pages/functions for unescaped
-  `innerHTML`/`document.write` sinks (the 2026-06-30 XSS lesson, now enforced); no
-  third-party scripts/CDNs (self-contained pages only).
-- **redirect gate**: /tool→/check and /guide→/docs 301s asserted.
-- **web-unit + web-browser** (existing) stay required; browser suite extended with the
-  redesign's behavioral tests below.
-A human-parts checklist (visual pass, screenshots) lives in `docs/SITE-CHECKLIST.md`,
-referenced by the gate output — machine checks what it can, names what it can't.
+## The site requirements register — what "100% TDD" means, mechanically
+The site gets the SAME discipline as the conformance suite: a requirements register with
+enforced traceability. `conformance/web/site_requirements.json` lists every site
+requirement as a row: `{id: "SITE-R-001", requirement, page(s), test_id, status}`.
+Rules, enforced by a new **site-tdd gate**:
+- Every SITE-R row MUST name ≥1 test that exists in the site test suite → else RED.
+- Every site test MUST cite a SITE-R id → orphan tests flagged (keeps the register the
+  single source of truth).
+- The register is ADD-ONLY (like coverage_lock): removing/weakening a row needs a
+  reasoned entry in `site_requirements_retired.json` → silent test deletion impossible.
+- "100% TDD" = this gate reports `requirements: N, tested: N, coverage: 100%` — a
+  NUMBER the gate computes, not a claim. Anything less is RED.
+Bootstrap: every requirement in this design doc becomes a SITE-R row before any
+implementation (the initial register IS the executable form of this spec).
 
-## TDD process (spec → failing tests → implement → green)
-The redesign is built test-first. BEFORE touching any page:
-1. Write the site test spec: every requirement in this design becomes an executable
-   assertion — unified nav byte-identical on all 6 pages; exactly one primary CTA per
-   page with the agreed label; depth-ladder sections present on /check in order;
-   disclaimers on every page; OG/Twitter meta on every page; numbers match live
-   coverage JSON; banned/required voice patterns; redirects; sandbox loads 6 cases;
-   /check form runs; 320px no-horizontal-scroll; analytics beacons fire.
-2. Run the suite → new tests FAIL (red) against the current site.
-3. Implement pages until the full suite is GREEN, without weakening a test.
-4. The tests then live permanently in the site-governance lane (step above), so every
-   future edit re-proves the whole checklist.
+## Gate mechanics — analyzed in detail (inputs, algorithm, failure output, false-positives)
+**site-claims** — IN: built HTML of all pages + `public/site_claims.json` +
+coverage/agent-coverage JSON. ALGO: strip tags/styles/scripts → extract candidate
+claims = (a) any number adjacent to a claim noun (check/defect/coverage/MUST/%/spec
+version/store/agent), (b) any sentence containing proof-words (proven, validated,
+every, all, zero/0, only, first). Each candidate must match one of: [LIVE] rendered
+from data (element carries `data-live="coverage.json:$.path"` — gate verifies the
+path exists and any static fallback text equals the live value), [REG] registered in
+site_claims.json with {text, page, evidence-URL/file, added, review-by}, or [BAN]
+neither → RED with page+line+text. FALSE-POSITIVES: sizes/dates/HTTP codes excluded
+by allowlist patterns (px, seconds, 2026-, HTTP \d{3}); anything else unregistered
+fails LOUD by design — registering a benign claim takes 30 seconds, missing a false
+one costs credibility. Register entries have a `review-by` date; expired → RED
+(claims re-verify on a cadence, not once).
+**voice-lint** — IN: same page text + `conformance/web/voice_rules.json` (auditable
+rules file). ALGO: banned regexes (superlatives "first/best/only/leading" outside
+registered evidence claims; achievement patterns "we found \d+", "merged upstream",
+"certified", "endorsed"; third-party company names per the no-names rule except
+"UCP"/"Google's UCP team" in the About attribution); required patterns per page
+(the unofficial-disclaimer sentence; ≥1 "you/your"-subject CTA above the fold).
+Output names the exact rule id + text. Rules file changes are reviewed like code.
+**site-freshness** — two classes, explicit: CLASS-AUTO (anything that exists in
+coverage/agent-coverage JSON MUST be data-rendered — hardcoding it is a gate failure;
+these update themselves when the product updates). CLASS-GATED (prose facts — new
+capability names, feature lists): the freshness gate compares a manifest of product
+facts (check count, defect count, versions, capability list — regenerated from the
+engine) against `site_claims.json` review dates; product-manifest change with no site
+review → RED. So: numbers can never lag; prose can lag at most one CI run.
+**security** — IN: public/_headers + all HTML/JS + functions/. ALGO: assert headers
+(CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy) cover `/*`; grep AST-
+lite for `.innerHTML=`/`document.write(`/`insertAdjacentHTML(` where the right-hand
+side isn't wrapped in the esc()/known-safe builder → RED with file:line; assert zero
+external script/font/CSS origins; assert no secrets patterns in public/.
+**redirects** — parse `public/_redirects`; assert `/tool /check 301` and
+`/guide /docs 301` rows; browser test follows each and asserts final URL + 200.
+**web-browser (extended)** — existing 12 responsive checks + the redesign behaviors:
+nav byte-identical across pages (literal string compare of the nav block), one
+`.btn-primary` per page above the fold, /check ladder section order, sandbox loads 6
+cases, pages render WITHOUT coverage.json (graceful degradation: fetch mocked to fail
+→ no blank page, fallback text shows), zero console errors on load of every page.
 
-## Security & reliability
-- Keep/extend `public/_headers` CSP (from the XSS fix) to all pages incl. new /docs;
-  add the missing standard headers if absent (nosniff, frame-deny, referrer).
-- All escaping through the existing esc() discipline; the security gate greps for raw
-  sinks. No inline third-party resources; pages remain fully self-contained.
-- Functions untouched this project; their rate-limiting/validation unchanged.
-- Reliability: pages are static on Cloudflare Pages (inherently HA); preview-branch
-  deploys before every production promote; rollback = redeploy previous commit.
+## Reliability — defined and tested (not assumed)
+Reliability here means: static pages on Cloudflare Pages (inherently HA) + graceful
+degradation + safe rollout. Tested: (1) every page renders meaningfully if its JSON
+fetch fails (browser test above); (2) /api/track failures are swallowed (already
+.catch(()=>{}) — web-unit asserts it); (3) preview-branch deploy before every prod
+promote; prod rollback = redeploy prior commit (documented in SITE-CHECKLIST.md);
+(4) the functions' error paths keep their existing web-unit coverage.
+
+## The enhancement workflow — how EVERY future change flows (the holistic loop)
+Documented in docs/SITE-CHECKLIST.md and enforced by the gates; no step is honor-system
+except the two marked HUMAN:
+1. Any product change (new checks/features/versions) → coverage JSONs + product
+   manifest regenerate → CLASS-AUTO numbers on the site update themselves; freshness
+   gate goes RED if prose/claims need a look → forced review.
+2. Any site change → author FIRST adds/updates SITE-R rows + tests (site-tdd gate
+   enforces: no untested requirement, no orphan test) → implements → full
+   run_suite (site-governance lane: tdd, claims, voice, freshness, security,
+   redirects, web-unit, web-browser) must be GREEN.
+3. HUMAN: visual pass per SITE-CHECKLIST.md; tone read (gates catch the mechanical
+   voice violations; a human confirms the spirit).
+4. Deploy preview branch → verify → promote to prod. Push to main with a RED site
+   lane is blocked by CI like any engine change.
+This is the same loop the conformance suite itself lives under — register, gates,
+ratchet-like add-only locks — applied to the website.
+
+## Phase 0 deliverable — full audit of the CURRENT site (R1, explicit)
+Before any redesign code: a page-by-page claims inventory of the site AS IT IS TODAY —
+every factual claim extracted, verified against evidence, classified
+(keep-as-LIVE / register-with-evidence / rewrite / remove). Output = the initial
+`site_claims.json` + an audit note (`ops/site-content-audit-2026-07.md`) listing
+anything found untruthful/bragging with its fix. The audit IS the bootstrap of the
+claims register — one artifact, two purposes.
+
+## Site-governance lane — summary (mechanics above are normative)
+One new lane in run_suite, triggered by any public/**, functions/**, or coverage-data
+change: **site-tdd** (register traceability = the 100%-TDD number) → **site-claims** →
+**voice-lint** → **site-freshness** → **security** → **redirects** → **web-unit** →
+**web-browser (extended)**. Any RED blocks the push like an engine change. The two
+HUMAN-only steps (visual pass, tone read) live in docs/SITE-CHECKLIST.md, which the
+lane prints a pointer to on success. TDD build order for THIS redesign: SITE-R register
++ all tests written first → confirmed RED against the current site → implement to
+GREEN → tests live on permanently. The concrete assertions include: unified nav
+byte-identical on all 6 pages; exactly one primary CTA per page; /check ladder order;
+disclaimers everywhere; OG/Twitter meta everywhere; CLASS-AUTO numbers data-rendered;
+redirects; sandbox 6 cases; graceful degradation; 320px; zero console errors; beacons.
 
 ## Guardrails
 - No changes to the conformance engine, coverage gates, or `/api/*` functions.
