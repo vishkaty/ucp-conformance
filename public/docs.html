@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quickstart — test a UCP server for conformance | spck.dev docs</title>
+<meta name="description" content="Quickstart for spck.dev: install the open-source CLI, run the full UCP conformance suite against your own store, test a shopping agent with --agent, and gate it in CI. Unofficial and open.">
+<link rel="canonical" href="https://spck.dev/docs">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spck.dev/docs">
+<meta property="og:title" content="spck.dev docs — a UCP conformance quickstart">
+<meta property="og:description" content="Install the CLI, run the full suite against your store, test your agent, and gate it in CI. Independent and open.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="spck.dev docs — a UCP conformance quickstart">
+<meta name="twitter:description" content="Install, run the full suite, test your agent, gate it in CI.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<style>
+  :root { --bg:#0f1117; --card:#1a1d27; --fg:#e6e8ee; --mut:#9aa3b2; --ok:#3fb950; --acc:#58a6ff; --line:#2b2f3a; }
+  * { box-sizing: border-box; }
+  body { overflow-x:hidden; max-width:100%; margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .site-nav { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px; max-width:780px; margin:0 auto; padding:18px 20px 0; font-size:13px; }
+  .site-nav .brand { font-weight:700; color:var(--fg); text-decoration:none; }
+  .site-nav .mk { display:inline-block; background:var(--acc); color:#04101f; border-radius:5px; padding:0 5px; margin-right:6px; font-weight:800; }
+  .site-nav .links { display:flex; flex-wrap:wrap; gap:4px 14px; }
+  .site-nav .links a { color:var(--mut); text-decoration:none; }
+  .site-nav .links a:hover { color:var(--fg); }
+  .wrap { max-width:780px; margin:0 auto; padding:24px 20px 40px; }
+  h1 { font-size:26px; margin:0 0 6px; letter-spacing:-0.4px; }
+  .sub { color:var(--mut); margin:0 0 22px; font-size:14px; max-width:620px; }
+  h2 { font-size:18px; margin:36px 0 4px; }
+  .lead { color:var(--mut); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:14px 0; }
+  pre { background:#0d1017; border:1px solid var(--line); border-radius:8px; padding:12px; overflow:auto; font-size:13px; margin:0; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  ul { margin:10px 0 0; padding-left:20px; }
+  li { margin:5px 0; color:var(--fg); }
+  .note { font-size:13px; color:var(--mut); }
+  a { color:var(--acc); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin:6px 0 8px; }
+  .btn-primary { display:inline-block; padding:11px 22px; border-radius:8px; background:var(--acc); color:#04101f; font-weight:700; font-size:14px; text-decoration:none; }
+  .btn-primary:hover { background:#79b8ff; text-decoration:none; }
+  .btn-ghost { display:inline-block; padding:11px 22px; border-radius:8px; border:1px solid var(--line); color:var(--fg); font-weight:600; font-size:14px; text-decoration:none; }
+  .btn-ghost:hover { border-color:var(--acc); text-decoration:none; }
+  .links-list { list-style:none; padding:0; }
+  .links-list li { margin:8px 0; }
+  .site-footer { max-width:780px; margin:0 auto; padding:22px 20px 48px; border-top:1px solid var(--line); font-size:12px; color:var(--mut); }
+  .site-footer a { color:var(--mut); }
+</style>
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+  <h1>Quickstart</h1>
+  <p class="sub">Install the open-source CLI, point it at your store, and get a spec-cited UCP conformance report — from your shell or your CI. UCP is an open standard for agentic commerce, maintained by the UCP project (<a href="https://ucp.dev" rel="noopener">ucp.dev</a>).</p>
+  <div class="actions">
+    <a class="btn-primary" href="/check">Check your store →</a>
+    <a class="btn-ghost" href="/coverage">See the coverage matrix</a>
+  </div>
+
+  <h2>Install and run the full suite</h2>
+  <p class="lead">Install from PyPI, scaffold a config tailored to what your store declares, then run it against your own store. The full suite reaches the checkout, cart, and order write paths the instant web check does not — so point it at a store you own, never someone else's.</p>
+  <div class="card">
+    <pre><code>pip install spck-conformance
+spck-conformance --server https://store.example.com --init merchant.json
+spck-conformance --server https://store.example.com --config merchant.json</code></pre>
+  </div>
+  <p class="note">On a deviation it shows the requirement next to your actual response. It runs the checks your store declares support for, and reports anything it can't reach as not-tested rather than a silent pass. Runs on Python 3.9+.</p>
+
+  <h2>Test a shopping agent</h2>
+  <p class="lead">The same package tests the buy side. Point a shopping agent at a bundled reference store that behaves correctly and one that misbehaves on purpose — locally, in a single command.</p>
+  <div class="card">
+    <pre><code>spck-conformance --agent</code></pre>
+  </div>
+  <p class="note">Each agent check passes a correct agent and catches a broken one. <a href="/sandbox">Watch recorded runs in the sandbox →</a></p>
+
+  <h2>Gate it in CI</h2>
+  <p class="lead">Add the GitHub Action so conformance runs on each push. It fails the build on a MUST deviation and writes a JUnit report.</p>
+  <div class="card">
+    <pre><code>- uses: vishkaty/ucp-conformance@main
+  with:
+    server: https://store.example.com
+    config: merchant.json   # optional</code></pre>
+  </div>
+
+  <h2>What gets checked</h2>
+  <p class="lead">The full CLI suite covers, across REST and MCP transports:</p>
+  <ul>
+    <li>Discovery and profile structure</li>
+    <li>Checkout lifecycle — create, update, complete, cancel</li>
+    <li>Cart and order retrieval</li>
+    <li>Fulfillment and shipping</li>
+    <li>Discounts and consent</li>
+    <li>Payment, including AP2 mandates</li>
+    <li>HTTP message signatures</li>
+    <li>OAuth 2.0 identity linking</li>
+    <li>Order webhooks and the totals invariants</li>
+  </ul>
+  <p class="note">Each check is anchored to the official ucp-schema validator and cites the spec clause it enforces.</p>
+
+  <h2>Spec versions</h2>
+  <p class="lead">Tests run against the pinned UCP spec versions:</p>
+  <ul>
+    <li>2026-04-08</li>
+    <li>2026-01-23</li>
+    <li>2026-01-11</li>
+  </ul>
+
+  <h2>Links</h2>
+  <ul class="links-list">
+    <li><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> — source and methodology</li>
+    <li><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> — the spck-conformance package</li>
+    <li><a href="/coverage">Coverage</a> — the live spec matrix</li>
+    <li><a href="https://ucp.dev" rel="noopener">ucp.dev</a> — the UCP specification</li>
+  </ul>
+</div>
+
+<footer class="site-footer">
+  <p>spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+  <p><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+</footer>
+
+<script>
+// anonymous, cookieless page-engagement beacon (same pattern as / and /check)
+fetch('/api/track?event=docs_view',{method:'POST',keepalive:true}).catch(function(){});
+</script>
+</body>
+</html>

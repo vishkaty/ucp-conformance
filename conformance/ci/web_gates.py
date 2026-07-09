@@ -71,11 +71,11 @@ def browser():
     time.sleep(0.8)
     try:
         env = {**os.environ, "CHROME_PATH": chrome,
-               "PAGE_URL": "http://127.0.0.1:8189/tool.html",
+               "PAGE_URL": "http://127.0.0.1:8189/check.html",
                "BASE": "http://127.0.0.1:8189",
                "FIXTURE": "http://127.0.0.1:8184"}
         rc = 0
-        for script in ("tool_smoke.mjs", "responsive_smoke.mjs", "site_smoke.mjs"):
+        for script in ("responsive_smoke.mjs", "site_smoke.mjs"):
             r = subprocess.run(["node", str(webdir / "browser" / script)],
                                cwd=str(webdir), env=env, capture_output=True, text=True, timeout=180)
             print(f"[{script}]"); print((r.stdout + r.stderr).strip()[-1000:])

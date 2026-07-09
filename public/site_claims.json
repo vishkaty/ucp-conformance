@@ -1,57 +1,515 @@
 {
-  "_about": "spck.dev site claims register — every factual claim on the site that is not data-rendered from coverage/agent-coverage JSON must be registered here with evidence and a review-by date, or removed. Bootstrapped by ops/site-content-audit-2026-07.md (Phase 0 of the 2026-07-09 IA redesign). The manifest block is the bindable public source for product counts that do NOT exist in coverage JSONs (which count MUST rows, not checks); the site-freshness gate regenerates these numbers from the engine and goes RED on drift.",
-  "manifest": {
-    "merchant_checks": 193,
-    "agent_checks": 42,
-    "agent_defects": 43,
-    "versions": ["2026-01-11", "2026-01-23", "2026-04-08"],
-    "reviewed": "2026-07-09"
+ "_about": "spck.dev site claims register \u2014 every factual claim on the site that is not data-rendered from coverage/agent-coverage JSON must be registered here with evidence and a review-by date, or removed. Bootstrapped by ops/site-content-audit-2026-07.md (Phase 0 of the 2026-07-09 IA redesign). The manifest block is the bindable public source for product counts that do NOT exist in coverage JSONs (which count MUST rows, not checks); the site-freshness gate regenerates these numbers from the engine and goes RED on drift.",
+ "manifest": {
+  "merchant_checks": 193,
+  "agent_checks": 42,
+  "agent_defects": 43,
+  "versions": [
+   "2026-01-11",
+   "2026-01-23",
+   "2026-04-08"
+  ],
+  "reviewed": "2026-07-09"
+ },
+ "claims": [
+  {
+   "id": "CLAIM-001",
+   "text": "193 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/coverage/coverage_gate.py copy-freshness gate counts MCheck( registrations across conformance/checks/merchant_checks*.py = 193 (verified 2026-07-09) and pins this exact phrase via regex; bind number to site_claims.json:$.manifest.merchant_checks",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
   },
-  "claims": [
-    {"id": "CLAIM-001", "text": "193 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.", "page": "index.html", "class": "REG", "evidence": "conformance/coverage/coverage_gate.py copy-freshness gate counts MCheck( registrations across conformance/checks/merchant_checks*.py = 193 (verified 2026-07-09) and pins this exact phrase via regex; bind number to site_claims.json:$.manifest.merchant_checks", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-001a", "text": "193", "page": "index.html", "class": "REG", "evidence": "Merchant-side checks hero stat — gate-enforced by coverage_gate.py stat-num regex; NOT in coverage.json (its check fields count MUST rows 117/125/234); data-live bind to site_claims.json:$.manifest.merchant_checks", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-002", "text": "Every check is proven to catch its own bug (kill-rate validated).", "page": "index.html", "class": "REG", "evidence": "conformance/selfcheck/mutation_killrate.py + conformance/selfcheck/validate_merchant_checks.py — run_suite gates 'merchant' and 'killrate' block release if any check fails to kill its injected defect", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-003", "text": "every check is proven to catch the bug it’s for, so there are no false greens", "page": "index.html", "class": "REG", "evidence": "conformance/selfcheck/mutation_killrate.py + validate_merchant_checks.py (merchant lane) and conformance/agent/run_agent.py reference gate (agent lane): clean-pass AND kill required per check", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-004", "text": "0", "page": "index.html", "class": "REG", "evidence": "'False greens' hero stat — kill-rate mechanics: a check that survives its targeted defect is flagged UNSAFE and blocks release (mutation_killrate.py; validate_merchant_checks.py; run_agent.py reference gate)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-005", "text": "42", "page": "index.html", "class": "REG", "evidence": "Agent-side checks hero stat — conformance/agent/agent_governance.py _agent_copy_freshness() enforces len(agent_checks.CHECKS)=42 (verified live import 2026-07-09); NOT in agent-coverage.json (its check=53 counts covered MUST rows); data-live bind to site_claims.json:$.manifest.agent_checks", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-006", "text": "Every normative MUST across three spec versions is accounted for", "page": "index.html", "class": "REG", "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; 'three' should render from coverage.json:$.spec_pins key count", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-007", "text": "193 checks, from the browser or your CI", "page": "index.html", "class": "REG", "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (193, verified 2026-07-09)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-008", "text": "regenerated with every change and enforced by CI (stale data or a coverage regression fails the build)", "page": "index.html", "class": "REG", "evidence": "conformance/coverage/coverage_gate.py freshness comparison + conformance/coverage/ratchet.json accounted-coverage floors", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-009", "text": "Roadmap to 100%", "page": "index.html", "class": "REG", "evidence": "docs/ROADMAP.md (link target exists, verified 2026-07-09)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-010", "text": "is maintained by Google's UCP team at", "page": "index.html", "class": "REG", "evidence": "https://ucp.dev — About-block attribution; the only context where 'Google's UCP team' is allowed by the voice rules (mark block data-attribution)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-011", "text": "Google's Python test suite (targets v2026-01-23)", "page": "index.html", "class": "REG", "evidence": "https://github.com/Universal-Commerce-Protocol/ucp — official conformance suite; re-verify the targeted spec version at each review (external fact, can drift)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-012", "text": "Released April 9, 2026", "page": "index.html", "class": "REG", "evidence": "conformance/SOURCES.lock.json pin v2026-04-08 + https://github.com/Universal-Commerce-Protocol/ucp/releases; version id itself is LIVE-able via coverage.json:$.spec_pins", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-013", "text": "Released January 23, 2026", "page": "index.html", "class": "REG", "evidence": "conformance/SOURCES.lock.json pin v2026-01-23 (commit_date 2026-01-23) + upstream releases page", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-014", "text": "Released January 11, 2026", "page": "index.html", "class": "REG", "evidence": "conformance/SOURCES.lock.json pin v2026-01-11 + upstream releases page", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-016", "text": "Anything it can't test is reported", "page": "index.html", "class": "REG", "evidence": "conformance/checks/merchant.py capability scoping + not-tested reporting; README.md 'reports only the checks it actually runs'", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-017", "text": "every check is kill-rate tested — we inject the exact defect it should catch, and if it still passes, it's blocked from release", "page": "index.html", "class": "REG", "evidence": "conformance/selfcheck/mutation_killrate.py (incl. the deliberate noop-check canary proving the harness works)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-018", "text": "the whole suite self-validates in CI and goes red if any check loses its ability to catch defects", "page": "index.html", "class": "REG", "evidence": "conformance/ci/run_suite.py (killrate/merchant/demo-drift gates) + .github/workflows self-testing CI", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-019", "text": "VERDICT: INCOMPLETE — 21/98 applicable MUSTs (21%), 0 deviations", "page": "index.html", "class": "REG", "evidence": "Illustrative sample of the real CLI output format (packaging/spck_conformance/); numbers are an example, not a product stat — mark data-example on redesign so the claims gate can distinguish it", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-020", "text": "Python 3.9+. Published on PyPI.", "page": "index.html", "class": "REG", "evidence": "packaging/pyproject.toml L10 requires-python = \">=3.9\"; https://pypi.org/project/spck-conformance/", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-021", "text": "Stdlib-light, one dependency, no account required.", "page": "index.html", "class": "REG", "evidence": "packaging/pyproject.toml L21 dependencies = [\"certifi>=2023.7.22\"] — exactly one runtime dependency", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-022", "text": "0 clean · 2 a MUST deviated · 1 couldn't run", "page": "index.html", "class": "REG", "evidence": "packaging/spck_conformance/cli.py L15 exit-code contract + return paths", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-023", "text": "it fails the build on any MUST deviation and writes a JUnit report", "page": "index.html", "class": "REG", "evidence": "action.yml (junit input; description states the exit-code semantics)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-024", "text": "193 checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.", "page": "check.html", "class": "REG", "evidence": "coverage_gate.py regex '(\\d+)\\+? checks across' pins 193; every MCheck carries a register citation (conformance/checks/merchant.py req_id→source mapping); bind number to site_claims.json:$.manifest.merchant_checks", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-025", "text": "Unofficial, open, kill-rate validated.", "page": "check.html", "class": "REG", "evidence": "conformance/selfcheck/mutation_killrate.py + run_suite killrate gate", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-026", "text": "Write-path checks (checkout, order, cart) run only in the CLI", "page": "check.html", "class": "REG", "evidence": "Instant web check scope is discovery + profile + read-only catalog (functions/ + check.html copy); write paths run only in the CLI suite — this honesty line anchors the /check depth ladder", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-027", "text": "Run the full suite (193 kill-rate-validated checks) from your shell or CI.", "page": "tool.html", "class": "REG", "evidence": "Gate-pinned 193 (coverage_gate.py). PAGE RETIRING (Task 11): claim must not silently migrate — /check already carries the registered equivalent (CLAIM-024)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-028", "text": "Reports kept for 90 days.", "page": "tool.html", "class": "REG", "evidence": "functions/api/[[path]].js L139 expirationTtl: 7776000 (= 90 days). PAGE RETIRING: saved-reports UI leaves the public surface; KV backend untouched (admin retrieval remains). Do not re-add to public pages without re-registering", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-029", "text": "43", "page": "agent.html", "class": "REG", "evidence": "Failure-modes hero stat — conformance/agent/agent_governance.py _agent_copy_freshness() enforces len(non-None DEFECTS)=43 (verified live import 2026-07-09); NOT in agent-coverage.json; data-live bind to site_claims.json:$.manifest.agent_defects", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-030", "text": "6", "page": "agent.html", "class": "REG", "evidence": "'You can watch live' stat — public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite demo-drift gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-031", "text": "100%", "page": "agent.html", "class": "REG", "evidence": "'Proven to catch the bug' stat — conformance/agent/run_agent.py reference gate passes only when every agent check clean-passes AND kills its targeted defect (live-run 2026-07-09: PASS); conformance/agent/agent_coverage_lock.json", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-032", "text": "Every test is proven to catch its own bug — it passes a known-good agent and provably fails the broken one.", "page": "agent.html", "class": "REG", "evidence": "conformance/agent/run_agent.py reference gate (clean-pass + kill per check, defect isolation)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-033", "text": "Watch all six live in the demo.", "page": "agent.html", "class": "REG", "evidence": "public/agent-demo.json has exactly 6 cases (verified 2026-07-09); must stay in sync with the demo data", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-034", "text": "42 checks", "page": "agent.html", "class": "REG", "evidence": "Terminal-sample check count — gate-enforced by agent_governance.py regex 'ran \\d+ ops[^;<]*;\\s*(\\d+) checks?'. NOTE: the '8 ops' prefix in the same line is STALE (live run 2026-07-09 prints 'ran 11 ops') and is classed REWRITE in the audit — the gate deliberately does not pin the ops count", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-035", "text": "every check passes a correct agent and catches its bug", "page": "agent.html", "class": "REG", "evidence": "Verbatim shape of the run_agent.py PASS line (live-verified 2026-07-09: 'PASS — every agent check clean-passes the reference agent and kills its targeted defect')", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-036", "text": "These are real recorded runs of a correct shopping agent buying from a store that behaves badly on purpose.", "page": "sandbox.html", "class": "REG", "evidence": "conformance/agent/build_demo_data.py generates public/agent-demo.json from real harness runs (its _about says so)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-037", "text": "Real recorded runs — not a mock-up. Each flaw is proven to be caught.", "page": "sandbox.html", "class": "REG", "evidence": "build_demo_data.py + run_suite demo-drift gate: every demo case's catching check must still kill its defect on each CI run", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-038", "text": "Every normative MUST in each pinned UCP spec version is accounted as a", "page": "coverage.html", "class": "REG", "evidence": "conformance/selfcheck/verify_register_completeness.py + conformance/coverage/coverage_gate.py; public/coverage.json _about states the same contract and every row carries check/exempt/gap status", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-039", "text": "A check only counts when it", "page": "coverage.html", "class": "REG", "evidence": "clean-pass + 100% kill on a known-good reference: conformance/selfcheck/validate_merchant_checks.py + conformance/ci/differential.py (independent official Flower Shop sample) + conformance/SOURCES.lock.json pins", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-040", "text": "Exemptions require a written justification and are", "page": "coverage.html", "class": "REG", "evidence": "conformance/coverage/exemptions.json + validate_exemptions() in coverage_gate.py (machine-checked against double-booking)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-041", "text": "if it were stale or coverage regressed, the build would be red", "page": "coverage.html", "class": "REG", "evidence": "coverage_gate.py freshness check + ratchet floors (conformance/coverage/ratchet.json)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-042", "text": "Every UCP interaction starts at /.well-known/ucp", "page": "guide.html", "class": "REG", "evidence": "UCP discovery spec (https://ucp.dev; pinned registers conformance/requirements/*/discovery*.json). PAGE RETIRING → carry to docs.html with this registration (update page field then)", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-043", "text": "across REST and MCP and spec versions 2026-04-08, 2026-01-23, and 2026-01-11", "page": "guide.html", "class": "REG", "evidence": "MCP transport checks exist (conformance/checks/merchant.py + engine.py + merchant_checks.py); version ids ↔ coverage.json:$.spec_pins (LIVE-able). PAGE RETIRING → carry to docs.html; render version list from spec_pins", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-044", "text": "each check is proven to catch the defect it's for (kill-rate testing)", "page": "guide.html", "class": "REG", "evidence": "mutation_killrate.py + conformance/.vendor/ucp-schema oracle anchoring + per-check register citations. PAGE RETIRING → carry to docs.html", "added": "2026-07-09", "review_by": "2026-10-09"},
-    {"id": "CLAIM-045", "text": "reports anything it can't test as not-tested rather than a silent pass", "page": "guide.html", "class": "REG", "evidence": "conformance/checks/merchant.py capability scoping. PAGE RETIRING → carry to docs.html", "added": "2026-07-09", "review_by": "2026-10-09"}
-  ]
+  {
+   "id": "CLAIM-001a",
+   "text": "193",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "Merchant-side checks hero stat \u2014 gate-enforced by coverage_gate.py stat-num regex; NOT in coverage.json (its check fields count MUST rows 117/125/234); data-live bind to site_claims.json:$.manifest.merchant_checks",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-002",
+   "text": "Every check is proven to catch its own bug (kill-rate validated).",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/mutation_killrate.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite gates 'merchant' and 'killrate' block release if any check fails to kill its injected defect",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-003",
+   "text": "every check is proven to catch the bug it\u2019s for, so there are no false greens",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/mutation_killrate.py + validate_merchant_checks.py (merchant lane) and conformance/agent/run_agent.py reference gate (agent lane): clean-pass AND kill required per check",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-004",
+   "text": "0",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "'False greens' hero stat \u2014 kill-rate mechanics: a check that survives its targeted defect is flagged UNSAFE and blocks release (mutation_killrate.py; validate_merchant_checks.py; run_agent.py reference gate)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-005",
+   "text": "42",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "Agent-side checks hero stat \u2014 conformance/agent/agent_governance.py _agent_copy_freshness() enforces len(agent_checks.CHECKS)=42 (verified live import 2026-07-09); NOT in agent-coverage.json (its check=53 counts covered MUST rows); data-live bind to site_claims.json:$.manifest.agent_checks",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-006",
+   "text": "Every normative MUST across three spec versions is accounted for",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; 'three' should render from coverage.json:$.spec_pins key count",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-007",
+   "text": "193 checks, from the browser or your CI",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (193, verified 2026-07-09)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-008",
+   "text": "regenerated with every change and enforced by CI (stale data or a coverage regression fails the build)",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/coverage/coverage_gate.py freshness comparison + conformance/coverage/ratchet.json accounted-coverage floors",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-009",
+   "text": "Roadmap to 100%",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "docs/ROADMAP.md (link target exists, verified 2026-07-09)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-010",
+   "text": "is maintained by Google's UCP team at",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "https://ucp.dev \u2014 About-block attribution; the only context where 'Google's UCP team' is allowed by the voice rules (mark block data-attribution)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-011",
+   "text": "Google's Python test suite (targets v2026-01-23)",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "https://github.com/Universal-Commerce-Protocol/ucp \u2014 official conformance suite; re-verify the targeted spec version at each review (external fact, can drift)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-012",
+   "text": "Released April 9, 2026",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/SOURCES.lock.json pin v2026-04-08 + https://github.com/Universal-Commerce-Protocol/ucp/releases; version id itself is LIVE-able via coverage.json:$.spec_pins",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-013",
+   "text": "Released January 23, 2026",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/SOURCES.lock.json pin v2026-01-23 (commit_date 2026-01-23) + upstream releases page",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-014",
+   "text": "Released January 11, 2026",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/SOURCES.lock.json pin v2026-01-11 + upstream releases page",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-016",
+   "text": "Anything it can't test is reported",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/checks/merchant.py capability scoping + not-tested reporting; README.md 'reports only the checks it actually runs'",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-017",
+   "text": "every check is kill-rate tested \u2014 we inject the exact defect it should catch, and if it still passes, it's blocked from release",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/mutation_killrate.py (incl. the deliberate noop-check canary proving the harness works)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-018",
+   "text": "the whole suite self-validates in CI and goes red if any check loses its ability to catch defects",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "conformance/ci/run_suite.py (killrate/merchant/demo-drift gates) + .github/workflows self-testing CI",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-019",
+   "text": "VERDICT: INCOMPLETE \u2014 21/98 applicable MUSTs (21%), 0 deviations",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "Illustrative sample of the real CLI output format (packaging/spck_conformance/); numbers are an example, not a product stat \u2014 mark data-example on redesign so the claims gate can distinguish it",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-020",
+   "text": "Python 3.9+. Published on PyPI.",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "packaging/pyproject.toml L10 requires-python = \">=3.9\"; https://pypi.org/project/spck-conformance/",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-021",
+   "text": "Stdlib-light, one dependency, no account required.",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "packaging/pyproject.toml L21 dependencies = [\"certifi>=2023.7.22\"] \u2014 exactly one runtime dependency",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-022",
+   "text": "0 clean \u00b7 2 a MUST deviated \u00b7 1 couldn't run",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "packaging/spck_conformance/cli.py L15 exit-code contract + return paths",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-023",
+   "text": "it fails the build on any MUST deviation and writes a JUnit report",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "action.yml (junit input; description states the exit-code semantics)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-024",
+   "text": "193 checks across checkout, order, discount, catalog, cart, fulfillment, totals \u2014 each proven to catch its own defects, each citing a spec clause.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "coverage_gate.py regex '(\\d+)\\+? checks across' pins 193; every MCheck carries a register citation (conformance/checks/merchant.py req_id\u2192source mapping); bind number to site_claims.json:$.manifest.merchant_checks",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-025",
+   "text": "Unofficial, open, kill-rate validated.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/mutation_killrate.py + run_suite killrate gate",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-026",
+   "text": "Write-path checks (checkout, order, cart) run only in the CLI",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "Instant web check scope is discovery + profile + read-only catalog (functions/ + check.html copy); write paths run only in the CLI suite \u2014 this honesty line anchors the /check depth ladder",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-027",
+   "text": "Run the full suite (193 kill-rate-validated checks) from your shell or CI.",
+   "page": "tool.html",
+   "class": "REG",
+   "evidence": "Gate-pinned 193 (coverage_gate.py). PAGE RETIRING (Task 11): claim must not silently migrate \u2014 /check already carries the registered equivalent (CLAIM-024)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-028",
+   "text": "Reports kept for 90 days.",
+   "page": "tool.html",
+   "class": "REG",
+   "evidence": "functions/api/[[path]].js L139 expirationTtl: 7776000 (= 90 days). PAGE RETIRING: saved-reports UI leaves the public surface; KV backend untouched (admin retrieval remains). Do not re-add to public pages without re-registering",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-029",
+   "text": "43",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "Failure-modes hero stat \u2014 conformance/agent/agent_governance.py _agent_copy_freshness() enforces len(non-None DEFECTS)=43 (verified live import 2026-07-09); NOT in agent-coverage.json; data-live bind to site_claims.json:$.manifest.agent_defects",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-030",
+   "text": "6",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "'You can watch live' stat \u2014 public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite demo-drift gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-031",
+   "text": "100%",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "'Proven to catch the bug' stat \u2014 conformance/agent/run_agent.py reference gate passes only when every agent check clean-passes AND kills its targeted defect (live-run 2026-07-09: PASS); conformance/agent/agent_coverage_lock.json",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-032",
+   "text": "Every test is proven to catch its own bug \u2014 it passes a known-good agent and provably fails the broken one.",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "conformance/agent/run_agent.py reference gate (clean-pass + kill per check, defect isolation)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-033",
+   "text": "Watch all six live in the demo.",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "public/agent-demo.json has exactly 6 cases (verified 2026-07-09); must stay in sync with the demo data",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-034",
+   "text": "42 checks",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "Terminal-sample check count \u2014 gate-enforced by agent_governance.py regex 'ran \\d+ ops[^;<]*;\\s*(\\d+) checks?'. NOTE: the '8 ops' prefix in the same line is STALE (live run 2026-07-09 prints 'ran 11 ops') and is classed REWRITE in the audit \u2014 the gate deliberately does not pin the ops count",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-035",
+   "text": "every check passes a correct agent and catches its bug",
+   "page": "agent.html",
+   "class": "REG",
+   "evidence": "Verbatim shape of the run_agent.py PASS line (live-verified 2026-07-09: 'PASS \u2014 every agent check clean-passes the reference agent and kills its targeted defect')",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-036",
+   "text": "These are real recorded runs of a correct shopping agent buying from a store that behaves badly on purpose.",
+   "page": "sandbox.html",
+   "class": "REG",
+   "evidence": "conformance/agent/build_demo_data.py generates public/agent-demo.json from real harness runs (its _about says so)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-037",
+   "text": "Real recorded runs \u2014 not a mock-up. Each flaw is proven to be caught.",
+   "page": "sandbox.html",
+   "class": "REG",
+   "evidence": "build_demo_data.py + run_suite demo-drift gate: every demo case's catching check must still kill its defect on each CI run",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-038",
+   "text": "Every normative MUST in each pinned UCP spec version is accounted as a",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/verify_register_completeness.py + conformance/coverage/coverage_gate.py; public/coverage.json _about states the same contract and every row carries check/exempt/gap status",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-039",
+   "text": "A check only counts when it",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "clean-pass + 100% kill on a known-good reference: conformance/selfcheck/validate_merchant_checks.py + conformance/ci/differential.py (independent official Flower Shop sample) + conformance/SOURCES.lock.json pins",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-040",
+   "text": "Exemptions require a written justification and are",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "conformance/coverage/exemptions.json + validate_exemptions() in coverage_gate.py (machine-checked against double-booking)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-041",
+   "text": "if it were stale or coverage regressed, the build would be red",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "coverage_gate.py freshness check + ratchet floors (conformance/coverage/ratchet.json)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-042",
+   "text": "Every UCP interaction starts at /.well-known/ucp",
+   "page": "guide.html",
+   "class": "REG",
+   "evidence": "UCP discovery spec (https://ucp.dev; pinned registers conformance/requirements/*/discovery*.json). PAGE RETIRING \u2192 carry to docs.html with this registration (update page field then)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-043",
+   "text": "across REST and MCP and spec versions 2026-04-08, 2026-01-23, and 2026-01-11",
+   "page": "guide.html",
+   "class": "REG",
+   "evidence": "MCP transport checks exist (conformance/checks/merchant.py + engine.py + merchant_checks.py); version ids \u2194 coverage.json:$.spec_pins (LIVE-able). PAGE RETIRING \u2192 carry to docs.html; render version list from spec_pins",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-044",
+   "text": "each check is proven to catch the defect it's for (kill-rate testing)",
+   "page": "guide.html",
+   "class": "REG",
+   "evidence": "mutation_killrate.py + conformance/.vendor/ucp-schema oracle anchoring + per-check register citations. PAGE RETIRING \u2192 carry to docs.html",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-045",
+   "text": "reports anything it can't test as not-tested rather than a silent pass",
+   "page": "guide.html",
+   "class": "REG",
+   "evidence": "conformance/checks/merchant.py capability scoping. PAGE RETIRING \u2192 carry to docs.html",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-CHK-001",
+   "text": "30 seconds, no install \u2014 discovery + profile + read-only catalog.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "functions/api/conformance.js \u2014 instant-check scope is discovery + profile-structure checks + read-only catalog probes (catalogChecks() runs only search/lookup, 'the ONLY live checks safe to run anonymously online'); '30 seconds' is a UX estimate the claims gate excludes via its seconds allowlist",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-CHK-002",
+   "text": "We fetch your store\u2019s /.well-known/ucp and run the discovery + profile-structure checks, plus read-only catalog probes when your store supports them.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "functions/api/conformance.js \u2014 fetches /.well-known/ucp server-side, runs discovery/profile-structure checks; catalogChecks() runs read-only catalog search/lookup probes only when the profile declares dev.ucp.shopping.catalog.search",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-CHK-003",
+   "text": "Run it only against your own store, never someone else\u2019s.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "Write-path safety instruction for the CLI depth-ladder rung: the full suite exercises checkout/cart/order write paths (conformance/checks/merchant_checks*.py; packaging/spck_conformance/), which must not be pointed at third-party stores \u2014 same honesty line as CLAIM-026",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-CHK-004",
+   "text": "Every check is proven to catch the defect it\u2019s for \u2014 the suite injects that exact bug, and a check that misses it blocks release.",
+   "page": "check.html",
+   "class": "REG",
+   "evidence": "conformance/selfcheck/mutation_killrate.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite 'killrate' and 'merchant' gates fail the build when any check survives its injected defect",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-COV-001",
+   "text": "RFC 9421 request signing",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "conformance/agent/agent_checks.py \u2014 agent-lane RFC 9421 request-signing checks (SIG-001 et al.; parses the Signature-Input covered components, verified by live import 2026-07-09). Merchant-side RFC 9421 signature checks also live in conformance/checks/merchant_checks_04_08_oauth.py. The number 9421 is a normative RFC reference on the coverage agent-lane blurb, not a product metric.",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "_note": "B4 scratch (Task 11). Do NOT edit public/site_claims.json directly (race-safe). Trunk should fold these into site_claims.json:$.claims with page=docs.html. NOTE: docs.html was authored to produce ZERO site-claims-gate candidates (verified: no proof-word sentence, no non-excluded number adjacent to a claim-noun), so the claims gate is GREEN on docs.html WITHOUT these entries. They register the genuine capability claims carried from the retired guide.html so the copy stays evidence-backed if the gate ever tightens.",
+   "id": "CLAIM-DOC-000"
+  },
+  {
+   "id": "CLAIM-DOC-001",
+   "text": "reports anything it can't reach as not-tested rather than a silent pass",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "conformance/checks/merchant.py capability scoping + not-tested reporting (carries guide.html CLAIM-045 to docs.html)",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-DOC-002",
+   "text": "Each check is anchored to the official ucp-schema validator and cites the spec clause it enforces.",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "conformance/.vendor/ucp-schema oracle anchoring + per-check register citations (conformance/checks/merchant.py req_id->source mapping); carries guide.html CLAIM-044 to docs.html",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-DOC-003",
+   "text": "Each agent check passes a correct agent and catches a broken one.",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "conformance/agent/run_agent.py reference gate: every agent check clean-passes the reference agent AND kills its targeted defect (live-verified 2026-07-09); same evidence as agent.html CLAIM-032/CLAIM-035",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-DOC-004",
+   "text": "Tests run against the pinned UCP spec versions",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "public/coverage.json:$.spec_pins (3 pins: 2026-01-11, 2026-01-23, 2026-04-08); version-date ids are excluded by the claims-gate date allowlist, listed here for freshness traceability; carries guide.html CLAIM-043",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-DOC-005",
+   "text": "It fails the build on a MUST deviation and writes a JUnit report.",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "action.yml (junit input; exit-code semantics fail the build on any MUST deviation); same evidence as index.html CLAIM-023",
+   "added": "2026-07-09",
+   "review_by": "2026-10-09"
+  }
+ ]
 }

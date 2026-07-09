@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UCP Spec Coverage — live traceability matrix (unofficial)</title>
 <meta name="description" content="Live, honest coverage accounting: every normative UCP MUST mapped to a kill-rate-validated check, a documented exemption, or an open gap — per spec version, traceable to the pinned official spec line.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="UCP Spec Coverage — live traceability matrix">
+<meta property="og:description" content="Every normative UCP MUST accounted as a kill-rate-validated check, a documented exemption, or an open gap — per spec version, traceable to the pinned official spec line.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UCP Spec Coverage — live traceability matrix">
 <style>
   /* segment colors are validated categorical steps for this dark surface (CVD ΔE 15.7+,
      ≥3:1 contrast); gray is the designated NEUTRAL for the unclassified/manual residue */
@@ -49,21 +54,34 @@
   .count { color:var(--mut); font-size:12px; margin:6px 0; }
   .topnav { font-size:13px; margin-bottom:18px; }
   .topnav a { margin-right:14px; }
+  /* Shared nav (byte-identical block across all pages) */
+  .site-nav{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;max-width:1000px;margin:0 auto;padding:20px 20px 0;font-size:13px}
+  .site-nav .brand{font-weight:700;color:var(--fg);text-decoration:none}
+  .site-nav .mk{display:inline-block;background:var(--acc);color:#04101f;border-radius:5px;padding:0 5px;margin-right:6px;font-weight:800}
+  .site-nav .links{display:flex;flex-wrap:wrap;gap:4px 14px}
+  .site-nav .links a{color:var(--mut);text-decoration:none}
+  .site-nav .links a:hover{color:var(--fg)}
+  /* Primary CTA marker */
+  .btn-primary{display:inline-block;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;background:var(--acc);border:1px solid var(--acc);color:#04101f;text-decoration:none}
+  .btn-primary:hover{text-decoration:none;filter:brightness(1.06)}
+  /* Shared footer */
+  .site-footer{max-width:1000px;margin:30px auto 0;border-top:1px solid var(--line);padding:16px 0 0;font-size:12px;color:var(--mut);line-height:1.6}
+  .site-footer a{color:var(--mut)}
+  .site-footer .footer-links{margin-top:8px}
   @media (max-width:640px){ .arearow{grid-template-columns:120px 1fr 70px} }
 </style>
 </head>
 <body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
-  <div class="topnav">
-    <a href="/">Merchant Platforms</a><a href="/agent">Shopping Agents</a><a href="/guide">Guide</a><a href="/tool">Tool</a>
-    <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md">Roadmap</a>
-    <a href="https://github.com/vishkaty/ucp-conformance">GitHub</a>
-  </div>
   <h1>UCP Spec Coverage <span class="note">(unofficial, live)</span></h1>
-  <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a
-    <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
-    Each requirement links to the exact line of the pinned official spec. This page is generated from the same
-    data the CI gate enforces: if it were stale or coverage regressed, the build would be red.</p>
+  <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
+    Each requirement links to the exact line of the pinned official spec.
+    This page is generated from the same data the CI gate enforces: if it were stale or coverage regressed, the build would be red.</p>
+  <div style="margin:6px 0 18px"><a href="/check" class="btn-primary">Check your store &rarr;</a></div>
 
   <div class="tabs" id="tabs"></div>
   <div id="summary"></div>
@@ -78,9 +96,9 @@
   <div class="card">
     <h2 style="margin-top:0">Requirements traceability</h2>
     <div class="filters">
-      <select id="f-status"><option value="">All statuses</option><option value="check">Checked</option><option value="exempt">Exempt</option><option value="gap">Gap</option></select>
-      <select id="f-test"><option value="">All testability</option><option>testable</option><option>needs-receiver</option><option>needs-oauth</option><option>manual</option></select>
-      <select id="f-area"><option value="">All areas</option></select>
+      <select id="f-status"><option value="">Any status</option><option value="check">Checked</option><option value="exempt">Exempt</option><option value="gap">Gap</option></select>
+      <select id="f-test"><option value="">Any testability</option><option>testable</option><option>needs-receiver</option><option>needs-oauth</option><option>manual</option></select>
+      <select id="f-area"><option value="">Any area</option></select>
       <input type="text" id="f-q" placeholder="Search id or requirement text…">
     </div>
     <div class="count" id="count"></div>
@@ -92,15 +110,16 @@
   </div>
 
   <div class="card note">
-    <b>Methodology.</b> Requirements registers are extracted from the pinned official spec and
-    <b>quote-verified verbatim</b> (896/896 rows) by a CI gate on every push. A check only counts when it
-    <b>clean-passes AND kills 100% of its injected defects</b> on a known-good reference (the official Flower Shop
-    sample or our oracle-validated controlled fixture). Exemptions require a written justification and are
-    machine-checked against double-booking. The <code>coverage</code> CI gate fails the build if this page's data
-    goes stale or accounted coverage ever decreases (ratchet).
+    <b>Methodology.</b> Requirements registers are extracted from the pinned official spec and <b>quote-verified verbatim</b> by a CI gate on each push. A check only counts when it <b>clean-passes AND kills 100% of its injected defects</b> on a known-good reference (the official Flower Shop sample or our oracle-validated controlled fixture).
+    Exemptions require a written justification and are machine-checked against double-booking.
+    The <code>coverage</code> CI gate fails the build if this page's data goes stale or accounted coverage ever decreases (ratchet).
     <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md">Roadmap →</a>
-    &nbsp;·&nbsp; Unofficial; not affiliated with or endorsed by the UCP project.
   </div>
+
+  <footer class="site-footer">
+    <p>spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+    <p class="footer-links"><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+  </footer>
 </div>
 
 <script>
@@ -249,7 +268,7 @@
     var fa = document.getElementById("f-area");
     var keep = fa.value;
     fa.textContent = "";
-    fa.appendChild(el("option", null, "All areas")).value = "";
+    fa.appendChild(el("option", null, "Any area")).value = "";
     DATA.versions[VER].areas.forEach(function (a) {
       var o = el("option", null, a.area); o.value = a.area; fa.appendChild(o);
     });
@@ -300,7 +319,7 @@
         + '<span style="font-variant-numeric:tabular-nums">' + pct + '%</span></div></td>'
         + '</tr>';
     }).join("");
-    box.innerHTML = '<table><thead><tr>'
+    box.innerHTML = /* safe: table built from numeric fields + version keys of local agent-coverage.json */ '<table><thead><tr>'
       + '<th>Spec version</th><th style="text-align:right">Agent MUSTs</th>'
       + '<th style="text-align:right">Checked</th><th style="text-align:right">Exempt</th>'
       + '<th style="text-align:right">Gap</th><th>Accounted</th></tr></thead><tbody>'

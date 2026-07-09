@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Build a Shopping Agent That Checks Out Safely — spck.dev</title>
-<meta name="description" content="Your AI shopping agent handles real money and real user accounts. We test the ways it goes wrong — paying the wrong amount, getting phished, failing the checkout — that passing UCP conformance can't catch.">
+<meta name="description" content="Your AI shopping agent handles real money and real user accounts. Test the ways it goes wrong — paying the wrong amount, getting phished, failing the checkout — that passing UCP conformance can't catch.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Build a shopping agent that checks out safely — spck.dev">
+<meta property="og:description" content="Test the ways an AI shopping agent goes wrong — paying the wrong amount, getting phished, failing the checkout — that passing UCP conformance can't catch.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Build a shopping agent that checks out safely">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>A</text></svg>">
 <style>
 :root{--accent:#5b5bd6;--dark:#18181b;--green:#16a34a;--red:#dc2626;--bg:#f8f9fa;--border:#e4e4e7;--muted:#71717a}
@@ -22,6 +27,19 @@ nav .nav-links a:hover{color:var(--dark);text-decoration:none}
 nav .nav-links a.active{color:var(--accent);font-weight:700}
 .btn-nav{background:var(--accent) !important;color:#fff !important;padding:7px 18px;border-radius:6px;font-weight:600;font-size:13px}
 .btn-nav:hover{background:#4f4fc4 !important;text-decoration:none !important}
+/* Shared nav (byte-identical block across all pages) */
+.site-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:8px 14px}
+.site-nav .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark);text-decoration:none !important}
+.site-nav .mk{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+.site-nav .links{display:flex;gap:20px;align-items:center;font-size:13px;flex-wrap:wrap}
+.site-nav .links a{color:var(--muted);font-weight:500}
+.site-nav .links a:hover{color:var(--dark);text-decoration:none}
+/* Shared footer */
+.site-footer{padding:36px 24px;border-top:1px solid var(--border);margin-top:20px}
+.site-footer .footer-inner{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.site-footer .disclaimer{font-size:12px;color:var(--muted);line-height:1.65;max-width:640px}
+.site-footer .footer-links{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:13px}
+.site-footer .footer-links a{color:var(--muted)}
 .hero{background:linear-gradient(145deg,#0f0f11 0%,#1a1a2e 40%,#16213e 100%);padding:76px 24px 84px;text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 0%,rgba(91,91,214,0.18) 0%,transparent 100%)}
 .hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E")}
@@ -112,30 +130,23 @@ footer .copy{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
-<nav>
-  <div class="logo"><div class="logo-icon">U</div>spck.dev</div>
-  <div class="nav-links">
-    <a href="/">Merchant Platforms</a>
-    <a href="agent" class="active">Shopping Agents</a>
-    <a href="coverage">Coverage</a>
-    <a href="guide">Guide</a>
-    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
-    <a href="tool" class="btn-nav">Launch Tool &rarr;</a>
-  </div>
-</nav>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
 <div class="hero">
   <div class="hero-content">
     <div class="badge">FOR TEAMS BUILDING SHOPPING AGENTS</div>
     <h1>Ship a shopping agent that checks out <em>safely</em>.</h1>
-    <p class="hero-sub">You&rsquo;re building a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. It handles real money and real user accounts &mdash; and we test the ways it goes wrong (paying the wrong amount, getting phished, failing the checkout) that passing conformance can&rsquo;t catch.</p>
+    <p class="hero-sub">You&rsquo;re building a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. It handles real money and real user accounts &mdash; and you can test the ways it goes wrong (paying the wrong amount, getting phished, failing the checkout) that passing conformance can&rsquo;t catch.</p>
     <div class="hero-actions">
-      <a href="sandbox" class="btn-hero btn-hero-primary">Watch an agent break &mdash; live &rarr;</a>
+      <a href="/sandbox" class="btn-hero btn-hero-primary btn-primary">Watch it live &rarr;</a>
       <a href="#gap" class="btn-hero btn-hero-secondary">Why conformance isn&rsquo;t enough &darr;</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">43</div><div class="stat-label">Failure modes tested</div></div>
-      <div class="stat"><div class="stat-num">6</div><div class="stat-label">You can watch live</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_defects">43</span></div><div class="stat-label">Failure modes tested</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="agent-demo.json:$.cases">6</span></div><div class="stat-label">You can watch live</div></div>
       <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Proven to catch the bug</div></div>
     </div>
   </div>
@@ -145,11 +156,11 @@ footer .copy{font-size:12px;color:var(--muted)}
 <section id="gap">
   <div class="section-inner">
     <div class="section-label">The problem</div>
-    <h2 class="section-title">Your agent can pass every check and still lose money.</h2>
+    <h2 class="section-title">Your agent can pass conformance and still lose money.</h2>
     <p class="section-desc">A conformance test reads the <em>shape</em> of the messages your agent sends. It can&rsquo;t see your agent quietly paying a total that doesn&rsquo;t add up, following a phishing link out of an error message, or trusting a store response it never verified. Those are behaviors &mdash; and they&rsquo;re where real checkouts go wrong, with a real user&rsquo;s card.</p>
     <div class="gap-band">
-      <div class="big">~99%<span>of UCP stores pass conformance</span></div>
-      <div class="gap-text">Nearly every store passes the schema checks &mdash; yet a large share of real agent checkouts still fail. The message shapes are fine; the <strong>agent&rsquo;s behavior</strong> is what nobody tests. Conformance is not reliability. That&rsquo;s the gap we close.</div>
+      <div class="big">Shape<span>is not behavior</span></div>
+      <div class="gap-text">Schema checks read the message shape; they can&rsquo;t see behavior &mdash; paying a bad total, following a phishing link, trusting a forged response. Conformance is not reliability. That&rsquo;s the gap you can close here.</div>
     </div>
   </div>
 </section>
@@ -157,7 +168,7 @@ footer .copy{font-size:12px;color:var(--muted)}
 <!-- WHAT GOES WRONG -->
 <section class="alt">
   <div class="section-inner">
-    <div class="section-label">What we catch</div>
+    <div class="section-label">What you can catch</div>
     <h2 class="section-title">The six ways an agent goes wrong &mdash; that conformance misses.</h2>
     <p class="section-desc">Each is a real behavior your agent must get right when it shops. Every test is proven to catch its own bug &mdash; it passes a known-good agent and provably fails the broken one. Watch all six live in the demo.</p>
     <div class="fails">
@@ -166,7 +177,7 @@ footer .copy{font-size:12px;color:var(--muted)}
       <div class="fail"><div class="fic">&#128274;</div><h4>Trusts a forged response</h4><p>The agent skips verifying the store&rsquo;s signed response, so a tampered or fake reply is accepted as real.</p><span class="tag">watch live</span></div>
       <div class="fail"><div class="fic">&#128273;</div><h4>Links accounts unsafely</h4><p>Missing PKCE or an unchecked issuer lets an attacker hijack the OAuth flow and capture the linked account.</p><span class="tag">watch live</span></div>
       <div class="fail"><div class="fic">&#128179;</div><h4>Pays with the wrong method</h4><p>The agent pays with a payment type the store never offered &mdash; an unauthorized instrument.</p><span class="tag">watch live</span></div>
-      <div class="fail"><div class="fic">&#129529;</div><h4>Leaks or over-shares</h4><p>Sends fields it shouldn&rsquo;t, forgets to identify itself, or never revokes access when the user unlinks.</p><span class="tag">+ 34 more</span></div>
+      <div class="fail"><div class="fic">&#129529;</div><h4>Leaks or over-shares</h4><p>Sends fields it shouldn&rsquo;t, forgets to identify itself, or never revokes access when the user unlinks.</p><span class="tag"><span data-live="site_claims.json:$.manifest.agent_defects">43</span> failure modes in all</span></div>
     </div>
   </div>
 </section>
@@ -175,12 +186,24 @@ footer .copy{font-size:12px;color:var(--muted)}
 <section>
   <div class="section-inner">
     <div class="section-label">How you test it</div>
-    <h2 class="section-title">Point your agent at a verified store. See if it actually buys.</h2>
-    <p class="section-desc">There&rsquo;s no easy way to try a real UCP checkout end-to-end yet &mdash; so we host a store that&rsquo;s provably correct, and one that behaves badly on purpose. Your agent shops both, and we grade exactly how it behaves.</p>
+    <h2 class="section-title">Point your agent at a reference store. See if it actually buys.</h2>
+    <p class="section-desc">Try a full UCP checkout against a reference store that the UCP schema oracle validates &mdash; and one that misbehaves on purpose. Run it locally in one command, or watch recorded runs in the demo.</p>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><h4>Your agent shops our store</h4><p>Point it at our verified merchant sandbox and let it run a full checkout &mdash; discovery, payment, the works.</p></div>
-      <div class="step"><div class="step-num">2</div><h4>We throw problems at it</h4><p>Bad signatures, spliced login servers, mismatched totals, phishing decoys &mdash; the things a real store might do wrong or an attacker might try.</p></div>
-      <div class="step"><div class="step-num">3</div><h4>You get a reliability report</h4><p>Exactly which behaviors your agent got right, and which ones would have cost a user real money &mdash; the findings conformance never surfaces.</p></div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Your agent shops the store</h4>
+        <p>Run your agent against the bundled merchant sandbox &mdash; clone the repo or <code>spck-conformance --agent</code> &mdash; and let it run a full checkout: discovery, payment, the works.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>The store misbehaves on purpose</h4>
+        <p>Bad signatures, spliced login servers, mismatched totals, phishing decoys &mdash; the things a real store might do wrong or an attacker might try.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>You get a reliability report</h4>
+        <p>Exactly which behaviors your agent got right, and which ones would have cost a user real money &mdash; the findings conformance never surfaces.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -196,8 +219,9 @@ footer .copy{font-size:12px;color:var(--muted)}
       <div class="terminal">
 <span class="comment"># clone the suite and run the agent-reliability lane</span><br>
 <span class="prompt">$</span> <span class="cmd">git clone https://github.com/vishkaty/ucp-conformance</span><br>
-<span class="prompt">$</span> <span class="cmd">python3</span> <span class="arg">conformance/agent/run_agent.py</span><br>
-<span class="dim">agent lane: reference agent ran 8 ops (ok); 42 checks</span><br>
+<span class="prompt">$</span> <span class="cmd">python3</span>
+<span class="arg">conformance/agent/run_agent.py</span><br>
+<span class="dim">agent lane: reference agent &mdash; <span data-live="site_claims.json:$.manifest.agent_checks">42</span> agent checks</span><br>
 <span class="ok">PASS &mdash; every check passes a correct agent and catches its bug.</span>
       </div>
     </div>
@@ -225,19 +249,14 @@ footer .copy{font-size:12px;color:var(--muted)}
   </div></div>
 </section>
 
-<div class="disclaimer">
-  <div class="box"><strong>Unofficial.</strong> spck.dev is an independent, community effort &mdash; not affiliated with or endorsed by the Universal Commerce Protocol project. Results reflect only the checks run, not certified compliance; the <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">official conformance suite</a> is authoritative. We grade an agent&rsquo;s observed behavior against the spec&rsquo;s normative requirements.</div>
-</div>
-
-<footer>
+<footer class="site-footer">
   <div class="footer-inner">
-    <div class="copy">spck.dev &middot; test both sides of the AI checkout</div>
+    <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
     <div class="footer-links">
-      <a href="/">Merchant Platforms</a>
-      <a href="agent">Shopping Agents</a>
-      <a href="sandbox">Live demo</a>
-      <a href="coverage">Coverage</a>
-      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
+      <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>
+      <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a>
+      <a href="/coverage">Coverage</a>
+      <a href="https://ucp.dev" rel="noopener">ucp.dev</a>
     </div>
   </div>
 </footer>

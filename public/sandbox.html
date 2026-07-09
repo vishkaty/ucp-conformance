@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UCP Agent Interop Sandbox — watch a conformant agent, then break it</title>
 <meta name="description" content="Replay real recorded runs of the spck reference agent against an adversarial UCP merchant. Toggle a single client-side defect and see exactly what an agent does wrong — and which conformance check catches it.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="UCP Agent Interop Sandbox — watch a conformant agent, then break it">
+<meta property="og:description" content="Real recorded runs of a correct shopping agent buying from a store that misbehaves on purpose. Flip one flaw and see exactly what goes wrong — and which check catches it.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UCP Agent Interop Sandbox — watch an agent break, safely">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>A</text></svg>">
 <style>
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#12151d;--fg:#e6e8ee;--mut:#9aa3b2;--ok:#3fb950;--bad:#f85149;--warn:#d29922;--acc:#58a6ff;--acc2:#a78bfa;--line:#2b2f3a}
@@ -19,6 +24,20 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .topnav .links{display:flex;gap:18px;font-size:13px}
 .topnav .links a{color:var(--mut)}.topnav .links a:hover{color:var(--fg);text-decoration:none}
 .topnav .links a.active{color:var(--acc);font-weight:600}
+/* Shared nav (byte-identical block across all pages) */
+.site-nav{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;max-width:1040px;margin:0 auto;padding:16px 20px 0;font-size:13px}
+.site-nav .brand{font-weight:700;color:var(--fg);text-decoration:none}
+.site-nav .mk{display:inline-block;background:var(--acc);color:#04101f;border-radius:5px;padding:0 5px;margin-right:6px;font-weight:800}
+.site-nav .links{display:flex;flex-wrap:wrap;gap:4px 14px}
+.site-nav .links a{color:var(--mut);text-decoration:none}
+.site-nav .links a:hover{color:var(--fg)}
+/* Primary CTA marker */
+.btn-primary{display:inline-block;padding:10px 18px;border-radius:8px;font-size:13.5px;font-weight:600;background:var(--acc);border:1px solid var(--acc);color:#08131f;text-decoration:none}
+.btn-primary:hover{text-decoration:none;filter:brightness(1.06)}
+/* Shared footer */
+.site-footer{max-width:1040px;margin:30px auto 0;border-top:1px solid var(--line);padding:16px 0 0;font-size:12px;color:var(--mut);line-height:1.6}
+.site-footer a{color:var(--mut)}
+.site-footer .footer-links{margin-top:8px}
 .wrap{max-width:1040px;margin:0 auto;padding:20px 20px 72px}
 h1{font-size:27px;font-weight:800;letter-spacing:-0.6px;margin-bottom:8px}
 h1 em{font-style:normal;color:var(--acc2)}
@@ -106,21 +125,16 @@ h1 em{font-style:normal;color:var(--acc2)}
 </style>
 </head>
 <body>
-<div class="topnav">
-  <a href="/" class="brand"><span class="mk">U</span>spck.dev</a>
-  <div class="links">
-    <a href="/">Merchant Platforms</a>
-    <a href="agent" class="active">Shopping Agents</a>
-    <a href="coverage">Coverage</a>
-    <a href="guide">Guide</a>
-    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
-  </div>
-</div>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
 <div class="wrap">
   <h1>Watch an agent check out &mdash; <em>then break it.</em></h1>
-  <p class="sub">These are real recorded runs of a correct shopping agent buying from a store that behaves badly on purpose. Flip one flaw and see exactly what the agent does wrong &mdash; and how it&rsquo;s caught. Every broken agent here would still <em>pass</em> a normal conformance test.</p>
+  <p class="sub">These are real recorded runs of a correct shopping agent buying from a store that behaves badly on purpose. Flip one flaw and see exactly what the agent does wrong &mdash; and how it&rsquo;s caught. These are client-side behaviors &mdash; the kind merchant-side conformance never sees.</p>
   <div class="realnote"><span class="g"></span> Real recorded runs &mdash; not a mock-up. Each flaw is proven to be caught.</div>
+  <div style="margin:0 0 22px"><a href="https://github.com/vishkaty/ucp-conformance" class="btn-primary" rel="noopener">Run it on your own agent &rarr;</a></div>
 
   <div class="cases" id="cases"></div>
   <div id="view"></div>
@@ -129,8 +143,8 @@ h1 em{font-style:normal;color:var(--acc2)}
     <h3>What am I looking at?</h3>
     <p>An AI shopping agent has to do a lot right when it buys something: link the user&rsquo;s account, verify the store&rsquo;s responses, check the total, pay with an allowed method. This sandbox puts a real agent through a checkout against a store that misbehaves &mdash; bad signatures, fake login servers, wrong totals, phishing links &mdash; and shows exactly where a flawed agent slips up. That&rsquo;s the difference between <strong style="color:var(--fg)">passing conformance</strong> and <strong style="color:var(--fg)">actually being safe</strong>.</p>
     <div class="two">
-      <div class="b"><h4>Building a shopping agent?</h4><p>Point your shopping-orchestration AI at our verified merchant sandbox and we grade how it behaves &mdash; the failures above are exactly what we look for.</p></div>
-      <div class="b"><h4>Building a merchant platform?</h4><p>Our verified agent shops your catalog, cart &amp; checkout, so you learn whether a real AI agent can actually complete a purchase against your UCP interface.</p></div>
+      <div class="b"><h4>Building a shopping agent?</h4><p>Run your shopping-orchestration AI against the bundled merchant sandbox and see how it behaves &mdash; the failures above are exactly what the checks look for.</p></div>
+      <div class="b"><h4>Building a merchant platform?</h4><p>The reference agent shops your catalog, cart &amp; checkout, so you learn whether a real AI agent can actually complete a purchase against your UCP interface.</p></div>
     </div>
     <div class="cta-row">
       <a href="agent" class="btn pri">How agent testing works &rarr;</a>
@@ -138,7 +152,10 @@ h1 em{font-style:normal;color:var(--acc2)}
     </div>
   </div>
 
-  <p class="disc"><strong>Unofficial.</strong> spck.dev is an independent community effort, not affiliated with or endorsed by the Universal Commerce Protocol project. These checks grade observed agent behavior against the spec&rsquo;s normative requirements; a pass reflects only the checks run, not certified compliance. The <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">official conformance suite</a> is authoritative.</p>
+  <footer class="site-footer">
+    <p>spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+    <p class="footer-links"><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+  </footer>
 </div>
 
 <script>
@@ -204,7 +221,7 @@ function renderCases(){
     html+='<button class="case-btn'+(SEL===c.defect?' active':'')+'" data-k="'+esc(c.defect)+'">'+
       '<div class="ct">'+esc(c.title)+'</div><div class="cd">'+esc(c.defect)+'</div></button>';
   });
-  document.getElementById('cases').innerHTML=html;
+  document.getElementById('cases').innerHTML=html; /* safe: html assembled from esc()-escaped case fields */
   Array.prototype.forEach.call(document.querySelectorAll('.case-btn'),function(b){
     b.onclick=function(){SEL=b.getAttribute('data-k');
       try{history.replaceState(null,'',SEL==='conformant'?location.pathname:location.pathname+'?case='+SEL);}catch(e){}
@@ -218,7 +235,7 @@ function render(){
   if(SEL==='conformant'){
     var rows=DATA.conformant.map(function(e,i){
       var cls=(e.flags&&e.flags.refused_completion)?'safe':'';return opRow(e,i,cls);}).join('');
-    v.innerHTML='<div class="split"><div class="flow good" style="grid-column:1/-1">'+
+    v.innerHTML='<div class="split"><div class="flow good" style="grid-column:1/-1">'+ /* safe: rows via opRow() esc(); other interpolations are lengths/constants */
       '<div class="flow-head"><span class="tag">Pass</span> Conformant reference agent &middot; full checkout flow</div>'+
       '<div class="ops">'+rows+'</div></div></div>'+
       '<div class="verdict pass"><div class="v-head"><span class="v-badge">Conformant</span>'+

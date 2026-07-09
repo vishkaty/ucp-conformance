@@ -12,9 +12,16 @@
   :root { --bg:#0f1117; --card:#1a1d27; --fg:#e6e8ee; --mut:#9aa3b2; --ok:#3fb950; --bad:#f85149; --acc:#58a6ff; --line:#2b2f3a; }
   * { box-sizing: border-box; }
   body {overflow-x:hidden;max-width:100%; margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
-  .wrap { max-width:780px; margin:0 auto; padding:32px 20px 64px; }
+  .site-nav { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px; max-width:780px; margin:0 auto; padding:18px 20px 0; font-size:13px; }
+  .site-nav .brand { font-weight:700; color:var(--fg); text-decoration:none; }
+  .site-nav .mk { display:inline-block; background:var(--acc); color:#04101f; border-radius:5px; padding:0 5px; margin-right:6px; font-weight:800; }
+  .site-nav .links { display:flex; flex-wrap:wrap; gap:4px 14px; }
+  .site-nav .links a { color:var(--mut); text-decoration:none; }
+  .site-nav .links a:hover { color:var(--fg); }
+  .wrap { max-width:780px; margin:0 auto; padding:24px 20px 40px; }
   h1 { font-size:22px; margin:0 0 4px; }
   .sub { color:var(--mut); margin:0 0 24px; font-size:13px; }
+  .step { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin:28px 0 -6px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; margin:16px 0; }
   label { display:block; font-size:13px; color:var(--mut); margin-bottom:6px; }
   input[type=text] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:#0d1017; color:var(--fg); font-size:15px; }
@@ -33,53 +40,75 @@
   .note { font-size:12px; color:var(--mut); }
   a { color:var(--acc); }
   .verdict { font-size:16px; font-weight:700; }
+  .site-footer { max-width:780px; margin:0 auto; padding:20px 20px 48px; border-top:1px solid var(--line); font-size:12px; color:var(--mut); }
+  .site-footer a { color:var(--mut); }
 </style>
 </head>
 <body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
-  <div style="font-size:13px;margin-bottom:18px">
-    <a href="/" style="margin-right:14px">Merchant Platforms</a>
-    <a href="/agent" style="margin-right:14px">Shopping Agents</a>
-    <a href="/coverage" style="margin-right:14px">Coverage</a>
-    <a href="/guide" style="margin-right:14px">Guide</a>
-    <a href="/tool" style="margin-right:14px">Tool</a>
-    <a href="https://github.com/vishkaty/ucp-conformance">GitHub</a>
-  </div>
   <h1>Can AI agents buy from your store? <span class="note">(unofficial)</span></h1>
-  <p class="sub">Check your store&rsquo;s UCP setup so AI shopping agents can actually find and buy from you. Independent tool &mdash; not affiliated with or a substitute for the official UCP conformance suite.</p>
+  <p class="sub">Check your store’s UCP setup so AI shopping agents can actually find and buy from you. The instant check below is a preview; the CLI is the full test.</p>
 
-  <div class="card">
-    <label for="server">Your store&rsquo;s URL</label>
-    <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
-    <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-tenant-host</code>)</summary>
-      <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-tenant-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
-      <input id="cquery" type="text" style="margin-top:8px" placeholder="catalog search query (default: *) — e.g. sunglasses" autocomplete="off" spellcheck="false">
-    </details>
-    <button id="run">Check discovery + profile + catalog</button>
-    <p class="meta">We fetch your store&rsquo;s <code>/.well-known/ucp</code> and run the discovery + profile-structure checks, plus read-only catalog probes when your store supports them. Write-path checks (checkout, order, cart) run only in the CLI &mdash; run those against your own store, never someone else&rsquo;s.</p>
-  </div>
+  <section data-ladder-step="instant">
+    <div class="step">Start here — instant check</div>
+    <div class="card">
+      <label for="server">Your store’s URL</label>
+      <input id="server" type="text" placeholder="https://store.example.com" autocomplete="off" spellcheck="false">
+      <details style="margin-top:10px"><summary class="note" style="cursor:pointer">Custom headers (optional — e.g. multi-tenant routing like <code>x-tenant-host</code>)</summary>
+        <input id="hdrs" type="text" style="margin-top:8px" placeholder="x-tenant-host: staging.example.com; x-other: value  (x-* only, max 3)" autocomplete="off" spellcheck="false">
+        <input id="cquery" type="text" style="margin-top:8px" placeholder="catalog search query (default: *) — e.g. sunglasses" autocomplete="off" spellcheck="false">
+      </details>
+      <button id="run" class="btn-primary">Check your store</button>
+      <p class="meta">30 seconds, no install — discovery + profile + read-only catalog. We fetch your store’s <code>/.well-known/ucp</code> and run the discovery + profile-structure checks, plus read-only catalog probes when your store supports them. Write-path checks (checkout, order, cart) run only in the CLI — run those against your own store, never someone else’s.</p>
+    </div>
+    <div id="out"></div>
+  </section>
 
-  <div id="out"></div>
-
-  <div class="card">
-    <div class="verdict">Run the full suite</div>
-    <p class="note">193 checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.</p>
-    <pre><code># one-off
-pip install spck-conformance
+  <section data-ladder-step="cli">
+    <div class="step">The full test — CLI</div>
+    <div class="card">
+      <div class="verdict">Run the full suite</div>
+      <p class="note"><span data-live="site_claims.json:$.manifest.merchant_checks">193</span> checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.</p>
+      <p class="note">The full test includes the checkout, cart, and order write-paths the instant check can’t reach. Run it only against your own store, never someone else’s.</p>
+      <pre><code>pip install spck-conformance
 spck-conformance --server https://store.example.com --init merchant.json
-spck-conformance --server https://store.example.com --config merchant.json
+spck-conformance --server https://store.example.com --config merchant.json</code></pre>
+    </div>
+  </section>
 
-# in CI (GitHub Action)
-- uses: vishkaty/ucp-conformance@main
+  <section data-ladder-step="ci">
+    <div class="step">Keep it green — CI</div>
+    <div class="card">
+      <div class="verdict">Gate it in CI (GitHub Action)</div>
+      <p class="note">Fails the build on a MUST deviation and writes a JUnit report.</p>
+      <pre><code>- uses: vishkaty/ucp-conformance@main
   with: { server: https://store.example.com }</code></pre>
-    <p class="note"><a href="https://github.com/vishkaty/ucp-conformance">Source &amp; methodology →</a></p>
+    </div>
+  </section>
+
+  <div class="card">
+    <div class="verdict">Why a pass means something</div>
+    <p class="note">Every check is proven to catch the defect it’s for — the suite injects that exact bug, and a check that misses it blocks release.</p>
+    <p class="note"><a href="/coverage">See what’s covered — and what isn’t — on the live coverage matrix →</a> · <a href="https://github.com/vishkaty/ucp-conformance">Source &amp; methodology →</a></p>
   </div>
 </div>
+
+<footer class="site-footer">
+  <p>spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+  <p><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+</footer>
 
 <script>
 // XSS-safe rendering: build DOM with textContent only; never innerHTML untrusted data.
 const $ = (id) => document.getElementById(id);
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+// anonymous, cookieless page-engagement beacon (same pattern as / and /agent)
+fetch('/api/track?event=check_view',{method:'POST',keepalive:true}).catch(function(){});
 
 async function run() {
   const server = $("server").value.trim();
@@ -109,7 +138,7 @@ async function run() {
     for (const c of (d.checks || [])) {
       const row = el("div", "chk");
       const cls = c.status === "pass" ? "pass" : c.status === "deviation" ? "dev" : "skip";
-      const b = el("span", "badge " + cls, c.status === "pass" ? "\u2713" : c.status === "deviation" ? "\u2717" : "\u00b7");
+      const b = el("span", "badge " + cls, c.status === "pass" ? "✓" : c.status === "deviation" ? "✗" : "·");
       row.appendChild(b);
       const body = el("div");
       body.appendChild(el("div", "cid", c.id));

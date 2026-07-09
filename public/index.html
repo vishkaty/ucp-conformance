@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UCP Conformance Testing Tool — Test Your Universal Commerce Protocol Implementation</title>
+<title>spck.dev — Your UCP checkout passes conformance. Does it actually work?</title>
 <meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec. 193 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://spck.dev/">
@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spck.dev — a UCP conformance suite you can trust">
 <meta name="twitter:description" content="Both sides of the checkout. Every check proven to catch its own bug. Watch an agent check out, then break it.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>U</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <style>
 :root{--accent:#5b5bd6;--dark:#18181b;--green:#16a34a;--red:#dc2626;--bg:#f8f9fa;--border:#e4e4e7;--muted:#71717a}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -21,34 +21,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 
-/* Nav */
-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto}
-nav .logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark)}
-nav .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
-nav .nav-links{display:flex;gap:20px;align-items:center;font-size:13px}
-nav .nav-links a{color:var(--muted);font-weight:500}
-nav .nav-links a:hover{color:var(--dark);text-decoration:none}
-nav .nav-links a.active{color:var(--accent);font-weight:700}
-.btn-nav{background:var(--accent) !important;color:#fff !important;padding:7px 18px;border-radius:6px;font-weight:600;font-size:13px}
-.btn-nav:hover{background:#4f4fc4 !important;text-decoration:none !important}
+/* Shared nav */
+.site-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:8px 14px}
+.site-nav .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark);text-decoration:none !important}
+.site-nav .mk{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+.site-nav .links{display:flex;gap:20px;align-items:center;font-size:13px;flex-wrap:wrap}
+.site-nav .links a{color:var(--muted);font-weight:500}
+.site-nav .links a:hover{color:var(--dark);text-decoration:none}
 
 /* Hero */
-.hero{background:linear-gradient(145deg,#0f0f11 0%,#1a1a2e 40%,#16213e 100%);padding:80px 24px 90px;text-align:center;position:relative;overflow:hidden}
+.hero{background:linear-gradient(145deg,#0f0f11 0%,#1a1a2e 40%,#16213e 100%);padding:72px 24px 80px;text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 0%,rgba(91,91,214,0.18) 0%,transparent 100%)}
 .hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E")}
 .hero-content{position:relative;max-width:720px;margin:0 auto;z-index:1}
 .hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(91,91,214,0.15);color:#c4b5fd;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.5px;margin-bottom:24px;border:1px solid rgba(91,91,214,0.25)}
-.hero .badge svg{width:14px;height:14px}
-.hero h1{font-size:46px;font-weight:800;color:#fff;line-height:1.12;margin-bottom:18px;letter-spacing:-1.5px}
+.hero h1{font-size:44px;font-weight:800;color:#fff;line-height:1.12;margin-bottom:18px;letter-spacing:-1.5px}
 .hero h1 em{font-style:normal;background:linear-gradient(135deg,#a78bfa,#818cf8,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .hero-sub{font-size:17px;color:#9ca3af;line-height:1.65;margin-bottom:36px;max-width:560px;margin-left:auto;margin-right:auto}
+.hero .hero-sub{font-size:16px;color:#9ca3af;line-height:1.65;margin-bottom:32px;max-width:580px;margin-left:auto;margin-right:auto}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-hero{padding:13px 30px;border-radius:8px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;text-decoration:none !important}
-.btn-hero-primary{background:#fff !important;color:var(--dark) !important;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.btn-hero-primary:hover{background:#f3f4f6 !important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.btn-hero-secondary{background:rgba(255,255,255,0.08) !important;color:#e5e7eb !important;border:1px solid rgba(255,255,255,0.15)}
-.btn-hero-secondary:hover{background:rgba(255,255,255,0.14) !important}
-.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:56px;flex-wrap:wrap}
+.btn-primary,.btn-secondary{padding:13px 30px;border-radius:8px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;text-decoration:none !important}
+.btn-primary{background:#fff !important;color:var(--dark) !important;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.btn-primary:hover{background:#f3f4f6 !important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.btn-secondary{background:rgba(255,255,255,0.08) !important;color:#e5e7eb !important;border:1px solid rgba(255,255,255,0.15)}
+.btn-secondary:hover{background:rgba(255,255,255,0.14) !important}
+.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:52px;flex-wrap:wrap}
 .hero-stats .stat{text-align:center}
 .hero-stats .stat-num{font-size:30px;font-weight:800;color:#fff}
 .hero-stats .stat-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-top:4px}
@@ -56,190 +52,199 @@ nav .nav-links a.active{color:var(--accent);font-weight:700}
 .hero-cov strong{color:#d4d4d8}
 .hero-cov a{color:#a5b4fc;font-weight:600;white-space:nowrap}
 
-/* Section */
+/* Sections */
 section{padding:72px 24px}
 section.alt{background:var(--bg)}
 .section-inner{max-width:1000px;margin:0 auto}
 .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:10px}
 .section-title{font-size:30px;font-weight:800;margin-bottom:14px;letter-spacing:-0.7px}
-.section-desc{font-size:15px;color:var(--muted);max-width:600px;line-height:1.7;margin-bottom:40px}
+.section-desc{font-size:15px;color:var(--muted);max-width:640px;line-height:1.7;margin-bottom:28px}
+.problem-cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;font-size:14px;line-height:1.85;color:#3f3f46;max-width:900px}
 
-/* What is UCP */
+/* Trust box */
+.trust-box{margin-top:8px;padding:24px 28px;background:#0f0f11;border-radius:14px;color:#e6e8ee;font-size:16px;line-height:1.7;margin-bottom:44px}
+.trust-box strong{color:#fff}
+
+/* About */
 .ucp-intro{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
 .ucp-intro .text{font-size:14px;line-height:1.85;color:#3f3f46}
 .ucp-intro .text p{margin-bottom:16px}
 .powered-by{margin-top:20px;padding:12px 16px;background:var(--bg);border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted)}
-.powered-by svg{flex-shrink:0;vertical-align:middle}
 .link-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;transition:all 0.15s;text-decoration:none !important;color:var(--dark) !important;margin-bottom:8px}
 .link-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(91,91,214,0.08);transform:translateY(-1px)}
 .link-card .link-icon{width:38px;height:38px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .link-card .link-text{font-size:13px;font-weight:600;color:var(--dark)}
 .link-card .link-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* Versions */
-.version-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.version-card{border:1px solid var(--border);border-radius:10px;padding:22px;position:relative;transition:all 0.15s}
-.version-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.04)}
-.version-card.latest{border-color:var(--accent);background:linear-gradient(135deg,#fafaff,#f5f3ff)}
-.version-card.latest::after{content:'LATEST';position:absolute;top:14px;right:14px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:0.5px}
-.version-card h3{font-size:17px;font-weight:800;font-family:'SF Mono',Menlo,monospace;margin-bottom:4px}
-.version-card .date{font-size:11px;color:var(--muted);margin-bottom:12px}
-.version-card p{font-size:12px;color:#52525b;line-height:1.6}
-
-/* Modules */
-.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.module-card{border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;transition:all 0.15s}
-.module-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.04);border-color:#d4d4d8}
-.module-card .mod-badge{background:linear-gradient(135deg,#ede9fe,#e0e7ff);border:1px solid #c7d2fe;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--accent);flex-shrink:0}
-.module-card h4{font-size:13px;font-weight:700;margin-bottom:3px}
-.module-card p{font-size:11px;color:var(--muted);line-height:1.5}
-.module-card .test-count{font-size:10px;font-weight:700;color:var(--accent);margin-top:5px}
-
-/* How it works */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-.step{text-align:center;padding:28px 20px}
-.step .step-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 12px rgba(91,91,214,0.25)}
-.step h4{font-size:15px;font-weight:700;margin-bottom:8px}
-.step p{font-size:13px;color:var(--muted);line-height:1.6}
-
-/* CLI */
-.cli-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
-.cli-step{margin-bottom:24px}
-.cli-step h4{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.cli-step h4 .cli-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700}
-.cli-step p{font-size:13px;color:#52525b;line-height:1.6;margin-bottom:10px}
-.cli-step p code{background:#f4f4f5;padding:1px 5px;border-radius:3px;font-size:12px;font-family:'SF Mono',Menlo,monospace}
-.terminal{background:#0f0f11;border-radius:10px;padding:16px 18px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.7;color:#e5e7eb;overflow-x:auto;border:1px solid #1f1f23;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-.terminal .dim{color:#6b7280}
-.terminal .prompt{color:#818cf8;user-select:none}
-.terminal .cmd{color:#f3f4f6}
-.terminal .arg{color:#a5f3fc}
-.terminal .comment{color:#6b7280;font-style:italic}
-.terminal .ok{color:#34d399}
-.terminal-header{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#18181b;border-radius:10px 10px 0 0;border:1px solid #27272a;border-bottom:none}
-.terminal-header .dot{width:11px;height:11px;border-radius:50%}
-.terminal-header .dot.r{background:#ef4444}.terminal-header .dot.y{background:#f59e0b}.terminal-header .dot.g{background:#10b981}
-.terminal-header .title{margin-left:8px;font-size:11px;color:#71717a;font-family:-apple-system,sans-serif}
-.terminal-wrap .terminal{border-radius:0 0 10px 10px;border-top:none}
-.cli-options{background:var(--bg);border-radius:10px;padding:18px 20px;border:1px solid var(--border);font-size:12px}
-.cli-options h5{font-size:12px;font-weight:700;margin-bottom:10px;color:var(--dark);text-transform:uppercase;letter-spacing:0.5px}
-.cli-options table{width:100%;border-collapse:collapse}
-.cli-options td{padding:4px 0;vertical-align:top}
-.cli-options td:first-child{font-family:'SF Mono',Menlo,monospace;color:var(--accent);font-weight:600;padding-right:14px;white-space:nowrap;font-size:11px}
-.cli-options td:last-child{color:#52525b;font-size:12px;line-height:1.5}
-
-/* CTA */
-.cta{background:linear-gradient(145deg,#0f0f11,#1a1a2e);padding:72px 24px;text-align:center}
-.cta h2{font-size:30px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-0.5px}
-.cta p{font-size:15px;color:#9ca3af;margin-bottom:28px}
-.btn-cta{padding:14px 32px;border-radius:8px;font-size:16px;font-weight:700;background:#fff !important;color:var(--dark) !important;display:inline-flex;align-items:center;gap:8px;text-decoration:none !important;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-.btn-cta:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+/* Buttons on light sections */
+.btn-cta{padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700;background:var(--accent) !important;color:#fff !important;display:inline-flex;align-items:center;gap:8px;text-decoration:none !important;transition:all 0.2s;box-shadow:0 2px 8px rgba(91,91,214,0.25)}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(91,91,214,0.3)}
+.btn-ghost{padding:12px 26px;border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:14px;color:var(--dark) !important;text-decoration:none !important}
 
 /* Footer */
 footer{padding:36px 24px;text-align:center;border-top:1px solid var(--border)}
 footer .footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:14px;font-size:12px;flex-wrap:wrap}
 footer .footer-links a{color:var(--muted)}
+footer .disclaimer{font-size:11px;color:#a1a1aa;max-width:640px;margin:0 auto 10px;line-height:1.6}
 footer .copy{font-size:11px;color:#a1a1aa}
 
 /* Responsive */
 @media(max-width:768px){
-  nav{flex-wrap:wrap;justify-content:center;gap:8px 14px;padding:12px 16px}
-  nav .nav-links{flex-wrap:wrap;justify-content:center;gap:10px 14px;font-size:12px}
-  .hero h1{font-size:30px}
+  .site-nav{justify-content:center;padding:12px 16px}
+  .site-nav .links{justify-content:center;gap:10px 14px;font-size:12px}
+  .hero{padding:56px 20px 64px}
+  .hero h1{font-size:29px}
   .hero-stats{gap:24px}
   .hero-stats .stat-num{font-size:22px}
+  .problem-cols{grid-template-columns:1fr}
   .ucp-intro{grid-template-columns:1fr}
   .two-paths{grid-template-columns:1fr !important}
-  .version-grid{grid-template-columns:1fr}
-  .module-grid{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr;gap:16px}
-  .cli-grid{grid-template-columns:1fr;gap:18px}
 }
 </style>
 </head>
 <body>
 
-<!-- Navigation -->
-<nav>
-  <div class="logo">
-    <div class="logo-icon">U</div>
-    UCP Conformance
-  </div>
-  <div class="nav-links">
-    <a href="/" class="active">Merchant Platforms</a>
-    <a href="agent">Shopping Agents</a>
-    <a href="coverage">Coverage</a>
-    <a href="guide">Guide</a>
-    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">GitHub</a>
-    <a href="tool" class="btn-nav">Launch Tool &rarr;</a>
-  </div>
-</nav>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
 <!-- Hero -->
 <div class="hero">
   <div class="hero-content">
-    <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-      BOTH SIDES OF THE AI CHECKOUT
-    </div>
-    <h1>Make AI checkout <em>actually work</em>.</h1>
-    <p class="hero-sub">A UCP checkout takes two systems: a <strong>merchant platform</strong> that exposes catalog, cart, payments &amp; checkout, and a <strong>shopping agent</strong> that buys across them. spck tests both sides &mdash; and every check is proven to catch the bug it&rsquo;s for, so there are no false greens.</p>
+    <div class="badge">CONFORMANCE &ne; RELIABILITY</div>
+    <h1>Your UCP checkout passes conformance. Does it <em>actually work</em>?</h1>
+    <p class="hero-sub">Independent, open, and two-sided: test the merchant platform that sells and the shopping agent that buys — every check is proven to catch the bug it’s for, so there are no false greens.</p>
     <div class="hero-actions">
-      <a href="check" class="btn-hero btn-hero-primary">Merchant platform &mdash; check yours &rarr;</a>
-      <a href="agent" class="btn-hero btn-hero-secondary">Shopping agent &mdash; test yours &rarr;</a>
+      <a class="btn-primary" href="/check">Check your store →</a>
+      <a class="btn-secondary" href="/agent">Test your agent →</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">193</div><div class="stat-label">Merchant-side checks</div></div>
-      <div class="stat"><div class="stat-num">42</div><div class="stat-label">Agent-side checks</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.merchant_checks">193</span></div><div class="stat-label">Merchant-side checks</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_checks">42</span></div><div class="stat-label">Agent-side checks</div></div>
       <div class="stat"><div class="stat-num">0</div><div class="stat-label">False greens</div></div>
     </div>
-    <p class="hero-cov">
-      Every normative <strong>MUST</strong> across three spec versions is accounted for &mdash;
-      a proven check, a documented exemption, or a tracked gap.
-      <a href="#coverage-live">See the live coverage &darr;</a>
-    </p>
+    <p class="hero-cov">Every normative <strong>MUST</strong> across three spec versions is accounted for — a proven check, a documented exemption, or a tracked gap. <a href="#coverage-live">See the live coverage ↓</a></p>
   </div>
 </div>
 
-<!-- Live coverage -->
+<!-- Problem: shape vs behavior -->
 <section>
+  <div class="section-inner">
+    <div class="section-label">The problem</div>
+    <div class="section-title">Conformance checks shape. Reliability is behavior.</div>
+    <div class="problem-cols">
+      <p>A conformance pass means your JSON matches the schema and your endpoints answer. It doesn't say whether the right amount gets charged, whether the order really completes, or whether a forged response gets rejected.</p>
+      <p>Those are behaviors, and a checkout can be green on shape while it fails a real buyer at the moment of payment. So spck tests behavior on both sides: the merchant platform that sells, and the shopping agent that buys.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Two-sided fork -->
+<section class="alt">
   <div class="section-inner">
     <div class="section-label" style="text-align:center">Which side are you building?</div>
     <div class="section-title" style="text-align:center;margin-bottom:32px">A UCP checkout takes two systems. We test both.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="two-paths">
-      <a href="check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafafa,#f6f7f9);transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+      <a href="/check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fdfdfd,#f6f7f9);transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">The sell side</div>
         <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Merchant platforms</div>
-        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you &mdash; 193 checks, from the browser or your CI.</p>
-        <span style="font-size:13px;font-weight:700;color:var(--accent)">Check your platform &rarr;</span>
+        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you — 193 checks, from the browser or your CI.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--accent)">Check your store →</span>
       </a>
-      <a href="agent" style="display:block;text-decoration:none;border:1px solid var(--accent);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafaff,#f5f3ff);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(91,91,214,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <a href="/agent" style="display:block;text-decoration:none;border:1px solid var(--accent);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafaff,#f5f3ff);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(91,91,214,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">The buy side</div>
         <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Shopping agents</div>
-        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You build a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. We catch the wrong-amount, phishing, and failed-checkout bugs conformance misses &mdash; with real money on the line.</p>
-        <span style="font-size:13px;font-weight:700;color:var(--accent)">Test your agent &rarr;</span>
+        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You build a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. We catch the wrong-amount, phishing, and failed-checkout bugs conformance misses — before they cost a real user real money.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--accent)">Test your agent →</span>
       </a>
     </div>
   </div>
 </section>
 
-<section class="alt" id="coverage-live">
+<!-- Proof: kill-rate + live coverage -->
+<section id="coverage-live">
   <div class="section-inner">
+    <div class="section-label">Proof</div>
+    <div class="section-title">Why you can trust a pass</div>
+    <div class="trust-box">
+      A checker that can't catch bugs is worse than none. So every check is kill-rate tested — we inject the exact defect it should catch, and if it still passes, it's blocked from release. Checks cite a verbatim spec clause, and <strong>the whole suite self-validates in CI</strong> and goes red if any check loses its ability to catch defects. When the suite surfaces something real, we report it upstream and work it through with the UCP project.
+    </div>
     <div class="section-label">Transparency</div>
-    <div class="section-title">Live spec coverage</div>
-    <p style="color:var(--muted);font-size:14px;max-width:640px;margin-bottom:22px">
-      Every normative <strong>MUST</strong> in each pinned spec version, accounted as a
-      kill-rate-validated check, a documented exemption, or an open gap — regenerated with every
-      change and enforced by CI (stale data or a coverage regression fails the build).
+    <div class="section-title" style="font-size:22px">Live spec coverage</div>
+    <p class="section-desc" style="margin-bottom:22px">
+      Every normative <strong>MUST</strong> in each pinned spec version, accounted as a kill-rate-validated check, a documented exemption, or an open gap — regenerated with every change and enforced by CI (stale data or a coverage regression fails the build).
     </p>
     <div id="cov-rows" style="max-width:720px"></div>
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)" id="cov-legend"></div>
     <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-      <a href="coverage" class="btn-cta" style="background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px">View the full matrix &rarr;</a>
-      <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:14px;color:var(--dark)">Roadmap to 100%</a>
+      <a href="/coverage" class="btn-cta">View the full matrix →</a>
+      <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener" class="btn-ghost">Roadmap to 100%</a>
     </div>
   </div>
 </section>
+
+<!-- Sandbox teaser -->
+<section class="alt">
+  <div class="section-inner" style="text-align:center">
+    <div class="section-label">See it live</div>
+    <div class="section-title">Watch a checkout break — safely</div>
+    <p class="section-desc" style="margin-left:auto;margin-right:auto">The sandbox replays a shopping agent buying from a store that misbehaves on purpose — wrong totals, phishing links, forged confirmations — and shows the check that catches each one.</p>
+    <a href="/sandbox" class="btn-cta">Watch the sandbox →</a>
+  </div>
+</section>
+
+<!-- About -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">About</div>
+    <div class="section-title">What is UCP?</div>
+    <div class="ucp-intro">
+      <div class="text">
+        <p>The <strong>Universal Commerce Protocol (UCP)</strong> is an open standard for agentic and headless commerce. It enables AI agents, publishers, and any digital surface to discover products, create checkout sessions, and complete purchases through a unified API.</p>
+        <p>UCP defines a standard discovery profile, catalog search, checkout lifecycle (create, update, complete, cancel), fulfillment handling, payment processing, and order management.</p>
+        <p>Any commerce platform can implement UCP to make their merchants' products purchasable from anywhere — LLMs, publishers, shoppable media, and more.</p>
+        <div class="powered-by" data-attribution>
+          The <strong>UCP protocol</strong> is maintained by Google's UCP team at <a href="https://ucp.dev" target="_blank" rel="noopener">ucp.dev</a>.
+          spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.
+        </div>
+      </div>
+      <div>
+        <a href="https://ucp.dev" target="_blank" rel="noopener" class="link-card">
+          <div class="link-icon">&#x1F4D6;</div>
+          <div><div class="link-text">UCP Specification</div><div class="link-sub">ucp.dev — Official protocol documentation</div></div>
+        </a>
+        <a href="https://ucp.dev/specification/checkout-rest/" target="_blank" rel="noopener" class="link-card">
+          <div class="link-icon">&#x1F310;</div>
+          <div><div class="link-text">REST API Binding</div><div class="link-sub">Checkout REST endpoint reference</div></div>
+        </a>
+        <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank" rel="noopener" class="link-card">
+          <div class="link-icon">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--dark)"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          </div>
+          <div><div class="link-text">Spec Repository</div><div class="link-sub">GitHub — Schemas, changelog, releases</div></div>
+        </a>
+        <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank" rel="noopener" class="link-card" data-attribution>
+          <div class="link-icon">&#x2705;</div>
+          <div><div class="link-text">Official Conformance Suite</div><div class="link-sub">Google's Python test suite (targets v2026-01-23)</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://pypi.org/project/spck-conformance/" target="_blank" rel="noopener">PyPI</a>
+    <a href="/coverage">Coverage</a>
+    <a href="https://ucp.dev" target="_blank" rel="noopener">ucp.dev</a>
+  </div>
+  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+  <div class="copy">Open source · MIT License</div>
+</footer>
+
 <script>
 (function(){
   "use strict";
@@ -285,210 +290,6 @@ footer .copy{font-size:11px;color:#a1a1aa}
   });
 })();
 </script>
-
-
-<!-- What is UCP -->
-<section>
-  <div class="section-inner">
-    <div class="section-label">About</div>
-    <div class="section-title">What is UCP?</div>
-    <div class="ucp-intro">
-      <div class="text">
-        <p>The <strong>Universal Commerce Protocol (UCP)</strong> is an open standard for agentic and headless commerce. It enables AI agents, publishers, and any digital surface to discover products, create checkout sessions, and complete purchases through a unified API.</p>
-        <p>UCP defines a standard discovery profile, catalog search, checkout lifecycle (create, update, complete, cancel), fulfillment handling, payment processing via Google Pay, and order management.</p>
-        <p>Any commerce platform can implement UCP to make their merchants' products purchasable from anywhere — LLMs, publishers, shoppable media, and more.</p>
-        <div class="powered-by">
-          The <strong>UCP protocol</strong> is maintained by Google's UCP team at <a href="https://ucp.dev" target="_blank">ucp.dev</a>.
-          <strong>This tool is an independent, unofficial project</strong> — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite. A pass here reflects only the checks run, not certified compliance.
-        </div>
-      </div>
-      <div>
-        <a href="https://ucp.dev" target="_blank" class="link-card">
-          <div class="link-icon">&#x1F4D6;</div>
-          <div><div class="link-text">UCP Specification</div><div class="link-sub">ucp.dev &mdash; Official protocol documentation</div></div>
-        </a>
-        <a href="https://ucp.dev/specification/checkout-rest/" target="_blank" class="link-card">
-          <div class="link-icon">&#x1F310;</div>
-          <div><div class="link-text">REST API Binding</div><div class="link-sub">Checkout REST endpoint reference</div></div>
-        </a>
-        <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank" class="link-card">
-          <div class="link-icon">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--dark)"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          </div>
-          <div><div class="link-text">Spec Repository</div><div class="link-sub">GitHub &mdash; Schemas, changelog, releases</div></div>
-        </a>
-        <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank" class="link-card">
-          <div class="link-icon">&#x2705;</div>
-          <div><div class="link-text">Official Conformance Suite</div><div class="link-sub">Google's Python test suite (targets v2026-01-23)</div></div>
-        </a>
-        <a href="https://pay.google.com/gp/p/ucp/2026-01-23/" target="_blank" class="link-card">
-          <div class="link-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/></svg>
-          </div>
-          <div><div class="link-text">Google Pay Handler Spec</div><div class="link-sub">Payment handler integration reference</div></div>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Spec Versions -->
-<section>
-  <div class="section-inner">
-    <div class="section-label">Versions</div>
-    <div class="section-title">Supported Spec Versions</div>
-    <div class="section-desc">This tool can test against any published version of the UCP specification. Select the version when running tests, or use auto-detect.</div>
-    <div class="version-grid">
-      <div class="version-card latest">
-        <h3>2026-04-08</h3>
-        <div class="date">Released April 9, 2026</div>
-        <p>Adds catalog search/lookup, cart capability, request/response signing, eligibility claims, formalized totals contract. Major release with breaking changes.</p>
-      </div>
-      <div class="version-card">
-        <h3>2026-01-23</h3>
-        <div class="date">Released January 23, 2026</div>
-        <p>Fulfillment groups, shipping option selection, discount capability, buyer consent, order webhooks. Targeted by the official conformance suite.</p>
-      </div>
-      <div class="version-card">
-        <h3>2026-01-11</h3>
-        <div class="date">Released January 11, 2026</div>
-        <p>Initial public release. Core checkout lifecycle: discovery, create, update, complete, cancel. Google Pay handler. Basic fulfillment.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Test Modules -->
-<section class="alt">
-  <div class="section-inner">
-    <div class="section-label">Coverage</div>
-    <div class="section-title">What We Test</div>
-    <div class="section-desc">Capability-adaptive: it discovers what your store declares and runs only the checks that apply — so a lean-but-correct store isn't penalized. Anything it can't test is reported <strong>not-tested</strong>, never silently passed.</div>
-    <div class="module-grid">
-      <div class="module-card"><div class="mod-badge">1</div><div><h4>Discovery &amp; profile</h4><p>Dated version, reverse-domain capabilities, service transports, and the whole <code>/.well-known/ucp</code> validated against the official schema</p></div></div>
-      <div class="module-card"><div class="mod-badge">2</div><div><h4>Checkout lifecycle</h4><p>Create, get, update, cancel, complete&rarr;order, required fields, terminal-state immutability</p></div></div>
-      <div class="module-card"><div class="mod-badge">3</div><div><h4>Order</h4><p>Full order retrieval, required fields, line-item shape after completion</p></div></div>
-      <div class="module-card"><div class="mod-badge">4</div><div><h4>Validation &amp; errors</h4><p>Out-of-stock, nonexistent product, missing UCP-Agent, structured error bodies</p></div></div>
-      <div class="module-card"><div class="mod-badge">5</div><div><h4>Idempotency &amp; payment</h4><p>Idempotency-key conflict &rarr; 409; failing token &rarr; 402; credentials never echoed back</p></div></div>
-      <div class="module-card"><div class="mod-badge">6</div><div><h4>Discounts</h4><p>Apply, accept-both, accept-one-reject-one, clear, applied-fields</p></div></div>
-      <div class="module-card"><div class="mod-badge">7</div><div><h4>Catalog &amp; cart</h4><p>Search, empty-search, lookup by product/variant, cart shape, line-item shape</p></div></div>
-      <div class="module-card"><div class="mod-badge">8</div><div><h4>Totals invariants</h4><p>Exactly one subtotal + one total; additive types non-negative — the prose-only rules the schema doesn't enforce</p></div></div>
-      <div class="module-card"><div class="mod-badge">9</div><div><h4>MCP transport</h4><p>The same catalog checks over JSON-RPC <code>tools/call</code> — reach the transport real production merchants use</p></div></div>
-      <div class="module-card"><div class="mod-badge">10</div><div><h4>Fulfillment</h4><p>Method and option shape (id, type, title, totals)</p></div></div>
-    </div>
-    <div style="margin-top:32px;padding:24px 28px;background:#0f0f11;border-radius:14px;color:#e6e8ee">
-      <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#58a6ff;margin-bottom:10px">Why you can trust a pass</div>
-      <div style="font-size:16px;line-height:1.7">A checker that can't catch bugs is worse than none. So every check is <strong>kill-rate tested</strong> — we inject the exact defect it should catch, and if it still passes, it's blocked from release. Checks are anchored to the official <code>ucp-schema</code> validator and cite a verbatim spec clause, and the whole suite <strong>self-validates in CI</strong> and goes red if any check loses its ability to catch defects. No green unless it's earned.</div>
-    </div>
-  </div>
-</section>
-
-<!-- How it works -->
-<section class="alt">
-  <div class="section-inner">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">Three ways to run it</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h4>In the browser</h4>
-        <p>Paste your store&rsquo;s URL at <a href="check">spck.dev/check</a> for an instant discovery + profile check — no install. The result URL is shareable, and you get an embeddable conformance badge.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h4>From your terminal</h4>
-        <p><code>pip install spck-conformance</code>, then <code>--init</code> scaffolds a config for your store and it runs the full suite. Deviations show <strong>expected vs your actual response</strong>, so you can fix them directly.</p>
-        <a href="https://pypi.org/project/spck-conformance/" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px">
-          <img src="https://img.shields.io/pypi/v/spck-conformance?label=PyPI&amp;color=5b5bd6" alt="Latest spck-conformance version on PyPI" height="20" style="vertical-align:middle">
-        </a>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h4>In your CI</h4>
-        <p>Drop in the GitHub Action — it fails the build on any MUST deviation and writes a JUnit report. Every push stays honest.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CLI -->
-<section id="cli">
-  <div class="section-inner">
-    <div class="section-label">Command Line</div>
-    <div class="section-title">Run From Your Terminal or CI</div>
-    <div class="section-desc">The <code style="background:#f4f4f5;padding:1px 6px;border-radius:4px;font-size:13px;font-family:'SF Mono',Menlo,monospace">spck-conformance</code> CLI runs the full suite from your shell or CI. Stdlib-light, one dependency, no account required.</div>
-    <div class="cli-grid">
-      <div>
-        <div class="cli-step">
-          <h4><span class="cli-num">1</span> Install</h4>
-          <p>Python 3.9+. Published on PyPI.</p>
-          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">pip install spck-conformance</span></div></div>
-        </div>
-        <div class="cli-step">
-          <h4><span class="cli-num">2</span> Scaffold &amp; run</h4>
-          <p><code>--init</code> probes your store and writes a config tailored to its capabilities; fill the placeholders, then run.</p>
-          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">terminal</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--init</span> merchant.json
-<span class="prompt">$</span> <span class="cmd">spck-conformance</span> <span class="arg">--server</span> https://api.example.com <span class="arg">--config</span> merchant.json
-
-<span class="dim">VERDICT: INCOMPLETE &mdash; 21/98 applicable MUSTs (21%), 0 deviations</span>
-<span class="dim">[21 passed &middot; 0 deviations &middot; 5 not-tested &middot; 8 not-applicable]</span>
-
-<span class="ok">&#x2713; PASSED (21)</span>
-<span class="comment">... on a deviation you get: expected &lt;requirement&gt; vs observed &lt;your response&gt;</span></div></div>
-        </div>
-        <div class="cli-step">
-          <h4><span class="cli-num">3</span> In CI (GitHub Action)</h4>
-          <p>Fails the build on any MUST deviation and writes a JUnit report.</p>
-          <div class="terminal-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">.github/workflows/ucp.yml</span></div>
-          <div class="terminal-wrap"><div class="terminal"><span class="cmd">- uses:</span> <span class="arg">vishkaty/ucp-conformance@main</span>
-  <span class="cmd">with:</span>
-    <span class="cmd">server:</span> https://api.example.com
-    <span class="cmd">config:</span> merchant.json  <span class="dim"># optional</span></div></div>
-        </div>
-      </div>
-      <div>
-        <div class="cli-options">
-          <h5>Common options</h5>
-          <table>
-            <tr><td>--server</td><td>UCP server base URL <em>(required)</em></td></tr>
-            <tr><td>--init [FILE]</td><td>Probe the server and scaffold a config, then exit</td></tr>
-            <tr><td>--config FILE</td><td>Merchant config (product id, discount codes, payment tokens&hellip;) to unlock data-dependent checks</td></tr>
-            <tr><td>--json</td><td>Full JSON report (each check cites its spec clause + observed response)</td></tr>
-            <tr><td>--junit FILE</td><td>JUnit XML report for CI dashboards</td></tr>
-            <tr><td>--insecure</td><td>Skip TLS verification (testing only)</td></tr>
-          </table>
-        </div>
-        <div style="margin-top:16px;padding:14px 16px;background:#fafaff;border:1px solid #e0e7ff;border-radius:10px;font-size:12px;color:#3f3f46;line-height:1.7">
-          <strong style="color:var(--accent)">Exit codes</strong><br>
-          <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">0</code> clean &middot; <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">2</code> a MUST deviated &middot; <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Menlo,monospace">1</code> couldn't run. Partial coverage is not a failure.
-        </div>
-        <p style="margin-top:14px;font-size:12px;color:var(--muted)">On PyPI &mdash; <a href="https://pypi.org/project/spck-conformance/" target="_blank">pypi.org/project/spck-conformance</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<div class="cta">
-  <h2>Ready to check your store?</h2>
-  <p>Paste a URL for an instant check — or <code style="background:rgba(255,255,255,.12);padding:2px 8px;border-radius:5px;color:#fff">pip install spck-conformance</code>. Free, open source, unofficial.</p>
-  <a href="check" class="btn-cta">Check your store &rarr;</a>
-</div>
-
-<!-- Footer -->
-<footer>
-  <div class="footer-links">
-    <a href="https://ucp.dev" target="_blank">UCP Spec</a>
-    <a href="https://ucp.dev/specification/checkout-rest/" target="_blank">REST API</a>
-    <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank">Spec Repo</a>
-    <a href="https://github.com/Universal-Commerce-Protocol/conformance" target="_blank">Conformance Suite</a>
-    <a href="https://github.com/vishkaty/ucp-conformance" target="_blank">Source Code</a>
-    <a href="https://github.com/vishkaty/awesome-ucp" target="_blank">Awesome UCP</a>
-  </div>
-  <div class="copy">Open Source &middot; MIT License &middot; Universal Commerce Protocol</div>
-</footer>
 
 </body>
 </html>
