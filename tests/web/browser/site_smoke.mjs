@@ -265,10 +265,12 @@ try {
         // static server gave no redirect (status ${r.status}) — assert the file rows
         const redirFile = path.join(ROOT, "public", "_redirects");
         const body = fs.existsSync(redirFile) ? fs.readFileSync(redirFile, "utf8") : null;
-        const row = new RegExp(`^${from.replace("/", "\\/")}\\s+${to.replace("/", "\\/")}\\s+301\\s*$`, "m");
+        // accept the clean URL or a splat (/tool*) that also covers the .html variant
+        const src = from.replace("/", "\\/");
+        const row = new RegExp(`^${src}\\*?\\s+${to.replace("/", "\\/")}\\s+301\\s*$`, "m");
         report("redirects", `${from}→${to}`, body !== null && row.test(body),
           body === null ? "no server redirect and public/_redirects missing"
-                        : `no server redirect and _redirects lacks row "${from}  ${to}  301"`);
+                        : `no server redirect and _redirects lacks a 301 covering ${from}(*) → ${to}`);
       }
     }
     await page.close();

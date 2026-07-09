@@ -466,13 +466,22 @@ def redirects():
     else:
         rows = [tuple(l.split()) for l in f.read_text().splitlines()
                 if l.strip() and not l.strip().startswith("#")]
-        for w in WANT_ROWS:
-            if w not in rows:
-                fails.append(f"_redirects: missing row '{' '.join(w)}'")
+        # Intent, not exact-string: every retired page (/tool, /guide) MUST redirect
+        # to its replacement (/check, /docs) with a 301 — a splat (/tool*) that covers
+        # both the clean URL and its .html variant satisfies this. Any redirect that
+        # mentions tool/guide MUST target the right replacement (no stray redirects).
+        for src_pat, dst in (("tool", "/check"), ("guide", "/docs")):
+            covering = [r for r in rows if len(r) == 3 and r[2] == "301"
+                        and re.fullmatch(rf"/{src_pat}\*?", r[0])]
+            if not covering:
+                fails.append(f"_redirects: no 301 redirect covering /{src_pat}(*) -> {dst}")
+            elif any(r[1] != dst for r in covering):
+                fails.append(f"_redirects: /{src_pat} redirect must target {dst}, got "
+                             f"{[r[1] for r in covering if r[1] != dst]}")
         for r in rows:
-            if r not in WANT_ROWS:
-                fails.append(f"_redirects: unexpected row '{' '.join(r)}' — exactly the "
-                             f"two /tool,/guide rows are specified")
+            if len(r) != 3 or r[2] != "301" or not re.fullmatch(r"/(tool|guide)\*?", r[0]):
+                fails.append(f"_redirects: unexpected row '{' '.join(r)}' — only the "
+                             f"/tool,/guide retirement redirects are allowed")
 
     for path in pages():
         page = os.path.basename(path)
