@@ -21,6 +21,10 @@ Modes (run_suite gates):
              external script/style/font origins, secret-looking strings in public/.
   redirects  public/_redirects has exactly /tool→/check + /guide→/docs 301 rows;
              no page links to /tool or /guide.
+  consistency  every page links /site.css and NEVER redefines a shared component
+             (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in its
+             own inline <style> — the design system is the single source of the look,
+             so the nav/footer/buttons can never silently re-theme per page again.
   freshness  product manifest (coverage JSONs + agent registries) vs the manifest
              block reviewed into public/site_claims.json — product drift with a
              stale review date is RED.
@@ -35,7 +39,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 # SPCK_PUBLIC lets oversight/tests point the gates at a scratch copy of the site
 PUB = pathlib.Path(os.environ.get("SPCK_PUBLIC", ROOT / "public"))
 WEB = ROOT / "conformance" / "web"
-MODES = ("tdd", "claims", "voice", "security", "redirects", "freshness")
+MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness")
 TODAY = datetime.date.today().isoformat()
 
 # ── shared text extraction ────────────────────────────────────────────────────
@@ -496,6 +500,40 @@ def redirects():
     print(f"site-redirects: {'PASS' if not fails else 'FAIL'} ({len(fails)} finding(s))")
     return 0 if not fails else 1
 
+# ═══ consistency ═════════════════════════════════════════════════════════════
+STYLE_BLOCK = re.compile(r"<style\b[^>]*>(.*?)</style>", re.S | re.I)
+# a selector that OPENS a rule for a shared component: the token must appear at a
+# selector-boundary (start, after , or after a }) and reach a { — so `.site-nav{…}`
+# and `.site-nav .links{…}` are caught, but a page-local `.btn.pri` is not.
+SHARED_SEL = re.compile(
+    r"(?:^|[,}])\s*(\.site-nav|\.site-footer|\.btn-primary|\.btn-secondary|\.btn-ghost)"
+    r"\b[^{}]*\{", re.M)
+
+def _css_line(block_start_line, block, m):
+    """Absolute source line of match m inside a style block starting on line block_start_line."""
+    return block_start_line + block.count("\n", 0, m.start())
+
+def consistency():
+    fails = []
+    for path in pages():
+        page = os.path.basename(path)
+        raw = open(path, encoding="utf-8").read()
+        if not re.search(r'<link[^>]+href\s*=\s*["\']/site\.css["\']', raw):
+            fails.append(f"{page}: does not link the shared design system "
+                         f'(<link rel="stylesheet" href="/site.css">) — every page must')
+        for bm in STYLE_BLOCK.finditer(raw):
+            block = bm.group(1)
+            block_line = raw.count("\n", 0, bm.start(1)) + 1
+            for m in SHARED_SEL.finditer(block):
+                ln = _css_line(block_line, block, m)
+                fails.append(f"{page}:{ln}: inline <style> redefines shared component "
+                             f"{m.group(1)} — site.css is the single source; delete the "
+                             f"override so the nav/footer/buttons can't re-theme per page")
+    for f in fails:
+        print(f"  x {f}")
+    print(f"site-consistency: {'PASS' if not fails else 'FAIL'} ({len(fails)} finding(s))")
+    return 0 if not fails else 1
+
 # ═══ freshness ═══════════════════════════════════════════════════════════════
 def _real_manifest():
     cov = json.load(open(PUB / "coverage.json"))["versions"]
@@ -560,4 +598,5 @@ if __name__ == "__main__":
     if mode == "claims":
         sys.exit(claims(explain="--explain" in sys.argv[2:]))
     sys.exit({"tdd": tdd, "voice": voice, "security": security,
-              "redirects": redirects, "freshness": freshness}[mode]())
+              "redirects": redirects, "consistency": consistency,
+              "freshness": freshness}[mode]())

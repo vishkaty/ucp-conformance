@@ -10,64 +10,45 @@
 <meta property="og:description" content="Every normative UCP MUST accounted as a kill-rate-validated check, a documented exemption, or an open gap — per spec version, traceable to the pinned official spec line.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="UCP Spec Coverage — live traceability matrix">
+<link rel="stylesheet" href="/site.css">
 <style>
-  /* segment colors are validated categorical steps for this dark surface (CVD ΔE 15.7+,
-     ≥3:1 contrast); gray is the designated NEUTRAL for the unclassified/manual residue */
-  :root { --bg:#0f1117; --card:#1a1d27; --fg:#e6e8ee; --mut:#9aa3b2; --ok:#199e70; --exempt:#3987e5; --gap-t:#c98500; --gap-h:#9085e9; --gap-m:#6e7681; --bad:#f85149; --acc:#58a6ff; --line:#2b2f3a; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  /* Page-specific layout only. Shared tokens, nav, footer, buttons, .card, .tbl and .pill
+     come from /site.css (the unified LIGHT green theme). The coverage-bar segment colors
+     below are the light-surface categorical steps: green = checked, neutral slate = exempt,
+     amber/gold = gap, light neutral = manual residue (kept distinguishable, ≥3:1 on white). */
+  :root { --exempt:#5b6470; --gap-m:#5b6470; }
   .wrap { max-width:1000px; margin:0 auto; padding:32px 20px 64px; }
-  h1 { font-size:22px; margin:0 0 4px; }
+  h1 { font-size:22px; margin:0 0 4px; letter-spacing:-.3px; }
   h2 { font-size:16px; margin:26px 0 10px; }
-  .sub { color:var(--mut); margin:0 0 20px; font-size:13px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; margin:14px 0; }
-  a { color:var(--acc); text-decoration:none; } a:hover { text-decoration:underline; }
+  .sub { color:var(--muted); margin:0 0 20px; font-size:13px; }
+  .card { margin:14px 0; }
   .tabs { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
-  .tab { padding:7px 16px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--mut); cursor:pointer; font-size:14px; font-weight:600; }
-  .tab.active { background:var(--acc); color:#04101f; border-color:var(--acc); }
-  .bignum { font-size:30px; font-weight:800; }
+  .tab { padding:7px 16px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer; font-size:14px; font-weight:600; }
+  .tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .bignum { font-size:30px; font-weight:800; color:var(--ink); letter-spacing:-.5px; }
   .statrow { display:flex; gap:22px; flex-wrap:wrap; margin:4px 0 10px; }
-  .stat .lbl { color:var(--mut); font-size:12px; }
-  .bar { display:flex; height:22px; border-radius:4px; overflow:hidden; gap:2px; background:var(--card); }
+  .stat .lbl { color:var(--muted); font-size:12px; }
+  .bar { display:flex; height:22px; border-radius:4px; overflow:hidden; gap:2px; background:var(--surface-2); }
   .bar div { height:100%; border-radius:2px; min-width:2px; }
-  .seg-check { background:var(--ok); } .seg-exempt { background:var(--exempt); }
-  .seg-testable { background:var(--gap-t); } .seg-harness { background:var(--gap-h); } .seg-manual { background:var(--gap-m); }
-  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--mut); margin-top:8px; }
+  .seg-check { background:var(--ok); } .seg-exempt { background:#9aa7b4; }
+  .seg-testable { background:var(--warn); } .seg-harness { background:#d99a2b; } .seg-manual { background:#cbd2da; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:8px; }
   .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle; }
   .arearow { display:grid; grid-template-columns:230px 1fr 90px; gap:10px; align-items:center; padding:5px 0; font-size:13px; }
-  .arearow .nm { color:var(--mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .arearow .ct { text-align:right; color:var(--mut); font-family:ui-monospace,Menlo,monospace; font-size:12px; }
+  .arearow .nm { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .arearow .ct { text-align:right; color:var(--muted); font-family:var(--mono); font-size:12px; }
   .filters { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
-  select, input[type=text] { padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#0d1017; color:var(--fg); font-size:13px; }
+  select, input[type=text] { padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:13px; }
   input[type=text] { flex:1; min-width:180px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { text-align:left; color:var(--mut); font-size:11px; text-transform:uppercase; letter-spacing:.4px; padding:8px 8px; border-bottom:1px solid var(--line); }
-  td { padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; white-space:nowrap; }
-  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; }
-  .p-check { background:rgba(63,185,80,.15); color:var(--ok); }
-  .p-exempt { background:rgba(88,166,255,.15); color:var(--exempt); }
-  .p-gap { background:rgba(210,153,34,.15); color:var(--gap-t); }
-  .p-gap-h { background:rgba(163,113,247,.15); color:var(--gap-h); }
-  .p-gap-m { background:rgba(110,118,129,.25); color:var(--mut); }
-  .note { font-size:12px; color:var(--mut); }
-  .count { color:var(--mut); font-size:12px; margin:6px 0; }
-  .topnav { font-size:13px; margin-bottom:18px; }
-  .topnav a { margin-right:14px; }
-  /* Shared nav (byte-identical block across all pages) */
-  .site-nav{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;max-width:1000px;margin:0 auto;padding:20px 20px 0;font-size:13px}
-  .site-nav .brand{font-weight:700;color:var(--fg);text-decoration:none}
-  .site-nav .mk{display:inline-block;background:var(--acc);color:#04101f;border-radius:5px;padding:0 5px;margin-right:6px;font-weight:800}
-  .site-nav .links{display:flex;flex-wrap:wrap;gap:4px 14px}
-  .site-nav .links a{color:var(--mut);text-decoration:none}
-  .site-nav .links a:hover{color:var(--fg)}
-  /* Primary CTA marker */
-  .btn-primary{display:inline-block;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;background:var(--acc);border:1px solid var(--acc);color:#04101f;text-decoration:none}
-  .btn-primary:hover{text-decoration:none;filter:brightness(1.06)}
-  /* Shared footer */
-  .site-footer{max-width:1000px;margin:30px auto 0;border-top:1px solid var(--line);padding:16px 0 0;font-size:12px;color:var(--mut);line-height:1.6}
-  .site-footer a{color:var(--mut)}
-  .site-footer .footer-links{margin-top:8px}
+  .tbl td { vertical-align:top; }
+  .mono { font-family:var(--mono); font-size:12px; white-space:nowrap; }
+  .pill.p-check { background:var(--primary-tint); color:var(--primary-ink); }
+  .pill.p-exempt { background:var(--surface-2); color:var(--muted); }
+  .pill.p-gap { background:#fbf0dd; color:#a15c00; }
+  .pill.p-gap-h { background:#fbf0dd; color:#a15c00; }
+  .pill.p-gap-m { background:var(--surface-2); color:var(--muted); }
+  .note { font-size:12px; color:var(--muted); }
+  .count { color:var(--muted); font-size:12px; margin:6px 0; }
   @media (max-width:640px){ .arearow{grid-template-columns:120px 1fr 70px} }
 </style>
 </head>
@@ -77,11 +58,14 @@
 <a href="/coverage">Coverage</a><a href="/docs">Docs</a>
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
-  <h1>UCP Spec Coverage <span class="note">(unofficial, live)</span></h1>
-  <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
-    Each requirement links to the exact line of the pinned official spec.
-    This page is generated from the same data the CI gate enforces: if it were stale or coverage regressed, the build would be red.</p>
-  <div style="margin:6px 0 18px"><a href="/check" class="btn-primary">Check your store &rarr;</a></div>
+  <header class="page-head">
+    <div class="eyebrow">Spec coverage</div>
+    <h1>UCP Spec Coverage <span class="note">(unofficial, live)</span></h1>
+    <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
+      Each requirement links to the exact line of the pinned official spec.
+      This page is generated from the same data the CI gate enforces: if it were stale or coverage regressed, the build would be red.</p>
+    <div class="actions"><a href="/check" class="btn-primary">Check your store &rarr;</a></div>
+  </header>
 
   <div class="tabs" id="tabs"></div>
   <div id="summary"></div>
@@ -102,7 +86,7 @@
       <input type="text" id="f-q" placeholder="Search id or requirement text…">
     </div>
     <div class="count" id="count"></div>
-    <div style="overflow-x:auto"><table>
+    <div style="overflow-x:auto"><table class="tbl">
       <thead><tr><th>Req</th><th>Status</th><th>Requirement (verbatim-verified against the pinned spec)</th><th>Spec</th><th>Covered by</th></tr></thead>
       <tbody id="rows"></tbody>
     </table></div>
@@ -307,10 +291,10 @@
     var vers = Object.keys(d).sort();
     var rows = vers.map(function (v) {
       var x = d[v], pct = x.accounted_pct;
-      var bar = '<div style="height:7px;border-radius:4px;background:#2b2f3a;overflow:hidden;min-width:90px">'
+      var bar = '<div style="height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden;min-width:90px">'
         + '<div style="height:100%;width:' + pct + '%;background:var(--ok)"></div></div>';
       return '<tr>'
-        + '<td style="font-family:ui-monospace,Menlo,monospace">' + v + (v === vers[vers.length - 1] ? ' <span class="note">(latest)</span>' : '') + '</td>'
+        + '<td style="font-family:var(--mono)">' + v + (v === vers[vers.length - 1] ? ' <span class="note">(latest)</span>' : '') + '</td>'
         + '<td style="text-align:right;font-variant-numeric:tabular-nums">' + x.agent_musts + '</td>'
         + '<td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ok)">' + x.check + '</td>'
         + '<td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--exempt)">' + x.exempt + '</td>'
@@ -319,7 +303,7 @@
         + '<span style="font-variant-numeric:tabular-nums">' + pct + '%</span></div></td>'
         + '</tr>';
     }).join("");
-    box.innerHTML = /* safe: table built from numeric fields + version keys of local agent-coverage.json */ '<table><thead><tr>'
+    box.innerHTML = /* safe: table built from numeric fields + version keys of local agent-coverage.json */ '<table class="tbl"><thead><tr>'
       + '<th>Spec version</th><th style="text-align:right">Agent MUSTs</th>'
       + '<th style="text-align:right">Checked</th><th style="text-align:right">Exempt</th>'
       + '<th style="text-align:right">Gap</th><th>Accounted</th></tr></thead><tbody>'

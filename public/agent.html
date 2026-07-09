@@ -10,119 +10,63 @@
 <meta property="og:description" content="Test the ways an AI shopping agent goes wrong — paying the wrong amount, getting phished, failing the checkout — that passing UCP conformance can't catch.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build a shopping agent that checks out safely">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>A</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>A</text></svg>">
+<link rel="stylesheet" href="/site.css">
 <style>
-:root{--accent:#5b5bd6;--dark:#18181b;--green:#16a34a;--red:#dc2626;--bg:#f8f9fa;--border:#e4e4e7;--muted:#71717a}
-*{margin:0;padding:0;box-sizing:border-box}
-html{overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--dark);background:#fff;overflow-x:hidden;max-width:100%}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto}
-nav .logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark)}
-nav .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
-nav .nav-links{display:flex;gap:20px;align-items:center;font-size:13px}
-nav .nav-links a{color:var(--muted);font-weight:500}
-nav .nav-links a:hover{color:var(--dark);text-decoration:none}
-nav .nav-links a.active{color:var(--accent);font-weight:700}
-.btn-nav{background:var(--accent) !important;color:#fff !important;padding:7px 18px;border-radius:6px;font-weight:600;font-size:13px}
-.btn-nav:hover{background:#4f4fc4 !important;text-decoration:none !important}
-/* Shared nav (byte-identical block across all pages) */
-.site-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:8px 14px}
-.site-nav .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark);text-decoration:none !important}
-.site-nav .mk{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
-.site-nav .links{display:flex;gap:20px;align-items:center;font-size:13px;flex-wrap:wrap}
-.site-nav .links a{color:var(--muted);font-weight:500}
-.site-nav .links a:hover{color:var(--dark);text-decoration:none}
-/* Shared footer */
-.site-footer{padding:36px 24px;border-top:1px solid var(--border);margin-top:20px}
-.site-footer .footer-inner{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
-.site-footer .disclaimer{font-size:12px;color:var(--muted);line-height:1.65;max-width:640px}
-.site-footer .footer-links{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:13px}
-.site-footer .footer-links a{color:var(--muted)}
-.hero{background:linear-gradient(145deg,#0f0f11 0%,#1a1a2e 40%,#16213e 100%);padding:76px 24px 84px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 0%,rgba(91,91,214,0.18) 0%,transparent 100%)}
-.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E")}
-.hero-content{position:relative;max-width:780px;margin:0 auto;z-index:1}
-.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(91,91,214,0.15);color:#c4b5fd;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.5px;margin-bottom:24px;border:1px solid rgba(91,91,214,0.25)}
-.hero h1{font-size:45px;font-weight:800;color:#fff;line-height:1.12;margin-bottom:18px;letter-spacing:-1.5px}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,#a78bfa,#818cf8,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .hero-sub{font-size:17px;color:#9ca3af;line-height:1.65;margin-bottom:34px;max-width:600px;margin-left:auto;margin-right:auto}
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-hero{padding:13px 30px;border-radius:8px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;text-decoration:none !important}
-.btn-hero-primary{background:#fff !important;color:var(--dark) !important;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.btn-hero-primary:hover{background:#f3f4f6 !important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.btn-hero-secondary{background:rgba(255,255,255,0.08) !important;color:#e5e7eb !important;border:1px solid rgba(255,255,255,0.15)}
-.btn-hero-secondary:hover{background:rgba(255,255,255,0.14) !important}
-.hero-stats{display:flex;gap:44px;justify-content:center;margin-top:52px;flex-wrap:wrap}
-.hero-stats .stat{text-align:center}
-.hero-stats .stat-num{font-size:29px;font-weight:800;color:#fff}
-.hero-stats .stat-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-top:4px}
-section{padding:70px 24px}
-section.alt{background:var(--bg)}
+/* page-specific layout only — shared theme (nav, footer, buttons, hero, tokens) comes from /site.css */
 .section-inner{max-width:1000px;margin:0 auto}
-.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:10px}
-.section-title{font-size:29px;font-weight:800;margin-bottom:14px;letter-spacing:-0.7px}
+section{padding:70px 24px}
+section.alt{background:var(--surface)}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--primary);margin-bottom:10px}
+.section-title{font-size:29px;font-weight:800;margin-bottom:14px;letter-spacing:-0.7px;color:var(--ink)}
 .section-desc{font-size:15px;color:var(--muted);max-width:640px;line-height:1.7;margin-bottom:40px}
 /* failure cards */
 .fails{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.fail{border:1px solid var(--border);border-radius:12px;padding:20px;background:#fff;transition:all .15s}
-.fail:hover{box-shadow:0 4px 16px rgba(0,0,0,0.05);border-color:#d4d4d8;transform:translateY(-1px)}
+.fail{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--surface);transition:all .15s;box-shadow:var(--e1)}
+.fail:hover{box-shadow:var(--e2);border-color:#cdd0d6;transform:translateY(-1px)}
 .fail .fic{font-size:22px;margin-bottom:10px}
-.fail h4{font-size:14px;font-weight:800;margin-bottom:6px;letter-spacing:-0.2px}
-.fail p{font-size:12.5px;color:#52525b;line-height:1.6}
-.fail .tag{display:inline-block;margin-top:10px;font-size:10px;font-family:'SF Mono',Menlo,monospace;color:var(--accent);background:var(--bg);padding:3px 8px;border-radius:5px}
-/* gap callout */
-.gap-band{background:linear-gradient(145deg,#0f0f11,#1a1a2e);border-radius:14px;padding:34px;color:#e5e7eb;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
-.gap-band .big{font-size:52px;font-weight:800;color:#fff;line-height:1;letter-spacing:-2px;white-space:nowrap}
-.gap-band .big span{display:block;font-size:12px;font-weight:600;color:#a5b4fc;letter-spacing:0.5px;margin-top:8px;text-transform:uppercase}
-.gap-band .gap-text{font-size:15px;line-height:1.7;color:#cbd5e1}
-.gap-band .gap-text strong{color:#fff}
+.fail h4{font-size:14px;font-weight:800;margin-bottom:6px;letter-spacing:-0.2px;color:var(--ink)}
+.fail p{font-size:12.5px;color:var(--muted);line-height:1.6}
+.fail .tag{display:inline-block;margin-top:10px;font-size:10px;font-family:var(--mono);color:var(--primary-ink);background:var(--primary-tint);padding:3px 8px;border-radius:5px}
+/* gap callout — light emerald band */
+.gap-band{background:radial-gradient(120% 140% at 0% 0%,#e9f7f0 0%,var(--primary-tint) 60%);border:1px solid #c7ead9;border-radius:14px;padding:34px;color:var(--ink);display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.gap-band .big{font-size:52px;font-weight:800;color:var(--primary-ink);line-height:1;letter-spacing:-2px;white-space:nowrap}
+.gap-band .big span{display:block;font-size:12px;font-weight:600;color:var(--primary);letter-spacing:0.5px;margin-top:8px;text-transform:uppercase}
+.gap-band .gap-text{font-size:15px;line-height:1.7;color:#3f4b46}
+.gap-band .gap-text strong{color:var(--ink)}
 /* steps */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
 .step{text-align:center;padding:24px 18px}
-.step .step-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 12px rgba(91,91,214,0.25)}
-.step h4{font-size:15px;font-weight:700;margin-bottom:8px}
+.step .step-num{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 12px rgba(5,150,105,0.28)}
+.step h4{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--ink)}
 .step p{font-size:13px;color:var(--muted);line-height:1.6}
-/* terminal */
+/* terminal — dark code surface (matches site.css <pre>) */
 .terminal-wrap{max-width:720px;margin:0 auto}
-.terminal-header{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#18181b;border-radius:10px 10px 0 0;border:1px solid #27272a;border-bottom:none}
+.terminal-header{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#0f1417;border-radius:10px 10px 0 0;border:1px solid #1c2530;border-bottom:none}
 .terminal-header .dot{width:11px;height:11px;border-radius:50%}
-.terminal-header .dot.r{background:#ef4444}.terminal-header .dot.y{background:#f59e0b}.terminal-header .dot.g{background:#10b981}
-.terminal-header .title{margin-left:8px;font-size:11px;color:#71717a}
-.terminal{background:#0f0f11;border-radius:0 0 10px 10px;padding:16px 18px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12.5px;line-height:1.75;color:#e5e7eb;overflow-x:auto;border:1px solid #1f1f23;border-top:none}
-.terminal .prompt{color:#818cf8;user-select:none}
+.terminal-header .dot.r{background:#ef4444}.terminal-header .dot.y{background:#f59e0b}.terminal-header .dot.g{background:var(--primary-lift)}
+.terminal-header .title{margin-left:8px;font-size:11px;color:#8b93a1}
+.terminal{background:#0f1417;border-radius:0 0 10px 10px;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:#e8eef2;overflow-x:auto;border:1px solid #1c2530;border-top:none}
+.terminal .prompt{color:var(--primary-lift);user-select:none}
 .terminal .cmd{color:#f3f4f6}
-.terminal .arg{color:#a5f3fc}
-.terminal .comment{color:#6b7280;font-style:italic}
-.terminal .ok{color:#34d399}
-.terminal .dim{color:#6b7280}
+.terminal .arg{color:#7fd4c1}
+.terminal .comment{color:#8b93a1;font-style:italic}
+.terminal .ok{color:var(--primary-lift)}
+.terminal .dim{color:#8b93a1}
 /* switch strip */
 .switch{max-width:1000px;margin:0 auto;padding:0 24px}
-.switch .box{border:1px solid var(--border);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#fafafa,#f6f7f9);flex-wrap:wrap}
-.switch .box .t{font-size:14px;color:#3f3f46}.switch .box .t strong{color:var(--dark)}
+.switch .box{border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface-2);flex-wrap:wrap;box-shadow:var(--e1)}
+.switch .box .t{font-size:14px;color:var(--muted)}.switch .box .t strong{color:var(--ink)}
 .switch .box a{font-size:13px;font-weight:700;white-space:nowrap}
-/* cta */
-.cta{background:linear-gradient(145deg,#0f0f11,#1a1a2e);border-radius:16px;padding:52px 40px;text-align:center;max-width:820px;margin:0 auto;position:relative;overflow:hidden}
-.cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 300px at 50% 0%,rgba(91,91,214,0.2),transparent)}
-.cta-inner{position:relative;z-index:1}
-.cta h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-0.6px}
-.cta p{font-size:15px;color:#9ca3af;margin-bottom:26px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.65}
+/* cta — light emerald card */
+.cta{background:radial-gradient(120% 160% at 50% 0%,#e9f7f0 0%,var(--primary-tint) 60%);border:1px solid #c7ead9;border-radius:16px;padding:52px 40px;text-align:center;max-width:820px;margin:0 auto}
+.cta h2{font-size:28px;font-weight:800;color:var(--ink);margin-bottom:12px;letter-spacing:-0.6px}
+.cta p{font-size:15px;color:#3f4b46;margin-bottom:26px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.65}
 .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-cta{background:#fff;color:var(--dark);padding:12px 26px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none !important}
-.btn-cta:hover{background:#f3f4f6}
-.btn-cta.ghost{background:rgba(255,255,255,0.08);color:#e5e7eb;border:1px solid rgba(255,255,255,0.15)}
-/* disclaimer + footer */
+/* disclaimer callout */
 .disclaimer{max-width:1000px;margin:0 auto;padding:0 24px}
-.disclaimer .box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px 20px;font-size:12px;color:var(--muted);line-height:1.65}
-footer{padding:40px 24px;border-top:1px solid var(--border);margin-top:20px}
-footer .footer-inner{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-footer .footer-links{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:13px}
-footer .footer-links a{color:var(--muted)}
-footer .copy{font-size:12px;color:var(--muted)}
+.disclaimer .box{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:16px 20px;font-size:12px;color:var(--muted);line-height:1.65}
 @media(max-width:768px){
-  nav .nav-links a:not(.btn-nav){display:none}
-  .hero h1{font-size:33px}
   .fails,.steps{grid-template-columns:1fr}
   .gap-band{grid-template-columns:1fr;gap:16px;text-align:center}
   .gap-band .big{white-space:normal}
@@ -136,15 +80,15 @@ footer .copy{font-size:12px;color:var(--muted)}
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
 <div class="hero">
-  <div class="hero-content">
+  <div class="inner">
     <div class="badge">FOR TEAMS BUILDING SHOPPING AGENTS</div>
     <h1>Ship a shopping agent that checks out <em>safely</em>.</h1>
-    <p class="hero-sub">You&rsquo;re building a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. It handles real money and real user accounts &mdash; and you can test the ways it goes wrong (paying the wrong amount, getting phished, failing the checkout) that passing conformance can&rsquo;t catch.</p>
+    <p class="sub">You&rsquo;re building a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. It handles real money and real user accounts &mdash; and you can test the ways it goes wrong (paying the wrong amount, getting phished, failing the checkout) that passing conformance can&rsquo;t catch.</p>
     <div class="hero-actions">
-      <a href="/sandbox" class="btn-hero btn-hero-primary btn-primary">Watch it live &rarr;</a>
-      <a href="#gap" class="btn-hero btn-hero-secondary">Why conformance isn&rsquo;t enough &darr;</a>
+      <a href="/sandbox" class="btn-primary">Watch it live &rarr;</a>
+      <a href="#gap" class="btn-secondary">Why conformance isn&rsquo;t enough &darr;</a>
     </div>
-    <div class="hero-stats">
+    <div class="stats">
       <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_defects">43</span></div><div class="stat-label">Failure modes tested</div></div>
       <div class="stat"><div class="stat-num"><span data-live="agent-demo.json:$.cases">6</span></div><div class="stat-label">You can watch live</div></div>
       <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Proven to catch the bug</div></div>
@@ -225,7 +169,7 @@ footer .copy{font-size:12px;color:var(--muted)}
 <span class="ok">PASS &mdash; every check passes a correct agent and catches its bug.</span>
       </div>
     </div>
-    <div style="margin-top:26px"><a href="sandbox" class="btn-hero btn-hero-primary" style="color:#fff !important;background:var(--accent) !important">Open the live demo &rarr;</a></div>
+    <div style="margin-top:26px"><a href="sandbox" class="btn-primary">Open the live demo &rarr;</a></div>
   </div>
 </section>
 
@@ -239,25 +183,23 @@ footer .copy{font-size:12px;color:var(--muted)}
 
 <!-- CTA -->
 <section>
-  <div class="cta"><div class="cta-inner">
+  <div class="cta">
     <h2>Building a shopping agent &mdash; or vetting one?</h2>
     <p>If you&rsquo;re shipping an AI that checks out, or a platform that has to trust third-party agents, test what actually breaks before it touches a real card. The demo is free and open.</p>
     <div class="cta-actions">
-      <a href="sandbox" class="btn-cta">Try the live demo</a>
-      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" class="btn-cta ghost">Run it on GitHub</a>
+      <a href="sandbox" class="btn-primary">Try the live demo</a>
+      <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" rel="noopener" class="btn-secondary">Run it on GitHub</a>
     </div>
-  </div></div>
+  </div>
 </section>
 
 <footer class="site-footer">
-  <div class="footer-inner">
-    <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
-    <div class="footer-links">
-      <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>
-      <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a>
-      <a href="/coverage">Coverage</a>
-      <a href="https://ucp.dev" rel="noopener">ucp.dev</a>
-    </div>
+  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+  <div class="footer-links">
+    <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>
+    <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a>
+    <a href="/coverage">Coverage</a>
+    <a href="https://ucp.dev" rel="noopener">ucp.dev</a>
   </div>
 </footer>
 <script>

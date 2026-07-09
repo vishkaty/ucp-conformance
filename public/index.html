@@ -12,90 +12,46 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spck.dev — a UCP conformance suite you can trust">
 <meta name="twitter:description" content="Both sides of the checkout. Every check proven to catch its own bug. Watch an agent check out, then break it.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%235b5bd6'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
 <style>
-:root{--accent:#5b5bd6;--dark:#18181b;--green:#16a34a;--red:#dc2626;--bg:#f8f9fa;--border:#e4e4e7;--muted:#71717a}
+/* page-specific layout only — shared components (nav, hero, buttons, footer,
+   cards, stats, sections) are governed by /site.css. Legacy var names remap
+   onto the shared green tokens. */
+:root{--accent:var(--primary);--accent-ink:var(--primary-ink);--dark:var(--ink);--border:var(--line)}
 *{margin:0;padding:0;box-sizing:border-box}
-html{overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--dark);background:#fff;overflow-x:hidden;max-width:100%}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-
-/* Shared nav */
-.site-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:8px 14px}
-.site-nav .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--dark);text-decoration:none !important}
-.site-nav .mk{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
-.site-nav .links{display:flex;gap:20px;align-items:center;font-size:13px;flex-wrap:wrap}
-.site-nav .links a{color:var(--muted);font-weight:500}
-.site-nav .links a:hover{color:var(--dark);text-decoration:none}
-
-/* Hero */
-.hero{background:linear-gradient(145deg,#0f0f11 0%,#1a1a2e 40%,#16213e 100%);padding:72px 24px 80px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 0%,rgba(91,91,214,0.18) 0%,transparent 100%)}
-.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E")}
-.hero-content{position:relative;max-width:720px;margin:0 auto;z-index:1}
-.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(91,91,214,0.15);color:#c4b5fd;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.5px;margin-bottom:24px;border:1px solid rgba(91,91,214,0.25)}
-.hero h1{font-size:44px;font-weight:800;color:#fff;line-height:1.12;margin-bottom:18px;letter-spacing:-1.5px}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,#a78bfa,#818cf8,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .hero-sub{font-size:16px;color:#9ca3af;line-height:1.65;margin-bottom:32px;max-width:580px;margin-left:auto;margin-right:auto}
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary,.btn-secondary{padding:13px 30px;border-radius:8px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;text-decoration:none !important}
-.btn-primary{background:#fff !important;color:var(--dark) !important;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.btn-primary:hover{background:#f3f4f6 !important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.btn-secondary{background:rgba(255,255,255,0.08) !important;color:#e5e7eb !important;border:1px solid rgba(255,255,255,0.15)}
-.btn-secondary:hover{background:rgba(255,255,255,0.14) !important}
-.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:52px;flex-wrap:wrap}
-.hero-stats .stat{text-align:center}
-.hero-stats .stat-num{font-size:30px;font-weight:800;color:#fff}
-.hero-stats .stat-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1.2px;margin-top:4px}
-.hero-cov{font-size:13px;color:#9ca3af;max-width:600px;margin:26px auto 0;line-height:1.65}
-.hero-cov strong{color:#d4d4d8}
-.hero-cov a{color:#a5b4fc;font-weight:600;white-space:nowrap}
 
 /* Sections */
 section{padding:72px 24px}
-section.alt{background:var(--bg)}
+section.alt{background:var(--surface)}
 .section-inner{max-width:1000px;margin:0 auto}
-.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:10px}
-.section-title{font-size:30px;font-weight:800;margin-bottom:14px;letter-spacing:-0.7px}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--primary);margin-bottom:10px}
+.section-title{font-size:30px;font-weight:800;margin-bottom:14px;letter-spacing:-0.7px;color:var(--ink)}
 .section-desc{font-size:15px;color:var(--muted);max-width:640px;line-height:1.7;margin-bottom:28px}
-.problem-cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;font-size:14px;line-height:1.85;color:#3f3f46;max-width:900px}
+.problem-cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;font-size:14px;line-height:1.85;color:var(--ink);max-width:900px}
 
-/* Trust box */
-.trust-box{margin-top:8px;padding:24px 28px;background:#0f0f11;border-radius:14px;color:#e6e8ee;font-size:16px;line-height:1.7;margin-bottom:44px}
-.trust-box strong{color:#fff}
+/* Hero supporting copy (the hero band itself is the shared light .hero) */
+.hero-cov{font-size:13px;color:var(--muted);max-width:600px;margin:26px auto 0;line-height:1.65;text-align:center}
+.hero-cov strong{color:var(--ink)}
+.hero-cov a{color:var(--primary);font-weight:600;white-space:nowrap}
+
+/* Trust box — light emphasis card (green tint) */
+.trust-box{margin-top:8px;padding:24px 28px;background:var(--primary-tint);border:1px solid #c7ead9;border-radius:14px;color:var(--ink);font-size:16px;line-height:1.7;margin-bottom:44px}
+.trust-box strong{color:var(--primary-ink)}
 
 /* About */
 .ucp-intro{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
-.ucp-intro .text{font-size:14px;line-height:1.85;color:#3f3f46}
+.ucp-intro .text{font-size:14px;line-height:1.85;color:var(--ink)}
 .ucp-intro .text p{margin-bottom:16px}
-.powered-by{margin-top:20px;padding:12px 16px;background:var(--bg);border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted)}
-.link-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;transition:all 0.15s;text-decoration:none !important;color:var(--dark) !important;margin-bottom:8px}
-.link-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(91,91,214,0.08);transform:translateY(-1px)}
-.link-card .link-icon{width:38px;height:38px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.link-card .link-text{font-size:13px;font-weight:600;color:var(--dark)}
+.powered-by{margin-top:20px;padding:12px 16px;background:var(--surface-2);border-radius:8px;font-size:12px;line-height:1.6;color:var(--muted)}
+.link-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;transition:all 0.15s;text-decoration:none !important;color:var(--ink) !important;margin-bottom:8px;background:var(--surface)}
+.link-card:hover{border-color:var(--primary);box-shadow:var(--e2);transform:translateY(-1px)}
+.link-card .link-icon{width:38px;height:38px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.link-card .link-text{font-size:13px;font-weight:600;color:var(--ink)}
 .link-card .link-sub{font-size:11px;color:var(--muted);margin-top:2px}
-
-/* Buttons on light sections */
-.btn-cta{padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700;background:var(--accent) !important;color:#fff !important;display:inline-flex;align-items:center;gap:8px;text-decoration:none !important;transition:all 0.2s;box-shadow:0 2px 8px rgba(91,91,214,0.25)}
-.btn-cta:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(91,91,214,0.3)}
-.btn-ghost{padding:12px 26px;border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:14px;color:var(--dark) !important;text-decoration:none !important}
-
-/* Footer */
-footer{padding:36px 24px;text-align:center;border-top:1px solid var(--border)}
-footer .footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:14px;font-size:12px;flex-wrap:wrap}
-footer .footer-links a{color:var(--muted)}
-footer .disclaimer{font-size:11px;color:#a1a1aa;max-width:640px;margin:0 auto 10px;line-height:1.6}
-footer .copy{font-size:11px;color:#a1a1aa}
 
 /* Responsive */
 @media(max-width:768px){
-  .site-nav{justify-content:center;padding:12px 16px}
-  .site-nav .links{justify-content:center;gap:10px 14px;font-size:12px}
-  .hero{padding:56px 20px 64px}
-  .hero h1{font-size:29px}
-  .hero-stats{gap:24px}
-  .hero-stats .stat-num{font-size:22px}
   .problem-cols{grid-template-columns:1fr}
   .ucp-intro{grid-template-columns:1fr}
   .two-paths{grid-template-columns:1fr !important}
@@ -109,17 +65,17 @@ footer .copy{font-size:11px;color:#a1a1aa}
 <a href="/coverage">Coverage</a><a href="/docs">Docs</a>
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
-<!-- Hero -->
+<!-- Hero (shared light .hero) -->
 <div class="hero">
-  <div class="hero-content">
-    <div class="badge">CONFORMANCE &ne; RELIABILITY</div>
+  <div class="inner">
+    <span class="badge">CONFORMANCE &ne; RELIABILITY</span>
     <h1>Your UCP checkout passes conformance. Does it <em>actually work</em>?</h1>
-    <p class="hero-sub">Independent, open, and two-sided: test the merchant platform that sells and the shopping agent that buys — every check is proven to catch the bug it’s for, so there are no false greens.</p>
+    <p class="sub">Independent, open, and two-sided: test the merchant platform that sells and the shopping agent that buys — every check is proven to catch the bug it’s for, so there are no false greens.</p>
     <div class="hero-actions">
       <a class="btn-primary" href="/check">Check your store →</a>
       <a class="btn-secondary" href="/agent">Test your agent →</a>
     </div>
-    <div class="hero-stats">
+    <div class="stats">
       <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.merchant_checks">193</span></div><div class="stat-label">Merchant-side checks</div></div>
       <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_checks">42</span></div><div class="stat-label">Agent-side checks</div></div>
       <div class="stat"><div class="stat-num">0</div><div class="stat-label">False greens</div></div>
@@ -146,17 +102,17 @@ footer .copy{font-size:11px;color:#a1a1aa}
     <div class="section-label" style="text-align:center">Which side are you building?</div>
     <div class="section-title" style="text-align:center;margin-bottom:32px">A UCP checkout takes two systems. We test both.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="two-paths">
-      <a href="/check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fdfdfd,#f6f7f9);transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+      <a href="/check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#ffffff,#f5f7f6);transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">The sell side</div>
         <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Merchant platforms</div>
-        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you — 193 checks, from the browser or your CI.</p>
-        <span style="font-size:13px;font-weight:700;color:var(--accent)">Check your store →</span>
+        <p style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you — 193 checks, from the browser or your CI.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--primary)">Check your store →</span>
       </a>
-      <a href="/agent" style="display:block;text-decoration:none;border:1px solid var(--accent);border-radius:14px;padding:26px;background:linear-gradient(135deg,#fafaff,#f5f3ff);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(91,91,214,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">The buy side</div>
+      <a href="/agent" style="display:block;text-decoration:none;border:1px solid var(--primary);border-radius:14px;padding:26px;background:linear-gradient(135deg,#ffffff,#ecfdf5);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:10px">The buy side</div>
         <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Shopping agents</div>
-        <p style="font-size:13px;color:#52525b;line-height:1.65;margin-bottom:14px">You build a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. We catch the wrong-amount, phishing, and failed-checkout bugs conformance misses — before they cost a real user real money.</p>
-        <span style="font-size:13px;font-weight:700;color:var(--accent)">Test your agent →</span>
+        <p style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px">You build a shopping-orchestration AI that carts and checks out across merchant platforms over UCP. We catch the wrong-amount, phishing, and failed-checkout bugs conformance misses — before they cost a real user real money.</p>
+        <span style="font-size:13px;font-weight:700;color:var(--primary)">Test your agent →</span>
       </a>
     </div>
   </div>
@@ -178,8 +134,8 @@ footer .copy{font-size:11px;color:#a1a1aa}
     <div id="cov-rows" style="max-width:720px"></div>
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)" id="cov-legend"></div>
     <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-      <a href="/coverage" class="btn-cta">View the full matrix →</a>
-      <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener" class="btn-ghost">Roadmap to 100%</a>
+      <a href="/coverage" class="btn-primary">View the full matrix →</a>
+      <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener" class="btn-secondary">Roadmap to 100%</a>
     </div>
   </div>
 </section>
@@ -190,7 +146,7 @@ footer .copy{font-size:11px;color:#a1a1aa}
     <div class="section-label">See it live</div>
     <div class="section-title">Watch a checkout break — safely</div>
     <p class="section-desc" style="margin-left:auto;margin-right:auto">The sandbox replays a shopping agent buying from a store that misbehaves on purpose — wrong totals, phishing links, forged confirmations — and shows the check that catches each one.</p>
-    <a href="/sandbox" class="btn-cta">Watch the sandbox →</a>
+    <a href="/sandbox" class="btn-primary">Watch the sandbox →</a>
   </div>
 </section>
 
@@ -233,27 +189,27 @@ footer .copy{font-size:11px;color:#a1a1aa}
   </div>
 </section>
 
-<!-- Footer -->
-<footer>
+<!-- Footer (shared .site-footer) -->
+<footer class="site-footer">
+  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
   <div class="footer-links">
     <a href="https://github.com/vishkaty/ucp-conformance" target="_blank" rel="noopener">GitHub</a>
     <a href="https://pypi.org/project/spck-conformance/" target="_blank" rel="noopener">PyPI</a>
     <a href="/coverage">Coverage</a>
     <a href="https://ucp.dev" target="_blank" rel="noopener">ucp.dev</a>
   </div>
-  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
-  <div class="copy">Open source · MIT License</div>
+  <div style="margin-top:12px">Open source · MIT License</div>
 </footer>
 
 <script>
 (function(){
   "use strict";
   // validated light-surface palette; gray = designated neutral for the manual residue
-  var SEGS = [["check","#1baf7a","Checked (kill-rate-validated)"],
-              ["exempt","#2a78d6","Exempt (documented)"],
-              ["testable","#eda100","Gap: testable now"],
-              ["harness","#4a3aa7","Gap: needs harness"],
-              ["manual","#9ca3af","Gap: manual"]];
+  var SEGS = [["check","#059669","Checked (kill-rate-validated)"],
+              ["exempt","#9aa7b4","Exempt (documented)"],
+              ["testable","#b45309","Gap: testable now"],
+              ["harness","#d99a2b","Gap: needs harness"],
+              ["manual","#cbd2da","Gap: manual"]];
   function el(t,txt){var e=document.createElement(t);if(txt!==undefined)e.textContent=txt;return e}
   fetch('/api/track?event=home_view',{method:'POST',keepalive:true}).catch(function(){});
   fetch("/coverage.json").then(function(r){return r.json()}).then(function(d){
