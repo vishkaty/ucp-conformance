@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "spck-conformance"
-version = "0.3.0"
+version = "0.3.1"
 description = "Unofficial, capability-adaptive conformance runner for the Universal Commerce Protocol (UCP)"
 readme = "README.md"
 requires-python = ">=3.9"
