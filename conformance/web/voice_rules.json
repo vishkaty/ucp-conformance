@@ -1,0 +1,80 @@
+{
+ "_about": "Machine-enforced voice law for spck.dev copy (design spec 2026-07-09, 'Voice & truthfulness'). Consumed by `site_gates.py voice`, which scans the VISIBLE text of every public/*.html page. banned[]: a regex match fails the gate unless the containing sentence matches unless_sentence (negation contexts \u2014 e.g. 'endorsed by' inside the required NOT-affiliated disclaimer). third_party_names: vendor/company names are allowed only inside an element marked data-attribution (the About attribution block, e.g. \"Google's UCP team\"); 'UCP' is the protocol name, not a company, and is allowed everywhere. required_per_page[]: each pattern must appear on EVERY page. The >=1 you/your-subject CTA above the fold is a layout property and is enforced in the browser suite (see delegated), not here. Changes to this file are reviewed like code.",
+ "banned": [
+  {
+   "id": "VB-001",
+   "pattern": "(?i)launch tool",
+   "why": "retired CTA \u2014 the merchant action is 'Check your store' at /check (SITE-R-002)"
+  },
+  {
+   "id": "VB-002",
+   "pattern": "(?i)\\bcertified\\b",
+   "why": "implies an endorsement nobody granted; the official suite is authoritative"
+  },
+  {
+   "id": "VB-003",
+   "pattern": "(?i)\\bendorsed by\\b",
+   "unless_sentence": "(?i)\\bnot\\b",
+   "why": "implied endorsement; allowed only inside the negated disclaimer sentence ('not affiliated with, endorsed by, ...')"
+  },
+  {
+   "id": "VB-004",
+   "pattern": "(?i)we (were|are) (the )?(first|only|best|leading)",
+   "why": "superlative self-claim \u2014 achievement framing is banned"
+  },
+  {
+   "id": "VB-005",
+   "pattern": "(?i)merged upstream",
+   "why": "achievement framing; upstream work appears as at most one passive collaboration clause"
+  },
+  {
+   "id": "VB-006",
+   "pattern": "(?i)\\b(we found|we caught) \\d+",
+   "why": "achievement count \u2014 findings appear only as reader-usable lessons"
+  },
+  {
+   "id": "VB-007",
+   "pattern": "(?i)\\b99%",
+   "why": "the unverifiable-statistic class"
+  },
+  {
+   "id": "VB-011",
+   "pattern": "(?i)\\bthe\\s+(first|only|best|leading|most\\s+\\w+)\\b(?=[^.]*\\b(tool|checker|suite|harness|conformance|platform|agent|store)\\b)",
+   "why": "standalone superlative self-claims (oversight-proven hole: 'the first and only tool that guarantees...'); capability claims need evidence, not superlatives (spec Voice law #1)"
+  },
+  {
+   "id": "VB-012",
+   "pattern": "(?i)\\bguarantee[sd]?\\b",
+   "why": "no conformance result guarantees behavior; overpromise class"
+  }
+ ],
+ "third_party_names": {
+  "id": "VB-008",
+  "names": [
+   "Google",
+   "Shopify",
+   "Stripe",
+   "OpenAI",
+   "Anthropic",
+   "Microsoft",
+   "Amazon",
+   "Perplexity"
+  ],
+  "allowed_inside": "data-attribution",
+  "why": "no-names rule: third-party company names only in the About attribution block (e.g. \"Google's UCP team\")"
+ },
+ "required_per_page": [
+  {
+   "id": "VR-001",
+   "pattern": "(?i)independent[^.]*unofficial[^.]*not affiliated",
+   "why": "unofficial-disclaimer on every page (canonical sentence: 'spck.dev is an independent, unofficial project \u2014 not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.')"
+  }
+ ],
+ "delegated": [
+  {
+   "id": "VD-001",
+   "what": ">=1 you/your-subject CTA above the fold on /, /check, /agent",
+   "test": "site_smoke:home-hook + site_smoke:primary-cta"
+  }
+ ]
+}

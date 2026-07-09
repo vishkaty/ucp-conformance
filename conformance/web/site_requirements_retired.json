@@ -1,0 +1,4 @@
+{
+  "_about": "Retired SITE-R rows. The site_requirements.json register is ADD-ONLY: a row may only be removed or weakened by moving it here with a reasoned entry {id, requirement, retired, reason} — enforced by `site_gates.py tdd` against git HEAD, so silent test deletion is impossible. This file is itself add-only.",
+  "retired": []
+}
