@@ -50,14 +50,27 @@ def _rids(chk, version):
         return list(chk.req_ids_map[version])
     return list(chk.req_ids)
 
+def _fillme(v):
+    """True if a scaffold 'FILL_ME' placeholder survives anywhere inside v."""
+    if isinstance(v, str):
+        return "FILL_ME" in v
+    if isinstance(v, dict):
+        return any(_fillme(x) for x in v.values())
+    if isinstance(v, (list, tuple)):
+        return any(_fillme(x) for x in v)
+    return False
+
 def _cfg_has(config, dotted):
-    """Truthy test for a config key that may be dotted, e.g. 'discount.second_valid_code'."""
+    """Truthy test for a config key that may be dotted, e.g. 'discount.second_valid_code'.
+    A value still carrying a --init 'FILL_ME' placeholder (at any depth) counts as
+    ABSENT: an unedited scaffold must yield not-tested (needs config), never a
+    verdict from placeholder data (validate_fillme_guard.py pins both directions)."""
     cur = config
     for part in dotted.split("."):
         if not isinstance(cur, dict):
             return False
         cur = cur.get(part)
-    return bool(cur)
+    return bool(cur) and not _fillme(cur)
 
 # ---- request helpers (parameterized by the merchant context) ----------------
 def _hdr(idem=None):

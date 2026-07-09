@@ -77,16 +77,19 @@ def gates(server):
         ("order-auth-check", _py(SELF / "validate_order_auth_check.py"),         None, (2,)),
         ("checkout-scope-check", _py(SELF / "validate_checkout_scope_check.py"), None, (2,)),
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),
+        ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         # --- site-governance lane: the website held to the same red/green bar as the
         #     suite (TDD traceability, claims register, voice law, security, redirects,
-        #     product-freshness). Runs on every public/** change; blocks a red push.
+        #     shared-design-system consistency, product-freshness). Runs on every
+        #     public/** change; blocks a red push.
         ("site-tdd",       _py(ROOT / "conformance" / "ci" / "site_gates.py", "tdd"),       None, ()),
         ("site-claims",    _py(ROOT / "conformance" / "ci" / "site_gates.py", "claims"),    None, ()),
         ("site-voice",     _py(ROOT / "conformance" / "ci" / "site_gates.py", "voice"),     None, ()),
         ("site-security",  _py(ROOT / "conformance" / "ci" / "site_gates.py", "security"),  None, ()),
         ("site-redirects", _py(ROOT / "conformance" / "ci" / "site_gates.py", "redirects"), None, ()),
+        ("site-consistency", _py(ROOT / "conformance" / "ci" / "site_gates.py", "consistency"), None, ()),
         ("site-freshness", _py(ROOT / "conformance" / "ci" / "site_gates.py", "freshness"), None, ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
