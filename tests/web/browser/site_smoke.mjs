@@ -275,6 +275,50 @@ try {
     }
     await page.close();
   }
+
+  // ---------------------------------------------------------------------------
+  // SITE-R-021 site_smoke:admin-page — the private ops dashboard: standard shell,
+  // un-indexed, un-linked from the public pages, one primary CTA (the login),
+  // console-clean. Its API auth walls are covered by the unit suite (SITE-R-020).
+  // ---------------------------------------------------------------------------
+  {
+    const { page, status, consoleErrors } = await openPage(`${BASE}/admin.html`);
+    const d = status === 200 ? await page.evaluate(() => {
+      const q = s => document.querySelector(s);
+      const fold = window.innerHeight;
+      const primaries = [...document.querySelectorAll(".btn-primary")]
+        .filter(b => { const r = b.getBoundingClientRect(); return r.top < fold && r.height > 0; });
+      return {
+        robots: q('meta[name="robots"]')?.content || "",
+        nav: q("nav.site-nav") ? q("nav.site-nav").innerHTML : null,
+        disclaimer: /independent, unofficial project/.test(document.body.innerText),
+        emailInput: !!q('input[type="email"]'),
+        primaryAboveFold: primaries.length,
+        siteCss: !![...document.querySelectorAll('link[rel="stylesheet"]')]
+          .find(l => l.getAttribute("href") === "/site.css"),
+      };
+    }) : null;
+    report("admin-page", "loads", status === 200, `HTTP ${status}`);                       // SITE-R-021
+    if (d) {
+      report("admin-page", "noindex", /noindex/.test(d.robots), `robots=${d.robots}`);
+      report("admin-page", "nav-matches-site", d.nav !== null && d.nav === perPage["index.html"]?.data?.nav,
+        "admin nav must be byte-identical to the shared nav");
+      report("admin-page", "standard-shell", d.siteCss && d.disclaimer,
+        `site.css=${d.siteCss} disclaimer=${d.disclaimer}`);
+      report("admin-page", "login-gate", d.emailInput && d.primaryAboveFold === 1,
+        `email input=${d.emailInput}, primary CTAs above fold=${d.primaryAboveFold}`);
+      report("admin-page", "console-clean", consoleErrors.length === 0, consoleErrors.join(" | "));
+    }
+    await page.close();
+    // not discoverable: no public page links to /admin
+    let linked = [];
+    for (const p of PAGES) {
+      const html = fs.readFileSync(path.join(ROOT, "public", p), "utf8");
+      if (/href\s*=\s*["']\/?admin(\.html)?["']/.test(html)) linked.push(p);
+    }
+    report("admin-page", "unlinked", linked.length === 0,
+      linked.length ? `linked from ${linked.join(", ")}` : "");
+  }
 } finally {
   await browser.close();
 }

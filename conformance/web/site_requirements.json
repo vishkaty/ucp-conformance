@@ -249,6 +249,48 @@
       ],
       "status": "active",
       "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-020",
+      "requirement": "Admin access control: every /api/admin/* route rejects unauthenticated requests (401/403) and authenticated non-admin sessions (403); the admin allowlist is manageable ONLY by a super-admin (POST/DELETE /api/admin/admins); a super-admin can never be removed or demoted via the API; management actions are audit-logged",
+      "pages": [
+        "functions/api/[[path]].js"
+      ],
+      "tests": [
+        "web_unit:admin-access"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-021",
+      "requirement": "Admin page (public/admin.html): carries noindex,nofollow; is linked from no nav or public page; uses the standard shell (site.css, byte-identical nav, disclaimer footer); renders every metric from runtime API responses with no static numeric claims in markup",
+      "pages": [
+        "admin.html"
+      ],
+      "tests": [
+        "site_smoke:admin-page",
+        "gate:consistency"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-022",
+      "requirement": "Page-view funnel: home/check/docs/coverage view and return beacon events are allow-listed in /api/track (a sent event must not be silently dropped) and each of those pages sends its view/return beacon",
+      "pages": [
+        "functions/api/track.js",
+        "index.html",
+        "check.html",
+        "docs.html",
+        "coverage.html"
+      ],
+      "tests": [
+        "web_unit:funnel-allowlist",
+        "site_smoke:beacons"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
     }
   ]
 }

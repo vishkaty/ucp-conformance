@@ -141,6 +141,11 @@ def tdd():
     smoke = ROOT / "tests" / "web" / "browser" / "site_smoke.mjs"
     tagged = set(re.findall(r"//\s*(SITE-R-\d+)", smoke.read_text())) if smoke.exists() else set()
     have_responsive = (ROOT / "tests" / "web" / "browser" / "responsive_smoke.mjs").exists()
+    # web_unit:<tag> rows cite // SITE-R-xxx tags in the functions unit suite (which the
+    # web-unit gate runs) — same tag mechanism as site_smoke, different test layer
+    unit_tagged = set()
+    for f in glob.glob(str(ROOT / "tests" / "web" / "unit" / "*.mjs")):
+        unit_tagged |= set(re.findall(r"//\s*(SITE-R-\d+)", open(f, encoding="utf-8").read()))
 
     tested = 0
     for r in rows:
@@ -150,6 +155,8 @@ def tdd():
                 ok |= t.split(":", 1)[1] in MODES     # internal mode exists
             elif t.startswith("site_smoke:"):
                 ok |= r["id"] in tagged               # block tagged // SITE-R-xxx
+            elif t.startswith("web_unit:"):
+                ok |= r["id"] in unit_tagged          # unit test tagged // SITE-R-xxx
             elif t == "responsive_smoke":
                 ok |= have_responsive
             else:
@@ -159,8 +166,8 @@ def tdd():
         else:
             fails.append(f"{r['id']} UNTESTED — no existing test among {r['tests']}")
 
-    for t in sorted(tagged - ids):                    # orphan tests: register is SoT
-        fails.append(f"orphan tag {t} in site_smoke.mjs cites no register row")
+    for t in sorted((tagged | unit_tagged) - ids):    # orphan tests: register is SoT
+        fails.append(f"orphan tag {t} in a site/unit test cites no register row")
 
     # ADD-ONLY vs git HEAD (register + retired file). Absent at HEAD = bootstrap ok.
     retired = json.load(open(WEB / "site_requirements_retired.json"))["retired"]

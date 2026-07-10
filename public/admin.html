@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — spck.dev</title>
+<meta name="description" content="Private operations dashboard for spck.dev.">
+<meta property="og:title" content="Admin — spck.dev">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
+<style>
+  /* page-specific layout only — shared nav/footer/buttons/cards come from site.css */
+  .wrap { max-width:1000px; margin:0 auto; padding:24px 24px 48px; }
+  .wrap .card { margin:14px 0; }
+  h1 { font-size:clamp(27px,3.2vw,31px); font-weight:800; letter-spacing:-.7px; margin:0 0 12px; color:var(--ink); }
+  .sub { color:var(--muted); font-size:14.5px; line-height:1.6; margin:0 0 20px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  input[type=text], input[type=email] { width:100%; padding:11px 13px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:15px; font-family:var(--sans); }
+  input:focus-visible { outline:2px solid var(--primary); outline-offset:1px; border-color:var(--primary); }
+  .wrap .card .btn-primary { margin-top:16px; }
+  .row-btn { display:inline-flex; align-items:center; justify-content:center; height:34px; padding:0 14px;
+    line-height:1; border:1px solid var(--line); border-radius:17px; background:var(--surface); color:var(--ink);
+    font-weight:600; cursor:pointer; font-size:12.5px; box-shadow:var(--e1); }
+  .row-btn:hover { border-color:#cdd0d6; box-shadow:var(--e2); }
+  .msg { font-size:13px; margin-top:10px; }
+  .msg.err { color:var(--bad); } .msg.ok { color:var(--primary-ink); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .kpi { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:14px 16px; box-shadow:var(--e1); }
+  .kpi .n { font-size:24px; font-weight:800; color:var(--ink); letter-spacing:-.4px; }
+  .kpi .l { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-top:2px; }
+  h2 { font-size:16px; margin:0 0 10px; }
+  .note { font-size:12.5px; color:var(--muted); line-height:1.6; }
+  .tbl-scroll { overflow-x:auto; }
+  .who { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
+  .addrow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .addrow input { flex:1; min-width:200px; width:auto; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Admin</div>
+    <h1>Operations dashboard</h1>
+    <p class="sub">Private. Sign in with an authorized email to view adoption, traffic, and distribution data.</p>
+  </header>
+
+  <!-- login -->
+  <section id="login">
+    <div class="card" style="max-width:460px">
+      <div id="step-email">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false">
+        <button id="send" class="btn-primary">Send sign-in code</button>
+      </div>
+      <div id="step-code" class="hidden">
+        <label for="code">Enter the 6-digit code from your email</label>
+        <input id="code" type="text" inputmode="numeric" placeholder="123456" autocomplete="one-time-code" spellcheck="false">
+        <button id="verify" class="btn-primary">Verify</button>
+      </div>
+      <div id="login-msg" class="msg"></div>
+    </div>
+  </section>
+
+  <!-- dashboard (rendered after an authorized login) -->
+  <section id="dash" class="hidden">
+    <div class="card"><div class="who"><div id="who" class="note"></div>
+      <button id="logout" class="row-btn">Sign out</button></div></div>
+    <div class="card"><h2>Overview</h2><div id="overview" class="grid"></div></div>
+    <div class="card"><h2>Page funnel</h2><div id="funnel" class="grid"></div>
+      <p class="note">Views and returning-visitor counts from the anonymous, cookieless beacons.</p></div>
+    <div class="card"><h2>Top domains</h2>
+      <div class="tbl-scroll" id="domains"></div>
+      <p class="note">Stores people ran the instant check against, and badge fetches by domain.</p></div>
+    <div class="card"><h2>Distribution</h2><div id="dist" class="grid"></div>
+      <div id="dist-notes"></div></div>
+    <div class="card"><h2>Users</h2><div class="tbl-scroll" id="users"></div></div>
+    <div class="card"><h2>Recent activity</h2><div class="tbl-scroll" id="activity"></div></div>
+    <div class="card hidden" id="admins-card"><h2>Admins</h2>
+      <div class="tbl-scroll" id="admins"></div>
+      <div class="addrow"><input id="new-admin" type="email" placeholder="teammate@example.com">
+        <button id="grant" class="row-btn">Add admin</button></div>
+      <div id="admins-msg" class="msg"></div>
+      <h2 style="margin-top:18px">Audit trail</h2>
+      <div class="tbl-scroll" id="audit"></div></div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
+  <p class="footer-links"><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+</footer>
+
+<script>
+// All rendering builds DOM nodes with textContent — no HTML string interpolation.
+(function () {
+  "use strict";
+  var TOKEN_KEY = "spck_admin_token";
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, text, cls) {
+    var e = document.createElement(tag);
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    if (cls) e.className = cls;
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function msg(node, text, ok) { node.textContent = text || ""; node.className = "msg " + (ok ? "ok" : "err"); }
+
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    var t = localStorage.getItem(TOKEN_KEY);
+    if (t) opts.headers.Authorization = "Bearer " + t;
+    return fetch(path, opts).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (b) {
+        return { status: r.status, body: b };
+      });
+    });
+  }
+
+  // ── login flow ──────────────────────────────────────────────────────────
+  $("send").addEventListener("click", function () {
+    var email = $("email").value.trim();
+    if (!email) return msg($("login-msg"), "Enter your email first.");
+    $("send").disabled = true;
+    api("/api/auth/send-otp", { method: "POST", body: JSON.stringify({ email: email }) })
+      .then(function (r) {
+        $("send").disabled = false;
+        if (r.status !== 200) return msg($("login-msg"), r.body.error || "Could not send the code.");
+        $("step-code").className = "";
+        msg($("login-msg"), "Code sent — check your email.", true);
+      });
+  });
+
+  $("verify").addEventListener("click", function () {
+    var email = $("email").value.trim(), code = $("code").value.trim();
+    if (!code) return msg($("login-msg"), "Enter the code from your email.");
+    $("verify").disabled = true;
+    api("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ email: email, code: code }) })
+      .then(function (r) {
+        $("verify").disabled = false;
+        if (r.status !== 200) return msg($("login-msg"), r.body.error || "Verification failed.");
+        if (!r.body.user || !r.body.user.isAdmin) {
+          return msg($("login-msg"), "Signed in, but this email has no admin access. Ask the super-admin to add you.");
+        }
+        localStorage.setItem(TOKEN_KEY, r.body.token);
+        showDash(r.body.user);
+      });
+  });
+
+  $("logout").addEventListener("click", function () {
+    api("/api/auth/logout", { method: "POST", body: "{}" }).then(function () {
+      localStorage.removeItem(TOKEN_KEY);
+      location.reload();
+    });
+  });
+
+  // ── dashboard renderers ─────────────────────────────────────────────────
+  function kpi(parent, label, value) {
+    var box = el("div", null, "kpi");
+    box.appendChild(el("div", value === undefined || value === null ? "—" : value, "n"));
+    box.appendChild(el("div", label, "l"));
+    parent.appendChild(box);
+  }
+
+  function table(parent, headers, rows) {
+    clear(parent);
+    var t = el("table", null, "tbl"), thead = el("thead"), tr = el("tr");
+    headers.forEach(function (h) { tr.appendChild(el("th", h)); });
+    thead.appendChild(tr); t.appendChild(thead);
+    var tb = el("tbody");
+    rows.forEach(function (r) {
+      var row = el("tr");
+      r.forEach(function (c) {
+        var td = el("td");
+        if (c && c.nodeType) td.appendChild(c); else td.textContent = c === undefined || c === null ? "—" : String(c);
+        row.appendChild(td);
+      });
+      tb.appendChild(row);
+    });
+    t.appendChild(tb); parent.appendChild(t);
+    if (!rows.length) parent.appendChild(el("p", "Nothing yet.", "note"));
+  }
+
+  function topEntries(obj, n) {
+    return Object.entries(obj || {}).sort(function (a, b) { return b[1] - a[1]; }).slice(0, n);
+  }
+
+  function loadStats() {
+    api("/api/admin/stats").then(function (r) {
+      if (r.status !== 200) return;
+      var s = r.body.stats || r.body;
+      var ov = $("overview"); clear(ov);
+      kpi(ov, "users", s.totalUsers); kpi(ov, "logins", s.totalLogins);
+      kpi(ov, "test runs", s.totalTestRuns); kpi(ov, "saved reports", s.totalReports);
+      kpi(ov, "instant checks", s.instantChecks); kpi(ov, "badge fetches", s.badgeHits);
+      var fu = $("funnel"); clear(fu);
+      [["home", "home_view", "home_return"], ["check", "check_view", "check_return"],
+       ["agent", "agent_view", "agent_return"], ["sandbox", "sandbox_view", "sandbox_return"],
+       ["docs", "docs_view", "docs_return"], ["coverage", "coverage_view", "coverage_return"]]
+        .forEach(function (p) {
+          kpi(fu, p[0] + " views", s[p[1]]); kpi(fu, p[0] + " returns", s[p[2]]);
+        });
+      kpi(fu, "sandbox cases run", s.sandbox_case);
+      kpi(fu, "agent CTA clicks", s.agent_cta);
+      var doms = topEntries(s.domainsTested, 15).map(function (d) { return [d[0], d[1]]; });
+      table($("domains"), ["domain (instant checks)", "runs"], doms);
+    });
+  }
+
+  function loadMetrics() {
+    api("/api/admin/metrics").then(function (r) {
+      if (r.status !== 200) return;
+      var m = r.body, d = $("dist"); clear(d);
+      var notes = $("dist-notes"); clear(notes);
+      if (m.pypi && !m.pypi.error) {
+        kpi(d, "pypi / day", m.pypi.last_day); kpi(d, "pypi / week", m.pypi.last_week);
+        kpi(d, "pypi / month", m.pypi.last_month);
+      } else if (m.pypi) { notes.appendChild(el("p", "PyPI: " + m.pypi.error, "note")); }
+      Object.keys(m.github || {}).forEach(function (repo) {
+        if (repo === "error") return notes.appendChild(el("p", "GitHub: " + m.github.error, "note"));
+        var g = m.github[repo];
+        kpi(d, repo.split("/")[1] + " stars", g.stars);
+        if (g.views_14d !== undefined) {
+          kpi(d, "views 14d", g.views_14d); kpi(d, "clones 14d", g.clones_14d);
+        }
+      });
+      if (m.cloudflare && !m.cloudflare.error) {
+        kpi(d, "site requests 7d", m.cloudflare.requests_7d);
+        kpi(d, "site uniques 7d", m.cloudflare.uniques_7d);
+      } else if (m.cloudflare) { notes.appendChild(el("p", "Cloudflare: " + m.cloudflare.error, "note")); }
+    });
+  }
+
+  function loadUsers() {
+    api("/api/admin/users").then(function (r) {
+      if (r.status !== 200) return;
+      var rows = (r.body.users || []).map(function (u) {
+        return [u.email, u.loginCount, u.testRuns, u.reportCount, (u.lastLogin || "").slice(0, 10)];
+      });
+      table($("users"), ["email", "logins", "runs", "reports", "last seen"], rows);
+    });
+    api("/api/admin/activity").then(function (r) {
+      if (r.status !== 200) return;
+      var rows = (r.body.activity || []).slice(0, 25).map(function (a) {
+        return [(a.date || a.at || "").slice(0, 16).replace("T", " "), a.type || a.action, a.userId || a.email];
+      });
+      table($("activity"), ["when", "what", "who"], rows);
+    });
+  }
+
+  function loadAdmins(user) {
+    api("/api/admin/admins").then(function (r) {
+      if (r.status !== 200) return;
+      $("admins-card").className = "card" + (user.isSuperAdmin ? "" : " hidden");
+      if (!user.isSuperAdmin) return;
+      var rows = (r.body.super_admins || []).map(function (e) { return [e, "super-admin", el("span", "")]; })
+        .concat((r.body.admins || []).map(function (e) {
+          var btn = el("button", "Remove", "row-btn");
+          btn.addEventListener("click", function () {
+            api("/api/admin/admins", { method: "DELETE", body: JSON.stringify({ email: e }) })
+              .then(function (x) {
+                msg($("admins-msg"), x.status === 200 ? "Removed " + e : (x.body.error || "Failed"), x.status === 200);
+                loadAdmins(user);
+              });
+          });
+          return [e, "admin", btn];
+        }));
+      table($("admins"), ["email", "role", ""], rows);
+      api("/api/admin/audit").then(function (a) {
+        if (a.status !== 200) return;
+        table($("audit"), ["when", "action", "email", "by"], (a.body.audit || []).slice(0, 20)
+          .map(function (x) { return [(x.at || "").slice(0, 16).replace("T", " "), x.action, x.email, x.by]; }));
+      });
+    });
+  }
+
+  function showDash(user) {
+    $("login").className = "hidden";
+    $("dash").className = "";
+    $("who").textContent = "Signed in as " + user.email + (user.isSuperAdmin ? " (super-admin)" : " (admin)");
+    loadStats(); loadMetrics(); loadUsers(); loadAdmins(user);
+  }
+
+  $("grant").addEventListener("click", function () {
+    var e = $("new-admin").value.trim();
+    if (!e) return msg($("admins-msg"), "Enter an email to add.");
+    api("/api/admin/admins", { method: "POST", body: JSON.stringify({ email: e }) })
+      .then(function (r) {
+        msg($("admins-msg"), r.status === 200 ? "Added " + e.toLowerCase() + " — they can sign in with their email now."
+                                              : (r.body.error || "Failed"), r.status === 200);
+        if (r.status === 200) { $("new-admin").value = ""; api("/api/auth/me").then(function (m) { if (m.status === 200) loadAdmins(m.body.user); }); }
+      });
+  });
+
+  // resume an existing session
+  if (localStorage.getItem(TOKEN_KEY)) {
+    api("/api/auth/me").then(function (r) {
+      if (r.status === 200 && r.body.user && r.body.user.isAdmin) showDash(r.body.user);
+      else localStorage.removeItem(TOKEN_KEY);
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -3,10 +3,24 @@
  * Catch-all for /api/* routes.
  *
  * KV Bindings: OTP_STORE, SESSIONS, USERS, REPORTS
- * Env: RESEND_API_KEY, FROM_EMAIL, ADMIN_EMAILS (comma-separated)
+ * Env: RESEND_API_KEY, FROM_EMAIL
+ *
+ * Roles (SITE-R-020): SUPER_ADMINS is the code-constant root of trust — never
+ * removable via any API. Regular admins live in the dynamic allowlist
+ * (USERS['admin:allowlist']), managed only by a super-admin from /admin;
+ * every grant/revoke is audit-logged (USERS['admin:audit'], capped).
  */
 
-const ADMIN_EMAILS = ['katyal.vishal@gmail.com'];
+const SUPER_ADMINS = ['katyal.vishal@gmail.com'];
+
+async function adminAllowlist(env) {
+  return (await env.USERS.get('admin:allowlist', 'json')) || [];
+}
+
+async function isAdminEmail(env, email) {
+  if (SUPER_ADMINS.includes(email)) return true;
+  return (await adminAllowlist(env)).includes(email);
+}
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -41,6 +55,10 @@ export async function onRequest(context) {
     if (path === '/api/admin/users' && request.method === 'GET') return await adminUsers(request, env);
     if (path === '/api/admin/activity' && request.method === 'GET') return await adminActivity(request, env);
     if (path === '/api/admin/metrics' && request.method === 'GET') return await adminMetrics(request, env);
+    if (path === '/api/admin/admins' && request.method === 'GET') return await adminList(request, env);
+    if (path === '/api/admin/admins' && request.method === 'POST') return await adminGrant(request, env);
+    if (path === '/api/admin/admins' && request.method === 'DELETE') return await adminRevoke(request, env);
+    if (path === '/api/admin/audit' && request.method === 'GET') return await adminAudit(request, env);
 
     return json({ error: 'Not found' }, 404);
   } catch (e) {
@@ -69,9 +87,9 @@ async function sendOtp(request, env) {
       to: email,
       subject: `Your verification code: ${otp}`,
       html: `<div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:20px">
-        <div style="font-size:18px;font-weight:700;color:#5b5bd6;margin-bottom:16px">UCP Conformance</div>
+        <div style="font-size:18px;font-weight:700;color:#059669;margin-bottom:16px">spck.dev</div>
         <p>Your verification code:</p>
-        <div style="font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;padding:16px;background:#f0f0ff;border-radius:8px;margin:16px 0">${otp}</div>
+        <div style="font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;padding:16px;background:#ecfdf5;border-radius:8px;margin:16px 0">${otp}</div>
         <p style="color:#888;font-size:13px">Expires in 10 minutes.</p></div>`
     })
   });
@@ -109,8 +127,9 @@ async function verifyOtp(request, env) {
   // Track login event
   await trackEvent(env, 'login', userId);
 
-  const isAdmin = ADMIN_EMAILS.includes(userId);
-  return json({ ok: true, token, user: { email: user.email, created: user.created, isAdmin } });
+  const isAdmin = await isAdminEmail(env, userId);
+  const isSuperAdmin = SUPER_ADMINS.includes(userId);
+  return json({ ok: true, token, user: { email: user.email, created: user.created, isAdmin, isSuperAdmin } });
 }
 
 async function me(request, env) {
@@ -118,8 +137,9 @@ async function me(request, env) {
   if (!s) return json({ error: 'Not authenticated' }, 401);
   const user = await env.USERS.get(s.userId, 'json');
   if (!user) return json({ error: 'User not found' }, 404);
-  const isAdmin = ADMIN_EMAILS.includes(s.userId);
-  return json({ user: { ...user, isAdmin } });
+  const isAdmin = await isAdminEmail(env, s.userId);
+  const isSuperAdmin = SUPER_ADMINS.includes(s.userId);
+  return json({ user: { ...user, isAdmin, isSuperAdmin } });
 }
 
 async function logout(request, env) {
@@ -171,7 +191,7 @@ async function getReport(request, env, id) {
   if (!s) return json({ error: 'Not authenticated' }, 401);
   const r = await env.REPORTS.get(`report:${id}`, 'json');
   if (!r) return json({ error: 'Not found' }, 404);
-  if (r.userId !== s.userId && !ADMIN_EMAILS.includes(s.userId)) return json({ error: 'Not authorized' }, 403);
+  if (r.userId !== s.userId && !await isAdminEmail(env, s.userId)) return json({ error: 'Not authorized' }, 403);
   return json({ report: r });
 }
 
@@ -298,8 +318,63 @@ async function trackEvent(env, type, userId, meta = {}) {
 async function requireAdmin(request, env) {
   const s = await getSession(request, env);
   if (!s) return null;
-  if (!ADMIN_EMAILS.includes(s.userId)) return null;
+  if (!await isAdminEmail(env, s.userId)) return null;
   return s;
+}
+
+async function requireSuperAdmin(request, env) {
+  const s = await getSession(request, env);
+  if (!s) return null;
+  if (!SUPER_ADMINS.includes(s.userId)) return null;
+  return s;
+}
+
+// audit trail for allowlist changes — newest first, capped so the key stays small
+async function auditLog(env, by, action, email) {
+  const log = (await env.USERS.get('admin:audit', 'json')) || [];
+  log.unshift({ at: new Date().toISOString(), by, action, email });
+  await env.USERS.put('admin:audit', JSON.stringify(log.slice(0, 200)));
+}
+
+async function adminList(request, env) {
+  if (!await requireAdmin(request, env)) return json({ error: 'Not authorized' }, 403);
+  return json({ super_admins: SUPER_ADMINS, admins: await adminAllowlist(env) });
+}
+
+async function adminGrant(request, env) {
+  const s = await requireSuperAdmin(request, env);
+  if (!s) return json({ error: 'Super-admin only' }, 403);
+  const { email } = await request.json();
+  const e = String(email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return json({ error: 'Valid email required' }, 400);
+  const list = await adminAllowlist(env);
+  if (!list.includes(e) && !SUPER_ADMINS.includes(e)) {
+    list.push(e);
+    await env.USERS.put('admin:allowlist', JSON.stringify(list));
+    await auditLog(env, s.userId, 'grant', e);
+  }
+  return json({ ok: true, admins: list });
+}
+
+async function adminRevoke(request, env) {
+  const s = await requireSuperAdmin(request, env);
+  if (!s) return json({ error: 'Super-admin only' }, 403);
+  const { email } = await request.json();
+  const e = String(email || '').trim().toLowerCase();
+  if (SUPER_ADMINS.includes(e)) {
+    return json({ error: 'A super-admin cannot be removed' }, 400);
+  }
+  const list = await adminAllowlist(env);
+  if (list.includes(e)) {
+    await env.USERS.put('admin:allowlist', JSON.stringify(list.filter((x) => x !== e)));
+    await auditLog(env, s.userId, 'revoke', e);
+  }
+  return json({ ok: true, admins: await adminAllowlist(env) });
+}
+
+async function adminAudit(request, env) {
+  if (!await requireSuperAdmin(request, env)) return json({ error: 'Super-admin only' }, 403);
+  return json({ audit: (await env.USERS.get('admin:audit', 'json')) || [] });
 }
 
 async function adminStats(request, env) {
