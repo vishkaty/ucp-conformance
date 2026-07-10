@@ -66,3 +66,35 @@ test("response is bodyless with no-store cache header", async () => {
   assert.equal(r.status, 204);
   assert.match(r.headers.get("cache-control") || "", /no-store/);
 });
+
+// SITE-R-022 — the page-view funnel: view+return events for every public page are
+// allow-listed, so a beacon a page actually sends is never silently dropped.
+test("funnel events (home/check/docs/coverage view+return) are allow-listed", async () => { // SITE-R-022
+  const env = mockEnv();
+  const funnel = ["home_view", "home_return", "check_view", "check_return",
+                  "docs_view", "docs_return", "coverage_view", "coverage_return"];
+  for (const ev of funnel)
+    await onRequestPost(ctx(post(`${B}/api/track?event=${ev}`, {}), env));
+  const s = await stats(env);
+  for (const ev of funnel)
+    assert.equal(s[ev], 1, `${ev} must be counted, not silently dropped`);
+});
+
+test("every event a public page SENDS is in the allow-list (no dead beacons)", async () => { // SITE-R-022
+  const env = mockEnv();
+  const fs = await import("node:fs");
+  const sent = new Set();
+  for (const f of fs.readdirSync(path.join(ROOT, "public")).filter((x) => x.endsWith(".html"))) {
+    const html = fs.readFileSync(path.join(ROOT, "public", f), "utf8");
+    // direct form: /api/track?event=NAME
+    for (const m of html.matchAll(/\/api\/track\?event=([a-z_]+)/g)) sent.add(m[1]);
+    // concatenated form: beac('NAME') — event tokens follow the
+    // <page>_(view|return|case|cta) convention
+    for (const m of html.matchAll(/['"]([a-z]+_(?:view|return|case|cta))['"]/g)) sent.add(m[1]);
+  }
+  assert.ok(sent.size >= 8, `expected a real funnel, found only ${[...sent]}`);
+  for (const ev of sent) {
+    await onRequestPost(ctx(post(`${B}/api/track?event=${ev}`, {}), env));
+    assert.equal((await stats(env))[ev], 1, `page sends '${ev}' but track.js drops it`);
+  }
+});

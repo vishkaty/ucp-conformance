@@ -238,5 +238,13 @@ $("server").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); }
   if (s) { $("server").value = s; run(); }
 })();
 </script>
+<script>
+/* anonymous, cookieless page-engagement beacon (same pattern as the other pages) */
+(function(){
+  var beac=function(ev){fetch('/api/track?event='+ev,{method:'POST',keepalive:true}).catch(function(){});};
+  beac('check_view');
+  try{ if(localStorage.getItem('spck_seen')) beac('check_return'); localStorage.setItem('spck_seen','1'); }catch(e){}
+})();
+</script>
 </body>
 </html>

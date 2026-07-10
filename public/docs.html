@@ -111,7 +111,9 @@ spck-conformance --server https://store.example.com --config merchant.json</code
 
 <script>
 // anonymous, cookieless page-engagement beacon (same pattern as / and /check)
-fetch('/api/track?event=docs_view',{method:'POST',keepalive:true}).catch(function(){});
+var beac=function(ev){fetch('/api/track?event='+ev,{method:'POST',keepalive:true}).catch(function(){});};
+beac('docs_view');
+try{ if(localStorage.getItem('spck_seen')) beac('docs_return'); localStorage.setItem('spck_seen','1'); }catch(e){}
 </script>
 </body>
 </html>

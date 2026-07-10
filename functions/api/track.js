@@ -18,6 +18,12 @@ const EVENTS = new Set([
   // worth far more than a first-view — it's the "they came back / rely on it" signal.
   "agent_return",     // /agent viewed by a returning visitor
   "sandbox_return",   // /sandbox opened by a returning visitor
+  // page-view funnel (SITE-R-022) — every public page's view + return, so the
+  // home→check/agent→depth path is visible end to end in admin
+  "home_view", "home_return",
+  "check_view", "check_return",
+  "docs_view", "docs_return",
+  "coverage_view", "coverage_return",
 ]);
 
 function done() {

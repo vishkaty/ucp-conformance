@@ -211,7 +211,9 @@ section.alt{background:var(--surface)}
               ["harness","#d99a2b","Gap: needs harness"],
               ["manual","#cbd2da","Gap: manual"]];
   function el(t,txt){var e=document.createElement(t);if(txt!==undefined)e.textContent=txt;return e}
-  fetch('/api/track?event=home_view',{method:'POST',keepalive:true}).catch(function(){});
+  var beac=function(ev){fetch('/api/track?event='+ev,{method:'POST',keepalive:true}).catch(function(){});};
+  beac('home_view');
+  try{ if(localStorage.getItem('spck_seen')) beac('home_return'); localStorage.setItem('spck_seen','1'); }catch(e){}
   fetch("/coverage.json").then(function(r){return r.json()}).then(function(d){
     var rows=document.getElementById("cov-rows");
     Object.keys(d.versions).forEach(function(ver){
