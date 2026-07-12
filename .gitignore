@@ -17,6 +17,7 @@ packaging/*.egg-info/
 packaging/spck_conformance.egg-info/
 packaging/dist/
 ops/
+drafts/
 tests/web/node_modules/
 tests/web/package-lock.json
 .claude/
