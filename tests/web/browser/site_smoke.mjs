@@ -319,6 +319,59 @@ try {
     report("admin-page", "unlinked", linked.length === 0,
       linked.length ? `linked from ${linked.join(", ")}` : "");
   }
+
+  // ---------------------------------------------------------------------------
+  // SITE-R-023 site_smoke:check-save — a completed instant check offers the
+  // email+OTP save, and a saved-report permalink is sign-in gated for strangers.
+  // (The API contract itself — auth walls, domains, email — is unit-tested.)
+  // ---------------------------------------------------------------------------
+  {
+    const FIXTURE = JSON.stringify({
+      server: "https://fixture.example", version: "2026-04-08", transports: ["rest"],
+      capabilities: ["dev.ucp.shopping.checkout"],
+      summary: { passed: 3, deviations: 0, skipped: 1, total: 4 },
+      checks: [{ id: "discovery.reachable", requirement: "discovery endpoint answers", status: "pass" }],
+      disclaimer: "unofficial preview",
+    });
+    const { page, status } = await openPage(
+      `${BASE}/check.html?server=${encodeURIComponent("https://fixture.example")}`,
+      req => {
+        if (req.url().includes("/api/conformance")) {
+          req.respond({ status: 200, contentType: "application/json", body: FIXTURE });
+          return true;
+        }
+        if (req.url().includes("/api/auth/me")) {
+          req.respond({ status: 401, contentType: "application/json", body: "{}" });
+          return true;
+        }
+        return false;
+      });
+    await settle(1200);                                    // run() render after fixture
+    const d = status === 200 ? await page.evaluate(() => ({
+      saveCard: [...document.querySelectorAll("#out .verdict")]
+        .some(v => /save this report/i.test(v.textContent)),
+      emailInput: !!document.querySelector('#out input[type="email"]'),
+    })) : null;
+    report("check-save", "offer-appears", !!d && d.saveCard && d.emailInput,   // SITE-R-023
+      d ? `saveCard=${d.saveCard} emailInput=${d.emailInput}` : `HTTP ${status}`);
+    await page.close();
+
+    const gate = await openPage(`${BASE}/check.html?report=some-report-id`, req => {
+      if (req.url().includes("/api/reports/")) {
+        req.respond({ status: 401, contentType: "application/json",
+                      body: '{"error":"Not authenticated"}' });
+        return true;
+      }
+      return false;
+    });
+    await settle(800);
+    const g = gate.status === 200 ? await gate.page.evaluate(() =>
+      [...document.querySelectorAll("#out .verdict")]
+        .some(v => /sign in to open this report/i.test(v.textContent))) : false;
+    report("check-save", "permalink-gated", g === true,                        // SITE-R-023
+      `sign-in gate rendered=${g}`);
+    await gate.page.close();
+  }
 } finally {
   await browser.close();
 }

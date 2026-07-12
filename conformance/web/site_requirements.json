@@ -291,6 +291,34 @@
       ],
       "status": "active",
       "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-023",
+      "requirement": "Save-report flow: a completed instant check offers an email+OTP save; saving requires an authenticated session (401 otherwise); the saved report is retrievable by its owner and walled from other users; each save records the store domain on the user (email-to-domain mapping) and attempts a best-effort report email that never blocks the save; the report_saved conversion beacon is allow-listed",
+      "pages": [
+        "check.html",
+        "functions/api/[[path]].js",
+        "functions/api/track.js"
+      ],
+      "tests": [
+        "web_unit:save-report",
+        "site_smoke:check-save"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-024",
+      "requirement": "Admin dashboard reflects the current product: the users listing exposes each user's recorded store domains (the email-to-domain lead mapping) and the funnel pane counts report_saved conversions",
+      "pages": [
+        "admin.html",
+        "functions/api/[[path]].js"
+      ],
+      "tests": [
+        "web_unit:admin-domains"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
     }
   ]
 }

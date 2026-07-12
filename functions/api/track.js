@@ -24,6 +24,9 @@ const EVENTS = new Set([
   "check_view", "check_return",
   "docs_view", "docs_return",
   "coverage_view", "coverage_return",
+  // conversion (SITE-R-023): an instant-check visitor saved their report —
+  // the moment an anonymous run becomes an email+domain we can help again
+  "report_saved",
 ]);
 
 function done() {

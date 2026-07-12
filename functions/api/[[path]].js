@@ -162,9 +162,23 @@ async function saveReport(request, env) {
   if (idx.length > 50) idx.length = 50;
   await env.REPORTS.put(`index:${s.userId}`, JSON.stringify(idx));
 
-  // Update user stats
+  // Update user stats + the email→domain mapping (SITE-R-023): every save ties
+  // this account to the store it checked — first-seen order, unique, capped.
   const user = await env.USERS.get(s.userId, 'json');
-  if (user) { user.reportCount = (user.reportCount || 0) + 1; await env.USERS.put(s.userId, JSON.stringify(user)); }
+  if (user) {
+    user.reportCount = (user.reportCount || 0) + 1;
+    const dom = String(report.config?.domain || '').toLowerCase();
+    if (dom) {
+      user.domains = user.domains || [];
+      if (!user.domains.includes(dom)) user.domains.push(dom);
+      if (user.domains.length > 50) user.domains.length = 50;
+    }
+    await env.USERS.put(s.userId, JSON.stringify(user));
+  }
+
+  // Best-effort report email with the permalink — a delivery failure must never
+  // block the save (SITE-R-023).
+  try { await sendReportEmail(env, s.userId, entry); } catch { /* never block */ }
 
   // Track test run event
   await trackEvent(env, 'test_run', s.userId, {
@@ -178,6 +192,30 @@ async function saveReport(request, env) {
   });
 
   return json({ ok: true, id });
+}
+
+async function sendReportEmail(env, to, entry) {
+  if (!env.RESEND_API_KEY) return;
+  const dom = entry.config?.domain || 'your store';
+  const s = entry.summary || {};
+  const line = [s.pass !== undefined ? `${s.pass} passed` : null,
+                s.fail !== undefined ? `${s.fail} deviations` : null,
+                s.skip !== undefined ? `${s.skip} not tested` : null]
+    .filter(Boolean).join(' · ');
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: env.FROM_EMAIL || 'UCP Conformance <noreply@spck.dev>',
+      to,
+      subject: `Your UCP check report — ${dom}`,
+      html: `<div style="font-family:sans-serif;max-width:440px;margin:0 auto;padding:20px">
+        <div style="font-size:18px;font-weight:700;color:#059669;margin-bottom:16px">spck.dev</div>
+        <p>Your saved conformance check for <b>${String(dom).replace(/[<>&]/g, '')}</b>${line ? ` — ${line}` : ''}.</p>
+        <p><a href="https://spck.dev/check?report=${entry.id}" style="display:inline-block;background:#059669;color:#fff;padding:10px 22px;border-radius:21px;text-decoration:none;font-weight:600">View your report</a></p>
+        <p style="color:#888;font-size:13px">Sign in with this email address to open it. Reports are kept for 90 days.</p></div>`,
+    }),
+  });
 }
 
 async function listReports(request, env) {

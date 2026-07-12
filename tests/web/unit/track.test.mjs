@@ -90,7 +90,7 @@ test("every event a public page SENDS is in the allow-list (no dead beacons)", a
     for (const m of html.matchAll(/\/api\/track\?event=([a-z_]+)/g)) sent.add(m[1]);
     // concatenated form: beac('NAME') — event tokens follow the
     // <page>_(view|return|case|cta) convention
-    for (const m of html.matchAll(/['"]([a-z]+_(?:view|return|case|cta))['"]/g)) sent.add(m[1]);
+    for (const m of html.matchAll(/['"]([a-z]+_(?:view|return|case|cta)|report_[a-z_]+)['"]/g)) sent.add(m[1]);
   }
   assert.ok(sent.size >= 8, `expected a real funnel, found only ${[...sent]}`);
   for (const ev of sent) {

@@ -82,7 +82,8 @@
       <p class="note">Stores people ran the instant check against, and badge fetches by domain.</p></div>
     <div class="card"><h2>Distribution</h2><div id="dist" class="grid"></div>
       <div id="dist-notes"></div></div>
-    <div class="card"><h2>Users</h2><div class="tbl-scroll" id="users"></div></div>
+    <div class="card"><h2>Users</h2><div class="tbl-scroll" id="users"></div>
+      <p class="note">People who saved a check report (email verified) — the store-domains column is the email-to-store mapping. Accounts without domains predate the save-report flow.</p></div>
     <div class="card"><h2>Recent activity</h2><div class="tbl-scroll" id="activity"></div></div>
     <div class="card hidden" id="admins-card"><h2>Admins</h2>
       <div class="tbl-scroll" id="admins"></div>
@@ -211,6 +212,7 @@
         });
       kpi(fu, "sandbox cases run", s.sandbox_case);
       kpi(fu, "agent CTA clicks", s.agent_cta);
+      kpi(fu, "reports saved", s.report_saved);
       var doms = topEntries(s.domainsTested, 15).map(function (d) { return [d[0], d[1]]; });
       table($("domains"), ["domain (instant checks)", "runs"], doms);
     });
@@ -244,9 +246,10 @@
     api("/api/admin/users").then(function (r) {
       if (r.status !== 200) return;
       var rows = (r.body.users || []).map(function (u) {
-        return [u.email, u.loginCount, u.testRuns, u.reportCount, (u.lastLogin || "").slice(0, 10)];
+        return [u.email, (u.domains || []).join(", "), u.loginCount, u.reportCount,
+                (u.lastLogin || "").slice(0, 10)];
       });
-      table($("users"), ["email", "logins", "runs", "reports", "last seen"], rows);
+      table($("users"), ["email", "store domains", "logins", "reports", "last seen"], rows);
     });
     api("/api/admin/activity").then(function (r) {
       if (r.status !== 200) return;
