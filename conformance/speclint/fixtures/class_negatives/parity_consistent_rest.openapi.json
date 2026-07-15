@@ -1,0 +1,23 @@
+{
+  "_speclint_fixture": "class-negative for transport_header_parity: REST side of a CONSISTENT pair. create_checkout requires Idempotency-Key AND UCP-Agent; the MCP twin requires the same meta fields. The predicate MUST return zero findings here (proving it does not constant-FIRE).",
+  "openapi": "3.1.0",
+  "components": {
+    "parameters": {
+      "idempotency_key": {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string"}},
+      "ucp_agent": {"name": "UCP-Agent", "in": "header", "required": true, "schema": {"type": "string"}},
+      "request_id": {"name": "Request-Id", "in": "header", "required": true, "schema": {"type": "string"}}
+    }
+  },
+  "paths": {
+    "/checkout-sessions": {
+      "post": {
+        "operationId": "create_checkout",
+        "parameters": [
+          {"$ref": "#/components/parameters/idempotency_key"},
+          {"$ref": "#/components/parameters/ucp_agent"},
+          {"$ref": "#/components/parameters/request_id"}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "_speclint_fixture": "class-negative for transport_header_parity: MCP side of a CONSISTENT pair. create_checkout's meta requires ucp-agent AND idempotency-key, matching the REST twin. Combined with parity_consistent_rest.openapi.json the predicate MUST return zero findings.",
+  "openrpc": "1.2.6",
+  "components": {
+    "schemas": {
+      "meta": {
+        "type": "object",
+        "required": ["ucp-agent"],
+        "properties": {
+          "ucp-agent": {"type": "string"},
+          "idempotency-key": {"type": "string"}
+        }
+      }
+    }
+  },
+  "methods": [
+    {
+      "name": "create_checkout",
+      "params": [
+        {
+          "name": "meta",
+          "schema": {
+            "allOf": [
+              {"$ref": "#/components/schemas/meta"},
+              {"required": ["idempotency-key"]}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
