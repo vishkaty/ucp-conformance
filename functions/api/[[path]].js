@@ -311,10 +311,13 @@ async function getSettings(request, env) {
 // ── Badge (SITE-R-025) ──
 
 async function badge(env, id) {
-  // Refuse anything that isn't a v4-uuid report id before touching KV.
-  const report = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-    ? await env.REPORTS.get(`report:${id}`, 'json')
-    : null;
+  // Refuse anything that isn't a v4-uuid report id before touching KV; a
+  // missing/broken KV binding degrades to the 'unknown' badge — an embedded
+  // <img> must never break, whatever the backend state.
+  let report = null;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    try { report = await env.REPORTS.get(`report:${id}`, 'json'); } catch { report = null; }
+  }
 
   const esc = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

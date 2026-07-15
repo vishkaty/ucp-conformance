@@ -70,6 +70,15 @@ test("interpolated values are XML-escaped (no markup injection via report data)"
   assert.match(r.text, /&lt;script&gt;|&quot;/);
 });
 
+test("badge degrades to 'unknown' when the KV binding is missing or broken", async () => { // SITE-R-025
+  const env = mockEnv();
+  delete env.REPORTS;                       // e.g. an environment without bindings
+  const r = await call(env, get(`${B}/api/badge/44444444-4444-4444-8444-444444444444.svg`));
+  assert.equal(r.status, 200);
+  assert.equal(r.resp.headers.get("Content-Type"), "image/svg+xml");
+  assert.match(r.text, /unknown/i);
+});
+
 test("a malformed id (not a uuid) is refused without a KV lookup", async () => {     // SITE-R-025
   const env = mockEnv();
   let looked = false;
