@@ -324,7 +324,8 @@ async function badge(env, id) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
   const s = report?.summary || null;
-  const known = s && Number.isFinite(s.pass) && Number.isFinite(s.total);
+  // A zero-total run proves nothing — render it 'unknown', not a green 0/0.
+  const known = s && Number.isFinite(s.pass) && Number.isFinite(s.total) && s.total > 0;
   const value = known
     ? `${esc(s.grade ?? '')}${s.grade != null ? ' · ' : ''}${esc(s.pass)}/${esc(s.total)}`
     : 'unknown';

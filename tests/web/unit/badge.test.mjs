@@ -70,6 +70,16 @@ test("interpolated values are XML-escaped (no markup injection via report data)"
   assert.match(r.text, /&lt;script&gt;|&quot;/);
 });
 
+test("a zero-total report renders 'unknown' — an empty run proves nothing", async () => { // SITE-R-025
+  const env = mockEnv();
+  seedReport(env, "55555555-5555-4555-8555-555555555555",
+    { pass: 0, fail: 0, skip: 0, total: 0 });
+  const r = await call(env, get(`${B}/api/badge/55555555-5555-4555-8555-555555555555.svg`));
+  assert.equal(r.status, 200);
+  assert.match(r.text, /unknown/i);
+  assert.doesNotMatch(r.text, /0\/0/);
+});
+
 test("badge degrades to 'unknown' when the KV binding is missing or broken", async () => { // SITE-R-025
   const env = mockEnv();
   delete env.REPORTS;                       // e.g. an environment without bindings
