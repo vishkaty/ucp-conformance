@@ -277,6 +277,15 @@ function renderSaveCard(server, d) {
       const a = el("a", null, "Open your saved report →");
       a.href = "/check?report=" + r.body.id;
       c.appendChild(a);
+      // SITE-R-025 — opt-in badge: embedding this URL is the owner's choice to share.
+      const badgeUrl = location.origin + "/api/badge/" + r.body.id + ".svg";
+      c.appendChild(el("p", "note", "Embed your conformance badge (README or storefront):"));
+      const snip = el("pre", "code-block",
+        "[![UCP conformance](" + badgeUrl + ")](https://spck.dev/check)");
+      c.appendChild(snip);
+      const img = document.createElement("img");
+      img.src = badgeUrl; img.alt = "UCP conformance badge preview"; img.height = 20;
+      c.appendChild(img);
     });
   }
 

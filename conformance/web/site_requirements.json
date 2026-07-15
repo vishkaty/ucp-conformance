@@ -1,324 +1,336 @@
 {
-  "_about": "SITE-R register — every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
-  "requirements": [
-    {
-      "id": "SITE-R-001",
-      "requirement": "Unified nav byte-identical on all 6 pages (spck · Merchants /check · Agents /agent · Coverage /coverage · Docs /docs · GitHub↗); contains no /tool link",
-      "pages": [
-        "index.html",
-        "check.html",
-        "agent.html",
-        "sandbox.html",
-        "coverage.html",
-        "docs.html"
-      ],
-      "tests": [
-        "site_smoke:nav-identical"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-002",
-      "requirement": "No 'Launch Tool' text anywhere on the site",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:voice"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-003",
-      "requirement": "Exactly one .btn-primary above the fold per page",
-      "pages": [
-        "index.html",
-        "check.html",
-        "agent.html",
-        "sandbox.html",
-        "coverage.html",
-        "docs.html"
-      ],
-      "tests": [
-        "site_smoke:primary-cta"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-004",
-      "requirement": "/check depth ladder sections in DOM order instant → cli → ci (data-ladder-step markers)",
-      "pages": [
-        "check.html"
-      ],
-      "tests": [
-        "site_smoke:ladder-order"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-005",
-      "requirement": "Unofficial-disclaimer sentence on every page (independent + unofficial + not affiliated + the official suite is authoritative)",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:voice"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-006",
-      "requirement": "OG + Twitter share meta on every page",
-      "pages": [
-        "index.html",
-        "check.html",
-        "agent.html",
-        "sandbox.html",
-        "coverage.html",
-        "docs.html"
-      ],
-      "tests": [
-        "site_smoke:social-meta"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-007",
-      "requirement": "CLASS-AUTO numbers are data-rendered: any number that exists in coverage/agent-coverage JSON carries data-live and its static fallback text equals the live JSON value at gate time",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:claims"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-008",
-      "requirement": "No unregistered factual claims: every claim candidate is LIVE-bound (data-live) or registered in public/site_claims.json with evidence and an unexpired review_by",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:claims"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-009",
-      "requirement": "Voice banned patterns absent (superlatives, achievement framing, 'certified'/'endorsed', unverifiable stats, third-party names outside the data-attribution block)",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:voice"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-010",
-      "requirement": "/tool → /check and /guide → /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
-      "pages": [
-        "_redirects",
-        "*"
-      ],
-      "tests": [
-        "gate:redirects",
-        "site_smoke:redirects"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-011",
-      "requirement": "Security: /* headers include nosniff, X-Frame-Options, Referrer-Policy, CSP default-src 'self'; no un-esc()'d innerHTML/document.write/insertAdjacentHTML sinks; no external script/style/font origins",
-      "pages": [
-        "_headers",
-        "*",
-        "functions/**"
-      ],
-      "tests": [
-        "gate:security"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-012",
-      "requirement": "Sandbox loads >= 6 demo cases",
-      "pages": [
-        "sandbox.html"
-      ],
-      "tests": [
-        "site_smoke:sandbox-cases"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-013",
-      "requirement": "Pages render meaningfully if the coverage JSON fetch fails (graceful degradation, no blank main)",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "site_smoke:graceful-degrade"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-014",
-      "requirement": "Zero console errors on load of every page",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "site_smoke:console-clean"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-015",
-      "requirement": "No horizontal overflow at 320px (and 375px) on every page",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "responsive_smoke"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-016",
-      "requirement": "Analytics beacons: home_view on /, page_view beacons on /check and /docs",
-      "pages": [
-        "index.html",
-        "check.html",
-        "docs.html"
-      ],
-      "tests": [
-        "site_smoke:beacons"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-017",
-      "requirement": "Product-manifest change (merchant/agent check counts, defect count, spec versions) forces a site claims review before the lane goes green",
-      "pages": [
-        "site_claims.json"
-      ],
-      "tests": [
-        "gate:freshness"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-018",
-      "requirement": "Hook-first homepage: badge + H1 hook + exactly two hero CTAs (/check, /agent) above the fold",
-      "pages": [
-        "index.html"
-      ],
-      "tests": [
-        "site_smoke:home-hook"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-019",
-      "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> — the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
-      "pages": [
-        "*"
-      ],
-      "tests": [
-        "gate:consistency"
-      ],
-      "status": "active",
-      "added": "2026-07-09"
-    },
-    {
-      "id": "SITE-R-020",
-      "requirement": "Admin access control: every /api/admin/* route rejects unauthenticated requests (401/403) and authenticated non-admin sessions (403); the admin allowlist is manageable ONLY by a super-admin (POST/DELETE /api/admin/admins); a super-admin can never be removed or demoted via the API; management actions are audit-logged",
-      "pages": [
-        "functions/api/[[path]].js"
-      ],
-      "tests": [
-        "web_unit:admin-access"
-      ],
-      "status": "active",
-      "added": "2026-07-10"
-    },
-    {
-      "id": "SITE-R-021",
-      "requirement": "Admin page (public/admin.html): carries noindex,nofollow; is linked from no nav or public page; uses the standard shell (site.css, byte-identical nav, disclaimer footer); renders every metric from runtime API responses with no static numeric claims in markup",
-      "pages": [
-        "admin.html"
-      ],
-      "tests": [
-        "site_smoke:admin-page",
-        "gate:consistency"
-      ],
-      "status": "active",
-      "added": "2026-07-10"
-    },
-    {
-      "id": "SITE-R-022",
-      "requirement": "Page-view funnel: home/check/docs/coverage view and return beacon events are allow-listed in /api/track (a sent event must not be silently dropped) and each of those pages sends its view/return beacon",
-      "pages": [
-        "functions/api/track.js",
-        "index.html",
-        "check.html",
-        "docs.html",
-        "coverage.html"
-      ],
-      "tests": [
-        "web_unit:funnel-allowlist",
-        "site_smoke:beacons"
-      ],
-      "status": "active",
-      "added": "2026-07-10"
-    },
-    {
-      "id": "SITE-R-023",
-      "requirement": "Save-report flow: a completed instant check offers an email+OTP save; saving requires an authenticated session (401 otherwise); the saved report is retrievable by its owner and walled from other users; each save records the store domain on the user (email-to-domain mapping) and attempts a best-effort report email that never blocks the save; the report_saved conversion beacon is allow-listed",
-      "pages": [
-        "check.html",
-        "functions/api/[[path]].js",
-        "functions/api/track.js"
-      ],
-      "tests": [
-        "web_unit:save-report",
-        "site_smoke:check-save"
-      ],
-      "status": "active",
-      "added": "2026-07-10"
-    },
-    {
-      "id": "SITE-R-024",
-      "requirement": "Admin dashboard reflects the current product: the users listing exposes each user's recorded store domains (the email-to-domain lead mapping) and the funnel pane counts report_saved conversions",
-      "pages": [
-        "admin.html",
-        "functions/api/[[path]].js"
-      ],
-      "tests": [
-        "web_unit:admin-domains"
-      ],
-      "status": "active",
-      "added": "2026-07-10"
-    }
-  ]
+ "_about": "SITE-R register \u2014 every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
+ "requirements": [
+  {
+   "id": "SITE-R-001",
+   "requirement": "Unified nav byte-identical on all 6 pages (spck \u00b7 Merchants /check \u00b7 Agents /agent \u00b7 Coverage /coverage \u00b7 Docs /docs \u00b7 GitHub\u2197); contains no /tool link",
+   "pages": [
+    "index.html",
+    "check.html",
+    "agent.html",
+    "sandbox.html",
+    "coverage.html",
+    "docs.html"
+   ],
+   "tests": [
+    "site_smoke:nav-identical"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-002",
+   "requirement": "No 'Launch Tool' text anywhere on the site",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:voice"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-003",
+   "requirement": "Exactly one .btn-primary above the fold per page",
+   "pages": [
+    "index.html",
+    "check.html",
+    "agent.html",
+    "sandbox.html",
+    "coverage.html",
+    "docs.html"
+   ],
+   "tests": [
+    "site_smoke:primary-cta"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-004",
+   "requirement": "/check depth ladder sections in DOM order instant \u2192 cli \u2192 ci (data-ladder-step markers)",
+   "pages": [
+    "check.html"
+   ],
+   "tests": [
+    "site_smoke:ladder-order"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-005",
+   "requirement": "Unofficial-disclaimer sentence on every page (independent + unofficial + not affiliated + the official suite is authoritative)",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:voice"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-006",
+   "requirement": "OG + Twitter share meta on every page",
+   "pages": [
+    "index.html",
+    "check.html",
+    "agent.html",
+    "sandbox.html",
+    "coverage.html",
+    "docs.html"
+   ],
+   "tests": [
+    "site_smoke:social-meta"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-007",
+   "requirement": "CLASS-AUTO numbers are data-rendered: any number that exists in coverage/agent-coverage JSON carries data-live and its static fallback text equals the live JSON value at gate time",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:claims"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-008",
+   "requirement": "No unregistered factual claims: every claim candidate is LIVE-bound (data-live) or registered in public/site_claims.json with evidence and an unexpired review_by",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:claims"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-009",
+   "requirement": "Voice banned patterns absent (superlatives, achievement framing, 'certified'/'endorsed', unverifiable stats, third-party names outside the data-attribution block)",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:voice"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-010",
+   "requirement": "/tool \u2192 /check and /guide \u2192 /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
+   "pages": [
+    "_redirects",
+    "*"
+   ],
+   "tests": [
+    "gate:redirects",
+    "site_smoke:redirects"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-011",
+   "requirement": "Security: /* headers include nosniff, X-Frame-Options, Referrer-Policy, CSP default-src 'self'; no un-esc()'d innerHTML/document.write/insertAdjacentHTML sinks; no external script/style/font origins",
+   "pages": [
+    "_headers",
+    "*",
+    "functions/**"
+   ],
+   "tests": [
+    "gate:security"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-012",
+   "requirement": "Sandbox loads >= 6 demo cases",
+   "pages": [
+    "sandbox.html"
+   ],
+   "tests": [
+    "site_smoke:sandbox-cases"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-013",
+   "requirement": "Pages render meaningfully if the coverage JSON fetch fails (graceful degradation, no blank main)",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "site_smoke:graceful-degrade"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-014",
+   "requirement": "Zero console errors on load of every page",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "site_smoke:console-clean"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-015",
+   "requirement": "No horizontal overflow at 320px (and 375px) on every page",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "responsive_smoke"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-016",
+   "requirement": "Analytics beacons: home_view on /, page_view beacons on /check and /docs",
+   "pages": [
+    "index.html",
+    "check.html",
+    "docs.html"
+   ],
+   "tests": [
+    "site_smoke:beacons"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-017",
+   "requirement": "Product-manifest change (merchant/agent check counts, defect count, spec versions) forces a site claims review before the lane goes green",
+   "pages": [
+    "site_claims.json"
+   ],
+   "tests": [
+    "gate:freshness"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-018",
+   "requirement": "Hook-first homepage: badge + H1 hook + exactly two hero CTAs (/check, /agent) above the fold",
+   "pages": [
+    "index.html"
+   ],
+   "tests": [
+    "site_smoke:home-hook"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-019",
+   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> \u2014 the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:consistency"
+   ],
+   "status": "active",
+   "added": "2026-07-09"
+  },
+  {
+   "id": "SITE-R-020",
+   "requirement": "Admin access control: every /api/admin/* route rejects unauthenticated requests (401/403) and authenticated non-admin sessions (403); the admin allowlist is manageable ONLY by a super-admin (POST/DELETE /api/admin/admins); a super-admin can never be removed or demoted via the API; management actions are audit-logged",
+   "pages": [
+    "functions/api/[[path]].js"
+   ],
+   "tests": [
+    "web_unit:admin-access"
+   ],
+   "status": "active",
+   "added": "2026-07-10"
+  },
+  {
+   "id": "SITE-R-021",
+   "requirement": "Admin page (public/admin.html): carries noindex,nofollow; is linked from no nav or public page; uses the standard shell (site.css, byte-identical nav, disclaimer footer); renders every metric from runtime API responses with no static numeric claims in markup",
+   "pages": [
+    "admin.html"
+   ],
+   "tests": [
+    "site_smoke:admin-page",
+    "gate:consistency"
+   ],
+   "status": "active",
+   "added": "2026-07-10"
+  },
+  {
+   "id": "SITE-R-022",
+   "requirement": "Page-view funnel: home/check/docs/coverage view and return beacon events are allow-listed in /api/track (a sent event must not be silently dropped) and each of those pages sends its view/return beacon",
+   "pages": [
+    "functions/api/track.js",
+    "index.html",
+    "check.html",
+    "docs.html",
+    "coverage.html"
+   ],
+   "tests": [
+    "web_unit:funnel-allowlist",
+    "site_smoke:beacons"
+   ],
+   "status": "active",
+   "added": "2026-07-10"
+  },
+  {
+   "id": "SITE-R-023",
+   "requirement": "Save-report flow: a completed instant check offers an email+OTP save; saving requires an authenticated session (401 otherwise); the saved report is retrievable by its owner and walled from other users; each save records the store domain on the user (email-to-domain mapping) and attempts a best-effort report email that never blocks the save; the report_saved conversion beacon is allow-listed",
+   "pages": [
+    "check.html",
+    "functions/api/[[path]].js",
+    "functions/api/track.js"
+   ],
+   "tests": [
+    "web_unit:save-report",
+    "site_smoke:check-save"
+   ],
+   "status": "active",
+   "added": "2026-07-10"
+  },
+  {
+   "id": "SITE-R-024",
+   "requirement": "Admin dashboard reflects the current product: the users listing exposes each user's recorded store domains (the email-to-domain lead mapping) and the funnel pane counts report_saved conversions",
+   "pages": [
+    "admin.html",
+    "functions/api/[[path]].js"
+   ],
+   "tests": [
+    "web_unit:admin-domains"
+   ],
+   "status": "active",
+   "added": "2026-07-10"
+  },
+  {
+   "id": "SITE-R-025",
+   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication \u2014 the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
+   "pages": [
+    "functions/api/[[path]].js"
+   ],
+   "tests": [
+    "web_unit:badge"
+   ],
+   "status": "active",
+   "added": "2026-07-15"
+  }
+ ]
 }

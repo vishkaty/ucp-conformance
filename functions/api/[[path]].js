@@ -50,6 +50,12 @@ export async function onRequest(context) {
     if (path.match(/^\/api\/reports\/[^/]+$/) && request.method === 'GET') return await getReport(request, env, path.split('/').pop());
     if (path.match(/^\/api\/reports\/[^/]+$/) && request.method === 'DELETE') return await deleteReport(request, env, path.split('/').pop());
 
+    // Badge (SITE-R-025) — public, no auth: the unguessable report id is the
+    // owner's deliberate share (they embed the badge); nothing is enumerable.
+    if (path.match(/^\/api\/badge\/[^/]+\.svg$/) && request.method === 'GET') {
+      return await badge(env, path.slice('/api/badge/'.length, -'.svg'.length));
+    }
+
     // Admin
     if (path === '/api/admin/stats' && request.method === 'GET') return await adminStats(request, env);
     if (path === '/api/admin/users' && request.method === 'GET') return await adminUsers(request, env);
@@ -300,6 +306,48 @@ async function getSettings(request, env) {
   const s = await getSession(request, env);
   if (!s) return json({ error: 'Not authenticated' }, 401);
   return json({ settings: await env.USERS.get(`settings:${s.userId}`, 'json') || { headers: {}, defaultBase: '', defaultDomain: '' } });
+}
+
+// ── Badge (SITE-R-025) ──
+
+async function badge(env, id) {
+  // Refuse anything that isn't a v4-uuid report id before touching KV.
+  const report = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    ? await env.REPORTS.get(`report:${id}`, 'json')
+    : null;
+
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const s = report?.summary || null;
+  const known = s && Number.isFinite(s.pass) && Number.isFinite(s.total);
+  const value = known
+    ? `${esc(s.grade ?? '')}${s.grade != null ? ' · ' : ''}${esc(s.pass)}/${esc(s.total)}`
+    : 'unknown';
+  const color = !known ? '#9f9f9f' : (s.fail === 0 ? '#2da44e' : '#d1242f');
+  const date = known && report.date ? esc(String(report.date).slice(0, 10)) : '';
+  const title = known
+    ? `UCP conformance: ${value}${date ? ` (checked ${date})` : ''}`
+    : 'UCP conformance: unknown';
+
+  const label = 'UCP conformance';
+  const labelW = 108, valueW = Math.max(9 * String(value).replace(/&[^;]+;/g, 'x').length + 12, 48);
+  const w = labelW + valueW;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${esc(title)}">` +
+    `<title>${esc(title)}</title>` +
+    `<rect width="${labelW}" height="20" fill="#555"/>` +
+    `<rect x="${labelW}" width="${valueW}" height="20" fill="${color}"/>` +
+    `<g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">` +
+    `<text x="${labelW / 2}" y="14">${label}</text>` +
+    `<text x="${labelW + valueW / 2}" y="14">${value}</text>` +
+    `</g></svg>`;
+
+  return new Response(svg, { status: 200, headers: {
+    'Content-Type': 'image/svg+xml',
+    'Cache-Control': 'public, max-age=3600',
+    ...cors(),
+  } });
 }
 
 // ── Analytics Tracking ──
