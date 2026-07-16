@@ -40,6 +40,9 @@ jobs:
       - name: Set up Rust (for the ucp-schema oracle)
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install the third-party crypto oracle (for the jws-interop gate)
+        run: python3 -m pip install cryptography
+
       - name: Install web-test deps + headless Chromium (for the web-unit/web-browser gates)
         run: |
           cd tests/web && npm i --no-audit --no-fund

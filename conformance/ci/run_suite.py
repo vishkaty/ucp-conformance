@@ -81,6 +81,7 @@ def gates(server):
         ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),
         ("speclint",    _py(SPECLINT / "validate_speclint.py"),                   None, ()),
         ("ap2-crypto",  _py(SELF / "validate_ap2_crypto.py"),                     None, ()),
+        ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
