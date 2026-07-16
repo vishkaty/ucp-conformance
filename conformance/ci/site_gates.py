@@ -39,7 +39,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 # SPCK_PUBLIC lets oversight/tests point the gates at a scratch copy of the site
 PUB = pathlib.Path(os.environ.get("SPCK_PUBLIC", ROOT / "public"))
 WEB = ROOT / "conformance" / "web"
-MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness")
+MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness", "checkdocs")
 TODAY = datetime.date.today().isoformat()
 
 # ── shared text extraction ────────────────────────────────────────────────────
@@ -596,6 +596,52 @@ def freshness():
           f"the product ({json.dumps(real)})")
     return 0
 
+
+# ═══ checkdocs ════════════════════════════════════════════════════════════════
+def checkdocs():
+    """SITE-R-026 — the published check register can never drift from the product.
+
+    Regenerates the /checks pages from public/coverage.json into a temp dir and
+    byte-compares against what's committed; asserts every covered requirement id
+    has exactly one page (no missing, no orphans) and /rubric.html exists.
+    """
+    import filecmp, importlib.util, tempfile
+    fails = []
+    spec = importlib.util.spec_from_file_location(
+        "gen_check_docs", ROOT / "conformance" / "web" / "gen_check_docs.py")
+    gen = importlib.util.module_from_spec(spec); spec.loader.exec_module(gen)
+
+    committed = PUB / "checks"
+    if not committed.is_dir():
+        print("  x public/checks/ missing — run conformance/web/gen_check_docs.py")
+        print("site-checkdocs: FAIL (1 finding(s))"); return 1
+
+    with tempfile.TemporaryDirectory() as tmp:
+        gen.generate(tmp)
+        fresh = {f.name for f in pathlib.Path(tmp).iterdir()}
+        have = {f.name for f in committed.iterdir() if f.suffix == ".html"}
+        for name in sorted(fresh - have):
+            fails.append(f"missing page: checks/{name} (regenerate)")
+        for name in sorted(have - fresh):
+            fails.append(f"orphan page: checks/{name} (no covered register row)")
+        for name in sorted(fresh & have):
+            if not filecmp.cmp(pathlib.Path(tmp) / name, committed / name, shallow=False):
+                fails.append(f"stale page: checks/{name} differs from regeneration")
+
+    by_id, _ = gen.load()
+    expected = {f"{rid}.html" for rid in by_id} | {"index.html"}
+    have = {f.name for f in committed.iterdir() if f.suffix == ".html"}
+    if expected != have:
+        fails.append(f"page set != covered ids: {sorted(expected ^ have)[:5]}")
+    if not (PUB / "rubric.html").exists():
+        fails.append("rubric.html missing — the grading rubric must be published")
+
+    for f in fails[:20]:
+        print(f"  x {f}")
+    print(f"site-checkdocs: {'PASS' if not fails else 'FAIL'} "
+          f"({len(by_id)} covered requirement page(s); {len(fails)} finding(s))")
+    return 0 if not fails else 1
+
 # ═══ main ════════════════════════════════════════════════════════════════════
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -606,4 +652,4 @@ if __name__ == "__main__":
         sys.exit(claims(explain="--explain" in sys.argv[2:]))
     sys.exit({"tdd": tdd, "voice": voice, "security": security,
               "redirects": redirects, "consistency": consistency,
-              "freshness": freshness}[mode]())
+              "freshness": freshness, "checkdocs": checkdocs}[mode]())

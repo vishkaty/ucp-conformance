@@ -331,6 +331,19 @@
    ],
    "status": "active",
    "added": "2026-07-15"
+  },
+  {
+   "id": "SITE-R-026",
+   "requirement": "Published check register: every spec requirement the suite covers (status=check in coverage.json) has a generated page under /checks/<ID> showing the requirement text, RFC-2119 keyword, versions, testability, and a citation deep-linked to the SHA-pinned spec source; /checks/ indexes them all; /rubric explains how verdicts are graded. Pages are generated deterministically from coverage.json (the same source as /coverage) and a gate regenerates and byte-compares so they can never drift from the product.",
+   "pages": [
+    "checks/index.html",
+    "rubric.html"
+   ],
+   "tests": [
+    "gate:checkdocs"
+   ],
+   "status": "active",
+   "added": "2026-07-15"
   }
  ]
 }

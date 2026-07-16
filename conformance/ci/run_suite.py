@@ -80,6 +80,7 @@ def gates(server):
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),
         ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),
         ("speclint",    _py(SPECLINT / "validate_speclint.py"),                   None, ()),
+        ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         # --- site-governance lane: the website held to the same red/green bar as the

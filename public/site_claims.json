@@ -510,6 +510,150 @@
    "evidence": "action.yml (junit input; exit-code semantics fail the build on any MUST deviation); same evidence as index.html CLAIM-023",
    "added": "2026-07-09",
    "review_by": "2026-10-09"
+  },
+  {
+   "id": "CLAIM-RUB-001",
+   "text": "This page is the published rubric behind every spck.dev result",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "verdict semantics implemented in conformance/selfcheck/verdict_gate.py + conformance/checks/merchant.py; rubric ships in the same repo/deploy as the suite",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-002",
+   "text": "the same check must both clean-pass a known-good reference server and flag every defect injected for it",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "conformance/checks/engine.py run_check kill_safe (clean==CLEAN and zero surviving mutants) + selfcheck/validate_merchant_checks.py reference gate",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-003",
+   "text": "The report shows the requirement text, its citation into the pinned spec source, and the actual response observed",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py deviation output: requirement + source + observed body ('each shows expected vs the observed response', merchant.py ~L381)",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-004",
+   "text": "Inconclusive is never counted as a pass",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "selfcheck/verdict_gate.py no-false-green semantics: non-kill_safe checks downgrade to INCONCLUSIVE and are excluded from pass",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-005",
+   "text": "Reported explicitly so absence of a failure is never mistaken for a pass",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py report lists not-tested/not-applicable buckets explicitly; cli.py docstring: reports anything unreachable as not-tested",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-006",
+   "text": "Only a MUST deviation fails the run; the handful of SHOULD checks that run are reported and never fail it",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py L320: exit 2 iff any MUST deviation; SHOULD MChecks exist (merchant_checks_04_08_oauth.py IDL-043, ORD-025) and do not affect exit code",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-007",
+   "text": "Every check cites a requirement row scraped from the UCP specification, quote-verified against SHA-pinned spec sources",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "selfcheck/verify_register.py quote-check (953/953 verified in CI) against conformance/SOURCES.lock.json pinned SHAs",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-008",
+   "text": "check register lists every covered requirement with its citation",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "site_gates.py checkdocs gate: page set must equal covered (status=check) register ids, regenerated + byte-compared each run",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-009",
+   "text": "it has to clean-pass a known-good reference implementation and catch each defect injected for it",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "same evidence as CLAIM-RUB-002 (engine kill_safe + reference gate)",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-010",
+   "text": "A pass reflects only the checks that ran",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py verdict line prints validated/applicable MUST counts + explicit not-tested listing; junit records skipped",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-011",
+   "text": "The report says how many applicable MUSTs were validated",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py VERDICT line: 'N/M applicable MUSTs (x%)' \u2014 observed empirically 2026-07-15",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-012",
+   "text": "exit 0 when every applicable MUST that ran passed, exit 2 on any MUST deviation, exit 1 when the target could not be tested at all",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "cli.py docstring + merchant.py L320; verified empirically 2026-07-15: golden run exit 2, junk server exit 1, agent lane exit 0",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-013",
+   "text": "The JUnit report names every entry with its register check id; deviations carry the full spec citation",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "verified 2026-07-15 parsing a real junit: 194 entries named '<check> (IDS)'; the 4 failure entries embed ucp:docs citations",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-014",
+   "text": "The run verdict is computed over the RFC-2119 MUST requirements applicable to your server",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "merchant.py L13: verdict denominator = applicable testable MUSTs (extensions a server doesn't declare drop out)",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-RUB-015",
+   "text": "Checks are validated in both directions.",
+   "page": "rubric.html",
+   "class": "REG",
+   "evidence": "engine.py run_check: clean-pass on the golden AND every injected mutant caught (kill_safe), else downgrade \u2014 same evidence as CLAIM-RUB-002",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
+  },
+  {
+   "id": "CLAIM-DOC-006",
+   "text": "Check register \u2014 every covered requirement, spec-cited",
+   "page": "docs.html",
+   "class": "REG",
+   "evidence": "site_gates.py checkdocs gate asserts the /checks page set equals the covered (status=check) register ids and every page carries its pinned citation \u2014 same evidence as CLAIM-RUB-008",
+   "added": "2026-07-15",
+   "review_by": "2026-10-15"
   }
  ]
 }

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grading rubric — how spck.dev verdicts work | spck.dev</title>
+<meta name="description" content="The published grading rubric for spck.dev UCP conformance verdicts: what pass, deviation, inconclusive, and not-tested mean, and why a green result is designed to be trustworthy.">
+<link rel="canonical" href="https://spck.dev/rubric">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spck.dev/rubric">
+<meta property="og:title" content="spck.dev grading rubric — how verdicts work">
+<meta property="og:description" content="What pass, deviation, inconclusive, and not-tested mean — and why a green result is designed to be trustworthy.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="spck.dev grading rubric">
+<meta name="twitter:description" content="What pass, deviation, inconclusive, and not-tested mean.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
+<style>
+  .wrap { max-width:820px; margin:0 auto; padding:40px 24px 8px; }
+  .wrap h1 { font-size:clamp(26px,4vw,34px); font-weight:800; letter-spacing:-.8px; margin:0 0 10px; color:var(--ink); }
+  .wrap .sub { color:var(--muted); margin:0 0 24px; font-size:15.5px; line-height:1.65; max-width:660px; }
+  .wrap h2 { font-size:20px; font-weight:800; letter-spacing:-.3px; margin:44px 0 6px; color:var(--ink); }
+  .wrap h2::before { content:""; display:inline-block; width:8px; height:8px; border-radius:2px; background:var(--primary); margin-right:10px; vertical-align:middle; }
+  .wrap .lead { color:var(--muted); font-size:14.5px; line-height:1.65; margin:0 0 14px; }
+  .verdicts { width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px; }
+  .verdicts th, .verdicts td { text-align:left; padding:9px 12px; border-bottom:1px solid rgba(127,127,127,.25); vertical-align:top; }
+  .verdicts th { color:var(--muted); font-weight:600; font-size:13px; }
+  .wrap .note { font-size:13px; color:var(--muted); line-height:1.6; margin:10px 0 0; }
+  .wrap ul { margin:10px 0 0; padding-left:20px; }
+  .wrap li { margin:6px 0; color:var(--ink); font-size:14.5px; line-height:1.6; }
+</style>
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">Grading rubric</div>
+    <h1>How verdicts work</h1>
+    <p class="sub">This page is the published rubric behind every spck.dev result — what each verdict means, what it takes for a
+run to go green, and the ways the suite refuses to overstate what it proved.</p>
+  </header>
+
+  <h2>The four verdicts</h2>
+  <table class="verdicts">
+    <tr><th>Verdict</th><th>Meaning</th></tr>
+    <tr><td><strong>pass</strong></td><td>The server satisfied the requirement, and the check
+proved it could have caught a violation: the same check must both clean-pass a known-good
+reference server and flag every defect injected for it. A check that can't demonstrate both
+is not allowed to report pass.</td></tr>
+    <tr><td><strong>deviation</strong></td><td>The server violated a requirement quoted from
+the spec. The report shows the requirement text, its citation into the pinned spec source,
+and the actual response observed — expected next to observed, nothing summarized away.</td></tr>
+    <tr><td><strong>inconclusive</strong></td><td>The check ran but could not validate its own
+soundness (for example, a validation oracle was unavailable). Inconclusive is never counted
+as a pass.</td></tr>
+    <tr><td><strong>not-tested</strong></td><td>The check did not run — the capability wasn't
+declared by the server, a config value it needs wasn't supplied, or it needs a surface the
+run couldn't reach. Reported explicitly so absence of a failure is never mistaken for a pass.</td></tr>
+  </table>
+
+  <h2>What it takes to go green</h2>
+  <p class="lead">The run verdict is computed over the RFC-2119 MUST requirements applicable
+to your server — the capabilities and transports it actually declares. Only a MUST deviation
+fails the run; the handful of SHOULD checks that run are reported and never fail it.</p>
+  <ul>
+    <li><strong>Requirements come from a register, not intuition.</strong> Every check cites a
+requirement row scraped from the UCP specification, quote-verified against SHA-pinned spec
+sources. The <a href="/checks/">check register</a> lists every covered requirement with its
+citation; the <a href="/coverage">coverage matrix</a> shows what is and isn't covered yet.</li>
+    <li><strong>Checks are validated in both directions.</strong> Before a check may pass
+anything, it has to clean-pass a known-good reference implementation and catch each defect
+injected for it. A check that misses an injected defect is downgraded, never trusted.</li>
+    <li><strong>Versions are pinned.</strong> Results are graded against tagged spec versions,
+auto-detected from your server's discovery profile — not against a moving main branch.</li>
+    <li><strong>Coverage is disclosed.</strong> A pass reflects only the checks that ran. The
+report says how many applicable MUSTs were validated, and everything else is listed as
+not-tested or not-applicable rather than silently omitted.</li>
+  </ul>
+
+  <h2>Exit codes in CI</h2>
+  <p class="lead">The CLI and the GitHub Action gate builds with the same semantics: exit 0
+when every applicable MUST that ran passed, exit 2 on any MUST deviation, exit 1 when the
+target could not be tested at all (for example, discovery failed). The JUnit report names
+every entry with its register check id; deviations carry the full spec citation.</p>
+
+  <h2>What this is not</h2>
+  <p class="lead">A green result is not a certification and not an endorsement — it reflects
+the checks run against your server at that moment, no more. The suite is unofficial and not
+affiliated with the UCP project; where the specification is ambiguous, the register records
+the ambiguity rather than inventing a requirement.</p>
+
+  <footer class="page-foot"><p class="note">spck.dev is an independent, unofficial project — not
+affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the
+official suite is authoritative. Rubric changes ship with the suite itself, so this page
+always describes the grading you actually get.</p></footer>
+</div>
+</body>
+</html>
