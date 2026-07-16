@@ -12,7 +12,7 @@ so the two can never diverge. (Full dedup — fixture importing this — is a sa
 
 TEST KEYS ONLY.
 """
-import base64, hashlib, hmac, time
+import base64, hashlib, hmac, json, time
 
 # NIST P-256
 _EC_P = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
@@ -103,6 +103,75 @@ def ecdsa_p256_verify(msg, sig, Q):
     w = pow(s, -1, _EC_N)
     pt = _ec_add(_ec_mul(z * w % _EC_N, _EC_G), _ec_mul(r * w % _EC_N, Q))
     return pt is not None and pt[0] % _EC_N == r
+
+
+def b64url_decode(s):
+    return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+
+
+# ── JCS (RFC 8785) + JWS Detached Content (RFC 7515 App. F) for AP2 mandates ──
+# AP2 merchant_authorization signs base64url(header)+"."+base64url(JCS(payload)); the
+# header is inside the signing input, so an alg swap or any payload edit breaks the
+# signature. Number handling is exact for the integer minor-unit amounts UCP payloads
+# use; non-integer floats are out of scope here (ap2-mandates payloads carry none).
+
+def _jcs_str(s):
+    # RFC 8785 string serialization == JSON minimal escaping, non-ASCII kept literal.
+    return json.dumps(s, ensure_ascii=False, separators=(",", ":"))
+
+
+def jcs_canonicalize(obj):
+    """RFC 8785 canonical JSON bytes (sorted keys, compact, minimal escaping)."""
+    def enc(o):
+        if o is None:
+            return "null"
+        if isinstance(o, bool):
+            return "true" if o else "false"
+        if isinstance(o, int):
+            return str(o)
+        if isinstance(o, float):
+            return str(int(o)) if o == int(o) else repr(o)
+        if isinstance(o, str):
+            return _jcs_str(o)
+        if isinstance(o, (list, tuple)):
+            return "[" + ",".join(enc(x) for x in o) + "]"
+        if isinstance(o, dict):
+            return "{" + ",".join(_jcs_str(k) + ":" + enc(v)
+                                  for k, v in sorted(o.items())) + "}"
+        raise TypeError(f"JCS: unsupported type {type(o).__name__}")
+    return enc(obj).encode("utf-8")
+
+
+def jws_detached_sign(header, payload, d, kid=None):
+    """AP2 detached JWS: base64url(header)+'..'+base64url(sig) over the JCS payload."""
+    hdr = dict(header)
+    hdr.setdefault("alg", "ES256")
+    if kid:
+        hdr.setdefault("kid", kid)
+    hb = b64url(json.dumps(hdr, separators=(",", ":"), sort_keys=True).encode())
+    pb = b64url(jcs_canonicalize(payload))
+    sig = ecdsa_p256_sign((hb + "." + pb).encode("ascii"), d)
+    return hb + ".." + b64url(sig)
+
+
+def jws_detached_verify(detached, payload, Q):
+    """True iff `detached` is a valid ES256 detached JWS over JCS(payload) for key Q."""
+    parts = detached.split(".")
+    if len(parts) != 3 or parts[1] != "":
+        return False
+    hb, _, sb = parts
+    try:
+        hdr = json.loads(b64url_decode(hb))
+    except Exception:
+        return False
+    if hdr.get("alg") != "ES256":
+        return False
+    try:
+        sig = b64url_decode(sb)
+    except Exception:
+        return False
+    signing_input = (hb + "." + b64url(jcs_canonicalize(payload))).encode("ascii")
+    return ecdsa_p256_verify(signing_input, sig, Q)
 
 
 def keypair(seed):

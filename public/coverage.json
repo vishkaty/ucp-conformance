@@ -4433,14 +4433,14 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 234,
+   "check": 239,
    "exempt": 81,
-   "gap": 49,
-   "accounted_pct": 87,
+   "gap": 44,
+   "accounted_pct": 88,
    "gap_by_testability": {
     "manual": 7,
     "needs-oauth": 3,
-    "needs-receiver": 39
+    "needs-receiver": 34
    },
    "areas": [
     {
@@ -4523,10 +4523,10 @@
     },
     {
      "area": "payment",
-     "check": 16,
+     "check": 21,
      "exempt": 13,
-     "gap": 15,
-     "gap_needs-receiver": 15,
+     "gap": 10,
+     "gap_needs-receiver": 10,
      "musts": 44
     },
     {
@@ -7900,10 +7900,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When AP2 is active, the business must embed a cryptographic signature in checkout responses proving the terms are authentic.",
      "source": "ucp:docs/specification/ap2-mandates.md#L29",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-032",
@@ -7932,10 +7934,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When AP2 is negotiated, the business must include ap2.merchant_authorization in all checkout responses.",
      "source": "ucp:docs/specification/ap2-mandates.md#L106",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-035",
@@ -7983,20 +7987,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization using JWS detached content.",
      "source": "ucp:docs/specification/ap2-mandates.md#L140",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-040",
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The business's signature must cover both the JWS header and the checkout payload (preventing alg-substitution attacks).",
      "source": "ucp:docs/specification/ap2-mandates.md#L172",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-041",
@@ -8023,10 +8031,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "All JSON payloads must be canonicalized using JSON Canonicalization Scheme (JCS) per RFC 8785.",
      "source": "ucp:docs/specification/ap2-mandates.md#L218",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-044",
