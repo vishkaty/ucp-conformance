@@ -27,10 +27,16 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[0] / "common"))
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
+import json                                                    # noqa: E402
 from engine import Check                                       # noqa: E402
-from verdict_gate import CLEAN, DEVIATION                      # noqa: E402
+from verdict_gate import CLEAN, DEVIATION, INCONCLUSIVE        # noqa: E402
 from schema_check import fixture_resp                          # noqa: E402
 import crypto                                                  # noqa: E402
+
+# The spec (ap2_mandate.json) allows alg ES256/ES384/ES512. Our verifier is the
+# ES256 baseline; a spec-valid ES384/ES512 authorization is reported INCONCLUSIVE
+# (honest "not verifiable here"), never a false DEVIATION.
+_SPEC_ALGS = {"ES256", "ES384", "ES512"}
 
 # Same fixed key the fixture generator signs with (stands in for the merchant's
 # discovery-resolvable signing key).
@@ -59,11 +65,28 @@ def ap2_present(resp):
     return CLEAN if (len(parts) == 3 and parts[1] == "") else DEVIATION
 
 
+def _header_alg(auth):
+    try:
+        return json.loads(crypto.b64url_decode(auth.split(".")[0])).get("alg")
+    except Exception:
+        return None
+
+
 def ap2_authentic(resp):
-    """The detached JWS verifies over JCS(checkout minus ap2) — binds header + payload."""
+    """The detached JWS verifies over JCS(checkout minus ap2) — binds header + payload.
+
+    ES256 (the baseline the fixture and most merchants use) is verified. A spec-valid
+    ES384/ES512 authorization we cannot verify with the ES256 primitive is INCONCLUSIVE,
+    not a false deviation; an alg outside the spec set is a DEVIATION.
+    """
     auth = _authorization(resp)
     if not auth:
         return DEVIATION
+    alg = _header_alg(auth)
+    if alg not in _SPEC_ALGS:
+        return DEVIATION
+    if alg != "ES256":
+        return INCONCLUSIVE
     payload = {k: v for k, v in resp.json.items() if k != "ap2"}
     return CLEAN if crypto.jws_detached_verify(auth, payload, _Q) else DEVIATION
 

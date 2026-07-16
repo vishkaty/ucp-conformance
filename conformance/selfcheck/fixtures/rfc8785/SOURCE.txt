@@ -1,0 +1,4 @@
+Official RFC 8785 (JSON Canonicalization Scheme) test vectors.
+Source: github.com/cyberphone/json-canonicalization (Apache-2.0), the RFC 8785
+reference implementation's own testdata/{input,output}. Used by validate_ap2_crypto.py
+to prove common/crypto.jcs_canonicalize matches the standard, not just itself.

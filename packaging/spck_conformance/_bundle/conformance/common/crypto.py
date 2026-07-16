@@ -120,24 +120,71 @@ def _jcs_str(s):
     return json.dumps(s, ensure_ascii=False, separators=(",", ":"))
 
 
+def _es6_number(value):
+    """ECMAScript Number::toString (RFC 8785 §3.2.2.3). Ported from the RFC 8785
+    reference NumberToJson.convert2Es6Format (cyberphone/json-canonicalization,
+    Apache-2.0) — validated against the official RFC 8785 number vectors."""
+    fvalue = float(value)
+    if fvalue == 0:
+        return "0"
+    s = str(fvalue)
+    if "n" in s:  # inf / nan
+        raise ValueError(f"JCS: non-finite number {s}")
+    sign = ""
+    if s[0] == "-":
+        sign, s = "-", s[1:]
+    exp_str, exp_val = "", 0
+    q = s.find("e")
+    if q > 0:
+        exp_str = s[q:]
+        if exp_str[2:3] == "0":  # suppress leading zero on the exponent
+            exp_str = exp_str[:2] + exp_str[3:]
+        s = s[:q]
+        exp_val = int(exp_str[1:])
+    first, dot, last = s, "", ""
+    q = s.find(".")
+    if q > 0:
+        dot, first, last = ".", s[:q], s[q + 1:]
+    if last == "0":
+        dot, last = "", ""
+    if 0 < exp_val < 21:
+        first += last
+        last = dot = exp_str = ""
+        q = exp_val - len(first)
+        while q >= 0:
+            q -= 1
+            first += "0"
+    elif -7 < exp_val < 0:
+        last = first + last
+        first, dot, exp_str = "0", ".", ""
+        q = exp_val
+        while q < -1:
+            q += 1
+            last = "0" + last
+    return sign + first + dot + last + exp_str
+
+
 def jcs_canonicalize(obj):
-    """RFC 8785 canonical JSON bytes (sorted keys, compact, minimal escaping)."""
+    """RFC 8785 canonical JSON bytes: keys sorted by UTF-16 code unit, compact,
+    minimal string escaping, ECMAScript number serialization."""
     def enc(o):
         if o is None:
             return "null"
         if isinstance(o, bool):
             return "true" if o else "false"
         if isinstance(o, int):
-            return str(o)
+            return str(o) if -(2 ** 53) < o < 2 ** 53 else _es6_number(o)
         if isinstance(o, float):
-            return str(int(o)) if o == int(o) else repr(o)
+            return _es6_number(o)
         if isinstance(o, str):
             return _jcs_str(o)
         if isinstance(o, (list, tuple)):
             return "[" + ",".join(enc(x) for x in o) + "]"
         if isinstance(o, dict):
-            return "{" + ",".join(_jcs_str(k) + ":" + enc(v)
-                                  for k, v in sorted(o.items())) + "}"
+            return "{" + ",".join(
+                _jcs_str(k) + ":" + enc(v)
+                for k, v in sorted(o.items(), key=lambda kv: kv[0].encode("utf-16-be"))
+            ) + "}"
         raise TypeError(f"JCS: unsupported type {type(o).__name__}")
     return enc(obj).encode("utf-8")
 
