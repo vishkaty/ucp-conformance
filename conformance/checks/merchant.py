@@ -335,13 +335,14 @@ def main():
     print(f"  capabilities: {', '.join(supported) or '(none declared)'}")
     print(f"  product for lifecycle: {ctx.product_id or '(none)'}\n")
     print(f"  VERDICT: {rep.aggregate.upper()} — "
-          f"{cc['musts_clean_pass']}/{cc['inscope_musts']} applicable MUSTs "
-          f"({round(100*rep.coverage)}%), {cc['deviations']} deviation(s)")
-    print(f"  [{len(passed)} passed · {len(devs)} deviations · {len(nottest)} not-tested "
-          f"· {len(napp)} not-applicable]")
+          f"{cc['musts_clean_pass']}/{cc['inscope_musts']} applicable MUST requirements "
+          f"({round(100*rep.coverage)}%), {cc['deviations']} MUST requirement(s) violated")
+    print(f"  [checks: {len(passed)} passed · {len(devs)} deviated · {len(nottest)} not-tested "
+          f"· {len(napp)} not-applicable — one check may cover several requirements]")
 
     if devs:
-        print(f"\n  ✗ DEVIATIONS ({len(devs)}) — a MUST was violated:")
+        print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s), {cc['deviations']} MUST "
+              f"requirement(s)) — a MUST was violated:")
         for c, d in devs:
             print(f"    {c.id}")
             for x in _citations(c.req_ids, meta):
@@ -378,7 +379,9 @@ def main():
             needed.update(st.split("needs config:")[1].rstrip(")").strip().split(","))
     print("\n  Next steps:")
     if n_dev:
-        print(f"    • Fix {n_dev} MUST deviation(s) above — each shows expected vs the observed response.")
+        n_dev_checks = sum(1 for _, d in detail if d["status"] == "deviation")
+        print(f"    • Fix the {n_dev_checks} deviating check(s) above ({n_dev} MUST "
+              f"requirement(s)) — each shows expected vs the observed response.")
     if needed:
         keys = ", ".join(sorted(k.strip() for k in needed if k.strip()))
         hint = "--init to scaffold one" if not args.config else f"add: {keys}"
