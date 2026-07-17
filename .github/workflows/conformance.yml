@@ -43,6 +43,12 @@ jobs:
       - name: Install the third-party crypto oracle (for the jws-interop gate)
         run: python3 -m pip install cryptography
 
+      - name: Install the pinned AP2 reference SDK (for the sdjwt-vs-reference gate)
+        # google-agentic-commerce/AP2 tracks a moving IETF draft, so we pin the exact
+        # commit. The gate's reference-parity tier auto-skips if this install fails;
+        # tier 1 (our independent codec on committed goldens) always runs.
+        run: python3 -m pip install "git+https://github.com/google-agentic-commerce/AP2@e1ea56db72a6385bce3e5c1112b3a56ce60acb43" || echo "::warning::AP2 reference install failed — sdjwt-vs-reference runs tier 1 only"
+
       - name: Install web-test deps + headless Chromium (for the web-unit/web-browser gates)
         run: |
           cd tests/web && npm i --no-audit --no-fund
