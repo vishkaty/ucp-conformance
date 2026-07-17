@@ -20,4 +20,9 @@ cp -R "$SRC/requirements/." "$DST/requirements/"
 cp "$SRC"/agent/*.py "$DST/agent/"
 cp "$SRC"/agent/*.json "$DST/agent/"
 cp "$SRC"/common/*.py "$DST/common/"
+# testbed (AP2 mandate tooling): the agent lane mints mandate chains via testbed/mint,
+# and the codec/verifiers are pure stdlib — ship them so the packaged two-sided CLI
+# covers the AP2 scenario too.
+mkdir -p "$DST/testbed"
+cp "$SRC"/testbed/*.py "$DST/testbed/"
 echo "bundle synced from $SRC -> $DST"
