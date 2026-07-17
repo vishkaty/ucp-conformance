@@ -21,26 +21,24 @@ MERCHANT_SEED = b"ap2-merchant-fixture"
 KID = "merchant-2026"
 HERE = pathlib.Path(__file__).resolve().parent
 
-CHECKOUT = {
-    "id": "chk_ap2_fixture",
-    "status": "ready_for_complete",
-    "currency": "USD",
-    "line_items": [{
-        "id": "li_1",
-        "item": {"id": "bouquet_roses", "title": "Red Rose", "price": 3500},
-        "quantity": 1,
-        "totals": [{"type": "subtotal", "amount": 3500},
-                   {"type": "total", "amount": 3500}],
-    }],
-    "totals": [{"type": "subtotal", "amount": 3500},
-               {"type": "total", "amount": 3500}],
-}
+# Base the AP2 fixture on the schema-valid checkout fixture so it satisfies the
+# FULL pinned checkout schema (ucp, links included) — the AP2 reference SDK's
+# Checkout model rejects a links-less checkout, which caught the earlier minimal
+# hand-rolled body. Only the id is overridden.
+_BASE = HERE.parents[0] / "checkout_response.valid.json"
+
+
+def checkout_body():
+    body = json.loads(_BASE.read_text())
+    body["id"] = "chk_ap2_fixture"
+    return body
 
 
 def main():
     d, _ = crypto.keypair(MERCHANT_SEED)
-    auth = crypto.jws_detached_sign({"alg": "ES256"}, CHECKOUT, d, kid=KID)
-    fixture = {**CHECKOUT, "ap2": {"merchant_authorization": auth}}
+    checkout = checkout_body()
+    auth = crypto.jws_detached_sign({"alg": "ES256"}, checkout, d, kid=KID)
+    fixture = {**checkout, "ap2": {"merchant_authorization": auth}}
     (HERE / "checkout_ap2.valid.json").write_text(json.dumps(fixture, indent=2) + "\n")
     print(f"wrote checkout_ap2.valid.json (auth len {len(auth)})")
 

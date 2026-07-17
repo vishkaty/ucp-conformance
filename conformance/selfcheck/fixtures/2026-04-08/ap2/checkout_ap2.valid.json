@@ -1,4 +1,23 @@
 {
+  "ucp": {
+    "version": "2026-04-08",
+    "capabilities": {
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "2026-04-08",
+          "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+        }
+      ]
+    },
+    "payment_handlers": {
+      "dev.ucp.payments.card": [
+        {
+          "version": "2026-04-08",
+          "id": "handler_card_1"
+        }
+      ]
+    }
+  },
   "id": "chk_ap2_fixture",
   "status": "ready_for_complete",
   "currency": "USD",
@@ -6,19 +25,16 @@
     {
       "id": "li_1",
       "item": {
-        "id": "bouquet_roses",
-        "title": "Red Rose",
-        "price": 3500
+        "id": "sku_1",
+        "title": "Widget",
+        "price": 1000
       },
-      "quantity": 1,
+      "quantity": 2,
       "totals": [
         {
           "type": "subtotal",
-          "amount": 3500
-        },
-        {
-          "type": "total",
-          "amount": 3500
+          "display_text": "Subtotal",
+          "amount": 2000
         }
       ]
     }
@@ -26,14 +42,36 @@
   "totals": [
     {
       "type": "subtotal",
-      "amount": 3500
+      "display_text": "Subtotal",
+      "amount": 2000
+    },
+    {
+      "type": "discount",
+      "display_text": "Promo",
+      "amount": -300
+    },
+    {
+      "type": "tax",
+      "display_text": "Tax",
+      "amount": 136
     },
     {
       "type": "total",
-      "amount": 3500
+      "display_text": "Total",
+      "amount": 1836
+    }
+  ],
+  "links": [
+    {
+      "type": "terms_of_service",
+      "url": "https://merchant.example/tos"
+    },
+    {
+      "type": "privacy_policy",
+      "url": "https://merchant.example/privacy"
     }
   ],
   "ap2": {
-    "merchant_authorization": "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50LTIwMjYifQ..QlybI3_L8L_BmviU6cx2ai3ftOj3G1EEmVygAQHly3B4GpowlfvitjHQePF-8fK3SyiZXjdbp0omgyy8Dl2DhA"
+    "merchant_authorization": "eyJhbGciOiJFUzI1NiIsImtpZCI6Im1lcmNoYW50LTIwMjYifQ..UhoHn9_r5C9YoDityPYIg_U__yyLjKxynj_VuYA-pUUa2MXCtWYjHvMnUVVQ5mH38Ox8AxRnq0AFCoS24K3Wcg"
   }
 }

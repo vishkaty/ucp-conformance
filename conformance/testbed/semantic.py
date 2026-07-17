@@ -178,6 +178,30 @@ def _transaction_id_mismatch():
     return _payment_outcome(chain, up, expected_transaction_id="tx_expected")
 
 
+def _our_mint_interop():
+    """TWO-WAY interop: a chain minted by OUR frozen-layer primitives (mint.py) is
+    fully accepted by the REFERENCE verifier — including constraint evaluation and
+    its Checkout schema validation. (Their issuer -> our verifier is covered by the
+    committed goldens; this is the other direction.)
+    """
+    import pathlib
+    import mint
+    fx_path = (pathlib.Path(__file__).resolve().parents[1] / "selfcheck" / "fixtures"
+               / "2026-04-08" / "ap2" / "checkout_ap2.valid.json")
+    fx = json.loads(fx_path.read_text())
+    wire = mint.mint_chain(fx)
+    plat = JWK(**mint.platform_public_jwk())
+    holder = MandateClient()
+    try:
+        payloads = holder.verify(token=wire, key_or_provider=lambda _t: plat,
+                                 expected_aud="merchant", expected_nonce="merchant-nonce")
+    except Exception:
+        return "REJECT"
+    violations = CheckoutMandateChain.parse(payloads).verify(
+        checkout_jwt=mint.mint_checkout_jwt(fx))
+    return "REJECT" if violations else "PASS"
+
+
 def _missing_consent_lone_open():
     # a lone open mandate presented where a closed 2-hop authorization is required.
     user = _key("user-key-1")
@@ -202,4 +226,5 @@ CASES = [
     ("e2e.reject_checkout_hash_mismatch", ["PAY-035"], "7", "REJECT", _checkout_hash_mismatch),
     ("e2e.reject_transaction_id_mismatch", ["PAY-047"], "8/46", "REJECT", _transaction_id_mismatch),
     ("e2e.reject_missing_consent", ["PAY-035"], "32", "REJECT", _missing_consent_lone_open),
+    ("e2e.our_mint_reference_interop", ["PAY-041", "PAY-042"], "37", "PASS", _our_mint_interop),
 ]
