@@ -16,9 +16,15 @@ we commit one captured run. Re-run this (with `ap2` installed) to refresh them:
 
 Exit 2 if `ap2` is not installed (generation is a maintainer step, not a CI gate).
 """
+import copy
 import json
 import pathlib
 import sys
+
+HERE = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[0] / "common"))
+import crypto  # noqa: E402  (our frozen-layer code — signs the checkout_jwt)
+import sdjwt  # noqa: E402
 
 try:
     from ap2.sdk.mandate import MandateClient
@@ -116,6 +122,78 @@ def payment_golden():
     }
 
 
+# ── UCP nested-binding goldens (PAY-042 / ap2-mandates.md L207-209) ────────
+#
+# The checkout mandate MUST wrap the FULL UCP checkout INCLUDING the business's
+# ap2.merchant_authorization (platform signature over business signature). We embed
+# the existing 04-08 AP2 fixture checkout — its merchant_authorization is already a
+# genuine detached JWS by the deterministic fixture merchant key — inside a real
+# reference-minted delegate chain. The negatives are VALID chains whose UCP nesting
+# is broken, so only the nested-binding verifier can catch them (its kill-safety).
+
+_MERCHANT_SEED = b"ap2-merchant-fixture"
+_FIXTURE_CHECKOUT = (HERE.parents[0] / "selfcheck" / "fixtures" / "2026-04-08"
+                     / "ap2" / "checkout_ap2.valid.json")
+
+
+def _checkout_jwt_for(checkout_obj, d_merchant):
+    payload = json.dumps(checkout_obj, separators=(",", ":"), sort_keys=True).encode()
+    return crypto.jws_compact_sign({"alg": "ES256"}, payload, d_merchant,
+                                   kid="merchant_2026")
+
+
+def _mint_nested_chain(checkout_jwt, checkout_hash):
+    user, agent, user_pub = _roles()
+    holder = MandateClient()
+    open_tok = holder.create(
+        payloads=[OpenCheckoutMandate(constraints=[], cnf=make_cnf(agent))],
+        issuer_key=user,
+    )
+    wire = holder.present(
+        holder_key=agent, mandate_token=open_tok,
+        payloads=[CheckoutMandate(checkout_jwt=checkout_jwt,
+                                  checkout_hash=checkout_hash)],
+        aud="merchant", nonce="merchant-nonce",
+    )
+    return wire, user_pub
+
+
+def nested_goldens():
+    d_merchant, _ = crypto.keypair(_MERCHANT_SEED)
+    valid_checkout = json.loads(_FIXTURE_CHECKOUT.read_text())
+
+    variants = {}
+
+    def add(name, checkout_obj, hash_override=None):
+        jwt = _checkout_jwt_for(checkout_obj, d_merchant)
+        real_hash = sdjwt.hash_ascii(jwt, "sha-256")
+        wire, user_pub = _mint_nested_chain(jwt, hash_override or real_hash)
+        variants[name] = {
+            "scenario": f"ucp_nested_binding.{name}",
+            "ref_sha": REF_SHA,
+            "wire": wire,
+            "user_public_jwk": json.loads(user_pub.export_public()),
+        }
+
+    # valid: the full fixture checkout, genuine merchant_authorization inside.
+    add("valid", valid_checkout)
+
+    # missing_mauth: embedded checkout stripped of ap2 -> violates PAY-042.
+    add("missing_mauth", {k: v for k, v in valid_checkout.items() if k != "ap2"})
+
+    # tampered_terms: totals edited AFTER the business signed (mAuth kept as-is).
+    tampered = copy.deepcopy(valid_checkout)
+    tampered["totals"][1]["amount"] = 1
+    add("tampered_terms", tampered)
+
+    # hash_mismatch: valid embedded checkout, but the mandate's checkout_hash
+    # names a different checkout_jwt.
+    add("hash_mismatch", valid_checkout,
+        hash_override="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+    return variants
+
+
 def main():
     out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")
     out.mkdir(parents=True, exist_ok=True)
@@ -123,6 +201,11 @@ def main():
         g = fn()
         (out / f"{name}.json").write_text(json.dumps(g, indent=2) + "\n")
         print(f"  wrote {name}.json  (violations={g['expected_violations']})")
+    nested_dir = out / "nested"
+    nested_dir.mkdir(exist_ok=True)
+    for name, g in nested_goldens().items():
+        (nested_dir / f"nested_ucp.{name}.json").write_text(json.dumps(g, indent=2) + "\n")
+        print(f"  wrote nested/nested_ucp.{name}.json")
     print(f"goldens written to {out}  (ref {REF_SHA[:10]})")
     return 0
 

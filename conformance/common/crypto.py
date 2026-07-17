@@ -221,6 +221,35 @@ def jws_detached_verify(detached, payload, Q):
     return ecdsa_p256_verify(signing_input, sig, Q)
 
 
+def jws_compact_sign(header, payload_bytes, d, kid=None):
+    """Compact JWS (ES256) over raw payload bytes: b64(header).b64(payload).b64(sig).
+
+    Used for the AP2 checkout_jwt (the merchant-signed JWT a checkout mandate wraps).
+    """
+    hdr = dict(header)
+    hdr.setdefault("alg", "ES256")
+    if kid:
+        hdr.setdefault("kid", kid)
+    hb = b64url(json.dumps(hdr, separators=(",", ":"), sort_keys=True).encode())
+    pb = b64url(payload_bytes)
+    sig = ecdsa_p256_sign((hb + "." + pb).encode("ascii"), d)
+    return hb + "." + pb + "." + b64url(sig)
+
+
+def jws_compact_verify(token, Q):
+    """Verify a compact ES256 JWS for key Q; returns the payload bytes, or None."""
+    try:
+        hb, pb, sb = token.split(".")
+        hdr = json.loads(b64url_decode(hb))
+        if hdr.get("alg") != "ES256":
+            return None
+        if ecdsa_p256_verify((hb + "." + pb).encode("ascii"), b64url_decode(sb), Q):
+            return b64url_decode(pb)
+    except Exception:
+        return None
+    return None
+
+
 def keypair(seed):
     d = (int.from_bytes(hashlib.sha256(seed).digest(), "big") % (_EC_N - 1)) + 1
     return d, _ec_mul(d, _EC_G)

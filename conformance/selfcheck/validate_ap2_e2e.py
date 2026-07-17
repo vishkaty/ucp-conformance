@@ -25,11 +25,18 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "testbed"))
+sys.path.insert(0, str(HERE.parents[0] / "common"))
+import crypto  # noqa: E402
 import frozen  # noqa: E402
+import nested  # noqa: E402
 import provenance  # noqa: E402
 import semantic  # noqa: E402
 
 GOLD = HERE / "fixtures" / "ap2" / "golden"
+NESTED = GOLD / "nested"
+
+# Same deterministic merchant key the 04-08 AP2 fixture signs with.
+_MERCHANT_SEED = b"ap2-merchant-fixture"
 
 
 def check(name, cond):
@@ -72,11 +79,39 @@ def semantic_tier(ok):
     return ok
 
 
+def nested_tier(ok):
+    """UCP nested-binding layer (PAY-042 / spec L207-209, L395-408) — our crypto only.
+
+    The negatives are generator-minted VALID chains whose UCP nesting is broken, so
+    they pass the generic frozen layer and only this verifier can catch them —
+    that is the kill-safety for the nested-binding check specifically.
+    """
+    print("nested-binding tier (UCP layer, our codec — always runs):")
+    _, merchant_q = crypto.keypair(_MERCHANT_SEED)
+    cases = [
+        ("valid", True),            # full nesting holds -> ACCEPT
+        ("missing_mauth", False),   # embedded checkout lacks merchant_authorization (PAY-042)
+        ("tampered_terms", False),  # terms edited after the business signed
+        ("hash_mismatch", False),   # checkout_hash names a different checkout_jwt
+    ]
+    for name, expect_ok in cases:
+        path = NESTED / f"nested_ucp.{name}.json"
+        if not path.exists():
+            ok &= check(f"  nested {name}: MISSING GOLDEN {path.name}", False)
+            continue
+        wire = json.loads(path.read_text())["wire"]
+        got, reason = nested.verify_ucp_nested(wire, merchant_q)
+        want = "ACCEPT" if expect_ok else "REJECT"
+        ok &= check(f"  nested {name}: expect {want} -> {reason}", got is expect_ok)
+    return ok
+
+
 def main():
     print(provenance.basis_banner())
     print()
     ok = True
     ok = frozen_tier(ok)
+    ok = nested_tier(ok)
     ok = semantic_tier(ok)
     print("\nap2-e2e: " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
