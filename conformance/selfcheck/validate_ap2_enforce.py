@@ -175,6 +175,28 @@ def golden(ok):
     ok &= check(f"expired mandate -> mandate_expired (got {err.get('code')})",
                 st == 401 and err.get("code") == "mandate_expired")
 
+    # alg:none on the closed hop — the mandatory negative (RFC 9901 §7.1.4.2.1).
+    st, err = _req(f"/checkout-sessions/{sid}/complete",
+                   {"ap2": {"checkout_mandate": mint.mint_chain(co, hop1_unsigned=True)}})
+    ok &= check(f"alg:none closed hop -> rejected (got {err.get('code')})",
+                st == 401 and err.get("code") == "mandate_invalid_signature")
+
+    # dSD-JWT typ invariant on KB hops.
+    st, err = _req(f"/checkout-sessions/{sid}/complete",
+                   {"ap2": {"checkout_mandate": mint.mint_chain(co, hop1_typ="JWT")}})
+    ok &= check(f"wrong KB-hop typ -> rejected (got {err.get('code')})",
+                st == 401 and err.get("code") == "mandate_invalid_signature")
+
+    # freshness: iat from the future / nbf not yet reached (beyond 300s skew).
+    st, err = _req(f"/checkout-sessions/{sid}/complete",
+                   {"ap2": {"checkout_mandate": mint.mint_chain(co, iat=int(time.time()) + 3600)}})
+    ok &= check(f"future-iat mandate -> rejected (got {err.get('code')})",
+                st == 401 and err.get("code") == "mandate_invalid_signature")
+    st, err = _req(f"/checkout-sessions/{sid}/complete",
+                   {"ap2": {"checkout_mandate": mint.mint_chain(co, nbf=int(time.time()) + 3600)}})
+    ok &= check(f"future-nbf mandate -> rejected (got {err.get('code')})",
+                st == 401 and err.get("code") == "mandate_invalid_signature")
+
     # PAY-037 — key resolution from the PLATFORM PROFILE (loopback = real fetch):
     # a key-less profile MUST be agent_missing_key; a resolvable-but-wrong key MUST
     # fail signature verification; the published platform key MUST verify + complete.

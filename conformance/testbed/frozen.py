@@ -25,6 +25,34 @@ sys.path.insert(0, str(HERE.parents[0] / "common"))
 import sdjwt  # noqa: E402
 
 
+_KNOWN_SD_ALGS = {"sha-256", "sha-384", "sha-512"}
+
+
+def _nested_sd_alg(node, top=True):
+    """True if an `_sd_alg` member appears anywhere BELOW the top level
+    (RFC 9901 §4.1.1: _sd_alg MUST appear only once, at the top level)."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == "_sd_alg" and not top:
+                return True
+            if _nested_sd_alg(v, top=False):
+                return True
+    elif isinstance(node, list):
+        return any(_nested_sd_alg(v, top=False) for v in node)
+    return False
+
+
+def _malformed_placeholder(node):
+    """True if any array-element placeholder `{"...": v}` carries a non-string v."""
+    if isinstance(node, dict):
+        if "..." in node and not isinstance(node["..."], str):
+            return True
+        return any(_malformed_placeholder(v) for v in node.values())
+    if isinstance(node, list):
+        return any(_malformed_placeholder(v) for v in node)
+    return False
+
+
 def frozen_verify(wire):
     """Return (ok: bool, reason: str). ok=True only if structure+integrity+binding hold."""
     try:
@@ -35,10 +63,26 @@ def frozen_verify(wire):
         return False, "structure: empty chain"
 
     for i, h in enumerate(hops):
+        # _sd_alg discipline (RFC 9901 §4.1.1): unknown values reject; absent
+        # defaults to sha-256; a nested occurrence rejects.
+        alg = h.payload.get("_sd_alg")
+        if alg is not None and alg not in _KNOWN_SD_ALGS:
+            return False, f"integrity: hop{i} unknown _sd_alg {alg!r}"
+        if _nested_sd_alg({k: v for k, v in h.payload.items() if k != "_sd_alg"}, top=False):
+            return False, f"integrity: hop{i} carries a nested _sd_alg (top-level only)"
+        if _malformed_placeholder(h.payload):
+            return False, f"integrity: hop{i} malformed array placeholder"
+
         referenced = h.referenced_digests()
+        seen = set()
         for disc in h.disclosures:
-            if sdjwt.disclosure_digest(disc, h.sd_alg) not in referenced:
+            d = sdjwt.disclosure_digest(disc, h.sd_alg)
+            if d not in referenced:
                 return False, f"integrity: hop{i} disclosure not referenced in _sd"
+            if d in seen:
+                # RFC 9901 §7.1.4.4: the same digest MUST NOT be referenced/used twice.
+                return False, f"integrity: hop{i} duplicate disclosure digest"
+            seen.add(d)
 
     for i in range(1, len(hops)):
         claim = hops[i].payload.get("sd_hash")
@@ -121,6 +165,59 @@ def _b64e(b):
     return base64.urlsafe_b64encode(b).rstrip(b"=").decode("ascii")
 
 
+def _rewrite_hop0_payload(wire, edit):
+    """Re-encode hop0's issuer-JWT payload after `edit(payload_dict)` mutates it.
+    The stale signature is irrelevant at the frozen layer (no hop-sig checks)."""
+    hops = wire.split("~~")
+    segs = hops[0].split("~")
+    h, p, s = segs[0].split(".")
+    payload = json.loads(_b64d(p))
+    edit(payload)
+    segs[0] = h + "." + _b64e(json.dumps(payload).encode()) + "." + s
+    hops[0] = "~".join(segs)
+    return "~~".join(hops)
+
+
+def mut_unknown_sd_alg(wire):
+    """_sd_alg set to an unregistered/insecure value -> reject (RFC 9901 §4.1.1)."""
+    return _rewrite_hop0_payload(wire, lambda p: p.__setitem__("_sd_alg", "md5"))
+
+
+def mut_nested_sd_alg(wire):
+    """An _sd_alg smuggled below the top level -> reject (top-level only)."""
+    def edit(p):
+        dp = p.get("delegate_payload")
+        if isinstance(dp, list) and dp and isinstance(dp[0], dict):
+            dp[0]["_sd_alg"] = "sha-256"
+        else:
+            p["extra"] = {"_sd_alg": "sha-256"}
+    return _rewrite_hop0_payload(wire, edit)
+
+
+def mut_malformed_placeholder(wire):
+    """An array placeholder {"...": v} with a non-string digest -> reject."""
+    def edit(p):
+        dp = p.get("delegate_payload")
+        if isinstance(dp, list) and dp and isinstance(dp[0], dict) and "..." in dp[0]:
+            dp[0]["..."] = 12345
+        else:
+            p["delegate_payload"] = [{"...": 12345}]
+    return _rewrite_hop0_payload(wire, edit)
+
+
+def mut_duplicate_disclosure(wire):
+    """The same disclosure presented twice -> its digest is used twice -> reject
+    (RFC 9901 §7.1.4.4)."""
+    hops = wire.split("~~")
+    segs = hops[0].split("~")
+    for j in range(1, len(segs)):
+        if segs[j]:
+            segs.insert(j, segs[j])
+            break
+    hops[0] = "~".join(segs)
+    return "~~".join(hops)
+
+
 # name -> mutator, for the frozen-layer REJECT cases. Every mutant MUST make
 # frozen_verify return ok=False (the reason string is diagnostic only). Truncation
 # to a lone open mandate is intentionally NOT here: it is well-formed at the frozen
@@ -130,4 +227,8 @@ FROZEN_MUTANTS = {
     "orphan_disclosure": mut_orphan_disclosure,
     "corrupt_sd_hash": mut_corrupt_sd_hash,
     "broken_chain_separator": mut_break_chain_sep,
+    "unknown_sd_alg": mut_unknown_sd_alg,
+    "nested_sd_alg": mut_nested_sd_alg,
+    "malformed_placeholder": mut_malformed_placeholder,
+    "duplicate_disclosure": mut_duplicate_disclosure,
 }

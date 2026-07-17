@@ -51,17 +51,21 @@ def _cnf_pub(hop):
     return None
 
 
-def _closed_exp(hop):
-    """The closed mandate's exp claim, if disclosed."""
+def _closed_claim(hop, name):
+    """A claim from the closed mandate's disclosed values or its payload."""
     for disc in hop.disclosures:
         try:
             arr = sdjwt.decode_disclosure(disc)
         except Exception:
             continue
         val = arr[-1]
-        if isinstance(val, dict) and isinstance(val.get("exp"), int):
-            return val["exp"]
-    return None
+        if isinstance(val, dict) and isinstance(val.get(name), int):
+            return val[name]
+    v = hop.payload.get(name)
+    return v if isinstance(v, int) else None
+
+
+_CLOCK_SKEW = 300   # seconds, the reference verifier's default
 
 
 def verify_checkout_mandate(wire, platform_Q, merchant_Q,
@@ -78,18 +82,30 @@ def verify_checkout_mandate(wire, platform_Q, merchant_Q,
     # hop0 signed by the platform/user key (profile signing_keys stand-in)
     if crypto.jws_compact_verify(hops[0].issuer_jwt, platform_Q) is None:
         return "mandate_invalid_signature"
-    # each later hop signed by the key bound in the previous hop's cnf
+    # each later hop: dSD-JWT typ invariant + signed by the key bound in the
+    # previous hop's cnf (alg:none and alg-swaps fail inside jws_compact_verify)
     for i in range(1, len(hops)):
+        typ = hops[i].header.get("typ")
+        if not (isinstance(typ, str) and typ.startswith("kb+sd-jwt")):
+            return "mandate_invalid_signature"
         cnf_q = _cnf_pub(hops[i - 1])
         if cnf_q is None:
             return "mandate_invalid_signature"
         if crypto.jws_compact_verify(hops[i].issuer_jwt, cnf_q) is None:
             return "mandate_invalid_signature"
 
-    # expiry on the closed mandate
-    exp = _closed_exp(hops[-1])
-    if exp is not None and (now or int(time.time())) > exp:
+    # freshness on the closed mandate: exp passed -> expired; an iat from the
+    # future (beyond skew) or an unreached nbf -> not (yet) valid.
+    t = now or int(time.time())
+    exp = _closed_claim(hops[-1], "exp")
+    if exp is not None and t > exp:
         return "mandate_expired"
+    iat = _closed_claim(hops[-1], "iat")
+    if iat is not None and iat > t + _CLOCK_SKEW:
+        return "mandate_invalid_signature"
+    nbf = _closed_claim(hops[-1], "nbf")
+    if nbf is not None and nbf > t + _CLOCK_SKEW:
+        return "mandate_invalid_signature"
 
     # UCP nested binding: checkout_hash identity, merchant-signed checkout_jwt,
     # embedded merchant_authorization present and valid

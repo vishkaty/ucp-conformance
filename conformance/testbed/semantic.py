@@ -24,7 +24,8 @@ try:
     from ap2.sdk.generated.open_checkout_mandate import (
         AllowedMerchants, OpenCheckoutMandate)
     from ap2.sdk.generated.payment_mandate import PaymentMandate
-    from ap2.sdk.generated.open_payment_mandate import OpenPaymentMandate
+    from ap2.sdk.generated.open_payment_mandate import (
+        AllowedPayees, AmountRange, OpenPaymentMandate)
     from ap2.sdk.generated.types.amount import Amount
     from ap2.sdk.generated.types.merchant import Merchant
     from ap2.sdk.generated.types.payment_instrument import PaymentInstrument
@@ -88,11 +89,13 @@ def _checkout_outcome(chain, root_pub, checkout_jwt, expected_aud="merchant",
 # ── payment builders ──────────────────────────────────────────────────────
 
 def _payment_chain(open_cnf_key, close_holder_key, transaction_id="tx_1",
-                   aud="merchant", nonce="merchant-nonce"):
+                   aud="merchant", nonce="merchant-nonce", constraints=None,
+                   hash_mode="sd_hash"):
     user = _key("user-key-1")
     holder = MandateClient()
     open_tok = holder.create(
-        payloads=[OpenPaymentMandate(constraints=[], cnf=make_cnf(open_cnf_key))],
+        payloads=[OpenPaymentMandate(constraints=constraints or [],
+                                     cnf=make_cnf(open_cnf_key))],
         issuer_key=user,
     )
     pm = PaymentMandate(
@@ -101,7 +104,7 @@ def _payment_chain(open_cnf_key, close_holder_key, transaction_id="tx_1",
         payment_instrument=PaymentInstrument(id="pi-1", type="credit"),
     )
     chain = holder.present(holder_key=close_holder_key, mandate_token=open_tok,
-                           payloads=[pm], aud=aud, nonce=nonce)
+                           payloads=[pm], aud=aud, nonce=nonce, hash_mode=hash_mode)
     return chain, _pub(user)
 
 
@@ -202,6 +205,66 @@ def _our_mint_interop():
     return "REJECT" if violations else "PASS"
 
 
+# ── constraint evaluation on OPEN mandates (spec: closed values must satisfy
+# the open constraints; "Any unknown Constraints MUST be treated as failing") ──
+
+def _amount_range_violation():
+    agent = _key("agent-key-1")
+    chain, up = _payment_chain(agent, agent,
+                               constraints=[AmountRange(max=500, currency="USD")])   # pm amount=1000
+    return _payment_outcome(chain, up)
+
+
+def _amount_range_within():
+    agent = _key("agent-key-1")
+    chain, up = _payment_chain(agent, agent,
+                               constraints=[AmountRange(max=5000, currency="USD")])  # pm amount=1000
+    return _payment_outcome(chain, up)
+
+
+def _allowed_payees_violation():
+    agent = _key("agent-key-1")
+    chain, up = _payment_chain(
+        agent, agent,
+        constraints=[AllowedPayees(allowed=[Merchant(id="s-good", name="Good Shop")])])
+    return _payment_outcome(chain, up)   # pm payee is s-1 -> not allowed
+
+
+def _unknown_constraint():
+    """An unrecognized constraint type in the OPEN mandate — minted with OUR
+    primitives (the reference's typed builders can't emit one). MUST fail."""
+    import json as _json
+    import pathlib as _pathlib
+    import mint
+    fx = _json.loads((_pathlib.Path(__file__).resolve().parents[1] / "selfcheck" /
+                      "fixtures" / "2026-04-08" / "ap2" /
+                      "checkout_ap2.valid.json").read_text())
+    wire = mint.mint_chain(fx, constraints=[{"type": "checkout.quantum_limit",
+                                             "limit": 1}])
+    plat = JWK(**mint.platform_public_jwk())
+    holder = MandateClient()
+    try:
+        payloads = holder.verify(token=wire, key_or_provider=lambda _t: plat,
+                                 expected_aud="merchant", expected_nonce="merchant-nonce")
+        violations = CheckoutMandateChain.parse(payloads).verify(
+            checkout_jwt=mint.mint_checkout_jwt(fx))
+    except Exception:
+        return "REJECT"
+    return "REJECT" if violations else "PASS"
+
+
+def _issuer_jwt_hash_mode():
+    """The draft's alternative binding mode: the closed hop commits to the issuer
+    JWT only (allowing disclosure redaction). A valid chain must still verify —
+    and our frozen layer accepts the issuer_jwt_hash binding branch too."""
+    import frozen
+    agent = _key("agent-key-1")
+    chain, up = _payment_chain(agent, agent, hash_mode="issuer_jwt_hash")
+    if frozen.frozen_verify(chain)[0] is not True:
+        return "REJECT"
+    return _payment_outcome(chain, up)
+
+
 def _missing_consent_lone_open():
     # a lone open mandate presented where a closed 2-hop authorization is required.
     user = _key("user-key-1")
@@ -227,4 +290,9 @@ CASES = [
     ("e2e.reject_transaction_id_mismatch", ["PAY-047"], "8/46", "REJECT", _transaction_id_mismatch),
     ("e2e.reject_missing_consent", ["PAY-035"], "32", "REJECT", _missing_consent_lone_open),
     ("e2e.our_mint_reference_interop", ["PAY-041", "PAY-042"], "37", "PASS", _our_mint_interop),
+    ("e2e.reject_amount_range_violation", ["PAY-045"], "43", "REJECT", _amount_range_violation),
+    ("e2e.amount_range_within", ["PAY-045"], "42", "PASS", _amount_range_within),
+    ("e2e.reject_disallowed_payee", ["PAY-045"], "43", "REJECT", _allowed_payees_violation),
+    ("e2e.reject_unknown_constraint", ["PAY-045"], "44", "REJECT", _unknown_constraint),
+    ("e2e.issuer_jwt_hash_binding_mode", ["PAY-042"], "39", "PASS", _issuer_jwt_hash_mode),
 ]

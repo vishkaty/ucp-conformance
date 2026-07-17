@@ -55,12 +55,15 @@ def mint_checkout_jwt(checkout_obj, kid="merchant_2026"):
 
 
 def mint_chain(checkout_obj, aud="merchant", nonce="merchant-nonce",
-               strip_embedded_mauth=False, exp=None):
+               strip_embedded_mauth=False, exp=None, iat=None, nbf=None,
+               hop1_typ="kb+sd-jwt", hop1_unsigned=False, constraints=None):
     """Mint a 2-hop open->closed checkout-mandate chain over `checkout_obj`.
 
-    Returns the `~~` wire. `strip_embedded_mauth=True` mints the PAY-042 violation
-    (embedded checkout without merchant_authorization); `exp` (epoch seconds) adds
-    an expiry to the closed mandate for freshness cases.
+    Returns the `~~` wire. Negative-case knobs: `strip_embedded_mauth=True` mints
+    the PAY-042 violation (embedded checkout without merchant_authorization);
+    `exp`/`iat`/`nbf` (epoch seconds) set freshness claims on the closed hop;
+    `hop1_typ` overrides the KB hop's typ; `hop1_unsigned=True` emits the closed
+    hop as alg:none with a junk signature (the mandatory-negative alg:none case).
     """
     d_plat, _ = crypto.keypair(PLATFORM_SEED)
     d_agent, q_agent = crypto.keypair(AGENT_SEED)
@@ -77,7 +80,8 @@ def mint_chain(checkout_obj, aud="merchant", nonce="merchant-nonce",
     checkout_hash = sdjwt.hash_ascii(checkout_jwt, "sha-256")
 
     # hop0 — the user/platform-signed OPEN mandate binding the agent's key (consent).
-    open_value = {"vct": "mandate.checkout.open.1", "constraints": [],
+    open_value = {"vct": "mandate.checkout.open.1",
+                  "constraints": constraints if constraints is not None else [],
                   "cnf": {"jwk": agent_jwk}}
     d0 = sdjwt.encode_array_disclosure(_salt(), open_value)
     hop0_payload = {"delegate_payload": [{"...": sdjwt.disclosure_digest(d0, "sha-256")}],
@@ -95,11 +99,21 @@ def mint_chain(checkout_obj, aud="merchant", nonce="merchant-nonce",
     d1 = sdjwt.encode_array_disclosure(_salt(), closed_value)
     hop1_payload = {
         "delegate_payload": [{"...": sdjwt.disclosure_digest(d1, "sha-256")}],
-        "iat": int(time.time()), "aud": aud, "nonce": nonce,
+        "iat": int(time.time()) if iat is None else int(iat),
+        "aud": aud, "nonce": nonce,
         "sd_hash": sdjwt.parse_hop(hop0).sd_hash(), "_sd_alg": "sha-256",
     }
-    hop1_jwt = _sign_hop({"alg": "ES256", "typ": "kb+sd-jwt",
-                          "kid": "ap2-agent-fixture"}, hop1_payload, d_agent)
+    if nbf is not None:
+        hop1_payload["nbf"] = int(nbf)
+    if hop1_unsigned:
+        hb = crypto.b64url(json.dumps(
+            {"alg": "none", "typ": hop1_typ, "kid": "ap2-agent-fixture"},
+            separators=(",", ":"), sort_keys=True).encode())
+        hop1_jwt = hb + "." + crypto.b64url(_payload_json(hop1_payload)) + "." + \
+            crypto.b64url(b"junk-signature")
+    else:
+        hop1_jwt = _sign_hop({"alg": "ES256", "typ": hop1_typ,
+                              "kid": "ap2-agent-fixture"}, hop1_payload, d_agent)
     hop1 = hop1_jwt + "~" + d1 + "~" + d2 + "~"
 
     # join: the non-final hop's trailing tilde is stripped (reference convention).
