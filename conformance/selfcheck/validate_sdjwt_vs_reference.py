@@ -29,6 +29,8 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "common"))
+sys.path.insert(0, str(HERE.parents[0] / "testbed"))
+import provenance  # noqa: E402
 import sdjwt  # noqa: E402
 
 GOLD = HERE / "fixtures" / "ap2" / "golden"
@@ -107,6 +109,8 @@ def _reference_parity(ok):
 
 
 def main():
+    print(provenance.basis_banner())
+    print()
     ok = True
     ok = _our_checks(ok)
     ok = _reference_parity(ok)

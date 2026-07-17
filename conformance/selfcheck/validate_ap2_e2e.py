@@ -26,6 +26,7 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "testbed"))
 import frozen  # noqa: E402
+import provenance  # noqa: E402
 import semantic  # noqa: E402
 
 GOLD = HERE / "fixtures" / "ap2" / "golden"
@@ -52,20 +53,28 @@ def frozen_tier(ok):
 
 
 def semantic_tier(ok):
+    # Moving layer: INTEROP OBSERVATIONS against the pinned reference (a fixture),
+    # never conformance verdicts on anyone's implementation.
     if not semantic.AVAILABLE:
-        print("semantic tier: SKIPPED (ap2 reference not installed)")
+        print("semantic tier (interop vs reference): SKIPPED (reference not installed)")
         return ok
-    print("semantic tier (reference verifier):")
+    print(f"semantic tier — interop observations vs {provenance.REFERENCE} "
+          f"@ {provenance.REFERENCE_SHA[:10]}:")
     for cid, reqs, mc, expect, run in semantic.CASES:
         try:
             got = run()
         except Exception as exc:
             got = f"ERR {type(exc).__name__}: {exc}"
-        ok &= check(f"  {cid} [{','.join(reqs)}] expect {expect} -> {got}", got == expect)
+        # "expect PASS" = a valid flow the reference accepts; "expect REJECT" = a
+        # violation the reference rejects. We assert the reference behaves as the
+        # draft specifies; we do not grade the reference itself.
+        ok &= check(f"  {cid} [{','.join(reqs)}] {expect} -> {got}", got == expect)
     return ok
 
 
 def main():
+    print(provenance.basis_banner())
+    print()
     ok = True
     ok = frozen_tier(ok)
     ok = semantic_tier(ok)
