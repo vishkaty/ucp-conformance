@@ -2,8 +2,8 @@
  "_about": "spck.dev site claims register \u2014 every factual claim on the site that is not data-rendered from coverage/agent-coverage JSON must be registered here with evidence and a review-by date, or removed. Bootstrapped by ops/site-content-audit-2026-07.md (Phase 0 of the 2026-07-09 IA redesign). The manifest block is the bindable public source for product counts that do NOT exist in coverage JSONs (which count MUST rows, not checks); the site-freshness gate regenerates these numbers from the engine and goes RED on drift.",
  "manifest": {
   "merchant_checks": 196,
-  "agent_checks": 42,
-  "agent_defects": 43,
+  "agent_checks": 44,
+  "agent_defects": 45,
   "versions": [
    "2026-01-11",
    "2026-01-23",

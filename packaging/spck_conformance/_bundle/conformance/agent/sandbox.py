@@ -108,6 +108,14 @@ class _Handler(BaseHTTPRequestHandler):
                 "services": {"dev.ucp.shopping": [
                     {"transport": "rest", "endpoint": base}]},
                 "capabilities": {"dev.ucp.shopping.checkout": [{}],
+                                 # "ap2" scenario: the business negotiates the AP2 mandate
+                                 # extension — a conformant platform MUST then provide the
+                                 # two mandate artifacts on complete (PAY-032 / PAY-041).
+                                 **({"dev.ucp.shopping.ap2_mandate": [{
+                                     "version": "2026-04-08",
+                                     "extends": "dev.ucp.shopping.checkout",
+                                     "config": {"vp_formats_supported": {"dc+sd-jwt": {}}}}]}
+                                    if self.server.scenario == "ap2" else {}),
                                  # dev.ucp.common.identity_linking config.scopes (the derived
                                  # scope set the platform MUST request — no superset, IDL-034).
                                  # In "future_config" the config also carries an unrecognized

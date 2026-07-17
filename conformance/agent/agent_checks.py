@@ -482,6 +482,68 @@ def p_credential_has_type(log):
     return CLEAN
 
 
+def _ap2_complete_artifacts(log):
+    """(checkout_mandate, credential_token) from the complete request, or (None, None)."""
+    for e in log:
+        if e["op"] == "complete":
+            body = e["request"].get("body") or {}
+            cm = (body.get("ap2") or {}).get("checkout_mandate")
+            insts = (body.get("payment") or {}).get("instruments") or []
+            tok = ((insts[0] or {}).get("credential") or {}).get("token") if insts else None
+            return (cm if isinstance(cm, str) else None,
+                    tok if isinstance(tok, str) else None)
+    return None, None
+
+
+def _sdjwt():
+    """Our frozen-layer SD-JWT codec (testbed) — lazy so this module stays stdlib-light."""
+    import pathlib
+    import sys as _sys
+    root = str(pathlib.Path(__file__).resolve().parents[1])
+    for p in (root + "/testbed", root + "/common"):
+        if p not in _sys.path:
+            _sys.path.insert(0, p)
+    import sdjwt
+    return sdjwt
+
+
+def p_ap2_provides_mandates(log):
+    """PAY-032/PAY-041: with dev.ucp.shopping.ap2_mandate negotiated, the platform MUST
+    provide signed mandates on complete — ap2.checkout_mandate as a delegate chain AND
+    the payment mandate inside the instrument credential token."""
+    cm, tok = _ap2_complete_artifacts(log)
+    if not (cm and tok):
+        return DEVIATION
+    try:
+        s = _sdjwt()
+        if len(s.parse_chain(cm)) < 2 or len(s.parse_chain(tok)) < 2:
+            return DEVIATION
+    except Exception:
+        return DEVIATION
+    return CLEAN
+
+
+def p_ap2_two_distinct_mandates(log):
+    """PAY-041: TWO DISTINCT artifacts. The credential token must be its own
+    payment-mandate chain (vct mandate.payment.*), not the checkout mandate re-sent."""
+    cm, tok = _ap2_complete_artifacts(log)
+    if not (cm and tok):
+        return DEVIATION
+    if tok == cm:
+        return DEVIATION
+    try:
+        s = _sdjwt()
+        hops = s.parse_chain(tok)
+        for hop in hops:
+            for disc in hop.disclosures:
+                val = s.decode_disclosure(disc)[-1]
+                if isinstance(val, dict) and str(val.get("vct", "")).startswith("mandate.payment"):
+                    return CLEAN
+    except Exception:
+        return DEVIATION
+    return DEVIATION
+
+
 def p_omits_buyer_on_complete(log):
     """DSC-034: the `buyer` object (carrying consent) MUST be omitted from the complete request."""
     comps = _req_bodies(log, ("complete",))
@@ -868,4 +930,14 @@ CHECKS = [
            p_instrument_has_ids, kill_mutation="omit_instrument_ids", versions=["2026-04-08"]),
     ACheck("agent.credential_has_type", ["PAY-024"], "MUST",
            p_credential_has_type, kill_mutation="omit_credential_type", versions=["2026-04-08"]),
+    # AP2 mandate obligations (ap2-mandates.md) — graded in the "ap2" scenario, where the
+    # sandbox advertises dev.ucp.shopping.ap2_mandate and the session is Security Locked.
+    ACheck("agent.ap2_provides_mandates_on_complete", ["PAY-032", "PAY-041"], "MUST",
+           p_ap2_provides_mandates, kill_mutation="ap2_ignore_mandates",
+           versions=["2026-04-08"], capability="dev.ucp.shopping.ap2_mandate",
+           scenario="ap2"),
+    ACheck("agent.ap2_two_distinct_mandates", ["PAY-041"], "MUST",
+           p_ap2_two_distinct_mandates, kill_mutation="ap2_reuse_checkout_mandate",
+           versions=["2026-04-08"], capability="dev.ucp.shopping.ap2_mandate",
+           scenario="ap2"),
 ]

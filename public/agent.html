@@ -89,7 +89,7 @@ section.alt{background:var(--surface)}
       <a href="#gap" class="btn-secondary">Why conformance isn&rsquo;t enough &darr;</a>
     </div>
     <div class="stats">
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_defects">43</span></div><div class="stat-label">Failure modes tested</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_defects">45</span></div><div class="stat-label">Failure modes tested</div></div>
       <div class="stat"><div class="stat-num"><span data-live="agent-demo.json:$.cases">6</span></div><div class="stat-label">You can watch live</div></div>
       <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Proven to catch the bug</div></div>
     </div>
@@ -121,7 +121,7 @@ section.alt{background:var(--surface)}
       <div class="fail"><div class="fic">&#128274;</div><h4>Trusts a forged response</h4><p>The agent skips verifying the store&rsquo;s signed response, so a tampered or fake reply is accepted as real.</p><span class="tag">watch live</span></div>
       <div class="fail"><div class="fic">&#128273;</div><h4>Links accounts unsafely</h4><p>Missing PKCE or an unchecked issuer lets an attacker hijack the OAuth flow and capture the linked account.</p><span class="tag">watch live</span></div>
       <div class="fail"><div class="fic">&#128179;</div><h4>Pays with the wrong method</h4><p>The agent pays with a payment type the store never offered &mdash; an unauthorized instrument.</p><span class="tag">watch live</span></div>
-      <div class="fail"><div class="fic">&#129529;</div><h4>Leaks or over-shares</h4><p>Sends fields it shouldn&rsquo;t, forgets to identify itself, or never revokes access when the user unlinks.</p><span class="tag"><span data-live="site_claims.json:$.manifest.agent_defects">43</span> failure modes in all</span></div>
+      <div class="fail"><div class="fic">&#129529;</div><h4>Leaks or over-shares</h4><p>Sends fields it shouldn&rsquo;t, forgets to identify itself, or never revokes access when the user unlinks.</p><span class="tag"><span data-live="site_claims.json:$.manifest.agent_defects">45</span> failure modes in all</span></div>
     </div>
   </div>
 </section>
@@ -165,7 +165,7 @@ section.alt{background:var(--surface)}
 <span class="prompt">$</span> <span class="cmd">git clone https://github.com/vishkaty/ucp-conformance</span><br>
 <span class="prompt">$</span> <span class="cmd">python3</span>
 <span class="arg">conformance/agent/run_agent.py</span><br>
-<span class="dim">agent lane: reference agent &mdash; <span data-live="site_claims.json:$.manifest.agent_checks">42</span> agent checks</span><br>
+<span class="dim">agent lane: reference agent &mdash; <span data-live="site_claims.json:$.manifest.agent_checks">44</span> agent checks</span><br>
 <span class="ok">PASS &mdash; every check passes a correct agent and catches its bug.</span>
       </div>
     </div>

@@ -309,6 +309,19 @@
      "CAT-034"
     ]
    }
+  },
+  {
+   "batch": "agent-ap2-mandates-2026-07-17",
+   "date": "2026-07-17",
+   "reviewer": "adversarial review, AP2 mandate obligations (agent axis)",
+   "spec_reverified": true,
+   "notes": "Re-read ap2-mandates.md (pinned): PAY-032 (L31, platforms MUST provide cryptographically signed mandates during complete) + PAY-041 (L199, the platform MUST produce TWO DISTINCT mandate artifacts: checkout_mandate in ap2.checkout_mandate, payment_mandate in payment.instruments[*].credential.token). New 'ap2' sandbox scenario advertises dev.ucp.shopping.ap2_mandate (session Security Locked); the reference agent detects the capability at discovery and, on complete, mints BOTH artifacts via the testbed's frozen-layer minter (real ES256 delegate chains, the wire the official AP2 reference verifier accepts with zero violations \u2014 e2e.our_mint_reference_interop). agent.ap2_provides_mandates_on_complete [PAY-032, PAY-041]: the complete request carries ap2.checkout_mandate AND a credential token, each parsing as a >=2-hop delegate chain (our sdjwt codec); killed by ap2_ignore_mandates (negotiated-but-bare completion). agent.ap2_two_distinct_mandates [PAY-041]: the token differs from the checkout mandate AND discloses vct mandate.payment.* \u2014 killed by ap2_reuse_checkout_mandate (the same chain re-sent as the payment credential: superficially compliant, not two artifacts \u2014 the distinctness kill the first check cannot provide). Both clean-pass the conformant reference agent and kill exactly their targeted defect (reference gate). Honest limits: the sandbox does not emit merchant_authorization, so the agent-side PAY-036 (verify-before-presenting) is NOT claimed here; mandate CONTENT validity beyond chain shape/vct is the merchant/testbed axis (nested-binding + enforce gates), not re-claimed on the agent axis.",
+   "ids": {
+    "2026-04-08": [
+     "PAY-032",
+     "PAY-041"
+    ]
+   }
   }
  ]
 }

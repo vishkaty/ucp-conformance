@@ -226,7 +226,7 @@ function render(){
       '<span class="vt">The agent completes the checkout and does everything a safe agent must.</span></div>'+
       '<div class="v-body"><div class="why">This is the known-good baseline: it discovers the merchant, links identity over OAuth 2.0 with PKCE, validates <code>state</code> and <code>iss</code>, verifies every RFC 9421 response signature, checks the totals reconcile, pays with an advertised instrument, follows the escalation, and revokes its token on unlink. Pick a defect above to break exactly one of these.</div>'+
       '<div class="v-meta"><div class="row"><div class="k">Ops</div><div class="v">'+DATA.conformant.length+' requests</div></div>'+
-      '<div class="row"><div class="k">Checks satisfied</div><div class="v">all 42 agent checks</div></div></div></div></div>';
+      '<div class="row"><div class="k">Checks satisfied</div><div class="v">all 44 agent checks</div></div></div></div></div>';
     return;
   }
   var c=null;for(var i=0;i<DATA.cases.length;i++)if(DATA.cases[i].defect===SEL)c=DATA.cases[i];

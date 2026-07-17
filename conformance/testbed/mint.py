@@ -120,6 +120,43 @@ def mint_chain(checkout_obj, aud="merchant", nonce="merchant-nonce",
     return hop0[:-1] + "~~" + hop1
 
 
+def mint_payment_chain(checkout_jwt, aud="merchant", nonce="merchant-nonce"):
+    """Mint a 2-hop open->closed PAYMENT-mandate chain bound to `checkout_jwt`
+    (transaction_id = H(checkout_jwt), the payment<->checkout binding). Same role
+    keys and wire conventions as mint_chain — the platform's SECOND distinct
+    artifact (PAY-041)."""
+    d_plat, _ = crypto.keypair(PLATFORM_SEED)
+    d_agent, q_agent = crypto.keypair(AGENT_SEED)
+    agent_jwk = {k: v for k, v in
+                 crypto.jwk_from_pub("ap2-agent-fixture", q_agent).items()
+                 if k not in ("use", "alg")}
+
+    open_value = {"vct": "mandate.payment.open.1", "constraints": [],
+                  "cnf": {"jwk": agent_jwk}}
+    d0 = sdjwt.encode_array_disclosure(_salt(), open_value)
+    hop0_payload = {"delegate_payload": [{"...": sdjwt.disclosure_digest(d0, "sha-256")}],
+                    "_sd_alg": "sha-256"}
+    hop0_jwt = _sign_hop({"alg": "ES256", "typ": "example+sd-jwt",
+                          "kid": "ap2-platform-fixture"}, hop0_payload, d_plat)
+    hop0 = hop0_jwt + "~" + d0 + "~"
+
+    closed_value = {"vct": "mandate.payment.1",
+                    "transaction_id": sdjwt.hash_ascii(checkout_jwt, "sha-256"),
+                    "payee": {"id": "s-1", "name": "Shop"},
+                    "payment_amount": {"amount": 1000, "currency": "USD"},
+                    "payment_instrument": {"id": "pi-1", "type": "credit"}}
+    d1 = sdjwt.encode_array_disclosure(_salt(), closed_value)
+    hop1_payload = {
+        "delegate_payload": [{"...": sdjwt.disclosure_digest(d1, "sha-256")}],
+        "iat": int(time.time()), "aud": aud, "nonce": nonce,
+        "sd_hash": sdjwt.parse_hop(hop0).sd_hash(), "_sd_alg": "sha-256",
+    }
+    hop1_jwt = _sign_hop({"alg": "ES256", "typ": "kb+sd-jwt",
+                          "kid": "ap2-agent-fixture"}, hop1_payload, d_agent)
+    hop1 = hop1_jwt + "~" + d1 + "~"
+    return hop0[:-1] + "~~" + hop1
+
+
 def platform_public_jwk():
     """The fixture platform's public JWK (stands in for profile signing_keys)."""
     _, q = crypto.keypair(PLATFORM_SEED)

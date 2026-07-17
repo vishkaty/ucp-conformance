@@ -68,6 +68,11 @@ DEFECTS = {
     "send_checkout_id": "send a top-level `id` on a checkout request body (CHK-035)",
     "omit_line_items_on_create": "omit line_items on the create request (CHK-038)",
     "omit_payment_on_complete": "omit payment on the complete request (CHK-039)",
+    # AP2 mandate defects — a platform that negotiated dev.ucp.shopping.ap2_mandate but
+    # fails its mandate obligations on complete (PAY-032 / PAY-041).
+    "ap2_ignore_mandates": "complete an AP2-negotiated checkout without any mandate artifacts",
+    "ap2_reuse_checkout_mandate": "send the checkout mandate as the payment credential token "
+                                  "instead of a DISTINCT payment mandate (PAY-041)",
     "send_discounts_on_request": "send the response-only `discounts` object on a request (DSC-027/028)",
     "send_buyer_on_complete": "send the `buyer` (consent) object on the complete request (DSC-034)",
     "omit_instrument_ids": "omit id/handler_id from a payment instrument on complete (PAY-019)",
@@ -197,6 +202,10 @@ class ReferenceAgent:
         prof = (r.get("body") or {}).get("ucp") or {}
         self.jwks = prof.get("signing_keys") or []
         self.identity = prof.get("identity") or {}
+        # AP2 negotiation: when the business advertises dev.ucp.shopping.ap2_mandate the
+        # session is Security Locked — a conformant platform MUST provide the mandate
+        # artifacts on complete (PAY-032 / PAY-041).
+        self.ap2_active = "dev.ucp.shopping.ap2_mandate" in (prof.get("capabilities") or {})
         # dev.ucp.common.identity_linking: capture config.scopes (the derived scope set) and any
         # unrecognized future config fields (IDL-034 / IDL-057).
         il = (prof.get("capabilities") or {}).get("dev.ucp.common.identity_linking") or [{}]
@@ -485,6 +494,18 @@ class ReferenceAgent:
         if self.defect == "omit_credential_type":          # PAY-024 violation
             inst["credential"].pop("type", None)
         body = {"payment": {"instruments": [inst]}}
+        # AP2 (ap2-mandates.md): once negotiated, a conformant platform provides TWO
+        # distinct signed mandate artifacts on complete — ap2.checkout_mandate plus the
+        # payment mandate inside the instrument's credential token (PAY-032 / PAY-041).
+        if getattr(self, "ap2_active", False) and self.defect != "ap2_ignore_mandates":
+            from testbed import mint                       # noqa: PLC0415 (lazy: ap2 only)
+            checkout_mandate = mint.mint_chain(getattr(self, "last_checkout", None) or {})
+            body["ap2"] = {"checkout_mandate": checkout_mandate}
+            if self.defect == "ap2_reuse_checkout_mandate":   # NOT a distinct artifact
+                inst["credential"]["token"] = checkout_mandate
+            else:
+                inst["credential"]["token"] = mint.mint_payment_chain(
+                    mint.mint_checkout_jwt(getattr(self, "last_checkout", None) or {}))
         if self.defect == "omit_payment_on_complete":      # CHK-039: payment required on complete
             body.pop("payment", None)
         if self.defect == "send_discounts_on_request":     # DSC-027/028: discounts omit on request
@@ -556,6 +577,7 @@ class ReferenceAgent:
             self.log[-1]["refused_completion"] = True
             return self.log
         sid = (c.get("body") or {}).get("id")
+        self.last_checkout = c.get("body")   # the response the AP2 mandate wraps
         if sid:
             # PAY-008/009/010: available_instruments is authoritative — pay only with an
             # offered type. The defect pays with a type the business never offered.
