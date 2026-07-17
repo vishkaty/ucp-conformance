@@ -4433,14 +4433,14 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 245,
+   "check": 246,
    "exempt": 81,
-   "gap": 38,
+   "gap": 37,
    "accounted_pct": 90,
    "gap_by_testability": {
     "manual": 7,
     "needs-oauth": 3,
-    "needs-receiver": 28
+    "needs-receiver": 27
    },
    "areas": [
     {
@@ -4523,10 +4523,10 @@
     },
     {
      "area": "payment",
-     "check": 27,
+     "check": 28,
      "exempt": 13,
-     "gap": 4,
-     "gap_needs-receiver": 4,
+     "gap": 3,
+     "gap_needs-receiver": 3,
      "musts": 44
     },
     {
@@ -7969,10 +7969,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A public signing key must be available for the business to verify the mandate's signature.",
      "source": "ucp:docs/specification/ap2-mandates.md#L115",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-038",

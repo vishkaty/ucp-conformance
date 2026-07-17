@@ -1887,7 +1887,7 @@ def complete_checkout(sid, body, headers=None):
     # AP2 Business Verification (ap2-mandates.md): once negotiated, a completion
     # without a valid checkout mandate MUST NOT complete the session.
     if AP2_MODE and AP2_ENFORCE:
-        rejected = ap2_enforce_complete(sid, sess, body)
+        rejected = ap2_enforce_complete(sid, sess, body, headers)
         if rejected is not None:
             return rejected
     if FAIL_TOKEN in _payment_tokens(body):
@@ -2555,8 +2555,35 @@ def _ap2_err(status, code, detail):
     return status, {"detail": detail, "code": code}
 
 
-def ap2_enforce_complete(sid, sess, body):
-    """The Business-Verification step of complete (PAY-035/038/044/045/047).
+def _ap2_platform_key(headers):
+    """Resolve the platform's mandate-verification key (ap2-mandates.md Signing Key
+    Requirements / PAY-037). LOOPBACK profile URLs get REAL resolution — fetch the
+    profile named in UCP-Agent and use its top-level signing_keys[] (the same
+    loopback allowance the webhook harness uses); a profile without a usable key is
+    the agent_missing_key error. Non-loopback URLs keep the offline fixture
+    contract: the deterministic fixture platform key.
+    Returns (Q, None) to proceed or (None, (status, error_body))."""
+    url = _agent_profile_url((headers or {}).get("UCP-Agent"))
+    if url and _is_loopback(url):
+        try:
+            with urllib.request.urlopen(url, timeout=3) as r:
+                prof = json.loads(r.read())
+        except Exception:
+            return None, _ap2_err(401, "agent_missing_key",
+                                  f"platform profile {url} could not be resolved")
+        for k in (prof.get("signing_keys") or []):
+            if isinstance(k, dict) and k.get("kty") == "EC" and k.get("crv") == "P-256":
+                try:
+                    return _AP2["crypto"].pub_from_jwk(k), None
+                except Exception:
+                    continue
+        return None, _ap2_err(401, "agent_missing_key",
+                              "platform profile lacks a usable signing_keys entry")
+    return _AP2["platform_Q"], None
+
+
+def ap2_enforce_complete(sid, sess, body, headers=None):
+    """The Business-Verification step of complete (PAY-035/037/038/044/045/047).
     Returns None to proceed, or an (status, error_body) rejection."""
     mandate = ((body or {}).get("ap2") or {}).get("checkout_mandate")
     if not isinstance(mandate, str) or not mandate:
@@ -2564,9 +2591,12 @@ def ap2_enforce_complete(sid, sess, body):
         # missing" — the session MUST NOT complete (PAY-035/045/047)
         return _ap2_err(401, "mandate_required",
                         "AP2 was negotiated but the request lacks ap2.checkout_mandate")
+    platform_q, err = _ap2_platform_key(headers)
+    if err is not None:
+        return err
     expected = _checkout_body_unsigned(sess)
     code = _AP2["mv"].verify_checkout_mandate(
-        mandate, _AP2["platform_Q"], _AP2["Q"],
+        mandate, platform_q, _AP2["Q"],
         expected_id=sid, expected_totals=expected["totals"])
     if code:
         status = {"mandate_expired": 401, "mandate_scope_mismatch": 409}.get(code, 401)

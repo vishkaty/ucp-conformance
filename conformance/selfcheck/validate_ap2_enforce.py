@@ -23,9 +23,11 @@ import json
 import pathlib
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "conformance" / "common"))
@@ -35,10 +37,41 @@ import mint  # noqa: E402
 
 FIXTURE = ROOT / "conformance" / "fixtures" / "merchant" / "server.py"
 PORT = 9399
+PROFILE_PORT = 9402
 BASE = f"http://localhost:{PORT}"
+PROFILE_BASE = f"http://127.0.0.1:{PROFILE_PORT}"
+# The gate plays the PLATFORM role: its UCP-Agent names the loopback platform
+# profile that publishes the mint platform key (real PAY-037 resolution path).
 HDRS = {"Content-Type": "application/json",
-        "UCP-Agent": f'profile="{BASE}/.well-known/ucp"',
+        "UCP-Agent": f'profile="http://127.0.0.1:9402/with-keys.json"',
         "Idempotency-Key": "ap2-gate"}
+
+
+class _ProfileHandler(BaseHTTPRequestHandler):
+    """Loopback PLATFORM profiles for the PAY-037 key-resolution cases:
+    /with-keys.json (the mint platform key), /no-keys.json (agent_missing_key),
+    /wrong-key.json (a resolvable key that did NOT sign the mandate)."""
+    def do_GET(self):
+        wrong_q = crypto.keypair(b"not-the-platform")[1]
+        bodies = {
+            "/with-keys.json": {"signing_keys": [mint.platform_public_jwk()]},
+            "/no-keys.json": {"name": "keyless platform"},
+            "/wrong-key.json": {"signing_keys": [crypto.jwk_from_pub("wrong", wrong_q)]},
+        }
+        body = bodies.get(self.path)
+        self.send_response(200 if body is not None else 404)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(body or {}).encode())
+
+    def log_message(self, *a):
+        pass
+
+
+def _start_profile_server():
+    srv = ThreadingHTTPServer(("127.0.0.1", PROFILE_PORT), _ProfileHandler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
 
 
 def _boot(extra):
@@ -142,6 +175,34 @@ def golden(ok):
     ok &= check(f"expired mandate -> mandate_expired (got {err.get('code')})",
                 st == 401 and err.get("code") == "mandate_expired")
 
+    # PAY-037 — key resolution from the PLATFORM PROFILE (loopback = real fetch):
+    # a key-less profile MUST be agent_missing_key; a resolvable-but-wrong key MUST
+    # fail signature verification; the published platform key MUST verify + complete.
+    def _complete_with_profile(sid_, mandate, profile_path):
+        hdrs = dict(HDRS)
+        hdrs["UCP-Agent"] = f'profile="{PROFILE_BASE}{profile_path}"'
+        data = json.dumps({"ap2": {"checkout_mandate": mandate}}).encode()
+        req = urllib.request.Request(f"{BASE}/checkout-sessions/{sid_}/complete",
+                                     data=data, headers=hdrs, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                return r.status, json.loads(r.read() or b"{}")
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read() or b"{}")
+
+    _, co2 = _create("g3")
+    sid2 = co2.get("id")
+    m2 = mint.mint_chain(co2)
+    st, err = _complete_with_profile(sid2, m2, "/no-keys.json")
+    ok &= check(f"key-less platform profile -> agent_missing_key (got {err.get('code')})",
+                st == 401 and err.get("code") == "agent_missing_key")
+    st, err = _complete_with_profile(sid2, m2, "/wrong-key.json")
+    ok &= check(f"wrong published key -> mandate_invalid_signature (got {err.get('code')})",
+                st == 401 and err.get("code") == "mandate_invalid_signature")
+    st, done = _complete_with_profile(sid2, m2, "/with-keys.json")
+    ok &= check(f"profile-RESOLVED key verifies -> completed (PAY-037 positive, got {st})",
+                st == 200 and done.get("status") == "completed")
+
     # PAY-044 happy path: a valid mandate over THIS response completes the session.
     st, done = _req(f"/checkout-sessions/{sid}/complete",
                     {"ap2": {"checkout_mandate": mint.mint_chain(co)}})
@@ -179,7 +240,10 @@ def _grade_mchecks():
     import merchant_checks_04_08_ap2 as ma
     from validate_merchant_checks import CONTROLLED_CONFIG
     profile, _ = discover(BASE)
-    ctx = MerchantCtx(BASE, profile, copy.deepcopy(CONTROLLED_CONFIG))
+    cfg = copy.deepcopy(CONTROLLED_CONFIG)
+    cfg["ap2_mandates"] = {
+        "platform_profile_no_keys_url": f"{PROFILE_BASE}/no-keys.json"}
+    ctx = MerchantCtx(BASE, profile, cfg)
     _, detail = run_merchant_checks(ctx, checks=list(ma.CHECKS_04_08_AP2))
     return {chk.id: d for chk, d in detail}
 
@@ -200,6 +264,8 @@ def mchecks_on_mutant(ok):
 
 
 def main():
+    profile_srv = _start_profile_server()
+    _ = profile_srv  # daemon thread; dies with the gate
     proc = _boot(["--ap2"])
     if proc is None:
         print("ap2-enforce: SKIP (fixture did not boot)")

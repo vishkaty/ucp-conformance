@@ -65,6 +65,28 @@ def f_complete_invalid_mandate(ctx):
     return _create_then_complete(ctx, {"ap2": {"checkout_mandate": "not.a.chain~"}})
 
 
+def f_complete_no_keys_profile(ctx):
+    """PAY-037: present a mandate while the CALLER's platform profile (the
+    config-supplied URL, reachable by the merchant) publishes NO usable
+    signing_keys — key resolution must fail before any signature can verify."""
+    url = (ctx.config.get("ap2_mandates") or {}).get("platform_profile_no_keys_url")
+    hdrs = dict(_hdr())
+    hdrs["UCP-Agent"] = f'profile="{url}"'
+    c = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+              _create_payload(ctx), hdrs)
+    cid = (c.json or {}).get("id")
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete", "POST",
+                 {"ap2": {"checkout_mandate": "not.a.chain~"}}, hdrs)
+
+
+def p_agent_missing_key(resp):
+    """A key-less platform profile MUST surface agent_missing_key (PAY-037 — a
+    public signing key MUST be available; L121 unresolvable-key -> error)."""
+    if not (400 <= resp.status < 500):
+        return DEVIATION
+    return CLEAN if _has_value(resp.json, {"agent_missing_key"}) else DEVIATION
+
+
 def p_mandate_required(resp):
     """The completion MUST be rejected (4xx) with the mandate_required code —
     an accepted completion here is the PAY-035 defect itself."""
@@ -98,5 +120,18 @@ CHECKS_04_08_AP2 = [
             'set:code="checkout_incomplete"',
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.ap2_mandate", needs=("product",),
+           transport="rest", versions=V0408),
+    # PAY-037 is config-gated: the merchant must be able to FETCH the supplied
+    # key-less platform profile (config.ap2_mandates.platform_profile_no_keys_url),
+    # so merchants with no such reachable probe skip honestly (the negotiation
+    # checks' config-supplied-URL pattern).
+    MCheck("payment.ap2_signing_key_resolution", ["PAY-037"], "MUST",
+           f_complete_no_keys_profile, p_agent_missing_key,
+           ["status:200",
+            "drop:code",
+            'set:code="checkout_incomplete"',
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.ap2_mandate", needs=("product",),
+           cfg_needs=("ap2_mandates.platform_profile_no_keys_url",),
            transport="rest", versions=V0408),
 ]

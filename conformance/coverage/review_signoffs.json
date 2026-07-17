@@ -554,6 +554,18 @@
      "PAY-047"
     ]
    }
+  },
+  {
+   "batch": "ap2-signing-key-resolution-2026-07-17",
+   "date": "2026-07-17",
+   "reviewer": "adversarial review, AP2 signing-key-resolution (PAY-037)",
+   "spec_reverified": true,
+   "notes": "Re-read ap2-mandates.md Signing Key Requirements (L115-122, pinned copy): a public signing key MUST be available for the business to verify the mandate's signature \u2014 platform-provider flow resolves it from the PLATFORM profile's top-level signing_keys. -> payment.ap2_signing_key_resolution (merchant_checks_04_08_ap2): BEHAVIORAL live check, capability-gated on dev.ucp.shopping.ap2_mandate AND config-gated on ap2_mandates.platform_profile_no_keys_url (the merchant must be able to FETCH the supplied key-less platform profile \u2014 the negotiation checks' config-supplied-URL pattern; merchants without a reachable probe skip honestly). The check presents a mandate under a UCP-Agent whose profile publishes NO usable signing_keys: key resolution MUST fail before any signature can verify, surfacing the spec-registered agent_missing_key code on a 4xx (envelope-agnostic value search). POSITIVE control at the gate: the fixture in --ap2 mode does REAL loopback profile resolution \u2014 the published mint platform key verifies a valid mandate end-to-end (completed), a key-less profile is agent_missing_key, and a resolvable-but-WRONG key is mandate_invalid_signature (resolution and verification failures kept distinct). KILL-PROOFS: engine mutations 5/5 (status:200 acceptance, dropped/wrong code, corrupt/empty); ORD-012-pattern gate proof: clean-pass + kill_safe vs the --ap2 golden, DEVIATION vs the --ap2-no-enforce mutant. Not over-strict: only the CODE is demanded (the spec's error table pins it), never an envelope shape; non-loopback fixture flows keep the deterministic-key contract so the check never grades a merchant on our fixture conventions.",
+   "ids": {
+    "2026-04-08": [
+     "PAY-037"
+    ]
+   }
   }
  ]
 }

@@ -1,7 +1,7 @@
 {
  "_about": "spck.dev site claims register \u2014 every factual claim on the site that is not data-rendered from coverage/agent-coverage JSON must be registered here with evidence and a review-by date, or removed. Bootstrapped by ops/site-content-audit-2026-07.md (Phase 0 of the 2026-07-09 IA redesign). The manifest block is the bindable public source for product counts that do NOT exist in coverage JSONs (which count MUST rows, not checks); the site-freshness gate regenerates these numbers from the engine and goes RED on drift.",
  "manifest": {
-  "merchant_checks": 195,
+  "merchant_checks": 196,
   "agent_checks": 42,
   "agent_defects": 43,
   "versions": [
@@ -77,10 +77,10 @@
   },
   {
    "id": "CLAIM-007",
-   "text": "195 checks, from the browser or your CI",
+   "text": "196 checks, from the browser or your CI",
    "page": "index.html",
    "class": "REG",
-   "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (195: +2 AP2 enforce-side MChecks, verified 2026-07-16)",
+   "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-07-17)",
    "added": "2026-07-09",
    "review_by": "2026-10-09"
   },
