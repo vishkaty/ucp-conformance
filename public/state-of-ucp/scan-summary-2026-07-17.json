@@ -1,0 +1,108 @@
+{
+ "scan_date": "2026-07-17",
+ "source": "UCPChecker/ucp-merchants HF dataset (CC-BY-4.0), 2026-04-02 snapshot, status=verified",
+ "domains_probed": 3037,
+ "live_valid": 2991,
+ "live_pct": 98.5,
+ "method": "independent read-only GET /.well-known/ucp, identified UA w/ contact, curl -sSL, 10 workers",
+ "version_dist": {
+  "2026-04-08": 2970,
+  "null": 16,
+  "2026-01-23": 4,
+  "2026-01-11": 1
+ },
+ "capability_adoption": {
+  "dev.ucp.shopping.checkout": [
+   2974,
+   99.4
+  ],
+  "dev.ucp.shopping.fulfillment": [
+   2972,
+   99.4
+  ],
+  "dev.ucp.shopping.order": [
+   2971,
+   99.3
+  ],
+  "dev.ucp.shopping.discount": [
+   2970,
+   99.3
+  ],
+  "dev.ucp.shopping.cart": [
+   2970,
+   99.3
+  ],
+  "dev.ucp.shopping.catalog.search": [
+   2965,
+   99.1
+  ],
+  "dev.ucp.shopping.catalog.lookup": [
+   2965,
+   99.1
+  ],
+  "dev.shopify.catalog": [
+   2962,
+   99.0
+  ],
+  "dev.ucp.shopping.buyer_consent": [
+   4,
+   0.1
+  ],
+  "dev.ucp.common.identity_linking": [
+   4,
+   0.1
+  ],
+  "dev.ucp.shopping.ap2_mandate": [
+   2,
+   0.1
+  ],
+  "com.ucpchecker.domain_check": [
+   1,
+   0.0
+  ],
+  "com.ucpchecker.bulk_check": [
+   1,
+   0.0
+  ],
+  "com.ucpchecker.compare": [
+   1,
+   0.0
+  ],
+  "com.ucpchecker.router": [
+   1,
+   0.0
+  ],
+  "dev.ucp.shopping.products": [
+   1,
+   0.0
+  ],
+  "dev.ucp.shopping.checkout.embedded": [
+   1,
+   0.0
+  ],
+  "dev.ucp.shopping.catalog": [
+   1,
+   0.0
+  ],
+  "com.appointedd.schedule": [
+   1,
+   0.0
+  ],
+  "com.appointedd.booking": [
+   1,
+   0.0
+  ]
+ },
+ "transports": {
+  "('embedded', 'mcp')": 2962,
+  "()": 16,
+  "('rest',)": 6,
+  "('embedded', 'mcp', 'rest')": 3,
+  "('mcp',)": 2,
+  "('mcp', 'rest')": 1,
+  "('embedded', 'rest')": 1
+ },
+ "signing_keys_present": 11,
+ "profiles_advertising_rest": 11,
+ "uniform_8cap_profiles": 2962
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The State of UCP, Q3 2026 — endorsement vs. real adoption | spck.dev</title>
+<meta name="description" content="An independent, data-backed snapshot of the Universal Commerce Protocol: spec growth, live-endpoint measurements, SDK and developer signals, and the honest gap between endorsement and deployment. Every number links to its source.">
+<link rel="canonical" href="https://spck.dev/state-of-ucp">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://spck.dev/state-of-ucp">
+<meta property="og:title" content="The State of UCP, Q3 2026">
+<meta property="og:description" content="The most-endorsed protocol in commerce — and what's actually deployed. Every number links to its exact source.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The State of UCP, Q3 2026">
+<meta name="twitter:description" content="Endorsement vs. real adoption, measured layer by layer.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
+<style>
+  .wrap { max-width:840px; margin:0 auto; padding:40px 24px 8px; }
+  .wrap h1 { font-size:clamp(26px,4vw,36px); font-weight:800; letter-spacing:-.8px; margin:0 0 6px; color:var(--ink); }
+  .wrap .standfirst { font-size:17px; font-weight:600; color:var(--ink); margin:0 0 14px; }
+  .wrap .sub { color:var(--muted); margin:0 0 24px; font-size:14.5px; line-height:1.65; }
+  .wrap h2 { font-size:20px; font-weight:800; letter-spacing:-.3px; margin:44px 0 8px; color:var(--ink); }
+  .wrap h2::before { content:""; display:inline-block; width:8px; height:8px; border-radius:2px; background:var(--primary); margin-right:10px; vertical-align:middle; }
+  .wrap p { color:var(--ink); font-size:14.8px; line-height:1.7; margin:12px 0; }
+  .wrap p.muted, .wrap .note { color:var(--muted); font-size:13px; line-height:1.6; }
+  .statgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:18px 0; }
+  .stat { border:1px solid rgba(127,127,127,.25); border-radius:10px; padding:14px; }
+  .stat .n { font-size:24px; font-weight:800; color:var(--ink); letter-spacing:-.5px; }
+  .stat .l { font-size:12.5px; color:var(--muted); margin-top:4px; line-height:1.4; }
+  table.rt { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; }
+  table.rt th, table.rt td { text-align:left; padding:8px 10px; border-bottom:1px solid rgba(127,127,127,.25); vertical-align:top; }
+  table.rt th { color:var(--muted); font-weight:600; font-size:12.5px; }
+  table.rt td.num, table.rt th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .wrap ol, .wrap ul { margin:10px 0 0; padding-left:22px; }
+  .wrap li { margin:8px 0; color:var(--ink); font-size:14.5px; line-height:1.65; }
+  .provenance { border:1px solid rgba(127,127,127,.25); border-radius:10px; padding:16px 18px; margin:30px 0 10px; }
+  .provenance h3 { margin:0 0 8px; font-size:15px; color:var(--ink); }
+  .wrap a { color:var(--primary); text-decoration:none; } .wrap a:hover { text-decoration:underline; }
+  .tablewrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
+<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">State of UCP · Q3 2026</div>
+    <h1>The State of UCP, Q3 2026</h1>
+    <p class="standfirst">The most-endorsed protocol in commerce — and what's actually deployed.</p>
+    <p class="sub">An independent, unofficial, data-backed snapshot published 2026-07-17 — not affiliated with or
+endorsed by the UCP maintainers. Every number on this page links to its exact source — the spec line it was
+counted from, the primary announcement, or the raw data we measured (published alongside this page). Where the
+honest answer is "announced, not verifiably live," we say so. No individual merchant is named or graded.</p>
+  </header>
+
+  <h2>1 · The ambition: compounding fast, with nearly every major name behind it</h2>
+  <p data-attribution>The Universal Commerce Protocol — Google and Shopify's standard for agent-driven shopping — arrived in
+January 2026 with co-developers Shopify, Etsy, Wayfair, Target and Walmart, and twenty-plus endorsers including
+Adyen, American Express, Best Buy, Flipkart, Macy's, Mastercard, Stripe, The Home Depot, Visa and Zalando
+(<a href="https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/" rel="noopener">Google's launch post</a>,
+<a href="https://shopify.engineering/UCP" rel="noopener">Shopify Engineering</a>). Its payments companion AP2
+launched with Mastercard, Amex, JCB, UnionPay, Adyen, PayPal, Coinbase and more
+(<a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" rel="noopener">Google Cloud, Sept 2025</a>).</p>
+  <p>The spec has moved as fast as the endorsements. Across three tagged releases, the count of MUST-level
+requirements in our register went from
+<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_01_11">178</span> to
+<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_01_23">188</span> to
+<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_04_08">364</span> —
+nearly doubling in the latest release. Every requirement is individually traceable at
+<a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
+  <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
+2026-05-22 after post-date cherry-picks — "three releases in three months" describes the tagged artifacts, not a
+clean calendar cut.</p>
+  <div class="tablewrap"><table class="rt">
+    <tr><th>Area</th><th class="num">Jan&nbsp;11</th><th class="num">Jan&nbsp;23</th><th class="num">Apr&nbsp;08</th><th>What it is</th></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/identity-linking.md#L34-L35" rel="noopener">identity-linking</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_identity_linking">57</b></td><td>OAuth account linking for agents</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">signatures</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_signatures">33</b></td><td>RFC 9421 request/response signing</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/pagination.json#L42" rel="noopener">catalog</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_catalog">32</b></td><td>Product search &amp; lookup</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/message_error.json#L6" rel="noopener">error model</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_error_envelope">25</b></td><td>In-band structured errors</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/cart.md#L66" rel="noopener">cart</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_cart">14</b></td><td>Pre-checkout cart management</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/checkout.md#L770" rel="noopener">totals</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_totals">14</b></td><td>Money-math reconciliation rules</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/ucp.json#L150" rel="noopener">payment</a></td><td class="num">35</td><td class="num">37</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_payment">44</b></td><td>incl. the AP2 mandate extension</td></tr>
+  </table></div>
+  <p>Identity, cryptographic signatures and agent payments all arrived essentially at once: UCP stopped being a
+checkout API and became a security-and-identity protocol. One hazard for anyone maintaining an implementation
+across versions: requirement IDs are renumbered between eras, so pinning by ID can silently change meaning.</p>
+  <p>That is the ambition. The rest of this page measures what has actually been <em>deployed</em> underneath it —
+layer by layer, because endorsement is not adoption.</p>
+
+  <h2>2 · The buyers: essentially one, so far</h2>
+  <p data-attribution>An agent protocol needs agents that buy. No agent surface beyond Google's own is confirmed by a primary
+source to consume UCP — AI Mode in Search, the Gemini app, and Business Agent
+(<a href="https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/" rel="noopener">Google</a>).
+In that same launch post, UCP-powered checkout inside AI Mode and Gemini was described as "coming soon" — not
+generally available at announcement. Claims that other AI assistants consume UCP appear only in secondary
+marketing blogs; we found no primary source, so we don't report them as fact.</p>
+
+  <h2>3 · The sellers: one platform's provisioning, and a handful of real adopters</h2>
+  <p data-attribution>We probed the <code>/.well-known/ucp</code> endpoint of
+<span data-live="state-of-ucp/adoption-facts.json:$.named_brands_probed">8</span> named launch partners directly.
+<b>None served a real UCP profile</b> — every one returned a 404, a redirect, or a bot wall. That is not a
+failing: by design, these brands participate through Google's managed agent surfaces rather than hosting their
+own endpoints. But it means the marquee names cannot be counted as live UCP endpoints — and most public tallies
+quietly do.</p>
+  <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
+frame: the
+<a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
+(CC-BY-4.0); measurement: our own read-only probe on 2026-07-17, aggregates published in
+<a href="/state-of-ucp/scan-summary.json">scan-summary.json</a>.</p>
+  <div class="statgrid">
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.domains_probed">3037</div><div class="l">verified domains probed</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.live_valid">2974</div><div class="l">served a live, valid profile</div></div>
+    <div class="stat"><div class="n"><span data-live="state-of-ucp/scan-summary.json:$.platform_hosted_pct">99.4</span>%</div><div class="l">route to a single platform's infrastructure (*.myshopify.com)</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.non_platform_endpoints">11</div><div class="l">deliberate, self-hosted endpoints</div></div>
+  </div>
+  <p>Two independent registries agree with the hosting picture: the
+<a href="https://ucpregistry.com/api/v1/merchants?status=verified" rel="noopener">ucpregistry.com API</a> lists
+<span data-live="state-of-ucp/adoption-facts.json:$.registry_verified_total">47</span> verified merchants — all
+on the same platform — and the community awesomeucp directory resolves the same way. This is one platform
+switching on UCP across its storefront base: infrastructure readiness at scale, on the platform's timeline, not
+thousands of independent adoption decisions. And it says nothing about live agent transactions — no primary
+source anywhere quantifies those, so neither do we.</p>
+  <p>Strip the platform default away and genuine, self-directed adoption is tiny — roughly a handful of real
+self-hosted merchants, a few ecosystem tools, and a few demos, including one booking-and-scheduling vendor
+extending UCP beyond retail with custom capabilities. Here is the striking part: the advanced, per-merchant
+features of the spec live almost exclusively in that tiny deliberate tail.</p>
+  <div class="tablewrap"><table class="rt">
+    <tr><th>The spec's frontier</th><th class="num">Endpoints advertising it</th></tr>
+    <tr><td>RFC 9421 signing keys published</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.signing_keys_present">11</b> (<span data-live="state-of-ucp/scan-summary.json:$.signing_keys_pct">0.4</span>%)</td></tr>
+    <tr><td>identity-linking capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_identity_linking">4</b></td></tr>
+    <tr><td>buyer-consent capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_buyer_consent">4</b></td></tr>
+    <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
+  </table></div>
+  <p>The 99.4% of endpoints on the platform default carry none of the frontier; the handful who deliberately
+adopted carry essentially all of it — one self-hosted retailer implements the entire stack, AP2 payment mandates
+included, by itself. The spec's January ambition is running years ahead of any real, differentiated deployment.</p>
+
+  <h2>4 · The developers: enormous interest, early implementation</h2>
+  <p data-attribution>The gap shows up a third time in the code. The
+<a href="https://github.com/Universal-Commerce-Protocol/ucp" rel="noopener">UCP spec repository</a> has
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_spec">3216</span> stars — remarkable for a
+six-month-old protocol. The repositories you'd actually build on are far smaller:
+<a href="https://github.com/Universal-Commerce-Protocol/samples" rel="noopener">samples</a>
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_samples">225</span>,
+<a href="https://github.com/Universal-Commerce-Protocol/python-sdk" rel="noopener">python-sdk</a>
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_python_sdk">80</span>,
+<a href="https://github.com/Universal-Commerce-Protocol/js-sdk" rel="noopener">js-sdk</a>
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_js_sdk">45</span>,
+<a href="https://github.com/Universal-Commerce-Protocol/conformance" rel="noopener">conformance</a>
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">21</span> stars
+(captured 2026-07-17). Downstream use is smaller still — the Python SDK shows roughly
+<span data-live="state-of-ucp/adoption-facts.json:$.python_sdk_dependents_approx">7</span> dependent
+repositories, and a code search for the AP2 mandate token returns single digits across all of GitHub.</p>
+  <p>SDK downloads are modest but real, consistent with a young protocol: the official
+<a href="https://www.npmjs.com/package/@ucp-js/sdk" rel="noopener">@ucp-js/sdk</a> sees about
+<span data-live="state-of-ucp/adoption-facts.json:$.npm_js_sdk_month">9239</span> downloads/month, the official
+Python <a href="https://pypi.org/project/ucp-sdk/" rel="noopener">ucp-sdk</a> about
+<span data-live="state-of-ucp/adoption-facts.json:$.pypi_sdk_month">2916</span>/month, and the Rust
+<a href="https://crates.io/crates/ucp-schema" rel="noopener">ucp-schema</a> about
+<span data-live="state-of-ucp/adoption-facts.json:$.crates_schema_total">1979</span> lifetime. Beyond the
+official org, roughly three dozen third-party repositories genuinely implement UCP — platform connectors, a
+community Java SDK, vendor demos: a real implementer base, but an early one.</p>
+
+  <h2>5 · The payments frontier is announced, not live</h2>
+  <p data-attribution>AP2's card-network cohort is the deepest endorsement list of all — and the least deployed. In the primary
+announcements, no card network is live for agentic card payments; AP2's launch framed itself as a call for
+collaboration. The only production claim in the AP2 world is the x402 crypto extension
+(<a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" rel="noopener">Google Cloud</a>)
+— crypto rails, not cards. That matches what we measured in the wild:
+<span data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</span> live endpoints advertise AP2
+mandates, and the mandate token barely appears in public code at all.</p>
+
+  <h2>6 · Why the "how many merchants?" question is so easy to get wrong</h2>
+  <ol>
+    <li><b>A served discovery profile is not an adoption.</b> Some 99.4% of "verified UCP merchants" are one platform
+auto-provisioning an endpoint; the store made no decision. Provisioned ≠ adopted ≠ transacting.</li>
+    <li><b>An endorsement is not a deployment.</b> The marquee brands endorse and participate via managed
+surfaces; they do not serve their own endpoints.</li>
+    <li><b>"Conformant" is three different questions.</b> Of the
+<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_04_08">364</span> requirements, as we
+classify them: <span data-live="state-of-ucp/adoption-facts.json:$.testability_server">185</span> test a business
+server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_agent_bound">90</span> bind the buying
+agent (which almost no tooling measures — our dedicated agent-side register catalogues
+<span data-live="state-of-ucp/adoption-facts.json:$.agent_axis_obligations">105</span> platform obligations,
+public at <a href="/agent-coverage.json">agent-coverage.json</a>), and
+<span data-live="state-of-ucp/adoption-facts.json:$.testability_process">89</span> are process/manual. The
+failures that will actually hurt users — an agent completing a checkout whose totals don't reconcile, or paying
+with an instrument the merchant never offered — live on the agent side, measured today by almost no one.</li>
+  </ol>
+
+  <h2>7 · Seven things worth checking in your own implementation</h2>
+  <ol>
+    <li><b>Discount signs.</b> In <code>2026-04-08</code>, discount amounts in <code>totals[]</code> are
+<em>negative</em> (schema-enforced) — the opposite of the earlier convention, and the most common money-math bug.</li>
+    <li><b>Signature encoding.</b> <a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">RFC 9421
+requires fixed-width raw r‖s</a>; most crypto libraries emit ASN.1/DER by default. The 30-second check:
+base64-decode one signature — a conformant P-256 signature is exactly 64 bytes.</li>
+    <li><b>The error model.</b> UCP's canonical failure posture is in-band (HTTP 200 with a
+<code>messages[]</code> entry of type <code>error</code>), not HTTP-4xx-only — implementations still disagree here.</li>
+    <li><b>Serialization strictness.</b> Null-padding unset optional fields, or generated models that don't
+enforce <code>minProperties</code>, quietly produce non-conformant payloads.</li>
+    <li><b>Transport parity.</b> What your profile advertises vs. what each transport actually serves, and header
+requirements that differ between REST and MCP.</li>
+    <li><b>The AP2 payments frontier.</b> The mandate layer tracks an evolving draft; wire format, schema pattern
+and reference implementation can disagree. Pin exact versions and validate against more than one oracle.</li>
+    <li><b>Toolchain drift.</b> Published package versions can lag tagged releases — verify what your
+dependencies actually resolve to.</li>
+  </ol>
+  <p class="note">Several of these have been addressed in the reference implementations through the normal
+contribution process.</p>
+
+  <h2>8 · What to watch</h2>
+  <p data-attribution>The through-line is a protocol whose ambition and endorsement are running well ahead of its deployment. What
+would close the gap: a second buyer-agent ecosystem beyond Google's surfaces; a card network going live on AP2;
+non-platform merchants adopting the frontier features at any scale; and agent-side conformance becoming table
+stakes the moment real money moves through autonomous agents. The distance between "passes conformance" and
+"behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.</p>
+
+  <div class="provenance">
+    <h3>Methodology &amp; provenance</h3>
+    <p class="note">Spec counts: spck.dev's public register (<a href="/coverage.json">coverage.json</a>), pinned
+to release-tag commits (<code>2026-04-08</code> → <code>a2d8bf0…</code>); every requirement links to its spec
+line; method at <a href="/docs">spck.dev/docs</a>. Live-endpoint data: population frame from the CC-BY-4.0
+UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); measurements are our own read-only
+<code>/.well-known/ucp</code> probe of 2026-07-17; aggregates at
+<a href="/state-of-ucp/scan-summary.json">scan-summary.json</a> and
+<a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
+crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
+2026-07-17. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
+named or graded; aggregates only. Point-in-time; reproducible against the same public sources. Corrections
+welcome — open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>
+  </div>
+</div>
+<footer class="site-footer"><div class="foot-inner">
+  <span>spck.dev — an unofficial, community-built UCP conformance tester.</span>
+  <span><a href="/docs">Docs</a> · <a href="/coverage">Coverage</a> · <a href="/rubric">Rubric</a> ·
+  <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a></span>
+</div></footer>
+<script src="/site.js"></script>
+</body>
+</html>
