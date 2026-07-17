@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAY-035 — Payment conformance check | spck.dev</title>
-<meta name="description" content="UCP requirement PAY-035: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
+<title>PAY-044 — Payment conformance check | spck.dev</title>
+<meta name="description" content="UCP requirement PAY-044: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -32,18 +32,18 @@
 <div class="wrap">
 <header class="page-head">
   <div class="eyebrow"><a href="/checks/">Check register</a> / Payment</div>
-  <h1>PAY-035</h1>
+  <h1>PAY-044</h1>
   <p class="sub">A requirement the spck.dev suite checks on UCP servers. The quoted text is
 the normative requirement; the citation links to the exact line of the pinned spec source
 it was taken from.</p>
 </header>
-<p class="note">2026-01-11:</p><blockquote class="req-quote">The merchant_authorization is a JWS Detached Content signature; its header must contain alg (ES256/ES384/ES512) and kid claims.</blockquote><p class="note">2026-01-23:</p><blockquote class="req-quote">The merchant_authorization is a JWS Detached Content signature; its header must contain alg (ES256/ES384/ES512) and kid claims.</blockquote><p class="note">2026-04-08:</p><blockquote class="req-quote">The business must not accept a complete_checkout request that lacks ap2.checkout_mandate.</blockquote>
+<blockquote class="req-quote">Once AP2 is negotiated, both parties must follow the defined mandate flow steps to ensure cryptographic integrity.</blockquote>
 <dl class="meta-grid">
   <dt>Keyword</dt><dd>MUST</dd>
   <dt>Area</dt><dd>Payment</dd>
-  <dt>Versions</dt><dd><span class="chip">2026-01-11</span> <span class="chip">2026-01-23</span> <span class="chip">2026-04-08</span></dd>
-  <dt>Testability</dt><dd>testable</dd>
-  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/806a5b74d3a5a918206844ea980450233b38664e/source/schemas/shopping/ap2_mandate.json#L12" rel="noopener">ucp:source/schemas/shopping/ap2_mandate.json#L12</a> <span class="chip">2026-01-11</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/dcf7eac71fc370dcc8768fcdbc5aa737037cca05/source/schemas/shopping/ap2_mandate.json#L12" rel="noopener">ucp:source/schemas/shopping/ap2_mandate.json#L12</a> <span class="chip">2026-01-23</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/ap2-mandates.md#L108" rel="noopener">ucp:docs/specification/ap2-mandates.md#L108</a> <span class="chip">2026-04-08</span></dd>
+  <dt>Versions</dt><dd><span class="chip">2026-04-08</span></dd>
+  <dt>Testability</dt><dd>needs a receiver the suite controls, so it runs in the CLI/full suite</dd>
+  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/ap2-mandates.md#L242" rel="noopener">ucp:docs/specification/ap2-mandates.md#L242</a> <span class="chip">2026-04-08</span></dd>
 </dl>
 <h2>How this is graded</h2>
 <p class="sub">A deviation on a MUST fails the run and shows the requirement next to the

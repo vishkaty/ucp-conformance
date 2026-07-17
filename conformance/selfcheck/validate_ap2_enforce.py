@@ -169,6 +169,36 @@ def mutant(ok):
     return ok
 
 
+def _grade_mchecks():
+    """Run the register-mapped MChecks (merchant_checks_04_08_ap2) against the
+    booted fixture through the real merchant-checks runner (ORD-012 pattern)."""
+    sys.path.insert(0, str(ROOT / "conformance" / "checks"))
+    import copy
+    from merchant import MerchantCtx, discover
+    from merchant_checks import run_merchant_checks
+    import merchant_checks_04_08_ap2 as ma
+    from validate_merchant_checks import CONTROLLED_CONFIG
+    profile, _ = discover(BASE)
+    ctx = MerchantCtx(BASE, profile, copy.deepcopy(CONTROLLED_CONFIG))
+    _, detail = run_merchant_checks(ctx, checks=list(ma.CHECKS_04_08_AP2))
+    return {chk.id: d for chk, d in detail}
+
+
+def mchecks_on_golden(ok):
+    print("register MChecks vs GOLDEN (must clean-pass + kill_safe):")
+    for cid, d in _grade_mchecks().items():
+        ok &= check(f"  {cid}: {d.get('status')} (kill_safe={d.get('kill_safe')})",
+                    d.get("status") == "clean-pass" and d.get("kill_safe") is True)
+    return ok
+
+
+def mchecks_on_mutant(ok):
+    print("register MChecks vs MUTANT (must DEVIATE):")
+    for cid, d in _grade_mchecks().items():
+        ok &= check(f"  {cid}: {d.get('status')}", d.get("status") == "deviation")
+    return ok
+
+
 def main():
     proc = _boot(["--ap2"])
     if proc is None:
@@ -176,6 +206,7 @@ def main():
         return 2
     try:
         ok = golden(True)
+        ok = mchecks_on_golden(ok)
     finally:
         proc.terminate()
         proc.wait(timeout=5)
@@ -185,6 +216,7 @@ def main():
         return 2
     try:
         ok = mutant(ok)
+        ok = mchecks_on_mutant(ok)
     finally:
         proc.terminate()
         proc.wait(timeout=5)

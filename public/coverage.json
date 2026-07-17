@@ -4433,14 +4433,14 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 239,
+   "check": 245,
    "exempt": 81,
-   "gap": 44,
-   "accounted_pct": 88,
+   "gap": 38,
+   "accounted_pct": 90,
    "gap_by_testability": {
     "manual": 7,
     "needs-oauth": 3,
-    "needs-receiver": 34
+    "needs-receiver": 28
    },
    "areas": [
     {
@@ -4523,10 +4523,10 @@
     },
     {
      "area": "payment",
-     "check": 21,
+     "check": 27,
      "exempt": 13,
-     "gap": 10,
-     "gap_needs-receiver": 10,
+     "gap": 4,
+     "gap_needs-receiver": 4,
      "musts": 44
     },
     {
@@ -7946,10 +7946,12 @@
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The business must not accept a complete_checkout request that lacks ap2.checkout_mandate.",
      "source": "ucp:docs/specification/ap2-mandates.md#L108",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-036",
@@ -7977,10 +7979,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "If a public key cannot be resolved or the signature is invalid, the business must return an error.",
      "source": "ucp:docs/specification/ap2-mandates.md#L122",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-039",
@@ -8021,10 +8025,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The checkout mandate must contain the full checkout response including the ap2.merchant_authorization field.",
      "source": "ucp:docs/specification/ap2-mandates.md#L207",
-     "covered_by": []
+     "covered_by": [
+      "area_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-043",
@@ -8043,20 +8049,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Once AP2 is negotiated, both parties must follow the defined mandate flow steps to ensure cryptographic integrity.",
      "source": "ucp:docs/specification/ap2-mandates.md#L242",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-045",
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A completion request without mandates must result in a session failure.",
      "source": "ucp:docs/specification/ap2-mandates.md#L244",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "PAY-046",
@@ -8074,10 +8084,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Upon receiving the complete request, the business must perform the defined negotiation-enforcement and mandate/authorization verification steps.",
      "source": "ucp:docs/specification/ap2-mandates.md#L380",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_ap2.py"
+     ]
     },
     {
      "id": "SAE-001",

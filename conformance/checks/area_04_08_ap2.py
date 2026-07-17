@@ -27,11 +27,13 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[0] / "common"))
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
+sys.path.insert(0, str(HERE.parents[0] / "testbed"))
 import json                                                    # noqa: E402
-from engine import Check                                       # noqa: E402
+from engine import Check, Resp                                 # noqa: E402
 from verdict_gate import CLEAN, DEVIATION, INCONCLUSIVE        # noqa: E402
 from schema_check import fixture_resp                          # noqa: E402
 import crypto                                                  # noqa: E402
+import nested                                                  # noqa: E402
 
 # The spec (ap2_mandate.json) allows alg ES256/ES384/ES512. Our verifier is the
 # ES256 baseline; a spec-valid ES384/ES512 authorization is reported INCONCLUSIVE
@@ -95,6 +97,29 @@ def _fetch(base):
     return fixture_resp("2026-04-08", _FIXTURE)
 
 
+# PAY-042 — the UCP nested cryptographic binding: the checkout mandate wraps the
+# FULL checkout INCLUDING ap2.merchant_authorization, and that nested business
+# signature verifies (ap2-mandates.md L207-209 / L395-408). The golden is a real
+# reference-minted delegate chain embedding our fixture checkout. The engine
+# mutations below cover the structural kills; the DEEP kill-proof (valid chains
+# whose nesting alone is broken — missing mAuth / tampered terms / hash mismatch,
+# each passing the generic chain layer) is the ap2-e2e gate's nested tier.
+_NESTED_GOLDEN = (HERE.parents[0] / "selfcheck" / "fixtures" / "ap2" / "golden"
+                  / "nested" / "nested_ucp.valid.json")
+
+
+def _fetch_nested(base):
+    return Resp(200, {}, _NESTED_GOLDEN.read_text())
+
+
+def ap2_nested_binding(resp):
+    wire = (resp.json or {}).get("wire")
+    if not isinstance(wire, str) or not wire:
+        return DEVIATION
+    ok, _reason = nested.verify_ucp_nested(wire, _Q)
+    return CLEAN if ok else DEVIATION
+
+
 CHECKS = [
     Check("payment.ap2_authorization_present", ["PAY-034", "PAY-039"], "MUST",
           _fetch, ap2_present,
@@ -106,4 +131,9 @@ CHECKS = [
           ['set:currency="EUR"',
            "set:line_items.0.quantity=99",
            "set:totals.1.amount=1"]),
+    Check("payment.ap2_mandate_nested_binding", ["PAY-042"], "MUST",
+          _fetch_nested, ap2_nested_binding,
+          ["drop:wire",
+           'set:wire="a.b.c~"',
+           'set:wire=""']),
 ]

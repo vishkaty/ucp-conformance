@@ -20,7 +20,7 @@ A UCP checkout takes two systems, and we test both:
 
 - **Merchant platforms** — you expose a UCP agentic interface over your catalog, cart,
   payments, and checkout orchestration. The suite below verifies AI shopping agents can
-  actually discover and buy from you. **193 kill-rate-validated checks.**
+  actually discover and buy from you. **195 kill-rate-validated checks.**
 - **Shopping agents** — you build a shopping-orchestration AI that carts and checks out
   across merchant platforms over UCP. The **agent lane** (`conformance/agent/`) grades your
   agent's *own* behavior — OAuth mix-up / PKCE, request signing, refusing mismatched totals,
@@ -107,7 +107,7 @@ open **gap** — each requirement deep-linked to the pinned official spec line. 
 `conformance/coverage/matrix.py` and enforced by a CI gate: stale data, a coverage
 regression (ratchet), or a wrong check-count claim on the site fails the build.
 
-Currently **193 kill-rate-validated checks** account for **87% of 2026-04-08**, **87% of
+Currently **195 kill-rate-validated checks** account for **90% of 2026-04-08**, **87% of
 2026-01-23**, and **87% of 2026-01-11** normative MUSTs (check + documented exemption).
 The denominator itself is now gated: a `register-completeness` CI gate reconciles **every**
 mandatory keyword in the pinned prose against the register, so the percentage is a fraction

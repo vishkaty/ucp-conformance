@@ -537,6 +537,23 @@
      "PAY-043"
     ]
    }
+  },
+  {
+   "batch": "ap2-enforce-and-nested-binding-2026-07-16",
+   "date": "2026-07-16",
+   "reviewer": "adversarial review, AP2 enforce-side + nested-binding cluster",
+   "spec_reverified": true,
+   "notes": "Re-read ap2-mandates.md at each cited clause (pinned vendor copy). PAY-035 (L108, MUST NOT accept complete without ap2.checkout_mandate) + PAY-044 (L241, security-locked flow, bypass MUST fail) + PAY-045 (L333/244, completion without mandates MUST result in session failure) + PAY-047 (L380, reject with mandate_required) -> payment.ap2_complete_requires_mandate (merchant_checks_04_08_ap2): BEHAVIORAL live check, capability-gated on dev.ucp.shopping.ap2_mandate so non-AP2 merchants skip honestly; creates a session then attempts completion WITHOUT a mandate; CLEAN only on a 4xx carrying the spec-registered mandate_required code (envelope-agnostic value search \u2014 the spec pins the CODE, not the error-body shape). PAY-038 (L121, unresolvable key / invalid signature MUST return an error) -> payment.ap2_invalid_mandate_rejected: completion with an unverifiable mandate must 4xx with mandate_invalid_signature (agent_missing_key also accepted \u2014 a merchant that fails at key RESOLUTION first is equally spec-registered; ambiguity stated, not hidden). PAY-042 (L207, mandate MUST contain the FULL checkout including ap2.merchant_authorization; L395-408 nested re-verification) -> payment.ap2_mandate_nested_binding (area_04_08_ap2): fixture check over a reference-minted golden chain embedding our schema-valid checkout; predicate = independent frozen-layer verification (checkout_hash identity, merchant-signed checkout_jwt, embedded merchant_authorization present + verifying over JCS(checkout minus ap2)). KILL-PROOFS: engine mutations 5/5+5/5 (status:200 acceptance, dropped/wrong code, corrupt/empty) and 3/3 (dropped/garbage/empty wire); the DEEP kill-proofs live in dedicated gates, ORD-012 pattern: validate_ap2_enforce boots the fixture --ap2 (both MChecks clean-pass + kill_safe; every spec error code exercised live incl. the TRUE scope case \u2014 a fully VALID mandate for a different real session -> mandate_scope_mismatch) and --ap2-no-enforce (the emitting-but-not-enforcing merchant: both MChecks DEVIATE); validate_ap2_e2e's nested tier proves the PAY-042 negatives that PASS the generic chain layer (missing mAuth / terms tampered after signing / hash mismatch) are caught ONLY by the nested verifier. Mandates presented by the checks are minted by our own frozen-layer primitives (testbed/mint.py), whose wire the OFFICIAL reference verifier accepts with zero violations (e2e.our_mint_reference_interop \u2014 two-way interop). Not over-strict: a 4xx without the required code is a DEVIATION per L380's explicit code mandate; scope/expiry/nested rejections are exercised at the gate, not demanded of live merchants beyond the spec text. agent_missing_key remains untested live (needs platform-profile key-resolution modeling, queued with PAY-037 \u2014 stated as a residual, not claimed).",
+   "ids": {
+    "2026-04-08": [
+     "PAY-035",
+     "PAY-038",
+     "PAY-042",
+     "PAY-044",
+     "PAY-045",
+     "PAY-047"
+    ]
+   }
   }
  ]
 }
