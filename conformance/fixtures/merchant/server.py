@@ -15,6 +15,7 @@ Dependency-free (stdlib http.server), so CI can boot it in one line.
     python3 conformance/fixtures/merchant/server.py --port 8184
 """
 import json, argparse, uuid, threading, base64, hashlib, hmac, time, urllib.parse
+import pathlib, sys
 import urllib.request
 from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -1151,6 +1152,15 @@ def profile(base):
             {"version": VERSION,
              "spec": "https://ucp.dev/specification/identity-linking",
              "schema": "https://ucp.dev/schemas/common/identity_linking.json"}]
+    if AP2_MODE:
+        # ap2-mandates.md Discovery: dev.ucp.shopping.ap2_mandate with the
+        # vp_formats_supported config, extending checkout.
+        capabilities["dev.ucp.shopping.ap2_mandate"] = [
+            {"version": VERSION,
+             "spec": f"https://ucp.dev/{VERSION}/specification/ap2-mandates",
+             "schema": f"https://ucp.dev/{VERSION}/schemas/shopping/ap2_mandate.json",
+             "extends": "dev.ucp.shopping.checkout",
+             "config": {"vp_formats_supported": {"dc+sd-jwt": {}}}}]
     out = {"version": VERSION,
            "services": {"dev.ucp.shopping": services},
            "capabilities": capabilities,
@@ -1874,6 +1884,12 @@ def complete_checkout(sid, body, headers=None):
         return _err(409, "checkout session is canceled and cannot be completed")
     if sess["status"] == "completed":
         return _err(409, "checkout session is already completed")
+    # AP2 Business Verification (ap2-mandates.md): once negotiated, a completion
+    # without a valid checkout mandate MUST NOT complete the session.
+    if AP2_MODE and AP2_ENFORCE:
+        rejected = ap2_enforce_complete(sid, sess, body)
+        if rejected is not None:
+            return rejected
     if FAIL_TOKEN in _payment_tokens(body):
         return _err(402, "payment declined by the payment handler")
     # PAYMENT AREA: 3DS/SCA soft-decline (overview.md Scenario B). HTTP 200 with
@@ -2498,6 +2514,66 @@ class _H(BaseHTTPRequestHandler):
             return self._send(200, mcp_dispatch(body))
         self._send(404, {"error_code": "not_found"})
 
+# ── AP2 mandate extension (ap2-mandates.md) — opt-in golden mode ─────────────
+# --ap2 makes the fixture an AP2-capable merchant: advertises the capability,
+# embeds ap2.merchant_authorization (detached JWS over JCS(body minus ap2)) in
+# every checkout response, and ENFORCES ap2.checkout_mandate on complete with the
+# spec's error codes. --ap2-no-enforce is the kill-proof MUTANT: emits but does
+# NOT enforce (the merchant that skips PAY-035/044/045/047).
+AP2_MODE = False
+AP2_ENFORCE = True
+_AP2 = {}
+
+
+def _ap2_init():
+    """Load the testbed crypto lazily (only when --ap2 is passed)."""
+    root = pathlib.Path(__file__).resolve().parents[2]
+    sys.path.insert(0, str(root / "common"))
+    sys.path.insert(0, str(root / "testbed"))
+    import crypto as _crypto            # noqa: PLC0415
+    import merchant_verify as _mv       # noqa: PLC0415
+    import mint as _mint                # noqa: PLC0415
+    _AP2["crypto"] = _crypto
+    _AP2["mv"] = _mv
+    _AP2["d"], _AP2["Q"] = _crypto.keypair(b"ap2-merchant-fixture")
+    _AP2["platform_Q"] = _crypto.pub_from_jwk(_mint.platform_public_jwk())
+
+
+_checkout_body_unsigned = checkout_body
+
+
+def checkout_body(sess):                 # noqa: F811 — deliberate AP2 wrap
+    out = _checkout_body_unsigned(sess)
+    if AP2_MODE:
+        auth = _AP2["crypto"].jws_detached_sign(
+            {"alg": "ES256"}, out, _AP2["d"], kid="merchant-2026")
+        out["ap2"] = {"merchant_authorization": auth}
+    return out
+
+
+def _ap2_err(status, code, detail):
+    return status, {"detail": detail, "code": code}
+
+
+def ap2_enforce_complete(sid, sess, body):
+    """The Business-Verification step of complete (PAY-035/038/044/045/047).
+    Returns None to proceed, or an (status, error_body) rejection."""
+    mandate = ((body or {}).get("ap2") or {}).get("checkout_mandate")
+    if not isinstance(mandate, str) or not mandate:
+        # "reject the request with mandate_required if ap2.checkout_mandate is
+        # missing" — the session MUST NOT complete (PAY-035/045/047)
+        return _ap2_err(401, "mandate_required",
+                        "AP2 was negotiated but the request lacks ap2.checkout_mandate")
+    expected = _checkout_body_unsigned(sess)
+    code = _AP2["mv"].verify_checkout_mandate(
+        mandate, _AP2["platform_Q"], _AP2["Q"],
+        expected_id=sid, expected_totals=expected["totals"])
+    if code:
+        status = {"mandate_expired": 401, "mandate_scope_mismatch": 409}.get(code, 401)
+        return _ap2_err(status, code, f"checkout mandate rejected: {code}")
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser(description="Controlled UCP merchant fixture (version-switchable).")
     ap.add_argument("--port", type=int, default=8184)
@@ -2523,6 +2599,12 @@ def main():
     # ORD-012 / IDL-013 config-gated auth MODES (not mutants — opt-in golden modes):
     ap.add_argument("--require-order-auth", action="store_true",
                     help="ORD-012 golden mode: authenticate GET /orders/{id} (04-08)")
+    ap.add_argument("--ap2", action="store_true",
+                    help="AP2 golden mode: advertise ap2_mandate, embed "
+                         "merchant_authorization, enforce checkout_mandate on complete")
+    ap.add_argument("--ap2-no-enforce", action="store_true",
+                    help="MUTANT (with --ap2): emit merchant_authorization but complete "
+                         "WITHOUT a mandate (PAY-035/044/045/047 kill-proof)")
     ap.add_argument("--require-checkout-scope", action="store_true",
                     help="IDL-013 golden mode: gate 01-era checkout ops behind "
                          "ucp:scopes:checkout_session")
@@ -2559,6 +2641,12 @@ def main():
         OAUTH_VALIDATE_TOKEN = False
     if args.require_order_auth:
         REQUIRE_ORDER_AUTH = True
+    if args.ap2:
+        global AP2_MODE, AP2_ENFORCE
+        AP2_MODE = True
+        _ap2_init()
+        if args.ap2_no_enforce:
+            AP2_ENFORCE = False
     if args.require_checkout_scope:
         REQUIRE_CHECKOUT_SCOPE = True
     if args.checkout_scope_partial:

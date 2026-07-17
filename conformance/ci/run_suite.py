@@ -84,6 +84,7 @@ def gates(server):
         ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),
         ("sdjwt-vs-reference", _py(SELF / "validate_sdjwt_vs_reference.py"),       None, ()),
         ("ap2-e2e",     _py(SELF / "validate_ap2_e2e.py"),                          None, ()),
+        ("ap2-enforce", _py(SELF / "validate_ap2_enforce.py"),                      None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
