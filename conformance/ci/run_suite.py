@@ -109,6 +109,10 @@ def gates(server):
         ("merchant-stability", _py(ROOT / "conformance" / "ci" / "merchant_stability.py",
                                    "--server", CONTROLLED),                     "controlled", (2,)),
         ("shared-api",  _py(ROOT / "conformance" / "ci" / "shared_api_guard.py"), None, ()),
+        # drift tripwire: the pure staleness logic behind the preflight sources-age
+        # warning (SOURCES.lock.json pins that silently age past upstream HEAD). Network
+        # lives in the preflight --check step; this gate covers the logic deterministically.
+        ("sources-age", _py(ROOT / "conformance" / "ci" / "sources_age.py", "--selftest"), None, ()),
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),

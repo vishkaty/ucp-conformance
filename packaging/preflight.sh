@@ -42,6 +42,13 @@ fi
 step "Working tree"
 if [ -z "$(git status --porcelain 2>/dev/null)" ]; then ok "clean"; else bad "uncommitted changes:"; git --no-pager status --short | sed 's/^/    /'; fi
 
+# 3b. Drift tripwire (INFORMATIONAL, never fails): warn when a source pinned to a moving
+#     branch has silently aged past upstream HEAD. Re-pins stay deliberate; this only
+#     makes staleness visible so a month-long silent drift can't recur. Non-fatal +
+#     skip-clean offline.
+step "Source pin freshness (informational)"
+python3 conformance/ci/sources_age.py --check 2>/dev/null | sed 's/^/  /' || true
+
 # 4. Release-only checks (when a tag is supplied).
 if [ -n "$TAG" ]; then
   step "Release: version + wheel bundle currency for $TAG"
