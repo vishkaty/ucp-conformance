@@ -467,13 +467,60 @@ async function adminAudit(request, env) {
   return json({ audit: (await env.USERS.get('admin:audit', 'json')) || [] });
 }
 
+// ── Honest "real usage" summary (SITE-R-024) ──
+// Cloudflare edge counts spck.dev at ~25k "page views"/month, but that is ~99.5%
+// bots/crawlers hammering a new domain. The first-party beacon (global:stats) only
+// fires for real JS-executing humans, so it is the truth. A checked domain that is
+// clearly a QA/dev store (e.g. ascent-testing.myshopify.com) must NOT read as real
+// external adoption — hence classifyDomain, applied at render time (no stored data
+// is changed, so the rule stays reversible).
+
+// A host we (or an obvious placeholder) used for testing, not a real merchant.
+const TEST_HOST_TOKEN = /(^|[.\-_])(test|testing|tests|demo|sandbox|staging|example|dummy|localhost|local|invalid|placeholder|foo|bar)([.\-_:]|$)/;
+export function classifyDomain(host) {
+  const h = String(host || '').trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0];
+  if (!h) return 'test';
+  if (/\.(test|local|localhost|invalid|example)$/.test(h)) return 'test';
+  if (TEST_HOST_TOKEN.test(h)) return 'test';
+  return 'real';
+}
+
+export function summarizeUsage(stats) {
+  const s = stats || {};
+  const SURFACES = ['home', 'check', 'agent', 'sandbox', 'docs', 'coverage'];
+  const humanViews = SURFACES.reduce((a, k) => a + (s[k + '_view'] || 0), 0);
+  const returns = SURFACES.reduce((a, k) => a + (s[k + '_return'] || 0), 0);
+  // Every domain ever run through the checker, from both the instant (anonymous)
+  // and registered-user paths, deduped and summed.
+  const counts = {};
+  for (const src of [s.instantDomains, s.domainsTested]) {
+    for (const [host, n] of Object.entries(src || {})) counts[host] = (counts[host] || 0) + (Number(n) || 0);
+  }
+  const domains = Object.entries(counts)
+    .map(([host, runs]) => ({ host, runs, kind: classifyDomain(host) }))
+    .sort((a, b) => b.runs - a.runs);
+  const realDomains = domains.filter((d) => d.kind === 'real');
+  return {
+    humanViews, returns,
+    instantChecks: s.instantChecks || 0,
+    reportsSaved: s.report_saved || 0,
+    registeredUsers: s.totalUsers || 0,
+    testRuns: s.totalTestRuns || 0,
+    domainsTotal: domains.length,
+    domainsReal: realDomains.length,
+    domainsTest: domains.length - realDomains.length,
+    allTest: domains.length > 0 && realDomains.length === 0,
+    domains, realDomains,
+  };
+}
+
 async function adminStats(request, env) {
   if (!await requireAdmin(request, env)) return json({ error: 'Not authorized' }, 403);
   const stats = await env.USERS.get('global:stats', 'json') || {
     totalUsers: 0, totalLogins: 0, totalTestRuns: 0, totalReports: 0,
     domainsTested: {}, endpointsTested: {}, dailyActivity: {}
   };
-  return json({ stats });
+  return json({ stats, usage: summarizeUsage(stats) });
 }
 
 async function adminUsers(request, env) {

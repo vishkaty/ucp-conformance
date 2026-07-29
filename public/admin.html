@@ -34,6 +34,14 @@
   .kpi .l { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-top:2px; }
   h2 { font-size:16px; margin:0 0 10px; }
   .note { font-size:12.5px; color:var(--muted); line-height:1.6; }
+  .card.hero { border-color:#059669; box-shadow:0 0 0 1px #05966922; }
+  .tag { font-size:10px; font-weight:700; color:#059669; text-transform:uppercase;
+         letter-spacing:.1em; border:1px solid #05966955; border-radius:999px; padding:2px 8px; margin-left:8px; vertical-align:middle; }
+  .badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+           border-radius:999px; padding:1px 7px; }
+  .badge.test { color:#b45309; background:#fef3c7; border:1px solid #f59e0b55; }
+  .badge.real { color:#059669; background:#d1fae5; border:1px solid #05966955; }
+  .warn { color:#b45309; font-weight:600; }
   .tbl-scroll { overflow-x:auto; }
   .who { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
   .addrow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
@@ -74,12 +82,15 @@
   <section id="dash" class="hidden">
     <div class="card"><div class="who"><div id="who" class="note"></div>
       <button id="logout" class="row-btn">Sign out</button></div></div>
+    <div class="card hero"><h2>Real usage <span class="tag">on-page beacon · excludes bots</span></h2>
+      <div id="realusage" class="grid"></div>
+      <p class="note" id="realusage-note"></p></div>
     <div class="card"><h2>Overview</h2><div id="overview" class="grid"></div></div>
     <div class="card"><h2>Page funnel</h2><div id="funnel" class="grid"></div>
       <p class="note">Views and returning-visitor counts from the anonymous, cookieless beacons.</p></div>
     <div class="card"><h2>Top domains</h2>
       <div class="tbl-scroll" id="domains"></div>
-      <p class="note">Stores people ran the instant check against, and badge fetches by domain.</p></div>
+      <p class="note">Domains run through the checker (instant + registered), tagged <span class="badge real">real</span> merchant or <span class="badge test">test</span>/internal — dev shops, staging.*, example.*, localhost.</p></div>
     <div class="card"><h2>Distribution</h2><div id="dist" class="grid"></div>
       <div id="dist-notes"></div></div>
     <div class="card"><h2>Users</h2><div class="tbl-scroll" id="users"></div>
@@ -199,6 +210,26 @@
     api("/api/admin/stats").then(function (r) {
       if (r.status !== 200) return;
       var s = r.body.stats || r.body;
+      var u = r.body.usage || {};
+      // ── Real usage hero — the bot-free truth ──
+      var ru = $("realusage"); clear(ru);
+      kpi(ru, "human page views", u.humanViews);
+      kpi(ru, "returning visits", u.returns);
+      kpi(ru, "instant checks run", u.instantChecks);
+      kpi(ru, "real merchant domains", u.domainsReal);
+      kpi(ru, "test / internal domains", u.domainsTest);
+      kpi(ru, "reports saved", u.reportsSaved);
+      var note = $("realusage-note"); clear(note);
+      if (u.allTest) {
+        note.appendChild(el("span",
+          "⚠ All " + u.domainsTotal + " checked domain(s) are test/internal stores — no confirmed external merchant has run the checker yet.",
+          "warn"));
+      } else if (u.domainsReal) {
+        note.textContent = u.domainsReal + " real merchant domain(s) checked: " +
+          (u.realDomains || []).slice(0, 6).map(function (d) { return d.host; }).join(", ");
+      } else {
+        note.textContent = "No merchant domains checked yet. Cloudflare edge counts are ~99% bots/crawlers — this card is the human signal.";
+      }
       var ov = $("overview"); clear(ov);
       kpi(ov, "users", s.totalUsers); kpi(ov, "logins", s.totalLogins);
       kpi(ov, "test runs", s.totalTestRuns); kpi(ov, "saved reports", s.totalReports);
@@ -213,8 +244,11 @@
       kpi(fu, "sandbox cases run", s.sandbox_case);
       kpi(fu, "agent CTA clicks", s.agent_cta);
       kpi(fu, "reports saved", s.report_saved);
-      var doms = topEntries(s.domainsTested, 15).map(function (d) { return [d[0], d[1]]; });
-      table($("domains"), ["domain (instant checks)", "runs"], doms);
+      var doms = (u.domains || []).slice(0, 20).map(function (d) {
+        var b = el("span", d.kind === "real" ? "real" : "test", "badge " + d.kind);
+        return [d.host, d.runs, b];
+      });
+      table($("domains"), ["domain", "runs", "type"], doms);
     });
   }
 
@@ -236,8 +270,9 @@
         }
       });
       if (m.cloudflare && !m.cloudflare.error) {
-        kpi(d, "site requests 7d", m.cloudflare.requests_7d);
-        kpi(d, "site uniques 7d", m.cloudflare.uniques_7d);
+        kpi(d, "edge requests 7d", m.cloudflare.requests_7d);
+        kpi(d, "edge uniques 7d", m.cloudflare.uniques_7d);
+        notes.appendChild(el("p", "Edge (Cloudflare) traffic is gross and includes bots/crawlers — historically ~99% of it. Treat the Real usage card above as the human signal.", "note"));
       } else if (m.cloudflare) { notes.appendChild(el("p", "Cloudflare: " + m.cloudflare.error, "note")); }
     });
   }
