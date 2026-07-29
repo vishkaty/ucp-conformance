@@ -1092,9 +1092,15 @@ CHECKS = [
            cfg_needs=("fail_payment",), transport="rest"),
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
            ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest"),
+    # VAL-006 is a 2026-01-11/01-23 requirement (a 400 error body with a populated
+    # string `detail`). 2026-04-08 replaced this with the `messages[]` error envelope,
+    # covered separately by the ERR-* checks in area_04_08_error.py (error.response_
+    # envelope_schema / error.messages_non_empty / ERR-001 fields). VAL-006 is absent
+    # from the 04-08 register, so it is version-scoped here to avoid false-flagging a
+    # conformant 04-08 server that correctly returns the messages[] envelope.
     MCheck("validation.error_body", ["VAL-006"], "MUST", out_of_stock_resp, p_error_body,
            ["status:200", "set:detail=\"\"", "drop:detail", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout",
+           capability="dev.ucp.shopping.checkout", versions=("2026-01-11", "2026-01-23"),
            cfg_needs=("out_of_stock_id",), transport="rest"),
     # --- discount (capability-gated + config-gated on discount codes) ---
     MCheck("discount.single_applied", ["DSC-004", "DSC-011"], "MUST", disc_single_resp, p_disc_single,
