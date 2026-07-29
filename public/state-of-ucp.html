@@ -9,7 +9,7 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://spck.dev/state-of-ucp">
 <meta property="og:title" content="The State of UCP, Q3 2026">
-<meta property="og:description" content="The most-endorsed protocol in commerce — and what's actually deployed. Every number links to its exact source.">
+<meta property="og:description" content="The most-endorsed protocol in commerce — and what's actually deployed. Each number links to its exact source.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="The State of UCP, Q3 2026">
 <meta name="twitter:description" content="Endorsement vs. real adoption, measured layer by layer.">
@@ -52,12 +52,25 @@
   <header class="page-head">
     <div class="eyebrow">State of UCP · Q3 2026</div>
     <h1>The State of UCP, Q3 2026</h1>
-    <p class="standfirst">The most-endorsed protocol in commerce — and what's actually deployed.</p>
-    <p class="sub">An independent, unofficial, data-backed snapshot published 2026-07-17 — not affiliated with or
-endorsed by the UCP maintainers. Every number on this page links to its exact source — the spec line it was
-counted from, the primary announcement, or the raw data we measured (published alongside this page). Where the
-honest answer is "announced, not verifiably live," we say so. No individual merchant is named or graded.</p>
+    <p class="standfirst">The most-endorsed protocol in commerce — how much is actually deployed? A tracker we
+plan to refresh monthly.</p>
+    <p class="sub">We were curious how much of UCP is genuinely <em>deployed</em> versus endorsed, so we set out to
+measure it layer by layer — and we plan to keep measuring, on a monthly cadence, in the open. This is the opening
+edition: an independent, unofficial, data-backed read (not affiliated with or endorsed by the UCP maintainers),
+with the data as of 2026-07-17. Each number links to its exact source — the spec line it was counted from, the
+primary announcement, or the raw data we measured (published alongside this page) — and where the honest answer is
+"announced, not verifiably live," we say so. We are certainly missing things and would rather be corrected than
+confident: if you build on UCP and see it differently, please tell us. No individual merchant is named or graded.</p>
   </header>
+
+  <div class="provenance">
+    <p class="note"><b>A note on honesty.</b> This is a best-effort, independent read, and we would rather be
+corrected than confident. We measured what we could and linked each figure to a source — but measurements have
+limits, methods can miss things, and even primary sources can be wrong or change over time. If anything here looks
+off — a number, a link, a claim — please <a href="https://github.com/vishkaty/ucp-conformance/issues" rel="noopener">tell
+us</a> and we will check it and fix it, and note the correction. Getting it right matters more to us than looking
+right — help us keep it honest.</p>
+  </div>
 
   <h2>1 · The ambition: compounding fast, with nearly every major name behind it</h2>
   <p data-attribution>The Universal Commerce Protocol — Google and Shopify's standard for agent-driven shopping — arrived in
@@ -93,21 +106,31 @@ across versions: requirement IDs are renumbered between eras, so pinning by ID c
   <p>That is the ambition. The rest of this page measures what has actually been <em>deployed</em> underneath it —
 layer by layer, because endorsement is not adoption.</p>
 
+  <p><em>Update (late July 2026):</em> the pace has not slowed. The spec's main branch has already moved
+<a href="https://github.com/Universal-Commerce-Protocol/ucp/compare/v2026-04-08...main" rel="noopener">well beyond
+the <code>2026-04-08</code> tag</a>, with a substantial next release taking shape — buyer consent, split payments,
+a loyalty extension, delegated identity providers, fulfillment methods on the catalog, and new permalink, policies
+and Actions primitives have merged to main. In the same window the open-source reference server caught up to the
+<code>2026-04-08</code> release (its <code>/.well-known/ucp</code> now advertises that version, where earlier it
+served <code>2026-01-23</code>) — a reminder that even the canonical implementation trails the written spec by a
+release. The gap this page is about is not closing; the spec keeps opening new frontier ahead of the deployment
+underneath it.</p>
+
   <h2>2 · The buyers: essentially one, so far</h2>
   <p data-attribution>An agent protocol needs agents that buy. No agent surface beyond Google's own is confirmed by a primary
 source to consume UCP — AI Mode in Search, the Gemini app, and Business Agent
-(<a href="https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/" rel="noopener">Google</a>).
-In that same launch post, UCP-powered checkout inside AI Mode and Gemini was described as "coming soon" — not
-generally available at announcement. Claims that other AI assistants consume UCP appear only in secondary
-marketing blogs; we found no primary source, so we don't report them as fact.</p>
+(<a href="https://blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms/" rel="noopener">Google</a>).
+That same announcement frames the shopping side as still arriving — UCP "will soon power a new checkout feature" in
+AI Mode and the Gemini app — rather than generally available at launch. Claims that other AI assistants consume UCP
+appear only in secondary marketing blogs; we found no primary source, so we don't report them as fact.</p>
 
   <h2>3 · The sellers: one platform's provisioning, and a handful of real adopters</h2>
   <p data-attribution>We probed the <code>/.well-known/ucp</code> endpoint of
 <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_probed">8</span> named launch partners directly.
 <b>None served a real UCP profile</b> — every one returned a 404, a redirect, or a bot wall. That is not a
 failing: by design, these brands participate through Google's managed agent surfaces rather than hosting their
-own endpoints. But it means the marquee names cannot be counted as live UCP endpoints — and most public tallies
-quietly do.</p>
+own endpoints. It is a subtle point worth flagging, because it means the marquee names cannot be counted as live
+UCP endpoints — and many public tallies still count them.</p>
   <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
 frame: the
 <a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
@@ -220,7 +243,9 @@ contribution process.</p>
 would close the gap: a second buyer-agent ecosystem beyond Google's surfaces; a card network going live on AP2;
 non-platform merchants adopting the frontier features at any scale; and agent-side conformance becoming table
 stakes the moment real money moves through autonomous agents. The distance between "passes conformance" and
-"behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.</p>
+"behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.
+We will keep tracking it here month by month, and we would genuinely welcome the help: if you are building on UCP
+and seeing something different from what we measured, tell us what we missed.</p>
 
   <div class="provenance">
     <h3>Methodology &amp; provenance</h3>
@@ -233,8 +258,9 @@ UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); meas
 <a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
 crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
 2026-07-17. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
-named or graded; aggregates only. Point-in-time; reproducible against the same public sources. Corrections
-welcome — open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>
+named or graded; aggregates only. Each edition is point-in-time and reproducible against the same public sources;
+we plan to refresh it on a monthly cadence and note what changed. Corrections and additions are genuinely welcome
+— open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>
   </div>
 </div>
 <footer class="site-footer"><div class="foot-inner">
