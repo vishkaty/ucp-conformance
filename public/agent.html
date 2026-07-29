@@ -78,9 +78,7 @@ section.alt{background:var(--surface)}
 </head>
 <body>
 <nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
-<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
-<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
-<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 
 <div class="hero">
   <div class="inner">
@@ -197,13 +195,14 @@ section.alt{background:var(--surface)}
 </section>
 
 <footer class="site-footer">
-  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
-  <div class="footer-links">
-    <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>
-    <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a>
-    <a href="/coverage">Coverage</a>
-    <a href="https://ucp.dev" rel="noopener">ucp.dev</a>
-  </div>
+<div class="foot-cols">
+<div class="foot-col"><h4>Merchants</h4><a href="/check">Check your store</a><a href="/docs#run">CLI &amp; full suite</a><a href="/docs#ci">CI Action</a></div>
+<div class="foot-col"><h4>Agents</h4><a href="/agent">Test a shopping agent</a><a href="/sandbox">Interop sandbox</a></div>
+<div class="foot-col"><h4>Reference</h4><a href="/coverage">Coverage matrix</a><a href="/checks/">Check register</a><a href="/rubric">Grading rubric</a><a href="/docs">Docs &amp; methodology</a></div>
+<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (monthly)</a></div>
+<div class="foot-col"><h4>Project</h4><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a><a href="https://ucp.dev" rel="noopener">ucp.dev</a></div>
+</div>
+<p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
 </footer>
 <script>
 // anonymous, cookieless: count the view; if we've been seen before (localStorage flag),

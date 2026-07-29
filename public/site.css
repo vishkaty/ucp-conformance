@@ -87,9 +87,25 @@ code,.mono{font-family:var(--mono)}
 .site-footer .footer-links{display:flex;flex-wrap:wrap;gap:8px 20px}
 .site-footer a{color:var(--muted)}
 .site-footer a:hover{color:var(--ink)}
+/* complete sitemap footer — every page connects to the whole (orientation) */
+.site-footer .foot-cols{display:flex;flex-wrap:wrap;gap:22px 52px;margin:0 0 22px}
+.site-footer .foot-col{display:flex;flex-direction:column;gap:7px;min-width:130px}
+.site-footer .foot-col h4{margin:0 0 3px;font-size:11px;text-transform:uppercase;
+  letter-spacing:.11em;color:var(--faint);font-weight:700}
+.site-footer .foot-col a{color:var(--muted);font-size:13px;line-height:1.4}
+.site-footer .foot-col a:hover{color:var(--ink);text-decoration:none}
 
 /* ── type utilities ──────────────────────────────────────────────────────── */
 .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+
+/* ── site map / "the pieces" grid (docs hub + anywhere we orient the reader) ─ */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:18px 0 8px}
+.map-col{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px 18px}
+.map-col h3{margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.map-col ul{margin:0;padding:0;list-style:none}
+.map-col li{margin:0 0 9px;font-size:13.5px;color:var(--muted);line-height:1.5}
+.map-col li a{font-weight:600;color:var(--ink)}
+.map-col li a:hover{color:var(--primary)}
 
 /* ── section rhythm ──────────────────────────────────────────────────────── */
 .section{padding:76px 24px}

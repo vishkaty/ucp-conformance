@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quickstart — test a UCP server for conformance | spck.dev docs</title>
-<meta name="description" content="Quickstart for spck.dev: install the open-source CLI, run the full UCP conformance suite against your own store, test a shopping agent with --agent, and gate it in CI. Unofficial and open.">
+<title>Docs — what spck.dev is and how the pieces fit | spck.dev</title>
+<meta name="description" content="Start here: what spck.dev is, its two sides (merchant conformance and agent testing), a map of every piece — check tool, CLI, CI Action, coverage matrix, register, rubric, sandbox, and the State of UCP tracker — then how to install and run it. Unofficial and open.">
 <link rel="canonical" href="https://spck.dev/docs">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://spck.dev/docs">
-<meta property="og:title" content="spck.dev docs — a UCP conformance quickstart">
-<meta property="og:description" content="Install the CLI, run the full suite against your store, test your agent, and gate it in CI. Independent and open.">
+<meta property="og:title" content="spck.dev docs — start here">
+<meta property="og:description" content="What spck.dev is, how the pieces fit, and how to run it — merchant conformance and agent testing, spec-cited and open.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="spck.dev docs — a UCP conformance quickstart">
-<meta name="twitter:description" content="Install, run the full suite, test your agent, gate it in CI.">
+<meta name="twitter:title" content="spck.dev docs — start here">
+<meta name="twitter:description" content="What spck.dev is, how the pieces fit, and how to run it.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -36,21 +36,53 @@
 </head>
 <body>
 <nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
-<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a>
-<a href="/coverage">Coverage</a><a href="/docs">Docs</a>
-<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
   <header class="page-head">
-    <div class="eyebrow">Quickstart</div>
-    <h1>Test a UCP server for conformance</h1>
-    <p class="sub">Install the open-source CLI, point it at your store, and get a spec-cited UCP conformance report — from your shell or your CI. UCP is an open standard for agentic commerce, maintained by the UCP project (<a href="https://ucp.dev" rel="noopener">ucp.dev</a>).</p>
+    <div class="eyebrow">Docs · Start here</div>
+    <h1>What spck.dev is, and how the pieces fit</h1>
+    <p class="sub">spck.dev is an independent, open-source conformance tester for UCP — the open standard for agentic commerce (<a href="https://ucp.dev" rel="noopener">ucp.dev</a>). It has two sides: it checks <b>merchant servers</b> against the spec, and it tests <b>shopping agents</b> against reference stores. It is spec-cited and reproducible throughout; this page lays out the pieces, then shows you how to run it.</p>
     <div class="actions">
       <a class="btn-primary" href="/check">Check your store →</a>
-      <a class="btn-secondary" href="/coverage">See the coverage matrix</a>
+      <a class="btn-secondary" href="/agent">Test an agent →</a>
     </div>
   </header>
 
-  <h2>Install and run the full suite</h2>
+  <h2>The pieces</h2>
+  <p class="lead">Two sides, a shared reference layer, and an ongoing read on the ecosystem.</p>
+  <div class="map-grid">
+    <div class="map-col">
+      <h3>For merchants</h3>
+      <ul>
+        <li><a href="/check">Check your store</a> — an instant, no-writes conformance read from the browser.</li>
+        <li><a href="#run">CLI &amp; full suite</a> — the deep run, including write paths, against a store you own.</li>
+        <li><a href="#ci">CI Action</a> — gate conformance on each push.</li>
+      </ul>
+    </div>
+    <div class="map-col">
+      <h3>For agent builders</h3>
+      <ul>
+        <li><a href="/agent">Test a shopping agent</a> — the buy-side checks a server suite misses.</li>
+        <li><a href="/sandbox">Interop sandbox</a> — watch a correct agent, then a broken one.</li>
+      </ul>
+    </div>
+    <div class="map-col">
+      <h3>Reference</h3>
+      <ul>
+        <li><a href="/coverage">Coverage matrix</a> — the normative MUSTs, accounted and live.</li>
+        <li><a href="/checks/">Check register</a> — each check, cited to its spec clause.</li>
+        <li><a href="/rubric">Grading rubric</a> — what pass, deviation, and not-tested mean.</li>
+      </ul>
+    </div>
+    <div class="map-col">
+      <h3>Reading</h3>
+      <ul>
+        <li><a href="/state-of-ucp">State of UCP</a> — a monthly, data-backed read on real UCP adoption.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="run">Install and run the full suite</h2>
   <p class="lead">Install from PyPI, scaffold a config tailored to what your store declares, then run it against your own store. The full suite exercises the checkout, cart, and order write paths that the instant web check can't reach — so point it at a store you own, never someone else's.</p>
   <div class="card">
     <pre><code>pip install spck-conformance
@@ -66,7 +98,7 @@ spck-conformance --server https://store.example.com --config merchant.json</code
   </div>
   <p class="note">Each agent check passes a correct agent and catches a broken one. <a href="/sandbox">Watch recorded runs in the sandbox →</a></p>
 
-  <h2>Gate it in CI</h2>
+  <h2 id="ci">Gate it in CI</h2>
   <p class="lead">Add the GitHub Action so conformance runs on each push. It fails the build on a MUST deviation and writes a JUnit report.</p>
   <div class="card">
     <pre><code>- uses: vishkaty/ucp-conformance@main
@@ -98,20 +130,17 @@ spck-conformance --server https://store.example.com --config merchant.json</code
     <li>2026-01-11</li>
   </ul>
 
-  <h2>Links</h2>
-  <ul class="links-list">
-    <li><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> — source and methodology</li>
-    <li><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> — the spck-conformance package</li>
-    <li><a href="/coverage">Coverage</a> — the live spec matrix</li>
-    <li><a href="/checks/">Check register</a> — every covered requirement, spec-cited</li>
-    <li><a href="/rubric">Grading rubric</a> — what pass, deviation, inconclusive, and not-tested mean</li>
-    <li><a href="https://ucp.dev" rel="noopener">ucp.dev</a> — the UCP specification</li>
-  </ul>
 </div>
 
 <footer class="site-footer">
-  <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
-  <p class="footer-links"><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a> · <a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a> · <a href="/coverage">Coverage</a> · <a href="https://ucp.dev" rel="noopener">ucp.dev</a></p>
+<div class="foot-cols">
+<div class="foot-col"><h4>Merchants</h4><a href="/check">Check your store</a><a href="/docs#run">CLI &amp; full suite</a><a href="/docs#ci">CI Action</a></div>
+<div class="foot-col"><h4>Agents</h4><a href="/agent">Test a shopping agent</a><a href="/sandbox">Interop sandbox</a></div>
+<div class="foot-col"><h4>Reference</h4><a href="/coverage">Coverage matrix</a><a href="/checks/">Check register</a><a href="/rubric">Grading rubric</a><a href="/docs">Docs &amp; methodology</a></div>
+<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (monthly)</a></div>
+<div class="foot-col"><h4>Project</h4><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a><a href="https://ucp.dev" rel="noopener">ucp.dev</a></div>
+</div>
+<p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
 </footer>
 
 <script>
