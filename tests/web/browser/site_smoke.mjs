@@ -55,6 +55,11 @@ async function openPage(url, onRequest) {
     if (onRequest && onRequest(req)) return;                    // caller handled it
     const u = req.url();
     if (u.includes("/api/track")) return req.respond({ status: 204, body: "" });
+    // Cloudflare Web Analytics beacon: the script CDN + its /cdn-cgi/rum POST target.
+    // Stubbed empty so a plain local load stays console-clean (the CDN + rum endpoint
+    // only exist on the production edge; the same class as /api/track above).
+    if (u.includes("cloudflareinsights.com") || u.includes("/cdn-cgi/rum"))
+      return req.respond({ status: 204, body: "" });
     if (u.endsWith("/favicon.ico")) return req.respond({ status: 204, body: "" });
     req.continue();
   });

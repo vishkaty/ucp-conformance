@@ -378,6 +378,11 @@ CONST_RHS = re.compile(r"^\s*(?:%s)(?:\s*\+\s*(?:%s))*\s*(?:[;,)].*)?$" % (_STR,
 SECRET = re.compile(r"(?i)AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY|sk_live_[0-9a-zA-Z]{8,}"
                     r"|(?:api[_-]?key|secret)\s*[:=]\s*['\"][A-Za-z0-9+/_-]{16,}")
 SELF_ORIGINS = ("https://spck.dev", "http://spck.dev")
+# Reviewed external <script> exception (scoped to scripts only, NOT styles/links/urls):
+# the Cloudflare Web Analytics beacon. First-party infra (same host as the site), no
+# cookies/PII, and it POSTs to same-origin /cdn-cgi/rum. Its host is also allow-listed in
+# the CSP script-src. Any OTHER external script origin still fails the security gate.
+TRUSTED_SCRIPT_ORIGINS = SELF_ORIGINS + ("https://static.cloudflareinsights.com",)
 
 def _headers_ok(fails):
     f = PUB / "_headers"
@@ -443,7 +448,7 @@ def security():
         raw = open(path, encoding="utf-8").read()
         for i, line in enumerate(raw.splitlines(), 1):
             for m in re.finditer(r'<script[^>]+src\s*=\s*["\'](https?://[^"\']+)', line):
-                if not m.group(1).startswith(SELF_ORIGINS):
+                if not m.group(1).startswith(TRUSTED_SCRIPT_ORIGINS):
                     fails.append(f"{rel}:{i}: external script origin {m.group(1)[:70]}")
             for m in re.finditer(r'<link\b[^>]*>', line):
                 tag = m.group()
