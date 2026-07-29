@@ -24,9 +24,9 @@
   "schema_validator": {
     "repo": "Universal-Commerce-Protocol/ucp-schema",
     "ref": "main",
-    "commit": "115ae8369e5db20d29aee896eb689b781f513999",
-    "commit_date": "2026-06-30T15:57:18Z",
-    "note": "Rust CLI (`cargo install ucp-schema`). Used as the schema-validation ORACLE. No release tags; pinned to main SHA. Does NOT cover prose-only invariants (totals sums, lookup dedup, line-item retention) — those are separate coded checks."
+    "commit": "9b5c32066f0fe5f50918ec612ba43ad70e2547e3",
+    "commit_date": "2026-07-24T11:59:35Z",
+    "note": "Rust CLI (`cargo install ucp-schema`). Used as the schema-validation ORACLE. No release tags; pinned to main SHA. Does NOT cover prose-only invariants (totals sums, lookup dedup, line-item retention) — those are separate coded checks. RE-PINNED 2026-07-29 from 115ae836 (2026-06-30): picks up ucp-schema #37 (namespace authority binding now enforced on services and payment_handlers, not just capabilities — ucp#530) and #41 (accept exact authority match, e.g. a handler com.example.pay served from pay.example.com). Both engine changes verified NON-REGRESSING against our conformant fixtures: the full selftest stayed 52/52 green under the new binary, and the new engine's own 68 unit/integration/doc tests pass (incl. verify_bindings_rejects_unbound_service/_payment_handler + accepts_exact_authority_match). Strictly more faithful; #41 is only more permissive, so it cannot introduce a false-reject."
   },
   "reference_sample_server": {
     "repo": "Universal-Commerce-Protocol/samples",
