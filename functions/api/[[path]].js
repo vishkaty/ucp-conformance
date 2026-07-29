@@ -500,7 +500,18 @@ export function summarizeUsage(stats) {
     .map(([host, runs]) => ({ host, runs, kind: classifyDomain(host) }))
     .sort((a, b) => b.runs - a.runs);
   const realDomains = domains.filter((d) => d.kind === 'real');
+  // Per-day series (sorted ascending) for the dashboard trend chart.
+  const daily = Object.keys(s.dailyActivity || {}).sort().map((date) => {
+    const a = s.dailyActivity[date] || {};
+    return {
+      date,
+      views: SURFACES.reduce((x, k) => x + (a[k + '_view'] || 0), 0),
+      returns: SURFACES.reduce((x, k) => x + (a[k + '_return'] || 0), 0),
+      checks: a.instantChecks || 0,
+    };
+  });
   return {
+    daily,
     humanViews, returns,
     instantChecks: s.instantChecks || 0,
     reportsSaved: s.report_saved || 0,

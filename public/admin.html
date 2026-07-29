@@ -42,6 +42,14 @@
   .badge.test { color:#b45309; background:#fef3c7; border:1px solid #f59e0b55; }
   .badge.real { color:#059669; background:#d1fae5; border:1px solid #05966955; }
   .warn { color:#b45309; font-weight:600; }
+  .trend-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  figure.trend { margin:0; }
+  figure.trend figcaption { font-size:11px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.1em; margin-bottom:6px; }
+  figure.trend svg { width:100%; height:56px; display:block; }
+  figure.trend .bar { fill:#059669; }
+  figure.trend .bar:hover { fill:#047857; }
+  figure.trend .baseline { stroke:var(--line); stroke-width:1; }
   .tbl-scroll { overflow-x:auto; }
   .who { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
   .addrow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
@@ -88,6 +96,12 @@
     <div class="card hero"><h2>Real usage <span class="tag">on-page beacon · excludes bots</span></h2>
       <div id="realusage" class="grid"></div>
       <p class="note" id="realusage-note"></p></div>
+    <div class="card"><h2>Daily trend <span class="tag">bot-free · last 30d</span></h2>
+      <div class="trend-grid">
+        <figure class="trend"><figcaption>Human page views / day</figcaption><div id="trend-views"></div></figure>
+        <figure class="trend"><figcaption>Instant checks / day</figcaption><div id="trend-checks"></div></figure>
+      </div>
+      <p class="note">Beacon data, bots excluded. Edge traffic and PyPI installs per day arrive in the daily status email.</p></div>
     <div class="card"><h2>Overview</h2><div id="overview" class="grid"></div></div>
     <div class="card"><h2>Page funnel</h2><div id="funnel" class="grid"></div>
       <p class="note">Views and returning-visitor counts from the anonymous, cookieless beacons.</p></div>
@@ -209,6 +223,36 @@
     return Object.entries(obj || {}).sort(function (a, b) { return b[1] - a[1]; }).slice(0, n);
   }
 
+  // Small-multiple sparkline bars — one single-series chart per metric (never a
+  // dual axis). Baseline-anchored, rounded data-ends, a per-bar <title> tooltip.
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function sparkBars(nodeId, data, key) {
+    var box = $(nodeId); if (!box) return; clear(box);
+    if (!data.length) { box.appendChild(el("p", "No data yet.", "note")); return; }
+    var W = 320, H = 56, n = data.length, max = 1;
+    for (var i = 0; i < n; i++) max = Math.max(max, data[i][key] || 0);
+    var gap = 2, bw = Math.max(1, (W - gap * (n - 1)) / n);
+    var s = svgEl("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "none", role: "img" });
+    for (var i = 0; i < n; i++) {
+      var v = data[i][key] || 0;
+      var h = v === 0 ? 0 : Math.max(2, (v / max) * (H - 2));
+      var rect = svgEl("rect", { "class": "bar", x: (i * (bw + gap)).toFixed(2),
+        y: (H - 1 - h).toFixed(2), width: bw.toFixed(2), height: h.toFixed(2),
+        rx: Math.min(2, bw / 2).toFixed(2) });
+      var title = document.createElementNS(SVGNS, "title");
+      title.textContent = data[i].date + ": " + v;
+      rect.appendChild(title);
+      s.appendChild(rect);
+    }
+    s.appendChild(svgEl("line", { "class": "baseline", x1: 0, y1: H - 1, x2: W, y2: H - 1 }));
+    box.appendChild(s);
+  }
+
   function loadStats() {
     api("/api/admin/stats").then(function (r) {
       if (r.status !== 200) return;
@@ -222,6 +266,9 @@
       kpi(ru, "real merchant domains", u.domainsReal);
       kpi(ru, "test / internal domains", u.domainsTest);
       kpi(ru, "reports saved", u.reportsSaved);
+      var daily = (u.daily || []).slice(-30);
+      sparkBars("trend-views", daily, "views");
+      sparkBars("trend-checks", daily, "checks");
       var note = $("realusage-note"); clear(note);
       if (u.allTest) {
         note.appendChild(el("span",

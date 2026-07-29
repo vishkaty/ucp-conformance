@@ -54,6 +54,22 @@ test("summarizeUsage builds a bot-free funnel and real/test domain split", () =>
   assert.equal(u.realDomains[0].runs, 3);
 });
 
+test("summarizeUsage returns a sorted daily series (views/returns/checks per day)", () => {
+  const u = summarizeUsage({
+    dailyActivity: {
+      "2026-07-13": { home_view: 6, check_view: 2, home_return: 1, instantChecks: 0 },
+      "2026-07-12": { check_view: 5, instantChecks: 1, docs_view: 2 },
+    },
+  });
+  assert.ok(Array.isArray(u.daily));
+  assert.equal(u.daily.length, 2);
+  assert.deepEqual(u.daily.map((d) => d.date), ["2026-07-12", "2026-07-13"]); // sorted asc
+  assert.equal(u.daily[0].views, 7);   // check 5 + docs 2
+  assert.equal(u.daily[0].checks, 1);
+  assert.equal(u.daily[1].views, 8);   // home 6 + check 2
+  assert.equal(u.daily[1].returns, 1);
+});
+
 test("summarizeUsage sets allTest when every checked domain is test/internal", () => {
   const u = summarizeUsage({ instantChecks: 7, instantDomains: { "ascent-testing.myshopify.com": 1 } });
   assert.equal(u.domainsTotal, 1);
