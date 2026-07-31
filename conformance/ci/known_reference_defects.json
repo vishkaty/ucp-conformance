@@ -1,0 +1,14 @@
+{
+  "_about": "Defects in a GOLDEN reference implementation that we have already reported upstream, with the report. The probe-hygiene gate reports these loudly and does not fail on them, because a defect we have diagnosed, fixed and filed is not new information every time the suite runs. Nothing may be listed here without an upstream link: an entry without one is suppression, not acknowledgement. Entries EXPIRE by construction - once the defect stops reproducing the gate FAILS until the entry is deleted, so a stale acknowledgement cannot quietly outlive the bug it described.",
+  "defects": [
+    {
+      "check_id": "checkout.idempotency_conflict",
+      "golden": "reference_sample_server",
+      "observed": "HTTP 500 AttributeError: 'UnifiedCheckoutCreateRequest' object has no attribute 'currency'",
+      "cause": "create_checkout reads checkout_req.currency, but checkout.json annotates currency with ucp_request: omit, so a conformant platform never sends it and the generated CheckoutCreateRequest has no such field.",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/pull/156",
+      "filed": "2026-07-31",
+      "note": "Our probe sends the minimal conformant body (line_items only) and must keep doing so. Adding currency would make the probe pass by sending a field the spec says to omit, which hides this defect and probes merchants with a request no conformant platform sends. CHK-048 itself is sound: given a valid body the reference returns 409 with an IDEMPOTENCY_CONFLICT envelope."
+    }
+  ]
+}

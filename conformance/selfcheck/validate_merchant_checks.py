@@ -45,7 +45,14 @@ REF_CONFIG = {
     "fail_payment": _pay("fail_token", "0000"),          # known-failing token -> 402
     "out_of_stock_id": "gardenias",               # seeded out-of-stock product -> 4xx
     "discount": {"valid_code": "10OFF", "second_valid_code": "WELCOME20",
-                 "invalid_code": "INVALID_CODE"},  # seeded codes
+                 "invalid_code": "INVALID_CODE",   # seeded codes
+                 # The reference matches codes case-insensitively as of samples#128
+                 # (db.py: func.upper(Discount.code) == code.upper()), which is our
+                 # own merged fix. Declaring it here turns DSC case-insensitivity
+                 # from a dormant check into a live regression guard on that fix:
+                 # if the reference ever reverts to exact-PK matching, this goes red
+                 # instead of quietly reporting not-tested.
+                 "case_insensitive": True},
 }
 
 # Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart/
@@ -114,6 +121,12 @@ CONTROLLED_CONFIG = {
     # SEEDED URLs (server.py negotiate_platform simulates the fetch outcome); a real
     # merchant needs config URLs that genuinely exhibit each failure.
     "negotiation": {
+        # The fixture resolves the platform profile URL from UCP-Agent, so the
+        # profile-URL duties (NEG-005 missing -> 400 invalid_profile_url, DISC-004
+        # reject non-HTTPS) are gradeable here. server.py rejects non-loopback
+        # http:// with 400 invalid_profile_url. A business that does not fetch
+        # profiles omits this key and those checks skip instead of false-flagging.
+        "validates_profile_url": True,
         "unsupported_version_profile_url": "https://spck.dev/fixture/platform/legacy-version.json",
         "incompatible_caps_profile_url": "https://spck.dev/fixture/platform/no-common-caps.json",
         "unreachable_profile_url": "https://spck.dev/fixture/platform/unreachable-profile.json",
@@ -183,7 +196,9 @@ def main():
     ctx = MerchantCtx(args.server, profile, GOLDENS[args.golden])
     results, detail = merchant_checks.run_merchant_checks(ctx)
 
-    broken, weak, ok, skipped = [], [], [], []
+    from validate_probe_hygiene import load_known
+    known_defects = load_known() if args.golden == "flower" else {}
+    broken, weak, ok, skipped, ref_defects = [], [], [], [], []
     for chk, d in detail:
         st = d["status"]
         # any not-applicable/not-tested status (incl. suffixed reasons like
@@ -192,6 +207,14 @@ def main():
         if isinstance(st, str) and st.startswith(("not-applicable", "not-tested")):
             skipped.append((chk.id, st)); continue
         if st != CLEAN:                       # deviation/inconclusive on a KNOWN-GOOD server → broken check
+            # ...unless the golden is known NOT to be good on this exact point. This gate
+            # rests on the golden being conformant; where we have diagnosed, fixed and
+            # reported a defect in it, the deviation is a true finding about the reference
+            # and not evidence that our check is broken. The register demands an upstream
+            # link and self-expires once the defect stops reproducing (probe-hygiene), so
+            # this cannot become a way to keep a genuinely broken check green.
+            if chk.id in known_defects:
+                ref_defects.append((chk.id, st, known_defects[chk.id])); continue
             broken.append((chk.id, st)); continue
         if not d.get("kill_safe"):            # clean but mutations survive → can false-PASS
             weak.append((chk.id, d.get("survivors"))); continue
@@ -206,6 +229,9 @@ def main():
         print(f"  ✗ {cid:32} BROKEN — {st} on known-good server (false-deviation generator)")
     for cid, surv in weak:
         print(f"  ✗ {cid:32} WEAK — not kill_safe, survivors={surv} (can false-PASS)")
+    for cid, st, d in ref_defects:
+        print(f"  ! {cid:32} {st} caused by a REPORTED defect in the golden, not by the check")
+        print(f"      {d['upstream']} (filed {d['filed']})")
 
     n_run = len(ok) + len(broken) + len(weak)
     print(f"\n  {len(ok)}/{n_run} run checks sound · {len(skipped)} skipped (n/a on reference)")

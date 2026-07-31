@@ -89,10 +89,16 @@ def load_allowlist():
     return idx, errs
 
 
-def load_targets(cli_server, cli_config):
+def load_targets(cli_server, cli_config, cli_name=None):
     targets = []
     if cli_server:
-        targets.append({"name": cli_server, "server": cli_server, "config": cli_config})
+        # Name an ad-hoc --server by its IDENTITY when we know it, not by its address.
+        # Allowlist entries describe an implementation ("the flower shop deviates on X"),
+        # and the same implementation reached on a different port is the same
+        # implementation. Keying an exception to a localhost URL would make it silently
+        # stop applying the moment the port changed.
+        targets.append({"name": cli_name or cli_server, "server": cli_server,
+                        "config": cli_config})
     if os.path.exists(TARGETS):
         for t in json.load(open(TARGETS)).get("targets", []):
             # allow env-substitution so URLs/secrets aren't committed
@@ -107,10 +113,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--server", help="an independent, known-conformant UCP server URL")
     ap.add_argument("--config", help="config for --server (optional)")
+    ap.add_argument("--target-name", help="canonical name for --server, so allowlist "
+                    "entries key on the implementation rather than the address")
     args = ap.parse_args()
 
     allow, allow_errs = load_allowlist() if os.path.exists(ALLOWLIST) else ({}, [])
-    targets = load_targets(args.server, args.config)
+    targets = load_targets(args.server, args.config, args.target_name)
     reachable = [t for t in targets if server_up(t["server"])]
 
     if allow_errs:

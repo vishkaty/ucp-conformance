@@ -59,6 +59,11 @@ def gates(server):
         ("schema-04-08", _py(CHK / "run_schema_04_08.py"),                      None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
+        # A 5xx from a conformant golden means our probe was malformed or the reference
+        # crashed. Either way the verdict is not about the requirement the check names,
+        # so it must not reach a merchant as a deviation.
+        ("probe-hygiene", _py(SELF / "validate_probe_hygiene.py", "--server", server),
+         "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
                                  "--server", CONTROLLED, "--golden", "controlled"), "controlled", ()),
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
@@ -101,6 +106,7 @@ def gates(server):
         ("site-freshness", _py(ROOT / "conformance" / "ci" / "site_gates.py", "freshness"), None, ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
+                             "--target-name", "flower-shop-official-sample",
                              "--config", str(ROOT / "conformance" / "ci" / "differential_flower.config.json")),
          "golden", (2,)),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
@@ -113,6 +119,17 @@ def gates(server):
         # warning (SOURCES.lock.json pins that silently age past upstream HEAD). Network
         # lives in the preflight --check step; this gate covers the logic deterministically.
         ("sources-age", _py(ROOT / "conformance" / "ci" / "sources_age.py", "--selftest"), None, ()),
+        # provenance of every behavioral verdict: the golden must be the pinned server,
+        # running the pinned SDK, and must not be a stale process that merely answers.
+        # Hermetic (stub uv, synthetic root); each case carries a mutant so the guards
+        # cannot pass by being unable to fail.
+        ("golden-guards", _py(ROOT / "conformance" / "ci" / "golden_boot_guards.py", "--selftest"), None, ()),
+        # a mutation that cannot reach the field its predicate reads is a kill-test that
+        # certifies nothing while reporting kill_safe — green by being unable to fail.
+        ("mutation-paths", _py(SELF / "validate_mutation_paths.py", "--selftest"), None, ()),
+        # the known-reference-defect register self-expires: covered hermetically so the
+        # rule holds even when no golden is reachable and probe-hygiene itself skips.
+        ("defect-register", _py(SELF / "validate_probe_hygiene.py", "--selftest"), None, ()),
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),

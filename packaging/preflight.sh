@@ -18,6 +18,9 @@ FAIL=0
 step(){ printf "\n\033[1m▶ %s\033[0m\n" "$1"; }
 ok(){   printf "  \033[32m✓\033[0m %s\n" "$1"; }
 bad(){  printf "  \033[31m✗\033[0m %s\n" "$1"; FAIL=1; }
+# Surfaces something worth acting on without blocking a release. Used where the
+# finding is real but not a property of the artifact being shipped.
+warn(){ printf "  \033[33m!\033[0m %s\n" "$1"; }
 
 # 1. The full self-test: all gates (conformance + coverage/copy-freshness + responsive
 #    web + citation soundness + bundle drift). This is the single source of truth.
@@ -41,6 +44,25 @@ fi
 # 3. Working tree clean (nothing uncommitted that a push would miss).
 step "Working tree"
 if [ -z "$(git status --porcelain 2>/dev/null)" ]; then ok "clean"; else bad "uncommitted changes:"; git --no-pager status --short | sed 's/^/    /'; fi
+
+# 3a. PRIVATE baseline currency. ops/ is excluded from this public repo on purpose
+# (unfiled issue drafts, outreach records, strategy) and lives in the private
+# vishkaty/spck-ops repo instead. Excluded from here plus uncommitted there means
+# backed up nowhere, which is how 4.7 MB of baseline came to sit on one disk. This
+# surfaces drift; it never fails the build, because the private repo is a companion
+# to a release rather than part of one.
+step "Private ops baseline (vishkaty/spck-ops)"
+if [ -d ops/.git ]; then
+  ops_dirty="$(git -C ops status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+  ops_ahead="$(git -C ops rev-list --count @{u}..HEAD 2>/dev/null || echo 0)"
+  if [ "$ops_dirty" = "0" ] && [ "$ops_ahead" = "0" ]; then
+    ok "ops/ committed and pushed"
+  else
+    warn "ops/ has $ops_dirty uncommitted file(s) and $ops_ahead unpushed commit(s) — run ops/sync.sh"
+  fi
+else
+  warn "ops/ is not a git repo — the private baseline is unversioned"
+fi
 
 # 3b. Drift tripwire (INFORMATIONAL, never fails): warn when a source pinned to a moving
 #     branch has silently aged past upstream HEAD. Re-pins stay deliberate; this only
