@@ -25,8 +25,15 @@ Mutations (X-Mutate header value; comma-separated for several):
 
 Run:  python3 mutation_proxy.py --upstream http://localhost:8182 --port 8183
 """
-import argparse, json, sys, urllib.request, urllib.error
+import argparse, json, pathlib, sys, urllib.request, urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+# Share the engine's path walker rather than keeping a second implementation. Two
+# copies of "descend a dotted path" is how the proxy came to lack the optional-segment
+# support the engine has: the same mutation string then means different things depending
+# on which harness applies it, and a kill-test can be blind in one and not the other.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "checks"))
+from engine import _walk, _final                                        # noqa: E402
 
 UPSTREAM = "http://localhost:8182"
 
@@ -52,11 +59,8 @@ def _apply(mut, status, headers, body):
     if name == "drop":
         d = as_json()
         if isinstance(d, dict):
-            cur = d
-            *parents, last = arg.split(".")
-            for p in parents:
-                cur = cur.get(p) if isinstance(cur, dict) else None
-                if cur is None: break
+            head, last = _final(arg)
+            cur = _walk(d, head)
             if isinstance(cur, dict):
                 cur.pop(last, None)
             return status, headers, json.dumps(d).encode()
@@ -65,7 +69,10 @@ def _apply(mut, status, headers, body):
         key, _, raw = arg.partition("=")
         d = as_json()
         if isinstance(d, dict):
-            d[key] = json.loads(raw)
+            head, last = _final(key)
+            cur = _walk(d, head)
+            if isinstance(cur, dict):
+                cur[last] = json.loads(raw)
             return status, headers, json.dumps(d).encode()
         return status, headers, body
     if name == "dup-id":

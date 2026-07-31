@@ -269,11 +269,30 @@ def p_profile_malformed(r):
 _SVC_BAD = '{"dev.ucp.shopping":[{"transport":"rest","endpoint":%s}]}'
 
 CHECKS_04_08_DISCOVERY = [
+    # NEG-005 and DISC-004 both grade how a business handles the platform profile URL
+    # it was handed in UCP-Agent. overview.md introduces those duties with "When
+    # fetching profiles, the following apply", so they bind implementations that
+    # actually resolve the platform profile. A business that never fetches it has
+    # nothing to reject and is not thereby non-conformant.
+    #
+    # Ungated, these two graded every merchant as if it fetched. The 2026-04-08 Flower
+    # Shop does not: it requires the UCP-Agent header to be present but does not
+    # resolve the URL, so it answered 422 (framework validation) for the missing case
+    # and 201 for the plain-http case, and both were recorded as MUST violations. Our
+    # own fixture does implement this (fixtures/merchant/server.py rejects non-loopback
+    # http:// with 400 invalid_profile_url), which is why the defect stayed invisible
+    # until a second implementation appeared.
+    #
+    # negotiation.validates_profile_url is the merchant's declaration that it resolves
+    # platform profile URLs. Absent it these skip as not-tested — the same honest-skip
+    # contract the sibling negotiation.* checks already use — rather than asserting a
+    # violation we cannot substantiate.
     MCheck("negotiation.missing_profile_url_400", ["NEG-005"], "MUST",
            f_missing_profile_url, p_invalid_profile_url,
            ["status:200", "status:201",
             "set:code=\"invalid_request\"", "drop:code", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("negotiation.validates_profile_url",),
            transport="rest", versions=V0408),
     MCheck("discovery.profile_https", ["DISC-001"], "MUST", f_profile_https,
            p_profile_https,
@@ -295,13 +314,24 @@ CHECKS_04_08_DISCOVERY = [
     MCheck("discovery.reject_http_profile_url", ["DISC-004"], "MUST",
            f_http_profile_url, p_rejected_4xx,
            ["status:200", "status:201", "status:303", "status:502"],
-           needs=("product",), transport="rest", versions=V0408),
+           needs=("product",), cfg_needs=("negotiation.validates_profile_url",),
+           transport="rest", versions=V0408),
     MCheck("discovery.endpoints_https", ["DISC-005"], "MUST", f_profile_plain,
            p_endpoints_https,
-           ["set:services=" + _SVC_BAD % '"notaurl"',
-            "set:services=" + _SVC_BAD % '"http://evil.example.com/api"',
-            "set:services=" + _SVC_BAD % '"ftp://files.example.com/api"',
-            "set:services=" + _SVC_BAD % 'null'],
+           # `ucp?.services`, with the OPTIONAL segment, because the two conformant
+           # profile shapes put this field at different depths: the 2026-04-08 reference
+           # nests under a top-level `ucp` member, our fixture serves it flat, and
+           # p_endpoints_https reads through both. A fixed path can only ever reach one
+           # of them — aimed at `services` all four mutants survived against the wrapped
+           # reference, aimed at `ucp.services` they survived against the flat fixture.
+           # Either way the check reported kill_safe while being unable to catch a
+           # merchant advertising an ftp:// or plain-http endpoint. The predicate was
+           # always correct; only the kill-test was blind, which is the more dangerous
+           # defect because it presents as green.
+           ["set:ucp?.services=" + _SVC_BAD % '"notaurl"',
+            "set:ucp?.services=" + _SVC_BAD % '"http://evil.example.com/api"',
+            "set:ucp?.services=" + _SVC_BAD % '"ftp://files.example.com/api"',
+            "set:ucp?.services=" + _SVC_BAD % 'null'],
            transport="rest", versions=V0408),
     MCheck("negotiation.version_unsupported_422", ["NEG-001"], "MUST",
            f_neg_unsupported_version, p_version_unsupported,

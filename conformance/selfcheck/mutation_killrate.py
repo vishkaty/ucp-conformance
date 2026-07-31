@@ -39,12 +39,22 @@ def jbody(body):
     except Exception: return None
 
 # ---- checks: a check returns "pass" | "fail" | "inconclusive" --------------
+def _profile(d):
+    """The profile body, whichever shape it arrives in.
+
+    Conformant implementations differ here: some nest the profile under a top-level
+    `ucp` member, others serve it flat. Every predicate in the suite reads through both;
+    these two did not, so against the wrapped 2026-04-08 reference they failed their own
+    clean-pass and reported the harness UNSAFE for a reason that had nothing to do with
+    kill-rate."""
+    return d.get("ucp", d) if isinstance(d, dict) else {}
+
 def check_discovery_version(status, body):
     """Discovery profile MUST be 200 JSON carrying a dated `version`. (DISC-style)"""
     if status != 200: return "fail"
     d = jbody(body)
     if not isinstance(d, dict): return "fail"
-    v = d.get("version")
+    v = _profile(d).get("version")
     import re
     return "pass" if isinstance(v, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", v) else "fail"
 
@@ -53,7 +63,7 @@ def check_discovery_services(status, body):
     if status != 200: return "fail"
     d = jbody(body)
     if not isinstance(d, dict): return "fail"
-    svcs = (d.get("services") or {}).get("dev.ucp.shopping")
+    svcs = (_profile(d).get("services") or {}).get("dev.ucp.shopping")
     if not isinstance(svcs, list): return "fail"
     return "pass" if any(s.get("transport") == "rest" and s.get("endpoint") for s in svcs) else "fail"
 
@@ -62,13 +72,18 @@ def check_noop(status, body):
     return "pass"
 
 CHECKS = [
+    # `ucp?.` marks an OPTIONAL segment: taken when the profile is wrapped, skipped when
+    # it is flat. A fixed path reaches only one of the two conformant shapes, and against
+    # the other it plants a decoy the predicate never reads — a mutant that survives for
+    # want of aim rather than want of a defect.
     {"id": "disc_version", "path": "/.well-known/ucp", "fn": check_discovery_version,
-     "mutations": ["drop:version", "set-field:version=\"draft\"", "corrupt-json",
+     "mutations": ["drop:ucp?.version", "set-field:ucp?.version=\"draft\"", "corrupt-json",
                    "status:503", "empty"]},
     {"id": "disc_services", "path": "/.well-known/ucp", "fn": check_discovery_services,
-     "mutations": ["drop:services", "set-field:services={}", "corrupt-json", "status:500"]},
+     "mutations": ["drop:ucp?.services", "set-field:ucp?.services={}", "corrupt-json",
+                   "status:500"]},
     {"id": "noop_DEMO", "path": "/.well-known/ucp", "fn": check_noop,
-     "mutations": ["drop:version", "corrupt-json", "status:500", "empty"]},
+     "mutations": ["drop:ucp?.version", "corrupt-json", "status:500", "empty"]},
 ]
 
 def run():
