@@ -33,8 +33,21 @@ def _complete(ctx, cid, body):
     return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete",
                  "POST", body, _hdr())
 
-def _line(pid, qty=1):
-    return {"line_items": [{"item": {"id": pid}, "quantity": qty}]}
+def _line(ctx, qty=1):
+    """The create body a CONFORMANT platform sends at 2026-04-08: line_items only.
+
+    checkout.json annotates every other member with `ucp_request: omit` — `currency`
+    included ("merchants determine currency", derived from address, context and geo IP).
+    So this minimal body is not a lazy shortcut, it is the correct request, and the
+    generated CheckoutCreateRequest carries no `currency` field precisely because of
+    that annotation.
+
+    Resist the temptation to add fields here to make a server happy. Doing so probes
+    merchants with a request no conformant platform would send, and it hides exactly the
+    class of defect a server has when it depends on a field the spec told platforms to
+    omit.
+    """
+    return {"line_items": [{"item": {"id": ctx.product_id}, "quantity": qty}]}
 
 def _success_pay():
     return {"payment": {"instruments": [{"id": "instr_ok", "type": "card",
@@ -51,7 +64,7 @@ def _applied(r):
 def f_escalate(ctx):
     """Complete with the seeded 3DS soft-decline credential -> the session goes to
     status=requires_escalation (config: payment.escalation_payment)."""
-    cid = (_create(ctx, _line(ctx.product_id)).json or {}).get("id")
+    cid = (_create(ctx, _line(ctx)).json or {}).get("id")
     return _complete(ctx, cid, _pcfg(ctx).get("escalation_payment"))
 
 def p_escalation_continue_url(r, ctx):
@@ -97,7 +110,7 @@ def p_escalation_buyer_message(r, ctx):
 # ======== ELIGIBILITY (checkout.md / discount.md "Eligibility Claims") =========
 def f_elig_recognized(ctx):
     """Create with a RECOGNIZED eligibility claim (config: eligibility.verifiable)."""
-    body = _line(ctx.product_id)
+    body = _line(ctx)
     body["context"] = {"eligibility": [_ecfg(ctx).get("verifiable")]}
     return _create(ctx, body)
 
@@ -116,7 +129,7 @@ def p_provisional_discount(r, ctx):
                         for a in ap) else DEVIATION
 
 def f_elig_unrecognized(ctx):
-    body = _line(ctx.product_id)
+    body = _line(ctx)
     body["context"] = {"eligibility": [_ecfg(ctx).get("unrecognized")]}
     return _create(ctx, body)
 
@@ -150,7 +163,7 @@ def p_not_blocked(r, ctx):
 
 def f_elig_unverifiable_complete(ctx):
     """Create with a recognized-but-UNVERIFIABLE claim, then attempt completion."""
-    body = _line(ctx.product_id)
+    body = _line(ctx)
     body["context"] = {"eligibility": [_ecfg(ctx).get("unverifiable")]}
     cid = (_create(ctx, body).json or {}).get("id")
     return _complete(ctx, cid, _success_pay())
@@ -179,7 +192,7 @@ def p_eligibility_invalid_message(r, ctx):
 
 def f_elig_verifiable_complete(ctx):
     """Create with a VERIFIABLE claim, then complete -> resolves, completes."""
-    body = _line(ctx.product_id)
+    body = _line(ctx)
     body["context"] = {"eligibility": [_ecfg(ctx).get("verifiable")]}
     cid = (_create(ctx, body).json or {}).get("id")
     return _complete(ctx, cid, _success_pay())
@@ -274,9 +287,9 @@ def f_checkout_idem_conflict(ctx):
     """Reuse one Idempotency-Key with a DIFFERENT body on create checkout."""
     key = "recv-idem-chk-" + uuid.uuid4().hex[:8]
     fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
-          _line(ctx.product_id, 1), _hdr(key))
+          _line(ctx, 1), _hdr(key))
     return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
-                 _line(ctx.product_id, 2), _hdr(key))
+                 _line(ctx, 2), _hdr(key))
 
 def f_cart_idem_conflict(ctx):
     key = "recv-idem-cart-" + uuid.uuid4().hex[:8]

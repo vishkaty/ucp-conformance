@@ -243,7 +243,15 @@ CHECKS_04_08 = [
             "set:discounts={\"codes\":[$DVALID],\"applied\":[{\"code\":$DVALID,\"amount\":10.5}]}",
             "drop:discounts", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest", versions=V0408),
+           # f_mixed_discounts builds an ITEM-level line from discount.item; with only
+           # `discount` present it sends a line item whose product id is None and the
+           # server answers 422, which this check then grades as a DSC-020 violation.
+           # The four siblings on this same probe all declare discount.item; this one
+           # did not, so it was the only false-deviation generator among them.
+           # (A merchant with order-level codes but no item-level code can still be
+           # graded on DSC-020 in principle — that needs a probe that does not depend
+           # on discount.item, which is added coverage, not a fix for this defect.)
+           cfg_needs=("discount.item",), transport="rest", versions=V0408),
     MCheck("discount.allocation_sum_invariant", ["DSC-022"], "MUST", f_mixed_discounts,
            p_allocation_sum,
            ["status:500",

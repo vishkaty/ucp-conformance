@@ -104,6 +104,42 @@ def a2a_call(endpoint, message, rpc_id=1):
 def _reparse(r):
     r.body = json.dumps(r.json).encode() if r.json is not None else r.body
     return r
+def _walk(cur, parts):
+    """Descend `parts`, honouring OPTIONAL segments written as `name?`.
+
+    An optional segment is taken when it is present and skipped when it is not, so one
+    mutation path reaches the same logical field in documents that differ only by an
+    envelope. UCP discovery profiles are exactly that case: some nest under a top-level
+    `ucp` member, others are flat, and predicates already read through both with
+    `profile.get("ucp", profile)`.
+
+    Without this, a fixed path silently lands somewhere the predicate never reads. The
+    mutant survives, the check is recorded kill_safe, and a check that can false-PASS
+    looks green — the failure mode that hid a non-killing DISC-005 kill-test.
+    """
+    for p in parts:
+        optional = p.endswith("?")
+        key = p[:-1] if optional else p
+        if optional and not (isinstance(cur, dict) and key in cur):
+            continue                     # envelope absent: stay at this level
+        if isinstance(cur, list) and key.isdigit() and int(key) < len(cur):
+            cur = cur[int(key)]
+        elif isinstance(cur, dict):
+            cur = cur.get(key)
+        else:
+            return None
+        if cur is None:
+            return None
+    return cur
+
+
+def _final(path):
+    """Split a dotted path into (container_parts, last_key), stripping any `?` marker."""
+    parts = path.split(".")
+    last = parts[-1]
+    return parts[:-1], (last[:-1] if last.endswith("?") else last)
+
+
 def mutate(resp, mut):
     r = resp.clone()
     name, _, arg = mut.partition(":")
@@ -111,25 +147,15 @@ def mutate(resp, mut):
     if name == "empty":          r.body = b""; r.json = None; return r
     if name == "corrupt-json":   r.body = (r.body or b"{}")[:-1]; r.json = None; return r
     if name == "drop" and r.json is not None:
-        cur = r.json; parts = arg.split(".")
-        for p in parts[:-1]:
-            if isinstance(cur, list) and p.isdigit() and int(p) < len(cur): cur = cur[int(p)]
-            elif isinstance(cur, dict): cur = cur.get(p)
-            else: cur = None
-            if cur is None: break
-        last = parts[-1]
+        head, last = _final(arg)
+        cur = _walk(r.json, head)
         if isinstance(cur, dict): cur.pop(last, None)
         elif isinstance(cur, list) and last.isdigit() and int(last) < len(cur): cur.pop(int(last))
         return _reparse(r)
     if name == "set" and r.json is not None:
         path, _, v = arg.partition("="); val = json.loads(v)
-        cur = r.json; parts = path.split(".")
-        for p in parts[:-1]:
-            if isinstance(cur, list) and p.isdigit() and int(p) < len(cur): cur = cur[int(p)]
-            elif isinstance(cur, dict): cur = cur.get(p)
-            else: cur = None
-            if cur is None: break
-        last = parts[-1]
+        head, last = _final(path)
+        cur = _walk(r.json, head)
         if isinstance(cur, dict): cur[last] = val
         elif isinstance(cur, list) and last.isdigit() and int(last) < len(cur): cur[int(last)] = val
         return _reparse(r)

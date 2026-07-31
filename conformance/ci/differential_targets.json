@@ -5,7 +5,7 @@
    "name": "flower-shop-official-sample",
    "server_env": "UCP_FLOWER_SHOP_URL",
    "config": "conformance/ci/differential_flower.config.json",
-   "note": "The official UCP Flower Shop sample server \u2014 an implementation independent of our controlled fixture. Served locally by conformance/ci/serve_golden.sh (pinned to 2026-01-23). Set UCP_FLOWER_SHOP_URL to its base URL to include it."
+   "note": "The official UCP Flower Shop sample server \u2014 an implementation independent of our controlled fixture. Served locally by conformance/ci/serve_golden.sh. As of the 2026-07-31 re-pin it serves spec version 2026-04-08 (it served 2026-01-23 under the previous pin), so this target now exercises the 04-08 lane. Set UCP_FLOWER_SHOP_URL to its base URL to include it."
   }
  ]
 }
