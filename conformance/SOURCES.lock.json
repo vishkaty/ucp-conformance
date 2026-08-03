@@ -1,6 +1,6 @@
 {
   "_about": "Pinned sources of truth for the UCP conformance tester. NEVER test against main/feature branches; pin by the SHAs below. Regenerate intentionally and review the diff. See docs/spec-coverage.md for methodology.",
-  "generated_context": "Resolved 2026-06-30 via `gh api repos/Universal-Commerce-Protocol/<repo>/commits/<ref>`. Moving-branch pins re-resolved 2026-07-29 (schema_validator) and 2026-07-31 (reference_sample_server, official_conformance_suite) the same way. Release-tag pins (spec versions) are untouched by re-pins.",
+  "generated_context": "Resolved 2026-06-30 via `gh api repos/Universal-Commerce-Protocol/<repo>/commits/<ref>`. Moving-branch pins re-resolved 2026-07-29 (schema_validator), 2026-07-31 (reference_sample_server, official_conformance_suite) and 2026-08-03 (reference_sample_server, official_conformance_suite, reference_sdk.pypi_pin) the same way. schema_validator drift on 2026-08-03 was a release-please chore only (1.4.1, no engine change) — evaluated and deliberately NOT re-pinned. Release-tag pins (spec versions) are untouched by re-pins.",
   "spec": {
     "repo": "Universal-Commerce-Protocol/ucp",
     "versions": {
@@ -25,9 +25,9 @@
   "official_conformance_suite": {
     "repo": "Universal-Commerce-Protocol/conformance",
     "ref": "main",
-    "commit": "f252c0d7a147469bbb1520444b8000bf1b950938",
-    "commit_date": "2026-07-31T13:51:26Z",
-    "note": "SIGNAL, NOT ORACLE. RE-PINNED 2026-07-31 from 948e7d22 (2026-06-23, ~38d stale per the sources-age tripwire). The old note said this suite hard-asserts spec version 2026-01-23 — that is NO LONGER TRUE at this SHA: protocol_test now validates the discovery version structurally (date-shaped) and takes the exact-version assertion from conformance_input.json ('ucp_version', default in integration_test_utils), so the suite tests whichever release the merchant targets. That change is our merged conformance#58. This SHA also contains our merged #62 (discount), #64 (totals) and #68 (fulfillment_structure_test.py), plus upstream #67/#69/#70/#71. No release tags exist; pinned to a main SHA which can drift — the sources-age gate is what surfaces that drift."
+    "commit": "f78fe9f11b74422fd04bc2180f15a63dca082c42",
+    "commit_date": "2026-08-03T10:12:03Z",
+    "note": "SIGNAL, NOT ORACLE. RE-PINNED 2026-08-03 from f252c0d7 (2026-07-31): one upstream commit, conformance#72 (fulfillment_test.py asserts the configured base price instead of a hardcoded one) — a test-soundness fix, no new assertions. Prior re-pin history: RE-PINNED 2026-07-31 from 948e7d22 (2026-06-23, ~38d stale per the sources-age tripwire). The old note said this suite hard-asserts spec version 2026-01-23 — that is NO LONGER TRUE at this SHA: protocol_test now validates the discovery version structurally (date-shaped) and takes the exact-version assertion from conformance_input.json ('ucp_version', default in integration_test_utils), so the suite tests whichever release the merchant targets. That change is our merged conformance#58. This SHA also contains our merged #62 (discount), #64 (totals) and #68 (fulfillment_structure_test.py), plus upstream #67/#69/#70/#71. No release tags exist; pinned to a main SHA which can drift — the sources-age gate is what surfaces that drift."
   },
   "schema_validator": {
     "repo": "Universal-Commerce-Protocol/ucp-schema",
@@ -39,16 +39,17 @@
   "reference_sample_server": {
     "repo": "Universal-Commerce-Protocol/samples",
     "ref": "main",
-    "commit": "2e5b77c154f5d2d4e903872583320c57a54c4531",
-    "commit_date": "2026-07-31T14:06:00Z",
-    "note": "Flower Shop reference merchant (samples/rest/python/server) — the KNOWN-COMPLIANT target for self-validation. RE-PINNED 2026-07-31 from 74e66dee (2026-06-17, ~43d stale per the sources-age tripwire). MATERIAL CHANGE: this SHA serves spec version 2026-04-08, not 2026-01-23 — so 2026-04-08 is now a reference-backed version rather than fixture-only, and buyer_consent is a REAL reference capability. Includes our merged samples#152 (valid seeded totals) and #153 (discovery Cache-Control), so the DISC-003 deviation seen in the 2026-07-29 differential run is expected to be gone. A no-op test still passes against this server, which is why every check also needs a negative fixture (mutation proxy). Run on port 8182; sim endpoints gated by --simulation_secret.",
+    "commit": "a95b928b814cdec39f0c91d686d54b21929eb7e9",
+    "commit_date": "2026-08-03T15:08:58Z",
+    "note": "Flower Shop reference merchant (samples/rest/python/server) — the KNOWN-COMPLIANT target for self-validation. RE-PINNED 2026-08-03 from 2e5b77c1 (2026-07-31). Three commits: our merged samples#156 (currency determined server side — the checkout.idempotency_conflict known-defect entry expires with this pin), our merged samples#122 (RFC 9421 request signature verification — config require_signatures DEFAULTS FALSE, so unsigned probes still pass; signatures are verified only when a Signature header is present), and upstream #157 (nodejs discount allocation JSONPath, no effect on the python golden). Prior 07-31 re-pin context still applies: serves spec 2026-04-08; includes samples#152 (valid seeded totals) and #153 (discovery Cache-Control). A no-op test still passes against this server, which is why every check also needs a negative fixture (mutation proxy). Run on port 8182; sim endpoints gated by --simulation_secret.",
     "sdk_resolution": "This SHA DROPPED the server pyproject's [tool.uv.sources] ucp-sdk = { path = '../../../../python-sdk/', editable = true }. The server therefore resolves ucp-sdk from PyPI, NOT from our SHA-pinned vendored python-sdk. Left unmanaged that turns a pinned golden into a floating one, defeating the purpose of this lock, so the resolved PyPI version is recorded in reference_sdk.pypi_pin and asserted at boot."
   },
   "reference_sdk": {
     "repo": "Universal-Commerce-Protocol/python-sdk",
     "commit": "f54858e0cf1e8933cc0e9d89b380e2cd4a0b3f00",
     "version": "ucp-sdk 0.3.0",
-    "pypi_pin": "0.4.3",
+    "pypi_pin": "0.4.4",
+    "pypi_pin_note": "BUMPED 2026-08-03 from 0.4.3: PyPI 0.4.4 (uploaded 09:16Z, release v2026-04-08-4) is the release cut for our merged python-sdk#57 (contains/minContains/maxContains validators enforced on generated models). The golden survives these stricter validators because samples#152 (valid seeded totals) was built for exactly that combination — the #57/#152 coordination proved 69/0 with validators active. serve_golden.sh asserts this exact version at boot.",
     "note": "HOW THE GOLDEN GETS ITS SDK CHANGED AT THE 2026-07-31 RE-PIN. Before: the 2026-01-23 Flower Shop server took ucp-sdk as an editable path dep, so this vendored SHA (f54858e, the last 2026-01-23-compatible SDK, 0.3.0 — the commit immediately before python-sdk main's 'upgrade SDK to UCP v2026-04-08', which ImportErrors on Checkout from ap2_mandate) WAS the SDK under test. After: the re-pinned server has no [tool.uv.sources], so it installs ucp-sdk from PyPI and this vendored clone is no longer what the golden runs. The clone is still materialized (cheap, and it keeps the 01-23 trio reproducible), but the version that actually matters for a reproducible verdict is pypi_pin above — the resolved PyPI release the golden runs on. serve_golden.sh asserts the installed version equals pypi_pin and fails loudly on drift, so a silent PyPI bump can never change a verdict unnoticed. Bump pypi_pin deliberately, the same way a SHA is re-pinned. The underlying rule is unchanged: pin compatible trios (conformance/samples/SDK), not bare main."
   },
   "toolchain": {
