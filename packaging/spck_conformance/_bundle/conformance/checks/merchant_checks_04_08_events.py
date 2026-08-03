@@ -199,23 +199,31 @@ def _drive_webhook_flow(ctx, fail_first=0, adjust=False):
     local capturing receiver. Returns a Resp whose .json carries the captured
     deliveries + the ids the events must reference."""
     from webhook_harness import Harness0408
+
+    def hd(h):
+        # fresh headers PER REQUEST: _hdr() mints the Idempotency-Key, and reusing
+        # one key across create -> complete is an idempotency conflict (409) on a
+        # merchant with a global key store (the reference server enforces this;
+        # the controlled fixture scopes keys per endpoint, which hid the reuse)
+        d = _hdr()
+        d["UCP-Agent"] = f'profile="{h.profile_url}"'
+        return d
+
     with Harness0408(fail_first=fail_first) as h:
-        hd = _hdr()
-        hd["UCP-Agent"] = f'profile="{h.profile_url}"'
         p = _create_payload(ctx, with_fulfillment=True)
         opt = ctx.config.get("fulfillment_option_id")
         if opt:
             p["fulfillment"]["methods"][0]["groups"][0]["selected_option_id"] = opt
-        r = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, hd)
+        r = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, hd(h))
         cid = (r.json or {}).get("id")
         li_id = ((r.json or {}).get("line_items") or [{}])[0].get("id")
         c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete",
-                  "POST", ctx.config.get("complete_payment"), hd)
+                  "POST", ctx.config.get("complete_payment"), hd(h))
         oid = ((c.json or {}).get("order") or {}).get("id")
         events = h.wait_events(timeout=_wh_wait(ctx), n=1 + fail_first)
         if adjust and oid:
             fetch(ctx.shopping_endpoint, f"/testing/orders/{oid}/adjust", "POST",
-                  {"line_item_id": li_id, "quantity": 1, "type": "refund"}, hd)
+                  {"line_item_id": li_id, "quantity": 1, "type": "refund"}, hd(h))
             events = h.wait_events(timeout=_wh_wait(ctx), n=len(events) + 1)
         body = {"events": events, "checkout_id": cid, "order_id": oid,
                 "webhook_query": h.webhook_url.partition("?")[2]}
@@ -457,6 +465,17 @@ _WH_SI_NO_QUERY = json.dumps(
     'sig1=("@method" "@authority" "@path" "content-digest" "content-type");keyid="k1"')
 
 _WH_GATES = ("webhooks.simulate", "complete_payment")
+# The SIGNING cluster (ORD-026/027/028, SIG-014/015/017/027 — order.md "Webhook
+# Signature Verification") and delivery RETRY (ORD-031) are gated on their own
+# config assertions, exactly like `signature.responses` gates the response-signing
+# checks: the reference server delivers order webhooks (samples#140) but does NOT
+# yet sign them, send UCP-Agent on them, or retry failures — a capability the
+# golden does not have, so forcing these on `webhooks.simulate` alone would
+# false-deviate it (the audit's "correctly dormant, do not force" rule).
+# validate_webhook_reference.py pins those gaps as tripwires so the moment
+# upstream implements them we get a red prompt to flip the flower config.
+_WH_SIGNED = _WH_GATES + ("webhooks.signed",)
+_WH_RETRY = _WH_GATES + ("webhooks.retries",)
 
 CHECKS_04_08_EVENTS = [
     # --- request-verification error codes (signatures.md Error Handling) ---
@@ -537,7 +556,7 @@ CHECKS_04_08_EVENTS = [
             "set:events.0.body_b64=\"eyJ0YW1wZXJlZCI6dHJ1ZX0=\"",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
     MCheck("webhook.signed_components", ["SIG-014", "SIG-015"], "MUST",
            wh_created_flow, p_webhook_components,
            ["set:events=[]",
@@ -546,7 +565,7 @@ CHECKS_04_08_EVENTS = [
             "drop:events.0.headers.signature-input",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
     MCheck("webhook.query_component_signed", ["SIG-017"], "MUST",
            wh_created_flow, p_webhook_query_signed,
            ["set:events=[]",
@@ -554,7 +573,7 @@ CHECKS_04_08_EVENTS = [
             "set:events.0.query=\"\"",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
     MCheck("webhook.ucp_agent_header", ["ORD-028"], "MUST",
            wh_created_flow, p_webhook_ucp_agent,
            ["set:events=[]", "drop:events.0.headers.ucp-agent",
@@ -562,10 +581,10 @@ CHECKS_04_08_EVENTS = [
             "set:events.0.headers.ucp-agent=\"profile=\\\"https://x.example/other\\\"\"",
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
     MCheck("webhook.retry_failed_delivery", ["ORD-031"], "MUST",
            wh_retry_flow, p_webhook_retry,
            ["set:events=[]", "drop:events.1", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+           cfg_needs=_WH_RETRY, transport="rest", versions=V0408),
 ]

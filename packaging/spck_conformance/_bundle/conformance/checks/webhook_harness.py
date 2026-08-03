@@ -19,8 +19,14 @@ import json, threading, time, pathlib, base64, urllib.request, urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 VENDOR = pathlib.Path(__file__).resolve().parents[1] / ".vendor"
-PROFILE_TEMPLATE = (VENDOR / "conformance" / "shopping-agent-test.json").read_text()
 SIM_SECRET = "selfcheck-secret"
+
+def _profile_template():
+    """The official suite's shopping-agent-test.json (01-era profile template),
+    read LAZILY: only the 01-era harnesses need it, and the packaged bundle
+    (packaging/sync_bundle.sh) ships this module without the vendored suite —
+    a module-level read would make Harness0408 unimportable there."""
+    return (VENDOR / "conformance" / "shopping-agent-test.json").read_text()
 
 class _Receiver(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -50,7 +56,7 @@ class WebhookHarness:
         self.recv = ThreadingHTTPServer(("127.0.0.1", recv_port), _Receiver)
         self.recv.events = []
         self.prof = ThreadingHTTPServer(("127.0.0.1", profile_port), _Profile)
-        self.prof.profile = PROFILE_TEMPLATE.replace("{webhook_port}", str(recv_port))
+        self.prof.profile = _profile_template().replace("{webhook_port}", str(recv_port))
         self._threads = []
     def __enter__(self):
         for srv in (self.recv, self.prof):
@@ -158,7 +164,12 @@ class Harness0408:
         self.webhook_url = (f"http://127.0.0.1:{self.recv.server_address[1]}"
                             "/webhooks/ucp/orders?channel=spck-harness")
         self.prof = ThreadingHTTPServer(("127.0.0.1", 0), _Profile0408)
-        self.prof.profile = json.dumps(platform_profile_0408(self.webhook_url))
+        # served WRAPPED in the {"ucp": ...} envelope: profile documents on the
+        # wire carry it (the merchant's own /.well-known/ucp, the official
+        # shopping-agent-test.json), and the reference server's webhook resolver
+        # requires it. platform_profile_0408 stays the bare profile (that is what
+        # ucp.json platform_schema describes; fixture selfcheck oracle-validates it)
+        self.prof.profile = json.dumps({"ucp": platform_profile_0408(self.webhook_url)})
         self._threads = []
     def __enter__(self):
         for srv in (self.recv, self.prof):
@@ -204,7 +215,7 @@ class Harness0123:
         self.recv.events = []
         self.recv.fail_remaining = fail_first
         self.prof = ThreadingHTTPServer(("127.0.0.1", 0), _Profile0123)
-        self.prof.profile = PROFILE_TEMPLATE.replace(
+        self.prof.profile = _profile_template().replace(
             "{webhook_port}", str(self.recv.server_address[1]))
         self._threads = []
     def __enter__(self):

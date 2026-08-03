@@ -75,5 +75,9 @@
     "second_valid_code": "WELCOME20",
     "invalid_code": "INVALID_CODE",
     "case_insensitive": true
+  },
+  "webhooks": {
+    "simulate": true,
+    "wait_seconds": 8.0
   }
 }

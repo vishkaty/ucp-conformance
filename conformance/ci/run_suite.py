@@ -85,6 +85,12 @@ def gates(server):
         # booted enforcing (clean-pass required) and permissive (deviation required),
         # so an upstream verification regression turns this red instead of invisible.
         ("sig002-reference", _py(SELF / "validate_sig002_reference.py"),         None, (2,)),
+        # samples#140/#146 regression watch: order-webhook delivery graded against the
+        # VENDORED reference (full order entity as body, clean-pass + kill_safe; a
+        # non-delivering merchant deviates), with the reference's missing webhook
+        # signing/UCP-Agent/retry pinned as tripwires that go red when upstream
+        # implements them (the cue to enable webhooks.signed/retries for the flower).
+        ("webhook-reference", _py(SELF / "validate_webhook_reference.py"),       None, (2,)),
         ("checkout-scope-check", _py(SELF / "validate_checkout_scope_check.py"), None, (2,)),
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),
         ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),

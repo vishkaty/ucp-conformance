@@ -53,6 +53,19 @@ REF_CONFIG = {
                  # if the reference ever reverts to exact-PK matching, this goes red
                  # instead of quietly reporting not-tested.
                  "case_insensitive": True},
+    # WEBHOOK/EVENTS (04-08): the reference delivers order webhooks to the URL in
+    # the platform profile named by UCP-Agent (ucp_implementation.py
+    # extract_webhook_url) with the FULL order entity as body (samples#140 — our
+    # merged fix). Declaring simulate turns webhook.order_created_full_entity from
+    # dormant into a live regression guard on that fix
+    # (validate_webhook_reference.py proves it clean-pass + kill_safe AND proves
+    # the kill direction on the real reference). `signed`/`retries` are
+    # DELIBERATELY absent: the reference does not yet sign webhook deliveries (no
+    # RFC 9421 headers, no UCP-Agent on the delivery — the ucp#568 contract) nor
+    # retry failures, so those checks would false-deviate a capability the golden
+    # does not have ("correctly dormant, do not force"). The same gate pins those
+    # gaps as tripwires and goes red the moment upstream implements them.
+    "webhooks": {"simulate": True, "wait_seconds": 8.0},
 }
 
 # Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart/
@@ -103,13 +116,20 @@ CONTROLLED_CONFIG = {
     # signed order events to a LOOPBACK receiver. Supplying `simulate` asserts
     # THREE things about the merchant under test (W2-F2/F3, adversarial review):
     #   1. it can reach a local receiver (omit for remote merchants -> honest skip);
-    #   2. it delivers (and first-retries) within `wait_seconds` (default 8s —
-    #      order.md pins no timing, so slow queued delivery needs a wider window);
+    #   2. it delivers within `wait_seconds` (default 8s — order.md pins no
+    #      timing, so slow queued delivery needs a wider window);
     #   3. HARNESS CONVENTION: it will fetch a plain-HTTP LOOPBACK platform-profile
     #      URL for this test, a documented carve-out from the HTTPS-only profile
     #      rules (DISC-004 / signatures.md rule 5) that no spec text sanctions —
     #      a strictly-conformant merchant needs the HTTPS harness variant (backlog).
-    "webhooks": {"simulate": True, "wait_seconds": 8.0},
+    # `signed` additionally asserts it SIGNS its deliveries per order.md "Webhook
+    # Signature Verification" (RFC 9421 headers + UCP-Agent naming the business
+    # profile) — gates the ORD-026/027/028 + SIG-014/015/017/027 checks; `retries`
+    # asserts it retries a failed delivery within the window (ORD-031). Both are
+    # split from `simulate` because the official reference delivers webhooks but
+    # implements neither (see merchant_checks_04_08_events._WH_SIGNED/_WH_RETRY).
+    "webhooks": {"simulate": True, "wait_seconds": 8.0,
+                 "signed": True, "retries": True},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
     # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
