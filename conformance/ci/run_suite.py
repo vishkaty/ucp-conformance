@@ -81,6 +81,10 @@ def gates(server):
         ("sig-check",   _py(SELF / "validate_sig_check.py"),                    None, (2,)),
         ("oauth-check", _py(SELF / "validate_oauth_checks.py"),                  None, (2,)),
         ("order-auth-check", _py(SELF / "validate_order_auth_check.py"),         None, (2,)),
+        # samples#122 regression watch: SIG-002 graded against the VENDORED reference
+        # booted enforcing (clean-pass required) and permissive (deviation required),
+        # so an upstream verification regression turns this red instead of invisible.
+        ("sig002-reference", _py(SELF / "validate_sig002_reference.py"),         None, (2,)),
         ("checkout-scope-check", _py(SELF / "validate_checkout_scope_check.py"), None, (2,)),
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),
         ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),
@@ -124,6 +128,10 @@ def gates(server):
         # Hermetic (stub uv, synthetic root); each case carries a mutant so the guards
         # cannot pass by being unable to fail.
         ("golden-guards", _py(ROOT / "conformance" / "ci" / "golden_boot_guards.py", "--selftest"), None, ()),
+        # python-sdk#57/#59 regression watch: the pinned PyPI release must enforce the
+        # contains/uniqueItems validators, and the probe must go red on 0.4.3 (the real
+        # predecessor release without them) so it cannot pass vacuously.
+        ("sdk-constraints", _py(SELF / "validate_sdk_constraints.py"),           None, (2,)),
         # a mutation that cannot reach the field its predicate reads is a kill-test that
         # certifies nothing while reporting kill_safe — green by being unable to fail.
         ("mutation-paths", _py(SELF / "validate_mutation_paths.py", "--selftest"), None, ()),
