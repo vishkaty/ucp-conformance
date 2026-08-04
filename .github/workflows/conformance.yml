@@ -32,6 +32,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v8.2.0
         with:
@@ -85,6 +89,19 @@ jobs:
           SIM_SECRET: selfcheck-secret
           DB_DIR: /tmp/ucp_test
 
+      - name: Bring up the Node.js reference (second differential target)
+        # Best-effort: a SECOND independent implementation (samples/rest/nodejs, a
+        # Hono app on @ucp-js/sdk) for the differential/fixture-circularity gate.
+        # continue-on-error so an environment hiccup here never reds the whole
+        # suite — if the server is not reachable, the differential gate skips this
+        # target cleanly (differential.py filters on reachability), exactly like the
+        # flower target's env-var gate.
+        continue-on-error: true
+        run: bash conformance/ci/serve_node_reference.sh
+        env:
+          NODE_PORT: "3000"
+          SIM_SECRET: selfcheck-secret
+
       - name: Run the conformance self-test suite
         run: |
           python3 conformance/ci/run_suite.py \
@@ -92,7 +109,17 @@ jobs:
             --require-server \
             --verbose
         # With the ucp-schema oracle built above, the schema / fixture / profile_schema
-        # gates run for real here (no longer skipped).
+        # gates run for real here (no longer skipped). UCP_NODEJS_URL makes the
+        # differential gate also exercise the Node.js reference (a second independent
+        # target); if that server is not up, the gate simply omits it — no failure.
+        env:
+          UCP_NODEJS_URL: http://localhost:3000
+
+      - name: Tear down the Node.js reference
+        if: always()
+        run: bash conformance/ci/stop_node_reference.sh
+        env:
+          NODE_PORT: "3000"
 
       - name: Tear down the golden server
         if: always()

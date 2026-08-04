@@ -18,7 +18,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export PORT="${PORT:-8182}"
 export SIM_SECRET="${SIM_SECRET:-selfcheck-secret}"
 export DB_DIR="${DB_DIR:-/tmp/ucp_test}"
-PORTS=("$PORT" 8183 8184 8185 8186 8187 8188 8189 8190 8191 8193 8443 8444 8445)   # golden, proxy, fixtures, sig-gate trio, static web, webhook harness pair, 01-11 golden, TLS harness
+PORTS=("$PORT" 8183 8184 8185 8186 8187 8188 8189 8190 8191 8193 8443 8444 8445 3000)   # golden, proxy, fixtures, sig-gate trio, static web, webhook harness pair, 01-11 golden, TLS harness, node reference
 
 free_ports() {
   for p in "${PORTS[@]}"; do
@@ -29,6 +29,7 @@ free_ports() {
 
 cleanup() {
   DB_DIR="$DB_DIR" bash "$ROOT/conformance/ci/stop_golden.sh" >/dev/null 2>&1 || true
+  NODE_PORT=3000 bash "$ROOT/conformance/ci/stop_node_reference.sh" >/dev/null 2>&1 || true
   free_ports   # safety net: catches the proxy/fixture if run_suite was hard-killed
 }
 trap cleanup EXIT INT TERM
@@ -50,5 +51,16 @@ if bash "$ROOT/packaging/sync_bundle.sh" >/dev/null 2>&1; then
 fi
 
 bash "$ROOT/conformance/ci/serve_golden.sh"
+
+# Best-effort SECOND differential target: the Node.js reference (samples/rest/nodejs).
+# If it comes up, export UCP_NODEJS_URL so the differential gate exercises it too;
+# if not, the gate simply omits it (reachability-filtered) — never a failure.
+if NODE_PORT=3000 SIM_SECRET="$SIM_SECRET" bash "$ROOT/conformance/ci/serve_node_reference.sh"; then
+  export UCP_NODEJS_URL="http://localhost:3000"
+  echo "selftest: Node.js reference UP — differential gate will exercise it too" >&2
+else
+  echo "selftest: Node.js reference not up — differential runs the flower target only" >&2
+fi
+
 python3 "$ROOT/conformance/ci/run_suite.py" --server "http://localhost:$PORT" "$@"
 # trap fires cleanup() on the way out with this exit code preserved

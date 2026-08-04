@@ -6,6 +6,12 @@
    "server_env": "UCP_FLOWER_SHOP_URL",
    "config": "conformance/ci/differential_flower.config.json",
    "note": "The official UCP Flower Shop sample server \u2014 an implementation independent of our controlled fixture. Served locally by conformance/ci/serve_golden.sh. As of the 2026-07-31 re-pin it serves spec version 2026-04-08 (it served 2026-01-23 under the previous pin), so this target now exercises the 04-08 lane. Set UCP_FLOWER_SHOP_URL to its base URL to include it."
+  },
+  {
+   "name": "nodejs-reference-sample",
+   "server_env": "UCP_NODEJS_URL",
+   "config": "conformance/ci/differential_nodejs.config.json",
+   "note": "The official UCP Node.js reference server (samples/rest/nodejs \u2014 a Hono + Zod + @ucp-js/sdk app), a SECOND independent implementation whose author is not us AND not the Python golden. It advertises spec 2026-04-08 (src/utils/config.ts UCP_VERSION), so it exercises the 04-08 lane against a genuinely separate codebase, catching any check that quietly encoded Python-flower-specific behavior. The old '01-23-era incompatible' ops note is STALE: at samples HEAD a95b928b this sample targets 04-08 and 40 merchant checks clean-pass against it. Served locally by conformance/ci/serve_node_reference.sh (seeds the same flower catalog into its SQLite, boots via tsx on :3000). Two genuine Node-reference deviations are silenced in differential_allowlist.json (DISC-003 Cache-Control, PAY-003 ucp.payment_handlers echo) \u2014 both are real Node bugs anchored to the official 04-08 spec/schema, not check bugs. Set UCP_NODEJS_URL to its base URL to include it. NOTE the sample's own `npm run build && npm start` is broken (extensionless ESM imports \u2014 upstream samples#58, still reproducing); run it with tsx as the serve script does."
   }
  ]
 }
