@@ -1,4 +1,15 @@
 {
   "_about": "Documented, reviewed exceptions for the differential gate (differential.py). Each entry silences ONE (target, check) deviation because the independent target is KNOWN to legitimately deviate on that point — e.g. a real, reported bug in that target, or a capability the target implements to an older pinned version. An entry needs the target name, the check id, and a substantive reason (with a link/citation where possible). This exists so a genuine target bug can never silently mask one of OUR check bugs: every deviation is either resolved (fix the check or the target) or explained here. An empty allow list is the healthy default — it means every check agrees with every independent conformant target we test.",
-  "allow": []
+  "allow": [
+    {
+      "target": "nodejs-reference-sample",
+      "check": "discovery.profile_cache_control",
+      "reason": "GENUINE NODE-REFERENCE BUG, not a check bug. DISC-003 requires the /.well-known/ucp profile response to send Cache-Control: public, max-age>=60 (ucp docs/specification/overview.md#L1055-L1057). The Node sample's DiscoveryService.getMerchantProfile (samples/rest/nodejs/src/api/discovery.ts) returns c.json(discoveryProfile) with NO Cache-Control header — verified on the wire (curl -sI shows only content-type). The Python golden IMPLEMENTS and self-tests this exact header (samples/rest/python/server/integration_test.py::test_profile_includes_cache_control_header asserts public + numeric max-age>=60), so the requirement is real and the check is correct; only the Node reference deviates. This is the checkout-echo class's discovery twin of samples#153 (which added Cache-Control to the Python discovery but not the Node one). Fix drafted, pending owner go before filing under vishkaty per the ucp-upstream-work protocol (upstream filing is Vishal's explicit call)."
+    },
+    {
+      "target": "nodejs-reference-sample",
+      "check": "payment.response_handlers_echo",
+      "reason": "GENUINE NODE-REFERENCE BUG, not a check bug — independently confirmed by the official ucp-schema oracle. PAY-003@04-08 requires every checkout response's ucp envelope to carry the payment_handlers registry: ucp/source/schemas/shopping/checkout.json binds ucp -> ucp.json#/$defs/response_checkout_schema, which declares required:[payment_handlers] (ucp.json#L219 region). The Node checkout response's ucp envelope contains only {version, capabilities} (samples/rest/nodejs/src/api/checkout.ts builds ucp without payment_handlers). Running the official validator on the live Node create response fails with exactly: '/ucp: \"payment_handlers\" is a required property' (ucp-schema validate --op create --response against the pinned 04-08 schemas). The check is anchored to the official schema, NOT to our fixture, so it is not fixture-circular; the Node reference is non-conformant. Fix drafted, pending owner go before filing under vishkaty per the ucp-upstream-work protocol."
+    }
+  ]
 }
