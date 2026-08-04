@@ -11,6 +11,8 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `register` | every register row quotes the pinned spec **verbatim** | official spec text |
 | `verdict` | the no-false-green verdict gate's own unit tests hold | — |
 | `schema` | our schema checks agree with the official validator | official `ucp-schema` binary |
+| `dual-oracle` | every schema check runs the Rust oracle **and** an independent Python jsonschema referee (full `$id` registry over all 78 schemas); verdict divergence alarms. Known oracle bugs (ucp-schema#43) are acknowledged + self-expiring | independent `jsonschema` engine |
+| `dual-oracle-killtest` | the divergence detector provably catches a **planted** divergence + a **stale** acknowledgement; the referee's lifecycle filter matches the official resolver | — |
 | `suite-04-08` | 2026-04-08 fixture checks pass, no false green | official schemas |
 | `fixture` | our controlled merchant's profile + responses are schema-valid | official `ucp.json` / catalog schemas |
 | `merchant` | every merchant check is **clean-pass + kill-safe** on the Flower Shop golden | independent golden server |

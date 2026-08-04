@@ -10,6 +10,8 @@ Gates (each anchored to something we did NOT write, to avoid circularity):
   register    verify_register.py     — every register row quotes the pinned spec verbatim
   verdict     verdict_gate.py        — the no-false-green gate's own unit tests
   schema      schema_oracle.py       — our schema checks match the official ucp-schema validator
+  dual-oracle validate_dual_oracle.py — every schema check runs BOTH the Rust oracle and an
+                                        independent Python referee; verdict divergence alarms
   merchant    validate_merchant_checks.py — every merchant check is clean-pass + kill_safe on a golden
   suite-01-23 run_01_23.py           — the 2026-01-23 suite vs a live golden (no false green)
   suite-04-08 run_04_08.py           — the 2026-04-08 fixture checks (schema-oracle backed)
@@ -57,6 +59,17 @@ def gates(server):
         ("wrapper",     _py(SELF / "test_wrapper.py"),                          None, (2,)),
         ("schema-01-23", _py(CHK / "schema_check_01_23.py"),                    None, (2,)),
         ("schema-04-08", _py(CHK / "run_schema_04_08.py"),                      None, (2,)),
+        # every schema check cross-validated against an INDEPENDENT Python jsonschema
+        # referee (full $id registry over all 78 schemas): the Rust oracle we otherwise
+        # trust blindly can silently pass a malformed payload (ucp-schema#43 false-accepts
+        # payment instruments), so both engines run and any VERDICT divergence alarms.
+        # The #43 divergence reproduces on the pinned buggy oracle and is acknowledged +
+        # self-expiring (known_oracle_divergences.json). --server: opportunistic live probe.
+        ("dual-oracle", _py(SELF / "validate_dual_oracle.py", "--server", server), None, (2,)),
+        # the divergence detector must provably catch a PLANTED divergence and a STALE
+        # acknowledgement (a detector that never caught one proves nothing) + the referee's
+        # lifecycle filter must match the official resolver. Hermetic kill-tests.
+        ("dual-oracle-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest"), None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
