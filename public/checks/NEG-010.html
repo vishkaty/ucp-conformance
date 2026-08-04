@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAY-012 — Payment conformance check | spck.dev</title>
-<meta name="description" content="UCP requirement PAY-012: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
+<title>NEG-010 — Discovery-Negotiation conformance check | spck.dev</title>
+<meta name="description" content="UCP requirement NEG-010: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -31,19 +31,19 @@
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
 <header class="page-head">
-  <div class="eyebrow"><a href="/checks/">Check register</a> / Payment</div>
-  <h1>PAY-012</h1>
+  <div class="eyebrow"><a href="/checks/">Check register</a> / Discovery-Negotiation</div>
+  <h1>NEG-010</h1>
   <p class="sub">A requirement the spck.dev suite checks on UCP servers. The quoted text is
 the normative requirement; the citation links to the exact line of the pinned spec source
 it was taken from.</p>
 </header>
-<p class="note">2026-01-11:</p><blockquote class="req-quote">Businesses must filter the handlers list based on the context of the cart (dynamic filtering).</blockquote><p class="note">2026-01-23:</p><blockquote class="req-quote">Businesses must filter the handlers list based on the context of the cart (dynamic filtering).</blockquote><p class="note">2026-04-08:</p><blockquote class="req-quote">Token credential value MUST NOT be echoed in responses (token field is omit-on-response)</blockquote>
+<blockquote class="req-quote">Businesses MUST compute the intersection of platform and business capabilities</blockquote>
 <dl class="meta-grid">
   <dt>Keyword</dt><dd>MUST</dd>
-  <dt>Area</dt><dd>Payment</dd>
-  <dt>Versions</dt><dd><span class="chip">2026-01-11</span> <span class="chip">2026-01-23</span> <span class="chip">2026-04-08</span></dd>
+  <dt>Area</dt><dd>Discovery-Negotiation</dd>
+  <dt>Versions</dt><dd><span class="chip">2026-01-11</span> <span class="chip">2026-01-23</span></dd>
   <dt>Testability</dt><dd>needs a receiver the suite controls, so it runs in the CLI/full suite</dd>
-  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/806a5b74d3a5a918206844ea980450233b38664e/docs/specification/overview.md#L601" rel="noopener">ucp:docs/specification/overview.md#L601</a> <span class="chip">2026-01-11</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/dcf7eac71fc370dcc8768fcdbc5aa737037cca05/docs/specification/overview.md#L642" rel="noopener">ucp:docs/specification/overview.md#L642</a> <span class="chip">2026-01-23</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/token_credential.json#L21" rel="noopener">ucp:source/schemas/shopping/types/token_credential.json#L21</a> <span class="chip">2026-04-08</span></dd>
+  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/806a5b74d3a5a918206844ea980450233b38664e/docs/specification/overview.md#L461" rel="noopener">ucp:docs/specification/overview.md#L461</a> <span class="chip">2026-01-11</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/dcf7eac71fc370dcc8768fcdbc5aa737037cca05/docs/specification/overview.md#L494" rel="noopener">ucp:docs/specification/overview.md#L494</a> <span class="chip">2026-01-23</span></dd>
 </dl>
 <h2>How this is graded</h2>
 <p class="sub">A deviation on a MUST fails the run and shows the requirement next to the

@@ -9,21 +9,21 @@
  "versions": {
   "2026-01-11": {
    "musts": 178,
-   "check": 117,
+   "check": 121,
    "exempt": 38,
-   "gap": 23,
-   "accounted_pct": 87,
+   "gap": 19,
+   "accounted_pct": 89,
    "gap_by_testability": {
     "manual": 2,
-    "needs-receiver": 21
+    "needs-receiver": 17
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 22,
+     "check": 23,
      "exempt": 3,
-     "gap": 3,
-     "gap_needs-receiver": 3,
+     "gap": 2,
+     "gap_needs-receiver": 2,
      "musts": 28
     },
     {
@@ -34,10 +34,10 @@
     },
     {
      "area": "discovery-negotiation",
-     "check": 16,
+     "check": 18,
      "exempt": 11,
-     "gap": 3,
-     "gap_needs-receiver": 3,
+     "gap": 1,
+     "gap_needs-receiver": 1,
      "musts": 30
     },
     {
@@ -70,10 +70,10 @@
     },
     {
      "area": "payment",
-     "check": 13,
+     "check": 14,
      "exempt": 11,
-     "gap": 11,
-     "gap_needs-receiver": 11,
+     "gap": 10,
+     "gap_needs-receiver": 10,
      "musts": 35
     },
     {
@@ -314,10 +314,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Logic handling the checkout sessions MUST be deterministic",
      "source": "ucp:docs/specification/checkout.md#L267",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-038",
@@ -1248,20 +1250,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST compute the intersection of platform and business capabilities",
      "source": "ucp:docs/specification/overview.md#L461",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_neg.py"
+     ]
     },
     {
      "id": "NEG-011",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Extensions without their parent capability in the intersection MUST be excluded",
      "source": "ucp:docs/specification/overview.md#L464",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_neg.py"
+     ]
     },
     {
      "id": "NEG-012",
@@ -1716,10 +1722,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must filter the handlers list based on the context of the cart (dynamic filtering).",
      "source": "ucp:docs/specification/overview.md#L601",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-013",
@@ -2156,21 +2164,21 @@
   },
   "2026-01-23": {
    "musts": 188,
-   "check": 125,
+   "check": 129,
    "exempt": 39,
-   "gap": 24,
-   "accounted_pct": 87,
+   "gap": 20,
+   "accounted_pct": 89,
    "gap_by_testability": {
     "manual": 2,
-    "needs-receiver": 22
+    "needs-receiver": 18
    },
    "areas": [
     {
      "area": "checkout-lifecycle",
-     "check": 26,
+     "check": 27,
      "exempt": 3,
-     "gap": 3,
-     "gap_needs-receiver": 3,
+     "gap": 2,
+     "gap_needs-receiver": 2,
      "musts": 32
     },
     {
@@ -2181,10 +2189,10 @@
     },
     {
      "area": "discovery-negotiation",
-     "check": 16,
+     "check": 18,
      "exempt": 12,
-     "gap": 3,
-     "gap_needs-receiver": 3,
+     "gap": 1,
+     "gap_needs-receiver": 1,
      "musts": 31
     },
     {
@@ -2217,10 +2225,10 @@
     },
     {
      "area": "payment",
-     "check": 15,
+     "check": 16,
      "exempt": 11,
-     "gap": 11,
-     "gap_needs-receiver": 11,
+     "gap": 10,
+     "gap_needs-receiver": 10,
      "musts": 37
     },
     {
@@ -2515,10 +2523,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Logic handling the checkout sessions MUST be deterministic",
      "source": "ucp:docs/specification/checkout.md#L267",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "CHK-038",
@@ -3498,20 +3508,24 @@
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST compute the intersection of platform and business capabilities",
      "source": "ucp:docs/specification/overview.md#L494",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_neg.py"
+     ]
     },
     {
      "id": "NEG-011",
      "area": "discovery-negotiation",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Extensions without their parent capability in the intersection MUST be excluded",
      "source": "ucp:docs/specification/overview.md#L497",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_neg.py"
+     ]
     },
     {
      "id": "NEG-012",
@@ -3978,10 +3992,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses must filter the handlers list based on the context of the cart (dynamic filtering).",
      "source": "ucp:docs/specification/overview.md#L642",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_01_11_01_23_receiver.py"
+     ]
     },
     {
      "id": "PAY-013",
