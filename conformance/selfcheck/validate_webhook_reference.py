@@ -59,7 +59,11 @@ DELIVERY_CHECK = "webhook.order_created_full_entity"
 # implements webhook signing / UCP-Agent identification / delivery retry
 TRIPWIRE_CHECKS = ("webhook.ucp_agent_header", "webhook.signed_rfc9421_verifies",
                    "webhook.signed_components", "webhook.query_component_signed",
-                   "webhook.retry_failed_delivery")
+                   "webhook.retry_failed_delivery",
+                   # receiver-gap wave additions (SIG-016/SIG-018): same signed
+                   # cluster, same reference gap (samples#163) — pinned so the
+                   # moment upstream signs deliveries these go loud too
+                   "webhook.idempotency_key_signed", "webhook.ucp_agent_signed")
 UPDATE_CHECK = "webhook.update_full_entity"   # must stay not-tested (no adjust hook)
 
 

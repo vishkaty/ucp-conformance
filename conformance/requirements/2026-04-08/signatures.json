@@ -288,7 +288,7 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+   "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events)."
   },
   {
    "id": "SIG-017",
@@ -324,7 +324,7 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events)."
   },
   {
    "id": "SIG-019",
@@ -630,7 +630,7 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Wave-3 review F1 (2026-07-03): a live check was removed \u2014 algorithm_unsupported has NO spec-conformant wire trigger. signatures.md: the algorithm is derived from the key crv; `alg` is NOT a Signature-Input parameter, so a conformant signer never sends an unsupported alg and a conformant verifier returns signature_invalid, not algorithm_unsupported. No normative 'MUST emit' text, no official-oracle test. Stays GAP (needs-receiver) unless a crv-based unsupported-key scenario is devised."
+   "notes": "Wave-3 review F1 (2026-07-03) removed an UNSOUND check that probed a bogus `alg` Signature-Input PARAMETER: the algorithm is derived from the key crv, `alg` is not a parameter, so that probe had no spec-conformant trigger. Re-adjudicated 2026-08-04 (receiver-gap wave): the spec-true wire trigger is a signature whose keyid RESOLVES to a key published in the signer's signing_keys with an UNSUPPORTED crv-derived algorithm \u2014 resolution succeeds (so key_not_found is wrong), verification cannot proceed under any supported algorithm, and the error registry maps exactly this to algorithm_unsupported -> 400. Covered by signature.algorithm_unsupported_400 (merchant_checks_04_08_signatures): the suite signs citing the platform's published Ed25519 kid (config signature.unsupported_alg_kid); the controlled fixture implements the branch ahead of key lookup."
   },
   {
    "id": "SIG-036",

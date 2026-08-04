@@ -393,6 +393,56 @@ def p_webhook_components(r):
             return DEVIATION
     return CLEAN
 
+def p_webhook_idem_key_signed(r):
+    """SIG-016 (merchant as request signer — its webhook POSTs are state-changing
+    requests): every delivery carries an idempotency-key header AND signs it
+    ('Required for POST, PUT, DELETE, PATCH' in the signed-component table)."""
+    f = _flow(r)
+    if not f:
+        return DEVIATION
+    events, _, oid = f
+    ours = [e for e in events
+            if isinstance(e.get("payload"), dict)
+            and str(e["payload"].get("id")) == str(oid)]
+    if not ours:
+        return DEVIATION
+    for e in ours:
+        if not (e.get("headers") or {}).get("idempotency-key"):
+            return DEVIATION
+        m = _event_sig(e)
+        if not m:
+            return DEVIATION
+        if m[0].get("unsupported"):
+            return INCONCLUSIVE
+        if "idempotency-key" not in m[0]["components"]:
+            return DEVIATION
+    return CLEAN
+
+def p_webhook_agent_signed(r):
+    """SIG-018 (merchant as request signer): the deliveries carry a UCP-Agent
+    header, and whenever it is present `ucp-agent` MUST be a signed component
+    (it binds the signer's identity to the signature)."""
+    f = _flow(r)
+    if not f:
+        return DEVIATION
+    events, _, oid = f
+    ours = [e for e in events
+            if isinstance(e.get("payload"), dict)
+            and str(e["payload"].get("id")) == str(oid)]
+    if not ours:
+        return DEVIATION
+    for e in ours:
+        if not (e.get("headers") or {}).get("ucp-agent"):
+            return DEVIATION                # ORD-028 requires the header on webhooks
+        m = _event_sig(e)
+        if not m:
+            return DEVIATION
+        if m[0].get("unsupported"):
+            return INCONCLUSIVE
+        if "ucp-agent" not in m[0]["components"]:
+            return DEVIATION
+    return CLEAN
+
 def p_webhook_query_signed(r):
     """SIG-017 (merchant as request signer): the platform-provided webhook URL
     carries a query string (the harness URL does, deliberately — 'URL format is
@@ -463,6 +513,12 @@ _WH_SI_NO_DIGEST = json.dumps(
     'sig1=("@method" "@authority" "@path" "content-type");keyid="k1"')
 _WH_SI_NO_QUERY = json.dumps(
     'sig1=("@method" "@authority" "@path" "content-digest" "content-type");keyid="k1"')
+_WH_SI_NO_IDEM = json.dumps(
+    'sig1=("@method" "@authority" "@path" "@query" "ucp-agent" "content-digest" '
+    '"content-type");keyid="k1"')
+_WH_SI_NO_AGENT = json.dumps(
+    'sig1=("@method" "@authority" "@path" "@query" "idempotency-key" '
+    '"content-digest" "content-type");keyid="k1"')
 
 _WH_GATES = ("webhooks.simulate", "complete_payment")
 # The SIGNING cluster (ORD-026/027/028, SIG-014/015/017/027 — order.md "Webhook
@@ -574,7 +630,29 @@ CHECKS_04_08_EVENTS = [
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
-    MCheck("webhook.ucp_agent_header", ["ORD-028"], "MUST",
+    MCheck("webhook.idempotency_key_signed", ["SIG-016"], "MUST",
+           wh_created_flow, p_webhook_idem_key_signed,
+           ["set:events=[]",
+            f"set:events.0.headers.signature-input={_WH_SI_NO_IDEM}",
+            "drop:events.0.headers.idempotency-key",
+            "drop:events.0.headers.signature-input",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
+    MCheck("webhook.ucp_agent_signed", ["SIG-018"], "MUST",
+           wh_created_flow, p_webhook_agent_signed,
+           ["set:events=[]",
+            f"set:events.0.headers.signature-input={_WH_SI_NO_AGENT}",
+            "drop:events.0.headers.ucp-agent",
+            "drop:events.0.headers.signature-input",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=_WH_SIGNED, transport="rest", versions=V0408),
+    # SIG-041 rides the ORD-028 predicate deliberately: p_webhook_ucp_agent's
+    # second assertion IS the SIG-041 rule — the business's UCP-Agent profile URL
+    # on its own signed requests MUST point to /.well-known/ucp (signatures.md
+    # UCP-Agent parsing rule 4 for business profiles).
+    MCheck("webhook.ucp_agent_header", ["ORD-028", "SIG-041"], "MUST",
            wh_created_flow, p_webhook_ucp_agent,
            ["set:events=[]", "drop:events.0.headers.ucp-agent",
             "set:events.0.headers.ucp-agent=\"garbage\"",

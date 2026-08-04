@@ -4433,22 +4433,18 @@
   },
   "2026-04-08": {
    "musts": 364,
-   "check": 246,
+   "check": 276,
    "exempt": 81,
-   "gap": 37,
-   "accounted_pct": 90,
+   "gap": 7,
+   "accounted_pct": 98,
    "gap_by_testability": {
-    "manual": 7,
-    "needs-oauth": 3,
-    "needs-receiver": 27
+    "manual": 7
    },
    "areas": [
     {
      "area": "cart",
-     "check": 11,
+     "check": 12,
      "exempt": 2,
-     "gap": 1,
-     "gap_needs-receiver": 1,
      "musts": 14
     },
     {
@@ -4461,18 +4457,14 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 21,
+     "check": 25,
      "exempt": 8,
-     "gap": 4,
-     "gap_needs-receiver": 4,
      "musts": 33
     },
     {
      "area": "discounts-consent",
-     "check": 27,
+     "check": 28,
      "exempt": 1,
-     "gap": 1,
-     "gap_needs-receiver": 1,
      "musts": 29
     },
     {
@@ -4499,11 +4491,10 @@
     },
     {
      "area": "identity-linking",
-     "check": 33,
+     "check": 35,
      "exempt": 21,
-     "gap": 3,
+     "gap": 1,
      "gap_manual": 1,
-     "gap_needs-oauth": 2,
      "musts": 57
     },
     {
@@ -4514,35 +4505,28 @@
     },
     {
      "area": "overview",
+     "check": 9,
      "exempt": 2,
-     "gap": 11,
+     "gap": 2,
      "gap_manual": 2,
-     "gap_needs-oauth": 1,
-     "gap_needs-receiver": 8,
      "musts": 13
     },
     {
      "area": "payment",
-     "check": 28,
+     "check": 31,
      "exempt": 13,
-     "gap": 3,
-     "gap_needs-receiver": 3,
      "musts": 44
     },
     {
      "area": "signals-attribution-eligibility",
-     "check": 11,
+     "check": 13,
      "exempt": 1,
-     "gap": 2,
-     "gap_needs-receiver": 2,
      "musts": 14
     },
     {
      "area": "signatures",
-     "check": 23,
+     "check": 31,
      "exempt": 2,
-     "gap": 8,
-     "gap_needs-receiver": 8,
      "musts": 33
     },
     {
@@ -4700,10 +4684,12 @@
      "area": "cart",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "cart_id is only available on create_checkout (create:optional) and MUST be omitted on update",
      "source": "ucp:source/schemas/shopping/cart.json#L21",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08.py"
+     ]
     },
     {
      "id": "CART-031",
@@ -5173,10 +5159,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Logic handling the checkout sessions MUST be deterministic",
      "source": "ucp:docs/specification/checkout.md#L533",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-014",
@@ -5455,30 +5443,36 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Protocol errors return appropriate HTTP status (401/403/409/429/503) with JSON body containing code and content",
      "source": "ucp:docs/specification/checkout-rest.md#L1273",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-051",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Business outcomes (including unavailable merchandise) return HTTP 200 with the UCP envelope and messages array",
      "source": "ucp:docs/specification/checkout-rest.md#L1275",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-053",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On create with all items unavailable, response carries ucp.status:error with messages and no resource body",
      "source": "ucp:docs/specification/checkout.md#L141",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "CHK-055",
@@ -5675,10 +5669,12 @@
      "area": "discounts-consent",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Automatic discounts cannot be removed by the platform",
      "source": "ucp:docs/specification/discount.md#L191",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "DSC-014",
@@ -6619,10 +6615,12 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST validate user identity tokens on every user-authenticated request (iss, aud, exp, scopes, and client_id/azp).",
      "source": "ucp:docs/specification/identity-linking.md#L195-L199",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-026",
@@ -7005,10 +7003,12 @@
      "area": "identity-linking",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "The `issuer` value in RFC 8414 metadata and the `iss` parameter returned in authorization responses MUST be identical byte-for-byte; platforms MUST NOT normalize (e.g. strip trailing slashes) before comparison.",
      "source": "ucp:docs/specification/identity-linking.md#L604-L607",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "IDL-062",
@@ -7453,50 +7453,60 @@
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "All capability and service names advertised in a profile MUST use the reverse-domain format {reverse-domain}.{service}.{capability}",
      "source": "ucp:docs/specification/overview.md#L59",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-003",
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The origin of each capability's spec/schema URL MUST match the namespace authority derived from its reverse-domain name",
      "source": "ucp:docs/specification/overview.md#L83",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-004",
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST include the ucp field in every response, containing the processing version and the array of active capabilities",
      "source": "ucp:docs/specification/overview.md#L641",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-005",
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "In ucp.capabilities the business MUST include only capabilities that are (1) in the negotiated intersection and (2) relevant to this response's operation type",
      "source": "ucp:docs/specification/overview.md#L950",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-006",
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-oauth",
-     "status": "gap",
+     "status": "check",
      "requirement": "Verifiers MUST ensure the authenticated identity is consistent with the UCP-Agent profile, and (for API key/OAuth/mTLS) MUST confirm the authenticated principal is authorized to act on behalf of that profile, rejecting requests where identity and claimed profile conflict",
      "source": "ucp:docs/specification/overview.md#L1014",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_oauth.py"
+     ]
     },
     {
      "id": "OVR-007",
@@ -7514,30 +7524,36 @@
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "REST requests and responses MUST use Content-Type application/json",
      "source": "ucp:docs/specification/overview.md#L1584",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-009",
      "area": "overview",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A version-specific (leaf) profile served from a supported_versions URI MUST NOT contain a supported_versions field",
      "source": "ucp:docs/specification/overview.md#L1897",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-010",
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date version string (e.g. 'draft') in their profile version field or in supported_versions",
      "source": "ucp:docs/specification/overview.md#L1953",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-011",
@@ -7555,10 +7571,12 @@
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "During capability negotiation (step 3, Extension Validation), businesses MUST exclude any extension whose parent capability is not present in the platform/business capability intersection.",
      "source": "ucp:docs/specification/overview.md#L640",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ]
     },
     {
      "id": "OVR-013",
@@ -7718,20 +7736,24 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST validate handler_id before processing (ensure handler is in the advertised set)",
      "source": "ucp:docs/specification/overview.md#L1513",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "PAY-015",
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Businesses MUST dynamically filter the handlers list based on the context of the cart (e.g., removing BNPL for subscription items, filtering regional methods by shipping address)",
      "source": "ucp:docs/specification/overview.md#L1193",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "PAY-017",
@@ -8017,10 +8039,12 @@
      "area": "payment",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The platform must produce two distinct mandate artifacts (checkout_mandate and payment_mandate).",
      "source": "ucp:docs/specification/ap2-mandates.md#L200",
-     "covered_by": []
+     "covered_by": [
+      "schema_check_04_08_payment.py"
+     ]
     },
     {
      "id": "PAY-042",
@@ -8145,10 +8169,12 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The presence or absence of the attribution field MUST NOT affect the response or negotiation",
      "source": "ucp:docs/specification/overview.md#L1771",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-010",
@@ -8179,10 +8205,12 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data (context is non-authoritative)",
      "source": "ucp:source/schemas/shopping/types/context.json#L5",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_receiver.py"
+     ]
     },
     {
      "id": "SAE-013",
@@ -8321,10 +8349,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "During key rotation, continue accepting signatures from old keys for a grace period of minimum 7 days.",
      "source": "ucp:docs/specification/signatures.md#L146",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-010",
@@ -8402,10 +8432,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "idempotency-key MUST be a signed component for POST, PUT, DELETE, PATCH requests.",
      "source": "ucp:docs/specification/signatures.md#L198",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-017",
@@ -8424,10 +8456,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "ucp-agent MUST be a signed component if the UCP-Agent header is present.",
      "source": "ucp:docs/specification/signatures.md#L197",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "SIG-019",
@@ -8481,20 +8515,24 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Server storage of idempotency keys must be a minimum of 24 hours, recommended 48 hours.",
      "source": "ucp:docs/specification/signatures.md#L484",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-024",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "On idempotency storage failure, fail closed (reject request with 503).",
      "source": "ucp:docs/specification/signatures.md#L486",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-025",
@@ -8573,10 +8611,12 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "algorithm_unsupported maps to HTTP 400 (signature algorithm not supported).",
      "source": "ucp:docs/specification/signatures.md#L555",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_signatures.py"
+     ]
     },
     {
      "id": "SIG-036",
@@ -8619,20 +8659,24 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "The `profile` value in the `UCP-Agent` header MUST be a quoted string containing an HTTPS URL (non-HTTPS URLs must be rejected).",
      "source": "ucp:docs/specification/signatures.md#L355",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_discovery.py"
+     ]
     },
     {
      "id": "SIG-041",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "For business profiles, the `UCP-Agent` profile URL MUST point to `/.well-known/ucp`; platform profile URLs are not path-constrained.",
      "source": "ucp:docs/specification/signatures.md#L356",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ]
     },
     {
      "id": "TOT-001",

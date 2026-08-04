@@ -311,7 +311,12 @@ CHECKS_04_08_DISCOVERY = [
             "hset:Cache-Control=public, max-age=30",
             "hset:Cache-Control=public"],
            transport="rest", versions=V0408),
-    MCheck("discovery.reject_http_profile_url", ["DISC-004"], "MUST",
+    # SIG-040 rides the same scenario deliberately: signatures.md's UCP-Agent
+    # parsing rules ('Value MUST be a quoted string containing an HTTPS URL' /
+    # 'Reject non-HTTPS URLs') bind the same verifier duty DISC-004 states in
+    # overview.md — the probe presents a QUOTED profile member carrying a plain
+    # http URL and the merchant MUST reject it.
+    MCheck("discovery.reject_http_profile_url", ["DISC-004", "SIG-040"], "MUST",
            f_http_profile_url, p_rejected_4xx,
            ["status:200", "status:201", "status:303", "status:502"],
            needs=("product",), cfg_needs=("negotiation.validates_profile_url",),

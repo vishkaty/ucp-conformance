@@ -15,9 +15,9 @@ cart,discount,signatures}.md and .../source/schemas/shopping/checkout.json.
 
 NOTE: imported lazily by merchant_checks.all_checks(); pulls MCheck/_hdr from there.
 """
-import sys, uuid, pathlib
+import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine import fetch, CLEAN, DEVIATION                    # noqa: E402
+from engine import fetch, Resp, CLEAN, DEVIATION              # noqa: E402
 from merchant_checks import MCheck, _hdr                      # noqa: E402
 
 V0408 = ("2026-04-08",)
@@ -355,7 +355,14 @@ CHECKS_04_08_RECEIVER = [
             "set:status=\"incomplete\"", "drop:status", "empty"],
            cfg_needs=("eligibility.unrecognized",), needs=("product",),
            transport="rest", versions=V0408),
-    MCheck("eligibility.completion_blocked", ["SAE-013", "SAE-018", "CHK-056"], "MUST",
+    # SAE-012 rides the same scenario deliberately: context.json's own normative
+    # sentence ("Eligibility and policy enforcement MUST occur at checkout time
+    # using binding transaction data") is exactly what this exhibits — the claim
+    # the CONTEXT carried was accepted provisionally at create, and the binding
+    # enforcement happened AT COMPLETION, where the unverifiable claim blocked the
+    # transaction (context was not treated as authoritative).
+    MCheck("eligibility.completion_blocked",
+           ["SAE-013", "SAE-018", "CHK-056", "SAE-012"], "MUST",
            f_elig_unverifiable_complete, p_completion_blocked,
            ["set:status=\"completed\"", "status:500"],
            cfg_needs=("eligibility.unverifiable",), needs=("product",),
@@ -412,4 +419,287 @@ CHECKS_04_08_RECEIVER = [
            cfg_needs=("cart.second_product_id",), needs=("product",),
            transport="rest", capability="dev.ucp.shopping.cart", versions=V0408),
     # ---- signature algorithm error code -------------------------------------
+]
+
+# ======== RECEIVER-GAP tier 2 (2026-07 wave: CHK-013/050/051/053, DSC-013, ======
+# ======== PAY-014/015, SAE-008 — the remaining needs-receiver MUSTs) ============
+def _norm_proj(j):
+    """The NORMATIVE projection of a checkout response — everything the spec makes
+    input-determined, with per-request volatility (ids, urls) excluded. Two
+    responses to the same input MUST agree on this projection."""
+    if not isinstance(j, dict):
+        return None
+    lines = [((li.get("item") or {}).get("id"), li.get("quantity"),
+              (li.get("item") or {}).get("price"))
+             for li in j.get("line_items") or [] if isinstance(li, dict)]
+    totals = [(t.get("type"), t.get("amount"))
+              for t in j.get("totals") or [] if isinstance(t, dict)]
+    d = j.get("discounts") if isinstance(j.get("discounts"), dict) else {}
+    applied = sorted((a.get("code"), a.get("amount"), bool(a.get("automatic")))
+                     for a in d.get("applied") or [] if isinstance(a, dict))
+    msgs = sorted((m.get("type"), m.get("code"))
+                  for m in j.get("messages") or [] if isinstance(m, dict))
+    return {"status": j.get("status"), "currency": j.get("currency"),
+            "line_items": lines, "totals": totals, "applied": applied,
+            "messages": msgs}
+
+# ---- CHK-013: deterministic checkout logic --------------------------------------
+def f_det_replay(ctx):
+    """The SAME create request twice (fresh idempotency keys, so both EXECUTE).
+    The first response's normative projection is stashed on the ctx; the second is
+    the golden the predicate compares against it."""
+    body = _line(ctx, 2)
+    first = _create(ctx, body)
+    ctx._det_first = _norm_proj(first.json) if first.status in (200, 201) else None
+    return _create(ctx, body)
+
+def p_deterministic(r, ctx):
+    """CHK-013: 'Logic handling the checkout sessions MUST be deterministic' —
+    replaying an identical create yields the same normative outcome (status,
+    priced line items, totals, applied discounts, message codes); only volatile
+    identity (session id, urls) may differ."""
+    if r.status not in (200, 201) or getattr(ctx, "_det_first", None) is None:
+        return DEVIATION
+    return CLEAN if _norm_proj(r.json) == ctx._det_first else DEVIATION
+
+# ---- CHK-050: protocol errors carry a JSON body with code + content -------------
+def p_protocol_error_shape(r, ctx):
+    """CHK-050: 'Protocol errors: Return appropriate HTTP status code (401, 403,
+    409, 429, 503) with JSON body containing code and content.' Exercised on the
+    idempotency-key conflict, whose status the spec pins to 409 (CHK-048).
+    PLACEMENT-PERMISSIVE, value-strict (the _err_codes precedent): the pair may
+    sit at the top level (the flat transport-error body) or inside a messages[]
+    error entry (the envelope form the official reference emits) — the quote
+    demands the body CONTAIN code and content, not a nesting depth."""
+    if r.status != 409 or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    if isinstance(j.get("code"), str) and j["code"] \
+       and isinstance(j.get("content"), str) and j["content"]:
+        return CLEAN
+    return CLEAN if any(isinstance(m, dict)
+                        and isinstance(m.get("code"), str) and m["code"]
+                        and isinstance(m.get("content"), str) and m["content"]
+                        for m in j.get("messages") or []) else DEVIATION
+
+# ---- CHK-051/CHK-053: unavailable merchandise is a BUSINESS OUTCOME -------------
+def f_create_all_unavailable(ctx):
+    """Create where EVERY requested item is unavailable (the seeded zero-stock
+    product) — checkout.md: the business cannot create the resource."""
+    return _create(ctx, {"line_items": [
+        {"item": {"id": ctx.config.get("out_of_stock_id")}, "quantity": 1}]})
+
+def p_all_unavailable_error_envelope(r, ctx):
+    """CHK-053: all items unavailable -> the response carries ucp.status:'error'
+    with a messages array describing the failure and NO resource body (no
+    checkout id / line_items / status). The cited checkout.md clause pins the
+    ENVELOPE discriminator, not an HTTP status — the HTTP-200 business-outcome
+    rule is CHK-051's row (graded separately, config-gated: the official
+    reference still answers 400 here); a 5xx crash is never acceptable."""
+    if not (200 <= r.status < 500) or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    if (j.get("ucp") or {}).get("status") != "error":
+        return DEVIATION
+    if not any(isinstance(m, dict) and m.get("type") == "error"
+               for m in j.get("messages") or []):
+        return DEVIATION
+    return DEVIATION if (j.get("id") or j.get("line_items") or j.get("status")) \
+        else CLEAN
+
+def f_create_partial_unavailable(ctx):
+    """Create mixing one purchasable line with one unavailable line — a business
+    outcome that still yields a checkout resource plus messages."""
+    return _create(ctx, {"line_items": [
+        {"item": {"id": ctx.product_id}, "quantity": 1},
+        {"item": {"id": ctx.config.get("out_of_stock_id")}, "quantity": 1}]})
+
+def p_partial_unavailable_outcome(r, ctx):
+    """CHK-051: 'Business outcomes (including unavailable merchandise) return
+    HTTP 200 with the UCP envelope and messages array' — the mixed create yields
+    a checkout resource carrying ONLY the purchasable line, with the
+    unavailability surfaced in messages (registered codes out_of_stock /
+    item_unavailable), never a protocol 4xx."""
+    if r.status not in (200, 201) or not isinstance(r.json, dict):
+        return DEVIATION
+    j = r.json
+    ucp = j.get("ucp")
+    if not isinstance(ucp, dict) or ucp.get("status") == "error":
+        return DEVIATION
+    lines = j.get("line_items")
+    if not j.get("id") or not isinstance(lines, list) or not lines:
+        return DEVIATION
+    bad = ctx.config.get("out_of_stock_id")
+    if any((li.get("item") or {}).get("id") == bad for li in lines
+           if isinstance(li, dict)):
+        return DEVIATION                    # the unavailable item was "sold" anyway
+    return CLEAN if any(isinstance(m, dict)
+                        and m.get("code") in ("out_of_stock", "item_unavailable")
+                        for m in j.get("messages") or []) else DEVIATION
+
+# ---- DSC-013: automatic discounts cannot be removed by the platform -------------
+def f_clear_codes_update(ctx):
+    """Create a session that qualifies for the merchant's AUTOMATIC discount
+    (config discount.automatic names a qualifying basket), verify it applied,
+    then UPDATE with discounts.codes=[] — the platform's only removal lever."""
+    auto = (ctx.config.get("discount") or {}).get("automatic") or {}
+    body = {"line_items": [{"item": {"id": auto.get("product_id")},
+                            "quantity": auto.get("quantity", 1)}]}
+    created = _create(ctx, body)
+    j = created.json if isinstance(created.json, dict) else {}
+    if not any(isinstance(a, dict) and a.get("automatic")
+               for a in _applied(created) or []):
+        return Resp(0, {}, b'{"probe":"the config discount.automatic basket produced '
+                           b'no automatic discount entry; cannot exercise DSC-013"}')
+    cid = j.get("id")
+    body["discounts"] = {"codes": []}
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT",
+                 body, _hdr())
+
+def p_automatic_survives(r, ctx):
+    """DSC-013: 'Cannot be removed by the platform' — after the platform clears
+    discounts.codes, the automatic discount entry is STILL applied."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if any(isinstance(a, dict) and a.get("automatic")
+                        for a in _applied(r) or []) else DEVIATION
+
+# ---- PAY-014: handler_id validated against the advertised set -------------------
+def f_unknown_handler_complete(ctx):
+    """Complete with an instrument whose handler_id is NOT in the advertised
+    handler set (an otherwise-valid success credential). Return the completion
+    response when the merchant (wrongly) completed; else the session's current
+    state — the predicate asserts it was NOT completed."""
+    cid = (_create(ctx, _line(ctx)).json or {}).get("id")
+    pay = json.loads(json.dumps(_success_pay()))
+    pay["payment"]["instruments"][0]["handler_id"] = \
+        "spck_handler_not_in_advertised_set"
+    done = _complete(ctx, cid, pay)
+    if done.status in (200, 201) and isinstance(done.json, dict) \
+       and done.json.get("status") == "completed":
+        return done                          # processed with an unvalidated handler
+    return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "GET",
+                 None, _hdr())
+
+def p_not_completed(r, ctx):
+    """PAY-014: 'Validate handler_id before processing (ensure handler is in the
+    advertised set)' — the session is NOT completed after a completion attempt
+    carrying an unknown handler_id."""
+    if r.status != 200 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if r.json.get("status") and r.json["status"] != "completed" \
+        else DEVIATION
+
+# ---- PAY-015: handlers list dynamically filtered by cart context ----------------
+def _handler_keys(r):
+    ph = ((r.json or {}).get("ucp") or {}).get("payment_handlers") \
+        if isinstance(r.json, dict) else None
+    return set(ph.keys()) if isinstance(ph, dict) else set()
+
+def f_context_filtered_create(ctx):
+    """Baseline create (unrestricted product): the advertised handler set includes
+    the context-sensitive handler. Golden: create with the config-named product
+    the handler is not offered for — the merchant MUST filter it out."""
+    filt = (ctx.config.get("payment") or {}).get("filtered") or {}
+    base = _create(ctx, _line(ctx))
+    if filt.get("handler_key") not in _handler_keys(base):
+        return Resp(0, {}, b'{"probe":"baseline response never offers the '
+                           b'context-sensitive handler (payment.filtered.handler_key); '
+                           b'the filtering scenario would be vacuous"}')
+    return _create(ctx, {"line_items": [
+        {"item": {"id": filt.get("product_id")}, "quantity": 1}]})
+
+def p_handler_filtered(r, ctx):
+    """PAY-015: 'Businesses MUST filter the handlers list based on the context of
+    the cart' — the restricted basket's response omits the context-sensitive
+    handler while still offering the base handler."""
+    if r.status not in (200, 201):
+        return DEVIATION
+    filt = (ctx.config.get("payment") or {}).get("filtered") or {}
+    keys = _handler_keys(r)
+    if not keys or filt.get("handler_key") in keys:
+        return DEVIATION
+    base_key = (ctx.config.get("payment") or {}).get("handler_key")
+    return CLEAN if (base_key in keys if base_key else True) else DEVIATION
+
+# ---- SAE-008: attribution presence/absence changes nothing ----------------------
+_ATTRIBUTION = {"campaign_id": "18234567890", "campaign_source": "spck-suite",
+                "campaign_medium": "cpc", "gclid": "EAIaIQobChMIspckprobe"}
+
+def f_attribution_replay(ctx):
+    """The same create WITHOUT and then WITH the top-level attribution field
+    (overview.md Attribution example shape). The attribution-free projection is
+    stashed; the attribution-carrying response is the golden."""
+    body = _line(ctx, 2)
+    plain = _create(ctx, body)
+    ctx._sae008_plain = _norm_proj(plain.json) if plain.status in (200, 201) else None
+    with_attr = dict(body)
+    with_attr["attribution"] = dict(_ATTRIBUTION)
+    return _create(ctx, with_attr)
+
+def p_attribution_no_effect(r, ctx):
+    """SAE-008: 'the field's presence or absence MUST NOT affect the response or
+    negotiation' — the normative projection with attribution equals the one
+    without it (and the request was not rejected)."""
+    if r.status not in (200, 201) or getattr(ctx, "_sae008_plain", None) is None:
+        return DEVIATION
+    return CLEAN if _norm_proj(r.json) == ctx._sae008_plain else DEVIATION
+
+CHECKS_04_08_RECEIVER_GAPS = [
+    MCheck("checkout.deterministic_logic", ["CHK-013"], "MUST",
+           f_det_replay, p_deterministic,
+           ["status:500", "set:status=\"requires_escalation\"",
+            "set:currency=\"EUR\"", "set:totals=[]", "set:line_items=[]",
+            "corrupt-json", "empty"],
+           needs=("product",), transport="rest", versions=V0408),
+    # kill set is deliberately SHAPE-INDEPENDENT (status/empty/corrupt): the
+    # placement-permissive predicate accepts two conformant body shapes, and a
+    # field-drop that kills one golden's shape survives the other's
+    MCheck("checkout.protocol_error_shape", ["CHK-050"], "MUST",
+           f_checkout_idem_conflict, p_protocol_error_shape,
+           ["status:200", "status:201", "status:400", "corrupt-json", "empty"],
+           needs=("product",), transport="rest", versions=V0408),
+    MCheck("checkout.unavailable_all_error_envelope", ["CHK-053"], "MUST",
+           f_create_all_unavailable, p_all_unavailable_error_envelope,
+           ["status:500", "status:503", "drop:messages", "set:messages=[]",
+            "set:ucp={\"version\":\"2026-04-08\",\"status\":\"success\"}",
+            "set:id=\"chk_leaked\"", "corrupt-json", "empty"],
+           cfg_needs=("out_of_stock_id",), needs=("product",),
+           transport="rest", versions=V0408),
+    # config-gated on unavailable.business_outcome: the two-layer HTTP-200
+    # business-outcome contract is a capability the CONTROLLED golden implements
+    # and the official reference does not yet (it still answers 400 with the
+    # error envelope) — "correctly dormant, do not force" (audit rule; the
+    # webhooks.signed precedent). REF_CONFIG documents the tripwire.
+    MCheck("checkout.unavailable_business_outcome", ["CHK-051"], "MUST",
+           f_create_partial_unavailable, p_partial_unavailable_outcome,
+           ["status:400", "drop:messages", "set:messages=[]",
+            "set:ucp={\"version\":\"2026-04-08\",\"status\":\"error\"}",
+            "set:line_items=[]", "drop:id", "corrupt-json", "empty"],
+           cfg_needs=("out_of_stock_id", "unavailable.business_outcome"),
+           needs=("product",), transport="rest", versions=V0408),
+    MCheck("discount.automatic_not_removable", ["DSC-013"], "MUST NOT",
+           f_clear_codes_update, p_automatic_survives,
+           ["status:500", "drop:discounts",
+            "set:discounts={\"codes\":[],\"applied\":[]}", "corrupt-json", "empty"],
+           cfg_needs=("discount.automatic",), needs=("product",),
+           capability="dev.ucp.shopping.discount", transport="rest", versions=V0408),
+    MCheck("payment.handler_id_validated", ["PAY-014"], "MUST",
+           f_unknown_handler_complete, p_not_completed,
+           ["status:500", "set:status=\"completed\"", "drop:status",
+            "corrupt-json", "empty"],
+           needs=("product",), transport="rest", versions=V0408),
+    MCheck("payment.handlers_context_filtered", ["PAY-015"], "MUST",
+           f_context_filtered_create, p_handler_filtered,
+           ["status:500", "drop:ucp",
+            "set:ucp.payment_handlers={\"dev.spck.tokenpay\":[{\"id\":\"spck_tokenpay\"}],"
+            "\"dev.spck.giftpay\":[{\"id\":\"spck_giftpay\"}]}",
+            "set:ucp.payment_handlers={}", "corrupt-json"],
+           cfg_needs=("payment.filtered",), needs=("product",),
+           transport="rest", versions=V0408),
+    MCheck("signals.attribution_no_effect", ["SAE-008"], "MUST NOT",
+           f_attribution_replay, p_attribution_no_effect,
+           ["status:400", "status:500", "set:currency=\"EUR\"", "set:totals=[]",
+            "set:status=\"requires_escalation\"", "corrupt-json", "empty"],
+           needs=("product",), transport="rest", versions=V0408),
 ]

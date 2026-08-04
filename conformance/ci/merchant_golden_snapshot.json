@@ -77,6 +77,24 @@
           ]
          },
          "payment_handlers": {
+          "dev.spck.giftpay": [
+           {
+            "available_instruments": [
+             {
+              "constraints": {
+               "brands": [
+                "visa"
+               ]
+              },
+              "type": "card"
+             }
+            ],
+            "id": "<VOL>",
+            "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+            "spec": "https://spck.dev/fixture/handlers/giftpay",
+            "version": "<VOL>"
+           }
+          ],
           "dev.spck.tokenpay": [
            {
             "available_instruments": [
@@ -117,7 +135,9 @@
     {
      "id": "<VOL>",
      "item": {
-      "id": "<VOL>"
+      "id": "<VOL>",
+      "price": 2500,
+      "title": "Ceramic Teapot"
      },
      "quantity": 1,
      "totals": [
@@ -126,6 +146,16 @@
        "type": "subtotal"
       }
      ]
+    }
+   ],
+   "links": [
+    {
+     "type": "terms_of_service",
+     "url": "https://spck.dev/fixture/tos"
+    },
+    {
+     "type": "privacy_policy",
+     "url": "https://spck.dev/fixture/privacy"
     }
    ],
    "status": "incomplete",
@@ -140,6 +170,14 @@
     }
    ],
    "ucp": {
+    "capabilities": {
+     "dev.ucp.shopping.cart": [
+      {
+       "schema": "https://ucp.dev/schemas/shopping/cart.json",
+       "version": "<VOL>"
+      }
+     ]
+    },
     "version": "<VOL>"
    }
   },
@@ -620,6 +658,13 @@
     }
    ],
    "ucp": {
+    "capabilities": {
+     "dev.ucp.shopping.catalog.search": [
+      {
+       "version": "<VOL>"
+      }
+     ]
+    },
     "version": "<VOL>"
    }
   },
@@ -693,6 +738,24 @@
      ]
     },
     "payment_handlers": {
+     "dev.spck.giftpay": [
+      {
+       "available_instruments": [
+        {
+         "constraints": {
+          "brands": [
+           "visa"
+          ]
+         },
+         "type": "card"
+        }
+       ],
+       "id": "<VOL>",
+       "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+       "spec": "https://spck.dev/fixture/handlers/giftpay",
+       "version": "<VOL>"
+      }
+     ],
      "dev.spck.tokenpay": [
       {
        "available_instruments": [
@@ -770,6 +833,24 @@
     ]
    },
    "payment_handlers": {
+    "dev.spck.giftpay": [
+     {
+      "available_instruments": [
+       {
+        "constraints": {
+         "brands": [
+          "visa"
+         ]
+        },
+        "type": "card"
+       }
+      ],
+      "id": "<VOL>",
+      "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+      "spec": "https://spck.dev/fixture/handlers/giftpay",
+      "version": "<VOL>"
+     }
+    ],
     "dev.spck.tokenpay": [
      {
       "available_instruments": [
@@ -825,6 +906,10 @@
      "y": "my0kKuw3z-dwaU81Ib9d2Se7bCT6gMrtCqBtPqTNtRo"
     }
    ],
+   "supported_versions": {
+    "2026-01-11": "http://localhost:8184/.well-known/ucp/2026-01-11",
+    "2026-01-23": "http://localhost:8184/.well-known/ucp/2026-01-23"
+   },
    "version": "<VOL>"
   },
   "status": 200
@@ -1262,6 +1347,13 @@
       }
      ],
      "ucp": {
+      "capabilities": {
+       "dev.ucp.shopping.catalog.search": [
+        {
+         "version": "<VOL>"
+        }
+       ]
+      },
       "version": "<VOL>"
      }
     }

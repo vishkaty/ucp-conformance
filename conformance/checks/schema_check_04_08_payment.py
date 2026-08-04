@@ -59,6 +59,15 @@ def _profile(**over):
         del p[k]
     return p
 
+# AP2 complete-request fixtures for the PAY-041 check (the SD-JWT+kb mandate value
+# mirrors the 01-era PAY-029 fixture; the payment_mandate artifact is the
+# credential token per ap2-mandates.md).
+_AP2_MANDATE = "eyJhbGciOiJFUzI1NiJ9.eyJjaGVja291dCI6MX0.c2ln~ZGlzY2xvc3VyZQ"
+_AP2_PAY = {"instruments": [{"id": "instr_1", "handler_id": "spck_tokenpay",
+                             "type": "card",
+                             "credential": {"type": "token",
+                                            "token": _AP2_MANDATE + "~kb"}}]}
+
 CHECKS = [
     # PAY-001 — a business profile MUST carry the payment_handlers registry, keyed by
     # reverse-domain name (ucp.json#L180 business_schema `"required": ["services",
@@ -219,6 +228,23 @@ CHECKS = [
           {"access_token": "pt_participant_1"},
           [{},                                             # access_token missing
            {"token": "pt_participant_1"}],                 # wrong field name
+          op="complete", direction="request"),
+    # PAY-041 — an autonomous AP2 completion carries TWO distinct mandate artifacts
+    # (ap2-mandates.md#L200): the checkout_mandate is schema-REQUIRED on the
+    # ap2-composed complete request (ap2_mandate.json $defs['dev.ucp.shopping.
+    # checkout'] + ap2_with_checkout_mandate) with the SD-JWT+kb pattern enforced;
+    # the payment_mandate half rides in payment.instruments[].credential.token,
+    # whose SHAPE anchor is payment.token_credential_required_fields (PAY-024) —
+    # the schema does not make credential presence required, so no
+    # absent-credential negative can honestly be claimed here (the 01-era
+    # PAY-029 check documents the same split; PAY-041 is its 04-08 mirror).
+    Check("payment.ap2_two_mandates", ["PAY-041"],
+          "schemas/shopping/ap2_mandate.json", "dev.ucp.shopping.checkout",
+          {"payment": _AP2_PAY, "ap2": {"checkout_mandate": _AP2_MANDATE}},
+          [{"payment": _AP2_PAY},                          # ap2 artifact absent
+           {"payment": _AP2_PAY, "ap2": {}},               # checkout_mandate absent
+           {"payment": _AP2_PAY,
+            "ap2": {"checkout_mandate": "not a jwt!!"}}],  # SD-JWT pattern violated
           op="complete", direction="request"),
 ]
 

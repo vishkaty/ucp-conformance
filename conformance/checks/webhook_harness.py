@@ -127,12 +127,28 @@ class _Profile0408(BaseHTTPRequestHandler):
         else:
             self.send_response(404); self.end_headers()
 
-def platform_profile_0408(webhook_url, version="2026-04-08"):
+def platform_profile_0408(webhook_url, version="2026-04-08", capabilities=None):
     """The suite's PLATFORM profile document naming the receiver as webhook_url in
     the order capability's config (order.json $defs/platform_schema; order.md
     Webhook URL Configuration). Oracle-validated against ucp.json platform_schema
-    in conformance/fixtures/merchant/selfcheck.py."""
+    in conformance/fixtures/merchant/selfcheck.py.
+
+    `capabilities` (optional list of reverse-domain names) narrows/widens the
+    platform's advertised capability set so the OVR-005/OVR-012 negotiation checks
+    can exhibit a specific platform/business intersection. Default: checkout +
+    order (the original webhook harness shape). The discount extension entry
+    carries `extends` so orphan-extension exclusion (negotiation step 3) is
+    exercisable; order always keeps the webhook_url config."""
     spec = f"https://ucp.dev/{version}/specification/shopping"
+    def entry(name):
+        e = {"version": version, "spec": spec,
+             "schema": f"https://ucp.dev/schemas/shopping/{name.rsplit('.', 1)[-1]}.json"}
+        if name == "dev.ucp.shopping.order":
+            e["config"] = {"webhook_url": webhook_url}
+        if name == "dev.ucp.shopping.discount":
+            e["extends"] = "dev.ucp.shopping.checkout"
+        return e
+    names = capabilities or ["dev.ucp.shopping.checkout", "dev.ucp.shopping.order"]
     return {
         "version": version,
         "services": {"dev.ucp.shopping": [
@@ -140,15 +156,7 @@ def platform_profile_0408(webhook_url, version="2026-04-08"):
              "endpoint": "https://spck.dev/suite",
              "spec": spec,
              "schema": f"https://ucp.dev/{version}/services/shopping/openapi.json"}]},
-        "capabilities": {
-            "dev.ucp.shopping.checkout": [
-                {"version": version, "spec": spec,
-                 "schema": "https://ucp.dev/schemas/shopping/checkout.json"}],
-            "dev.ucp.shopping.order": [
-                {"version": version, "spec": spec,
-                 "schema": "https://ucp.dev/schemas/shopping/order.json",
-                 "config": {"webhook_url": webhook_url}}],
-        },
+        "capabilities": {n: [entry(n)] for n in names},
         "payment_handlers": {"dev.spck.tokenpay": [
             {"id": "spck_tokenpay", "version": version,
              "spec": "https://spck.dev/fixture/handlers/tokenpay",
@@ -156,8 +164,10 @@ def platform_profile_0408(webhook_url, version="2026-04-08"):
     }
 
 class Harness0408:
-    """Receiver + platform-profile servers for 2026-04-08 order-event webhooks."""
-    def __init__(self, fail_first=0):
+    """Receiver + platform-profile servers for 2026-04-08 order-event webhooks.
+    `capabilities` narrows the served platform profile's capability set (the
+    OVR-005/OVR-012 negotiation scenarios); default keeps checkout + order."""
+    def __init__(self, fail_first=0, capabilities=None):
         self.recv = ThreadingHTTPServer(("127.0.0.1", 0), _Receiver0408)
         self.recv.events = []
         self.recv.fail_remaining = fail_first
@@ -169,7 +179,12 @@ class Harness0408:
         # shopping-agent-test.json), and the reference server's webhook resolver
         # requires it. platform_profile_0408 stays the bare profile (that is what
         # ucp.json platform_schema describes; fixture selfcheck oracle-validates it)
-        self.prof.profile = json.dumps({"ucp": platform_profile_0408(self.webhook_url)})
+        # call WITHOUT the capabilities kw when unset: gates monkeypatch
+        # platform_profile_0408 with single-argument stubs (webhook-reference)
+        self.prof.profile = json.dumps(
+            {"ucp": (platform_profile_0408(self.webhook_url) if capabilities is None
+                     else platform_profile_0408(self.webhook_url,
+                                                capabilities=capabilities))})
         self._threads = []
     def __enter__(self):
         for srv in (self.recv, self.prof):

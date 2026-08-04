@@ -563,3 +563,161 @@ CHECKS_04_08_SIGNATURES = [
            cfg_needs=("signature.request_private_jwk",), transport="rest",
            versions=V0408),
 ]
+
+# ======== RECEIVER-GAP tier 2 (2026-07 wave): SIG-009/023/024/035 ================
+def _signed_with_jwk(ctx, jwk, tamper=False):
+    """One ES256-signed create request using an EXPLICIT private JWK (not the
+    default request key). Returns the merchant's response."""
+    try:
+        d = int.from_bytes(_b64u_dec(jwk.get("d")), "big")
+    except Exception:
+        return Resp(0, {}, b'{"probe":"the supplied private JWK has no valid d"}')
+    payload = _create_payload(ctx)
+    raw = json.dumps(payload).encode()
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload,
+                 _signed_headers(ctx, "POST", "/checkout-sessions", raw, d,
+                                 jwk.get("kid") or "", tamper=tamper))
+
+# ---- SIG-009: rotated keys keep verifying during the grace period ----------------
+def rotated_key_resp(ctx):
+    """Sign with the platform's ROTATED-OUT key (config signature.
+    rotated_private_jwk — a key retired less than the 7-day minimum ago, still
+    published/known to the merchant). First prove the merchant genuinely
+    VERIFIES with that key (a tampered signature must be rejected
+    signature_invalid — otherwise 'acceptance' proves nothing), then return its
+    response to a correctly-signed request."""
+    jwk = (ctx.config.get("signature") or {}).get("rotated_private_jwk") or {}
+    bad = _signed_with_jwk(ctx, jwk, tamper=True)
+    body_txt = json.dumps(bad.json) if isinstance(bad.json, dict) else ""
+    if not (400 <= bad.status < 500) or "signature_invalid" not in body_txt:
+        return Resp(0, {}, json.dumps(
+            {"probe": "a TAMPERED signature under the rotated key was not rejected "
+                      "with signature_invalid — the merchant is not actually "
+                      "verifying with the rotated key, so grace-period acceptance "
+                      "cannot be graded", "observed_status": bad.status}).encode())
+    return _signed_with_jwk(ctx, jwk)
+
+CHECK_SIG009_DOC = """SIG-009: 'Grace period — Continue accepting signatures from
+old keys (minimum 7 days)'. The full 7-day clock is not observable in one run;
+the graded observable is that a freshly-rotated key (config asserts rotation
+happened inside the window) still verifies and the request is processed."""
+
+# ---- SIG-035: algorithm_unsupported -> 400 ---------------------------------------
+def unsupported_alg_resp(ctx):
+    """A signed request whose keyid resolves to a PUBLISHED key of an algorithm
+    the merchant does not support (config signature.unsupported_alg_kid names
+    it — e.g. an Ed25519 entry in the platform's signing_keys). The algorithm is
+    derived from the key's crv (signatures.md), so resolution succeeds but the
+    algorithm cannot be used: the spec's error registry maps this to
+    algorithm_unsupported -> 400. Signature bytes are irrelevant (the algorithm
+    decision precedes verification); the default request key signs the base."""
+    jwk = (ctx.config.get("signature") or {}).get("request_private_jwk") or {}
+    kid = (ctx.config.get("signature") or {}).get("unsupported_alg_kid") or ""
+    try:
+        d = int.from_bytes(_b64u_dec(jwk.get("d")), "big")
+    except Exception:
+        return Resp(0, {}, b'{"probe":"signature.request_private_jwk has no valid d"}')
+    payload = _create_payload(ctx)
+    raw = json.dumps(payload).encode()
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload,
+                 _signed_headers(ctx, "POST", "/checkout-sessions", raw, d, kid))
+
+def p_algorithm_unsupported(r):
+    """SIG-035: 'algorithm_unsupported maps to HTTP 400 (signature algorithm not
+    supported).'"""
+    if r.status != 400 or not isinstance(r.json, dict):
+        return DEVIATION
+    txt = json.dumps(r.json)
+    return CLEAN if "algorithm_unsupported" in txt else DEVIATION
+
+# ---- SIG-023: idempotency keys stored >= 24 hours --------------------------------
+def aged_idem_replay_resp(ctx):
+    """Create with key K, AGE the stored key 23h via the merchant's test hook
+    (config idempotency.age_hook — the mint-hook precedent: only the server can
+    move its own clock), then repeat the identical request. Returns
+    {first, second} so the predicate can prove the aged key still REPLAYS
+    (same resource id) rather than re-executing."""
+    k = str(uuid.uuid4())
+    p = _create_payload(ctx)
+    r1 = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr(k))
+    aged = fetch(ctx.shopping_endpoint, "/testing/idempotency/age", "POST",
+                 {"key": k, "hours": 23}, _hdr())
+    if aged.status != 200:
+        return Resp(0, {}, json.dumps(
+            {"probe": "the idempotency age hook did not accept the request",
+             "observed_status": aged.status}).encode())
+    r2 = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, _hdr(k))
+    body = {"first": r1.json, "first_status": r1.status,
+            "second": r2.json, "second_status": r2.status}
+    return Resp(200, {"Content-Type": "application/json"}, json.dumps(body).encode())
+
+def p_aged_replay(r):
+    """SIG-023: 'Server storage of idempotency keys must be a minimum of 24
+    hours' — a key aged 23h is still stored: the repeat returns the CACHED result
+    (same status, same checkout id), never a fresh execution."""
+    j = r.json if isinstance(r.json, dict) else {}
+    f, s = j.get("first"), j.get("second")
+    if not (isinstance(f, dict) and isinstance(s, dict)):
+        return DEVIATION
+    if j.get("first_status") not in (200, 201) \
+       or j.get("second_status") != j.get("first_status"):
+        return DEVIATION
+    fid = f.get("id")
+    return CLEAN if fid and s.get("id") == fid else DEVIATION
+
+# ---- SIG-024: storage failure fails CLOSED with 503 ------------------------------
+def storage_outage_resp(ctx):
+    """Arm the merchant's idempotency-storage outage (config idempotency.
+    outage_hook — fault injection only the server can perform), attempt a
+    key-carrying create, then ALWAYS disarm. Returns the in-outage response."""
+    armed = fetch(ctx.shopping_endpoint, "/testing/idempotency/outage", "POST",
+                  {"enabled": True}, _hdr())
+    if armed.status != 200:
+        return Resp(0, {}, json.dumps(
+            {"probe": "the idempotency outage hook did not accept the request",
+             "observed_status": armed.status}).encode())
+    try:
+        return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST",
+                     _create_payload(ctx), _hdr())
+    finally:
+        fetch(ctx.shopping_endpoint, "/testing/idempotency/outage", "POST",
+              {"enabled": False}, _hdr())
+
+def p_fail_closed_503(r):
+    """SIG-024: 'On idempotency storage failure, fail closed (reject request with
+    503)' — with a JSON protocol-error body carrying code + content (the
+    checkout-rest protocol-error shape for 503s)."""
+    if r.status != 503 or not isinstance(r.json, dict):
+        return DEVIATION
+    return CLEAN if isinstance(r.json.get("code"), str) and r.json["code"] \
+        and isinstance(r.json.get("content"), str) and r.json["content"] \
+        else DEVIATION
+
+CHECKS_04_08_SIG_GAPS = [
+    MCheck("signature.rotation_grace_period", ["SIG-009"], "MUST",
+           rotated_key_resp, p_signed_accepted,
+           ["status:401", "status:400", "status:500", "empty", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.rotated_private_jwk",), transport="rest",
+           versions=V0408),
+    MCheck("signature.algorithm_unsupported_400", ["SIG-035"], "MUST",
+           unsupported_alg_resp, p_algorithm_unsupported,
+           ["status:200", "status:201", "status:401",
+            "set:code=\"signature_invalid\"", "empty", "corrupt-json"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.request_private_jwk",
+                      "signature.unsupported_alg_kid"), transport="rest",
+           versions=V0408),
+    MCheck("idempotency.storage_min_24h", ["SIG-023"], "MUST",
+           aged_idem_replay_resp, p_aged_replay,
+           ["set:second.id=\"chk_other\"", "drop:second", "drop:first",
+            "set:second_status=500", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("idempotency.age_hook",), transport="rest", versions=V0408),
+    MCheck("idempotency.storage_fail_closed", ["SIG-024"], "MUST",
+           storage_outage_resp, p_fail_closed_503,
+           ["status:200", "status:201", "status:500", "drop:code", "drop:content",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("idempotency.outage_hook",), transport="rest", versions=V0408),
+]

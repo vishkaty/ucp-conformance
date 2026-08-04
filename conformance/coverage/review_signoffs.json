@@ -566,6 +566,47 @@
      "PAY-037"
     ]
    }
+  },
+  {
+   "batch": "receiver-oauth-gap-closure-2026-08-04",
+   "date": "2026-08-04",
+   "reviewer": "adversarial review, needs-receiver/needs-oauth closure wave (lane-receiver)",
+   "spec_reverified": true,
+   "notes": "Every row's pinned quote was re-read at conformance/.vendor/ucp (tag 2026-04-08) before its check shipped; each check was proven RED-first against the pre-change fixture (15 deviated as false-deviation generators until the behavior was implemented; the rest were killed via their declared response mutations), then clean-pass + kill_safe on all three controlled goldens. OVERVIEW: OVR-001/003 grade the served profile against the reverse_domain_name.json grammar and the Spec-URL-Binding authority table (first-two-labels reversed; services always carry the URLs, so no vacuous pass); OVR-009/010 follow the live supported_versions map to a leaf profile (fixture now serves version-specific leaves; leaf must still BE a profile so absence cannot pass); OVR-004 sweeps checkout+cart+catalog responses (fetch returns any offender); OVR-008 on the response media type; OVR-005 graded twice \u2014 operation-type relevance on checkout responses AND a loopback platform-profile harness proving the session-scoped intersection excludes an unadvertised extension; OVR-012's observable was deliberately NOT an envelope assertion (an orphan's parent can never be the op root, so envelope exclusion is confounded with relevance) \u2014 instead a discount-only platform profile makes the RAW intersection non-empty and only negotiation step 3 can empty it, forcing capabilities_incompatible; a step-3-skipping merchant creates the checkout and deviates. CHECKOUT: CHK-013 replay-equality on a normative projection (ids/urls excluded); CHK-050 on the spec-pinned 409 idempotency conflict (code+content body); CHK-051/053 required RECONTRACTING the golden \u2014 04-08 makes unavailable merchandise a business outcome (200 + envelope/messages; all-unavailable = ucp.status:error with NO resource), so validation.out_of_stock (VAL-001, a 01-era 4xx contract) was version-scoped to 01-era exactly like VAL-006 before it. DSC-013 clears codes via update and requires the automatic entry to survive. PAY-014 asserts the session is NOT completed after an unknown-handler_id completion (fixture now validates against the advertised set; goldens' configs point at spck_tokenpay). PAY-015 needs two cart contexts: a seeded context-sensitive handler (dev.spck.giftpay) present on the baseline and absent for the excluded product; predicate also requires the base handler to survive filtering. PAY-041 mirrors the reviewed 01-era PAY-029 schema check (resolver-anchored SD-JWT mandate on the ap2-composed complete request; payment_mandate shape anchored by PAY-024 \u2014 the same honest split, documented in-line). SAE-008 compares projections with/without the top-level attribution object; SAE-012 rides eligibility.completion_blocked because context.json's own sentence IS that scenario (context-carried claim enforced at completion with binding data). SIGNATURES: SIG-009's graded observable is a rotated-within-window key still verifying, with a tampered-signature precondition so acceptance cannot be vacuous (the 7-day clock itself is not black-box observable \u2014 documented); SIG-016/018 extend the webhook capture to the idempotency-key/ucp-agent signed components (merchant is the signer only for webhooks, per the earlier reclassification); SIG-041 rides webhook.ucp_agent_header whose predicate already asserts the /.well-known/ucp business-profile path (signatures.md rule 4); SIG-040 rides discovery.reject_http_profile_url (same verifier duty, quoted-http-URL probe). SIG-023/024 use opt-in test hooks (mint-hook precedent): age a stored key 23h and require the cached replay (retention >= 24h), and arm a storage outage requiring fail-closed 503 with code+content. SIG-035 was re-adjudicated against wave-3 F1: F1 correctly removed the bogus-alg-PARAMETER probe (alg is not a Signature-Input parameter), but a PUBLISHED signing_keys entry whose crv-derived algorithm the verifier does not support is a spec-true wire trigger \u2014 resolution succeeds, algorithm cannot, the registry maps it to 400 algorithm_unsupported (fixture publishes an Ed25519 kid; key_not_found stays distinct). CART-030 uses the CHK-035 precedent: the official RESOLVER removes cart_id from the update-request resolution and retains it on create (per-op ucp_request annotation; a plain validator cannot see it \u2014 the register note says exactly that). OAUTH: IDL-025 closes the W2-F5 bar with the third mint scenario (foreign_client \u2014 client_id/azp binding) alongside expired/revoked; cited ONLY on the new check; the --oauth-accept-any-token mutant proves the server-level kill. IDL-061 compares the RFC 8414 issuer and the authorization-response iss byte-for-byte (evil-iss and iss-less Location mutations kill). OVR-006 proves the same token unlocks the gated op under the client's REGISTERED profile and is 401/403-rejected under a conflicting UCP-Agent profile (--oauth-no-profile-binding mutant proves the kill; rejection-only predicate per the DISC-004 p_rejected_4xx precedent \u2014 the spec pins no code). Fixture recontracts were oracle-anchored: the cart selfcheck's wrong anchor (cart.json $defs/checkout, vacuously green pre-OVR-004) was moved to the cart.json ROOT whose envelope is response_cart_schema.",
+   "ids": {
+    "2026-04-08": [
+     "OVR-001",
+     "OVR-003",
+     "OVR-004",
+     "OVR-005",
+     "OVR-008",
+     "OVR-009",
+     "OVR-010",
+     "OVR-012",
+     "CHK-013",
+     "CHK-050",
+     "CHK-051",
+     "CHK-053",
+     "DSC-013",
+     "PAY-014",
+     "PAY-015",
+     "PAY-041",
+     "SAE-008",
+     "SAE-012",
+     "SIG-009",
+     "SIG-016",
+     "SIG-018",
+     "SIG-023",
+     "SIG-024",
+     "SIG-035",
+     "SIG-040",
+     "SIG-041",
+     "CART-030",
+     "IDL-025",
+     "IDL-061",
+     "OVR-006"
+    ]
+   }
   }
  ]
 }

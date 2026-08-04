@@ -39,10 +39,15 @@ MUTANTS_04_08 = [
     ("--oauth-no-client-auth", ["identity.client_auth_enforced"]),
     ("--oauth-challenge-no-error", ["identity.invalid_token_challenge",
                                     "identity.insufficient_scope_challenge"]),
-    # IDL-042: a merchant that accepts a present Bearer token without checking it is
-    # known/unexpired/unrevoked lets the minted expired/revoked tokens through.
+    # IDL-042/IDL-025: a merchant that accepts a present Bearer token without
+    # checking it is known/unexpired/unrevoked/issued-to-a-registered-client lets
+    # the minted expired/revoked/foreign-client tokens through.
     ("--oauth-accept-any-token", ["identity.expired_token_rejected",
-                                  "identity.revoked_token_rejected"]),
+                                  "identity.revoked_token_rejected",
+                                  "identity.foreign_client_token_rejected"]),
+    # OVR-006: a merchant that never binds the authenticated client to the claimed
+    # UCP-Agent profile serves the conflicting-profile request instead of 401/403.
+    ("--oauth-no-profile-binding", ["identity.profile_conflict_rejected"]),
 ]
 MUTANTS_01_23 = [
     ("--oauth-no-client-auth", ["identity01.token_client_auth"]),

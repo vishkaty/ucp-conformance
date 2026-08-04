@@ -142,20 +142,49 @@ ESCALATE_TOKEN = "escalate_token"
 # the RESPONSE value is the authoritative, possibly narrower, set).
 PAYMENT_HANDLER_KEY = "dev.spck.tokenpay"
 PAYMENT_HANDLER_ID = "spck_tokenpay"
+# PAY-015 (04-08): a second, CONTEXT-SENSITIVE handler. overview.md Dynamic
+# Filtering: "Businesses MUST filter the handlers list based on the context of
+# the cart (e.g., removing BNPL for subscription items)". The fixture's stand-in
+# rule: gift-card pay is not offered for baskets containing the seeded excluded
+# product (a stable, wire-drivable context distinction). 2026-04-08 only.
+GIFT_HANDLER_KEY = "dev.spck.giftpay"
+GIFT_HANDLER_ID = "spck_giftpay"
+GIFT_EXCLUDED_PRODUCTS = {"kettle_copper"}
 
-def payment_handlers_registry(response=False):
+def payment_handlers_registry(response=False, context_items=None):
     """The payment_handlers registry, keyed by reverse-domain handler name.
     Valid at every SUPPORTED_VERSION: payment_handler.json $defs/base requires
     id (+ version via ucp.json entity) at both 04-08 and 01-23;
     available_instruments is schema-declared at 04-08 (minItems 1) and an
-    allowed additional property at 01-23."""
+    allowed additional property at 01-23.
+
+    `context_items` (a set of parent product ids in the current cart) drives the
+    PAY-015 dynamic filter: the context-sensitive gift handler is dropped from
+    RESPONSES whose basket contains an excluded product. The PROFILE registry
+    (context_items=None) always advertises the full set."""
     brands = ["visa"] if response else ["visa", "mastercard"]
-    return {PAYMENT_HANDLER_KEY: [{
+    reg = {PAYMENT_HANDLER_KEY: [{
         "id": PAYMENT_HANDLER_ID, "version": VERSION,
         "spec": "https://spck.dev/fixture/handlers/tokenpay",
         "schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
         "available_instruments": [{"type": "card", "constraints": {"brands": brands}}],
     }]}
+    if VERSION == "2026-04-08" and not (
+            context_items and GIFT_EXCLUDED_PRODUCTS & set(context_items)):
+        reg[GIFT_HANDLER_KEY] = [{
+            "id": GIFT_HANDLER_ID, "version": VERSION,
+            "spec": "https://spck.dev/fixture/handlers/giftpay",
+            "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+            "available_instruments": [{"type": "card",
+                                       "constraints": {"brands": ["visa"]}}],
+        }]
+    return reg
+
+def advertised_handler_ids():
+    """Every handler id the business profile advertises (PAY-014: handler_id on a
+    submitted instrument MUST be validated against this set before processing)."""
+    return {e["id"] for entries in payment_handlers_registry().values()
+            for e in entries}
 # ---- end PAYMENT AREA block -----------------------------------------------------
 
 # Seeded discount rules. Codes match case-insensitively (discount.md: "Case-insensitive").
@@ -267,8 +296,14 @@ OAUTH_CLIENT_AUTH = True      # --oauth-no-client-auth: skip client authenticati
 OAUTH_CHALLENGE_ERROR = True  # --oauth-challenge-no-error: omit the challenge's
                               #   error="invalid_token"/"insufficient_scope" param
 OAUTH_VALIDATE_TOKEN = True   # --oauth-accept-any-token: accept a PRESENT Bearer
-                              #   token without checking it is known, unexpired, and
-                              #   unrevoked (IDL-042 expired/revoked-token kill-proof)
+                              #   token without checking it is known, unexpired,
+                              #   unrevoked, and issued to a REGISTERED platform
+                              #   client (IDL-042 expired/revoked + IDL-025
+                              #   foreign-client kill-proofs)
+OAUTH_PROFILE_BINDING = True  # --oauth-no-profile-binding: skip the OVR-006
+                              #   identity-binding rejection (serve a valid token
+                              #   under a UCP-Agent claiming a profile the token's
+                              #   client is not registered to act for)
 # ORDER area (ORD-012): --require-order-auth makes GET /orders/{id} authenticate the
 # request before returning order data. Default OFF so the DEFAULT golden keeps its
 # existing UNauthenticated order checks sound; only the validate_order_auth gate
@@ -307,6 +342,15 @@ OAUTH_CLIENTS = {
         "auth_method": "client_secret_basic",
         "secret": "spck-confidential-secret-2026",
         "redirect_uris": ["https://platform.spck.dev/oauth/callback"]},
+}
+# OVR-006 Identity Binding (overview.md): the platform profile(s) each registered
+# client is authorized to act on behalf of. A valid Bearer token presented under a
+# UCP-Agent claiming a DIFFERENT profile is an identity/profile CONFLICT and MUST
+# be rejected ("Reject requests where the authenticated identity and claimed
+# profile conflict"). The suite's default UCP-Agent names https://spck.dev/agent.
+OAUTH_CLIENT_PROFILES = {
+    "spck-platform-public": ("https://spck.dev/agent",),
+    "spck-platform-confidential": ("https://spck.dev/agent",),
 }
 OAUTH_CODES = {}     # code -> {client_id, redirect_uri, scopes, challenge, expires, used}
 OAUTH_TOKENS = {}    # access_token -> {client_id, scopes, revoked, expires}
@@ -530,12 +574,31 @@ def require_identity(headers, required_scopes, base):
         return challenge(401, "identity_required")
     tok = OAUTH_TOKENS.get(authz[len("Bearer "):].strip())
     # IDL-025/042: a business MUST validate the token on EVERY request — reject one
-    # that is unknown, revoked, or expired with the invalid_token challenge. The
-    # --oauth-accept-any-token mutant skips exactly this validation (proving the
-    # expired/revoked-token checks test something real).
-    if OAUTH_VALIDATE_TOKEN and (not tok or tok["revoked"] or tok["expires"] < time.time()):
+    # that is unknown, revoked, expired, OR issued to a client that is not a
+    # registered platform client (the client_id/azp half of IDL-025's claim
+    # validation: "confirm the token was issued to the authenticated platform
+    # client") with the invalid_token challenge. The --oauth-accept-any-token
+    # mutant skips exactly this validation (proving the expired/revoked/foreign-
+    # client checks test something real).
+    if OAUTH_VALIDATE_TOKEN and (not tok or tok["revoked"] or tok["expires"] < time.time()
+                                 or tok["client_id"] not in OAUTH_CLIENTS):
         return challenge(401, "identity_required", error="invalid_token",
-                         desc="The access token is invalid, expired, or revoked")
+                         desc="The access token is invalid, expired, revoked, or "
+                              "was not issued to a registered platform client")
+    # OVR-006 Identity Binding: the authenticated principal (the token's client)
+    # must be authorized to act on behalf of the profile claimed in UCP-Agent —
+    # a conflict is rejected, never served. --oauth-no-profile-binding is the
+    # kill-proof mutant (validate_oauth_checks.py).
+    if OAUTH_PROFILE_BINDING and tok:
+        claimed = _agent_profile_url(h.get("ucp-agent"))
+        allowed = OAUTH_CLIENT_PROFILES.get(tok["client_id"])
+        if claimed and allowed and claimed not in allowed:
+            return 403, {"WWW-Authenticate": f'Bearer realm="{base}"'}, {
+                "messages": [{
+                    "type": "error", "code": "identity_profile_conflict",
+                    "content": "The authenticated client is not authorized to act "
+                               f"on behalf of the claimed platform profile {claimed}.",
+                    "severity": "requires_buyer_review"}]}
     scopes = tok["scopes"] if tok else list(IDENTITY_SCOPES)   # mutant: unknown->full
     missing = [s for s in required_scopes if s not in scopes]
     if missing:
@@ -582,7 +645,7 @@ def cancel_order(oid, headers, base):
 # config.identity.token_mint capability a merchant opts into. Scopes = the full
 # vocabulary so the ONLY defect a probe can surface is the (in)validity itself.
 def mint_test_token(kind):
-    """kind: valid | expired | revoked. Returns (status, payload)."""
+    """kind: valid | expired | revoked | foreign_client. Returns (status, payload)."""
     scopes = list(IDENTITY_SCOPES)
     at = "at_test_" + uuid.uuid4().hex
     rec = {"client_id": "spck-platform-public", "scopes": scopes,
@@ -591,6 +654,10 @@ def mint_test_token(kind):
         rec["expires"] = time.time() - 10            # issued, but past its exp (IDL-025 exp)
     elif kind == "revoked":
         rec["revoked"] = True                        # issued, then revoked (RFC 7009)
+    elif kind == "foreign_client":
+        # IDL-025 client binding: a syntactically-plausible token whose client is
+        # NOT a registered platform client (client_id/azp validation half)
+        rec["client_id"] = "spck-intruder-unregistered"
     elif kind != "valid":
         return 400, {"error": "invalid_request",
                      "error_description": f"unsupported mint kind: {kind}"}
@@ -743,14 +810,30 @@ def signing_jwk():
             "y": _b64url(_SIG_Q[1].to_bytes(32, "big")),
             "use": "sig", "alg": "ES256"}
 
-# Trusted PLATFORM test key (public part only) for request verification. The
-# matching private JWK lives in CONTROLLED_CONFIG (validate_merchant_checks.py)
-# so the SIG-002 check can sign requests this fixture will verify.
+# Trusted PLATFORM test keys (public parts only) for request verification. The
+# matching private JWKs live in CONTROLLED_CONFIG (validate_merchant_checks.py)
+# so the SIG-002/SIG-009 checks can sign requests this fixture will verify.
+#   spck-platform-sig-2026: the platform's CURRENT signing key (SIG-002).
+#   spck-platform-sig-2025: the platform's PREVIOUS key, rotated out inside the
+#     7-day grace window — signatures.md Key Rotation: "Grace period — Continue
+#     accepting signatures from old keys (minimum 7 days)" (SIG-009). A merchant
+#     that drops it immediately answers key_not_found, which the rotation-grace
+#     check flags.
 TRUSTED_PLATFORM_KEYS = {
     "spck-platform-sig-2026":
         (int.from_bytes(base64.urlsafe_b64decode("fdOWNX6FUcEYKQntKv0Pb0wpcIEV6HrDZK4Ud9oF_rY="), "big"),
          int.from_bytes(base64.urlsafe_b64decode("-Ie-pMb2OxUqg4GR_B6wObhra9-fRe5YWzWAAv7dNKk="), "big")),
+    "spck-platform-sig-2025":
+        (int.from_bytes(base64.urlsafe_b64decode("trOfp-wdZbq4DptegBp30j2ZhfOQktq1xwV9p192Vpo="), "big"),
+         int.from_bytes(base64.urlsafe_b64decode("35f58EZuhhP5adAnylqYQkE0w7PqynX4RH3j0VSUdxY="), "big")),
 }
+# A key the platform PUBLISHES in its signing_keys whose algorithm this merchant
+# does not support (Ed25519 — the fixture implements P-256/ES256 only). The
+# algorithm is derived from the key's crv (signatures.md), so a signature
+# referencing this kid RESOLVES but cannot be verified with any supported
+# algorithm: the spec's error registry maps that to algorithm_unsupported -> 400
+# (SIG-035). Distinct from key_not_found (kid absent from signing_keys).
+UNSUPPORTED_ALG_KEYS = {"spck-platform-ed25519"}
 
 def content_digest(body_bytes):
     """RFC 9530 Content-Digest over the raw body bytes, sha-256 (signatures.md)."""
@@ -895,9 +978,15 @@ def verify_signed_request(method, path_qs, headers, raw_body):
     # NB: signatures.md derives the algorithm from the key's crv — `alg` is NOT a
     # Signature-Input parameter (a conformant signer never sends it, a conformant
     # verifier never reads it), so the golden deliberately does NOT branch on `alg`.
-    # (SIG-035 'algorithm_unsupported' has no spec-conformant wire trigger and is
-    # left GAP — wave-3 adversarial review F1.)
+    # (Wave-3 review F1 removed a check that probed a bogus `alg` PARAMETER; the
+    # spec-true SIG-035 trigger implemented here is different: the keyid RESOLVES
+    # to a published key whose crv-derived ALGORITHM this verifier does not
+    # support — signatures.md error registry: algorithm_unsupported -> 400.)
     kid = entry["params"].get("keyid")
+    if kid in UNSUPPORTED_ALG_KEYS:
+        return err(400, "algorithm_unsupported",
+                   f"signature algorithm of key {kid} is not supported "
+                   f"(this implementation verifies P-256/ES256 only)")
     pub = TRUSTED_PLATFORM_KEYS.get(kid)
     if not pub:
         return err(401, "key_not_found", f"key ID not found in signer's signing_keys: {kid}")
@@ -1166,12 +1255,45 @@ def profile(base):
            "capabilities": capabilities,
            # PAYMENT AREA: the business-profile handler declaration (PAY-001/PAY-002)
            "payment_handlers": payment_handlers_registry()}
+    if VERSION == "2026-04-08":
+        # overview.md Version Negotiation: older supported protocol versions are
+        # declared in a supported_versions map, each URI serving a COMPLETE,
+        # SELF-CONTAINED leaf profile for that version. Leaf profiles are leaf
+        # documents and MUST NOT carry supported_versions themselves (OVR-009);
+        # every key is a dated YYYY-MM-DD release (OVR-010). Served on
+        # /.well-known/ucp/{version} (profile_at renders the older generation).
+        out["supported_versions"] = {
+            v: f"{base}/.well-known/ucp/{v}"
+            for v in SUPPORTED_VERSIONS if v != VERSION}
     # Key discovery in EVERY served version: 04-08 signatures.md Key Discovery
     # (RFC 9421 response/request keys) and 01-era order.md webhook signing
     # ("a key from their signing_keys array, published in /.well-known/ucp").
     # Oracle-validated per version in selfcheck.py.
     out["signing_keys"] = [signing_jwk()]
     return out
+
+# ---- version-specific LEAF profiles (overview.md Version Negotiation) -----------
+# Each supported_versions URI serves a complete, self-contained profile for that
+# older version, rendered by the SAME per-version renderer profile() uses when the
+# fixture is booted at that version — so the leaf content is exactly what a
+# dedicated boot would serve, minus supported_versions (leaf documents, OVR-009).
+# Cached on first use; the brief VERSION swap is serialized under _LEAF_LOCK
+# (profile rendering is pure; gate traffic is sequential).
+_LEAF_CACHE = {}
+_LEAF_LOCK = threading.Lock()
+
+def profile_at(version, base):
+    global VERSION
+    with _LEAF_LOCK:
+        key = (version, base)
+        if key not in _LEAF_CACHE:
+            cur = VERSION
+            try:
+                VERSION = version
+                _LEAF_CACHE[key] = profile(base)
+            finally:
+                VERSION = cur
+    return _LEAF_CACHE[key]
 
 # ---- DISC-014 loopback spec/schema URLs (reference-gate hermeticity) -------------
 def _localize_spec_urls(node, base, ctr):
@@ -1263,6 +1385,52 @@ def negotiate_platform(agent_header):
                      "continue_url": CONTINUE_URL}
     return None
 
+# ---- REAL capability negotiation for loopback platform profiles (2026-04-08) ----
+# overview.md Business Requirements: fetch the platform profile (step 1), compute
+# the platform/business capability INTERSECTION (step 2 — OVR-005), and EXCLUDE
+# any extension whose parent capability is not in the intersection (step 3 —
+# OVR-012). Same OFFLINE POLICY as the webhook resolver: only LOOPBACK profile
+# URLs (the suite's harness) are fetched; anything else means no narrowing.
+EXTENSION_PARENTS = {
+    "dev.ucp.shopping.discount": "dev.ucp.shopping.checkout",
+    "dev.ucp.shopping.ap2_mandate": "dev.ucp.shopping.checkout",
+}
+
+def _business_caps():
+    """The capability names this fixture's profile advertises at the serving
+    version (kept in lockstep with profile() by construction)."""
+    caps = {"dev.ucp.shopping.checkout", "dev.ucp.shopping.order",
+            "dev.ucp.shopping.discount", "dev.ucp.common.identity_linking"}
+    if VERSION == "2026-04-08":
+        caps |= {"dev.ucp.shopping.catalog.search", "dev.ucp.shopping.catalog.lookup",
+                 "dev.ucp.shopping.cart"}
+    if AP2_MODE:
+        caps.add("dev.ucp.shopping.ap2_mandate")
+    return caps
+
+def negotiated_active(agent_header):
+    """The negotiated ACTIVE capability set for a request whose UCP-Agent names a
+    LOOPBACK platform profile, or None when no narrowing applies (non-loopback /
+    unreachable / capability-less profiles keep the full declaration, exactly as
+    before this negotiation layer existed)."""
+    url = _agent_profile_url(agent_header)
+    if not url or not _is_loopback(url):
+        return None
+    try:
+        with urllib.request.urlopen(url, timeout=3) as r:
+            doc = json.loads(r.read())
+    except Exception:
+        return None
+    ucp = doc.get("ucp", doc) if isinstance(doc, dict) else {}
+    caps = ucp.get("capabilities")
+    if not isinstance(caps, dict) or not caps:
+        return None
+    inter = _business_caps() & set(caps.keys())
+    for ext, parent in EXTENSION_PARENTS.items():
+        if ext in inter and parent not in inter:
+            inter.discard(ext)               # step 3: orphan extensions excluded
+    return inter
+
 def _unit_price(item_id):
     """Unit price (minor units) for a product or variant id, from the seed catalog."""
     if item_id in BY_ID:
@@ -1285,14 +1453,28 @@ def cart_response(body, cid=None):
     for i, li in enumerate(reqs):
         iid = (li.get("item") or {}).get("id") or li.get("id")
         qty = int(li.get("quantity", 1) or 1)
-        amt = _unit_price(iid) * qty
+        price = _unit_price(iid)
+        amt = price * qty
         subtotal += amt
-        line_items.append({"id": f"li_{i+1}", "item": {"id": iid}, "quantity": qty,
+        # full line_item.json item shape (id/title/price): carts are
+        # checkout-shaped (cart.json = checkout.json + cart_id), and the oracle
+        # enforces the full shape once ucp.capabilities is declared (OVR-004)
+        line_items.append({"id": f"li_{i+1}",
+                           "item": {"id": iid, "title": _title(iid), "price": price},
+                           "quantity": qty,
                            "totals": [{"type": "subtotal", "amount": amt}]})
     cid = cid or "cart_" + uuid.uuid4().hex[:10]
-    return {"ucp": {"version": VERSION}, "id": cid, "cart_id": cid,
+    # OVR-004: EVERY response carries the ucp envelope declaring its ACTIVE
+    # capabilities — for a cart operation that is the cart capability itself
+    # (discount extends CHECKOUT, so declaring it here would compose the
+    # checkout response schema onto carts; the oracle rejects exactly that).
+    caps = {"dev.ucp.shopping.cart": [
+        {"version": VERSION,
+         "schema": "https://ucp.dev/schemas/shopping/cart.json"}]}
+    return {"ucp": {"version": VERSION, "capabilities": caps},
+            "id": cid, "cart_id": cid,
             "currency": (body or {}).get("currency", "USD"), "status": "incomplete",
-            "line_items": line_items,
+            "line_items": line_items, "links": LINKS,
             "totals": [{"type": "subtotal", "amount": subtotal},
                        {"type": "total", "amount": subtotal}]}
 
@@ -1341,7 +1523,10 @@ def create_cart(body, headers=None):
         if key and key in CART_IDEM:
             prev_fp, prev_status, prev_payload = CART_IDEM[key]
             if prev_fp != fp:
-                return _err(409, "idempotency-key conflict: same key with a different body")
+                # CART-026 status (409) + the CHK-050 protocol-error body shape
+                return _protocol_err(409, "idempotency_key_conflict",
+                                     "idempotency-key conflict: same key with a "
+                                     "different body")
             return prev_status, prev_payload           # replay the cached result
     cart = cart_response(body)
     with _CART_LOCK:
@@ -1397,7 +1582,62 @@ def update_cart(cid, body, headers=None):
 # artifact against the official schemas without going through HTTP.
 SESSIONS = {}       # checkout id -> session state
 IDEM = {}           # idempotency-key -> (body_fingerprint, http_status, payload)
+# SIG-023 (signatures.md Idempotency): "Server storage — Minimum 24 hours,
+# recommended 48 hours." The fixture retains keys for the recommended 48h and
+# evicts lazily on lookup. IDEM_TS records each key's storage time; the
+# /testing/idempotency/age hook rewinds it (only the server can move its own
+# clock — the mint-hook precedent) so the 24h-minimum contract is wire-testable.
+IDEM_TS = {}        # idempotency-key -> stored-at epoch seconds
+IDEM_RETENTION_SECONDS = 48 * 3600
+# SIG-024: "On storage failure — Fail closed (reject request with 503)."
+# /testing/idempotency/outage arms a simulated storage outage.
+IDEM_OUTAGE = False
 _LOCK = threading.Lock()
+
+def _idem_lookup(key):
+    """The stored idempotency record for `key`, honoring retention (expired
+    entries are evicted, exactly as a TTL'd store would)."""
+    if key not in IDEM:
+        return None
+    if time.time() - IDEM_TS.get(key, time.time()) > IDEM_RETENTION_SECONDS:
+        IDEM.pop(key, None)
+        IDEM_TS.pop(key, None)
+        return None
+    return IDEM[key]
+
+def _idem_store(key, fp, result):
+    IDEM[key] = (fp, *result)
+    IDEM_TS[key] = time.time()
+
+def _protocol_err(status, code, detail):
+    """A PROTOCOL error (checkout-rest.md Error Responses): at 2026-04-08 the JSON
+    body carries `code` and `content` (CHK-050); `detail` is kept alongside for
+    the legacy error surface the 01-era registers describe."""
+    body = {"detail": detail}
+    if VERSION == "2026-04-08":
+        body["code"] = code
+        body["content"] = detail
+    return status, body
+
+def simulate_idem_age(body):
+    """POST /testing/idempotency/age {key, hours}: rewind a stored key's clock."""
+    body = body if isinstance(body, dict) else {}
+    key = body.get("key")
+    try:
+        hours = float(body.get("hours", 0))
+    except (TypeError, ValueError):
+        return 400, {"detail": "hours must be a number"}
+    with _LOCK:
+        if key not in IDEM:
+            return 400, {"detail": f"unknown idempotency key: {key}"}
+        IDEM_TS[key] = IDEM_TS.get(key, time.time()) - hours * 3600
+    return 200, {"key": key, "aged_hours": hours}
+
+def simulate_idem_outage(body):
+    """POST /testing/idempotency/outage {enabled}: arm/disarm the storage outage."""
+    global IDEM_OUTAGE
+    IDEM_OUTAGE = bool((body or {}).get("enabled"))
+    return 200, {"outage": IDEM_OUTAGE}
 
 def _title(iid):
     if iid in BY_ID:
@@ -1408,7 +1648,7 @@ def _title(iid):
         return f'{p["title"]} — {v["title"]}' if v else p["title"]
     return iid
 
-def _ucp_envelope():
+def _ucp_envelope(sess=None):
     """The `ucp` response envelope every checkout/order response MUST carry
     (ucp.json $defs response_checkout_schema: version + payment_handlers required).
     At 2026-04-08 the envelope also declares the discount extension so the oracle
@@ -1433,9 +1673,23 @@ def _ucp_envelope():
             {"version": VERSION,
              "schema": "https://ucp.dev/schemas/shopping/discount.json",
              "extends": "dev.ucp.shopping.checkout"}]
-    # PAYMENT AREA: checkout responses echo the resolved handler (PAY-003)
+        # OVR-005: only capabilities in the SESSION's negotiated intersection may
+        # be declared active (sess["active_caps"] is set when the platform's
+        # loopback profile narrowed the set; absent = full declaration).
+        if sess and sess.get("active_caps") is not None:
+            allowed = set(sess["active_caps"])
+            caps = {k: v for k, v in caps.items() if k in allowed}
+    # PAYMENT AREA: checkout responses echo the resolved handler (PAY-003);
+    # the handler list is DYNAMICALLY filtered by the cart's context (PAY-015).
+    items = None
+    if sess:
+        items = set()
+        for li in sess.get("line_items") or []:
+            iid = (li.get("item") or {}).get("id")
+            items.add(BY_VARIANT[iid]["id"] if iid in BY_VARIANT else iid)
     return {"version": VERSION, "capabilities": caps,
-            "payment_handlers": payment_handlers_registry(response=True)}
+            "payment_handlers": payment_handlers_registry(response=True,
+                                                          context_items=items)}
 
 LINKS = [{"type": "terms_of_service", "url": "https://spck.dev/fixture/tos"},
          {"type": "privacy_policy", "url": "https://spck.dev/fixture/privacy"}]
@@ -1647,7 +1901,7 @@ def checkout_body(sess):
                            "amount": order_disc})
     totals.append({"type": "total", "display_text": "Total",
                    "amount": max(subtotal - items_disc - order_disc, 0)})
-    out = {"ucp": _ucp_envelope(), "id": sess["id"], "status": sess["status"],
+    out = {"ucp": _ucp_envelope(sess), "id": sess["id"], "status": sess["status"],
            "currency": sess["currency"], "line_items": lines,
            "totals": totals, "links": LINKS}
     if sess.get("codes") or applied:
@@ -1664,6 +1918,12 @@ def checkout_body(sess):
         for i, c in rejected]
     # ELIGIBILITY: accepted/not-accepted/failed claim messages (checkout.md table)
     messages.extend(elig_msgs)
+    # CHK-051: unavailable merchandise dropped at create is a BUSINESS OUTCOME
+    # surfaced in messages (checkout-rest.md Business Outcomes), never a 4xx.
+    for iid in sess.get("unavailable") or []:
+        messages.append({"type": "warning", "code": "item_unavailable",
+                         "content": f"Item {iid} is currently unavailable and was "
+                                    "not added to the checkout"})
     # PAYMENT AREA: escalated sessions carry continue_url (checkout.json: "MUST be
     # provided when status is requires_escalation" — PAY-018) plus the soft-decline
     # error message whose requires_buyer_input severity "contributes to
@@ -1751,13 +2011,52 @@ def create_checkout(body, headers=None):
     if "line_items" not in body:
         return _err(400, "line_items is required on create")
     key = headers.get("idempotency-key")
+    if key and IDEM_OUTAGE:
+        # SIG-024: idempotency cannot be guaranteed while its storage is down —
+        # fail CLOSED with 503 (never process without the dedup guarantee)
+        return _protocol_err(503, "idempotency_storage_unavailable",
+                             "idempotency storage is unavailable; the request was "
+                             "rejected rather than processed without deduplication")
     fp = json.dumps(body, sort_keys=True)
     with _LOCK:
-        if key and key in IDEM:
-            prev_fp, prev_status, prev_payload = IDEM[key]
+        prev = _idem_lookup(key) if key else None
+        if prev is not None:
+            prev_fp, prev_status, prev_payload = prev
             if prev_fp != fp:
-                return _err(409, "idempotency-key conflict: same key with a different body")
+                # CHK-048 status (409) + CHK-050 protocol-error body shape
+                return _protocol_err(409, "idempotency_key_conflict",
+                                     "idempotency-key conflict: same key with a "
+                                     "different body")
             return prev_status, prev_payload           # replay the original result
+    # CHK-051/CHK-053 (2026-04-08 two-layer model): unavailable merchandise is a
+    # BUSINESS OUTCOME, never a protocol 4xx. A KNOWN item with zero stock is
+    # unavailable; when EVERY requested line is unavailable no resource can be
+    # created -> HTTP 200 with ucp.status:"error" + messages and NO resource body
+    # (checkout.md "no resource is included"); when only SOME are, the checkout is
+    # created WITHOUT them and the outcome is surfaced in messages. Unknown items
+    # and over-stock quantities on stocked items remain request errors (400).
+    unavailable = []
+    if VERSION == "2026-04-08" and isinstance(body.get("line_items"), list):
+        reqs = [li for li in body["line_items"] if isinstance(li, dict)]
+        known = [li for li in reqs
+                 if ((li.get("item") or {}).get("id") in BY_ID
+                     or (li.get("item") or {}).get("id") in BY_VARIANT)]
+        zero = [li for li in known if _stock((li.get("item") or {}).get("id")) == 0]
+        if reqs and known and len(zero) == len(known) == len(reqs):
+            return 200, {
+                "ucp": {"version": VERSION, "status": "error",
+                        "capabilities": {"dev.ucp.shopping.checkout":
+                                         [{"version": VERSION}]}},
+                "messages": [{"type": "error", "code": "out_of_stock",
+                              "content": "All requested items are currently "
+                                         "out of stock",
+                              "severity": "unrecoverable"}],
+                "continue_url": CONTINUE_URL}
+        if zero:
+            unavailable = [(li.get("item") or {}).get("id") for li in zero]
+            body = dict(body)
+            body["line_items"] = [li for li in body["line_items"]
+                                  if li not in zero]
     line_items, err = _build_line_items(body.get("line_items"))
     if err:
         return err
@@ -1767,6 +2066,29 @@ def create_checkout(body, headers=None):
     sess = {"id": "chk_" + uuid.uuid4().hex[:12], "status": "ready_for_complete",
             "currency": body.get("currency", "USD"), "line_items": line_items,
             "codes": codes or []}
+    if unavailable:
+        sess["unavailable"] = unavailable    # CHK-051: surfaced in messages
+    if VERSION == "2026-04-08":
+        # OVR-005/OVR-012: the SESSION-scoped negotiated capability set, computed
+        # from the platform profile named in UCP-Agent (loopback-only fetch, the
+        # webhook resolver's policy). None = no narrowing (full declaration).
+        # An EMPTY set after extension validation (e.g. the platform advertised
+        # ONLY an extension whose parent fell out of the intersection — the
+        # OVR-012 orphan case) means no compatible capabilities remain: the
+        # NEG-002 capabilities_incompatible outcome (HTTP 200, error envelope).
+        active = negotiated_active(headers.get("UCP-Agent"))
+        if active is not None and not active:
+            return 200, {"ucp": {"version": VERSION, "status": "error",
+                                 "capabilities": {}},
+                         "messages": [{
+                             "type": "error", "code": "capabilities_incompatible",
+                             "content": "No compatible capabilities remain after "
+                                        "capability intersection and extension "
+                                        "validation",
+                             "severity": "unrecoverable"}],
+                         "continue_url": CONTINUE_URL}
+        if active is not None:
+            sess["active_caps"] = sorted(active)
     # WEBHOOK/EVENTS area (every served version): remember where THIS platform
     # wants order events (order.md Webhook URL Configuration — the platform
     # profile's order capability config, at 01-era and 04-08 alike; loopback-only
@@ -1792,7 +2114,7 @@ def create_checkout(body, headers=None):
             CART_CHECKOUTS[cart_conv] = sess["id"]   # link for CART-002 idempotency
         result = 201, checkout_body(sess)
         if key:
-            IDEM[key] = (fp, *result)
+            _idem_store(key, fp, result)
     return result
 
 def get_checkout(sid, headers=None):
@@ -1890,6 +2212,18 @@ def complete_checkout(sid, body, headers=None):
         rejected = ap2_enforce_complete(sid, sess, body, headers)
         if rejected is not None:
             return rejected
+    # PAY-014 (overview.md business security checklist): "Validate handler_id
+    # before processing (ensure handler is in advertised set)" — an instrument
+    # naming an unadvertised handler is rejected BEFORE any payment processing
+    # (handler-id routing prevents key confusion). 04-08-scoped: the PAY-014 id
+    # exists only in the 2026-04-08 register.
+    if VERSION == "2026-04-08":
+        advertised = advertised_handler_ids()
+        for inst in (((body or {}).get("payment") or {}).get("instruments") or []):
+            hid = inst.get("handler_id") if isinstance(inst, dict) else None
+            if hid and hid not in advertised:
+                return _err(400, f"handler_id {hid} is not in the advertised "
+                                 "payment handler set")
     if FAIL_TOKEN in _payment_tokens(body):
         return _err(402, "payment declined by the payment handler")
     # PAYMENT AREA: 3DS/SCA soft-decline (overview.md Scenario B). HTTP 200 with
@@ -2141,7 +2475,11 @@ def search_response(query, limit=None, cursor=None):
     pagination = {"has_next_page": off + n < len(hits), "total_count": len(hits)}
     if pagination["has_next_page"]:
         pagination["cursor"] = _cursor_make(off + n)
-    return {"ucp": {"version": VERSION}, "products": page, "pagination": pagination}
+    # OVR-004: every response's ucp envelope declares its active capabilities
+    return {"ucp": {"version": VERSION,
+                    "capabilities": {"dev.ucp.shopping.catalog.search":
+                                     [{"version": VERSION}]}},
+            "products": page, "pagination": pagination}
 
 def _variant_matches(v, selected):
     """True when the variant carries EVERY selected {name,label} option."""
@@ -2219,7 +2557,11 @@ def lookup_response(ids):
         p = BY_ID.get(i) or BY_VARIANT.get(i)
         if p and p["id"] not in seen:             # same product resolved twice -> once
             seen.add(p["id"]); hits.append(p)
-    return {"ucp": {"version": VERSION}, "products": [_detail(p, ids) for p in hits]}
+    # OVR-004: every response's ucp envelope declares its active capabilities
+    return {"ucp": {"version": VERSION,
+                    "capabilities": {"dev.ucp.shopping.catalog.lookup":
+                                     [{"version": VERSION}]}},
+            "products": [_detail(p, ids) for p in hits]}
 
 def mcp_dispatch(rpc):
     """Handle a JSON-RPC `tools/call` (the UCP MCP transport, per checkout-mcp.md):
@@ -2366,6 +2708,13 @@ class _H(BaseHTTPRequestHandler):
             # is set (otherwise it is the real authority-origin profile, unchanged).
             return self._send(200, profile_served(self._base()),
                               {"Cache-Control": PROFILE_CACHE_CONTROL})
+        if path.startswith("/.well-known/ucp/") and VERSION == "2026-04-08":
+            # version-specific LEAF profile (supported_versions URI — OVR-009/010)
+            v = path.rsplit("/", 1)[-1]
+            if v in SUPPORTED_VERSIONS and v != VERSION:
+                return self._send(200, profile_at(v, self._base()),
+                                  {"Cache-Control": PROFILE_CACHE_CONTROL})
+            return self._send(404, {"error_code": "not_found"})
         if path.startswith("/__localspec/"):
             # DISC-014 reference-gate loopback targets: every declared spec/schema URL
             # resolves 200 here (valid JSON), except the BREAK_SPEC_URL sentinel (404).
@@ -2494,6 +2843,13 @@ class _H(BaseHTTPRequestHandler):
         if path == "/testing/oauth/mint":
             # TEST-ONLY bad-token mint (IDL-025/042): deterministic (in)valid tokens
             return self._send(*mint_test_token((body or {}).get("kind")))
+        if path == "/testing/idempotency/age":
+            # TEST-ONLY key aging (SIG-023): rewind a stored key's clock so the
+            # 24h-minimum retention contract is wire-testable in one run
+            return self._send(*simulate_idem_age(body))
+        if path == "/testing/idempotency/outage":
+            # TEST-ONLY storage-outage switch (SIG-024 fail-closed 503)
+            return self._send(*simulate_idem_outage(body))
         if path == "/checkout-sessions":
             if self._checkout_scope_denied("create"):   # IDL-013 Create gate (01-era)
                 return
@@ -2623,7 +2979,11 @@ def main():
                     help="MUTANT: omit the error param from Bearer challenges")
     ap.add_argument("--oauth-accept-any-token", action="store_true",
                     help="MUTANT: accept a present Bearer token without validating it "
-                         "is known/unexpired/unrevoked (IDL-042 expired/revoked kill-proof)")
+                         "is known/unexpired/unrevoked/registered-client "
+                         "(IDL-042 expired/revoked + IDL-025 foreign-client kill-proof)")
+    ap.add_argument("--oauth-no-profile-binding", action="store_true",
+                    help="MUTANT: serve valid tokens under a conflicting UCP-Agent "
+                         "profile (OVR-006 identity-binding kill-proof)")
     ap.add_argument("--no-webhooks", action="store_true",
                     help="MUTANT: never send order-event webhooks (webhook kill-proof)")
     # ORD-012 / IDL-013 config-gated auth MODES (not mutants — opt-in golden modes):
@@ -2655,6 +3015,7 @@ def main():
         VERIFY_SIGNATURES = False
     global OAUTH_ENFORCE_PKCE, OAUTH_GATE, OAUTH_EXACT_REDIRECT, \
         OAUTH_CLIENT_AUTH, OAUTH_CHALLENGE_ERROR, OAUTH_VALIDATE_TOKEN, \
+        OAUTH_PROFILE_BINDING, \
         REQUIRE_ORDER_AUTH, REQUIRE_CHECKOUT_SCOPE, CHECKOUT_SCOPE_PARTIAL, \
         LOCAL_SPEC_URLS, BREAK_SPEC_URL
     if args.oauth_no_pkce:
@@ -2669,6 +3030,8 @@ def main():
         OAUTH_CHALLENGE_ERROR = False
     if args.oauth_accept_any_token:
         OAUTH_VALIDATE_TOKEN = False
+    if args.oauth_no_profile_binding:
+        OAUTH_PROFILE_BINDING = False
     if args.require_order_auth:
         REQUIRE_ORDER_AUTH = True
     if args.ap2:
