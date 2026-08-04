@@ -1,7 +1,7 @@
 {
  "_about": "spck.dev site claims register \u2014 every factual claim on the site that is not data-rendered from coverage/agent-coverage JSON must be registered here with evidence and a review-by date, or removed. Bootstrapped by ops/site-content-audit-2026-07.md (Phase 0 of the 2026-07-09 IA redesign). The manifest block is the bindable public source for product counts that do NOT exist in coverage JSONs (which count MUST rows, not checks); the site-freshness gate regenerates these numbers from the engine and goes RED on drift.",
  "manifest": {
-  "merchant_checks": 196,
+  "merchant_checks": 222,
   "agent_checks": 44,
   "agent_defects": 45,
   "versions": [
@@ -9,12 +9,12 @@
    "2026-01-23",
    "2026-04-08"
   ],
-  "reviewed": "2026-07-09"
+  "reviewed": "2026-08-04"
  },
  "claims": [
   {
    "id": "CLAIM-001",
-   "text": "193 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.",
+   "text": "222 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.",
    "page": "index.html",
    "class": "REG",
    "evidence": "conformance/coverage/coverage_gate.py copy-freshness gate counts MCheck( registrations across conformance/checks/merchant_checks*.py = 193 (verified 2026-07-09) and pins this exact phrase via regex; bind number to site_claims.json:$.manifest.merchant_checks",
@@ -77,7 +77,7 @@
   },
   {
    "id": "CLAIM-007",
-   "text": "196 checks, from the browser or your CI",
+   "text": "222 checks, from the browser or your CI",
    "page": "index.html",
    "class": "REG",
    "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-07-17)",
@@ -248,7 +248,7 @@
   },
   {
    "id": "CLAIM-027",
-   "text": "Run the full suite (193 kill-rate-validated checks) from your shell or CI.",
+   "text": "Run the full suite (222 kill-rate-validated checks) from your shell or CI.",
    "page": "tool.html",
    "class": "REG",
    "evidence": "Gate-pinned 193 (coverage_gate.py). PAGE RETIRING (Task 11): claim must not silently migrate \u2014 /check already carries the registered equivalent (CLAIM-024)",

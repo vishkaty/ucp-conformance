@@ -93,6 +93,14 @@ RESOLVE_CHECKS = [
     RCheck("consent.buyer_omitted_on_complete", ["DSC-034"],
            "schemas/shopping/buyer_consent.json", "dev.ucp.shopping.checkout",
            "buyer", "complete", ("create", "update")),
+    # CART-030 — cart_id is available ONLY on create_checkout and MUST be omitted
+    # on update (cart.json $defs/checkout extension: ucp_request {create:
+    # optional, update: omit}). The kept-op retention (create) is the kill-proof
+    # analog; the register's note that a PLAIN validator cannot catch this is
+    # exactly why the official RESOLVER is the anchor here.
+    RCheck("cart.cart_id_omitted_on_update", ["CART-030"],
+           "schemas/shopping/cart.json", "checkout",
+           "cart_id", "update", ("create",)),
 ]
 
 

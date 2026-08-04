@@ -464,6 +464,86 @@ def p_revoked_rejected(r, ctx):
     return CLEAN if _body_code(r, "identity_required") else DEVIATION
 
 
+# ---- IDL-025: RFC 9068-style claim validation on every user-authenticated request
+# The observable trio that closes the W2-F5 bar ("expired/wrong-client token
+# scenario needed"): expired (exp) + revoked are graded above via the mint hook;
+# this adds the CLIENT-BINDING half — a syntactically-plausible token minted for a
+# client that is NOT a registered platform client (client_id/azp validation) MUST
+# be rejected with the invalid_token challenge. Whether an opaque-token business
+# literally inspects iss/aud strings is not black-box distinguishable (register
+# note), but exp + revocation + client binding are the enforceable core the row's
+# own quote names ("verify iss, aud, exp, scopes, and client_id/azp ... to
+# confirm the token was issued to the authenticated platform client").
+def f_foreign_client_token(ctx):
+    tok, r = _mint_bad(ctx, "foreign_client")
+    return _gated(ctx, token=tok) if tok else r
+
+
+# ---- IDL-061: metadata issuer == authorization-response iss, byte-for-byte ------
+def f_iss_vs_metadata(ctx):
+    """Fetch the RFC 8414 metadata, stash its issuer on the ctx, then run an
+    authorization request; the golden is the authorization redirect."""
+    md = oh.discover(ctx.base)
+    ctx._idl061_issuer = (md.json or {}).get("issuer") \
+        if md.status == 200 and isinstance(md.json, dict) else None
+    fl = _to_code(ctx)
+    return fl["resp"]
+
+
+def p_iss_byte_identical(r, ctx):
+    """IDL-061: 'The issuer value in RFC 8414 metadata and the iss parameter
+    returned in authorization responses MUST be identical byte-for-byte' — a
+    trailing-slash (or any normalized) variant is a deviation, exactly the
+    normalization bug the row forbids."""
+    issuer = getattr(ctx, "_idl061_issuer", None)
+    if not isinstance(issuer, str) or not issuer:
+        return DEVIATION                    # no metadata issuer -> unverifiable claim
+    if not (300 <= r.status < 400):
+        return DEVIATION
+    q = oh.location_params(r)
+    if not q.get("code"):
+        return DEVIATION
+    return CLEAN if q.get("iss") == issuer else DEVIATION
+
+
+# ---- OVR-006: authenticated principal is bound to the claimed UCP-Agent profile -
+def f_profile_conflict(ctx):
+    """Obtain a Bearer token as the registered platform client, PROVE it unlocks
+    the gated operation when the request's UCP-Agent names the client's
+    REGISTERED platform profile, then replay the same token under a UCP-Agent
+    claiming a DIFFERENT platform's profile. The golden is the conflicting
+    request's response — it MUST be rejected."""
+    ic = _icfg(ctx)
+    pb = ic.get("profile_binding") or {}
+    g = ic.get("gated") or {}
+    fl = _flow(ctx, scopes=g.get("scopes") or [])
+    if not fl["token"]:
+        return _last_resp(fl)
+    tok = fl["token"]["access_token"]
+
+    def call(profile_url):
+        h = _bearer(tok)
+        h["UCP-Agent"] = f'profile="{profile_url}"'
+        return fetch(ctx.base, g.get("path", ""), g.get("method", "GET"), None, h)
+
+    ok = call(pb.get("registered"))
+    if ok.status != 200:
+        return Resp(0, {}, json.dumps(
+            {"probe": "the token did not unlock the gated operation under the "
+                      "client's REGISTERED profile — the conflict scenario would "
+                      "be vacuous", "observed_status": ok.status}).encode())
+    return call(pb.get("mismatched"))
+
+
+def p_profile_conflict_rejected(r, ctx):
+    """OVR-006: 'Verifiers MUST confirm the authenticated principal is authorized
+    to act on behalf of the profile identified in UCP-Agent. Reject requests
+    where the authenticated identity and claimed profile conflict.' The
+    conflicting request is rejected (401/403) — never served (the DISC-004
+    p_rejected_4xx precedent: the rejection itself is the graded observable)."""
+    return CLEAN if r.status in (401, 403) else DEVIATION
+
+
 # ---- ORD-025 (SHOULD, order-rest.md): order REST responses are signed -----------
 def f_order_get(ctx):
     from merchant_checks import order_get_resp
@@ -560,9 +640,11 @@ CHECKS_04_08_OAUTH = [
             "set:messages=[]", "drop:messages", "corrupt-json"],
            capability=IDL_CAP, transport="rest", versions=V0408,
            cfg_needs=("identity.gated",)),
-    # IDL-025 (full RFC 9068 claims validation) is NOT cited: only the observable
-    # garbage-token core is exercised here; counting the row would overstate
-    # coverage (W2-F5). It stays GAP pending an expired/wrong-aud token scenario.
+    # IDL-025 is cited on identity.foreign_client_token_rejected below (NOT here):
+    # the W2-F5 bar ("stays GAP pending an expired/wrong-client token scenario")
+    # is now met by the mint-hook trio — expired + revoked (IDL-042 checks) plus
+    # the foreign-client binding probe, which is the client_id/azp half of the
+    # row's own quote. This garbage-token check remains IDL-042-only.
     MCheck("identity.invalid_token_challenge", ["IDL-042"], "MUST",
            f_gated_bad_token, p_invalid_token_challenge,
            ["status:200", "hdrop:WWW-Authenticate",
@@ -592,6 +674,30 @@ CHECKS_04_08_OAUTH = [
             "set:messages=[]"],
            capability=IDL_CAP, transport="rest", versions=V0408,
            cfg_needs=("identity.gated", "identity.token_mint")),
+    # IDL-025 (see the module-header split and the note above
+    # identity.invalid_token_challenge): the client-binding probe that, together
+    # with the expired/revoked scenarios, grades the row's enforceable core.
+    MCheck("identity.foreign_client_token_rejected", ["IDL-025"], "MUST",
+           f_foreign_client_token, p_invalid_token_challenge,
+           ["status:200", "hdrop:WWW-Authenticate",
+            "hset:WWW-Authenticate=Bearer realm=\"https://wrong.example\", error=\"invalid_token\"",
+            "hset:WWW-Authenticate=Bearer error=\"invalid_token\"",
+            "set:messages=[]"],
+           capability=IDL_CAP, transport="rest", versions=V0408,
+           cfg_needs=("identity.gated", "identity.token_mint")),
+    MCheck("identity.issuer_iss_byte_identical", ["IDL-061"], "MUST",
+           f_iss_vs_metadata, p_iss_byte_identical,
+           ["status:400", "hdrop:Location",
+            f"hset:Location={_MUT_CB}?code=ac_mutant&state=s",
+            f"hset:Location={_MUT_CB}?code=ac_mutant&state=s&iss=https%3A%2F%2Fevil.example"],
+           capability=IDL_CAP, transport="rest", versions=V0408,
+           cfg_needs=("identity.client_id", "identity.redirect_uri")),
+    MCheck("identity.profile_conflict_rejected", ["OVR-006"], "MUST",
+           f_profile_conflict, p_profile_conflict_rejected,
+           ["status:200", "status:201", "status:303", "status:500"],
+           capability=IDL_CAP, transport="rest", versions=V0408,
+           cfg_needs=("identity.gated", "identity.client_id",
+                      "identity.profile_binding")),
     MCheck("identity.challenge_resource_metadata", ["IDL-043"], "SHOULD",
            f_gated_no_token, p_resource_metadata,
            ["status:200", "hdrop:WWW-Authenticate",

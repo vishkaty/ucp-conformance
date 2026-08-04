@@ -724,8 +724,14 @@ def _cart_artifact():
     st, cart = server.create_cart(cart_req, HDRS)
     if st != 201:
         return False, f"cart create with UCP-Agent must return 201, got {st}"
-    return validate_against(cart, "schemas/shopping/cart.json", "checkout",
-                            op="read", version=server.VERSION)
+    # CART RESOURCES anchor to the cart.json ROOT schema: its ucp member is
+    # ucp.json response_cart_schema ("No payment handlers needed pre-checkout").
+    # The $defs/checkout composition is the CHECKOUT-payload shape (checkout +
+    # cart_id) — anchoring a cart there only looked green while the envelope
+    # declared no capabilities (the oracle's capability-aware strictness was
+    # dormant); with OVR-004 envelopes it demands checkout-response members.
+    return validate_root(cart, "schemas/shopping/cart.json",
+                         op="read", version=server.VERSION, direction="response")
 
 def _cart_update_artifact():
     """PUT /carts/{id} full-replacement behavior (update_cart — CART-017, cart.md
@@ -766,8 +772,9 @@ def _cart_update_artifact():
     st, nf2 = server.update_cart("cart_ghost", put_body, HDRS)
     if st != 200 or (nf2.get("ucp") or {}).get("status") != "error":
         return False, f"ghost-cart PUT must be the 200 not_found outcome, got {st}"
-    ok, why = validate_against(upd, "schemas/shopping/cart.json", "checkout",
-                               op="read", version=server.VERSION)
+    ok, why = validate_root(upd, "schemas/shopping/cart.json",
+                            op="read", version=server.VERSION,
+                            direction="response")
     if not ok:
         return ok, f"updated cart: {why}"
     return validate_root(nf, "schemas/shopping/types/error_response.json",
@@ -882,8 +889,8 @@ def _cart_cancel_artifact():
     st3, nf = server.get_cart(cid)
     if (nf.get("ucp") or {}).get("status") != "error":
         return False, "cancelled cart still resolves (should be not_found)"
-    return validate_against(final, "schemas/shopping/cart.json", "checkout",
-                            op="read", version=server.VERSION)
+    return validate_root(final, "schemas/shopping/cart.json",
+                         op="read", version=server.VERSION, direction="response")
 
 def _cart_idempotency_artifact():
     """Idempotency-Key on create cart: a duplicate key replays the cached result; a

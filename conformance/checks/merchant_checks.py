@@ -1139,9 +1139,15 @@ CHECKS = [
            ["status:200", "status:201"], needs=("product",),
            cfg_needs=("fail_payment",), transport="rest",
            versions=("2026-01-11", "2026-01-23")),
+    # VAL-001's 4xx-on-out-of-stock reading is a 01-era contract. The 2026-04-08
+    # two-layer model makes unavailable merchandise a BUSINESS OUTCOME — HTTP 200
+    # with the envelope and messages (checkout-rest.md Error Responses; CHK-051/
+    # CHK-053) — graded by checkout.unavailable_* in merchant_checks_04_08_receiver.
+    # Version-scoped so a conformant 04-08 server is never false-flagged (the same
+    # split validation.error_body below already applies for VAL-006).
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
-           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest",
-           versions=("2026-01-11", "2026-01-23")),
+           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",),
+           versions=("2026-01-11", "2026-01-23"), transport="rest"),
     # VAL-006 is a 2026-01-11/01-23 requirement (a 400 error body with a populated
     # string `detail`). 2026-04-08 replaced this with the `messages[]` error envelope,
     # covered separately by the ERR-* checks in area_04_08_error.py (error.response_

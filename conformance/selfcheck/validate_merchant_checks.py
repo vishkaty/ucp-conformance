@@ -27,8 +27,11 @@ from engine import CLEAN                                  # noqa: E402
 
 # The reference server (Flower Shop) seeded data — the fixed, known-good target.
 # Doubles as the canonical example of the --config schema a real merchant supplies.
-def _pay(token, last):
-    return {"payment": {"instruments": [{"id": "instr_" + last, "handler_id": "mock_payment_handler",
+def _pay(token, last, handler="mock_payment_handler"):
+    """`handler` must be an id the golden ADVERTISES: the flower reference seeds
+    mock_payment_handler; the controlled fixture advertises spck_tokenpay and
+    (PAY-014) rejects completions naming an unadvertised handler."""
+    return {"payment": {"instruments": [{"id": "instr_" + last, "handler_id": handler,
         "type": "card", "display": {"brand": "Visa", "last_digits": last},
         "credential": {"type": "token", "token": token},
         "billing_address": {"street_address": "123 Main St", "address_locality": "Anytown",
@@ -78,9 +81,15 @@ CONTROLLED_CONFIG = {
                 "configurable_product_id": "teacup_glaze",  # option axes Color x Size
                 "paginated_query": "*",                  # matches the whole seed catalog
                 "paginated_total": 13},                  # len(server.PRODUCTS)
-    "complete_payment": _pay("success_token", "1234"),   # fixture accepts any non-fail token
-    "fail_payment": _pay("fail_token", "0000"),          # seeded failing token -> 402
-    "out_of_stock_id": "trivet_cork",                    # seeded zero-stock product -> 4xx
+    "complete_payment": _pay("success_token", "1234", "spck_tokenpay"),   # fixture accepts any non-fail token
+    "fail_payment": _pay("fail_token", "0000", "spck_tokenpay"),   # seeded failing token -> 402
+    "out_of_stock_id": "trivet_cork",       # seeded zero-stock product (04-08: business outcome)
+    # CHK-051: the fixture implements the 04-08 two-layer contract — unavailable
+    # merchandise is an HTTP-200 business outcome (partial baskets are created
+    # without the unavailable line + an item_unavailable message). The official
+    # reference still answers 400 there, so REF_CONFIG deliberately omits this
+    # key (correctly dormant; flip it the moment upstream adopts the 200 rule).
+    "unavailable": {"business_outcome": True},
     "discount": {"valid_code": "10OFF", "second_valid_code": "TEA5",
                  "invalid_code": "NOPE_NOT_A_CODE",      # seeded codes (see server.py)
                  "case_insensitive": True,               # fixture matches codes any-case
@@ -132,10 +141,24 @@ CONTROLLED_CONFIG = {
                  "signed": True, "retries": True},
     "totals": {"sublines": True},   # 04-08 mode itemizes the subtotal entry (TOT-017)
     # PAYMENT AREA (04-08 grind): the fixture's seeded handler declaration and the
-    # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url)
+    # 3DS soft-decline token (escalate_token -> requires_escalation + continue_url).
+    # `filtered` (PAY-015): the seeded CONTEXT-SENSITIVE handler (dev.spck.giftpay)
+    # is dynamically removed from responses whose cart contains the named product
+    # (the fixture's stand-in for "remove BNPL for subscription items").
     "payment": {"handler_key": "dev.spck.tokenpay",
                 "handler_id": "spck_tokenpay",
-                "escalation_payment": _pay("escalate_token", "9999")},
+                "escalation_payment": _pay("escalate_token", "9999", "spck_tokenpay"),
+                "filtered": {"product_id": "kettle_copper",
+                             "handler_key": "dev.spck.giftpay"}},
+    # DISCOVERY/VERSIONING (04-08): the fixture publishes a supported_versions map
+    # whose URIs serve version-specific LEAF profiles (OVR-009/OVR-010).
+    "discovery": {"supported_versions": True},
+    # IDEMPOTENCY test hooks (04-08 receiver tier, mint-hook precedent): the
+    # fixture can AGE a stored idempotency key (SIG-023 — 24h retention is not
+    # observable in one run without moving the server's own clock) and can
+    # simulate a storage OUTAGE (SIG-024 — fail closed with 503). A real merchant
+    # opts in by exposing the hooks; without them the checks skip honestly.
+    "idempotency": {"age_hook": True, "outage_hook": True},
     # negotiation-failure platform profiles (discovery area, 04-08): each URL makes a
     # fetching business exhibit one negotiation error. The fixture recognizes these
     # SEEDED URLs (server.py negotiate_platform simulates the fetch outcome); a real
@@ -147,6 +170,11 @@ CONTROLLED_CONFIG = {
         # http:// with 400 invalid_profile_url. A business that does not fetch
         # profiles omits this key and those checks skip instead of false-flagging.
         "validates_profile_url": True,
+        # `harness` asserts the merchant FETCHES a loopback platform profile and
+        # negotiates the REAL capability intersection from it (OVR-005/OVR-012 —
+        # the same loopback carve-out webhooks.simulate documents). Merchants
+        # that cannot reach a local harness omit this -> honest skip.
+        "harness": True,
         "unsupported_version_profile_url": "https://spck.dev/fixture/platform/legacy-version.json",
         "incompatible_caps_profile_url": "https://spck.dev/fixture/platform/no-common-caps.json",
         "unreachable_profile_url": "https://spck.dev/fixture/platform/unreachable-profile.json",
@@ -166,6 +194,19 @@ CONTROLLED_CONFIG = {
             "x": "fdOWNX6FUcEYKQntKv0Pb0wpcIEV6HrDZK4Ud9oF_rY",
             "y": "-Ie-pMb2OxUqg4GR_B6wObhra9-fRe5YWzWAAv7dNKk",
             "d": "EymkNYgazGbLoD16l-fw7K-C9WNJEIv4hn_RpRgW5xY"},
+        # SIG-009: the platform's PREVIOUS signing key, rotated out inside the
+        # 7-day grace window — the fixture keeps accepting it (TRUSTED_PLATFORM_
+        # KEYS carries its public part as the rotated entry). TEST key, committed
+        # on purpose (derived from the fixture's deterministic keygen).
+        "rotated_private_jwk": {
+            "kid": "spck-platform-sig-2025", "kty": "EC", "crv": "P-256",
+            "x": "trOfp-wdZbq4DptegBp30j2ZhfOQktq1xwV9p192Vpo",
+            "y": "35f58EZuhhP5adAnylqYQkE0w7PqynX4RH3j0VSUdxY",
+            "d": "z1FmQAxm-O1vmNqG99IJpUFWKbDRhRNj7SBiekFKhSU"},
+        # SIG-035: a key PUBLISHED in the platform's signing_keys whose algorithm
+        # (Ed25519) this merchant does not support — referencing it must yield
+        # 400 algorithm_unsupported (resolution succeeds, algorithm cannot).
+        "unsupported_alg_kid": "spck-platform-ed25519",
     },
     # OAUTH area (identity-linking): the fixture's registered platform clients and
     # gated operations (server.py OAUTH_CLIENTS / ORDER_*_SCOPES). TEST credentials,
@@ -195,10 +236,16 @@ CONTROLLED_CONFIG = {
                         "have_scopes": ["dev.ucp.shopping.order:read"]},
         "continue_url": True,        # 401 bodies carry an onboarding continue_url
         "resource_metadata": True,   # challenges carry resource_metadata (RFC 9728)
-        # the fixture exposes POST /testing/oauth/mint (deterministic expired/revoked
-        # tokens) so the suite can probe "the business validates exp/revocation on
-        # every request" (IDL-042) — a real merchant opts in by exposing the hook.
+        # the fixture exposes POST /testing/oauth/mint (deterministic expired/
+        # revoked/foreign-client tokens) so the suite can probe "the business
+        # validates the token on every request" (IDL-042 exp/revocation, IDL-025
+        # client binding) — a real merchant opts in by exposing the hook.
         "token_mint": True,
+        # OVR-006: the platform profile the public client is REGISTERED to act
+        # for, plus a conflicting profile no client is bound to — a valid token
+        # presented under the conflicting UCP-Agent MUST be rejected.
+        "profile_binding": {"registered": "https://spck.dev/agent",
+                            "mismatched": "https://intruder.example/platform.json"},
         # 01-era (2026-01-11/01-23) standard scope vocabulary
         "scope_01era": "ucp:scopes:checkout_session",
     },
