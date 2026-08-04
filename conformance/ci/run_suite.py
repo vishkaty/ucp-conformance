@@ -133,6 +133,23 @@ def gates(server):
                              "--config", str(ROOT / "conformance" / "ci" / "differential_flower.config.json")),
          "golden", (2,)),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
+        # SCHEMA-GUIDED FUZZ LANE: enumerate the boundary/constraint points of the pinned
+        # 04-08 request schemas and fire one payload per point at the golden, classifying
+        # each response (crash vs conformant-4xx vs spec-contradicting-accept). The #156
+        # currency-omit 500 was found by luck; this finds the whole #156 CLASS
+        # systematically. Fails on any NEW 5xx/reset/hang not in the self-expiring
+        # known_fuzz_defects.json (a registered defect that stops reproducing also fails).
+        # Expected-validity for every payload comes from the INDEPENDENT referee, so a
+        # spec-contradicting ACCEPT is detectable; conformant 4xx envelopes are not
+        # findings. Skips (rc 2) if the referee lib or the golden is unavailable.
+        ("fuzz",        _py(ROOT / "conformance" / "ci" / "fuzz_gate.py", "--server", server),
+         "golden", (2,)),
+        # the fuzzer must provably catch a crash (a fuzzer that never caught one proves
+        # nothing): hermetic kill-test stands up a stub that 500s on a PLANTED boundary
+        # input and asserts the gate reddens on it AND on a stale register entry, plus
+        # corpus determinism + register hygiene. No network/golden.
+        ("fuzz-selftest", _py(ROOT / "conformance" / "ci" / "fuzz_gate.py", "--selftest"),
+         None, (2,)),
         # --- isolation safety net + agent-conformance lane (separate tree; can't move
         #     merchant numbers). merchant-stability fails if agent work drifts merchant output.
         ("merchant-stability", _py(ROOT / "conformance" / "ci" / "merchant_stability.py",

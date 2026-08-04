@@ -1,0 +1,24 @@
+{
+  "_about": "Server-side CRASH defects (5xx / connection-reset / hang) that the schema-guided fuzz lane (fuzz_gate.py) discovered in a GOLDEN reference, has diagnosed to a minimal reproduction, and is tracking upstream. The fuzz gate reports these LOUDLY on every run but does NOT fail on them (a crash we have already diagnosed and are tracking is not new information every run). Every entry MUST carry a minimal_repro, a root-cause diagnosis, and an `upstream` reference (a filed issue/PR, or a documented candidate paired with the sibling upstream artifact that establishes the defect class). Entries EXPIRE BY CONSTRUCTION: `signature` names the corpus cases that must still crash; the moment NONE of them reproduce the crash, the gate FAILS until the entry is deleted, so a stale acknowledgement can never quietly outlive the bug it described. A NEW crash matching no entry FAILS the gate.",
+  "defects": [
+    {
+      "id": "checkout-create-id-nonstring-500",
+      "signature": {"op": "create", "category": "wrongtype", "field_prefix": "id"},
+      "endpoint": "POST /checkout-sessions",
+      "spec_version": "2026-04-08",
+      "minimal_repro": {
+        "method": "POST",
+        "path": "/checkout-sessions",
+        "body": {"id": 123, "line_items": [{"id": "li_1", "quantity": 1, "item": {"id": "<a real product id>", "price": 1000}, "totals": []}]},
+        "observed": "HTTP 500 Internal Server Error (unhandled pydantic ValidationError)",
+        "expected": "201 with a server-assigned id (id is ucp_request:omit -> server-determined, exactly like currency after samples#156), OR a 4xx envelope. Never 500."
+      },
+      "referee_verdict": "The request payload is schema-VALID as a create request: `id` is ucp_request:omit, so it is dropped from the create-request schema and additionalProperties:true admits any value. A spec-VALID request must never 500.",
+      "diagnosis": "services/checkout_service.py constructs the RESPONSE Checkout model (id: required string) from the incoming request data, propagating the client-supplied `id` unsanitized. A non-string `id` raises an uncaught pydantic ValidationError -> 500. The server correctly ignores/sanitizes every OTHER server-determined omit field (currency, status, totals, links, ucp, expires_at all return 201); `id` is the single unfixed sibling.",
+      "class": "A ucp_request:omit (server-determined) field whose client-supplied value is propagated unsanitized into the response model, crashing the server. This is the #156 class.",
+      "upstream": "CANDIDATE — sibling of merged samples#156 (currency determined server-side, which fixed the identical pattern for `currency`). To be filed against Universal-Commerce-Protocol/samples as the unfixed `id` instance. Pending owner filing; see fuzz-lane RETURN.",
+      "filed": false,
+      "discovered_by": "fuzz_gate.py schema-guided corpus (create/wrongtype/id/*), 2026-08-04, samples pin a95b928b"
+    }
+  ]
+}
