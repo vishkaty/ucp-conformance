@@ -23,18 +23,38 @@ LOOPBACK = {"localhost", "127.0.0.1", "::1"}
 def _discovery(base):
     return fetch(base, "/.well-known/ucp")
 
-def chk_profile_ok(r):
-    # DISC-013: profile MUST return 200 with the expected structure (version present).
-    if r.status != 200: return DEVIATION
+def _doc(r):
+    """The UCP profile document root. Discovery profiles come in two legitimate
+    shapes — the 2026-04-08 reference nests everything under a top-level `ucp`
+    member, 01-era servers serve it flat — and predicates read through both, the
+    same way the merchant runner does (profile.get("ucp", profile)). Mutations on
+    these checks use `ucp?.` optional segments so every kill-test reaches the field
+    the predicate reads in BOTH shapes (validate_mutation_paths.py pins the walker;
+    validate_version_scope.py pins each check in each shape)."""
     d = r.json
+    return d.get("ucp", d) if isinstance(d, dict) else None
+
+def chk_profile_ok(r):
+    # DISC-013 (2026-01-11/01-23 register): profile MUST return 200 with the
+    # expected structure (version present). The 2026-04-08 register dropped the id,
+    # but the duty is schema-anchored there: ucp.json $defs.base requires `version`
+    # (pinned spec a2d8bf0b), so the same predicate grades faithfully at every
+    # version once it reads through the profile envelope.
+    if r.status != 200: return DEVIATION
+    d = _doc(r)
     if not isinstance(d, dict): return DEVIATION
     return CLEAN if isinstance(d.get("version"), str) else DEVIATION
 
 def chk_rest_endpoint(r):
-    # DISC-007: a service endpoint MUST be a valid https URL. Tolerate http on
-    # loopback (dev servers) per AMB; a non-loopback non-https endpoint -> deviation.
-    if r.status != 200 or not isinstance(r.json, dict): return DEVIATION
-    svcs = (r.json.get("services") or {}).get("dev.ucp.shopping")
+    # DISC-007 (01-era): "A service endpoint MUST be a valid URL with scheme
+    # (https)" — textually the same rule the 2026-04-08 register renumbers to
+    # DISC-005 ("service endpoint MUST be a valid HTTPS URL", overview.md#L147).
+    # Tolerate http on loopback (dev servers) per AMB; a non-loopback non-https
+    # endpoint -> deviation. Envelope-tolerant via _doc (see there).
+    if r.status != 200: return DEVIATION
+    d = _doc(r)
+    if not isinstance(d, dict): return DEVIATION
+    svcs = (d.get("services") or {}).get("dev.ucp.shopping")
     if not isinstance(svcs, list): return DEVIATION
     rest = next((s for s in svcs if isinstance(s, dict) and s.get("transport") == "rest"), None)
     if not rest or not rest.get("endpoint"): return DEVIATION
@@ -164,10 +184,14 @@ def chk_fulfil_options(r):    # FUL-008: each fulfillment option MUST have id, t
     return CLEAN if ok else DEVIATION
 
 CHECKS = [
+    # `ucp?.` optional-segment mutations reach the mutated field in BOTH profile
+    # shapes (wrapped 04-08 / flat 01-era) — a fixed root path would plant a decoy
+    # the predicate never reads on the wrapped reference and record a survivor as
+    # kill_safe. Per-shape clean-pass + kill proven by validate_version_scope.py.
     Check("disc.profile_200", ["DISC-013"], "MUST", _discovery, chk_profile_ok,
-          ["status:404", "status:500", "drop:version", "corrupt-json", "empty"]),
+          ["status:404", "status:500", "drop:ucp?.version", "corrupt-json", "empty"]),
     Check("disc.rest_endpoint", ["DISC-007"], "MUST", _discovery, chk_rest_endpoint,
-          ["drop:services", "set:services={}", "corrupt-json", "status:500"]),
+          ["drop:ucp?.services", "set:ucp?.services={}", "corrupt-json", "status:500"]),
     Check("checkout.create", ["CHK-001"], "MUST", f_create, chk_create,
           ["status:500", "drop:id", "drop:status", "set:status=\"bogus\"", "empty"]),
     Check("checkout.get", ["CHK-002"], "MUST", f_get, chk_get,

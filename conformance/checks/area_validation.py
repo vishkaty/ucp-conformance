@@ -121,9 +121,19 @@ CHECKS = [
     Check("validation.complete_no_fulfillment", ["VAL-005"], "MUST",
           f_complete_no_fulfillment, chk_http_400,
           ["status:200", "status:201", "status:402"]),
+    # VAL-006 is a 2026-01-11/01-23 requirement (a 400 error body with a populated
+    # string `detail`). 2026-04-08 replaced this with the `messages[]` error
+    # envelope (ERR-028/029/030), covered by the ERR-* checks in area_04_08_error.py
+    # — the pinned reference returns exactly that envelope for out-of-stock
+    # (observed 2026-08-04: 400 + {"ucp":{"status":"error"},"messages":[...]}), so
+    # grading the 01-era `detail` shape against it manufactured a false deviation.
+    # versions= scopes the citation AND makes the served-version gate skip it on a
+    # 04-08 server; the merchant twin (validation.error_body) carries the same
+    # scope and stays kill-validated on the controlled 01-23/01-11 goldens.
     Check("validation.error_detail_400", ["VAL-006"], "MUST",
           f_out_of_stock, chk_400_with_detail,
-          ["status:200", "drop:detail", 'set:detail=""', "empty", "corrupt-json"]),
+          ["status:200", "drop:detail", 'set:detail=""', "empty", "corrupt-json"],
+          versions=("2026-01-11", "2026-01-23")),
     Check("validation.invalid_adjustment_status", ["VAL-007"], "MUST",
           f_invalid_adjustment_status, chk_http_422,
           ["status:200", "status:201", "status:400"]),

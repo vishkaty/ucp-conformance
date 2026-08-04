@@ -5447,6 +5447,7 @@
      "requirement": "When an Idempotency-Key is provided, server MUST store the key+result >=24h, return cached result for duplicates, and return 409 if reused with different parameters",
      "source": "ucp:docs/specification/checkout-rest.md#L1242",
      "covered_by": [
+      "merchant_checks.py",
       "merchant_checks_04_08_receiver.py"
      ]
     },
@@ -5560,6 +5561,7 @@
      "requirement": "service endpoint MUST be a valid HTTPS URL.",
      "source": "ucp:docs/specification/overview.md#L147",
      "covered_by": [
+      "merchant_checks.py",
       "merchant_checks_04_08_discovery.py"
      ]
     },
@@ -7100,6 +7102,7 @@
      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
      "source": "ucp:docs/specification/overview.md#L699,L1912",
      "covered_by": [
+      "area_negotiation.py",
       "merchant_checks_04_08_discovery.py"
      ]
     },

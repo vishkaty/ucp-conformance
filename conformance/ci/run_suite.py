@@ -141,6 +141,13 @@ def gates(server):
         # a mutation that cannot reach the field its predicate reads is a kill-test that
         # certifies nothing while reporting kill_safe — green by being unable to fail.
         ("mutation-paths", _py(SELF / "validate_mutation_paths.py", "--selftest"), None, ()),
+        # the golden speaks ONE spec version (2026-04-08 since the 2026-08-03 re-pin);
+        # engine checks whose citations are 01-era-scoped are version-skipped by the
+        # served-version gate instead of deviating/reported-UNSAFE on a known-good
+        # server. Hermetic; the gate-excised mutant proves the gate is load-bearing
+        # AND that each scoped check still bites; envelope-tolerant predicates are
+        # proven clean-pass + kill in BOTH profile shapes (wrapped 04-08 / flat 01-era).
+        ("version-scope", _py(SELF / "validate_version_scope.py", "--selftest"), None, ()),
         # the known-reference-defect register self-expires: covered hermetically so the
         # rule holds even when no golden is reachable and probe-hygiene itself skips.
         ("defect-register", _py(SELF / "validate_probe_hygiene.py", "--selftest"), None, ()),

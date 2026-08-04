@@ -27,7 +27,10 @@ def main(base="http://localhost:8182"):
     checks = collect()
     rep, details = run_report(checks, base, "2026-01-23", core.SCOPE_STAMP, core.DISCLAIMER)
     print(f"target: {base}   checks: {len(checks)}\n")
-    unsafe = [c.id for c, d in details if not d["kill_safe"]]
+    # kill_safe is None for version-scoped checks the served-version gate skipped:
+    # they did not run, so they are out of scope on this server — not unsound.
+    unsafe = [c.id for c, d in details if d["kill_safe"] is False]
+    vskipped = [(c, d) for c, d in details if d.get("version_skip")]
     for c, d in details:
         print(f"  {c.id:34} {str(d['clean']):11} {d['kills']:6} kill_safe={d['kill_safe']}"
               + (f"  survivors={d['survivors']}" if d.get("survivors") else ""))
@@ -36,6 +39,11 @@ def main(base="http://localhost:8182"):
     print(f"aggregate: {rep.aggregate.upper()}   "
           f"MUST coverage: {cc['musts_clean_pass']}/{cc['inscope_musts']} "
           f"({round(100*rep.coverage)}%)   deviations: {cc['deviations']}")
+    if vskipped:
+        print(f"version-scoped (not run against this server): "
+              f"{[c.id for c, _ in vskipped]}")
+        for c, d in vskipped:
+            print(f"    {c.id:34} {d.get('reason')}")
     if unsafe:
         print(f"UNSAFE checks (excluded from green): {unsafe}")
     return 0

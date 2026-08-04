@@ -566,6 +566,20 @@
      "PAY-037"
     ]
    }
+  },
+  {
+   "batch": "version-scope-soundness-2026-08-04",
+   "date": "2026-08-04",
+   "reviewer": "adversarial review, served-version scoping pass (lane-soundness)",
+   "spec_reverified": true,
+   "notes": "Re-read the pinned registers at all three versions for every check the 2026-08-03 golden re-pin (reference now speaks 2026-04-08) had left mis-scoped. Renumber-mappings re-verified verbatim against the pinned spec: IDM-004@01-era == CHK-048@04-08 (checkout-rest.md#L1219 vs #L1242, identical 409-on-conflict clause); DISC-007@01-era == DISC-005@04-08 (overview.md#L152 vs #L147, valid HTTPS service endpoint); NEG-016@01-era == NEG-001@04-08 (overview.md#L1157 vs #L699 \u2014 04-08 adds the 422 mapping; AMB-001: spec authoritative over the official suite's 01-era 400; predicate accepts any 4xx and requires the version_unsupported code when a messages[] envelope is present, so it is never stronger than either register). Version-locks re-verified: VAL-001/002/003/004 pin exact HTTP statuses only in the 01-era registers (overview.md#L1032-L1033); the 04-08 register replaced them with the messages[] envelope MUSTs (ERR-028/029/030, covered by the 04-08 ERR checks) plus MAY-level codes (ERR-008), and some outcomes map to 200-with-envelope (NEG-002, CAT-019/020) \u2014 running them at 04-08 would assert an unpinned status (false-deviation generator), so versions=(2026-01-11,2026-01-23). Same grounds for VAL-006 (engine twin), ORD-012/013 event-envelope webhook checks (04-08 renumbered those ids onto order-data auth; the reference delivers the 04-08 full-order-entity contract, covered by validate_webhook_reference + webhook.order_created_full_entity). DISC-013 and NEG-015 have NO 04-08 row (profile-version duty is schema-anchored: ucp.json $defs.base requires version, graded by DISC-000) -> req_ids_map 04-08 -> [] anchors. All three renumbered ids were ALREADY covered+signed at 04-08 by their 04-08-native checks; this batch records the re-verification that the version-adaptive merchant/engine contributors grade the same clauses. Every touched check re-proven clean-pass + kill_safe on the goldens it now claims (flower 04-08, controlled 04-08/01-23/01-11), with the served-version gate itself mutant-proven by validate_version_scope.py.",
+   "ids": {
+    "2026-04-08": [
+     "CHK-048",
+     "DISC-005",
+     "NEG-001"
+    ]
+   }
   }
  ]
 }

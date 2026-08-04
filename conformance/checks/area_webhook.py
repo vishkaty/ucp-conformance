@@ -67,7 +67,19 @@ def chk_order_placed(r):  # ORD-012: order_placed event delivered, references th
 
 _MUT = ["drop:events", "set:events=[]", "corrupt-json", "empty"]
 
+# versions= (in addition to the module VERSIONS marker, which only scopes coverage
+# attribution): these checks encode the 01-era order_placed/order_shipped EVENT-
+# ENVELOPE semantics. The 2026-04-08 registers renumbered ORD-012/013 onto DIFFERENT
+# requirements (order-data auth), and the pinned reference now implements the 04-08
+# webhook contract — the FULL order entity as the delivery body, no event_type
+# (observed 2026-08-04; samples#140). These checks therefore CANNOT clean-pass
+# against what the reference implements; the served-version gate skips them there
+# instead of reporting false deviations/UNSAFE. The 04-08 webhook contract is
+# kill-validated by validate_webhook_reference.py (suite gate `webhook-reference`)
+# and the merchant check webhook.order_created_full_entity.
 CHECKS = [
-    Check("webhook.event_stream", ["ORD-012", "ORD-013"], "MUST", f_webhook_flow, chk_stream, _MUT),
-    Check("webhook.order_placed", ["ORD-012"], "MUST", f_webhook_flow, chk_order_placed, _MUT),
+    Check("webhook.event_stream", ["ORD-012", "ORD-013"], "MUST", f_webhook_flow, chk_stream,
+          _MUT, versions=VERSIONS),
+    Check("webhook.order_placed", ["ORD-012"], "MUST", f_webhook_flow, chk_order_placed,
+          _MUT, versions=VERSIONS),
 ]
