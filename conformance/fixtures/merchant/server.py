@@ -142,11 +142,14 @@ ESCALATE_TOKEN = "escalate_token"
 # the RESPONSE value is the authoritative, possibly narrower, set).
 PAYMENT_HANDLER_KEY = "dev.spck.tokenpay"
 PAYMENT_HANDLER_ID = "spck_tokenpay"
-# PAY-015 (04-08): a second, CONTEXT-SENSITIVE handler. overview.md Dynamic
-# Filtering: "Businesses MUST filter the handlers list based on the context of
-# the cart (e.g., removing BNPL for subscription items)". The fixture's stand-in
-# rule: gift-card pay is not offered for baskets containing the seeded excluded
-# product (a stable, wire-drivable context distinction). 2026-04-08 only.
+# PAY-015 (04-08) / PAY-012 (01-era): a second, CONTEXT-SENSITIVE handler.
+# overview.md Dynamic Filtering: "Businesses MUST filter the handlers list based
+# on the context of the cart (e.g., removing BNPL for subscription items)". The
+# fixture's stand-in rule: gift-card pay is not offered for baskets containing the
+# seeded excluded product (a stable, wire-drivable context distinction). The
+# available_instruments handler shape is served at 2026-04-08 and 2026-01-23; the
+# 2026-01-11 payment shape (config_schema/instrument_schemas) is served by
+# gift_handler_01_11() below. The filter is identical at every version.
 GIFT_HANDLER_KEY = "dev.spck.giftpay"
 GIFT_HANDLER_ID = "spck_giftpay"
 GIFT_EXCLUDED_PRODUCTS = {"kettle_copper"}
@@ -169,7 +172,7 @@ def payment_handlers_registry(response=False, context_items=None):
         "schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
         "available_instruments": [{"type": "card", "constraints": {"brands": brands}}],
     }]}
-    if VERSION == "2026-04-08" and not (
+    if VERSION in ("2026-04-08", "2026-01-23") and not (
             context_items and GIFT_EXCLUDED_PRODUCTS & set(context_items)):
         reg[GIFT_HANDLER_KEY] = [{
             "id": GIFT_HANDLER_ID, "version": VERSION,
@@ -1171,6 +1174,24 @@ def payment_handler_01era():
                 "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json"],
             "config": {}}
 
+def gift_handler_01_11():
+    """The 2026-01-11-shaped context-sensitive gift handler (PAY-012 dynamic
+    filtering), payment_handler.json required fields in the 01-11 shape."""
+    return {"id": GIFT_HANDLER_ID, "name": GIFT_HANDLER_KEY, "version": VERSION,
+            "spec": "https://spck.dev/fixture/handlers/giftpay",
+            "config_schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+            "instrument_schemas": [
+                "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json"],
+            "config": {}}
+
+def handlers_01_11(context_items=None):
+    """The 2026-01-11 payment.handlers list: the base handler always, plus the
+    context-sensitive gift handler UNLESS the cart context excludes it (PAY-012)."""
+    hs = [payment_handler_01era()]
+    if not (context_items and GIFT_EXCLUDED_PRODUCTS & set(context_items)):
+        hs.append(gift_handler_01_11())
+    return hs
+
 def profile_01_11(base):
     """The 2026-01-11 discovery document (overview.md 2026-01-11 example): the UCP
     metadata nests under `ucp` (validated against ucp.json $defs/discovery_profile:
@@ -1184,7 +1205,7 @@ def profile_01_11(base):
                         "rest": {"schema": "https://ucp.dev/services/shopping/rest.openapi.json",
                                  "endpoint": base}}},
                     "capabilities": [_cap_meta(n, e) for n, e in _CAPS_01_ERA]},
-            "payment": {"handlers": [payment_handler_01era()]},
+            "payment": {"handlers": handlers_01_11()},
             # order.md@01-era webhook signing: "a key from their signing_keys array,
             # published in /.well-known/ucp" — top-level sibling, the same placement
             # every other served version uses (integration fix: the 01-11 renderer
@@ -1949,8 +1970,14 @@ def checkout_body(sess):
             out["buyer"] = sess["buyer"]
     if VERSION == "2026-01-11":
         # 2026-01-11 checkout.json REQUIRES the root `payment` object on responses
-        # (payment.json: handlers[] of shopping/types/payment_handler.json entries)
-        out["payment"] = {"handlers": [payment_handler_01era()]}
+        # (payment.json: handlers[] of shopping/types/payment_handler.json entries).
+        # PAY-012: the handlers list is DYNAMICALLY filtered by the cart's context
+        # (the context-sensitive gift handler is dropped for excluded baskets).
+        ctx_items = set()
+        for li in sess.get("line_items") or []:
+            iid = (li.get("item") or {}).get("id")
+            ctx_items.add(BY_VARIANT[iid]["id"] if iid in BY_VARIANT else iid)
+        out["payment"] = {"handlers": handlers_01_11(context_items=ctx_items)}
     if sess.get("order"):
         out["order"] = sess["order"]        # order_confirmation: id + permalink_url
     return out
@@ -2089,6 +2116,32 @@ def create_checkout(body, headers=None):
                          "continue_url": CONTINUE_URL}
         if active is not None:
             sess["active_caps"] = sorted(active)
+    else:
+        # NEG-010/011 (overview.md "Business Requirements" + "Intersection
+        # Algorithm", 2026-01-11/01-23): compute the platform/business capability
+        # INTERSECTION and EXCLUDE any extension whose parent capability is not in
+        # it. When the intersection EMPTIES — disjoint sets (NEG-010) or an orphan
+        # extension whose parent is absent (NEG-011) — no compatible capability
+        # remains and the business MUST return an error response. The shape is the
+        # pinned 01-era "Error Handling" example (overview.md: a top-level
+        # `status: requires_escalation` + a `messages[]` entry of type `error`), and
+        # NO checkout resource (no `id`) is returned — the business did not create a
+        # session. HTTP 200 with the error body: the no-intersection case is an
+        # in-envelope business outcome, not a transport error (AMB-006). No
+        # 04-08-only concept (`ucp.status`, a `capabilities_incompatible` register
+        # code) is asserted by the graders; `code` here is a business-chosen
+        # descriptor, not a spec-pinned value. The positive-narrowing case proceeds
+        # normally: 01-era checkout responses render a fixed checkout envelope, so
+        # only the failure outcome is observable here (the narrowed-caps declaration
+        # is a 2026-04-08 response feature, OVR-005).
+        active = negotiated_active(headers.get("UCP-Agent"))
+        if active is not None and not active:
+            return 200, {"status": "requires_escalation",
+                         "messages": [{
+                             "type": "error", "code": "capabilities_incompatible",
+                             "message": "No compatible capabilities remain after "
+                                        "intersection and extension validation",
+                             "severity": "requires_buyer_input"}]}
     # WEBHOOK/EVENTS area (every served version): remember where THIS platform
     # wants order events (order.md Webhook URL Configuration — the platform
     # profile's order capability config, at 01-era and 04-08 alike; loopback-only
