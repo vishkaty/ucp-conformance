@@ -34,10 +34,17 @@ _SUBMITTED_TOKEN = core._PAYMENT["payment"]["instruments"][0]["credential"]["tok
 # ---- PAY-002: advertised payment handlers each carry an id ------------------
 def chk_handler_ids(r):
     """Discovery `payment_handlers` MUST be a non-empty map of handler groups, and
-    every handler declaration in every group MUST include an `id`."""
-    if r.status != 200 or not isinstance(r.json, dict):
+    every handler declaration in every group MUST include an `id`. Envelope-
+    tolerant: the 2026-04-08 reference nests the profile under a top-level `ucp`
+    member, 01-era servers serve it flat — read through both (core._doc), with
+    `ucp?.` mutation paths so every kill lands on the field read in BOTH shapes
+    (validate_version_scope.py proves per-shape clean-pass + kill)."""
+    if r.status != 200:
         return DEVIATION
-    ph = r.json.get("payment_handlers")
+    d = core._doc(r)
+    if not isinstance(d, dict):
+        return DEVIATION
+    ph = d.get("payment_handlers")
     if not isinstance(ph, dict) or not ph:
         return DEVIATION
     for group in ph.values():
@@ -76,7 +83,7 @@ CHECKS = [
     # so the citation cannot leak to a different requirement at any version.
     Check("payment.handler_ids_advertised", ["PAY-002"], "MUST",
           core._discovery, chk_handler_ids,
-          ["status:500", "drop:payment_handlers", "set:payment_handlers={}",
+          ["status:500", "drop:ucp?.payment_handlers", "set:ucp?.payment_handlers={}",
            "corrupt-json", "empty"]),
     Check("payment.credential_non_echo", ["PAY-009"], "MUST NOT",
           f_complete, chk_no_credential_echo,

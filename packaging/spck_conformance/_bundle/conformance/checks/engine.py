@@ -203,6 +203,29 @@ def run_check(chk, base):
     return res, {"clean": clean, "kills": f"{kills}/{len(chk.mutations)}",
                  "kill_safe": kill_safe, "survivors": survivors}
 
+# ---- served-version gate ----------------------------------------------------
+def served_version(base):
+    """The spec version the TARGET SERVER actually speaks, read from its discovery
+    profile (nested `ucp.version` — the 2026-04-08 generation — or flat `version`,
+    the 01-era shape). Returns None when undetectable; callers FAIL CLOSED on None
+    (run every check — a broken detector must surface as visible deviations, never
+    as silent green). Validated, mutant included, by validate_version_scope.py."""
+    r = fetch(base, "/.well-known/ucp")
+    if r.status != 200 or not isinstance(r.json, dict):
+        return None
+    doc = r.json.get("ucp", r.json)
+    v = doc.get("version") if isinstance(doc, dict) else None
+    return v if isinstance(v, str) and v else None
+
+
+def version_applicable(chk, served):
+    """False only when the check declares a `versions` scope AND the served version
+    is KNOWN and outside it. A check whose citations are version-scoped (the
+    2026-04-08 registers renumbered/dropped many 01-era ids) must not be graded —
+    or reported UNSAFE — against a server speaking a version it never claimed."""
+    return not (chk.versions and served and served not in chk.versions)
+
+
 # ---- inscope MUSTs from the register (coverage denominator) -----------------
 def inscope_musts(version, transports=("rest", "any")):
     ids = set()
@@ -214,8 +237,23 @@ def inscope_musts(version, transports=("rest", "any")):
     return ids
 
 def run_report(checks, base, version, scope_stamp, disclaimer, transports=("rest", "any")):
+    served = served_version(base)
     all_results, details = [], []
     for chk in checks:
+        if not version_applicable(chk, served):
+            # The check's citations are scoped to versions this server does not
+            # speak. Grading it here would manufacture a false deviation on a
+            # known-good server (and pollute the UNSAFE list); its requirements
+            # are honestly not-tested by THIS run. kill_safe=None (not False):
+            # the check did not run, so it is out of scope — not unsound.
+            all_results += [CheckResult(rid, chk.keyword, "not-tested")
+                            for rid in chk.req_ids]
+            details.append((chk, {
+                "clean": f"version-scoped ({','.join(chk.versions)})",
+                "kills": "-", "kill_safe": None, "version_skip": True,
+                "reason": f"server speaks {served}; check scoped to "
+                          f"{','.join(chk.versions)}"}))
+            continue
         res, det = run_check(chk, base)
         all_results += res
         details.append((chk, det))

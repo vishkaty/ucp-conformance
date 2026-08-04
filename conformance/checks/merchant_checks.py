@@ -988,10 +988,26 @@ def p_disc_unknown(r, ctx):
 
 # ---- the merchant-agnostic check set (2026-01-23 / 2026-04-08 shared core) ---
 CHECKS = [
+    # DISC-013 is a 2026-01-11/01-23 register row only ("profile MUST return 200 OK
+    # with the expected version..."). The 2026-04-08 register dropped the id, but
+    # the duty survives schema-anchored: ucp.json@a2d8bf0b $defs.base requires
+    # `version`, graded normatively by discovery.profile_schema (DISC-000). Keep
+    # the probe running at 04-08 as a soundness anchor (still must clean-pass +
+    # kill on 04-08 goldens) while attributing nothing there (04-08 scoping pass,
+    # 2026-08-04).
     MCheck("discovery.version", ["DISC-013"], "MUST", profile_resp, p_version,
-           ["drop:version", "corrupt-json", "empty"]),
+           ["drop:version", "corrupt-json", "empty"],
+           req_ids_map={"2026-04-08": []}),
+    # DISC-007@01-era ("A service endpoint MUST be a valid URL with scheme (https)")
+    # is textually the SAME rule the 2026-04-08 register renumbers to DISC-005
+    # ("service endpoint MUST be a valid HTTPS URL", overview.md#L147). transport=
+    # "rest" already scopes this to servers that DECLARE a REST binding, so at
+    # 04-08 it grades DISC-005 as applied to the declared rest endpoint — it can
+    # never demand a REST transport of an MCP-only merchant (04-08 scoping pass,
+    # 2026-08-04).
     MCheck("discovery.rest_endpoint", ["DISC-007"], "MUST", profile_resp, p_rest_endpoint,
-           ["drop:services", "set:services={}", "corrupt-json"], transport="rest"),
+           ["drop:services", "set:services={}", "corrupt-json"], transport="rest",
+           req_ids_map={"2026-04-08": ["DISC-005"]}),
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"],
            req_ids_map={"2026-04-08": []}),
@@ -1027,18 +1043,48 @@ CHECKS = [
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
            req_ids_map={"2026-04-08": ["CHK-038"]}),
+    # NEG-015 ("platform version <= business version MUST be processed") is a
+    # 2026-01-11/01-23 register row; the 2026-04-08 negotiation rows (NEG-001..005)
+    # register only the ERROR mappings — the positive case has no 04-08 id. The
+    # probe is a plain valid create carrying an explicit compatible version, so it
+    # cannot false-flag a conformant 04-08 server (refusing it would violate
+    # CHK-018 anyway): keep it running everywhere as a live anchor, attribute
+    # nothing at 04-08 (04-08 scoping pass, 2026-08-04).
     MCheck("negotiation.compatible_version_processed", ["NEG-015"], "MUST", neg_compatible_version_resp, p_create_ok,
            ["status:400", "status:500", "drop:id", "corrupt-json"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": []}),
+    # VAL-001/002/003/004 are 2026-01-11/01-23 rows pinning EXACT HTTP statuses
+    # (overview.md#L1032-L1033: 400 for stock/product validation, 402 for a failing
+    # payment token). The 2026-04-08 register carries NO equivalent MUSTs: it
+    # replaced status-pinned validation with the messages[] error envelope
+    # (ERR-028/029/030, covered by the 04-08 ERR checks) plus MAY-level error
+    # codes (ERR-008: out_of_stock, payment_failed, ... are EXAMPLE values), and
+    # some 04-08 outcomes legitimately map to HTTP 200-with-error-envelope
+    # (NEG-002, CAT-019/020). Running these against a 04-08 server would assert a
+    # status the spec no longer pins — a false-deviation generator against a
+    # conformant merchant — so they are version-locked, not mapped
+    # (04-08 scoping pass, 2026-08-04; cf. validation.error_body/VAL-006 precedent).
     MCheck("validation.overstock_update_400", ["VAL-002"], "MUST", val_overstock_update_resp, p_400,
            ["status:200", "status:201", "status:409", "status:500", "status:402"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           versions=("2026-01-11", "2026-01-23")),
     MCheck("validation.nonexistent_product", ["VAL-003"], "MUST", nonexistent_resp, p_4xx,
            ["status:200", "status:201"],
-           capability="dev.ucp.shopping.checkout", transport="rest"),
+           capability="dev.ucp.shopping.checkout", transport="rest",
+           versions=("2026-01-11", "2026-01-23")),
+    # IDM-004@01-era ("MUST return 409 Conflict if the key is reused with different
+    # parameters", checkout-rest.md#L1219) is the SAME rule the 2026-04-08 register
+    # renumbers into CHK-048 ("...return 409 if reused with different parameters",
+    # checkout-rest.md#L1242) — verbatim-equal conflict clause, so the check runs
+    # at every version and attributes the renumbered id at 04-08. The 04-08
+    # receiver tier's checkout.idempotency_conflict grades the same row against
+    # the controlled fixture; this adds the merchant-agnostic contributor
+    # (04-08 scoping pass, 2026-08-04).
     MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", idem_conflict_resp, p_409,
            ["status:200", "status:201"],
-           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
+           req_ids_map={"2026-04-08": ["CHK-048"]}),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
@@ -1087,11 +1133,15 @@ CHECKS = [
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("complete_payment",), transport="rest",
            req_ids_map={"2026-04-08": ["ORD-005"]}),
+    # VAL-004/VAL-001: version-locked to the 01-era registers that pin their HTTP
+    # statuses — see the VAL-002/003 comment above for the full 04-08 grounding.
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
            ["status:200", "status:201"], needs=("product",),
-           cfg_needs=("fail_payment",), transport="rest"),
+           cfg_needs=("fail_payment",), transport="rest",
+           versions=("2026-01-11", "2026-01-23")),
     MCheck("validation.out_of_stock", ["VAL-001"], "MUST", out_of_stock_resp, p_4xx,
-           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest"),
+           ["status:200", "status:201"], cfg_needs=("out_of_stock_id",), transport="rest",
+           versions=("2026-01-11", "2026-01-23")),
     # VAL-006 is a 2026-01-11/01-23 requirement (a 400 error body with a populated
     # string `detail`). 2026-04-08 replaced this with the `messages[]` error envelope,
     # covered separately by the ERR-* checks in area_04_08_error.py (error.response_

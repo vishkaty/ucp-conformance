@@ -89,15 +89,34 @@ def chk_reverse_domain_names(r):
     return CLEAN if all(_RDN.match(n) for n in names) else DEVIATION
 
 
-# ---- NEG-016: incompatible (higher) platform version -> error --------------
+# ---- NEG-016 / NEG-001@04-08: incompatible (higher) platform version -> error
 def f_incompatible_version(base):
     h = core._ucp_headers()
     h["UCP-Agent"] = 'profile="https://example.com/platform"; version="2099-01-01"'
     return fetch(base, "/checkout-sessions", "POST", core._create_payload(), h)
 
 
-def chk_version_unsupported_400(r):   # NEG-016
-    return CLEAN if r.status == 400 else DEVIATION
+def chk_version_unsupported_error(r):
+    """NEG-016 (01-era, overview.md#L1157): "the business MUST return
+    version_unsupported error" — the register never pins an HTTP status. The
+    2026-04-08 register renumbers the duty to NEG-001 and maps it to HTTP 422
+    (overview.md#L699); the official 01-era suite asserted 400 (AMB-001: the spec
+    is authoritative — accept both, they are each a 4xx). The old check asserted
+    exactly 400, which was STRONGER than the cited register text and deviated on
+    the conformant 04-08 reference (422 + VERSION_UNSUPPORTED envelope).
+    Assert what the register asserts: an HTTP 4xx, and — when a messages[] error
+    envelope is present — an error message whose code names version_unsupported
+    (case-insensitive; the pinned reference emits "VERSION_UNSUPPORTED")."""
+    if not (400 <= r.status < 500):
+        return DEVIATION
+    j = r.json if isinstance(r.json, dict) else {}
+    msgs = j.get("messages")
+    if isinstance(msgs, list) and msgs:
+        return CLEAN if any(
+            isinstance(m, dict) and m.get("type") == "error"
+            and str(m.get("code", "")).lower() == "version_unsupported"
+            for m in msgs) else DEVIATION
+    return CLEAN
 
 
 CHECKS = [
@@ -121,11 +140,24 @@ CHECKS = [
           core._discovery, chk_reverse_domain_names,
           ["status:500", "drop:services", "set:services={}",
            "drop:capabilities", "set:capabilities={}", "corrupt-json"],
-          # DISC-001@2026-04-08 names a DIFFERENT requirement (profile over HTTPS)
+          # DISC-001@2026-04-08 names a DIFFERENT requirement (profile over HTTPS).
+          # The 04-08 register carries the naming rule as OVR-001 (needs-receiver);
+          # there the duty is graded structurally by the profile-schema check
+          # (DISC-000). versions= makes the runner's served-version gate skip this
+          # against a 2026-04-08 server instead of reporting a false deviation/
+          # UNSAFE; it stays live for 01-era targets and is kill-validated against
+          # the controlled 01-23/01-11 goldens via its merchant twin
+          # (discovery.reverse_domain_names).
           versions=("2026-01-11", "2026-01-23")),
-    Check("negotiation.version_unsupported_400", ["NEG-016"], "MUST",
-          f_incompatible_version, chk_version_unsupported_400,
-          ["status:200", "status:201"]),
+    Check("negotiation.version_unsupported_error", ["NEG-016"], "MUST",
+          f_incompatible_version, chk_version_unsupported_error,
+          # kills: a 2xx (the requirement is an ERROR), and a mangled error code on
+          # the captured envelope (the requirement is THIS error). No drop:messages
+          # mutant on purpose: an 01-era body legitimately carries no messages[].
+          ["status:200", "status:201", 'set:messages.0.code="some_other_error"'],
+          # NEG-016@01-era == NEG-001@2026-04-08 (renumbered; 422 mapping there) —
+          # see chk_version_unsupported_error's citation trail + AMB-001.
+          req_ids_map={"2026-04-08": ["NEG-001"]}),
 ]
 
 
