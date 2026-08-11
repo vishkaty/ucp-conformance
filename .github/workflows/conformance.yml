@@ -7,7 +7,11 @@ name: conformance-selftest
 
 on:
   push:
-    branches: [main, "feat/**", "fix/**"]
+    # lane/** and lane-* are the working lane-branch conventions (lane-receiver,
+    # lane-fuzz, lane/p0-*, lane/p1-*) — included so lane branches run the selftest
+    # BEFORE they merge to main. Without this a red lane can reach main unseen
+    # (the 08-04 incident); the paths filter below still applies to all of them.
+    branches: [main, "feat/**", "fix/**", "lane/**", "lane-*"]
     # public/** is included because the `coverage` gate cross-checks the published
     # coverage.json and the site's advertised check counts against reality.
     # packaging/** is included because the bundle-drift step + package-agent gate validate it.
