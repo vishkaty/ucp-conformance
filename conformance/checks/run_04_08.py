@@ -10,26 +10,32 @@ on the strength of it): 0 = every check clean-pass AND kill-safe; 1 = any check
 unsound (deviating fixture or surviving mutant — our bug, must not ship);
 2 = schema oracle unavailable (honest skip, mirrors the schema/fixture gates).
 """
-import sys, pathlib, importlib, glob
+import sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 import v2026_04_08 as core            # noqa: E402
 from engine import run_report         # noqa: E402
 from verdict_gate import INCONCLUSIVE  # noqa: E402
+from checkset_manifest import load_area_checks, load_manifest, AreaManifestError  # noqa: E402
+
+MANIFEST = HERE / "area_manifest_04_08.json"
 
 def collect():
-    checks = list(core.CHECKS)
-    for f in sorted(glob.glob(str(HERE / "area_04_08_*.py"))):
-        name = pathlib.Path(f).stem
-        try:
-            checks += list(getattr(importlib.import_module(name), "CHECKS", []))
-        except Exception as e:
-            print(f"(area {name} not loaded: {e})", file=sys.stderr)
-    return checks
+    """Load core + every manifest-listed area_04_08_* module, STRICTLY. Raises
+    AreaManifestError (main() turns that into a red gate) if any module is missing,
+    unimportable, or count-drifted — a broken area module must never silently vanish
+    from the run while the gate stays green (P0-3)."""
+    return load_area_checks(HERE, "area_04_08_*.py", load_manifest(MANIFEST), core.CHECKS)
 
 def main():
-    checks = collect()
+    try:
+        checks = collect()
+    except AreaManifestError as e:
+        # A dropped/broken/drifted area module is an integrity failure, not a skip:
+        # its checks would silently stop running while the matrix still claims coverage.
+        print(f"AREA MANIFEST — gate RED: {e}")
+        return 1
     rep, details = run_report(checks, "fixtures://", "2026-04-08",
                               core.SCOPE_STAMP, core.DISCLAIMER)
     print(f"fixture-based checks: {len(checks)}\n")

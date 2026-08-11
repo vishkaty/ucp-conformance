@@ -1,0 +1,10 @@
+{
+  "_about": "The ONLY suite-01-23 checks permitted to version-skip against the golden. The golden was re-pinned to speak 2026-04-08, so a check whose citations are scoped `versions=(...01-11/01-23...)` is honestly not-run against it — but ONLY these are; each is live-graded against a real 01-23 speaker elsewhere (the merchant-ctrl-01-23 gate, run_suite.py). verdict_exit reds if ANY OTHER check version-skips, so skip-inflation can never silently hollow the gate. Adding a 6th scoped check is a deliberate one-line data edit here (validate_version_scope.py pins the skip MECHANISM; this pins its POPULATION).",
+  "allowed_version_skips": [
+    "negotiation.reverse_domain_names",
+    "payment.credential_non_echo",
+    "validation.error_detail_400",
+    "webhook.event_stream",
+    "webhook.order_placed"
+  ]
+}

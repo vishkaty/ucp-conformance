@@ -1,0 +1,16 @@
+{
+  "_about": "MANIFEST LOCK for the suite-04-08 gate (run_04_08.py). Every checks/area_04_08_*.py module that MUST be loaded, with its exact CHECKS count. checkset_manifest.py raises AreaManifestError \u2014 reddening suite-04-08 \u2014 if a module is missing, unimportable, count-drifted, or an on-disk area module is absent here. Change deliberately (TEST-INTEGRITY.md: coverage is a ratchet); adding/removing a check updates the count here in the same commit as the code + coverage-lock.",
+  "core_module": "v2026_04_08",
+  "core_checks": 1,
+  "areas": {
+    "area_04_08_ap2": 3,
+    "area_04_08_cart": 5,
+    "area_04_08_catalog": 4,
+    "area_04_08_checkout": 6,
+    "area_04_08_discount": 6,
+    "area_04_08_error": 3,
+    "area_04_08_fulfillment": 5,
+    "area_04_08_order": 4
+  },
+  "expected_total": 37
+}
