@@ -132,6 +132,14 @@ def gates(server):
                              "--target-name", "flower-shop-official-sample",
                              "--config", str(ROOT / "conformance" / "ci" / "differential_flower.config.json")),
          "golden", (2,)),
+        # the differential ALLOWLIST is self-expiring like the defect registers: an entry
+        # whose silenced (target, check) deviation stops reproducing on a PROBED target is
+        # STALE and reds the gate (so a documented silence can't outlive its bug and mask a
+        # future regression of the same pair). Hermetic kill-test asserts the classifier
+        # catches a probed-but-vanished deviation, keeps a reproducing one, and never
+        # falsely expires an entry for an un-probed target. No network/golden.
+        ("differential-selftest", _py(ROOT / "conformance" / "ci" / "differential.py", "--selftest"),
+         None, ()),
         ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
         # SCHEMA-GUIDED FUZZ LANE: enumerate the boundary/constraint points of the pinned
         # 04-08 request schemas and fire one payload per point at the golden, classifying
