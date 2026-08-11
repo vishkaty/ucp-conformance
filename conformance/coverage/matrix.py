@@ -87,9 +87,42 @@ def _file_targets(path):
 # before — they are never import-attempted here.
 _IMPORT_FAILURES = []
 
+# A manifest-declared CORE checkset module (v2026_01_23 / v2026_04_08) that imports
+# FINE but exports fewer CHECKS than its committed count — in particular ZERO, an
+# emptied core module whose Check(...) citations are still textually present — used to
+# slip past matrix entirely: _module_checks returned (None, mod) for the empty CHECKS,
+# coverage_map fell back to the TEXT SCAN, and every id still bucketed as CHECK while the
+# 12 (01-23) / 1 (04-08) live kill-tests no longer ran (P0-4, the core-module twin of the
+# P0-3 area/import hole). We still text-scan (so the report renders), but RECORD the drift
+# and treat it as a gate FAILURE. The expected counts come from the committed checkset
+# manifests (checks/area_manifest_*.json) — never hardcoded — so adding a real core check
+# is a one-line manifest bump, not a silent matrix red.
+_CORE_CHECKSET_FAILURES = []
+_CORE_EXPECTED = {}          # {core_module_stem: expected len(CHECKS)}, refreshed per scan
+
 
 def _reset_import_failures():
     _IMPORT_FAILURES.clear()
+    _CORE_CHECKSET_FAILURES.clear()
+    _CORE_EXPECTED.clear()
+    _CORE_EXPECTED.update(_core_expected())
+
+
+def _core_expected():
+    """{core_module_stem: core_checks} declared by the committed checkset manifests
+    (checks/area_manifest_*.json). The single source of the expected core counts, so
+    matrix never hardcodes them — a deliberate manifest bump is the only way to move
+    the number. Tolerant of a manifest without the field (skipped)."""
+    out = {}
+    for mf in sorted(glob.glob(os.path.join(CONF, "checks", "area_manifest_*.json"))):
+        try:
+            d = json.load(open(mf))
+        except Exception:                           # noqa: BLE001 — a broken manifest is caught by its own gate
+            continue
+        stem, cnt = d.get("core_module"), d.get("core_checks")
+        if stem is not None and cnt is not None:
+            out[stem] = cnt
+    return out
 
 
 def import_failures():
@@ -99,6 +132,16 @@ def import_failures():
 
 def has_import_failures():
     return bool(_IMPORT_FAILURES)
+
+
+def core_checkset_failures():
+    """[(stem, expected, got), ...]: manifest-declared core modules that imported but
+    drifted from their committed CHECKS count in the most recent coverage_map() scan."""
+    return list(_CORE_CHECKSET_FAILURES)
+
+
+def has_core_checkset_failures():
+    return bool(_CORE_CHECKSET_FAILURES)
 
 
 def _module_checks(path):
@@ -122,6 +165,18 @@ def _module_checks(path):
         for attr in sorted(dir(mod)):
             if attr.startswith("CHECKS") or attr.startswith("RESOLVE_CHECKS"):
                 checks += list(getattr(mod, attr) or [])
+        # CORE checkset integrity (P0-4): a manifest-declared core module that imported
+        # fine but whose primary CHECKS list drifted from its committed count — most
+        # dangerously EMPTIED (its ids still text-scan as CHECK) — is a gate FAILURE, the
+        # core-module twin of the recorded import failure above. Counts the same `CHECKS`
+        # attribute the runners load (v2026_xx.CHECKS) against the committed manifest.
+        exp = _CORE_EXPECTED.get(stem)
+        if exp is not None:
+            n_core = len(list(getattr(mod, "CHECKS", []) or []))
+            if n_core != exp:
+                _CORE_CHECKSET_FAILURES.append((stem, exp, n_core))
+                print(f"(matrix: core checkset {stem} exports {n_core} CHECKS, manifest "
+                      f"expects {exp} — GATE FAILURE, not a text-scan shrug)", file=sys.stderr)
         return (checks or None), mod
     except Exception as e:
         _IMPORT_FAILURES.append((stem, repr(e)))
@@ -372,6 +427,16 @@ def main():
               "yet their ids still bucket as CHECK):")
         for stem, err in import_failures():
             print(f"    {stem}: {err}")
+        failed = True
+
+    # A core checkset module that imported but exports the wrong CHECKS count (emptied /
+    # shrunk / grown) is the same integrity failure as an import failure: its live
+    # kill-tests stopped running while its ids still bucket as CHECK via the text scan.
+    if has_core_checkset_failures():
+        print("\n✗ core checkset module(s) drifted from the committed manifest count "
+              "(their kill-tests are NOT running, yet their ids still bucket as CHECK):")
+        for stem, exp, got in core_checkset_failures():
+            print(f"    {stem}: exports {got} CHECKS, manifest expects {exp}")
         failed = True
 
     if failed:

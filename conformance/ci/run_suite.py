@@ -177,6 +177,13 @@ def gates(server):
         # module) AND matrix.py (a checks/ import failure is a gate FAILURE, not a text-scan
         # shrug). Hermetic; each case carries the mutant a weaker guard would miss.
         ("area-loading", _py(SELF / "validate_area_module_loading.py", "--selftest"), None, ()),
+        # P0-4: the AREA lock (above) did not cover the CORE checkset count, so an emptied
+        # v2026_01_23.CHECKS (12) / v2026_04_08.CHECKS (1) left the areas running and every
+        # gate green while the core kill-tests vanished. Pins checkset_manifest's core_checks/
+        # expected_total lock (run_01_23/run_04_08 red on a drifted core) AND matrix.py (a
+        # core module that imports fine but exports the wrong CHECKS count is a gate FAILURE,
+        # not a text-scan shrug). Hermetic; each case carries the mutant a weaker guard misses.
+        ("core-checkset", _py(SELF / "validate_core_checkset_count.py", "--selftest"), None, ()),
         # python-sdk#57/#59 regression watch: the pinned PyPI release must enforce the
         # contains/uniqueItems validators, and the probe must go red on 0.4.3 (the real
         # predecessor release without them) so it cannot pass vacuously.
