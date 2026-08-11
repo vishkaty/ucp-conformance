@@ -77,9 +77,35 @@ def _file_targets(path):
     return sorted(set(targets)) or list(VERSIONS)
 
 
+# checks/ modules that FAILED to import during the current scan. A checks/ module that
+# won't import silently drops its live kill-tests from the run, yet _module_checks used
+# to fall back to a TEXT-SCAN of its citations so the ids still bucketed as CHECK — the
+# matrix advertising coverage that no longer runs (P0-3). We still text-scan (so the
+# report renders), but we RECORD the failure and treat it as a gate FAILURE: matrix main
+# reds, and has_import_failures() lets any consumer refuse a coverage number built over a
+# module whose checks vanished. selfcheck/ files are not check-list modules, so — as
+# before — they are never import-attempted here.
+_IMPORT_FAILURES = []
+
+
+def _reset_import_failures():
+    _IMPORT_FAILURES.clear()
+
+
+def import_failures():
+    """[(stem, repr(exc)), ...] recorded in the most recent coverage_map() scan."""
+    return list(_IMPORT_FAILURES)
+
+
+def has_import_failures():
+    return bool(_IMPORT_FAILURES)
+
+
 def _module_checks(path):
     """Import a conformance/checks module and return its CHECKS list, or None if the
-    module has none / cannot be imported (caller falls back to the text scan)."""
+    module has none / cannot be imported (caller falls back to the text scan). An import
+    FAILURE of a checks/ module is recorded in _IMPORT_FAILURES (a gate failure), as
+    distinct from a module that simply exports no CHECKS."""
     if os.path.basename(os.path.dirname(path)) != "checks":
         return None, None
     import importlib
@@ -98,7 +124,9 @@ def _module_checks(path):
                 checks += list(getattr(mod, attr) or [])
         return (checks or None), mod
     except Exception as e:
-        print(f"(matrix: {stem} not importable — text-scan fallback: {e})", file=sys.stderr)
+        _IMPORT_FAILURES.append((stem, repr(e)))
+        print(f"(matrix: {stem} not importable — text-scan fallback + GATE FAILURE: {e})",
+              file=sys.stderr)
         return None, None
 
 
@@ -117,6 +145,7 @@ def coverage_map():
     conservative text scan of Check(/MCheck(/fixture_check( citations + file tokens.
     Either way an id only attributes where it is a real register row."""
     cov = {v: defaultdict(set) for v in VERSIONS}
+    _reset_import_failures()          # fresh per scan; enforced by main()/has_import_failures()
     # gather row ids per version so we only attribute real rows
     all_ids = {v: {r.get("id") for r in load_rows(v)} for v in VERSIONS}
     for path in check_files():
@@ -300,7 +329,7 @@ def main():
     ap.add_argument("--version", help="restrict --require to one version")
     a = ap.parse_args()
 
-    cov = covered_ids_by_version()
+    cov = covered_ids_by_version()      # populates _IMPORT_FAILURES
     exempt = load_exemptions()
     md = ["# UCP Conformance Coverage Matrix\n",
           "_Every MUST is CHECK (has a kill-rate check), EXEMPT (documented), or GAP (unaccounted)._\n"]
@@ -333,6 +362,17 @@ def main():
     if a.json:
         open(a.json, "w").write(json.dumps(export_json(), indent=1, sort_keys=False) + "\n")
         print(f"traceability export written -> {a.json}")
+
+    # A checks/ module that would not import is an integrity failure independent of gap
+    # accounting: its live kill-tests silently stopped running while its ids still
+    # bucket as CHECK here (via the text-scan fallback). Fail LOUD — a matrix that can't
+    # import a check module must not certify coverage over it (P0-3).
+    if has_import_failures():
+        print("\n✗ checks/ modules failed to import (their kill-tests are NOT running, "
+              "yet their ids still bucket as CHECK):")
+        for stem, err in import_failures():
+            print(f"    {stem}: {err}")
+        failed = True
 
     if failed:
         print("\nMATRIX GATE: FAIL"); sys.exit(1)

@@ -1,0 +1,16 @@
+{
+  "_about": "MANIFEST LOCK for the suite-01-23 gate (run_01_23.py). The 01-era area_*.py modules that MUST be loaded (EXCLUDING the area_04_08_* fixture modules, which belong to suite-04-08), with exact CHECKS counts. checkset_manifest.py raises AreaManifestError — reddening suite-01-23 — if a module is missing, unimportable, count-drifted, or an on-disk 01-era area module is absent here. Change deliberately (TEST-INTEGRITY.md: coverage is a ratchet).",
+  "core_module": "v2026_01_23",
+  "core_checks": 12,
+  "areas": {
+    "area_discount": 5,
+    "area_fulfillment": 5,
+    "area_lifecycle2": 6,
+    "area_negotiation": 6,
+    "area_order": 6,
+    "area_payment": 2,
+    "area_validation": 8,
+    "area_webhook": 2
+  },
+  "expected_total": 52
+}

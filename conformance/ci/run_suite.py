@@ -164,6 +164,19 @@ def gates(server):
         # Hermetic (stub uv, synthetic root); each case carries a mutant so the guards
         # cannot pass by being unable to fail.
         ("golden-guards", _py(ROOT / "conformance" / "ci" / "golden_boot_guards.py", "--selftest"), None, ()),
+        # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
+        # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
+        # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any
+        # unsound check / MUST deviation / rogue (non-allowlisted) version-skip / vacuous run
+        # (nothing executed), honest-skip only when the target is unreachable, green only when
+        # every executed check is a kill-safe clean-pass. Hermetic; carries the return-0 mutant.
+        ("suite-01-23-exit", _py(SELF / "validate_run_01_23_exit.py", "--selftest"), None, ()),
+        # a broken checks/area_*.py module must not silently vanish from a suite run while
+        # the gate stays green and the matrix still claims its ids (P0-3). Pins the strict
+        # manifest loader (run_01_23/run_04_08 red on a missing/unimportable/count-drifted
+        # module) AND matrix.py (a checks/ import failure is a gate FAILURE, not a text-scan
+        # shrug). Hermetic; each case carries the mutant a weaker guard would miss.
+        ("area-loading", _py(SELF / "validate_area_module_loading.py", "--selftest"), None, ()),
         # python-sdk#57/#59 regression watch: the pinned PyPI release must enforce the
         # contains/uniqueItems validators, and the probe must go red on 0.4.3 (the real
         # predecessor release without them) so it cannot pass vacuously.
