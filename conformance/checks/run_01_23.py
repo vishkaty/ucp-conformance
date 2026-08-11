@@ -19,7 +19,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import v2026_01_23 as core           # noqa: E402
 from engine import run_report        # noqa: E402
-from checkset_manifest import load_area_checks, load_manifest, AreaManifestError  # noqa: E402
+from checkset_manifest import (load_area_checks, load_manifest, load_core_count,  # noqa: E402
+                               load_expected_total, AreaManifestError)
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 from verdict_gate import INCONCLUSIVE  # noqa: E402
 
@@ -34,9 +35,15 @@ def collect():
 
     The 04-08 fixture modules (area_04_08_*) are EXCLUDED: they belong to suite-04-08,
     need the schema oracle, and would both pollute this report and red it from the leak
-    when the oracle is unavailable (they'd be INCONCLUSIVE -> not kill-safe)."""
+    when the oracle is unavailable (they'd be INCONCLUSIVE -> not kill-safe).
+
+    The CORE checkset count (core.CHECKS) is locked to the manifest's `core_checks` too
+    (P0-4): an emptied v2026_01_23.CHECKS would otherwise leave the areas running and the
+    gate green while 12 core kill-tests silently vanished."""
     return load_area_checks(HERE, "area_*.py", load_manifest(MANIFEST), core.CHECKS,
-                            exclude_prefixes=("area_04_08_",))
+                            exclude_prefixes=("area_04_08_",),
+                            expected_core=load_core_count(MANIFEST),
+                            expected_total=load_expected_total(MANIFEST))
 
 def _allowed_skips():
     return set(json.load(open(SKIP_ALLOWLIST))["allowed_version_skips"])

@@ -17,7 +17,8 @@ sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 import v2026_04_08 as core            # noqa: E402
 from engine import run_report         # noqa: E402
 from verdict_gate import INCONCLUSIVE  # noqa: E402
-from checkset_manifest import load_area_checks, load_manifest, AreaManifestError  # noqa: E402
+from checkset_manifest import (load_area_checks, load_manifest, load_core_count,  # noqa: E402
+                               load_expected_total, AreaManifestError)
 
 MANIFEST = HERE / "area_manifest_04_08.json"
 
@@ -25,8 +26,12 @@ def collect():
     """Load core + every manifest-listed area_04_08_* module, STRICTLY. Raises
     AreaManifestError (main() turns that into a red gate) if any module is missing,
     unimportable, or count-drifted — a broken area module must never silently vanish
-    from the run while the gate stays green (P0-3)."""
-    return load_area_checks(HERE, "area_04_08_*.py", load_manifest(MANIFEST), core.CHECKS)
+    from the run while the gate stays green (P0-3). The CORE checkset count (core.CHECKS)
+    is locked to the manifest's `core_checks` too (P0-4): an emptied v2026_04_08.CHECKS
+    would otherwise leave the fixture areas running and the gate green."""
+    return load_area_checks(HERE, "area_04_08_*.py", load_manifest(MANIFEST), core.CHECKS,
+                            expected_core=load_core_count(MANIFEST),
+                            expected_total=load_expected_total(MANIFEST))
 
 def main():
     try:
