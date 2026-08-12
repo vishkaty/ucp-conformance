@@ -76,3 +76,27 @@ When the draft or the reference moves, a **new keyed set** is added alongside
 this one — existing sets are never mutated. Each set stays a permanent record
 of what its pinned revisions actually produced on the wire, so implementers
 can diff behavior across draft revisions instead of guessing.
+
+This policy is **mechanized**, not aspirational: every shipped vector is
+pinned by sha256 in `conformance/selfcheck/fixtures/ap2/ARCHIVE.lock.json`
+and the `ap2-vector-archive` CI gate reds on a mutated or deleted shipped
+vector, on an addition recorded in no set, and on a draft/reference **re-pin
+that did not mint its new keyed set** — so the ratchet can only ever move one
+way.
+
+## The AP2↔UCP bridge
+
+The `ap2-bridge` CI gate tests the cross-protocol seam itself: a mandate the
+AP2 reference SDK mints over a real UCP checkout verifies under the UCP
+merchant verifier, our UCP-derived mint verifies under the AP2 reference
+verifier, and the ES256/JCS UCP-binding negatives (wrong alg, non-JCS
+canonicalization, mismatched checkout hash) are rejected. Two pinned-spec
+contradictions at that seam are encoded as **self-expiring known-seam defects**
+(`conformance/ci/known_ucp_seam_defects.json`, same mechanism as the reference
+register above): [ucp#571](https://github.com/Universal-Commerce-Protocol/ucp/issues/571)
+(ap2-mandates.md permits ES512, signatures.md defines no P-521 key form) and
+[ucp#599](https://github.com/Universal-Commerce-Protocol/ucp/issues/599)
+(the `checkout_mandate` schema pattern rejects the very `~~` serialization the
+AP2 SDK mints — including both golden wires on this page). When a re-pinned
+spec reconciles either seam, the entry goes stale-red until deleted and the
+bridge case then enforces the reconciled behavior permanently.

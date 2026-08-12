@@ -60,8 +60,22 @@ a retroactive edit of old results.
 - `sdjwt.py` (in `common/`) — our independent frozen-layer codec.
 - `gen_goldens.py` — drives the pinned reference to emit golden chains (maintainer step).
 - `frozen.py` — frozen-layer verifier + tamper mutators (always runs, our code only).
+- `nested.py` — the UCP nested-binding layer (checkout_hash identity, embedded
+  merchant_authorization, payment↔checkout binding) — our code only.
+- `mint.py` — mints reference-convention chains from our own primitives; every
+  negative is a KNOB (data), never per-case code.
+- `merchant_verify.py` — the merchant-side verification the fixture enforces with.
+- `structural.py` — the hermetic matrix cases (shapes, signature/freshness
+  negatives, receipt binding) — runs everywhere, no reference SDK.
+- `casematrix.py` — the 49-case matrix (design doc §3) as DATA: every row
+  layer-tagged (canonical / ucp-binding / reference) and bound to the executable
+  case(s) that prove it.
 - `semantic.py` — reference-backed interop cases (runs when the pinned reference is installed).
 
 Gates: `sdjwt-vs-reference` (frozen-layer byte-parity vs the reference + RFC 9901
-§5.1 vector) and `ap2-e2e` (frozen tamper cases always; reference-backed interop
-cases when available).
+§5.1 vector); `ap2-e2e` (frozen tamper cases always; reference-backed interop
+cases when available); `ap2-matrix` (matrix↔testbed consistency both ways + the
+hermetic structural tier); `ap2-vector-archive` (the additions-only golden
+archive ratchet); `ap2-bridge` (the AP2↔UCP cross-protocol seam: both
+mint/verify directions + the pinned-spec contradictions ucp#571/#599 as
+self-expiring known-seam defects).

@@ -1,0 +1,18 @@
+{
+  "_about": "The AP2 golden-vector ARCHIVE RATCHET (docs/ap2-vectors.md change policy, mechanized). Every shipped vector is pinned here by sha256 under the version-keyed set it belongs to. The archive is ADDITIONS-ONLY: a shipped vector's bytes are NEVER edited and a shipped set is never removed - when the delegate-chain draft or the pinned reference moves, a NEW keyed set is added alongside (generated at the new pin) and the old set stays as the permanent record of what its revisions actually produced on the wire, so implementers can diff behavior across draft revisions instead of guessing. validate_ap2_vector_archive.py enforces: every locked file exists byte-identical (a mutated or deleted shipped vector is RED), every vector file on disk is locked (an unrecorded addition is RED), and the CURRENT testbed pin (provenance.DRAFT + REFERENCE_SHA) has a matching set (a re-pin without minting its new set is RED - the ratchet trigger). Editing this lock to legitimize a mutation is visible in review as a hash change on a shipped set.",
+  "sets": {
+    "2026-07": {
+      "draft": "draft-gco-oauth-delegate-sd-jwt-00",
+      "reference_sha": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
+      "ucp_spec": "2026-04-08 @ a2d8bf0b",
+      "files": {
+        "checkout_chain.json": "c20dda57b59fe7c662b48ff3b7dbd57a8a9af269320737e466305cb74787629a",
+        "payment_chain.json": "54115e513cf155b8105f5b479b26bef5b5ebfa6f96856f45757a2bbaa5996c2a",
+        "nested/nested_ucp.valid.json": "894b16e1c274bce7963cd721e02a9bae6ffe203a9bee84690ae8d3d3c70921a9",
+        "nested/nested_ucp.hash_mismatch.json": "0392939fab70faea34014a40f83eb4aa883aed827626d9b56d39dbe79d83e963",
+        "nested/nested_ucp.missing_mauth.json": "9e59b741d74d64d9f27a51351ede7605bb25fe896a02db2444253e674c97490f",
+        "nested/nested_ucp.tampered_terms.json": "a858d2e632dca9db469b304d1b5f8a4910a16a1d133e42b5ac7a63eac7dfc7f4"
+      }
+    }
+  }
+}

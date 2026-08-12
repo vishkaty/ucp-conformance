@@ -125,6 +125,23 @@ def gates(server):
         # hermetically so the classifier + register hygiene hold even where the
         # reference SDK is not installed and the semantic tier itself skips.
         ("ap2-defect-register", _py(SELF / "validate_ap2_e2e.py", "--selftest"),    None, ()),
+        # P2-15: the 49-case matrix (testbed/casematrix.py) is DATA, layer-tagged
+        # and bound both ways to the executable cases; the gate also RUNS the
+        # hermetic structural tier (our frozen-standard code only, no SDK).
+        ("ap2-matrix",  _py(SELF / "validate_ap2_matrix.py"),                       None, ()),
+        ("ap2-matrix-selftest", _py(SELF / "validate_ap2_matrix.py", "--selftest"), None, ()),
+        # the golden-vector archive is ADDITIONS-ONLY (docs/ap2-vectors.md change
+        # policy, mechanized): a mutated/deleted shipped vector, an unrecorded
+        # addition, or a draft/reference re-pin without its new keyed set is RED.
+        ("ap2-vector-archive", _py(SELF / "validate_ap2_vector_archive.py"),        None, ()),
+        ("ap2-vector-archive-selftest",
+         _py(SELF / "validate_ap2_vector_archive.py", "--selftest"),                None, ()),
+        # the AP2<->UCP cross-protocol bridge: both mint/verify directions plus
+        # the pinned-spec seam contradictions (ucp#571/#599) encoded as
+        # self-expiring known-seam defects (same register mechanism as P1-9's
+        # AP2 register). Skips (rc 2) only if the vendored UCP spec is absent.
+        ("ap2-bridge",  _py(SELF / "validate_ap2_bridge.py"),                       None, (2,)),
+        ("ap2-bridge-selftest", _py(SELF / "validate_ap2_bridge.py", "--selftest"), None, (2,)),
         ("ap2-enforce", _py(SELF / "validate_ap2_enforce.py"),                      None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),

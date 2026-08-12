@@ -1,0 +1,25 @@
+{
+  "_about": "Defects at the AP2<->UCP SEAM - the cross-protocol surface neither side tests because each assumes the other: the PINNED UCP spec (SOURCES.lock.json / conformance/.vendor/ucp) contradicting what the PINNED AP2 reference SDK actually puts on the wire, or contradicting itself about the AP2 layer. Same self-expiry contract as known_ap2_reference_defects.json (shared classifier + hygiene code, validate_ap2_e2e.py): each entry names a bridge case that encodes the RECONCILED behavior as `expect`, the runner acknowledges the documented `observed` outcome LOUDLY while the pinned spec still carries the contradiction, and the entry EXPIRES by construction - the moment a re-pinned spec (or SDK) produces the reconciled outcome the entry is STALE and REDS the gate until deleted, after which the case enforces permanently. Nothing may be listed without the upstream link. These seams are SPEC-RECONCILIATION questions - which side moves is a maintainer call, so `fix_pr` records the issue thread where that call is tracked rather than a code PR.",
+  "defects": [
+    {
+      "case_id": "bridge.ucp_schema_accepts_ap2_wire",
+      "expect": "PASS",
+      "observed": "REJECT",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/ucp/issues/599",
+      "fix_pr": "https://github.com/Universal-Commerce-Protocol/ucp/issues/599 (no fix PR: whether the schema pattern widens or the SDK serialization changes is a maintainer call, tracked on the issue)",
+      "filed": "2026-07-17",
+      "spec_must": "ap2_mandate.json $defs.checkout_mandate: 'SD-JWT+kb credential in `ap2.checkout_mandate`' with pattern ^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+(~[A-Za-z0-9_-]+)*$ ; ap2-mandates.md requires the mandate to contain the full checkout - which the AP2 SDK carries on the `~~` delegate-chain wire.",
+      "evidence": "At UCP pin 2026-04-08/a2d8bf0b vs AP2 pin e1ea56d: the committed reference-generated golden (checkout_chain.json wire) and our reference-convention mint (testbed/mint.py) BOTH fail the schema pattern - it admits no `~~` hop separator (each `~` must be followed by a disclosure char) and no trailing tilde, so it matches only a lone SD-JWT without its standard trailing `~`. A schema-enforcing UCP merchant would reject every mandate the AP2 reference SDK mints; repro: re.match(pattern, wire) -> None for both wires, while wire.split('~~')[0].rstrip('~') matches."
+    },
+    {
+      "case_id": "bridge.mandate_algs_defined_in_signature_table",
+      "expect": "PASS",
+      "observed": "REJECT",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/ucp/issues/571",
+      "fix_pr": "https://github.com/Universal-Commerce-Protocol/ucp/issues/571 (no fix PR: adding P-521/ES512 to signatures.md or dropping ES512 from ap2-mandates.md is a maintainer call, tracked on the issue)",
+      "filed": "2026-07-07",
+      "spec_must": "ap2-mandates.md L129 'Algorithms: ES256 (required), ES384, ES512' (also L167, L292 assert header.alg in [ES256, ES384, ES512]); signatures.md's JWK algorithm table L83-86 defines only P-256/ES256 and P-384/ES384, and L115 lists alg as ES256|ES384.",
+      "evidence": "At UCP pin 2026-04-08/a2d8bf0b: an ES512 merchant_authorization is spec-permitted by ap2-mandates.md but signatures.md defines no P-521 curve row or ES512 alg value for profile signing_keys, so no interoperable key form exists to verify it - a verifier following signatures.md cannot resolve the key a signer following ap2-mandates.md is allowed to use. Repro: permitted algs parsed from ap2-mandates.md are not a subset of the algs defined in signatures.md's table ({'ES512'} undefined)."
+    }
+  ]
+}

@@ -351,6 +351,91 @@ def _closed_binding_unconfirmed():
     return "REJECT" if violations else "PASS"
 
 
+def _open_reference_mismatch():
+    """Matrix 45: the OPEN payment mandate's PaymentReference names checkout A
+    (conditional_transaction_id = H(checkout A)); the verifier processes
+    checkout B. The reference's PaymentReferenceEvaluator MUST reject the
+    expected_open_checkout_hash mismatch."""
+    import base64
+    import hashlib
+
+    def _h(s):
+        return base64.urlsafe_b64encode(
+            hashlib.sha256(s.encode()).digest()).rstrip(b"=").decode()
+
+    open_hash, wrong_hash = _h("checkout-A"), _h("checkout-B")
+    user, agent = _key("user-key-1"), _key("agent-key-1")
+    holder = MandateClient()
+    open_tok = holder.create(
+        payloads=[OpenPaymentMandate(
+            constraints=[PaymentReference(conditional_transaction_id=open_hash)],
+            cnf=make_cnf(agent))],
+        issuer_key=user)
+    pm = PaymentMandate(
+        transaction_id=open_hash, payee=Merchant(name="Shop", id="s-1"),
+        payment_amount=Amount(amount=1000, currency="USD"),
+        payment_instrument=PaymentInstrument(id="pi-1", type="credit"))
+    chain = holder.present(holder_key=agent, mandate_token=open_tok,
+                           payloads=[pm], aud="merchant", nonce="merchant-nonce")
+    try:
+        payloads = MandateClient().verify(
+            token=chain, key_or_provider=lambda _t: _pub(user),
+            expected_aud="merchant", expected_nonce="merchant-nonce")
+    except Exception:
+        return "REJECT"
+    violations = PaymentMandateChain.parse(payloads).verify(
+        expected_open_checkout_hash=wrong_hash,
+        expected_transaction_id=open_hash)
+    return "REJECT" if violations else "PASS"
+
+
+def _reference_rejects_orphan():
+    """Matrix 40 cross-oracle leg: a wire OUR frozen layer rejects (orphan
+    disclosure appended — more revealed than the signed set permits) must be
+    rejected by the REFERENCE verifier too. At the pin it rejects via the
+    sd_hash binding (appending a disclosure changes the sd_hash pre-image)
+    rather than an explicit orphan check — either way the wire never verifies,
+    which is the agreement that matters."""
+    import json as _json
+    import pathlib as _pathlib
+    import frozen
+    import mint
+    fx = _json.loads((_pathlib.Path(__file__).resolve().parents[1] / "selfcheck" /
+                      "fixtures" / "2026-04-08" / "ap2" /
+                      "checkout_ap2.valid.json").read_text())
+    wire = mint.mint_chain(fx)
+    mutant = frozen.FROZEN_MUTANTS["orphan_disclosure"](wire)
+    if frozen.frozen_verify(mutant)[0] is not False:
+        return "PASS"        # our own layer failed to reject -> not an agreement
+    plat = JWK(**mint.platform_public_jwk())
+    try:
+        MandateClient().verify(token=mutant, key_or_provider=lambda _t: plat,
+                               expected_aud="merchant", expected_nonce="merchant-nonce")
+    except Exception:
+        return "REJECT"
+    return "PASS"
+
+
+def _aud_nonce_optional_tripwire():
+    """Matrix 30 TRIPWIRE (sig002/webhook-reference precedent): the draft's
+    intent is that verifying a KB presentation REQUIRES aud+nonce, but at the
+    pinned commit `expected_aud`/`expected_nonce` are optional kwargs and the
+    reference ACCEPTS a KB chain verified without them (same family as its two
+    self-failing intermediate-hop aud/nonce tests). We pin the OBSERVED
+    behavior: when a re-pinned reference starts erroring here this case goes
+    RED as the cue to flip matrix row 30 to the enforcing form. Not a
+    known-defect entry: nothing is filed upstream yet, and expect==observed
+    pins ground truth rather than silencing a divergence."""
+    agent = _key("agent-key-1")
+    chain, up = _payment_chain(agent, agent)
+    holder = MandateClient()
+    try:
+        holder.verify(token=chain, key_or_provider=lambda _t: up)
+    except Exception:
+        return "REJECT"      # the tripwire firing: reference now requires aud/nonce
+    return "PASS"
+
+
 def _missing_consent_lone_open():
     # a lone open mandate presented where a closed 2-hop authorization is required.
     user = _key("user-key-1")
@@ -385,4 +470,10 @@ CASES = [
      "PASS", _instrument_extensions_survive),
     ("e2e.reject_unconfirmed_closed_binding", ["PAY-047"], "AP2#328/PR#330",
      "REJECT", _closed_binding_unconfirmed),
+    ("e2e.reject_open_reference_mismatch", ["PAY-047"], "45",
+     "REJECT", _open_reference_mismatch),
+    ("e2e.reference_rejects_orphan", ["PAY-040"], "40",
+     "REJECT", _reference_rejects_orphan),
+    ("e2e.aud_nonce_optional_tripwire", ["PAY-043"], "30 (tripwire)",
+     "PASS", _aud_nonce_optional_tripwire),
 ]
