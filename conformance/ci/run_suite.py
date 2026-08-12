@@ -112,6 +112,12 @@ def gates(server):
         ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),
         ("sdjwt-vs-reference", _py(SELF / "validate_sdjwt_vs_reference.py"),       None, ()),
         ("ap2-e2e",     _py(SELF / "validate_ap2_e2e.py"),                          None, ()),
+        # the known-AP2-reference-defect register (our filed #329/#330 encoded as
+        # correct-behavior cases, acknowledged while the pinned reference is buggy,
+        # auto-flipping to enforcing on a fixed re-pin) self-expires: covered
+        # hermetically so the classifier + register hygiene hold even where the
+        # reference SDK is not installed and the semantic tier itself skips.
+        ("ap2-defect-register", _py(SELF / "validate_ap2_e2e.py", "--selftest"),    None, ()),
         ("ap2-enforce", _py(SELF / "validate_ap2_enforce.py"),                      None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),

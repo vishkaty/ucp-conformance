@@ -53,6 +53,23 @@ pip install spck-conformance   # or clone this repo
 - Reference tier (when the pinned AP2 reference is installed):
   `conformance/testbed/semantic.py` cross-checks byte-for-byte.
 
+## Known pinned-reference defects (self-expiring)
+
+Two semantic-tier cases encode DRAFT-CORRECT behavior the pinned reference does
+not yet have, because we found the bugs and our fix PRs are still open upstream:
+
+| Case | Correct behavior | Pinned-reference bug | Filed |
+| --- | --- | --- | --- |
+| `e2e.instrument_extensions_survive_signing` | type-specific `PaymentInstrument` extension fields (x402 `payee_address`/`facilitator`) survive parse→sign→verify | fields silently dropped before signing → x402 CP falls open to hard-coded defaults | [AP2#299](https://github.com/google-agentic-commerce/AP2/issues/299) / [PR#329](https://github.com/google-agentic-commerce/AP2/pull/329) |
+| `e2e.reject_unconfirmed_closed_binding` | chain-verify rejects, by default, a payment mandate whose closed `transaction_id` binds a different checkout | closed-binding check silently skipped unless the caller opts in via `expected_transaction_id` | [AP2#328](https://github.com/google-agentic-commerce/AP2/issues/328) / [PR#330](https://github.com/google-agentic-commerce/AP2/pull/330) |
+
+Both are registered in `conformance/ci/known_ap2_reference_defects.json`
+(acknowledged loudly, never failed) and the register **self-expires**: when a
+re-pinned reference produces the correct outcome the entry goes stale-red until
+deleted, after which the case enforces. The same correct behavior is asserted
+GREEN today against our own frozen-layer primitives (the `payment-binding` tier
+of `validate_ap2_e2e.py`).
+
 ## Change policy
 
 When the draft or the reference moves, a **new keyed set** is added alongside

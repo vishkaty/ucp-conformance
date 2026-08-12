@@ -120,11 +120,21 @@ def mint_chain(checkout_obj, aud="merchant", nonce="merchant-nonce",
     return hop0[:-1] + "~~" + hop1
 
 
-def mint_payment_chain(checkout_jwt, aud="merchant", nonce="merchant-nonce"):
+_DEFAULT = object()   # sentinel: "use the derived default" for mint knobs
+
+
+def mint_payment_chain(checkout_jwt, aud="merchant", nonce="merchant-nonce",
+                       payment_instrument=None, transaction_id=_DEFAULT):
     """Mint a 2-hop open->closed PAYMENT-mandate chain bound to `checkout_jwt`
     (transaction_id = H(checkout_jwt), the payment<->checkout binding). Same role
     keys and wire conventions as mint_chain — the platform's SECOND distinct
-    artifact (PAY-041)."""
+    artifact (PAY-041).
+
+    Negative-case knobs (data, not per-case code): `payment_instrument` replaces
+    the default instrument dict verbatim — including TYPE-SPECIFIC extension
+    fields such as x402's payee_address/facilitator (the AP2#329 surface);
+    `transaction_id` overrides the checkout binding: a string (including "") is
+    used as-is, None OMITS the claim (the AP2#330 fail-closed negatives)."""
     d_plat, _ = crypto.keypair(PLATFORM_SEED)
     d_agent, q_agent = crypto.keypair(AGENT_SEED)
     agent_jwk = {k: v for k, v in
@@ -144,7 +154,12 @@ def mint_payment_chain(checkout_jwt, aud="merchant", nonce="merchant-nonce"):
                     "transaction_id": sdjwt.hash_ascii(checkout_jwt, "sha-256"),
                     "payee": {"id": "s-1", "name": "Shop"},
                     "payment_amount": {"amount": 1000, "currency": "USD"},
-                    "payment_instrument": {"id": "pi-1", "type": "credit"}}
+                    "payment_instrument": payment_instrument if payment_instrument
+                    is not None else {"id": "pi-1", "type": "credit"}}
+    if transaction_id is None:
+        del closed_value["transaction_id"]
+    elif transaction_id is not _DEFAULT:
+        closed_value["transaction_id"] = transaction_id
     d1 = sdjwt.encode_array_disclosure(_salt(), closed_value)
     hop1_payload = {
         "delegate_payload": [{"...": sdjwt.disclosure_digest(d1, "sha-256")}],

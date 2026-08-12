@@ -1,0 +1,25 @@
+{
+  "_about": "Defects in the PINNED AP2 reference SDK (testbed/provenance.py REFERENCE_SHA) that we have already diagnosed, reproduced and filed upstream, each with the fix PR. The ap2-e2e semantic tier encodes the DRAFT-CORRECT behavior as a case; while the pinned reference still carries the bug the runner acknowledges the documented buggy outcome LOUDLY instead of failing, because a defect we found, fixed and filed is not new information every run. Nothing may be listed without the upstream links: an entry without them is suppression, not acknowledgement. Entries EXPIRE by construction - the moment the (re-pinned) reference produces the case's correct outcome the entry is STALE and the gate FAILS until it is deleted, after which the case enforces the correct behavior permanently. Same self-expiry contract as known_reference_defects.json and the differential allowlist (DISC-003 precedent: expired on the samples re-pin).",
+  "defects": [
+    {
+      "case_id": "e2e.instrument_extensions_survive_signing",
+      "expect": "PASS",
+      "observed": "REJECT",
+      "upstream": "https://github.com/google-agentic-commerce/AP2/issues/299",
+      "fix_pr": "https://github.com/google-agentic-commerce/AP2/pull/329",
+      "filed": "2026-08-10",
+      "spec_must": "security_and_privacy_considerations.md L66-67: 'The Merchant Payment Processor and Credential Provider MUST verify the User's signature on the Payment Mandate to ensure its integrity' - integrity means the verifier acts on the values the user signed; payment_instrument.json declares no additionalProperties (JSON Schema 2020-12 default: allowed), the type-specific extension surface x402 uses for payee_address/facilitator.",
+      "evidence": "At e1ea56d: PaymentInstrument(id='x402-usdc-1', type='x402', payee_address='0xAbCd0001', facilitator='https://facilitator.example').model_dump() -> {'id': 'x402-usdc-1', 'type': 'x402', 'description': None}; after parse->sign->verify the closed mandate's instrument lacks both fields, so the x402 Credential Provider falls open to DEFAULT_MERCHANT_ADDRESS and the hard-coded 1250c amount instead of the signed destination/amount. Case red: 'e2e.instrument_extensions_survive_signing [PAY-041] PASS -> REJECT'."
+    },
+    {
+      "case_id": "e2e.reject_unconfirmed_closed_binding",
+      "expect": "REJECT",
+      "observed": "PASS",
+      "upstream": "https://github.com/google-agentic-commerce/AP2/issues/328",
+      "fix_pr": "https://github.com/google-agentic-commerce/AP2/pull/330",
+      "filed": "2026-08-10",
+      "spec_must": "security_and_privacy_considerations.md L19-21: 'The Payment Mandate MUST contain a reference to its associated Checkout. This is via transaction_id for closed Payment Mandates and the mandate.payment.reference constraint for open ones.' L69: 'The checkout_hash embedded in the transaction_id securely links the payment to the associated Checkout Mandate.'",
+      "evidence": "At e1ea56d: PaymentMandateChain.verify(expected_open_checkout_hash=OPEN_HASH) returns [] (ACCEPTED) for a chain whose closed transaction_id binds a DIFFERENT checkout's hash - the transaction_id comparison is gated on the optional expected_transaction_id kwarg (payment_mandate_chain.py verify) and PaymentReferenceEvaluator never inspects the closed side. With expected_transaction_id supplied the same chain is rejected ('Payment transaction_id mismatch'), proving the comparison works and only the default skips it. Case red: 'e2e.reject_unconfirmed_closed_binding [PAY-047] REJECT -> PASS'."
+    }
+  ]
+}
