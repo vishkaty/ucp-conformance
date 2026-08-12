@@ -187,11 +187,13 @@ def start_proxy(golden, port, mutant=None):
 def run_spck(server, config_path):
     """Run our as-shipped merchant runner; return (deviating_check_ids, meta).
 
-    Only checks whose requirement keyword is MUST/MUST NOT count toward the
-    deviation set — the stated catch rule is ">=1 MUST reported as a deviation"
-    (the verdict gate's red), so a SHOULD/MAY advisory firing must never earn
-    catch credit. rep['verdict']['deviations'] (the gate's MUST-deviation
-    count) is the arbiter; the id list is evidence for the table."""
+    The ARBITER is the suite's own verdict gate: rep['verdict']['deviations']
+    is the gate's MUST-deviation count (SHOULD/MAY advisories never reach it),
+    and the stated catch rule is ">=1 MUST reported as a deviation — the gate's
+    red". So: if the gate counts zero MUST deviations, nothing here is a catch,
+    no matter which advisory checks flagged; if it counts >0, the deviating
+    check ids are the evidence list. No re-derivation of keywords here — the
+    gate already did that arbitration, identically for every merchant."""
     r = subprocess.run(
         [sys.executable, str(CHECKS / "merchant.py"), "--server", server,
          "--config", str(config_path), "--json"],
@@ -203,19 +205,12 @@ def run_spck(server, config_path):
     except json.JSONDecodeError:
         return None, {"crashed": True, "stderr": "unparseable runner output"}
 
-    def _must(c):
-        kws = {q.get("keyword") for q in (c.get("requirements") or [])}
-        return (not kws) or bool(kws & {"MUST", "MUST NOT", "REQUIRED"})
-
-    devs = sorted(c["id"] for c in rep["checks"]
-                  if c["status"] == "deviation" and _must(c))
-    if rep["verdict"]["deviations"] == 0:
-        devs = []                      # gate says no MUST deviated; nothing counts
+    flagged = sorted(c["id"] for c in rep["checks"] if c["status"] == "deviation")
+    devs = flagged if rep["verdict"]["deviations"] > 0 else []
     meta = {"crashed": False, "aggregate": rep["verdict"]["aggregate"],
             "deviation_musts": rep["verdict"]["deviations"],
             "musts_passed": rep["verdict"]["musts_passed"],
-            "advisory_flags": sorted(c["id"] for c in rep["checks"]
-                                     if c["status"] == "deviation" and not _must(c)),
+            "advisory_flags": [] if devs else flagged,
             "dev_req_ids": sorted({rid for c in rep["checks"]
                                    if c["status"] == "deviation" for rid in c["req_ids"]})}
     return devs, meta
