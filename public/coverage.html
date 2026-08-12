@@ -63,6 +63,7 @@
     <div class="eyebrow">Spec coverage</div>
     <h1>UCP Spec Coverage <span class="note">(unofficial, live)</span></h1>
     <p class="sub">Every normative <b>MUST</b> in each pinned UCP spec version is accounted as a <b>kill-rate-validated check</b>, a <b>documented exemption</b>, or an <b>open gap</b> — no silent omissions.
+      Every check additionally carries an evidence class — live-wire (kill-tested against an independently-authored server), official ucp-schema oracle, crypto self-test, or self-referenced (only our own fixture vouches for it) — so this matrix says not just that a requirement is checked, but how strongly.
       Each requirement links to the exact line of the pinned official spec, and is browsable as the <a href="/checks/">check register</a>, graded per the <a href="/rubric">rubric</a>.</p>
     <div class="actions"><a href="/check" class="btn-primary">Check your store &rarr;</a></div>
   </header>
@@ -97,6 +98,7 @@
     <b>Methodology.</b> Requirements registers are extracted from the pinned official spec and <b>quote-verified verbatim</b> by a CI gate on each push. A check only counts when it <b>clean-passes AND kills 100% of its injected defects</b> on a known-good reference (the official Flower Shop sample or our oracle-validated controlled fixture).
     Exemptions require a written justification and are machine-checked against double-booking.
     The <code>coverage</code> CI gate fails the build if this page's data goes stale or accounted coverage ever decreases (ratchet).
+    <b>Evidence classes</b> are derived mechanically from how each check actually runs — never hand-labeled — backed by a recorded run against both independent reference targets, and the published split is drift-gated in CI; the self-referenced class is the fixture-circularity we also flag upstream (conformance#79).
     <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md">Roadmap →</a>
   </div>
 
@@ -170,6 +172,16 @@
       row.appendChild(s);
     });
     card.appendChild(row);
+    var eb = v.evidence_breakdown;
+    if (eb) {
+      var evl = el("div", "note",
+        "Checked, by evidence class: live-wire " + (eb["live-wire"] || 0) +
+        " (kill-tested against an independent server) · official-schema " + (eb["fixture-schema"] || 0) +
+        " · crypto self-test " + (eb["fixture-crypto"] || 0) +
+        " · self-referenced " + (eb["self-referenced"] || 0) + " (our own fixture is the sole voucher)");
+      evl.style.margin = "2px 0 8px";
+      card.appendChild(evl);
+    }
     bar(card, segsFor(v), v.musts);
     var lg = el("div", "legend");
     [["seg-check", "Checked (kill-rate-validated)"], ["seg-exempt", "Exempt (documented)"],
@@ -231,7 +243,9 @@
     match.slice(0, LIMIT).forEach(function (r) {
       var tr = el("tr");
       var t1 = el("td"); t1.appendChild(el("span", "mono", r.id)); tr.appendChild(t1);
-      var t2 = el("td"); t2.appendChild(pill(r)); tr.appendChild(t2);
+      var t2 = el("td"); t2.appendChild(pill(r));
+      if (r.evidence) { t2.appendChild(el("div", "note", r.evidence)); }
+      tr.appendChild(t2);
       var t3 = el("td");
       t3.appendChild(document.createTextNode(r.requirement + " "));
       t3.appendChild(el("span", "note", "(" + r.area + ")"));

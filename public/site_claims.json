@@ -11,15 +11,42 @@
   ],
   "reviewed": "2026-08-04"
  },
+ "evidence": {
+  "_about": "Honest EVIDENCE-CLASS split of the coverage matrix's CHECK bucket - the accounting totals above conflate a check kill-tested live against an independently-authored server with one that only validates our own fixture. This block names the split so the public claim cannot imply everything is wire-tested. Derived MECHANICALLY (never hand-labeled) by conformance/coverage/evidence.py from how each check actually runs, plus the recorded run in conformance/coverage/reach_report.json (which independent targets each wire check actually graded on). Classes: live-wire = graded on an independent server (flower golden / node reference); fixture-schema = our fixture validated through the OFFICIAL ucp-schema oracle; fixture-crypto = self-signed crypto primitive self-test; self-referenced = only our own fixture, no independent oracle or target (the fixture-circularity class we flag upstream as conformance#79, present in our own suite and counted here). Kill-tested + drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class): if these numbers drift from a fresh matrix export, CI goes red.",
+  "per_version": {
+   "2026-01-11": {
+    "check": 121,
+    "live-wire": 49,
+    "fixture-schema": 16,
+    "fixture-crypto": 0,
+    "self-referenced": 56
+   },
+   "2026-01-23": {
+    "check": 129,
+    "live-wire": 53,
+    "fixture-schema": 22,
+    "fixture-crypto": 0,
+    "self-referenced": 54
+   },
+   "2026-04-08": {
+    "check": 276,
+    "live-wire": 48,
+    "fixture-schema": 73,
+    "fixture-crypto": 4,
+    "self-referenced": 151
+   }
+  },
+  "reviewed": "2026-08-11"
+ },
  "claims": [
   {
    "id": "CLAIM-001",
-   "text": "227 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.",
+   "text": "48 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 227 kill-rate-validated checks, CLI + CI + web, multi-version support.",
    "page": "index.html",
    "class": "REG",
-   "evidence": "conformance/coverage/coverage_gate.py copy-freshness gate counts MCheck( registrations across conformance/checks/merchant_checks*.py = 193 (verified 2026-07-09) and pins this exact phrase via regex; bind number to site_claims.json:$.manifest.merchant_checks",
-   "added": "2026-07-09",
-   "review_by": "2026-10-09"
+   "evidence": "coverage_gate.py copy-freshness pins BOTH numbers: '(\\d+)+? kill-rate-validated checks' to the real MCheck count (227) and '(\\d+)+? checks kill-tested against independent servers' to $.evidence.per_version['2026-04-08']['live-wire'] (itself pinned to a fresh export by the evidence-class gate)",
+   "added": "2026-08-11",
+   "review_by": "2026-11-11"
   },
   {
    "id": "CLAIM-001a",
@@ -41,12 +68,12 @@
   },
   {
    "id": "CLAIM-003",
-   "text": "every check is proven to catch the bug it\u2019s for, so there are no false greens",
+   "text": "Independent, open, two-sided \u2014 and honest about its evidence: every check is proven to catch the bug it\u2019s for, the suite is graded against two reference servers we didn\u2019t author plus the official schema oracle, and we publish exactly what vouches for each check \u2014 including the ones only our own fixtures back so far.",
    "page": "index.html",
    "class": "REG",
-   "evidence": "conformance/selfcheck/mutation_killrate.py + validate_merchant_checks.py (merchant lane) and conformance/agent/run_agent.py reference gate (agent lane): clean-pass AND kill required per check",
-   "added": "2026-07-09",
-   "review_by": "2026-10-09"
+   "evidence": "verdict_gate.py (no-false-green) + kill-rate harness; independent targets = conformance/ci/differential_targets.json (flower golden 5237750, node reference) + the official ucp-schema oracle; the published per-check split lives in $.evidence and is drift-gated by validate_evidence_class.py (run_suite gate evidence-class)",
+   "added": "2026-08-11",
+   "review_by": "2026-11-11"
   },
   {
    "id": "CLAIM-004",
@@ -80,7 +107,7 @@
    "text": "227 checks, from the browser or your CI",
    "page": "index.html",
    "class": "REG",
-   "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-07-17)",
+   "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-08-01)",
    "added": "2026-07-09",
    "review_by": "2026-10-09"
   },
@@ -660,8 +687,8 @@
    "text": "Every number on this page links to its exact source",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "Editorial commitment enforced by this claims register + data-live bindings to state-of-ucp/*.json; link integrity verified via curl sweep 2026-07-17 (ops/content/state-of-ucp-evidence-ledger.md)",
-   "added": "2026-07-17",
+   "evidence": "Editorial commitment enforced by this claims register + data-live bindings to state-of-ucp/*.json; link integrity verified via curl sweep 2026-08-01 (ops/content/state-of-ucp-evidence-ledger.md)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -670,7 +697,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "public/checks/ = 318 per-requirement pages generated from coverage.json, each citing its pinned spec line (gen_check_docs.py + site-checkdocs gate)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -679,7 +706,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "Register area deltas at 2026-04-08: identity-linking 0->57, signatures 0->33, payment incl. ap2_mandate extension \u2014 all first appear in the v2026-04-08 tag (coverage.json per-version rows)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -687,8 +714,8 @@
    "text": "No agent surface beyond Google's own is confirmed by a primary source to consume UCP",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp names AI Mode, Gemini app, Business Agent as UCP consumers; no other vendor primary source found (ops/content/data/adoption-ecosystem-2026-07-17.json, agent research 2026-07-17)",
-   "added": "2026-07-17",
+   "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp names AI Mode, Gemini app, Business Agent as UCP consumers; no other vendor primary source found (ops/content/data/adoption-ecosystem-2026-08-01.json, agent research 2026-08-01)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -696,8 +723,8 @@
    "text": "Claims that other AI assistants consume UCP appear only in secondary marketing blogs",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "Research sweep 2026-07-17: Perplexity/ChatGPT/Copilot UCP claims found only on SEO/agency blogs; no primary source from those vendors; OpenAI operates competing protocol (adoption-ecosystem-2026-07-17.json UNVERIFIED_flags)",
-   "added": "2026-07-17",
+   "evidence": "Research sweep 2026-08-01: Perplexity/ChatGPT/Copilot UCP claims found only on SEO/agency blogs; no primary source from those vendors; OpenAI operates competing protocol (adoption-ecosystem-2026-08-01.json UNVERIFIED_flags)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -705,17 +732,17 @@
    "text": "None served a real UCP profile \u2014 every one returned a 404, a redirect, or a bot wall.",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "Direct probe 2026-07-17 of etsy/target/walmart/wayfair/homedepot/bestbuy/sephora/chewy /.well-known/ucp: 404/404/404/404/404/301/403/403, none UCP-JSON (session log + adoption-ecosystem-2026-07-17.json LAYER_sellers)",
-   "added": "2026-07-17",
+   "evidence": "Direct probe 2026-08-01 of etsy/target/walmart/wayfair/homedepot/bestbuy/sephora/chewy /.well-known/ucp: 404/404/404/404/404/301/403/403, none UCP-JSON (session log + adoption-ecosystem-2026-08-01.json LAYER_sellers)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
    "id": "SOU-007",
-   "text": "our own read-only probe on 2026-07-17",
+   "text": "our own read-only probe on 2026-08-01",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "Probe method: GET /.well-known/ucp, UA 'spck-state-of-ucp-survey/1.0' with contact, curl, aggregates derived solely from ops/content/data/hosting-fullscan-2026-07-17.json and published at state-of-ucp/scan-summary.json",
-   "added": "2026-07-17",
+   "evidence": "Probe method: GET /.well-known/ucp, UA 'spck-state-of-ucp-survey/1.0' with contact, curl, aggregates derived solely from ops/content/data/hosting-fullscan-2026-08-01.json and published at state-of-ucp/scan-summary.json",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -723,8 +750,8 @@
    "text": "The 99.4% of endpoints on the platform default carry none of the frontier; the handful who deliberately adopted",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "hosting-fullscan-2026-07-17.json: frontier caps (signing_keys/identity/consent/ap2) appear on 11 non-platform + a small platform-side residue; all real self-hosted merchants in the 11-endpoint tail implement >=1 frontier feature; uniform-default 2,955 profiles carry none (real-adoption-2026-07-17.json KEY_FINDING)",
-   "added": "2026-07-17",
+   "evidence": "hosting-fullscan-2026-08-01.json: frontier caps (signing_keys/identity/consent/ap2) appear on 11 non-platform + a small platform-side residue; all real self-hosted merchants in the 11-endpoint tail implement >=1 frontier feature; uniform-default 2,955 profiles carry none (real-adoption-2026-08-01.json KEY_FINDING)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -733,7 +760,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "cloud.google.com/blog AP2 announcement (Sept 2025) lists Mastercard/Amex/JCB/UnionPay/Adyen/PayPal/Coinbase+ as collaborators ('call for collaboration'); no card network claims live agentic card processing in any primary source; in-wild ap2_mandate = 2 endpoints (scan-summary.json)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -741,8 +768,8 @@
    "text": "The only production claim in the AP2 world is the x402 crypto extension",
    "page": "state-of-ucp.html",
    "class": "REG",
-   "evidence": "Same Google Cloud AP2 post: x402 extension (Coinbase/Ethereum Foundation/MetaMask) described as production-ready; no other AP2 production claim found in primary sources (adoption-ecosystem-2026-07-17.json LAYER_payments_AP2)",
-   "added": "2026-07-17",
+   "evidence": "Same Google Cloud AP2 post: x402 extension (Coinbase/Ethereum Foundation/MetaMask) described as production-ready; no other AP2 production claim found in primary sources (adoption-ecosystem-2026-08-01.json LAYER_payments_AP2)",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -751,7 +778,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "hosting-fullscan: 2,955/2,974 (99.4%) endpoints route to *.myshopify.com with an identical 8-capability default profile \u2014 platform-side provisioning; per-store variation absent (scan-summary.json platform_hosted/uniform_default_profile)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -760,7 +787,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "RFC 9421 ecdsa-p256-sha256 signatures are the raw 64-octet r||s concatenation (RFC 9421 \u00a73.3.4 -> FIPS 186-4); enforced by our crypto-interop gate against openssl (conformance/selfcheck)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -769,7 +796,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "checkout-rest.md's canonical example answers a business-level failure with HTTP 200 + ucp.status error + typed messages[] (pinned spec); ecosystem divergence documented in the public discussion around the official suite's error-model handling (conformance repo, 2026-07)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -778,7 +805,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "Forward-looking editorial synthesis of sections 2-5; each premise sourced there (buyers=Google-only primary-confirmed; AP2 card cohort not live; frontier caps 0.1-0.4%)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -787,7 +814,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "coverage.json rows carry source 'ucp:<file>#L<line>' resolved against pinned tag SHAs; rendering at /checks; methodology at /docs (site-tdd + checkdocs gates)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -796,7 +823,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "HF API confirms dataset license cc-by-4.0, commit ee420129b462cf109a571f7102084b282679dd1b, file ucp-merchants-2026-04-02.csv (3,468 rows); attribution given inline as required",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -805,7 +832,7 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "Editorial rule (reputation doctrine, conformance/testbed/README.md posture): published artifacts carry aggregate counts only; per-domain results remain unpublished in ops/ (private)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
   },
   {
@@ -814,8 +841,35 @@
    "page": "state-of-ucp.html",
    "class": "REG",
    "evidence": "Section heading summarizing the sourced partner lists cited immediately below it: co-developers Shopify/Etsy/Wayfair/Target/Walmart + 20+ endorsers (developers.googleblog.com launch post) and the AP2 cohort (cloud.google.com AP2 announcement)",
-   "added": "2026-07-17",
+   "added": "2026-08-01",
    "review_by": "2026-10-17"
+  },
+  {
+   "id": "CLAIM-024",
+   "text": "And a pass tells you how it was earned: every check carries a published",
+   "page": "index.html",
+   "class": "REG",
+   "evidence": "Evidence classes derived mechanically by conformance/coverage/evidence.py (never hand-labeled) from how each check runs + the recorded reach_report.json run against both independent targets; published split drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class, kill-tested with 3 planted mislabels)",
+   "added": "2026-08-11",
+   "review_by": "2026-11-11"
+  },
+  {
+   "id": "CLAIM-025",
+   "text": "live-wire (kill-tested against an independently-authored server), official ucp-schema oracle, crypto self-test, or self-referenced (only our own fixture vouches for it)",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "The four evidence classes as defined in public/coverage.json $.evidence_classes, derived by conformance/coverage/evidence.py and drift-gated by validate_evidence_class.py; independent targets registered in conformance/ci/differential_targets.json",
+   "added": "2026-08-11",
+   "review_by": "2026-11-11"
+  },
+  {
+   "id": "CLAIM-026",
+   "text": "are derived mechanically from how each check actually runs \u2014 never hand-labeled \u2014 backed by a recorded run against both independent reference targets, and the published split is drift-gated in CI; the self-referenced class is the fixture-circularity we also flag upstream (conformance#79).",
+   "page": "coverage.html",
+   "class": "REG",
+   "evidence": "conformance/coverage/evidence.py (transitive fetch_fn/predicate introspection) + conformance/coverage/reach_report.json (real run vs flower golden + node reference) + validate_evidence_class.py gate; upstream issue Universal-Commerce-Protocol/conformance#79 names the fixture-circularity class",
+   "added": "2026-08-11",
+   "review_by": "2026-11-11"
   }
  ]
 }

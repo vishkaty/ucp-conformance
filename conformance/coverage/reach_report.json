@@ -1,0 +1,2249 @@
+{
+ "_about": "Differential REACH REPORT \u2014 for each WIRE-probing check, which independent targets (ci/differential_targets.json \u2014 servers we did not author) it actually GRADED on in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Consumed by coverage/evidence.py: a wire check with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data \u2014 regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh).",
+ "generated": "2026-08-11",
+ "spec_pins": {
+  "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
+  "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e"
+ },
+ "targets": {
+  "flower-shop-official-sample": {
+   "server": "http://localhost:8182",
+   "spec_version": "2026-04-08",
+   "merchant_checks_run": 228,
+   "engine_wire_checks": 50
+  },
+  "nodejs-reference-sample": {
+   "server": "http://localhost:3000",
+   "spec_version": "2026-04-08",
+   "merchant_checks_run": 228,
+   "engine_wire_checks": 50
+  }
+ },
+ "checks": {
+  "area_discount:discount.accept_one_reject_one": {
+   "check": "discount.accept_one_reject_one",
+   "module": "area_discount",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_discount:discount.fixed_amount": {
+   "check": "discount.fixed_amount",
+   "module": "area_discount",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_discount:discount.multiple_accept_both": {
+   "check": "discount.multiple_accept_both",
+   "module": "area_discount",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_discount:discount.single_applied": {
+   "check": "discount.single_applied",
+   "module": "area_discount",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_discount:discount.unknown_code_rejected": {
+   "check": "discount.unknown_code_rejected",
+   "module": "area_discount",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_fulfillment:fulfillment.group_shape": {
+   "check": "fulfillment.group_shape",
+   "module": "area_fulfillment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_fulfillment:fulfillment.method_shape": {
+   "check": "fulfillment.method_shape",
+   "module": "area_fulfillment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_fulfillment:fulfillment.method_type_enum": {
+   "check": "fulfillment.method_type_enum",
+   "module": "area_fulfillment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_fulfillment:fulfillment.option_required_fields": {
+   "check": "fulfillment.option_required_fields",
+   "module": "area_fulfillment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_fulfillment:fulfillment.shipping_destination_id": {
+   "check": "fulfillment.shipping_destination_id",
+   "module": "area_fulfillment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:checkout.canceled_not_cancelable": {
+   "check": "checkout.canceled_not_cancelable",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:checkout.completed_immutable_update": {
+   "check": "checkout.completed_immutable_update",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:checkout.status_enum": {
+   "check": "checkout.status_enum",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:checkout.update_full_replace": {
+   "check": "checkout.update_full_replace",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:idempotency.replay_cancel": {
+   "check": "idempotency.replay_cancel",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_lifecycle2:idempotency.replay_create": {
+   "check": "idempotency.replay_create",
+   "module": "area_lifecycle2",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_negotiation:negotiation.content_type_json_create": {
+   "check": "negotiation.content_type_json_create",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_negotiation:negotiation.content_type_json_discovery": {
+   "check": "negotiation.content_type_json_discovery",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_negotiation:negotiation.processing_version": {
+   "check": "negotiation.processing_version",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_negotiation:negotiation.reverse_domain_names": {
+   "check": "negotiation.reverse_domain_names",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "version-skip (server speaks 2026-04-08)",
+    "nodejs-reference-sample": "version-skip (server speaks 2026-04-08)"
+   }
+  },
+  "area_negotiation:negotiation.ucp_envelope": {
+   "check": "negotiation.ucp_envelope",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_negotiation:negotiation.version_unsupported_error": {
+   "check": "negotiation.version_unsupported_error",
+   "module": "area_negotiation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_order:order.currency_not_required": {
+   "check": "order.currency_not_required",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_order:order.expectation_fields": {
+   "check": "order.expectation_fields",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_order:order.line_item_fields": {
+   "check": "order.line_item_fields",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_order:order.line_item_quantity": {
+   "check": "order.line_item_quantity",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_order:order.snapshot": {
+   "check": "order.snapshot",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
+  },
+  "area_order:order.top_fields": {
+   "check": "order.top_fields",
+   "module": "area_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_payment:payment.handler_ids_advertised": {
+   "check": "payment.handler_ids_advertised",
+   "module": "area_payment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:security.sim_correct_secret_200": {
+   "check": "security.sim_correct_secret_200",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:security.sim_missing_secret_403": {
+   "check": "security.sim_missing_secret_403",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:security.sim_wrong_secret_403": {
+   "check": "security.sim_wrong_secret_403",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:validation.complete_no_fulfillment": {
+   "check": "validation.complete_no_fulfillment",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:validation.invalid_adjustment_status": {
+   "check": "validation.invalid_adjustment_status",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:validation.malformed_adjustments": {
+   "check": "validation.malformed_adjustments",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_validation:validation.unknown_discount_code": {
+   "check": "validation.unknown_discount_code",
+   "module": "area_validation",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "area_webhook:webhook.event_stream": {
+   "check": "webhook.event_stream",
+   "module": "area_webhook",
+   "targets": {
+    "flower-shop-official-sample": "version-skip (server speaks 2026-04-08)",
+    "nodejs-reference-sample": "version-skip (server speaks 2026-04-08)"
+   }
+  },
+  "area_webhook:webhook.order_placed": {
+   "check": "webhook.order_placed",
+   "module": "area_webhook",
+   "targets": {
+    "flower-shop-official-sample": "version-skip (server speaks 2026-04-08)",
+    "nodejs-reference-sample": "version-skip (server speaks 2026-04-08)"
+   }
+  },
+  "merchant_checks:a2a.checkout_in_datapart": {
+   "check": "a2a.checkout_in_datapart",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no A2A transport)",
+    "nodejs-reference-sample": "not-applicable (no A2A transport)"
+   }
+  },
+  "merchant_checks:cart.line_item_shape": {
+   "check": "cart.line_item_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:cart.response_shape": {
+   "check": "cart.response_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.empty_search": {
+   "check": "catalog.empty_search",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.endpoints_available": {
+   "check": "catalog.endpoints_available",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.getproduct_both_id_kinds": {
+   "check": "catalog.getproduct_both_id_kinds",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.getproduct_not_found": {
+   "check": "catalog.getproduct_not_found",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.getproduct_selected": {
+   "check": "catalog.getproduct_selected",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.getproduct_variant_first": {
+   "check": "catalog.getproduct_variant_first",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.lookup_batch_too_large": {
+   "check": "catalog.lookup_batch_too_large",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.lookup_by_variant": {
+   "check": "catalog.lookup_by_variant",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.lookup_dedup": {
+   "check": "catalog.lookup_dedup",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.lookup_inputs": {
+   "check": "catalog.lookup_inputs",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.lookup_unknown_partial": {
+   "check": "catalog.lookup_unknown_partial",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.pagination_cursor_walk": {
+   "check": "catalog.pagination_cursor_walk",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.pagination_default_limit": {
+   "check": "catalog.pagination_default_limit",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.search_requires_input": {
+   "check": "catalog.search_requires_input",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:catalog.search_shape": {
+   "check": "catalog.search_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:checkout.cancel": {
+   "check": "checkout.cancel",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.complete_order": {
+   "check": "checkout.complete_order",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.completed_immutable": {
+   "check": "checkout.completed_immutable",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.create_requires_line_items": {
+   "check": "checkout.create_requires_line_items",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.create_valid": {
+   "check": "checkout.create_valid",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.response_fields": {
+   "check": "checkout.response_fields",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.retrieve": {
+   "check": "checkout.retrieve",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.update": {
+   "check": "checkout.update",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:checkout.update_requires_id": {
+   "check": "checkout.update_requires_id",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks:discount.accept_one_reject_one": {
+   "check": "discount.accept_one_reject_one",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discount.applied_fields": {
+   "check": "discount.applied_fields",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discount.empty_clears": {
+   "check": "discount.empty_clears",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discount.multiple_accept_both": {
+   "check": "discount.multiple_accept_both",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discount.rejected_via_messages": {
+   "check": "discount.rejected_via_messages",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.rejected_messages)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.rejected_messages)"
+   }
+  },
+  "merchant_checks:discount.single_applied": {
+   "check": "discount.single_applied",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discount.unknown_code_rejected": {
+   "check": "discount.unknown_code_rejected",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discovery.profile_schema": {
+   "check": "discovery.profile_schema",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
+  },
+  "merchant_checks:discovery.rest_endpoint": {
+   "check": "discovery.rest_endpoint",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discovery.reverse_domain_names": {
+   "check": "discovery.reverse_domain_names",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:discovery.version": {
+   "check": "discovery.version",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:fulfillment.method_shape": {
+   "check": "fulfillment.method_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:fulfillment.option_shape": {
+   "check": "fulfillment.option_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:fulfillment.single_group_default": {
+   "check": "fulfillment.single_group_default",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:idempotency.conflict_409": {
+   "check": "idempotency.conflict_409",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:mcp.catalog_lookup": {
+   "check": "mcp.catalog_lookup",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.catalog_search": {
+   "check": "mcp.catalog_search",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.catalog_via_tools_call": {
+   "check": "mcp.catalog_via_tools_call",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.checkout_via_tools_call": {
+   "check": "mcp.checkout_via_tools_call",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.error_conformance": {
+   "check": "mcp.error_conformance",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.get_order_tool": {
+   "check": "mcp.get_order_tool",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:mcp.get_product_tool": {
+   "check": "mcp.get_product_tool",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (no MCP transport)",
+    "nodejs-reference-sample": "not-applicable (no MCP transport)"
+   }
+  },
+  "merchant_checks:negotiation.compatible_version_processed": {
+   "check": "negotiation.compatible_version_processed",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:order.entity_shape": {
+   "check": "order.entity_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:order.line_item_shape": {
+   "check": "order.line_item_shape",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:payment.no_credential_echo": {
+   "check": "payment.no_credential_echo",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks:totals.additive_non_negative": {
+   "check": "totals.additive_non_negative",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:totals.subtotal_and_total": {
+   "check": "totals.subtotal_and_total",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks:validation.error_body": {
+   "check": "validation.error_body",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks:validation.nonexistent_product": {
+   "check": "validation.nonexistent_product",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks:validation.out_of_stock": {
+   "check": "validation.out_of_stock",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks:validation.overstock_update_400": {
+   "check": "validation.overstock_update_400",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks:validation.payment_failure": {
+   "check": "validation.payment_failure",
+   "module": "merchant_checks",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:checkout.body_valid_json_01era": {
+   "check": "checkout.body_valid_json_01era",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:checkout.idem_conflict_409_01era": {
+   "check": "checkout.idem_conflict_409_01era",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:consent.boolean_states_persisted": {
+   "check": "consent.boolean_states_persisted",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discount.allocations_sum_matches": {
+   "check": "discount.allocations_sum_matches",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discount.amounts_positive_integers": {
+   "check": "discount.amounts_positive_integers",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discount.codes_replacement": {
+   "check": "discount.codes_replacement",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_origin_binding_01_11": {
+   "check": "discovery.capability_origin_binding_01_11",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_origin_binding_01_23": {
+   "check": "discovery.capability_origin_binding_01_23",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_spec_schema_01_11": {
+   "check": "discovery.capability_spec_schema_01_11",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_spec_schema_01_23": {
+   "check": "discovery.capability_spec_schema_01_23",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:errors.requires_severity_escalates": {
+   "check": "errors.requires_severity_escalates",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:http.standard_error_status": {
+   "check": "http.standard_error_status",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:http.standard_verbs": {
+   "check": "http.standard_verbs",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:negotiation.failure_error_envelope": {
+   "check": "negotiation.failure_error_envelope",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:order.adjustment_log_fields_01era": {
+   "check": "order.adjustment_log_fields_01era",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:order.fulfillment_event_fields": {
+   "check": "order.fulfillment_event_fields",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:order.line_items_retained_01era": {
+   "check": "order.line_items_retained_01era",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23:transport.https_all_communication": {
+   "check": "transport.https_all_communication",
+   "module": "merchant_checks_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_disc:discovery.spec_urls_resolvable": {
+   "check": "discovery.spec_urls_resolvable",
+   "module": "merchant_checks_01_11_01_23_disc",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_events:webhook.retry_failed_delivery_01": {
+   "check": "webhook.retry_failed_delivery_01",
+   "module": "merchant_checks_01_11_01_23_events",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_events:webhook.signed_detached_jws": {
+   "check": "webhook.signed_detached_jws",
+   "module": "merchant_checks_01_11_01_23_events",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_neg:negotiation.intersection_disjoint_01era": {
+   "check": "negotiation.intersection_disjoint_01era",
+   "module": "merchant_checks_01_11_01_23_neg",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_neg:negotiation.orphan_extension_excluded_01era": {
+   "check": "negotiation.orphan_extension_excluded_01era",
+   "module": "merchant_checks_01_11_01_23_neg",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.capability_scope_grants_ops": {
+   "check": "identity01.capability_scope_grants_ops",
+   "module": "merchant_checks_01_11_01_23_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.metadata_published": {
+   "check": "identity01.metadata_published",
+   "module": "merchant_checks_01_11_01_23_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.oauth_code_flow": {
+   "check": "identity01.oauth_code_flow",
+   "module": "merchant_checks_01_11_01_23_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.revocation": {
+   "check": "identity01.revocation",
+   "module": "merchant_checks_01_11_01_23_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.token_client_auth": {
+   "check": "identity01.token_client_auth",
+   "module": "merchant_checks_01_11_01_23_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.deterministic_logic_01era": {
+   "check": "checkout.deterministic_logic_01era",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.escalation_continue_url_01era": {
+   "check": "checkout.escalation_continue_url_01era",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.escalation_continue_url_https_01era": {
+   "check": "checkout.escalation_continue_url_https_01era",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.idempotency_conflict_01era": {
+   "check": "checkout.idempotency_conflict_01era",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.ap2_approved_algorithm": {
+   "check": "payment.ap2_approved_algorithm",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.ap2_merchant_authorization_embedded": {
+   "check": "payment.ap2_merchant_authorization_embedded",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.handlers_context_filtered_0111": {
+   "check": "payment.handlers_context_filtered_0111",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.handlers_context_filtered_0123": {
+   "check": "payment.handlers_context_filtered_0123",
+   "module": "merchant_checks_01_11_01_23_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_23:discount.automatic_no_code": {
+   "check": "discount.automatic_no_code",
+   "module": "merchant_checks_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_23:discount.case_insensitive_codes": {
+   "check": "discount.case_insensitive_codes",
+   "module": "merchant_checks_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_23:discount.items_discount_invariant": {
+   "check": "discount.items_discount_invariant",
+   "module": "merchant_checks_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_01_23:payment.merchant_auth_jws_header": {
+   "check": "payment.merchant_auth_jws_header",
+   "module": "merchant_checks_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "merchant_checks_04_08:discount.allocation_sum_invariant": {
+   "check": "discount.allocation_sum_invariant",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.item)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.item)"
+   }
+  },
+  "merchant_checks_04_08:discount.amounts_positive": {
+   "check": "discount.amounts_positive",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.item)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.item)"
+   }
+  },
+  "merchant_checks_04_08:discount.automatic_no_code": {
+   "check": "discount.automatic_no_code",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.automatic)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.automatic)"
+   }
+  },
+  "merchant_checks_04_08:discount.case_insensitive_codes": {
+   "check": "discount.case_insensitive_codes",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08:discount.codes_replacement": {
+   "check": "discount.codes_replacement",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08:discount.items_discount_invariant": {
+   "check": "discount.items_discount_invariant",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.item)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.item)"
+   }
+  },
+  "merchant_checks_04_08:discount.reflected_in_totals": {
+   "check": "discount.reflected_in_totals",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.item)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.item)"
+   }
+  },
+  "merchant_checks_04_08:discount.total_type_selection": {
+   "check": "discount.total_type_selection",
+   "module": "merchant_checks_04_08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.item)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.item)"
+   }
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_complete_requires_mandate": {
+   "check": "payment.ap2_complete_requires_mandate",
+   "module": "merchant_checks_04_08_ap2",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_invalid_mandate_rejected": {
+   "check": "payment.ap2_invalid_mandate_rejected",
+   "module": "merchant_checks_04_08_ap2",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_signing_key_resolution": {
+   "check": "payment.ap2_signing_key_resolution",
+   "module": "merchant_checks_04_08_ap2",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_cartupdate:cart.update_full_replacement": {
+   "check": "cart.update_full_replacement",
+   "module": "merchant_checks_04_08_cartupdate",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_discovery:discovery.endpoints_https": {
+   "check": "discovery.endpoints_https",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_cache_control": {
+   "check": "discovery.profile_cache_control",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_https": {
+   "check": "discovery.profile_https",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (oracle unavailable)",
+    "nodejs-reference-sample": "not-tested (oracle unavailable)"
+   }
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_no_redirect": {
+   "check": "discovery.profile_no_redirect",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_discovery:discovery.reject_http_profile_url": {
+   "check": "discovery.reject_http_profile_url",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.validates_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.validates_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_discovery:negotiation.capabilities_incompatible_200": {
+   "check": "negotiation.capabilities_incompatible_200",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.incompatible_caps_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.incompatible_caps_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_discovery:negotiation.missing_profile_url_400": {
+   "check": "negotiation.missing_profile_url_400",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.validates_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.validates_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_discovery:negotiation.profile_malformed_422": {
+   "check": "negotiation.profile_malformed_422",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.malformed_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.malformed_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_discovery:negotiation.profile_unreachable_424": {
+   "check": "negotiation.profile_unreachable_424",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.unreachable_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.unreachable_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_discovery:negotiation.version_unsupported_422": {
+   "check": "negotiation.version_unsupported_422",
+   "module": "merchant_checks_04_08_discovery",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.unsupported_version_profile_url)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.unsupported_version_profile_url)"
+   }
+  },
+  "merchant_checks_04_08_envelope:negotiation.intersection_capabilities": {
+   "check": "negotiation.intersection_capabilities",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.harness)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.harness)"
+   }
+  },
+  "merchant_checks_04_08_envelope:negotiation.orphan_extension_excluded": {
+   "check": "negotiation.orphan_extension_excluded",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: negotiation.harness)",
+    "nodejs-reference-sample": "not-tested (needs config: negotiation.harness)"
+   }
+  },
+  "merchant_checks_04_08_envelope:profile.leaf_no_supported_versions": {
+   "check": "profile.leaf_no_supported_versions",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discovery.supported_versions)",
+    "nodejs-reference-sample": "not-tested (needs config: discovery.supported_versions)"
+   }
+  },
+  "merchant_checks_04_08_envelope:profile.reverse_domain_names": {
+   "check": "profile.reverse_domain_names",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_envelope:profile.spec_url_authority": {
+   "check": "profile.spec_url_authority",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_envelope:profile.version_dated": {
+   "check": "profile.version_dated",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_envelope:response.capabilities_relevant": {
+   "check": "response.capabilities_relevant",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_envelope:response.content_type_json": {
+   "check": "response.content_type_json",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_envelope:response.envelope_every_response": {
+   "check": "response.envelope_every_response",
+   "module": "merchant_checks_04_08_envelope",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_events:signature.err_digest_mismatch": {
+   "check": "signature.err_digest_mismatch",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_events:signature.err_key_not_found": {
+   "check": "signature.err_key_not_found",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_events:signature.err_signature_invalid": {
+   "check": "signature.err_signature_invalid",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_events:signature.err_signature_missing": {
+   "check": "signature.err_signature_missing",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_events:signature.idempotency_replay_cached": {
+   "check": "signature.idempotency_replay_cached",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_events:signature.response_body_components": {
+   "check": "signature.response_body_components",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.idempotency_key_signed": {
+   "check": "webhook.idempotency_key_signed",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.order_created_full_entity": {
+   "check": "webhook.order_created_full_entity",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.query_component_signed": {
+   "check": "webhook.query_component_signed",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.retry_failed_delivery": {
+   "check": "webhook.retry_failed_delivery",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.retries)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.retries)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.signed_components": {
+   "check": "webhook.signed_components",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.signed_rfc9421_verifies": {
+   "check": "webhook.signed_rfc9421_verifies",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.ucp_agent_header": {
+   "check": "webhook.ucp_agent_header",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.ucp_agent_signed": {
+   "check": "webhook.ucp_agent_signed",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
+    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+   }
+  },
+  "merchant_checks_04_08_events:webhook.update_full_entity": {
+   "check": "webhook.update_full_entity",
+   "module": "merchant_checks_04_08_events",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: order.simulate_adjustment)",
+    "nodejs-reference-sample": "not-tested (needs config: order.simulate_adjustment)"
+   }
+  },
+  "merchant_checks_04_08_identity:identity.capability_config_schema": {
+   "check": "identity.capability_config_schema",
+   "module": "merchant_checks_04_08_identity",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_auth_methods": {
+   "check": "identity.oauth_metadata_auth_methods",
+   "module": "merchant_checks_04_08_identity",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_pkce_iss": {
+   "check": "identity.oauth_metadata_pkce_iss",
+   "module": "merchant_checks_04_08_identity",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_published": {
+   "check": "identity.oauth_metadata_published",
+   "module": "merchant_checks_04_08_identity",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_scopes_supported": {
+   "check": "identity.oauth_metadata_scopes_supported",
+   "module": "merchant_checks_04_08_identity",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:cart.https_tls13_minimum": {
+   "check": "cart.https_tls13_minimum",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:cart.response_body_valid_json": {
+   "check": "cart.response_body_valid_json",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:checkout.error_body_valid_json": {
+   "check": "checkout.error_body_valid_json",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:checkout.https_tls13_minimum_04_08": {
+   "check": "checkout.https_tls13_minimum_04_08",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (oracle unavailable)",
+    "nodejs-reference-sample": "not-tested (oracle unavailable)"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:checkout.response_body_valid_json": {
+   "check": "checkout.response_body_valid_json",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_lifecycle:totals.sublines_sum_invariant": {
+   "check": "totals.sublines_sum_invariant",
+   "module": "merchant_checks_04_08_lifecycle",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: totals.sublines)",
+    "nodejs-reference-sample": "not-tested (needs config: totals.sublines)"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.authz_response_iss": {
+   "check": "identity.authz_response_iss",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.challenge_resource_metadata": {
+   "check": "identity.challenge_resource_metadata",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.client_auth_enforced": {
+   "check": "identity.client_auth_enforced",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.continue_url_not_prebaked": {
+   "check": "identity.continue_url_not_prebaked",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.expired_token_rejected": {
+   "check": "identity.expired_token_rejected",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.foreign_client_token_rejected": {
+   "check": "identity.foreign_client_token_rejected",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.identity_required_challenge": {
+   "check": "identity.identity_required_challenge",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.insufficient_scope_challenge": {
+   "check": "identity.insufficient_scope_challenge",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.invalid_token_challenge": {
+   "check": "identity.invalid_token_challenge",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.issuer_iss_byte_identical": {
+   "check": "identity.issuer_iss_byte_identical",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.loopback_port_ignored": {
+   "check": "identity.loopback_port_ignored",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.metadata_issuer_exact": {
+   "check": "identity.metadata_issuer_exact",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.none_requires_pkce": {
+   "check": "identity.none_requires_pkce",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.oauth_code_flow": {
+   "check": "identity.oauth_code_flow",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.pkce_plain_rejected": {
+   "check": "identity.pkce_plain_rejected",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.profile_conflict_rejected": {
+   "check": "identity.profile_conflict_rejected",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.public_client_method_offered": {
+   "check": "identity.public_client_method_offered",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.redirect_uri_exact": {
+   "check": "identity.redirect_uri_exact",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.revocation_invalidates": {
+   "check": "identity.revocation_invalidates",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.revoked_token_rejected": {
+   "check": "identity.revoked_token_rejected",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.scope_grants_access": {
+   "check": "identity.scope_grants_access",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:identity.token_pkce_enforced": {
+   "check": "identity.token_pkce_enforced",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_oauth:order.responses_signed": {
+   "check": "order.responses_signed",
+   "module": "merchant_checks_04_08_oauth",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_order:order.adjustment_quantities_signed": {
+   "check": "order.adjustment_quantities_signed",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)",
+    "nodejs-reference-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)"
+   }
+  },
+  "merchant_checks_04_08_order:order.adjustment_totals_signed": {
+   "check": "order.adjustment_totals_signed",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)",
+    "nodejs-reference-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)"
+   }
+  },
+  "merchant_checks_04_08_order:order.data_requires_auth": {
+   "check": "order.data_requires_auth",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: order.require_auth,identity.token_mint)",
+    "nodejs-reference-sample": "not-tested (needs config: order.require_auth,identity.token_mint)"
+   }
+  },
+  "merchant_checks_04_08_order:order.https_tls13_minimum": {
+   "check": "order.https_tls13_minimum",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (oracle unavailable)",
+    "nodejs-reference-sample": "not-tested (oracle unavailable)"
+   }
+  },
+  "merchant_checks_04_08_order:order.line_items_ever_existed": {
+   "check": "order.line_items_ever_existed",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)",
+    "nodejs-reference-sample": "not-tested (needs config: order.simulate_adjustment,order.second_product_id)"
+   }
+  },
+  "merchant_checks_04_08_order:order.response_valid_json": {
+   "check": "order.response_valid_json",
+   "module": "merchant_checks_04_08_order",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_payment:payment.escalation_continue_url": {
+   "check": "payment.escalation_continue_url",
+   "module": "merchant_checks_04_08_payment",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.escalation_payment)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.escalation_payment)"
+   }
+  },
+  "merchant_checks_04_08_payment:payment.profile_handlers_registry": {
+   "check": "payment.profile_handlers_registry",
+   "module": "merchant_checks_04_08_payment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_payment:payment.response_handlers_echo": {
+   "check": "payment.response_handlers_echo",
+   "module": "merchant_checks_04_08_payment",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_receiver:cart.cancel_returns_state": {
+   "check": "cart.cancel_returns_state",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_carries_codes": {
+   "check": "cart.conversion_carries_codes",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_idempotent": {
+   "check": "cart.conversion_idempotent",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_uses_cart_contents": {
+   "check": "cart.conversion_uses_cart_contents",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_receiver:cart.idempotency_conflict": {
+   "check": "cart.idempotency_conflict",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.deterministic_logic": {
+   "check": "checkout.deterministic_logic",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_buyer_message": {
+   "check": "checkout.escalation_buyer_message",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.escalation_payment)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.escalation_payment)"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_continue_url": {
+   "check": "checkout.escalation_continue_url",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.escalation_payment)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.escalation_payment)"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_continue_url_https": {
+   "check": "checkout.escalation_continue_url_https",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.escalation_payment)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.escalation_payment)"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.idempotency_conflict": {
+   "check": "checkout.idempotency_conflict",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.protocol_error_shape": {
+   "check": "checkout.protocol_error_shape",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.requires_star_implies_escalation": {
+   "check": "checkout.requires_star_implies_escalation",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.escalation_payment)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.escalation_payment)"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.unavailable_all_error_envelope": {
+   "check": "checkout.unavailable_all_error_envelope",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
+  },
+  "merchant_checks_04_08_receiver:checkout.unavailable_business_outcome": {
+   "check": "checkout.unavailable_business_outcome",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: unavailable.business_outcome)",
+    "nodejs-reference-sample": "not-tested (needs config: unavailable.business_outcome)"
+   }
+  },
+  "merchant_checks_04_08_receiver:discount.automatic_not_removable": {
+   "check": "discount.automatic_not_removable",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: discount.automatic)",
+    "nodejs-reference-sample": "not-tested (needs config: discount.automatic)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.completion_blocked": {
+   "check": "eligibility.completion_blocked",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.unverifiable)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.unverifiable)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.invalid_message": {
+   "check": "eligibility.invalid_message",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.unverifiable)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.unverifiable)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.provisional_discount": {
+   "check": "eligibility.provisional_discount",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.verifiable)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.verifiable)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.provisional_resolved": {
+   "check": "eligibility.provisional_resolved",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.verifiable)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.verifiable)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.unrecognized_ignored": {
+   "check": "eligibility.unrecognized_ignored",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.unrecognized)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.unrecognized)"
+   }
+  },
+  "merchant_checks_04_08_receiver:eligibility.unrecognized_not_blocking": {
+   "check": "eligibility.unrecognized_not_blocking",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: eligibility.unrecognized)",
+    "nodejs-reference-sample": "not-tested (needs config: eligibility.unrecognized)"
+   }
+  },
+  "merchant_checks_04_08_receiver:payment.handler_id_validated": {
+   "check": "payment.handler_id_validated",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_receiver:payment.handlers_context_filtered": {
+   "check": "payment.handlers_context_filtered",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: payment.filtered)",
+    "nodejs-reference-sample": "not-tested (needs config: payment.filtered)"
+   }
+  },
+  "merchant_checks_04_08_receiver:signals.attribution_no_effect": {
+   "check": "signals.attribution_no_effect",
+   "module": "merchant_checks_04_08_receiver",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "merchant_checks_04_08_signatures:idempotency.storage_fail_closed": {
+   "check": "idempotency.storage_fail_closed",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: idempotency.outage_hook)",
+    "nodejs-reference-sample": "not-tested (needs config: idempotency.outage_hook)"
+   }
+  },
+  "merchant_checks_04_08_signatures:idempotency.storage_min_24h": {
+   "check": "idempotency.storage_min_24h",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: idempotency.age_hook)",
+    "nodejs-reference-sample": "not-tested (needs config: idempotency.age_hook)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.algorithm_unsupported_400": {
+   "check": "signature.algorithm_unsupported_400",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk,signature.unsupported_alg_kid)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk,signature.unsupported_alg_kid)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.keyid_published": {
+   "check": "signature.keyid_published",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.no_alg_parameter": {
+   "check": "signature.no_alg_parameter",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.raw_rs_encoding": {
+   "check": "signature.raw_rs_encoding",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.response_content_digest": {
+   "check": "signature.response_content_digest",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.response_headers_present": {
+   "check": "signature.response_headers_present",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.response_status_component": {
+   "check": "signature.response_status_component",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.rfc9421_response_verifies": {
+   "check": "signature.rfc9421_response_verifies",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.rotation_grace_period": {
+   "check": "signature.rotation_grace_period",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.rotated_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.rotated_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.signing_keys_jwk": {
+   "check": "signature.signing_keys_jwk",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.responses)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.responses)"
+   }
+  },
+  "merchant_checks_04_08_signatures:signature.verifies_es256_requests": {
+   "check": "signature.verifies_es256_requests",
+   "module": "merchant_checks_04_08_signatures",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk)"
+   }
+  },
+  "merchant_checks_04_08_tls:transport.https_tls12_minimum": {
+   "check": "transport.https_tls12_minimum",
+   "module": "merchant_checks_04_08_tls",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable",
+    "nodejs-reference-sample": "not-applicable"
+   }
+  },
+  "tls_check_01_11_01_23:transport.https_tls13_minimum": {
+   "check": "transport.https_tls13_minimum",
+   "module": "tls_check_01_11_01_23",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "v2026_01_23:checkout.cancel": {
+   "check": "checkout.cancel",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:checkout.complete": {
+   "check": "checkout.complete",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:checkout.completed_immutable": {
+   "check": "checkout.completed_immutable",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:checkout.create": {
+   "check": "checkout.create",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:checkout.get": {
+   "check": "checkout.get",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:disc.profile_200": {
+   "check": "disc.profile_200",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:disc.rest_endpoint": {
+   "check": "disc.rest_endpoint",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:fulfillment.option_shape": {
+   "check": "fulfillment.option_shape",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:idempotency.conflict_409": {
+   "check": "idempotency.conflict_409",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:validation.nonexistent_product": {
+   "check": "validation.nonexistent_product",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:validation.out_of_stock": {
+   "check": "validation.out_of_stock",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  },
+  "v2026_01_23:validation.payment_failure": {
+   "check": "validation.payment_failure",
+   "module": "v2026_01_23",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
+   }
+  }
+ }
+}

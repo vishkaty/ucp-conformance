@@ -107,6 +107,13 @@ def gates(server):
         ("checkout-scope-check", _py(SELF / "validate_checkout_scope_check.py"), None, (2,)),
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),
         ("fillme-guard", _py(SELF / "validate_fillme_guard.py"),                 None, (2,)),
+        # EVIDENCE-CLASS layer (P1-8): the published coverage split by evidence class
+        # (live-wire / fixture-schema / fixture-crypto / self-referenced) must be
+        # mechanically derived, kill-tested (a mislabeling classifier reds), must
+        # PARTITION the CHECK bucket without moving any total, and the split in
+        # site_claims.json must match a fresh export. Hermetic (reach report is
+        # committed data).
+        ("evidence-class", _py(SELF / "validate_evidence_class.py"),              None, ()),
         ("speclint",    _py(SPECLINT / "validate_speclint.py"),                   None, ()),
         ("ap2-crypto",  _py(SELF / "validate_ap2_crypto.py"),                     None, ()),
         ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),
