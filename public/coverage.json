@@ -6849,7 +6849,8 @@
      "requirement": "Discount entries in totals[] are negative (strictly < 0); the sign is schema-enforced",
      "source": "ucp:docs/specification/discount.md#L314",
      "covered_by": [
-      "area_04_08_discount.py"
+      "area_04_08_discount.py",
+      "merchant_checks_04_08_totals.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -8612,6 +8613,7 @@
      "requirement": "Order confirmation requires id and permalink_url",
      "source": "ucp:source/schemas/shopping/types/order_confirmation.json#L7",
      "covered_by": [
+      "merchant_checks_04_08_totals.py",
       "schema_check_04_08_order.py"
      ],
      "evidence": "fixture-schema",
@@ -10251,7 +10253,8 @@
      "source": "ucp:docs/specification/checkout.md#L797",
      "covered_by": [
       "area_04_08_checkout.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "merchant_checks_04_08_totals.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -10266,7 +10269,8 @@
      "source": "ucp:docs/specification/checkout.md#L798",
      "covered_by": [
       "area_04_08_checkout.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "merchant_checks_04_08_totals.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -10313,7 +10317,8 @@
      "requirement": "Subtractive well-known types (discount, items_discount) MUST have negative amounts",
      "source": "ucp:docs/specification/checkout.md#L829",
      "covered_by": [
-      "area_04_08_checkout.py"
+      "area_04_08_checkout.py",
+      "merchant_checks_04_08_totals.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -10328,7 +10333,8 @@
      "source": "ucp:docs/specification/checkout.md#L830",
      "covered_by": [
       "area_04_08_checkout.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "merchant_checks_04_08_totals.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -10370,6 +10376,7 @@
      "requirement": "Each top-level totals entry requires both type and amount",
      "source": "ucp:source/schemas/shopping/types/total.json#L7",
      "covered_by": [
+      "merchant_checks_04_08_totals.py",
       "schema_check_04_08_lifecycle.py"
      ],
      "evidence": "fixture-schema",
