@@ -29,8 +29,11 @@ fetch() { # name repo sha
 
 [ "${1:-}" = "--repin" ] && REPIN=1
 fetch conformance Universal-Commerce-Protocol/conformance "$(pin official_conformance_suite)"
-fetch python-sdk  Universal-Commerce-Protocol/python-sdk  "$(git -C "$DEST/python-sdk" rev-parse origin/main 2>/dev/null || echo origin/main)"
-# python-sdk rides main (see OFFICIAL.lock.json why-note); the exact SHA used by a
-# run is recorded in results.json meta.
+# The sdk sibling is checked out at the RECORDED pin, exactly like the suite —
+# reproduction must not float. The verdict-defining official miss (ERR-029)
+# exists because of a python-sdk model bug we intend to fix upstream: fetching
+# sdk@main would silently flip that verdict the day the fix merges. --repin
+# moves BOTH pins together, deliberately.
+fetch python-sdk  Universal-Commerce-Protocol/python-sdk  "$(pin official_python_sdk_sibling)"
 ( cd "$DEST/conformance" && uv sync >/dev/null )
 echo "official suite env ready (uv sync done)."

@@ -28,12 +28,17 @@ defects, against the same reference server.**
   the server — and only if it does so on *every* repeat run.
 - Defects only we could plausibly catch (agent-lane, signatures, HTTP header
   contracts, cross-version) are **excluded from the head-to-head** and reported
-  separately. Defect candidates whose MUST binds the platform rather than the
-  server (e.g. totals-consistency verification is a platform MAY in the pinned
-  spec) were excluded even though the official suite would likely have caught
-  them.
-- One command reproduces everything: `conformance/compare/reproduce.sh`. The
-  results file records the SHA of every input.
+  separately. A defect whose requirement binds the platform rather than the
+  server — totals that don't sum, a platform-MAY verification in the pinned
+  spec — is counted **nowhere**, but we still ran it and published the outcome
+  as a labeled diagnostic: the official suite catches it (via the grand-total
+  formula test we contributed as its #76); our runner surfaces it as an
+  advisory, which our own strict catch rule refuses to count as a catch.
+- One command reproduces everything: `conformance/compare/reproduce.sh`, **at
+  the pins recorded in the results file** — every input (our tree, the
+  official suite, its python-sdk sibling, the reference server) is checked out
+  at a recorded SHA, and the runner refuses to write canonical results from an
+  uncommitted tree.
 
 ### What happened: first, it caught *us*
 
@@ -62,8 +67,17 @@ machine-read as success — passes the full official suite. The root cause is a
 one-line model-wiring issue in the official python-sdk (`ErrorResponse` uses
 the generic ucp metadata type instead of the SDK's own error branch), which
 the suite's error assertions inherit. We've drafted the fix for both layers to
-offer upstream — the same way several of the official suite's newest catches
-in this very comparison came from fixes we contributed earlier (#74–#81).
+offer upstream. When it merges, the official suite should stand at 18/18 on
+this set too — which is the point: the durable difference isn't one defect,
+it's that every spck check carries a machine-enforced proof that it catches
+the defects it exists to catch, and the official suite doesn't have that
+harness yet. (It could: this one is open source.)
+
+We're invested in that suite getting stronger, not in beating it: of the nine
+fixes on its main branch since our last pin, five are ours (#73, #76, #77,
+#78, #79 — including the webhook structural module and the grand-total
+formula verification that scored catches *against us* in this very
+comparison), alongside maintainers' fixes (#74, #75, #80, #81).
 
 ### Surfaces beyond the head-to-head
 
@@ -95,5 +109,9 @@ the point of reporting them separately instead of blending them into a number.
 assumes we publish run-1-then-run-2 as one story — if the fix commit lands
 separately, adjust; (2) upstream filings in DRAFT-upstream-gaps.md should land
 BEFORE this goes live so the sdk/conformance issue isn't disclosed publicly
-here first; (3) keep the credits to upstream #74–#81 — they're verifiable in
-their git log and they're the collaboration proof.)*
+here first; (3) the authorship claims (#73/#76/#77/#78/#79 ours, #74/#75/#80/#81
+maintainers) are verified against the official repo's git log at the pinned SHA
+— re-verify at publish time; (4) this copy passed a model-diverse adversarial
+review; its two blockers — results provenance and the floating python-sdk pin —
+are fixed in the harness, and the published numbers must come from a clean-tree
+run under those fixes.)*

@@ -33,10 +33,14 @@ mutant set**, under rules designed so that the comparison is capable of making
    suite running second would always face a more-depleted state than the first.
 3. Per mutant, both suites run again; **CATCH** means the suite's own normal
    report affirmatively signals non-conformance:
-   - official: ≥1 test newly failing/erroring vs baseline (tests unstable
-     across repeated baseline runs are excluded from catch credit),
-   - spck: ≥1 MUST reported as a *deviation* (a degrade to `not-tested` /
-     `incomplete` is a MISS for us; a runner crash is never a catch for anyone).
+   - official: ≥1 test newly failing/erroring vs baseline,
+   - spck: ≥1 **MUST** reported as a *deviation* — the verdict gate's red. A
+     SHOULD/MAY advisory firing is NOT a catch, a degrade to `not-tested` /
+     `incomplete` is a MISS for us, and a runner crash is never a catch for
+     anyone.
+   Baselines are treated identically for both suites: `--baseline-repeat` runs
+   each; anything red in some-but-not-all baseline runs is unstable and earns
+   that suite no catch credit.
 4. Every mutant runs `--repeat` times per suite (default 2); a suite is only
    credited when **every** repeat catches. Non-determinism is flagged in the
    results, and `test_compare.py` fails on it.

@@ -5,14 +5,14 @@
     "ref": "main",
     "commit": "6ee0b53c1925a6ed49bf38d7d4d6f2bdc4e8c7be",
     "commit_date": "2026-08-12T13:40:49Z",
-    "note": "9 commits ahead of the SOURCES.lock signal pin f78fe9f1 at comparison time — includes upstream fixes #73-#81 (several of which landed from our own filings) and the new webhook_structure_test module. 78 test methods."
+    "note": "9 commits ahead of the SOURCES.lock signal pin f78fe9f1 at comparison time — #73/#76/#77/#78/#79 authored by vishkaty (incl. the webhook_structure_test module and the grand-total formula verification), #74/#75 by Xiaolong Zhang, #80/#81 by FanouZeng-TT (authorship verified in the repo's git log at this SHA). 78 test methods."
   },
   "official_python_sdk_sibling": {
     "repo": "Universal-Commerce-Protocol/python-sdk",
     "ref": "main",
     "commit": "a0d8308e080c48bfe70128eeaabbddfa165ddc46",
-    "resolve_full_sha_note": "python-sdk rides main by necessity (see why); results.json meta records the exact SHA used by each run.",
-    "why": "the official suite's pyproject takes ucp-sdk as an editable PATH dep from ../python-sdk; current-main tests import modules (reverse_domain_name, error_response) that exist only on python-sdk main, so the sibling must be main, not the 0.3.0 pin."
+    "resolve_full_sha_note": "fetch_official.sh checks out THIS SHA — reproduction must not float. The verdict-defining official miss (ERR-029) exists because of a python-sdk model bug we intend to fix upstream; an unpinned sdk would silently flip that verdict the day the fix merges. --repin moves both pins together.",
+    "why": "the official suite's pyproject takes ucp-sdk as an editable PATH dep from ../python-sdk; current-main tests import modules (reverse_domain_name, error_response) that exist only past the 0.3.0 tag, so this pin is a main SHA (0.4.4), chosen at re-pin time and frozen here for reproduction."
   },
   "golden": "the flower reference server pinned by conformance/SOURCES.lock.json reference_sample_server — the SAME golden our own CI kill-tests run against; boot with conformance/ci/serve_golden.sh."
 }

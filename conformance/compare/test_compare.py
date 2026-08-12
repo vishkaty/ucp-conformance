@@ -64,6 +64,14 @@ def test_rate_math():
     check("spck-only mutant lands in the addendum, not the head-to-head",
           r["spck_only_surface"]["n"] == 1 and r["spck_only_surface"]["spck_caught"] == 1)
 
+    # a diagnostic mutant is counted NOWHERE — neither bucket moves
+    mutants_d = mutants + [{"id": "e", "shared_surface": False, "diagnostic": True}]
+    records_d = dict(records, e={"spck_catch": False, "official_catch": True})
+    rd = compute_rates(mutants_d, records_d)
+    check("diagnostic mutant counted in NEITHER bucket",
+          rd["shared_surface"]["n"] == 3 and rd["spck_only_surface"]["n"] == 1
+          and rd["shared_surface"]["official_caught"] == 2)
+
     c, new = decide_catch_official(["t.flaky"], ["t.base"], ["t.base", "t.flaky", "t.new"], False)
     check("official catch = NEW failures only; unstable tests earn no credit",
           c and new == ["t.new"])

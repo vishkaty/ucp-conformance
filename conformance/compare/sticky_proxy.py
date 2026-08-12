@@ -133,8 +133,13 @@ class Handler(BaseHTTPRequestHandler):
         req_body = self.rfile.read(length) if length else None
         url = srv.upstream + self.path
         # X-Mutate is stripped: no client can steer the defect (see module doc).
+        # Accept-Encoding is stripped too (forcing identity): if the upstream
+        # ever gzipped, JSON mutation tokens would silently no-op for exactly
+        # the clients that negotiated compression — a per-client asymmetry this
+        # proxy exists to make impossible.
         fwd = {k: v for k, v in self.headers.items()
-               if k.lower() not in ("host", "x-mutate", "content-length", "connection")}
+               if k.lower() not in ("host", "x-mutate", "content-length",
+                                    "connection", "accept-encoding")}
         req = urllib.request.Request(url, data=req_body, method=self.command, headers=fwd)
         try:
             with urllib.request.urlopen(req) as r:

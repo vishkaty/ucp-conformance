@@ -5,8 +5,9 @@
 #
 #   conformance/compare/reproduce.sh [PORT]        # default golden port 8290
 #
-# Requires: python3, uv, git, network (to fetch pinned sources on first run;
-# the official protocol_test also fetches spec/schema URLs from ucp.dev live).
+# Requires: python3, uv, git, network to fetch pinned sources on first run.
+# (At the pinned official SHA no test fetches external URLs at runtime — the
+# only ucp.dev-fetching test, protocol_test.test_discovery_urls, is skipped.)
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"

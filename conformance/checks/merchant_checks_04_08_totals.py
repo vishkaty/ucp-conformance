@@ -101,6 +101,28 @@ def p_subtractive_negative(r):
                         for x in hits) else DEVIATION
 
 
+def p_sum_consistency(r):
+    """TOT-008 (platform MAY): the grand total equals the sum of every other
+    top-level totals entry. The register binds VERIFICATION to the platform as
+    a MAY, not the server as a MUST — so this check is registered with keyword
+    MAY: an inconsistency is surfaced as an observation and can NEVER produce a
+    MUST-red or block a verdict (the P2-13 comparison's strict catch rule
+    deliberately does not count it). It exists because inconsistent totals are
+    real-world serious and the official suite verifies the formula; grading is
+    exactly as strong as the register allows, no stronger."""
+    if r.status not in (200, 201):
+        return INCONCLUSIVE                  # transport failure: not this row's business
+    t = _totals(r)
+    if not t or not all(isinstance(x, dict) and isinstance(x.get("amount"), int)
+                        and isinstance(x.get("type"), str) for x in t):
+        return INCONCLUSIVE                  # shape rows (TOT-005/006/020) grade that
+    totals = [x["amount"] for x in t if x["type"] == "total"]
+    if len(totals) != 1:
+        return INCONCLUSIVE                  # TOT-006's business
+    rest = sum(x["amount"] for x in t if x["type"] != "total")
+    return CLEAN if totals[0] == rest else DEVIATION
+
+
 def p_order_confirmation(r):
     """ORD-020: the order confirmation on complete carries id AND permalink_url."""
     if r.status not in (200, 201) or not isinstance(r.json, dict):
@@ -147,6 +169,12 @@ CHECKS_TOTALS_0408 = [
             "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.valid_code",), transport="rest", versions=V0408),
+    MCheck("totals.checkout_sum_consistency", ["TOT-008"], "MAY",
+           create_resp, p_sum_consistency,
+           ["set:totals=[{\"type\":\"subtotal\",\"amount\":3500},{\"type\":\"total\",\"amount\":3501}]",
+            "set:totals=[{\"type\":\"subtotal\",\"amount\":3500},{\"type\":\"discount\",\"amount\":-350},{\"type\":\"total\",\"amount\":3500}]"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           transport="rest", versions=V0408),
     MCheck("order.confirmation_fields", ["ORD-020"], "MUST",
            complete_resp, p_order_confirmation,
            ["status:500", "drop:order", "drop:order.id", "drop:order.permalink_url",

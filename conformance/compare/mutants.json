@@ -3,7 +3,7 @@
   "_excluded_by_design": [
     {
       "candidate": "grand total does not equal the sum of the other totals entries",
-      "reason": "NOT a business-side MUST in the pinned 2026-04-08 spec: totals-consistency verification is a platform MAY (TOT-008); the MUSTs on mismatched totals (TOT-010, CHK-055) bind the PLATFORM, not the server. The official suite asserts the formula (its totals calculation test would likely catch this), but a MUST-defect set must stay register-grounded, so it is excluded from the head-to-head rather than blended in."
+      "reason": "NOT a business-side MUST in the pinned 2026-04-08 spec: totals-consistency verification is a platform MAY (TOT-008); the MUSTs on mismatched totals (TOT-010, CHK-055) bind the PLATFORM, not the server. A MUST-defect set must stay register-grounded, so it is excluded from the head-to-head rather than blended in. For transparency it is still MEASURED as the `tot-grand-total-off` diagnostic below (counted nowhere): the official suite catches it via its grand-total-formula verification; spck surfaces it as a TOT-008 advisory (totals.checkout_sum_consistency), which under the strict catch rule (MUST-deviation red) is deliberately NOT a catch."
     },
     {
       "candidate": "unsigned / missing-signature webhook deliveries (ORD-026/ORD-027)",
@@ -176,6 +176,16 @@
       "citations": ["OVR-008"],
       "shared_surface": false,
       "surface_note": "HTTP response-header surface (see disc-cache-control-missing)."
+    },
+    {
+      "id": "tot-grand-total-off",
+      "defect": "Grand total is one minor unit higher than the sum of the other totals entries",
+      "mutate": "tot-off-by:total=1",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-008"],
+      "shared_surface": false,
+      "diagnostic": true,
+      "surface_note": "DIAGNOSTIC ONLY (see _excluded_by_design): TOT-008 makes totals-consistency verification a platform MAY, so this is not a server MUST-defect and is counted in neither the head-to-head nor the addendum. Measured because a skeptic deserves the outcome rather than a silent exclusion."
     }
   ]
 }

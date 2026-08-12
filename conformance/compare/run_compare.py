@@ -80,7 +80,11 @@ def decide_catch_spck(baseline_deviations, run_deviations, crashed):
 
 def compute_rates(mutants, records):
     """records: {mutant_id: {"spck_catch": bool, "official_catch": bool}}.
-    Head-to-head covers ONLY shared_surface mutants; the rest go to the addendum."""
+    Head-to-head covers ONLY shared_surface mutants. Non-shared mutants go to
+    the addendum. `diagnostic: true` mutants are counted NOWHERE — they are
+    measured purely for transparency (e.g. defects excluded from the common
+    set because the violated requirement binds the platform, not the server)."""
+    mutants = [m for m in mutants if not m.get("diagnostic")]
     shared = [m for m in mutants if m.get("shared_surface")]
     only = [m for m in mutants if not m.get("shared_surface")]
     out = {
@@ -116,7 +120,11 @@ def validate_citations(mutants, register_dir):
             r = rows.get(cid)
             if r is None:
                 problems.append(f"{m['id']}: cites {cid} which is not in the register")
-            elif r.get("keyword") not in ("MUST", "MUST NOT", "REQUIRED"):
+            elif (r.get("keyword") not in ("MUST", "MUST NOT", "REQUIRED")
+                  and not m.get("diagnostic")):
+                # diagnostic mutants exist precisely because their citation is
+                # NOT a server MUST (platform-binding / MAY); everything that
+                # counts anywhere must cite a MUST.
                 problems.append(f"{m['id']}: cites {cid} which is {r.get('keyword')}, not a MUST")
     return problems, rows
 
@@ -138,6 +146,11 @@ class Golden:
         self.url = f"http://localhost:{port}"
 
     def boot(self):
+        # Wipe the databases so "identical pinned seed state" is literally true:
+        # import_csv reseeds products/inventory/discounts, but checkout-session
+        # and order rows in transactions.db would otherwise survive across boots.
+        for db in pathlib.Path(self.db_dir).glob("*.db"):
+            db.unlink(missing_ok=True)
         env = dict(os.environ, PORT=str(self.port), SIM_SECRET=self.sim_secret,
                    DB_DIR=self.db_dir)
         r = subprocess.run([str(ROOT / "conformance" / "ci" / "serve_golden.sh")],
@@ -172,7 +185,13 @@ def start_proxy(golden, port, mutant=None):
 
 
 def run_spck(server, config_path):
-    """Run our as-shipped merchant runner; return (deviating_check_ids, meta)."""
+    """Run our as-shipped merchant runner; return (deviating_check_ids, meta).
+
+    Only checks whose requirement keyword is MUST/MUST NOT count toward the
+    deviation set — the stated catch rule is ">=1 MUST reported as a deviation"
+    (the verdict gate's red), so a SHOULD/MAY advisory firing must never earn
+    catch credit. rep['verdict']['deviations'] (the gate's MUST-deviation
+    count) is the arbiter; the id list is evidence for the table."""
     r = subprocess.run(
         [sys.executable, str(CHECKS / "merchant.py"), "--server", server,
          "--config", str(config_path), "--json"],
@@ -183,10 +202,20 @@ def run_spck(server, config_path):
         rep = json.loads(r.stdout)
     except json.JSONDecodeError:
         return None, {"crashed": True, "stderr": "unparseable runner output"}
-    devs = sorted(c["id"] for c in rep["checks"] if c["status"] == "deviation")
+
+    def _must(c):
+        kws = {q.get("keyword") for q in (c.get("requirements") or [])}
+        return (not kws) or bool(kws & {"MUST", "MUST NOT", "REQUIRED"})
+
+    devs = sorted(c["id"] for c in rep["checks"]
+                  if c["status"] == "deviation" and _must(c))
+    if rep["verdict"]["deviations"] == 0:
+        devs = []                      # gate says no MUST deviated; nothing counts
     meta = {"crashed": False, "aggregate": rep["verdict"]["aggregate"],
             "deviation_musts": rep["verdict"]["deviations"],
             "musts_passed": rep["verdict"]["musts_passed"],
+            "advisory_flags": sorted(c["id"] for c in rep["checks"]
+                                     if c["status"] == "deviation" and not _must(c)),
             "dev_req_ids": sorted({rid for c in rep["checks"]
                                    if c["status"] == "deviation" for rid in c["req_ids"]})}
     return devs, meta
@@ -250,8 +279,10 @@ def render_md(results):
         off = "**CATCH** — " + ", ".join(t.split(".")[-1] for t in r["official_new_failures"][:4]) \
             if r["official_catch"] else ("crash (not counted)" if r.get("official_crashed") else "MISS")
         det = "yes" if r["deterministic"] else "**NO — flagged**"
+        surf = ("diagnostic — counted nowhere" if r.get("diagnostic")
+                else ("Y" if r["shared_surface"] else "N — addendum"))
         L.append(f"| {r['id']} | {r['defect']} | {', '.join(r['citations'])} | "
-                 f"{'Y' if r['shared_surface'] else 'N — addendum'} | {spck} | {off} | {det} |")
+                 f"{surf} | {spck} | {off} | {det} |")
     rt = m["rates"]["shared_surface"]
     L.append("\n## Head-to-head catch-rate (shared surface only)\n")
     L.append(f"- **spck suite: {rt['spck_caught']}/{rt['n']} "
@@ -263,10 +294,22 @@ def render_md(results):
     L.append(f"- {ro['spck_caught']}/{ro['n']} caught by spck; the official suite does not "
              f"attempt these surfaces, so no official number is claimed for them.")
     for r in m["mutants"]:
-        if not r["shared_surface"]:
+        if not r["shared_surface"] and not r.get("diagnostic"):
             L.append(f"  - {r['id']}: {r['defect']} ({', '.join(r['citations'])}) — "
                      f"{'caught' if r['spck_catch'] else 'MISSED'} by spck. "
                      f"{r.get('surface_note', '')}")
+    diags = [r for r in m["mutants"] if r.get("diagnostic")]
+    if diags:
+        L.append("\n## Diagnostics — measured for transparency, counted NOWHERE\n")
+        L.append("These defects were excluded from the common set because the "
+                 "violated requirement binds the PLATFORM, not the server, in the "
+                 "pinned register — but a skeptic deserves the measured outcome:")
+        for r in diags:
+            s = "CATCH" if r["spck_catch"] else \
+                "no red (as the register prescribes: advisory at most)"
+            o = "CATCH" if r["official_catch"] else "MISS"
+            L.append(f"  - {r['id']}: {r['defect']} ({', '.join(r['citations'])}) — "
+                     f"spck {s}, official {o}. {r.get('surface_note', '')}")
     misses = [r for r in m["mutants"] if r["shared_surface"] and not r["spck_catch"]]
     if misses:
         L.append("\n## Where WE missed (gaps in the spck suite — to fix)\n")
@@ -321,6 +364,17 @@ def main():
             print(f"port {port} busy — refusing (same reasoning as serve_golden.sh)", file=sys.stderr)
             return 1
 
+    # Provenance guard: results committed as THE results must be attributable to
+    # a clean, reachable commit — "valid only for the pins in its meta block"
+    # (README) is self-defeating if the pin is a dirty tree. Debug runs go to a
+    # non-default --out; the default results/ requires a clean tree.
+    tree_dirty = bool(subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"],
+                                     capture_output=True, text=True).stdout.strip())
+    if tree_dirty and pathlib.Path(args.out).resolve() == (HERE / "results").resolve():
+        print("working tree is dirty — refusing to write the canonical results/ "
+              "(commit first, or use --out elsewhere for a debug run)", file=sys.stderr)
+        return 1
+
     golden = Golden(args.golden_port, args.sim_secret, args.db_dir)
     proxy_url = f"http://localhost:{args.proxy_port}"
     dirty = bool(subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"],
@@ -361,11 +415,23 @@ def main():
             p.kill(); p.wait(); golden.stop()
 
     # ---------------- baselines (passthrough proxy) ----------------
+    # Both suites get the SAME baseline treatment: --baseline-repeat runs each,
+    # anything red in some-but-not-all baseline runs is unstable and earns no
+    # catch credit for that suite. (A single spck baseline would have meant no
+    # spck check could ever be flagged flaky — a structural asymmetry.)
     print("== baseline (passthrough proxy; fresh golden per run) ==", flush=True)
-    base_devs, base_meta = spck_on_fresh_golden()
-    if base_devs is None:
-        print("spck baseline crashed:\n" + base_meta.get("stderr", ""), file=sys.stderr)
-        return 1
+    spck_runs = []
+    for i in range(args.baseline_repeat):
+        d, m = spck_on_fresh_golden()
+        if d is None:
+            print("spck baseline crashed:\n" + m.get("stderr", ""), file=sys.stderr)
+            return 1
+        spck_runs.append((d, m))
+        print(f"  spck baseline #{i + 1}: aggregate={m['aggregate']} "
+              f"musts_passed={m['musts_passed']} deviations={m['deviation_musts']}", flush=True)
+    base_meta = spck_runs[0][1]
+    base_devs = sorted(set.intersection(*(set(d) for d, _ in spck_runs)))
+    spck_unstable = sorted(set.union(*(set(d) for d, _ in spck_runs)) - set(base_devs))
     off_runs = []
     for i in range(args.baseline_repeat):
         f, meta = official_on_fresh_golden()
@@ -377,10 +443,8 @@ def main():
               f"{meta['errors']} errors, {meta['skipped']} skipped of {meta['tests']}", flush=True)
     base_off_failed = sorted(set.intersection(*(set(f) for f, _ in off_runs)))
     unstable = sorted(set.union(*(set(f) for f, _ in off_runs)) - set(base_off_failed))
-    print(f"  spck baseline: aggregate={base_meta['aggregate']} "
-          f"musts_passed={base_meta['musts_passed']} deviations={base_meta['deviation_musts']}",
-          flush=True)
     results["baseline"] = {"spck": base_meta, "spck_deviations": base_devs,
+                           "spck_unstable": spck_unstable,
                            "official": off_runs[0][1], "official_failed": base_off_failed,
                            "official_unstable": unstable}
 
@@ -395,7 +459,8 @@ def main():
             if devs is None:
                 s_crashed = True; s_catches.append(False)
             else:
-                c, new = decide_catch_spck(base_devs, devs, False)
+                c, new = decide_catch_spck(sorted(set(base_devs) | set(spck_unstable)),
+                                           devs, False)
                 s_catches.append(c); s_new = new
             fails, ometa = official_on_fresh_golden(mu)
             if fails is None:
@@ -408,6 +473,7 @@ def main():
         rec = {
             "id": mu["id"], "defect": mu["defect"], "mutate": mu["mutate"],
             "citations": mu["citations"], "shared_surface": bool(mu.get("shared_surface")),
+            "diagnostic": bool(mu.get("diagnostic")),
             "surface_note": mu.get("surface_note", ""),
             "spck_catch": all(s_catches), "spck_new_deviations": s_new,
             "spck_crashed": s_crashed,
