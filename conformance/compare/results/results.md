@@ -1,10 +1,10 @@
 # Kill-rate comparison — spck suite vs official UCP conformance suite
 
-_Generated 2026-08-12T11:18:18-0400 · methodology + fairness rules: see README.md in this directory. All numbers reproducible via `reproduce.sh`._
+_Generated 2026-08-12T12:22:50-0400 · methodology + fairness rules: see README.md in this directory. All numbers reproducible via `reproduce.sh`._
 
 ## Pinned inputs
 
-- **spck_repo**: `ce4d9bf85170c967374e94eab378f0906db8242f+dirty`
+- **spck_repo**: `eb4702f5c0f694e03f357352461001c962c59b1f`
 - **official_conformance**: `6ee0b53c1925a6ed49bf38d7d4d6f2bdc4e8c7be`
 - **official_python_sdk**: `a0d8308e080c48bfe70128eeaabbddfa165ddc46`
 - **golden_samples**: `52377503de720f8707717f9eba10f064f1413c64`
@@ -24,10 +24,10 @@ _Generated 2026-08-12T11:18:18-0400 · methodology + fairness rules: see README.
 | chk-missing-totals | Checkout responses omit the required top-level `totals` field | CHK-034 | Y | **CATCH** — discount.single_applied, totals.checkout_additive_non_negative, totals.checkout_entry_type_and_amount, totals.checkout_subtotal_and_total | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | chk-missing-currency | Checkout responses omit the required top-level `currency` field | CHK-034 | Y | **CATCH** — checkout.response_fields | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | chk-status-bad-enum | Checkout `status` carries a value outside the six lifecycle values ('shipped') | CHK-033 | Y | **CATCH** — checkout.cancel, checkout.complete_order, checkout.create_valid, checkout.retrieve | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
-| tot-subtotal-removed | No totals entry of type `subtotal` in checkout responses | TOT-005 | Y | **CATCH** — totals.checkout_additive_non_negative, totals.checkout_subtotal_and_total | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
+| tot-subtotal-removed | No totals entry of type `subtotal` in checkout responses | TOT-005 | Y | **CATCH** — totals.checkout_additive_non_negative, totals.checkout_subtotal_and_total, totals.checkout_sum_consistency | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | tot-total-removed | No totals entry of type `total` in checkout responses | TOT-006 | Y | **CATCH** — totals.checkout_subtotal_and_total | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | tot-discount-positive | Discount totals entries carry POSITIVE amounts (sign flipped) | TOT-014, DSC-021 | Y | **CATCH** — totals.checkout_subtractive_negative | **CATCH** — test_discount_flow, test_fixed_amount_discount, test_multiple_discounts_accepted, test_multiple_discounts_one_rejected | yes |
-| tot-subtotal-negative | Subtotal totals entries carry NEGATIVE amounts (sign flipped) | TOT-015 | Y | **CATCH** — totals.checkout_additive_non_negative | **CATCH** — test_discount_flow, test_fixed_amount_discount, test_multiple_discounts_accepted, test_multiple_discounts_one_rejected | yes |
+| tot-subtotal-negative | Subtotal totals entries carry NEGATIVE amounts (sign flipped) | TOT-015 | Y | **CATCH** — totals.checkout_additive_non_negative, totals.checkout_sum_consistency | **CATCH** — test_discount_flow, test_fixed_amount_discount, test_multiple_discounts_accepted, test_multiple_discounts_one_rejected | yes |
 | tot-entry-missing-amount | Subtotal totals entries omit the required `amount` field | TOT-020 | Y | **CATCH** — totals.checkout_additive_non_negative, totals.checkout_entry_type_and_amount | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | err-missing-messages | Error responses omit the `messages` array | ERR-028, ERR-030 | Y | **CATCH** — checkout.protocol_error_shape, checkout.unavailable_all_error_envelope | **CATCH** — test_complete_without_fulfillment, test_out_of_stock, test_payment_failure, test_product_not_found | yes |
 | err-ucp-status-success | Error responses carry ucp.status 'success' instead of 'error' | ERR-029 | Y | **CATCH** — checkout.unavailable_all_error_envelope | MISS | yes |
@@ -38,6 +38,7 @@ _Generated 2026-08-12T11:18:18-0400 · methodology + fairness rules: see README.
 | chk-body-not-json | Checkout response bodies are not valid JSON (truncated by one byte) | CHK-044 | Y | **CATCH** — checkout.cancel, checkout.complete_order, checkout.create_valid, checkout.deterministic_logic | **CATCH** — test_ap2_mandate_completion, test_token_binding_completion, test_buyer_consent, test_buyer_info_persistence | yes |
 | disc-cache-control-missing | Discovery profile served without any Cache-Control header | DISC-003 | N — addendum | **CATCH** — discovery.profile_cache_control | MISS | yes |
 | resp-content-type-wrong | Responses served with Content-Type text/html instead of application/json | OVR-008 | N — addendum | **CATCH** — response.content_type_json | MISS | yes |
+| tot-grand-total-off | Grand total is one minor unit higher than the sum of the other totals entries | TOT-008 | diagnostic — counted nowhere | MISS | **CATCH** — test_discount_flow, test_fixed_amount_discount, test_multiple_discounts_accepted, test_multiple_discounts_one_rejected | yes |
 
 ## Head-to-head catch-rate (shared surface only)
 
@@ -49,6 +50,11 @@ _Generated 2026-08-12T11:18:18-0400 · methodology + fairness rules: see README.
 - 2/2 caught by spck; the official suite does not attempt these surfaces, so no official number is claimed for them.
   - disc-cache-control-missing: Discovery profile served without any Cache-Control header (DISC-003) — caught by spck. HTTP response-header surface: the official suite has no header assertions anywhere, so counting this against it would pad our number. Reported only in the spck-only addendum.
   - resp-content-type-wrong: Responses served with Content-Type text/html instead of application/json (OVR-008) — caught by spck. HTTP response-header surface (see disc-cache-control-missing).
+
+## Diagnostics — measured for transparency, counted NOWHERE
+
+These defects were excluded from the common set because the violated requirement binds the PLATFORM, not the server, in the pinned register — but a skeptic deserves the measured outcome:
+  - tot-grand-total-off: Grand total is one minor unit higher than the sum of the other totals entries (TOT-008) — spck no red (as the register prescribes: advisory at most), official CATCH. DIAGNOSTIC ONLY (see _excluded_by_design): TOT-008 makes totals-consistency verification a platform MAY, so this is not a server MUST-defect and is counted in neither the head-to-head nor the addendum. Measured because a skeptic deserves the outcome rather than a silent exclusion.
 
 ## Official-suite misses on the common set (candidate upstream test-gap filings)
 

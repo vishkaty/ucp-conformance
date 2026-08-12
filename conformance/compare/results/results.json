@@ -1,8 +1,8 @@
 {
   "meta": {
-    "timestamp": "2026-08-12T11:18:18-0400",
+    "timestamp": "2026-08-12T12:22:50-0400",
     "pins": {
-      "spck_repo": "ce4d9bf85170c967374e94eab378f0906db8242f+dirty",
+      "spck_repo": "eb4702f5c0f694e03f357352461001c962c59b1f",
       "official_conformance": "6ee0b53c1925a6ed49bf38d7d4d6f2bdc4e8c7be",
       "official_python_sdk": "a0d8308e080c48bfe70128eeaabbddfa165ddc46",
       "golden_samples": "52377503de720f8707717f9eba10f064f1413c64"
@@ -17,9 +17,11 @@
       "aggregate": "incomplete",
       "deviation_musts": 0,
       "musts_passed": 37,
+      "advisory_flags": [],
       "dev_req_ids": []
     },
     "spck_deviations": [],
+    "spck_unstable": [],
     "official": {
       "crashed": false,
       "tests": 76,
@@ -39,6 +41,7 @@
         "OVR-010"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -62,6 +65,7 @@
         "OVR-004"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -136,6 +140,7 @@
         "CHK-034"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -216,6 +221,7 @@
         "CHK-034"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -295,6 +301,7 @@
         "CHK-034"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -366,6 +373,7 @@
         "CHK-033"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -443,11 +451,13 @@
         "TOT-005"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
         "totals.checkout_additive_non_negative",
-        "totals.checkout_subtotal_and_total"
+        "totals.checkout_subtotal_and_total",
+        "totals.checkout_sum_consistency"
       ],
       "spck_crashed": false,
       "official_catch": true,
@@ -516,6 +526,7 @@
         "TOT-006"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -589,6 +600,7 @@
         "DSC-021"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -615,10 +627,12 @@
         "TOT-015"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
-        "totals.checkout_additive_non_negative"
+        "totals.checkout_additive_non_negative",
+        "totals.checkout_sum_consistency"
       ],
       "spck_crashed": false,
       "official_catch": true,
@@ -642,6 +656,7 @@
         "TOT-020"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -717,6 +732,7 @@
         "ERR-030"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -744,6 +760,7 @@
         "ERR-029"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -764,6 +781,7 @@
         "CHK-017"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -804,6 +822,7 @@
         "CHK-025"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -847,6 +866,7 @@
         "ORD-020"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -868,6 +888,7 @@
         "FUL-008"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -892,6 +913,7 @@
         "CHK-044"
       ],
       "shared_surface": true,
+      "diagnostic": false,
       "surface_note": "",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -1017,6 +1039,7 @@
         "DISC-003"
       ],
       "shared_surface": false,
+      "diagnostic": false,
       "surface_note": "HTTP response-header surface: the official suite has no header assertions anywhere, so counting this against it would pad our number. Reported only in the spck-only addendum.",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -1036,6 +1059,7 @@
         "OVR-008"
       ],
       "shared_surface": false,
+      "diagnostic": false,
       "surface_note": "HTTP response-header surface (see disc-cache-control-missing).",
       "spck_catch": true,
       "spck_new_deviations": [
@@ -1044,6 +1068,32 @@
       "spck_crashed": false,
       "official_catch": false,
       "official_new_failures": [],
+      "official_crashed": false,
+      "deterministic": true
+    },
+    {
+      "id": "tot-grand-total-off",
+      "defect": "Grand total is one minor unit higher than the sum of the other totals entries",
+      "mutate": "tot-off-by:total=1",
+      "citations": [
+        "TOT-008"
+      ],
+      "shared_surface": false,
+      "diagnostic": true,
+      "surface_note": "DIAGNOSTIC ONLY (see _excluded_by_design): TOT-008 makes totals-consistency verification a platform MAY, so this is not a server MUST-defect and is counted in neither the head-to-head nor the addendum. Measured because a skeptic deserves the outcome rather than a silent exclusion.",
+      "spck_catch": false,
+      "spck_new_deviations": [],
+      "spck_crashed": false,
+      "official_catch": true,
+      "official_new_failures": [
+        "business_logic_test.BusinessLogicTest.test_discount_flow",
+        "business_logic_test.BusinessLogicTest.test_fixed_amount_discount",
+        "business_logic_test.BusinessLogicTest.test_multiple_discounts_accepted",
+        "business_logic_test.BusinessLogicTest.test_multiple_discounts_one_rejected",
+        "business_logic_test.BusinessLogicTest.test_totals_calculation_on_create",
+        "business_logic_test.BusinessLogicTest.test_totals_recalculation_on_update",
+        "fulfillment_test.FulfillmentTest.test_fulfillment_flow"
+      ],
       "official_crashed": false,
       "deterministic": true
     }
