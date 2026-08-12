@@ -25,7 +25,7 @@ try:
         AllowedMerchants, OpenCheckoutMandate)
     from ap2.sdk.generated.payment_mandate import PaymentMandate
     from ap2.sdk.generated.open_payment_mandate import (
-        AllowedPayees, AmountRange, OpenPaymentMandate)
+        AllowedPayees, AmountRange, OpenPaymentMandate, PaymentReference)
     from ap2.sdk.generated.types.amount import Amount
     from ap2.sdk.generated.types.merchant import Merchant
     from ap2.sdk.generated.types.payment_instrument import PaymentInstrument
@@ -108,7 +108,12 @@ def _payment_chain(open_cnf_key, close_holder_key, transaction_id="tx_1",
     return chain, _pub(user)
 
 
-def _payment_outcome(chain, root_pub, expected_transaction_id=None):
+def _payment_outcome(chain, root_pub, expected_transaction_id="tx_1"):
+    """A CORRECT verifier always confirms the closed checkout binding, so the
+    default supplies the builder's transaction_id ("tx_1"). This keeps every
+    case green on both the pinned reference AND one carrying our PR#330
+    fail-closed fix; the one case that deliberately OMITS the confirmation is
+    e2e.reject_unconfirmed_closed_binding."""
     holder = MandateClient()
     try:
         payloads = holder.verify(token=chain, key_or_provider=lambda _t: root_pub,
@@ -265,6 +270,87 @@ def _issuer_jwt_hash_mode():
     return _payment_outcome(chain, up)
 
 
+# ── correct behavior behind our FILED reference-SDK defects (AP2#329/#330).
+# The pinned reference still carries both bugs, so each case is registered in
+# conformance/ci/known_ap2_reference_defects.json (self-expiring): the runner
+# acknowledges the documented buggy outcome and FLIPS TO ENFORCING the moment a
+# re-pinned reference produces the correct one. ──────────────────────────────
+
+_X402_EXT = {"payee_address": "0xAbCd0001",
+             "facilitator": "https://facilitator.example"}
+
+
+def _instrument_extensions_survive():
+    """AP2#299 item 1 / our PR#329 — a TYPE-SPECIFIC PaymentInstrument extension
+    field (x402 payee_address/facilitator) MUST survive parse->sign->verify: the
+    verifier acts on the values the user actually signed, or the x402 CP falls
+    open to hard-coded defaults. PASS only if the verified closed mandate still
+    carries both fields. (Deliberately does not call chain.verify(): the case
+    isolates signing FIDELITY from the #330 binding-default question.)"""
+    user, agent = _key("user-key-1"), _key("agent-key-1")
+    holder = MandateClient()
+    open_tok = holder.create(
+        payloads=[OpenPaymentMandate(constraints=[], cnf=make_cnf(agent))],
+        issuer_key=user)
+    pm = PaymentMandate(
+        transaction_id="tx_1", payee=Merchant(name="Shop", id="s-1"),
+        payment_amount=Amount(amount=199, currency="USD"),
+        payment_instrument=PaymentInstrument(id="x402-usdc-1", type="x402",
+                                             **_X402_EXT))
+    chain = holder.present(holder_key=agent, mandate_token=open_tok,
+                           payloads=[pm], aud="merchant", nonce="merchant-nonce")
+    try:
+        payloads = MandateClient().verify(
+            token=chain, key_or_provider=lambda _t: _pub(user),
+            expected_aud="merchant", expected_nonce="merchant-nonce")
+    except Exception:
+        return "REJECT"
+    inst = PaymentMandateChain.parse(payloads).closed_mandate.payment_instrument
+    dumped = inst.model_dump()
+    survived = all(dumped.get(k) == v for k, v in _X402_EXT.items())
+    return "PASS" if survived else "REJECT"
+
+
+def _closed_binding_unconfirmed():
+    """AP2#328 / our PR#330 — chain-verify MUST reject, BY DEFAULT, a payment
+    mandate whose closed transaction_id binds a DIFFERENT checkout than the one
+    being processed (security_and_privacy_considerations.md L19-21: both the open
+    `payment.reference` and the closed `transaction_id` bindings are mandatory).
+    The verifier below supplies only expected_open_checkout_hash — the buggy
+    reference silently skips the closed binding and accepts."""
+    import base64
+    import hashlib
+
+    def _h(s):
+        return base64.urlsafe_b64encode(
+            hashlib.sha256(s.encode()).digest()).rstrip(b"=").decode()
+
+    open_hash = _h("checkout-jwt-A")     # the checkout being processed
+    other_hash = _h("checkout-jwt-B")    # a different checkout entirely
+    user, agent = _key("user-key-1"), _key("agent-key-1")
+    holder = MandateClient()
+    open_tok = holder.create(
+        payloads=[OpenPaymentMandate(
+            constraints=[PaymentReference(conditional_transaction_id=open_hash)],
+            cnf=make_cnf(agent))],
+        issuer_key=user)
+    pm = PaymentMandate(
+        transaction_id=other_hash, payee=Merchant(name="Shop", id="s-1"),
+        payment_amount=Amount(amount=1000, currency="USD"),
+        payment_instrument=PaymentInstrument(id="pi-1", type="credit"))
+    chain = holder.present(holder_key=agent, mandate_token=open_tok,
+                           payloads=[pm], aud="merchant", nonce="merchant-nonce")
+    try:
+        payloads = MandateClient().verify(
+            token=chain, key_or_provider=lambda _t: _pub(user),
+            expected_aud="merchant", expected_nonce="merchant-nonce")
+    except Exception:
+        return "REJECT"
+    violations = PaymentMandateChain.parse(payloads).verify(
+        expected_open_checkout_hash=open_hash)   # no expected_transaction_id
+    return "REJECT" if violations else "PASS"
+
+
 def _missing_consent_lone_open():
     # a lone open mandate presented where a closed 2-hop authorization is required.
     user = _key("user-key-1")
@@ -295,4 +381,8 @@ CASES = [
     ("e2e.reject_disallowed_payee", ["PAY-045"], "43", "REJECT", _allowed_payees_violation),
     ("e2e.reject_unknown_constraint", ["PAY-045"], "44", "REJECT", _unknown_constraint),
     ("e2e.issuer_jwt_hash_binding_mode", ["PAY-042"], "39", "PASS", _issuer_jwt_hash_mode),
+    ("e2e.instrument_extensions_survive_signing", ["PAY-041"], "AP2#299/PR#329",
+     "PASS", _instrument_extensions_survive),
+    ("e2e.reject_unconfirmed_closed_binding", ["PAY-047"], "AP2#328/PR#330",
+     "REJECT", _closed_binding_unconfirmed),
 ]

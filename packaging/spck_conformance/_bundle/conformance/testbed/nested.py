@@ -22,6 +22,12 @@ runs with our own code only, no reference SDK:
 The generic chain layer (hop signatures, sd_hash binding, disclosures) is checked
 separately by frozen.py / the reference verifier; this module assumes a chain that
 parses and asks only whether the UCP nesting holds.
+
+The PAYMENT-mandate analogs live here too (same doctrine — content bound to THIS
+transaction, our codec only): `verify_payment_checkout_binding` (the closed
+`transaction_id` MUST name this checkout, verified DEFAULT-CLOSED — our filed
+AP2#328/PR#330) and `closed_payment_instrument` (the signed instrument claims a
+verifier acts on, including type-specific extension fields — AP2#299/PR#329).
 """
 import json
 import pathlib
@@ -100,4 +106,70 @@ def verify_ucp_nested(wire, merchant_Q):
     if not crypto.jws_detached_verify(auth, body, merchant_Q):
         return False, "embedded merchant_authorization does not verify"
 
+    return True, "ok"
+
+
+# ── payment-mandate binding layer (AP2#328/#330, AP2#299/#329 — our codec only) ──
+
+def _closed_mandate_values(hop):
+    """Every dict value disclosed by (or embedded in) the closed hop."""
+    vals = []
+    for disc in hop.disclosures:
+        try:
+            arr = sdjwt.decode_disclosure(disc)
+        except Exception:
+            continue
+        if isinstance(arr[-1], dict):
+            vals.append(arr[-1])
+    vals.append(hop.payload)
+    return vals
+
+
+def closed_payment_instrument(wire):
+    """The closed payment mandate's SIGNED payment_instrument object (or None).
+
+    This is the value a verifier must act on — including the TYPE-SPECIFIC
+    extension fields a `type` defines (x402: payee_address, facilitator). The
+    pinned reference SDK drops those fields before signing (our filed AP2#299 /
+    PR#329); our own mint->wire->parse round-trip must never lose them.
+    """
+    try:
+        hops = sdjwt.parse_chain(wire)
+    except ValueError:
+        return None
+    for val in _closed_mandate_values(hops[-1]):
+        inst = val.get("payment_instrument")
+        if isinstance(inst, dict):
+            return inst
+    return None
+
+
+def verify_payment_checkout_binding(wire, checkout_jwt):
+    """Return (ok, reason): the closed payment mandate binds THIS checkout.
+
+    security_and_privacy_considerations.md L19-21: "The Payment Mandate MUST
+    contain a reference to its associated Checkout. This is via `transaction_id`
+    for closed Payment Mandates" — and L69: the checkout_hash embedded in the
+    transaction_id "securely links the payment to the associated Checkout".
+
+    Verification is DEFAULT-CLOSED (our filed AP2#328 / PR#330): a transaction_id
+    that is absent, blank, or not a string is a REJECT — never a silent skip —
+    and a transaction_id naming a different checkout's hash is a REJECT.
+    """
+    try:
+        hops = sdjwt.parse_chain(wire)
+    except ValueError as exc:
+        return False, f"structure: {exc}"
+
+    tid = None
+    for val in _closed_mandate_values(hops[-1]):
+        if "transaction_id" in val:
+            tid = val["transaction_id"]
+            break
+    if tid is None:
+        return False, "closed mandate carries no transaction_id (fail closed)"
+    if not isinstance(tid, str) or not tid:
+        return False, "closed mandate transaction_id is blank (fail closed)"
+    if tid != sdjwt.hash_ascii(checkout_jwt, hops[-1].sd_alg):
+        return False, "transaction_id binds a DIFFERENT checkout"
     return True, "ok"
