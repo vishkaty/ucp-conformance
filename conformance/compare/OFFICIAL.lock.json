@@ -1,0 +1,18 @@
+{
+  "_about": "Pins for the P2-13 suite-vs-suite comparison ONLY. The official suite is compared at CURRENT MAIN (deliberately newer than the signal-pin in conformance/SOURCES.lock.json: a fair head-to-head must face the official suite at its best, including its newest fixes). Regenerate deliberately with fetch_official.sh --repin and re-run the comparison; results/*.md is only valid for the SHAs it records in its own meta block.",
+  "official_conformance_suite": {
+    "repo": "Universal-Commerce-Protocol/conformance",
+    "ref": "main",
+    "commit": "6ee0b53c1925a6ed49bf38d7d4d6f2bdc4e8c7be",
+    "commit_date": "2026-08-12T13:40:49Z",
+    "note": "9 commits ahead of the SOURCES.lock signal pin f78fe9f1 at comparison time — includes upstream fixes #73-#81 (several of which landed from our own filings) and the new webhook_structure_test module. 78 test methods."
+  },
+  "official_python_sdk_sibling": {
+    "repo": "Universal-Commerce-Protocol/python-sdk",
+    "ref": "main",
+    "commit": "a0d8308e080c48bfe70128eeaabbddfa165ddc46",
+    "resolve_full_sha_note": "python-sdk rides main by necessity (see why); results.json meta records the exact SHA used by each run.",
+    "why": "the official suite's pyproject takes ucp-sdk as an editable PATH dep from ../python-sdk; current-main tests import modules (reverse_domain_name, error_response) that exist only on python-sdk main, so the sibling must be main, not the 0.3.0 pin."
+  },
+  "golden": "the flower reference server pinned by conformance/SOURCES.lock.json reference_sample_server — the SAME golden our own CI kill-tests run against; boot with conformance/ci/serve_golden.sh."
+}

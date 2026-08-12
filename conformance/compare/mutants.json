@@ -1,0 +1,181 @@
+{
+  "_about": "P2-13 common mutant set: injected MUST-defects on the surface BOTH suites target (REST checkout / order / discount / fulfillment / error-envelope / discovery body against the flower golden). Every mutant models a SERVER defect a conformant implementation would never emit, injected by sticky_proxy.py so both suites hit the SAME mutated server. `citations` name rows in conformance/requirements/2026-04-08/ (verbatim-quote-verified by verify_register.py); test_compare.py fails if a cited id is missing or is not a MUST/MUST NOT. `shared_surface: false` mutants target requirement surfaces the OFFICIAL suite does not attempt (e.g. HTTP response headers) — they are NEVER counted in the head-to-head; they feed the clearly-labeled 'surfaces only spck covers' addendum.",
+  "_excluded_by_design": [
+    {
+      "candidate": "grand total does not equal the sum of the other totals entries",
+      "reason": "NOT a business-side MUST in the pinned 2026-04-08 spec: totals-consistency verification is a platform MAY (TOT-008); the MUSTs on mismatched totals (TOT-010, CHK-055) bind the PLATFORM, not the server. The official suite asserts the formula (its totals calculation test would likely catch this), but a MUST-defect set must stay register-grounded, so it is excluded from the head-to-head rather than blended in."
+    },
+    {
+      "candidate": "unsigned / missing-signature webhook deliveries (ORD-026/ORD-027)",
+      "reason": "Webhooks travel OUTBOUND from the golden to each suite's receiver, so a response-mutation proxy cannot inject the defect for both suites identically. Excluded from the injectable set for BOTH sides (the official suite now has webhook_structure_test on this surface; ours has webhook checks + the ucp#568 tripwire). No number is claimed either way."
+    }
+  ],
+  "calibration": {
+    "expected_both_catch": "tot-subtotal-removed",
+    "expected_spck_only_catch": "disc-cache-control-missing"
+  },
+  "mutants": [
+    {
+      "id": "disc-version-nondate",
+      "defect": "Discovery profile advertises a non-date version string ('draft')",
+      "mutate": "set-field:ucp?.version=\"draft\"",
+      "match": {"path": "^/\\.well-known/ucp", "methods": "GET", "status": "2xx"},
+      "citations": ["OVR-010"],
+      "shared_surface": true
+    },
+    {
+      "id": "resp-ucp-envelope-missing",
+      "defect": "Checkout responses omit the ucp envelope entirely",
+      "mutate": "drop:ucp",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["OVR-004"],
+      "shared_surface": true
+    },
+    {
+      "id": "chk-missing-status",
+      "defect": "Checkout responses omit the required top-level `status` field",
+      "mutate": "drop:status",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["CHK-034"],
+      "shared_surface": true
+    },
+    {
+      "id": "chk-missing-totals",
+      "defect": "Checkout responses omit the required top-level `totals` field",
+      "mutate": "drop:totals",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["CHK-034"],
+      "shared_surface": true
+    },
+    {
+      "id": "chk-missing-currency",
+      "defect": "Checkout responses omit the required top-level `currency` field",
+      "mutate": "drop:currency",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["CHK-034"],
+      "shared_surface": true
+    },
+    {
+      "id": "chk-status-bad-enum",
+      "defect": "Checkout `status` carries a value outside the six lifecycle values ('shipped')",
+      "mutate": "set-field:status=\"shipped\"",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["CHK-033"],
+      "shared_surface": true
+    },
+    {
+      "id": "tot-subtotal-removed",
+      "defect": "No totals entry of type `subtotal` in checkout responses",
+      "mutate": "tot-del:subtotal",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-005"],
+      "shared_surface": true
+    },
+    {
+      "id": "tot-total-removed",
+      "defect": "No totals entry of type `total` in checkout responses",
+      "mutate": "tot-del:total",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-006"],
+      "shared_surface": true
+    },
+    {
+      "id": "tot-discount-positive",
+      "defect": "Discount totals entries carry POSITIVE amounts (sign flipped)",
+      "mutate": "tot-negate:discount",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-014", "DSC-021"],
+      "shared_surface": true
+    },
+    {
+      "id": "tot-subtotal-negative",
+      "defect": "Subtotal totals entries carry NEGATIVE amounts (sign flipped)",
+      "mutate": "tot-negate:subtotal",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-015"],
+      "shared_surface": true
+    },
+    {
+      "id": "tot-entry-missing-amount",
+      "defect": "Subtotal totals entries omit the required `amount` field",
+      "mutate": "tot-strip-amount:subtotal",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["TOT-020"],
+      "shared_surface": true
+    },
+    {
+      "id": "err-missing-messages",
+      "defect": "Error responses omit the `messages` array",
+      "mutate": "drop:messages",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "4xx"},
+      "citations": ["ERR-028", "ERR-030"],
+      "shared_surface": true
+    },
+    {
+      "id": "err-ucp-status-success",
+      "defect": "Error responses carry ucp.status 'success' instead of 'error'",
+      "mutate": "set-field:ucp.status=\"success\"",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "4xx"},
+      "citations": ["ERR-029"],
+      "shared_surface": true
+    },
+    {
+      "id": "err-http-200-always",
+      "defect": "Server returns HTTP 200 for every request it actually rejected (errors only signaled in the body)",
+      "mutate": "status:200",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "4xx"},
+      "citations": ["OVR-014", "CHK-017"],
+      "shared_surface": true
+    },
+    {
+      "id": "complete-missing-order",
+      "defect": "Complete-checkout response omits the populated `order` field",
+      "mutate": "drop:order",
+      "match": {"path": "^/checkout-sessions/[^/]+/complete$", "methods": "POST", "status": "2xx"},
+      "citations": ["CHK-025"],
+      "shared_surface": true
+    },
+    {
+      "id": "order-missing-permalink",
+      "defect": "Order confirmation omits `permalink_url`",
+      "mutate": "drop:order.permalink_url",
+      "match": {"path": "^/checkout-sessions/[^/]+/complete$", "methods": "POST", "status": "2xx"},
+      "citations": ["ORD-020"],
+      "shared_surface": true
+    },
+    {
+      "id": "ful-option-untitled",
+      "defect": "Every fulfillment option omits the required `title`",
+      "mutate": "ful-opt-del:title",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["FUL-008"],
+      "shared_surface": true
+    },
+    {
+      "id": "chk-body-not-json",
+      "defect": "Checkout response bodies are not valid JSON (truncated by one byte)",
+      "mutate": "corrupt-json",
+      "match": {"path": "^/checkout-sessions", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["CHK-044"],
+      "shared_surface": true
+    },
+    {
+      "id": "disc-cache-control-missing",
+      "defect": "Discovery profile served without any Cache-Control header",
+      "mutate": "strip-header:Cache-Control",
+      "match": {"path": "^/\\.well-known/ucp", "methods": "GET", "status": "2xx"},
+      "citations": ["DISC-003"],
+      "shared_surface": false,
+      "surface_note": "HTTP response-header surface: the official suite has no header assertions anywhere, so counting this against it would pad our number. Reported only in the spck-only addendum."
+    },
+    {
+      "id": "resp-content-type-wrong",
+      "defect": "Responses served with Content-Type text/html instead of application/json",
+      "mutate": "set-header:Content-Type=text/html; charset=utf-8",
+      "match": {"path": ".*", "methods": "GET,POST,PUT", "status": "2xx"},
+      "citations": ["OVR-008"],
+      "shared_surface": false,
+      "surface_note": "HTTP response-header surface (see disc-cache-control-missing)."
+    }
+  ]
+}

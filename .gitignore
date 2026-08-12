@@ -22,3 +22,6 @@ tests/web/node_modules/
 tests/web/package-lock.json
 .claude/
 conformance/.vendor
+
+# P2-13 comparison: official-suite clones live here (pinned via conformance/compare/OFFICIAL.lock.json)
+conformance/compare/.official/
