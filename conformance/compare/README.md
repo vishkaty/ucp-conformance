@@ -27,6 +27,10 @@ mutant set**, under rules designed so that the comparison is capable of making
    the same mutated server** at the same URL with zero harness cooperation.
 2. Both suites first run against the **clean** golden through the **same proxy
    in passthrough mode** (baseline; identical network path in all conditions).
+   **Every suite run gets a freshly booted, freshly reseeded golden** — the
+   flower reference depletes inventory on completed checkouts, so a shared
+   long-lived server drifts (eventually mass-failing on OUT_OF_STOCK) and the
+   suite running second would always face a more-depleted state than the first.
 3. Per mutant, both suites run again; **CATCH** means the suite's own normal
    report affirmatively signals non-conformance:
    - official: ≥1 test newly failing/erroring vs baseline (tests unstable

@@ -12,6 +12,13 @@ Fairness rules (enforced here, not just promised):
   * Both suites talk to the SAME mutated server (same proxy URL, same defect,
     no cooperation headers). Baselines run through the same proxy in
     passthrough mode, so the network path is identical in every condition.
+  * EVERY suite run gets a freshly booted, freshly reseeded golden (identical
+    pinned seed state). Not a convenience: the flower reference DEPLETES
+    INVENTORY on every completed checkout, so a long-lived golden eventually
+    answers every create with 400 OUT_OF_STOCK and mass-fails whichever suite
+    runs later — and even short of exhaustion, a shared long-lived server
+    means the second suite always faces a more-depleted state than the first.
+    A fresh golden per suite run removes the whole class.
   * The official suite runs AS-CONFIGURED by its own repo (its flower-shop
     conformance_input + fixtures, full `pytest` run — never a filtered subset).
     Our suite runs AS-SHIPPED (merchant.py) with our canonical flower config
@@ -33,7 +40,7 @@ Fairness rules (enforced here, not just promised):
     disagreement is flagged in the results.
 
 Usage (see README.md for the full reproduction script):
-    python3 run_compare.py --golden http://localhost:8290 [--proxy-port 8291]
+    python3 run_compare.py [--golden-port 8290] [--proxy-port 8291]
         [--repeat 2] [--only id1,id2] [--out results/]
 Exit 0 = comparison completed (whatever the numbers say); nonzero = harness error.
 """
@@ -120,6 +127,28 @@ def validate_citations(mutants, register_dir):
 def _port_free(port):
     with socket.socket() as s:
         return s.connect_ex(("127.0.0.1", port)) != 0
+
+
+class Golden:
+    """Boots a FRESH pinned golden (reseeded to the identical initial state)
+    before every suite run — see the fairness rules in the module docstring."""
+
+    def __init__(self, port, sim_secret, db_dir):
+        self.port, self.sim_secret, self.db_dir = port, sim_secret, db_dir
+        self.url = f"http://localhost:{port}"
+
+    def boot(self):
+        env = dict(os.environ, PORT=str(self.port), SIM_SECRET=self.sim_secret,
+                   DB_DIR=self.db_dir)
+        r = subprocess.run([str(ROOT / "conformance" / "ci" / "serve_golden.sh")],
+                           env=env, capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            raise RuntimeError(f"golden boot failed:\n{(r.stderr or '')[-1500:]}")
+
+    def stop(self):
+        env = dict(os.environ, PORT=str(self.port), DB_DIR=self.db_dir)
+        subprocess.run([str(ROOT / "conformance" / "ci" / "stop_golden.sh")],
+                       env=env, capture_output=True, text=True, timeout=120)
 
 
 def start_proxy(golden, port, mutant=None):
@@ -256,7 +285,8 @@ def render_md(results):
 # --------------------------------------------------------------------------- #
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--golden", default="http://localhost:8290")
+    ap.add_argument("--golden-port", type=int, default=8290)
+    ap.add_argument("--db-dir", default="/tmp/ucp_p2cmp_golden")
     ap.add_argument("--proxy-port", type=int, default=8291)
     ap.add_argument("--sim-secret", default="selfcheck-secret")
     ap.add_argument("--repeat", type=int, default=2,
@@ -286,16 +316,21 @@ def main():
     if not OFFICIAL_DIR.is_dir():
         print(f"official suite not present at {OFFICIAL_DIR} — run fetch_official.sh", file=sys.stderr)
         return 1
-    if not _port_free(args.proxy_port):
-        print(f"port {args.proxy_port} busy — refusing (same reasoning as serve_golden.sh)", file=sys.stderr)
-        return 1
+    for port in (args.proxy_port, args.golden_port):
+        if not _port_free(port):
+            print(f"port {port} busy — refusing (same reasoning as serve_golden.sh)", file=sys.stderr)
+            return 1
 
+    golden = Golden(args.golden_port, args.sim_secret, args.db_dir)
     proxy_url = f"http://localhost:{args.proxy_port}"
+    dirty = bool(subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"],
+                                capture_output=True, text=True).stdout.strip())
     results = {"meta": {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "pins": {
             "spck_repo": subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"],
-                                        capture_output=True, text=True).stdout.strip(),
+                                        capture_output=True, text=True).stdout.strip()
+                         + ("+dirty" if dirty else ""),
             "official_conformance": subprocess.run(["git", "-C", str(OFFICIAL_DIR), "rev-parse", "HEAD"],
                                                    capture_output=True, text=True).stdout.strip(),
             "official_python_sdk": subprocess.run(["git", "-C", str(PYSDK_DIR), "rev-parse", "HEAD"],
@@ -303,28 +338,43 @@ def main():
             "golden_samples": json.loads((ROOT / "conformance" / "SOURCES.lock.json").read_text()
                                          )["reference_sample_server"]["commit"],
         },
-        "repeat": args.repeat, "golden": args.golden,
+        "repeat": args.repeat, "golden": golden.url,
+        "fresh_golden_per_suite_run": True,
     }}
 
+    def spck_on_fresh_golden(mutant=None):
+        """One spck run against a freshly reseeded golden (through the proxy)."""
+        golden.boot()
+        p = start_proxy(golden.url, args.proxy_port, mutant)
+        try:
+            return run_spck(proxy_url, cfg_path)
+        finally:
+            p.kill(); p.wait(); golden.stop()
+
+    def official_on_fresh_golden(mutant=None):
+        """One official-suite run against a freshly reseeded golden (through the proxy)."""
+        golden.boot()
+        p = start_proxy(golden.url, args.proxy_port, mutant)
+        try:
+            return run_official(proxy_url, args.sim_secret)
+        finally:
+            p.kill(); p.wait(); golden.stop()
+
     # ---------------- baselines (passthrough proxy) ----------------
-    print("== baseline (passthrough proxy) ==", flush=True)
-    p = start_proxy(args.golden, args.proxy_port)
-    try:
-        base_devs, base_meta = run_spck(proxy_url, cfg_path)
-        if base_devs is None:
-            print("spck baseline crashed:\n" + base_meta.get("stderr", ""), file=sys.stderr)
+    print("== baseline (passthrough proxy; fresh golden per run) ==", flush=True)
+    base_devs, base_meta = spck_on_fresh_golden()
+    if base_devs is None:
+        print("spck baseline crashed:\n" + base_meta.get("stderr", ""), file=sys.stderr)
+        return 1
+    off_runs = []
+    for i in range(args.baseline_repeat):
+        f, meta = official_on_fresh_golden()
+        if f is None:
+            print("official baseline crashed:\n" + meta.get("stderr", ""), file=sys.stderr)
             return 1
-        off_runs = []
-        for i in range(args.baseline_repeat):
-            f, meta = run_official(proxy_url, args.sim_secret)
-            if f is None:
-                print("official baseline crashed:\n" + meta.get("stderr", ""), file=sys.stderr)
-                return 1
-            off_runs.append((f, meta))
-            print(f"  official baseline #{i + 1}: {meta['failures']} failed, "
-                  f"{meta['errors']} errors, {meta['skipped']} skipped of {meta['tests']}", flush=True)
-    finally:
-        p.kill(); p.wait()
+        off_runs.append((f, meta))
+        print(f"  official baseline #{i + 1}: {meta['failures']} failed, "
+              f"{meta['errors']} errors, {meta['skipped']} skipped of {meta['tests']}", flush=True)
     base_off_failed = sorted(set.intersection(*(set(f) for f, _ in off_runs)))
     unstable = sorted(set.union(*(set(f) for f, _ in off_runs)) - set(base_off_failed))
     print(f"  spck baseline: aggregate={base_meta['aggregate']} "
@@ -341,22 +391,18 @@ def main():
         s_catches, s_new, s_crashed = [], [], False
         o_catches, o_new, o_crashed = [], [], False
         for rep in range(args.repeat):
-            p = start_proxy(args.golden, args.proxy_port, mu)
-            try:
-                devs, smeta = run_spck(proxy_url, cfg_path)
-                if devs is None:
-                    s_crashed = True; s_catches.append(False)
-                else:
-                    c, new = decide_catch_spck(base_devs, devs, False)
-                    s_catches.append(c); s_new = new
-                fails, ometa = run_official(proxy_url, args.sim_secret)
-                if fails is None:
-                    o_crashed = True; o_catches.append(False)
-                else:
-                    c, new = decide_catch_official(unstable, base_off_failed, fails, False)
-                    o_catches.append(c); o_new = new
-            finally:
-                p.kill(); p.wait()
+            devs, smeta = spck_on_fresh_golden(mu)
+            if devs is None:
+                s_crashed = True; s_catches.append(False)
+            else:
+                c, new = decide_catch_spck(base_devs, devs, False)
+                s_catches.append(c); s_new = new
+            fails, ometa = official_on_fresh_golden(mu)
+            if fails is None:
+                o_crashed = True; o_catches.append(False)
+            else:
+                c, new = decide_catch_official(unstable, base_off_failed, fails, False)
+                o_catches.append(c); o_new = new
             print(f"  repeat {rep + 1}: spck={'CATCH' if s_catches[-1] else 'miss'} "
                   f"official={'CATCH' if o_catches[-1] else 'miss'}", flush=True)
         rec = {
