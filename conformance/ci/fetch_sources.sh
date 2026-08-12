@@ -21,6 +21,8 @@ import json, sys
 d = json.load(open(sys.argv[1])); s = d.get("sources", d)
 def sha(x): return x["commit"] if isinstance(x, dict) else x
 sp = s["spec"]["versions"]
+# repo column is either a bare name (resolved under the UCP org) or a full "owner/name"
+# for a source that lives in a different org (e.g. the AP2 reference under google-agentic-commerce).
 rows = [
     ("python-sdk",     "python-sdk",  sha(s["reference_sdk"])),
     ("samples",        "samples",     sha(s["reference_sample_server"])),
@@ -29,22 +31,33 @@ rows = [
     ("ucp-2026-01-11", "ucp",         sha(sp["2026-01-11"])),
     ("ucp-schema",     "ucp-schema",  sha(s["schema_validator"])),
     ("conformance",    "conformance", sha(s["official_conformance_suite"])),
+    # the pinned AP2 interop-oracle (moving-draft reference; a FIXTURE, not graded).
+    # SINGLE SOURCE OF TRUTH for the AP2 pin — testbed/provenance.py REFERENCE_SHA and
+    # the sources-age tripwire both key to this locked commit.
+    ("ap2",            s["ap2_reference"]["repo"], sha(s["ap2_reference"])),
 ]
 for d_, r, c in rows:
     print(d_, r, c)
 PY
 
-ORG="https://github.com/Universal-Commerce-Protocol"
+GH_BASE="https://github.com"
+ORG="Universal-Commerce-Protocol"
 while read -r dir repo sha; do
   [ -n "$dir" ] || continue
+  # a bare repo name resolves under the UCP org; a full "owner/name" is used verbatim
+  # (lets a source that lives in another org — e.g. google-agentic-commerce/AP2 — clone).
+  case "$repo" in
+    */*) slug="$repo" ;;
+    *)   slug="$ORG/$repo" ;;
+  esac
   dest="$VENDOR/$dir"
   if [ -d "$dest/.git" ] && [ "$(git -C "$dest" rev-parse HEAD 2>/dev/null)" = "$sha" ]; then
     echo "✓ $dir already at $sha"; continue
   fi
-  echo "→ $dir : $repo @ $sha"
+  echo "→ $dir : $slug @ $sha"
   rm -rf "$dest"; mkdir -p "$dest"
   git -C "$dest" init -q
-  git -C "$dest" remote add origin "$ORG/$repo.git"
+  git -C "$dest" remote add origin "$GH_BASE/$slug.git"
   git -C "$dest" fetch -q --depth 1 origin "$sha"
   git -C "$dest" checkout -q FETCH_HEAD
 done < "$ROWFILE"
