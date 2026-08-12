@@ -4,12 +4,14 @@
   {
    "name": "flower-shop-official-sample",
    "server_env": "UCP_FLOWER_SHOP_URL",
+   "local_server": "http://localhost:8182",
    "config": "conformance/ci/differential_flower.config.json",
    "note": "The official UCP Flower Shop sample server \u2014 an implementation independent of our controlled fixture. Served locally by conformance/ci/serve_golden.sh. As of the 2026-07-31 re-pin it serves spec version 2026-04-08 (it served 2026-01-23 under the previous pin), so this target now exercises the 04-08 lane. Set UCP_FLOWER_SHOP_URL to its base URL to include it."
   },
   {
    "name": "nodejs-reference-sample",
    "server_env": "UCP_NODEJS_URL",
+   "local_server": "http://localhost:3000",
    "config": "conformance/ci/differential_nodejs.config.json",
    "note": "The official UCP Node.js reference server (samples/rest/nodejs \u2014 a Hono + Zod + @ucp-js/sdk app), a SECOND independent implementation whose author is not us AND not the Python golden. It advertises spec 2026-04-08 (src/utils/config.ts UCP_VERSION), so it exercises the 04-08 lane against a genuinely separate codebase, catching any check that quietly encoded Python-flower-specific behavior. At samples pin 52377503 (2026-08-11 re-pin) this sample targets 04-08 and 47 merchant checks clean-pass against it; our merged samples#168 fixed its DISC-003 Cache-Control and PAY-003 payment_handlers deviations (those two allowlist entries expired and were removed), and samples#162 added RFC 9421 signature verification (enforced only when REQUIRE_SIGNATURES=true, so unsigned probes still pass). Served locally by conformance/ci/serve_node_reference.sh (seeds the same flower catalog into its SQLite, boots via tsx on :3000). Two genuine Node-reference deviations remain silenced in differential_allowlist.json (CHK-050 protocol-error shape, CHK-053 unavailable-error envelope \u2014 the flat-`detail` error-body class) \u2014 both are real Node bugs anchored to the official 04-08 spec, not check bugs, re-verified on the wire at this pin. Set UCP_NODEJS_URL to its base URL to include it. NOTE the sample's own `npm run build && npm start` is broken (extensionless ESM imports \u2014 upstream samples#58, still reproducing); run it with tsx as the serve script does."
   }
