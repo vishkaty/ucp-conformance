@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>spck.dev — Your UCP checkout passes conformance. Does it actually work?</title>
-<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec. 227 kill-rate-validated checks, live coverage matrix, CLI + CI + web, multi-version support.">
+<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec — and it shows its evidence. Two independent reference servers, the official schema oracle, an enforced kill rate, and a published evidence-class split over every requirement: 48 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 227 kill-rate-validated checks, CLI + CI + web, multi-version support.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://spck.dev/">
 <meta property="og:title" content="spck.dev — a UCP conformance suite you can trust">
-<meta property="og:description" content="Both sides of the checkout: grade a UCP merchant server, or grade a shopping agent's own behavior. Every check is proven to catch its own bug (kill-rate validated).">
+<meta property="og:description" content="Both sides of the checkout: grade a UCP merchant server, or grade a shopping agent's own behavior. Every check is proven to catch its own bug (kill-rate validated) — and every check publishes its evidence class, live-wire to self-referenced.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spck.dev — a UCP conformance suite you can trust">
 <meta name="twitter:description" content="Both sides of the checkout. Every check proven to catch its own bug. Watch an agent check out, then break it.">
@@ -71,17 +71,19 @@ section.alt{background:var(--surface)}
   <div class="inner">
     <span class="badge">CONFORMANCE &ne; RELIABILITY</span>
     <h1>Your UCP checkout passes conformance. Does it <em>actually work</em>?</h1>
-    <p class="sub">Independent, open, and two-sided: test the merchant platform that sells and the shopping agent that buys — every check is proven to catch the bug it’s for, so there are no false greens.</p>
+    <p class="sub">Independent, open, two-sided — and honest about its evidence: every check is proven to catch the bug it’s for, the suite is graded against two reference servers we didn’t author plus the official schema oracle, and we publish exactly what vouches for each check — including the ones only our own fixtures back so far.</p>
     <div class="hero-actions">
       <a class="btn-primary" href="/check">Check your store →</a>
       <a class="btn-secondary" href="/agent">Test your agent →</a>
     </div>
     <div class="stats">
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.merchant_checks">227</span></div><div class="stat-label">Merchant-side checks</div></div>
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.manifest.agent_checks">44</span></div><div class="stat-label">Agent-side checks</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08'].check">276</span></div><div class="stat-label">Checked requirements (v2026-04-08)</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">48</span></div><div class="stat-label">Kill-tested against independent servers</div></div>
       <div class="stat"><div class="stat-num">0</div><div class="stat-label">False greens</div></div>
     </div>
-    <p class="hero-cov">Every normative <strong>MUST</strong> across three spec versions is accounted for — a proven check, a documented exemption, or a tracked gap. <a href="#coverage-live">See the live coverage ↓</a></p>
+    <p class="hero-cov">Every normative <strong>MUST</strong> across three spec versions is accounted for — a proven check, a documented exemption, or a tracked gap.
+      And the checks themselves are classed by proof: <strong><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">48</span> live-wire</strong> (kill-tested against an independently-authored server — 17%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-schema']">73</span> graded by the official ucp-schema oracle (26%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-crypto']">4</span> crypto self-tests, and <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['self-referenced']">151</span> (55%) backed so far only by our own fixtures — a split we publish because you should know it before you trust a green.
+      <a href="#coverage-live">See the live coverage ↓</a></p>
   </div>
 </div>
 
@@ -126,11 +128,13 @@ section.alt{background:var(--surface)}
     <div class="section-title">Why you can trust a pass</div>
     <div class="trust-box">
       A checker that can't catch bugs is worse than none. So every check is kill-rate tested — we inject the exact defect it should catch, and if it still passes, it's blocked from release. Checks cite a verbatim spec clause, and <strong>the whole suite self-validates in CI</strong> and goes red if any check loses its ability to catch defects. So when it flags a deviation, it is real and spec-cited — something you can act on, not noise.
+      And a pass tells you how it was earned: every check carries a published evidence class — live-wire (kill-tested against a server we didn’t author), official-oracle, crypto self-test, or self-referenced (only our own fixture vouches for it) — derived mechanically from how the check runs and drift-gated in CI, so the split you read always matches a fresh derivation.
     </div>
     <div class="section-label">Transparency</div>
     <div class="section-title" style="font-size:22px">Live spec coverage</div>
     <p class="section-desc" style="margin-bottom:22px">
       Every normative <strong>MUST</strong> in each pinned spec version, accounted as a kill-rate-validated check, a documented exemption, or an open gap — regenerated with every change and enforced by CI (stale data or a coverage regression fails the build).
+      The checked segment is further classed by evidence — each version's split renders below.
     </p>
     <div id="cov-rows" style="max-width:720px"></div>
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)" id="cov-legend"></div>
@@ -236,6 +240,12 @@ section.alt{background:var(--surface)}
       lbl.style.cssText="font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums";
       row.appendChild(nm); row.appendChild(bar); row.appendChild(lbl);
       rows.appendChild(row);
+      var eb=v.evidence_breakdown;
+      if(eb){
+        var ev=el("div", "checked, by evidence — live-wire "+(eb["live-wire"]||0)+" · official-schema "+(eb["fixture-schema"]||0)+" · crypto self-test "+(eb["fixture-crypto"]||0)+" · self-referenced "+(eb["self-referenced"]||0));
+        ev.style.cssText="padding:0 0 6px 122px;font-size:11px;color:var(--muted)";
+        rows.appendChild(ev);
+      }
     });
     var lg=document.getElementById("cov-legend");
     SEGS.forEach(function(s){

@@ -54,7 +54,7 @@ plan to refresh monthly.</p>
     <p class="sub">We were curious how much of UCP is genuinely <em>deployed</em> versus endorsed, so we set out to
 measure it layer by layer — and we plan to keep measuring, on a monthly cadence, in the open. This is the opening
 edition: an independent, unofficial, data-backed read (not affiliated with or endorsed by the UCP maintainers),
-with the data as of 2026-07-17. Each number links to its exact source — the spec line it was counted from, the
+with the data as of 2026-08-01. Each number links to its exact source — the spec line it was counted from, the
 primary announcement, or the raw data we measured (published alongside this page) — and where the honest answer is
 "announced, not verifiably live," we say so. We are certainly missing things and would rather be corrected than
 confident: if you build on UCP and see it differently, please tell us. No individual merchant is named or graded.</p>
@@ -131,13 +131,13 @@ UCP endpoints — and many public tallies still count them.</p>
   <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
 frame: the
 <a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
-(CC-BY-4.0); measurement: our own read-only probe on 2026-07-17, aggregates published in
+(CC-BY-4.0); measurement: our own read-only probe on 2026-08-01, aggregates published in
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a>.</p>
   <div class="statgrid">
     <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.domains_probed">3037</div><div class="l">verified domains probed</div></div>
-    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.live_valid">2974</div><div class="l">served a live, valid profile</div></div>
-    <div class="stat"><div class="n"><span data-live="state-of-ucp/scan-summary.json:$.platform_hosted_pct">99.4</span>%</div><div class="l">route to a single platform's infrastructure (*.myshopify.com)</div></div>
-    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.non_platform_endpoints">11</div><div class="l">deliberate, self-hosted endpoints</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.live_valid">2960</div><div class="l">served a live, valid profile</div></div>
+    <div class="stat"><div class="n"><span data-live="state-of-ucp/scan-summary.json:$.platform_hosted_pct">99.5</span>%</div><div class="l">route to a single platform's infrastructure (*.myshopify.com)</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.non_platform_endpoints">14</div><div class="l">deliberate, self-hosted endpoints</div></div>
   </div>
   <p>Two independent registries agree with the hosting picture: the
 <a href="https://ucpregistry.com/api/v1/merchants?status=verified" rel="noopener">ucpregistry.com API</a> lists
@@ -152,7 +152,7 @@ extending UCP beyond retail with custom capabilities. Here is the striking part:
 features of the spec live almost exclusively in that tiny deliberate tail.</p>
   <div class="tablewrap"><table class="rt">
     <tr><th>The spec's frontier</th><th class="num">Endpoints advertising it</th></tr>
-    <tr><td>RFC 9421 signing keys published</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.signing_keys_present">11</b> (<span data-live="state-of-ucp/scan-summary.json:$.signing_keys_pct">0.4</span>%)</td></tr>
+    <tr><td>RFC 9421 signing keys published</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.signing_keys_present">0</b> (<span data-live="state-of-ucp/scan-summary.json:$.signing_keys_pct">0.0</span>%)</td></tr>
     <tr><td>identity-linking capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_identity_linking">4</b></td></tr>
     <tr><td>buyer-consent capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_buyer_consent">4</b></td></tr>
     <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
@@ -167,23 +167,23 @@ included, by itself. The spec's January ambition is running years ahead of any r
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_spec">3216</span> stars — remarkable for a
 six-month-old protocol. The repositories you'd actually build on are far smaller:
 <a href="https://github.com/Universal-Commerce-Protocol/samples" rel="noopener">samples</a>
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_samples">225</span>,
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_samples">232</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/python-sdk" rel="noopener">python-sdk</a>
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_python_sdk">80</span>,
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_python_sdk">82</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/js-sdk" rel="noopener">js-sdk</a>
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_js_sdk">45</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/conformance" rel="noopener">conformance</a>
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">21</span> stars
-(captured 2026-07-17). Downstream use is smaller still — the Python SDK shows roughly
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">22</span> stars
+(captured 2026-08-01). Downstream use is smaller still — the Python SDK shows roughly
 <span data-live="state-of-ucp/adoption-facts.json:$.python_sdk_dependents_approx">7</span> dependent
 repositories, and a code search for the AP2 mandate token returns single digits across all of GitHub.</p>
   <p>SDK downloads are modest but real, consistent with a young protocol: the official
 <a href="https://www.npmjs.com/package/@ucp-js/sdk" rel="noopener">@ucp-js/sdk</a> sees about
-<span data-live="state-of-ucp/adoption-facts.json:$.npm_js_sdk_month">9239</span> downloads/month, the official
+<span data-live="state-of-ucp/adoption-facts.json:$.npm_js_sdk_month">12676</span> downloads/month, the official
 Python <a href="https://pypi.org/project/ucp-sdk/" rel="noopener">ucp-sdk</a> about
 <span data-live="state-of-ucp/adoption-facts.json:$.pypi_sdk_month">2916</span>/month, and the Rust
 <a href="https://crates.io/crates/ucp-schema" rel="noopener">ucp-schema</a> about
-<span data-live="state-of-ucp/adoption-facts.json:$.crates_schema_total">1979</span> lifetime. Beyond the
+<span data-live="state-of-ucp/adoption-facts.json:$.crates_schema_total">2430</span> lifetime. Beyond the
 official org, roughly three dozen third-party repositories genuinely implement UCP — platform connectors, a
 community Java SDK, vendor demos: a real implementer base, but an early one.</p>
 
@@ -248,13 +248,15 @@ and seeing something different from what we measured, tell us what we missed.</p
     <h3>Methodology &amp; provenance</h3>
     <p class="note">Spec counts: spck.dev's public register (<a href="/coverage.json">coverage.json</a>), pinned
 to release-tag commits (<code>2026-04-08</code> → <code>a2d8bf0…</code>); every requirement links to its spec
-line; method at <a href="/docs">spck.dev/docs</a>. Live-endpoint data: population frame from the CC-BY-4.0
+line; method at <a href="/docs">spck.dev/docs</a>.
+      Where this page leans on our own conformance register, its evidence-class split is published too: of <span data-live="coverage.json:$.versions['2026-04-08'].check">276</span> checked requirements at v2026-04-08, <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['live-wire']">48</span> are kill-tested against independent reference servers and <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['self-referenced']">151</span> so far rest only on our own fixtures — the full split, drift-gated in CI, is at <a href="/coverage">spck.dev/coverage</a>.
+      Live-endpoint data: population frame from the CC-BY-4.0
 UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); measurements are our own read-only
-<code>/.well-known/ucp</code> probe of 2026-07-17; aggregates at
+<code>/.well-known/ucp</code> probe of 2026-08-01; aggregates at
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a> and
 <a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
 crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
-2026-07-17. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
+2026-08-01. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
 named or graded; aggregates only. Each edition is point-in-time and reproducible against the same public sources;
 we plan to refresh it on a monthly cadence and note what changed. Corrections and additions are genuinely welcome
 — open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>

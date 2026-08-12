@@ -8,17 +8,22 @@
         "tag": "v2026-04-08",
         "commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
         "commit_date": "2026-05-22T16:07:22Z",
-        "note": "Tag commit is dated 2026-05-22, NOT 2026-04-08 — release/2026-04-08 received post-date cherry-picks (attribution, identity-linking OAuth rework, selected_options->options, profile-schema fixes). 'What 04-08 contains' = this tagged artifact, not a clean date-cut."
+        "release_branch": "release/2026-04-08",
+        "note": "Tag commit is dated 2026-05-22, NOT 2026-04-08 — release/2026-04-08 received post-date cherry-picks (attribution, identity-linking OAuth rework, selected_options->options, profile-schema fixes). 'What 04-08 contains' = this tagged artifact, not a clean date-cut. release_branch is the live branch the tag was cut from; the sources-age tripwire compares this pinned tag commit against that branch HEAD and WARNS (never re-pins) when the branch advances past the tag, so 'branch moved past the release artifact' stops being invisible."
       },
       "2026-01-23": {
         "tag": "v2026-01-23",
         "commit": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
-        "commit_date": "2026-01-23T22:46:40Z"
+        "commit_date": "2026-01-23T22:46:40Z",
+        "release_branch": "release/2026-01-23",
+        "release_branch_note": "The TAG is the normative release artifact we pin; the release branch is live and can receive post-tag cherry-picks. sources_age --check compares the pinned tag commit to this branch HEAD and warns when it advances (as of 2026-08-11 the branch was ~10 commits ahead) — a review signal, NOT an auto-re-pin."
       },
       "2026-01-11": {
         "tag": "v2026-01-11",
         "commit": "806a5b74d3a5a918206844ea980450233b38664e",
-        "commit_date": "2026-01-23T17:55:22Z"
+        "commit_date": "2026-01-23T17:55:22Z",
+        "release_branch": "release/2026-01-11",
+        "release_branch_note": "See 2026-01-23.release_branch_note. As of 2026-08-11 release/2026-01-11 was ~4 commits ahead of the pinned tag — surfaced by the sources-age tripwire, reviewed, not auto-re-pinned."
       }
     }
   },
@@ -51,6 +56,13 @@
     "pypi_pin": "0.4.4",
     "pypi_pin_note": "BUMPED 2026-08-03 from 0.4.3: PyPI 0.4.4 (uploaded 09:16Z, release v2026-04-08-4) is the release cut for our merged python-sdk#57 (contains/minContains/maxContains validators enforced on generated models). The golden survives these stricter validators because samples#152 (valid seeded totals) was built for exactly that combination — the #57/#152 coordination proved 69/0 with validators active. serve_golden.sh asserts this exact version at boot.",
     "note": "HOW THE GOLDEN GETS ITS SDK CHANGED AT THE 2026-07-31 RE-PIN. Before: the 2026-01-23 Flower Shop server took ucp-sdk as an editable path dep, so this vendored SHA (f54858e, the last 2026-01-23-compatible SDK, 0.3.0 — the commit immediately before python-sdk main's 'upgrade SDK to UCP v2026-04-08', which ImportErrors on Checkout from ap2_mandate) WAS the SDK under test. After: the re-pinned server has no [tool.uv.sources], so it installs ucp-sdk from PyPI and this vendored clone is no longer what the golden runs. The clone is still materialized (cheap, and it keeps the 01-23 trio reproducible), but the version that actually matters for a reproducible verdict is pypi_pin above — the resolved PyPI release the golden runs on. serve_golden.sh asserts the installed version equals pypi_pin and fails loudly on drift, so a silent PyPI bump can never change a verdict unnoticed. Bump pypi_pin deliberately, the same way a SHA is re-pinned. The underlying rule is unchanged: pin compatible trios (conformance/samples/SDK), not bare main."
+  },
+  "ap2_reference": {
+    "repo": "google-agentic-commerce/AP2",
+    "ref": "main",
+    "commit": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
+    "commit_date": "2026-04-29T16:51:41Z",
+    "note": "The pinned AP2 reference implementation — the interop ORACLE for the moving AP2 mandate delegate-chain layer (testbed/provenance.py REFERENCE_SHA, testbed/gen_goldens.py). It is a FIXTURE, never a graded subject; the testbed pip-installs it at this exact SHA (`pip install git+https://github.com/google-agentic-commerce/AP2@e1ea56d`). SINGLE SOURCE OF TRUTH for the AP2 pin: testbed/provenance.py.REFERENCE_SHA must equal this commit, and the P1-9 self-expiring known_ap2_reference_defects register keys its re-pin trigger to it (a filed AP2 defect entry EXPIRES the moment a re-pin makes the reference produce the correct outcome). Before this lock entry the AP2 pin lived ONLY in provenance.py prose, so an AP2 upstream release was detected by NOBODY — this closes that blind spot: pinned to ref `main`, the sources-age tripwire (sources_age.py --check) now compares this commit to AP2 upstream HEAD and warns on drift, which is exactly the re-pin trigger the P1-9 guard needs to become real. Verified 2026-04-29 e1ea56d == AP2 main HEAD at 2026-08-11 (upstream quiet since v0.2, 2026-04-29). Re-pin deliberately, the same discipline as every other pin; when re-pinned, re-verify provenance.REFERENCE_SHA and let the self-expiring defect entries reconcile."
   },
   "toolchain": {
     "python": "3.12.8 (present)",

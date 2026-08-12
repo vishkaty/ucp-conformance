@@ -39,7 +39,10 @@ synthetic defect must be CAUGHT — proves the validator can actually fail).
 
 4. SITE COPY TELLS THE TRUTH — every "N kill-rate-validated checks" claim in
    public/*.html must equal the ACTUAL merchant-check count (MCheck registrations).
-   This number went stale twice already; now it can't.
+   This number went stale twice already; now it can't. 4b extends the same rule to
+   the evidence-class headline: every "N checks kill-tested against independent
+   servers" claim must equal the published live-wire count for the newest version
+   (site_claims $.evidence — itself export-pinned by the evidence-class gate).
 
 Exit 0 = all invariants hold; 1 = violation (with actionable detail).
 """
@@ -307,6 +310,34 @@ def main():
                                     f"suite has {actual} — update the copy")
     print(f"  copy freshness: advertised check count vs actual ({actual}) "
           f"{'✓' if not any('claims' in f for f in failures) else '✗'}")
+
+    # 4b. evidence-class copy freshness (2026-08 dashboard reframe: the headline
+    #     leads with the honest split): any advertised live-wire count — the
+    #     canonical phrase "N checks kill-tested against independent servers" —
+    #     must equal the PUBLISHED split for the newest version in
+    #     public/site_claims.json $.evidence.per_version. That block is itself
+    #     pinned byte-for-byte to a fresh matrix/evidence export by the
+    #     evidence-class gate (validate_evidence_class.py), so copy ->
+    #     site_claims -> fresh export is a closed chain, not self-reference.
+    sc_path = os.path.join(ROOT, "public", "site_claims.json")
+    live_wire = None
+    if os.path.exists(sc_path):
+        sc = json.load(open(sc_path))
+        live_wire = ((sc.get("evidence") or {}).get("per_version") or {}) \
+            .get(matrix.VERSIONS[-1], {}).get("live-wire")
+    lw_re = re.compile(r"(\d+)\+? checks? kill-tested against independent servers?")
+    lw_bad = False
+    for page in copy_files:
+        if not os.path.exists(page):
+            continue
+        for m in lw_re.finditer(open(page).read()):
+            if live_wire is None or int(m.group(1)) != live_wire:
+                lw_bad = True
+                failures.append(f"{os.path.relpath(page, ROOT)} claims '{m.group(0)}' but the "
+                                f"published evidence split says live-wire={live_wire} for "
+                                f"{matrix.VERSIONS[-1]} — update the copy")
+    print(f"  copy freshness (evidence): advertised live-wire count vs published "
+          f"({live_wire}) {'✓' if not lw_bad else '✗'}")
 
     if failures:
         print("\ncoverage gate: FAIL")
