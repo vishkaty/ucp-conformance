@@ -78,6 +78,8 @@
   },
   "webhooks": {
     "simulate": true,
-    "wait_seconds": 8.0
+    "wait_seconds": 8.0,
+    "signed": true,
+    "retries": true
   }
 }

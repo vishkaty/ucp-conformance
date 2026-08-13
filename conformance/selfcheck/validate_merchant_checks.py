@@ -62,13 +62,20 @@ REF_CONFIG = {
     # merged fix). Declaring simulate turns webhook.order_created_full_entity from
     # dormant into a live regression guard on that fix
     # (validate_webhook_reference.py proves it clean-pass + kill_safe AND proves
-    # the kill direction on the real reference). `signed`/`retries` are
-    # DELIBERATELY absent: the reference does not yet sign webhook deliveries (no
-    # RFC 9421 headers, no UCP-Agent on the delivery — the ucp#568 contract) nor
-    # retry failures, so those checks would false-deviate a capability the golden
-    # does not have ("correctly dormant, do not force"). The same gate pins those
-    # gaps as tripwires and goes red the moment upstream implements them.
-    "webhooks": {"simulate": True, "wait_seconds": 8.0},
+    # the kill direction on the real reference). `signed`/`retries` were flipped
+    # ON 2026-08-13 at the samples re-pin to ab78116: the reference now signs
+    # order-event webhook deliveries per RFC 9421 (Content-Digest over raw bytes,
+    # UCP-Agent on the delivery — the ucp#568 contract) and retries failed
+    # deliveries with backoff (our merged samples#169). That flip turns the whole
+    # signed/retry check cluster (webhook.signed_rfc9421_verifies, .signed_
+    # components, .query_component_signed, .idempotency_key_signed,
+    # .ucp_agent_signed, .ucp_agent_header, .retry_failed_delivery) from pinned
+    # tripwires into live, kill-safe regression guards graded here — if the
+    # reference ever stops signing or retrying, this gate goes red. The
+    # validate_webhook_reference tripwire leg that previously pinned the gaps was
+    # retired the same day per its own doctrine.
+    "webhooks": {"simulate": True, "wait_seconds": 8.0, "signed": True,
+                 "retries": True},
 }
 
 # Our own controlled merchant fixture (spec 2026-04-08) — the golden for catalog/cart/

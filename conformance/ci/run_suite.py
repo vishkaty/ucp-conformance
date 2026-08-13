@@ -100,9 +100,10 @@ def gates(server):
         ("sig002-reference", _py(SELF / "validate_sig002_reference.py"),         None, (2,)),
         # samples#140/#146 regression watch: order-webhook delivery graded against the
         # VENDORED reference (full order entity as body, clean-pass + kill_safe; a
-        # non-delivering merchant deviates), with the reference's missing webhook
-        # signing/UCP-Agent/retry pinned as tripwires that go red when upstream
-        # implements them (the cue to enable webhooks.signed/retries for the flower).
+        # non-delivering merchant deviates). The signing/retry tripwires this gate
+        # once pinned FIRED at the 2026-08-13 re-pin (samples#169 implemented both)
+        # and were retired: webhooks.signed/.retries are now ON in REF_CONFIG and
+        # the flower differential config, graded live by validate_merchant_checks.
         ("webhook-reference", _py(SELF / "validate_webhook_reference.py"),       None, (2,)),
         ("checkout-scope-check", _py(SELF / "validate_checkout_scope_check.py"), None, (2,)),
         ("disc014-check", _py(SELF / "validate_disc014_check.py"),               None, (2,)),

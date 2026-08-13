@@ -23,15 +23,16 @@ Legs:
   * MUTANT: the same flow with the harness platform profile advertising NO
     webhook_url (what a merchant that never delivers looks like): the SAME check
     must DEVIATE — the gate proves its own kill direction on every run.
-  * TRIPWIRES (documented reference gaps, pinned so a change upstream is loud):
-    the reference today does NOT sign webhook deliveries, does NOT send UCP-Agent
-    on them (the ucp#568 contract: order.md "Webhook Signature Verification"),
-    and does NOT retry a failed delivery (ORD-031). With the signing/retry config
-    asserted anyway, those checks must NOT clean-pass. When upstream implements
-    webhook signing/retry, this leg goes red -> flip the flower config
-    (webhooks.signed / webhooks.retries) to enable them for real, and retire the
-    tripwire. webhook.update_full_entity must stay not-tested: the reference has
-    no post-order adjustment hook (its only update event is order_shipped).
+  * (RETIRED TRIPWIRE, 2026-08-13) This gate previously pinned the reference's
+    missing webhook signing/UCP-Agent/retry as tripwires that had to NOT
+    clean-pass. Samples#169 (merged 2026-08-12, in the pinned golden from
+    ab78116) implemented RFC 9421 signing + bounded retry, the tripwire fired
+    as designed, and per this gate's own doctrine the flower config + REF_CONFIG
+    flipped webhooks.signed/.retries ON — the whole signed/retry check cluster
+    is now graded clean-pass + kill_safe as live regression guards by
+    validate_merchant_checks.py, which is strictly stronger than the tripwire
+    was. webhook.update_full_entity must still stay not-tested: the reference
+    has no post-order adjustment hook (its only update event is order_shipped).
 
 Exit 0 = proven; 1 = failed; 2 = environment skip (vendored server or uv absent).
 """
@@ -55,15 +56,9 @@ DATA_DIR = ROOT / "conformance" / ".vendor" / "samples" / "rest" / "python" / \
 REF_PORT = 9414       # agent-private range; 9412/9413 belong to the sig002 gate
 
 DELIVERY_CHECK = "webhook.order_created_full_entity"
-# reference gaps pinned as tripwires: these must NOT clean-pass until upstream
-# implements webhook signing / UCP-Agent identification / delivery retry
-TRIPWIRE_CHECKS = ("webhook.ucp_agent_header", "webhook.signed_rfc9421_verifies",
-                   "webhook.signed_components", "webhook.query_component_signed",
-                   "webhook.retry_failed_delivery",
-                   # receiver-gap wave additions (SIG-016/SIG-018): same signed
-                   # cluster, same reference gap (samples#163) — pinned so the
-                   # moment upstream signs deliveries these go loud too
-                   "webhook.idempotency_key_signed", "webhook.ucp_agent_signed")
+# The signed/retry tripwire cluster was RETIRED 2026-08-13 (see docstring):
+# those checks are now flipped ON in REF_CONFIG and graded clean-pass +
+# kill_safe by validate_merchant_checks.py against the signing reference.
 UPDATE_CHECK = "webhook.update_full_entity"   # must stay not-tested (no adjust hook)
 
 
@@ -202,16 +197,6 @@ def main():
             print(f"  mutant:   {DELIVERY_CHECK} -> {st} (no webhook_url; want deviation)")
             if st != "deviation":
                 failures.append(("mutant-no-delivery", DELIVERY_CHECK, st))
-
-            # TRIPWIRES: reference gaps (no webhook signing / UCP-Agent / retry).
-            # Assert signing+retry config so the checks RUN, and pin non-clean.
-            d = _grade(TRIPWIRE_CHECKS,
-                       extra_cfg={"webhooks.signed": True, "webhooks.retries": True})
-            for cid in TRIPWIRE_CHECKS:
-                st = d.get(cid, {}).get("status")
-                print(f"  tripwire: {cid} -> {st} (reference gap; want deviation)")
-                if st == "clean-pass":
-                    failures.append(("tripwire-now-passes", cid, st))
         finally:
             _teardown(proc)
 
@@ -222,8 +207,8 @@ def main():
         return 1
     print("webhook gate: PASS — order-event webhook delivery on the reference carries "
           "the full order entity (samples#140 watched: clean-pass + kill_safe, and a "
-          "non-delivering merchant DEVIATES); the reference's missing webhook "
-          "signing/UCP-Agent/retry stay pinned as tripwires")
+          "non-delivering merchant DEVIATES); the signed/retry cluster is guarded "
+          "live by validate_merchant_checks.py since the 2026-08-13 flip")
     return 0
 
 
