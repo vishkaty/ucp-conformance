@@ -1,0 +1,41 @@
+{
+ "_about": "Published aggregate of spck.dev's independent read-only probe of the public UCP merchant population. Population frame: Hugging Face dataset UCPChecker/ucp-merchants (CC-BY-4.0), 2026-04-02 snapshot, status=verified (3,037 domains). Probe: GET /.well-known/ucp with an identified User-Agent, 2026-07-17. No individual merchant is named; aggregates only. Reproducible against the same public sources.",
+ "scan_date": "2026-07-17",
+ "population_source": "https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv",
+ "population_license": "CC-BY-4.0",
+ "domains_probed": 3037,
+ "live_valid": 2974,
+ "live_pct": 97.9,
+ "version_2026_04_08": 2963,
+ "version_2026_04_08_pct": 99.6,
+ "version_dist": {
+  "2026-04-08": 2963,
+  "None": 6,
+  "2026-01-23": 4,
+  "2026-01-11": 1
+ },
+ "platform_hosted": 2955,
+ "platform_hosted_pct": 99.4,
+ "non_platform_endpoints": 11,
+ "uniform_default_profile": 2955,
+ "uniform_default_profile_pct": 99.4,
+ "signing_keys_present": 11,
+ "signing_keys_pct": 0.4,
+ "cap_identity_linking": 4,
+ "cap_buyer_consent": 4,
+ "cap_ap2_mandate": 2,
+ "capability_adoption": {
+  "dev.ucp.shopping.checkout": 2967,
+  "dev.ucp.shopping.fulfillment": 2965,
+  "dev.ucp.shopping.order": 2964,
+  "dev.ucp.shopping.discount": 2963,
+  "dev.ucp.shopping.cart": 2963,
+  "dev.ucp.shopping.catalog.search": 2958,
+  "dev.ucp.shopping.catalog.lookup": 2958,
+  "dev.shopify.catalog": 2955,
+  "dev.ucp.shopping.buyer_consent": 4,
+  "dev.ucp.common.identity_linking": 4,
+  "dev.ucp.shopping.ap2_mandate": 2,
+  "com.ucpchecker.domain_check": 1
+ }
+}

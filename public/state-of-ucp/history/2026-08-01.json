@@ -35,5 +35,10 @@
   "registry": "ucpregistry.com/api/v1/merchants?status=verified (meta.total)",
   "brands_probe": "direct GET /.well-known/ucp on 8 named launch partners, 2026-07-17",
   "spec_counts": "spck.dev/coverage.json @ pinned release-tag SHAs"
- }
+ },
+ "kept_stale": [
+  "github_stars_spec",
+  "pypi_sdk_month"
+ ],
+ "kept_stale_note": "Recorded retroactively 2026-08-13: the 2026-08-01 refresh kept these two fields' 2026-07-17 values after failed fetches (per the refresh tool's keep-on-failure safety). Evidence: the 2026-07-29 dry run (ops/state-of-ucp-tracker-runbook.md) had already measured stars 3216->3248 and pypi 2916->3807, so identical 08-01 values cannot be fresh measurements. Values left as published; trend series exclude them so no false flat is plotted."
 }

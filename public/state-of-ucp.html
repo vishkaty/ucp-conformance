@@ -37,6 +37,19 @@
   .provenance h3 { margin:0 0 8px; font-size:15px; color:var(--ink); }
   .wrap a { color:var(--primary); text-decoration:none; } .wrap a:hover { text-decoration:underline; }
   .tablewrap { overflow-x:auto; }
+  .trendgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; margin:16px 0 6px; }
+  .trend { border:1px solid rgba(127,127,127,.25); border-radius:10px; padding:12px 12px 8px; }
+  .trend h4 { margin:0 0 2px; font-size:12.5px; font-weight:600; color:var(--ink); line-height:1.35; }
+  .trend .src { font-size:10.5px; color:var(--muted); margin:0 0 6px; }
+  .trend svg { display:block; width:100%; height:auto; }
+  .trend svg .pt { transition:r .1s; }
+  .trend svg .hit:hover + .pt, .trend svg .pt:hover { r:5.5; }
+  .whatchanged { border:1px solid rgba(127,127,127,.25); border-radius:10px; padding:12px 16px; margin:14px 0; }
+  .whatchanged h4 { margin:0 0 6px; font-size:13.5px; color:var(--ink); }
+  .whatchanged ul { margin:0; padding-left:20px; }
+  .whatchanged li { font-size:13px; color:var(--ink); margin:4px 0; line-height:1.5; }
+  .trendtables table.rt { font-size:12.5px; margin:8px 0 14px; }
+  .trendtables h5 { margin:12px 0 0; font-size:12.5px; color:var(--muted); font-weight:600; }
 </style>
   <!-- Cloudflare Web Analytics -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "3bebef55335e4229a5c7807ce207fa13"}'></script>
@@ -49,12 +62,12 @@
   <header class="page-head">
     <div class="eyebrow">State of UCP · Q3 2026</div>
     <h1>The State of UCP, Q3 2026</h1>
-    <p class="standfirst">The most-endorsed protocol in commerce — how much is actually deployed? A tracker we
-plan to refresh monthly.</p>
+    <p class="standfirst">The most-endorsed protocol in commerce — how much is actually deployed? A live tracker,
+refreshed every week or two, with the history charted below.</p>
     <p class="sub">We were curious how much of UCP is genuinely <em>deployed</em> versus endorsed, so we set out to
-measure it layer by layer — and we plan to keep measuring, on a monthly cadence, in the open. This is the opening
-edition: an independent, unofficial, data-backed read (not affiliated with or endorsed by the UCP maintainers),
-with the data as of 2026-08-01. Each number links to its exact source — the spec line it was counted from, the
+measure it layer by layer — and we keep measuring, every week or two, in the open. This is the third edition — the
+first ran 2026-07-17 — an independent, unofficial, data-backed read (not affiliated with or endorsed by the UCP
+maintainers), with the data as of 2026-08-13. Each number links to its exact source — the spec line it was counted from, the
 primary announcement, or the raw data we measured (published alongside this page) — and where the honest answer is
 "announced, not verifiably live," we say so. We are certainly missing things and would rather be corrected than
 confident: if you build on UCP and see it differently, please tell us. No individual merchant is named or graded.</p>
@@ -67,6 +80,28 @@ limits, methods can miss things, and even primary sources can be wrong or change
 off — a number, a link, a claim — please <a href="https://github.com/vishkaty/ucp-conformance/issues" rel="noopener">tell
 us</a> and we will check it and fix it, and note the correction. Getting it right matters more to us than looking
 right — help us keep it honest.</p>
+  </div>
+
+  <h2>How the numbers are moving</h2>
+  <p class="note">Two kinds of series, deliberately kept apart. <b>Weekly series</b> are rebuilt every edition from
+each registry's own daily-download history API (npm, PyPI, crates.io), so every point is a primary-source
+measurement — never interpolated from our snapshots. <b>Per-edition series</b> are the things only we measure
+(our full endpoint probes, and counts we verify by hand each edition); each point is one real measurement on the
+date shown. Where a past edition kept a stale value after a failed fetch, that point is excluded rather than
+plotted — the raw series, including those annotations, are published at
+<a href="/state-of-ucp/history/trends.json">trends.json</a> and
+<a href="/state-of-ucp/history/weekly-series.json">weekly-series.json</a>. GitHub star history is per-edition only:
+the stargazer-timestamp API is not accessible for this org, so we chart only the counts we verified ourselves.</p>
+  <div id="trends">
+    <div class="whatchanged" id="whatchanged" hidden><h4>Since the last edition</h4><ul></ul></div>
+    <div class="trendgrid" id="trendgrid"></div>
+    <details class="trendtables" id="trendtables"><summary class="note">View the same series as tables</summary></details>
+    <p class="note trend-fallback" hidden>The trend charts could not load in this browser — the underlying data is
+at <a href="/state-of-ucp/history/trends.json">trends.json</a> and
+<a href="/state-of-ucp/history/weekly-series.json">weekly-series.json</a>.</p>
+    <noscript><p class="note">Trend charts need JavaScript; the underlying series are published at
+<a href="/state-of-ucp/history/trends.json">trends.json</a> and
+<a href="/state-of-ucp/history/weekly-series.json">weekly-series.json</a>.</p></noscript>
   </div>
 
   <h2>1 · The ambition: compounding fast, with nearly every major name behind it</h2>
@@ -131,13 +166,13 @@ UCP endpoints — and many public tallies still count them.</p>
   <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
 frame: the
 <a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
-(CC-BY-4.0); measurement: our own read-only probe on 2026-08-01, aggregates published in
+(CC-BY-4.0); measurement: our own read-only probe on 2026-08-13, aggregates published in
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a>.</p>
   <div class="statgrid">
     <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.domains_probed">3037</div><div class="l">verified domains probed</div></div>
-    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.live_valid">2960</div><div class="l">served a live, valid profile</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.live_valid">2957</div><div class="l">served a live, valid profile</div></div>
     <div class="stat"><div class="n"><span data-live="state-of-ucp/scan-summary.json:$.platform_hosted_pct">99.5</span>%</div><div class="l">route to a single platform's infrastructure (*.myshopify.com)</div></div>
-    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.non_platform_endpoints">14</div><div class="l">deliberate, self-hosted endpoints</div></div>
+    <div class="stat"><div class="n" data-live="state-of-ucp/scan-summary.json:$.non_platform_endpoints">15</div><div class="l">deliberate, self-hosted endpoints</div></div>
   </div>
   <p>Two independent registries agree with the hosting picture: the
 <a href="https://ucpregistry.com/api/v1/merchants?status=verified" rel="noopener">ucpregistry.com API</a> lists
@@ -157,33 +192,36 @@ features of the spec live almost exclusively in that tiny deliberate tail.</p>
     <tr><td>buyer-consent capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_buyer_consent">4</b></td></tr>
     <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
   </table></div>
-  <p>The 99.4% of endpoints on the platform default carry none of the frontier; the handful who deliberately
-adopted carry essentially all of it — one self-hosted retailer implements the entire stack, AP2 payment mandates
-included, by itself. The spec's January ambition is running years ahead of any real, differentiated deployment.</p>
+  <p>The <span data-live="state-of-ucp/scan-summary.json:$.uniform_default_profile_pct">99.5</span>% of endpoints
+on the platform default carry none of the frontier; the handful who deliberately adopted carry essentially all of
+it — one self-hosted retailer implements the entire stack, AP2 payment mandates included, by itself. The spec's
+January ambition is running years ahead of any real, differentiated deployment.</p>
 
   <h2>4 · The developers: enormous interest, early implementation</h2>
   <p data-attribution>The gap shows up a third time in the code. The
 <a href="https://github.com/Universal-Commerce-Protocol/ucp" rel="noopener">UCP spec repository</a> has
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_spec">3216</span> stars — remarkable for a
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_spec">3298</span> stars — remarkable for a
 six-month-old protocol. The repositories you'd actually build on are far smaller:
 <a href="https://github.com/Universal-Commerce-Protocol/samples" rel="noopener">samples</a>
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_samples">232</span>,
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_samples">233</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/python-sdk" rel="noopener">python-sdk</a>
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_python_sdk">82</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/js-sdk" rel="noopener">js-sdk</a>
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_js_sdk">45</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/conformance" rel="noopener">conformance</a>
-<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">22</span> stars
-(captured 2026-08-01). Downstream use is smaller still — the Python SDK shows roughly
+<span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">24</span> stars
+(captured 2026-08-13). Downstream use is smaller still — the Python SDK shows roughly
 <span data-live="state-of-ucp/adoption-facts.json:$.python_sdk_dependents_approx">7</span> dependent
 repositories, and a code search for the AP2 mandate token returns single digits across all of GitHub.</p>
   <p>SDK downloads are modest but real, consistent with a young protocol: the official
 <a href="https://www.npmjs.com/package/@ucp-js/sdk" rel="noopener">@ucp-js/sdk</a> sees about
-<span data-live="state-of-ucp/adoption-facts.json:$.npm_js_sdk_month">12676</span> downloads/month, the official
+<span data-live="state-of-ucp/adoption-facts.json:$.npm_js_sdk_month">16750</span> downloads/month, the official
 Python <a href="https://pypi.org/project/ucp-sdk/" rel="noopener">ucp-sdk</a> about
-<span data-live="state-of-ucp/adoption-facts.json:$.pypi_sdk_month">2916</span>/month, and the Rust
+<span data-live="state-of-ucp/adoption-facts.json:$.pypi_sdk_month">7121</span>/month, and the Rust
 <a href="https://crates.io/crates/ucp-schema" rel="noopener">ucp-schema</a> about
-<span data-live="state-of-ucp/adoption-facts.json:$.crates_schema_total">2430</span> lifetime. Beyond the
+<span data-live="state-of-ucp/adoption-facts.json:$.crates_schema_total">2909</span> lifetime. All three
+download rates have accelerated sharply since mid-July — the weekly series in the trend charts above show the
+curve from each registry's own history API. Beyond the
 official org, roughly three dozen third-party repositories genuinely implement UCP — platform connectors, a
 community Java SDK, vendor demos: a real implementer base, but an early one.</p>
 
@@ -198,8 +236,10 @@ mandates, and the mandate token barely appears in public code at all.</p>
 
   <h2>6 · Why the "how many merchants?" question is so easy to get wrong</h2>
   <ol>
-    <li><b>A served discovery profile is not an adoption.</b> Some 99.4% of "verified UCP merchants" are one platform
-auto-provisioning an endpoint; the store made no decision. Provisioned ≠ adopted ≠ transacting.</li>
+    <li><b>A served discovery profile is not an adoption.</b> Some
+<span data-live="state-of-ucp/scan-summary.json:$.uniform_default_profile_pct">99.5</span>% of "verified UCP
+merchants" are one platform auto-provisioning an endpoint; the store made no decision.
+Provisioned ≠ adopted ≠ transacting.</li>
     <li><b>An endorsement is not a deployment.</b> The marquee brands endorse and participate via managed
 surfaces; they do not serve their own endpoints.</li>
     <li><b>"Conformant" is three different questions.</b> Of the
@@ -241,7 +281,7 @@ would close the gap: a second buyer-agent ecosystem beyond Google's surfaces; a 
 non-platform merchants adopting the frontier features at any scale; and agent-side conformance becoming table
 stakes the moment real money moves through autonomous agents. The distance between "passes conformance" and
 "behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.
-We will keep tracking it here month by month, and we would genuinely welcome the help: if you are building on UCP
+We will keep tracking it here edition by edition, and we would genuinely welcome the help: if you are building on UCP
 and seeing something different from what we measured, tell us what we missed.</p>
 
   <div class="provenance">
@@ -252,13 +292,14 @@ line; method at <a href="/docs">spck.dev/docs</a>.
       Where this page leans on our own conformance register, its evidence-class split is published too: of <span data-live="coverage.json:$.versions['2026-04-08'].check">276</span> checked requirements at v2026-04-08, <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['live-wire']">48</span> are kill-tested against independent reference servers and <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['self-referenced']">151</span> so far rest only on our own fixtures — the full split, drift-gated in CI, is at <a href="/coverage">spck.dev/coverage</a>.
       Live-endpoint data: population frame from the CC-BY-4.0
 UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); measurements are our own read-only
-<code>/.well-known/ucp</code> probe of 2026-08-01; aggregates at
+<code>/.well-known/ucp</code> probe of 2026-08-13; aggregates at
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a> and
 <a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
 crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
-2026-08-01. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
+2026-08-13. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
 named or graded; aggregates only. Each edition is point-in-time and reproducible against the same public sources;
-we plan to refresh it on a monthly cadence and note what changed. Corrections and additions are genuinely welcome
+we refresh it every week or two, chart the history above, and note what changed. Corrections and additions are
+genuinely welcome
 — open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>
   </div>
 </div>
@@ -267,11 +308,120 @@ we plan to refresh it on a monthly cadence and note what changed. Corrections an
 <div class="foot-col"><h4>Merchants</h4><a href="/check">Check your store</a><a href="/docs#run">CLI &amp; full suite</a><a href="/docs#ci">CI Action</a></div>
 <div class="foot-col"><h4>Agents</h4><a href="/agent">Test a shopping agent</a><a href="/sandbox">Interop sandbox</a></div>
 <div class="foot-col"><h4>Reference</h4><a href="/coverage">Coverage matrix</a><a href="/checks/">Check register</a><a href="/rubric">Grading rubric</a><a href="/docs">Docs &amp; methodology</a></div>
-<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (monthly)</a></div>
+<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (live tracker)</a></div>
 <div class="foot-col"><h4>Project</h4><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a><a href="https://ucp.dev" rel="noopener">ucp.dev</a></div>
 </div>
 <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
 </footer>
 <script src="/site.js"></script>
+<script>
+/* Trend charts — single-series small multiples, one hue, zero-based y so a
+   flat line means flat reality. Weekly series come from source-API history;
+   per-edition series are our own measurements (stale-kept points excluded
+   upstream in trends.json). */
+(async function () {
+  var grid = document.getElementById("trendgrid");
+  if (!grid) return;
+  var fmt = function (n) { return Number(n).toLocaleString("en-US"); };
+  var esc = function (x) { return String(x == null ? "" : x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var mdate = function (d) {
+    var p = d.split("-");
+    return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1]-1] + " " + (+p[2]);
+  };
+  function chart(title, src, pts) {
+    var W = 260, H = 100, L = 10, R = 250, T = 16, B = 74;
+    var max = Math.max.apply(null, pts.map(function (p) { return p.v; }));
+    var ymax = max === 0 ? 1 : max * 1.08;
+    var x = function (i) { return pts.length === 1 ? (L + R) / 2 : L + (R - L) * i / (pts.length - 1); };
+    var y = function (v) { return B - (B - T) * (v / ymax); };
+    var path = pts.map(function (p, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1); }).join(" ");
+    var s = '<svg viewBox="0 0 260 100" role="img" aria-label="' + esc(title) + '">';
+    s += '<line x1="' + L + '" y1="' + B + '" x2="' + R + '" y2="' + B + '" stroke="var(--line)" stroke-width="1"/>';
+    s += '<path d="' + path + '" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    var showEvery = pts.length <= 6;
+    pts.forEach(function (p, i) {
+      var last = i === pts.length - 1;
+      var tip = "<title>" + esc(mdate(p.date)) + ": " + fmt(p.v) + "</title>";
+      s += '<circle class="hit" cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="9" fill="transparent">' + tip + "</circle>";
+      if (showEvery || last)
+        s += '<circle class="pt" cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="4" fill="var(--primary)" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
+    });
+    var f = pts[0], l = pts[pts.length - 1];
+    var lx = Math.min(x(pts.length - 1), R - 4);
+    s += '<text x="' + Math.max(x(0), L + 2) + '" y="' + (y(f.v) - 8) + '" font-size="10.5" fill="var(--muted)">' + fmt(f.v) + "</text>";
+    s += '<text x="' + lx + '" y="' + (y(l.v) - 8) + '" text-anchor="end" font-size="10.5" font-weight="700" fill="var(--ink)">' + fmt(l.v) + "</text>";
+    s += '<text x="' + L + '" y="92" font-size="10" fill="var(--muted)">' + mdate(f.date) + "</text>";
+    s += '<text x="' + R + '" y="92" text-anchor="end" font-size="10" fill="var(--muted)">' + mdate(l.date) + "</text>";
+    s += "</svg>";
+    return '<div class="trend"><h4>' + esc(title) + '</h4><p class="src">' + esc(src) + "</p>" + s + "</div>";
+  }
+  function seriesFrom(rows, key) {
+    return rows.filter(function (r) { return typeof r[key] === "number"; })
+      .map(function (r) { return { date: r.date, v: r[key] }; });
+  }
+  try {
+    var res = await Promise.all([
+      fetch("/state-of-ucp/history/weekly-series.json").then(function (r) { return r.json(); }),
+      fetch("/state-of-ucp/history/trends.json").then(function (r) { return r.json(); })
+    ]);
+    var wk = res[0].series || {}, tr = res[1];
+    var cards = [], tables = [];
+    var weeklyOrder = ["npm_js_sdk_weekly", "pypi_sdk_weekly", "crates_schema_weekly"];
+    weeklyOrder.forEach(function (k) {
+      var sdef = wk[k];
+      if (sdef && sdef.points && sdef.points.length) {
+        cards.push(chart(sdef.label, "weekly · " + sdef.source, sdef.points));
+        tables.push({ label: sdef.label, pts: sdef.points });
+      }
+    });
+    var editions = [
+      ["facts", "github_stars_spec", "UCP spec repo stars", "per edition · verified captures only"],
+      ["scan", "live_valid", "Endpoints serving a live, valid profile", "per edition · our full probe of 3,037 domains"],
+      ["scan", "non_platform_endpoints", "Deliberate, self-hosted endpoints", "per edition · our full probe"],
+      ["scan", "cap_ap2_mandate", "Endpoints advertising AP2 mandates", "per edition · our full probe"],
+      ["facts", "registry_verified_total", "ucpregistry.com verified merchants", "per edition · registry API"]
+    ];
+    editions.forEach(function (e) {
+      var pts = seriesFrom(tr[e[0]] || [], e[1]);
+      if (pts.length >= 2) {
+        cards.push(chart(e[2], e[3], pts));
+        tables.push({ label: e[2], pts: pts });
+      }
+    });
+    grid.innerHTML = cards.join(""); /* safe: cards built by chart() with esc()-escaped labels/sources/dates; values via fmt() numerics */
+    var tt = document.getElementById("trendtables");
+    tables.forEach(function (t) {
+      var h = "<h5>" + esc(t.label) + '</h5><div class="tablewrap"><table class="rt"><tr><th>Date</th><th class="num">Value</th></tr>';
+      t.pts.forEach(function (p) { h += "<tr><td>" + esc(p.date) + '</td><td class="num">' + fmt(p.v) + "</td></tr>"; });
+      tt.insertAdjacentHTML("beforeend", h + "</table></div>");
+    });
+    // Since-last-edition strip: every numeric field present in the last two
+    // edition rows of each series (no cherry-picking), plus last two weeks.
+    var wc = document.getElementById("whatchanged"), ul = wc.querySelector("ul"), items = [];
+    weeklyOrder.forEach(function (k) {
+      var sdef = wk[k];
+      if (sdef && sdef.points && sdef.points.length >= 2) {
+        var a = sdef.points[sdef.points.length - 2], b = sdef.points[sdef.points.length - 1];
+        var pc = a.v ? Math.round((b.v - a.v) / a.v * 100) : null;
+        items.push(sdef.label + ": " + fmt(a.v) + " → " + fmt(b.v) + " week-over-week" +
+          (pc === null ? "" : " (" + (pc >= 0 ? "+" : "") + pc + "%)"));
+      }
+    });
+    editions.forEach(function (e) {
+      var pts = seriesFrom(tr[e[0]] || [], e[1]);
+      if (pts.length >= 2) {
+        var a = pts[pts.length - 2], b = pts[pts.length - 1];
+        if (a.v !== b.v) items.push(e[2] + ": " + fmt(a.v) + " (" + a.date + ") → " + fmt(b.v) + " (" + b.date + ")");
+        else items.push(e[2] + ": unchanged at " + fmt(b.v) + " since " + a.date);
+      }
+    });
+    ul.innerHTML = items.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join(""); /* safe: item strings esc()-escaped */
+    wc.hidden = false;
+  } catch (e) {
+    var fb = document.querySelector(".trend-fallback");
+    if (fb) fb.hidden = false;
+  }
+})();
+</script>
 </body>
 </html>
