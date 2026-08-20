@@ -26,7 +26,8 @@
         "op": "create",
         "category": "wrongtype",
         "field_prefix": "currency"
-      }
+      },
+      "target": "flower"
     },
     {
       "id": "checkout-create-lineitem-id-wrongtype-500",
@@ -52,7 +53,8 @@
         "op": "create",
         "category": "wrongtype",
         "field_prefix": "line_items.0.id"
-      }
+      },
+      "target": "flower"
     }
   ]
 }

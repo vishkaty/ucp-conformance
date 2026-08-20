@@ -104,6 +104,19 @@ def _expected_valid(referee, case):
         return None
 
 
+def _is_ucp_error_envelope(j):
+    """True only for the UCP error envelope: ucp.status == "error" plus a
+    non-empty messages[]. Any-JSON-object is NOT enough — FastAPI's default
+    {"detail": [...]} rejection is a JSON object and is exactly the shape this
+    predicate exists to keep out of the reject-envelope bucket (samples#195)."""
+    if not isinstance(j, dict):
+        return False
+    ucp = j.get("ucp")
+    msgs = j.get("messages")
+    return (isinstance(ucp, dict) and ucp.get("status") == "error"
+            and isinstance(msgs, list) and len(msgs) > 0)
+
+
 def classify(base, corpus, referee, session_id="co_nonexistent"):
     """Fire the whole corpus; return per-case records with a classification bucket."""
     records = []
@@ -111,16 +124,16 @@ def classify(base, corpus, referee, session_id="co_nonexistent"):
         status, body, kind = fire(base, case, i, session_id)
         try:
             j = json.loads(body)
-            is_json_obj = isinstance(j, dict)
+            is_envelope = _is_ucp_error_envelope(j)
         except Exception:
-            is_json_obj = False
+            is_envelope = False
         exp_valid = _expected_valid(referee, case) if referee else None
         if kind in ("crash", "hang") or status == 0 or status >= 500:
             bucket = "crash"
         elif 200 <= status < 300:
             bucket = "accept-invalid" if exp_valid is False else "accept-ok"
         elif 400 <= status < 500:
-            bucket = "reject-envelope" if is_json_obj else "reject-noenvelope"
+            bucket = "reject-envelope" if is_envelope else "reject-noenvelope"
         else:
             bucket = f"other-{status}"
         records.append({"cid": case.cid, "op": case.op, "category": case.category,
@@ -170,9 +183,16 @@ def _match(entry, rec):
     return True
 
 
-def adjudicate(records, entries):
+def adjudicate(records, entries, target="flower"):
     """Split crashes into acknowledged vs NEW; find STALE entries (no crash reproduces).
-    Returns (new_crashes, acknowledged, stale_entries)."""
+    Returns (new_crashes, acknowledged, stale_entries).
+
+    Entries are TARGET-SCOPED: an entry applies to the golden named by its
+    "target" field (default "flower", the historical golden). Entries for a
+    different target are ignored entirely for this run — never acknowledged,
+    never stale — so running the corpus against a second implementation cannot
+    falsely expire another implementation's defect record."""
+    entries = [e for e in entries if e.get("target", "flower") == target]
     crashes = [r for r in records if r["bucket"] == "crash"]
     acknowledged, new_crashes = [], []
     reproduced_ids = set()
@@ -211,7 +231,7 @@ def _live_session_id(base):
         return "co_nonexistent"
 
 
-def run_live(base, product, require_server, as_json):
+def run_live(base, product, require_server, as_json, target="flower"):
     if not _HAVE_REFEREE:
         print("fuzz gate: SKIP — the independent referee (jsonschema/referencing) is "
               "unavailable; cannot assign expected-validity.")
@@ -233,7 +253,7 @@ def run_live(base, product, require_server, as_json):
         for e in reg_errs:
             print(f"  ✗ {e}")
         return 1
-    new_crashes, acknowledged, stale = adjudicate(records, entries)
+    new_crashes, acknowledged, stale = adjudicate(records, entries, target=target)
 
     from collections import Counter
     by_bucket = Counter(r["bucket"] for r in records)
@@ -297,6 +317,40 @@ def _selftest():
     d2 = fc.corpus_digest(fc.build_corpus())
     assert d1 == d2, "corpus is non-deterministic"
     assert any("#156" in c.tags for c in fc.build_corpus()), "the #156 currency-omit positive control is missing from the corpus"
+
+    # 2) envelope classification: a 4xx is only "reject-envelope" when the body
+    #    IS the UCP error envelope. FastAPI's flat {"detail":[...]} hid the
+    #    samples#195 class for weeks because any JSON object counted (found
+    #    2026-08-20 by the pre-filing gate). Kill-fixture both ways:
+    env = {"ucp": {"version": "2026-04-08", "status": "error"},
+           "messages": [{"type": "error", "code": "INVALID_REQUEST", "content": "x"}]}
+    flat = {"detail": [{"type": "list_type", "loc": ["body", "line_items"], "msg": "x"}]}
+    assert _is_ucp_error_envelope(env) is True, "true envelope must classify as envelope"
+    assert _is_ucp_error_envelope(flat) is False, "FastAPI flat detail must NOT count as an envelope"
+    assert _is_ucp_error_envelope({"ucp": {"status": "success"}, "messages": [{}]}) is False, \
+        "status must be error"
+    assert _is_ucp_error_envelope({"ucp": {"status": "error"}, "messages": []}) is False, \
+        "messages must be non-empty"
+    assert _is_ucp_error_envelope("nope") is False, "non-dict is never an envelope"
+
+    # 3) per-target register scoping: an entry that names a target is invisible
+    #    to runs against a DIFFERENT target — neither acknowledged nor stale.
+    #    (Found 2026-08-20: python-golden entries read falsely STALE when the
+    #    gate ran against the Node reference for the first time.)
+    ent_flower = {"id": "e1", "upstream": "u", "minimal_repro": {"x": 1}, "target": "flower",
+                  "signature": {"op": "create", "category": "wrongtype", "field_prefix": "currency"}}
+    rec = {"cid": "create/wrongtype/currency/integer", "op": "create",
+           "category": "wrongtype", "field": "currency.integer", "status": 500,
+           "kind": "http", "bucket": "crash", "tags": [], "mutation": "m", "body_head": ""}
+    new_c, ack, stale = adjudicate([rec], [ent_flower], target="flower")
+    assert not new_c and ack and not stale, "same-target entry must acknowledge its crash"
+    new_c, ack, stale = adjudicate([], [ent_flower], target="flower")
+    assert stale, "same-target entry with no crash must be stale"
+    new_c, ack, stale = adjudicate([], [ent_flower], target="nodejs")
+    assert not stale and not ack, "other-target entry must be IGNORED, not stale"
+    ent_legacy = dict(ent_flower); ent_legacy.pop("target")
+    new_c, ack, stale = adjudicate([], [ent_legacy], target="nodejs")
+    assert not stale, "a legacy entry without target defaults to flower and is ignored off-target"
     print("  ✓ corpus deterministic (digest stable) and contains the #156 positive control")
 
     # A stub server that 500s ONLY when a PLANTED boundary input is seen: a create whose
@@ -402,6 +456,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--server", default="http://localhost:8182")
+    ap.add_argument("--target", default="flower",
+                    help="which golden the defect register is scoped to (flower|nodejs|...)")
     ap.add_argument("--product", default=fc.DEFAULT_PRODUCT,
                     help="a real in-stock product id on the target (drives the valid baseline)")
     ap.add_argument("--require-server", action="store_true")
@@ -414,7 +470,7 @@ def main():
             print("fuzz gate --selftest: SKIP — referee unavailable.")
             return 2
         return _selftest()
-    return run_live(args.server, args.product, args.require_server, args.json)
+    return run_live(args.server, args.product, args.require_server, args.json, target=args.target)
 
 
 if __name__ == "__main__":
