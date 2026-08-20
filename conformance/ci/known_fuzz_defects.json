@@ -1,5 +1,58 @@
 {
   "_about": "Server-side CRASH defects (5xx / connection-reset / hang) that the schema-guided fuzz lane (fuzz_gate.py) discovered in a GOLDEN reference, has diagnosed to a minimal reproduction, and is tracking upstream. The fuzz gate reports these LOUDLY on every run but does NOT fail on them (a crash we have already diagnosed and are tracking is not new information every run). Every entry MUST carry a minimal_repro, a root-cause diagnosis, and an `upstream` reference (a filed issue/PR, or a documented candidate paired with the sibling upstream artifact that establishes the defect class). Entries EXPIRE BY CONSTRUCTION: `signature` names the corpus cases that must still crash; the moment NONE of them reproduce the crash, the gate FAILS until the entry is deleted, so a stale acknowledgement can never quietly outlive the bug it described. A NEW crash matching no entry FAILS the gate.",
-  "_expired_2026-08-11": "checkout-create-id-nonstring-500 REMOVED at the samples re-pin to 52377503: the defect was filed as samples#167 (vishkaty, merged 2026-08-10 — checkout id assigned server side), and the entry's own expected outcome now holds on the wire ({id:123} create -> 201 with a server-assigned id). The fuzz gate red-named the entry as stale (self-expiry working as designed) and it was deleted per the register contract.",
-  "defects": []
+  "_expired_2026-08-11": "checkout-create-id-nonstring-500 REMOVED at the samples re-pin to 52377503: the defect was filed as samples#167 (vishkaty, merged 2026-08-10 \u2014 checkout id assigned server side), and the entry's own expected outcome now holds on the wire ({id:123} create -> 201 with a server-assigned id). The fuzz gate red-named the entry as stale (self-expiry working as designed) and it was deleted per the register contract.",
+  "defects": [
+    {
+      "id": "checkout-create-currency-wrongtype-500",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/189",
+      "filed": "2026-08-19",
+      "minimal_repro": {
+        "method": "POST",
+        "path": "/checkout-sessions",
+        "body": {
+          "line_items": [
+            {
+              "item": {
+                "id": "bouquet_roses"
+              },
+              "quantity": 1
+            }
+          ],
+          "currency": 123
+        }
+      },
+      "diagnosis": "checkout_service.py:213 reads currency off the request with getattr; the value reaches response construction at :366 where a non-string raises an uncaught pydantic ValidationError. currency is ucp_request omit, so the merchant owns it.",
+      "signature": {
+        "op": "create",
+        "category": "wrongtype",
+        "field_prefix": "currency"
+      }
+    },
+    {
+      "id": "checkout-create-lineitem-id-wrongtype-500",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/189",
+      "filed": "2026-08-19",
+      "minimal_repro": {
+        "method": "POST",
+        "path": "/checkout-sessions",
+        "body": {
+          "line_items": [
+            {
+              "item": {
+                "id": "bouquet_roses"
+              },
+              "quantity": 1,
+              "id": 123
+            }
+          ]
+        }
+      },
+      "diagnosis": "checkout_service.py:230 reads line_items[].id the same tolerant way via getattr; a non-string reaches response construction at :366 and raises uncaught.",
+      "signature": {
+        "op": "create",
+        "category": "wrongtype",
+        "field_prefix": "line_items.0.id"
+      }
+    }
+  ]
 }
