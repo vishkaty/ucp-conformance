@@ -1,41 +1,5 @@
 {
   "_about": "Defects in a GOLDEN reference implementation that we have already reported upstream, with the report. The probe-hygiene gate reports these loudly and does not fail on them, because a defect we have diagnosed, fixed and filed is not new information every time the suite runs. Nothing may be listed here without an upstream link: an entry without one is suppression, not acknowledgement. Entries EXPIRE by construction - once the defect stops reproducing the gate FAILS until the entry is deleted, so a stale acknowledgement cannot quietly outlive the bug it described.",
-  "defects": [
-    {
-      "check_id": "cart.response_shape",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/188",
-      "filed": "2026-08-19",
-      "observed": "cart create with a currency member draws HTTP 500 from the python golden: TypeError models.UnifiedCart() got multiple values for keyword argument 'currency' at services/cart_service.py:119. The probe sends currency, which cart.json marks ucp_request omit, and the service splats the request dump over the same keyword."
-    },
-    {
-      "check_id": "cart.line_item_shape",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/188",
-      "filed": "2026-08-19",
-      "observed": "cart create with a currency member draws HTTP 500 from the python golden: TypeError models.UnifiedCart() got multiple values for keyword argument 'currency' at services/cart_service.py:119. The probe sends currency, which cart.json marks ucp_request omit, and the service splats the request dump over the same keyword."
-    },
-    {
-      "check_id": "cart.response_body_valid_json",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/188",
-      "filed": "2026-08-19",
-      "observed": "cart create with a currency member draws HTTP 500 from the python golden: TypeError models.UnifiedCart() got multiple values for keyword argument 'currency' at services/cart_service.py:119. The probe sends currency, which cart.json marks ucp_request omit, and the service splats the request dump over the same keyword."
-    },
-    {
-      "check_id": "totals.subtotal_and_total",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/188",
-      "filed": "2026-08-19",
-      "observed": "cart create with a currency member draws HTTP 500 from the python golden: TypeError models.UnifiedCart() got multiple values for keyword argument 'currency' at services/cart_service.py:119. The probe sends currency, which cart.json marks ucp_request omit, and the service splats the request dump over the same keyword."
-    },
-    {
-      "check_id": "totals.additive_non_negative",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/188",
-      "filed": "2026-08-19",
-      "observed": "cart create with a currency member draws HTTP 500 from the python golden: TypeError models.UnifiedCart() got multiple values for keyword argument 'currency' at services/cart_service.py:119. The probe sends currency, which cart.json marks ucp_request omit, and the service splats the request dump over the same keyword."
-    },
-    {
-      "check_id": "signals.attribution_no_effect",
-      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/191",
-      "filed": "2026-08-19",
-      "observed": "checkout create carrying attribution draws HTTP 500 from the python golden: AttributeError 'dict' object has no attribute 'model_dump' at services/checkout_service.py:406. AttributionCreateRequest is a TypeAliasType in ucp-sdk 0.4.4, so the value stays a dict. The SAE-008 probe replays the create with attribution, so it is the surface that catches this."
-    }
-  ]
+  "defects": [],
+  "_expired_2026-08-24": "All 6 entries removed at the samples re-pin to 00333a80: samples#196 (damaz91) fixed the cart omit-member collisions (#188) and the attribution crash (#191); every silenced 5xx stopped reproducing, so the entries self-expired per contract. Wire re-probe of all five surfaces preceded the deletion."
 }
