@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The State of UCP: the v2026-08-25 release — the migration hazards | spck.dev</title>
+<meta name="description" content="An independent, data-backed read of the UCP v2026-08-25 launch release: what actually moved, the eight migration hazards an implementer hits going from v2026-04-08, and the launch-week hardening of the reference implementations. Every claim links to the released artifact or a public thread.">
+<link rel="canonical" href="https://spck.dev/state-of-ucp/launch-2026-08-25">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://spck.dev/state-of-ucp/launch-2026-08-25">
+<meta property="og:title" content="The State of UCP: the v2026-08-25 release">
+<meta property="og:description" content="The launch release is out. Here is what moves under your feet when you migrate — eight hazards, each linked to the released artifact.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The State of UCP: the v2026-08-25 release">
+<meta name="twitter:description" content="Eight migration hazards, each linked to the released artifact or a public thread.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
+<style>
+  .wrap { max-width:840px; margin:0 auto; padding:40px 24px 8px; }
+  .wrap .standfirst { font-size:17px; font-weight:600; color:var(--ink); margin:0 0 14px; }
+  .wrap .sub { color:var(--muted); margin:0 0 24px; font-size:14.5px; line-height:1.65; }
+  .wrap h2 { font-size:20px; font-weight:800; letter-spacing:-.3px; margin:44px 0 8px; color:var(--ink); }
+  .wrap h2::before { content:""; display:inline-block; width:8px; height:8px; border-radius:2px; background:var(--primary); margin-right:10px; vertical-align:middle; }
+  .wrap p { color:var(--ink); font-size:14.8px; line-height:1.7; margin:12px 0; }
+  .wrap p.muted, .wrap .note { color:var(--muted); font-size:13px; line-height:1.6; }
+  table.rt { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; }
+  table.rt th, table.rt td { text-align:left; padding:8px 10px; border-bottom:1px solid rgba(127,127,127,.25); vertical-align:top; }
+  table.rt th { color:var(--muted); font-weight:600; font-size:12.5px; }
+  .wrap a { color:var(--primary); text-decoration:none; } .wrap a:hover { text-decoration:underline; }
+  .tablewrap { overflow-x:auto; }
+  .honesty { border:1px solid rgba(127,127,127,.25); border-radius:10px; padding:14px 18px; margin:20px 0; }
+  .honesty p { margin:0; font-size:13.5px; color:var(--muted); }
+</style>
+  <!-- Cloudflare Web Analytics -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "3bebef55335e4229a5c7807ce207fa13"}'></script>
+  <!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">State of UCP · Launch edition</div>
+    <h1>The State of UCP: the v2026-08-25 release</h1>
+    <p class="standfirst">The launch release is out. Here is what moves under your feet when you migrate.</p>
+    <p class="sub">An independent, data-backed read of <a href="https://github.com/Universal-Commerce-Protocol/ucp/releases/tag/v2026-08-25" rel="noopener">UCP v2026-08-25</a>, published 2026-08-25.
+Each claim links to the released artifact or a public thread. Part of the
+<a href="/state-of-ucp">State of UCP tracker</a>. Unofficial; not affiliated with or endorsed by the UCP maintainers.</p>
+  </header>
+
+  <div class="honesty"><p><b>A note on honesty.</b> This is a best-effort independent read and we would rather be
+corrected than confident. If anything here looks off,
+<a href="https://github.com/vishkaty/ucp-conformance/issues" rel="noopener">tell us</a> and we will check it, fix it,
+and note the correction.</p></div>
+
+  <h2>The release in one paragraph</h2>
+  <p>v2026-08-25 is the largest restructuring the spec has shipped: the documentation tree is reorganized by vertical
+(<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/723" rel="noopener">#723</a>), the shared primitives and the whole
+payments surface moved out of <code>shopping/</code> into <code>common/</code>
+(<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/736" rel="noopener">#736</a>,
+<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/741" rel="noopener">#741</a>), capability names adopted a dotted
+namespace, request constraints arrived as a first-class negotiation mechanism
+(<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/655" rel="noopener">#655</a>,
+<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/744" rel="noopener">#744</a>), Location Search and Lookup landed
+(<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/589" rel="noopener">#589</a>), and deprecated transition schemas
+were deleted (<a href="https://github.com/Universal-Commerce-Protocol/ucp/commit/fdcf8934" rel="noopener">cleanup commit</a>).
+In the schema tree alone, 36 file paths present at v2026-04-08 are gone and 74 are new; <code>shopping/</code> went from 72 schema
+files to 42 and <code>common/</code> from 1 to 64.</p>
+
+  <h2>The migration hazards table</h2>
+  <p class="note">What an implementer moving from v2026-04-08 actually hits, in the order it will bite.</p>
+  <div class="tablewrap"><table class="rt">
+    <tr><th>#</th><th>Hazard</th><th>What breaks</th><th>Where it is decided</th></tr>
+    <tr><td>1</td><td><b>Capability names are renamed and re-namespaced.</b> <code>dev.ucp.shopping.payment_terms</code> is now <code>dev.ucp.common.payment.terms</code>; split payments is <code>dev.ucp.common.payment.split_payments</code>; the new families are dotted (<code>common.location.search</code>, <code>amenity.*</code>).</td><td>Discovery matching and capability gates keyed on the old strings go silently inert: nothing errors, the feature just stops negotiating.</td><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38/source/schemas/common/payment_terms.json" rel="noopener">payment_terms.json</a>, <a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38/docs/specification/payment/extensions/terms.md" rel="noopener">profile examples</a></td></tr>
+    <tr><td>2</td><td><b>Schema <code>$ids</code> and file paths moved.</b> Payments schemas live under <code>common/</code> with new names (<code>payment_split_payments.json</code>, <code>payment_terms.json</code>, <code>payment_authentication.json</code>).</td><td>Anything keyed by <code>$id</code> or raw path: bundlers, validators, vendored pins, generated-code inputs.</td><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/tree/cd78fb38/source/schemas/common" rel="noopener">source/schemas/common/</a></td></tr>
+    <tr><td>3</td><td><b>The docs tree is reorganized by vertical.</b> <code>docs/specification/checkout.md</code> style paths are now <code>docs/specification/shopping/checkout/index.md</code> style; extensions live under per-vertical <code>extensions/</code>.</td><td>Every deep link, bookmark, and doc-anchored citation 404s. Relative links between spec pages changed depth.</td><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/723" rel="noopener">#723</a></td></tr>
+    <tr><td>4</td><td><b>Request validation got strict at the SDK boundary.</b> Generated models now enforce integer line-item quantity with minimum 1 and split request/update/response classes per entity, in the published SDKs (js 0.4.5+, python 0.4.5+/0.4.6).</td><td>Payloads that leaned on loose models: fractional or zero quantities, response-shaped objects passed where a request variant belongs. Fixes for exactly this class are moving through the ecosystem in launch week: the node reference quantity bounds (<a href="https://github.com/Universal-Commerce-Protocol/samples/issues/194" rel="noopener">samples#194</a> → <a href="https://github.com/Universal-Commerce-Protocol/samples/pull/199" rel="noopener">samples#199</a>, in review), the conformance suite construction helpers (<a href="https://github.com/Universal-Commerce-Protocol/conformance/pull/97" rel="noopener">conformance#97</a>, in review), and the python reference test fixture (<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/219" rel="noopener">samples#219</a>, in review).</td><td><a href="https://www.npmjs.com/package/@ucp-js/sdk" rel="noopener">js-sdk 0.4.5</a>, <a href="https://pypi.org/project/ucp-sdk/" rel="noopener">ucp-sdk 0.4.6</a></td></tr>
+    <tr><td>5</td><td><b>Request constraints are a new negotiation surface.</b> Businesses can carry constraints in responses (<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/655" rel="noopener">#655</a>) and target them by path (<a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/744" rel="noopener">#744</a>); instrument requirements are expressed through them (<a href="https://github.com/Universal-Commerce-Protocol/ucp/commit/d25cce30" rel="noopener">commit d25cce30</a>).</td><td>Platforms that ignore constraints they do not recognize will construct requests the business must reject.</td><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38/docs/specification/overview/index.md" rel="noopener">Request constraints</a></td></tr>
+    <tr><td>6</td><td><b>Deprecated transition schemas are deleted.</b> The launch cleanup removed transitional members and dead schemas (<a href="https://github.com/Universal-Commerce-Protocol/ucp/commit/fdcf8934" rel="noopener">fdcf8934</a>, <a href="https://github.com/Universal-Commerce-Protocol/ucp/commit/6907368b" rel="noopener">account_info removal</a>).</td><td>Payloads still carrying transition-era members now fail schema validation instead of being tolerated.</td><td>release diff</td></tr>
+    <tr><td>7</td><td><b>A version-skew window is open.</b> At release time the reference servers still serve v2026-04-08 and the published SDK lines (0.4.x) target it.</td><td>Generating models against the new release, or testing against the references as if they already spoke it, produces mismatches that look like bugs and are not.</td><td><a href="https://github.com/Universal-Commerce-Protocol/samples" rel="noopener">samples</a> at <code>00333a80</code></td></tr>
+    <tr><td>8</td><td><b>Error shape is converging on the envelope.</b> The python reference now answers rejected requests, validation failures included, with the UCP envelope, JSON carrying <code>code</code> and <code>content</code> (<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/196" rel="noopener">samples#196</a>, merged); the node twin is in review (<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/192" rel="noopener">samples#192</a>).</td><td>Platforms parsing framework-default error bodies (flat detail arrays, plain text) should parse the envelope instead.</td><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38/docs/specification/shopping/checkout/rest.md" rel="noopener">checkout error responses</a></td></tr>
+  </table></div>
+
+  <h2>What launch week fixed underneath the release</h2>
+  <p>The reference implementations went through a fast hardening cycle in the days around the cut, all in public threads.
+Merged: client-supplied business-owned members are no longer adopted on create
+(<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/193" rel="noopener">samples#193</a>,
+<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/196" rel="noopener">samples#196</a>), and the python SDK
+variant generation rewrites composition refs correctly
+(<a href="https://github.com/Universal-Commerce-Protocol/python-sdk/pull/83" rel="noopener">python-sdk#83</a>, released in
+<a href="https://pypi.org/project/ucp-sdk/0.4.6/" rel="noopener">ucp-sdk 0.4.6</a>). In review: line-item quantity bounds at the
+schema boundary (<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/199" rel="noopener">samples#199</a>) and the
+node validation-error envelope (<a href="https://github.com/Universal-Commerce-Protocol/samples/pull/192" rel="noopener">samples#192</a>).
+The conformance suite is absorbing the same wave
+(<a href="https://github.com/Universal-Commerce-Protocol/conformance/pull/97" rel="noopener">conformance#97</a>).</p>
+
+  <h2>Tracking it</h2>
+  <p>The <a href="/state-of-ucp">live tracker</a> pins every requirement it checks to spec lines and re-verifies against the
+released artifacts; the v2026-08-25 requirement register is being rebuilt against the released text now, and the next edition
+will carry the numbers.</p>
+
+  <p class="note" style="margin:36px 0 24px">— <a href="https://spck.dev">spck.dev</a>, published 2026-08-27. Unofficial and independent.</p>
+</div>
+</body>
+</html>
