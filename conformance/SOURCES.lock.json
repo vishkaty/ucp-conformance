@@ -24,6 +24,13 @@
         "commit_date": "2026-01-23T17:55:22Z",
         "release_branch": "release/2026-01-11",
         "release_branch_note": "See 2026-01-23.release_branch_note. As of 2026-08-11 release/2026-01-11 was ~4 commits ahead of the pinned tag \u2014 surfaced by the sources-age tripwire, reviewed, not auto-re-pinned."
+      },
+      "2026-08-25": {
+        "tag": "v2026-08-25",
+        "commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+        "commit_date": "2026-08-25T13:53:03Z",
+        "release_branch": "release/2026-08-25",
+        "note": "THE LAUNCH RELEASE, pinned 2026-08-26 the day after the cut. Contains the hierarchy reorg (#723: docs/specification/<vertical>/... paths), the common-primitives and payment refactors (#736/#741), path-targeted request constraints (#744) and response-carried request constraints (#655). The reference implementations still SERVE 2026-04-08 at this pin (samples 00333a80); the 08-25 check lane gets built as the day-1 batch. sources_age watches release/2026-08-25 vs this tag per the standing tripwire."
       }
     }
   },

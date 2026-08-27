@@ -27,6 +27,7 @@ rows = [
     ("python-sdk",     "python-sdk",  sha(s["reference_sdk"])),
     ("samples",        "samples",     sha(s["reference_sample_server"])),
     ("ucp",            "ucp",         sha(sp["2026-04-08"])),
+    ("ucp-2026-08-25", "ucp",         sha(sp["2026-08-25"])),
     ("ucp-2026-01-23", "ucp",         sha(sp["2026-01-23"])),
     ("ucp-2026-01-11", "ucp",         sha(sp["2026-01-11"])),
     ("ucp-schema",     "ucp-schema",  sha(s["schema_validator"])),
