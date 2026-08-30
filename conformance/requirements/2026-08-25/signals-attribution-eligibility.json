@@ -1,0 +1,446 @@
+{
+  "_area": "signals-attribution-eligibility",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "SAE-001",
+      "requirement": "Signal values MUST NOT be buyer-asserted claims; platforms provide signals from direct observation or independently verifiable third-party attestations",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L3315-L3318",
+      "quote": "Signal values **MUST NOT** be buyer-asserted\nclaims — platforms provide signals based on direct observation (e.g.,\nconnection IP, user agent) or by relaying independently verifiable\nthird-party attestations",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-001; doc reorganized to docs/specification/overview/index.md (was docs/specification/overview.md), now under '### Signals' inside a '## Security' section. Text unchanged through 'third-party attestations'; new text appends an example (cryptographically signed attestation verifiable against a published key set) after this clause.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-002",
+      "requirement": "All signal keys MUST use reverse-domain naming to ensure provenance and prevent collisions in the shared namespace",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L3322-L3323",
+      "quote": "All signal keys **MUST** use reverse-domain naming to ensure provenance and\nprevent collisions when multiple extensions contribute to the shared namespace.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 SAE-002; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-003",
+      "requirement": "Reverse-domain identifiers (signal keys, eligibility claims, purpose keys, etc.) MUST match the shared reverse_domain_name.json pattern, now extended to allow hyphens, digit-led later segments, and punycode TLDs",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/reverse_domain_name.json#L7",
+      "quote": "\"pattern\": \"^[a-z](?:[a-z0-9-]*[a-z0-9])?(?:\\\\.[a-z0-9](?:[a-z0-9_-]*[a-z0-9_])?)+$\",",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED (moved + pattern changed) — flag for review. OLD (2026-04-08 SAE-003, source/schemas/shopping/types/signals.json#L8): inline propertyNames.pattern `^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+$` living directly in signals.json. NEW: signals.json moved to source/schemas/common/types/signals.json and no longer carries its own pattern — it delegates via `\"propertyNames\": {\"$ref\": \"reverse_domain_name.json\"}` (new L7-9) to a new shared type, source/schemas/common/types/reverse_domain_name.json, whose pattern (quoted here) is materially more permissive: it now allows interior hyphens, digit-led non-first segments, and punycode-style first segments (e.g., 'xn--p1ai'), none of which the old signals-only pattern allowed. This shared file is also now referenced by context.json (eligibility), buyer_consent.json (purpose/segment keys), and others — reverse-domain validation was unified across the spec, not just for signals.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "SAE-004",
+      "requirement": "Platforms SHOULD include only signals relevant to the current transaction",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/overview/index.md#L3342-L3343",
+      "quote": "Platforms **SHOULD** include only signals relevant to the current\ntransaction.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-004; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-005",
+      "requirement": "Businesses SHOULD NOT persist signal data beyond the operational needs of the transaction",
+      "keyword": "SHOULD NOT",
+      "source": "ucp:docs/specification/overview/index.md#L3343-L3344",
+      "quote": "Businesses **SHOULD NOT** persist signal data beyond the\noperational needs of the transaction (e.g., order finalization, fraud review).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-005; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-006",
+      "requirement": "Businesses MAY use messages with code 'signal' to request additional data, with type determining enforcement (error blocks, info advisory)",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/overview/index.md#L3346-L3349",
+      "quote": "Businesses **MAY** use messages with code `signal` to request additional\ndata. The `path` field identifies the requested signal; the message `type`\ndetermines enforcement. An `error` blocks status progression until the\nsignal is provided; an `info` is advisory and non-blocking.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-006; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-007",
+      "requirement": "Numeric or boolean attribution values MUST be string-encoded as they would be in a URL query string",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/attribution.json#L9",
+      "quote": "Numeric or boolean values MUST be string-encoded as they would be in a URL query string.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 SAE-007; attribution.json path unchanged (source/schemas/shopping/types/attribution.json — this is one of the two type files that did NOT move to common/types/ this release, unlike signals.json and context.json). Sentence now embedded inside a longer `additionalProperties.description` string; enforcement (additionalProperties.type='string') unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-008",
+      "requirement": "The presence or absence of the attribution field MUST NOT affect the response or negotiation",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L3395-L3396",
+      "quote": "the field's presence or\nabsence MUST NOT affect the response or negotiation.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-008; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-009",
+      "requirement": "Attribution appears inbound on cart, checkout, and catalog requests; outbound on order as a business-emitted snapshot of the originating checkout's attribution",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/overview/index.md#L3406-L3408",
+      "quote": "Attribution appears on cart, checkout, and catalog requests as\nplatform-provided attribution context; on order it appears as a\nbusiness-emitted snapshot of the originating checkout's attribution.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-009; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-010",
+      "requirement": "Eligibility values MUST use reverse-domain naming and MUST be non-identifying",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/context.json#L34",
+      "quote": "Values MUST use reverse-domain naming (e.g., 'com.example.loyalty_gold', 'org.school.student') and MUST be non-identifying.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 SAE-010; context.json MOVED from source/schemas/shopping/types/context.json to source/schemas/common/types/context.json (confirmed via $refs, e.g. cart.json now references '../common/types/context.json'). Prose unchanged, still embedded in the `eligibility` property's own `description` (new L34, was old L35). Enforcement mechanism changed alongside: eligibility items now `$ref` the shared reverse_domain_name.json (see SAE-003) rather than an inline pattern.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-011",
+      "requirement": "Businesses MUST ignore unrecognized eligibility values without error",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/context.json#L34",
+      "quote": "Businesses MUST ignore unrecognized values without error.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-011; context.json moved to source/schemas/common/types/ (see SAE-010), text unchanged, same `eligibility.description` string (new L34).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-012",
+      "requirement": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data (context is non-authoritative)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/context.json#L5",
+      "quote": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-012; context.json moved to source/schemas/common/types/ (see SAE-010). The top-level description grew substantially (new SHOULD/MAY guidance on using context when verified inputs are absent, down-ranking against higher-confidence signals, progressive disclosure, and higher-resolution data superseding context) but this specific clause is verbatim unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-013",
+      "requirement": "All accepted eligibility claims MUST be resolved before the transaction can complete",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L681-L682",
+      "quote": "all accepted claims **MUST** be resolved before the\ntransaction can complete.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-013; doc reorganized to docs/specification/shopping/checkout/index.md (checkout.md split into index.md/rest.md/embedded.md/mcp.md/a2a.md; all eligibility content lives in index.md under '#### Eligibility Verification at Completion', confirmed by exhaustive grep across all five checkout/*.md files). Text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-014",
+      "requirement": "Unrecognized or inapplicable eligibility claims MUST NOT block the checkout",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L684",
+      "quote": "Unrecognized or inapplicable claims **MUST NOT** block the checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-014; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-015",
+      "requirement": "Businesses SHOULD notify the buyer via messages with type 'warning' (code eligibility_not_accepted) when a claim is not accepted",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L685-L686",
+      "quote": "Businesses **SHOULD** notify the buyer via `messages` with `type: \"warning\"`\nwhen a claim is not accepted",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-015; doc reorganized, text unchanged. Message-code table restated at new L691-697.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-016",
+      "requirement": "Businesses MAY use messages with type 'info' (code eligibility_accepted) to explain the effects of accepted claims",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L686-L687",
+      "quote": "**MAY** use `type: \"info\"` to explain\nthe effects of accepted claims.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-016; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-017",
+      "requirement": "At completion, accepted claims that remain unverified MUST result in type 'error' with code 'eligibility_invalid'",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L687-L689",
+      "quote": "At completion, accepted claims that remain\nunverified **MUST** result in `type: \"error\"` with\n`code: \"eligibility_invalid\"` (see below).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-017; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-018",
+      "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L709-L710",
+      "quote": "Businesses **MUST NOT** complete a transaction with unresolved eligibility\nclaims.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-018; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-020",
+      "requirement": "On eligibility verification failure the Business MUST return an error in messages with code 'eligibility_invalid' and severity 'recoverable'",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L715-L716",
+      "quote": "The Business **MUST** return an error in `messages` with\n`code: \"eligibility_invalid\"` and `severity: \"recoverable\"`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 SAE-020; doc reorganized (now under a '**When verification fails:**' subheading), text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "SAE-021",
+      "requirement": "Eligibility failure messages SHOULD use the path field to identify which specific claim(s) could not be verified, except that when an Action prevented the effect, businesses MUST set path to the exact Action occurrence",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L717-L720",
+      "quote": "the Business **MUST** set that error\nMessage's `path` to select the exact Action occurrence as specified in\n[Actions](#actions). Otherwise, the Business **SHOULD** use `path` to identify\nwhich specific claim(s) could not be verified.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 SAE-021, checkout.md#L296): \"Messages **SHOULD** use the `path` field to identify which specific claim(s) could not be verified\" — a single, unconditional SHOULD. NEW text adds a new, stronger MUST carve-out: when a negotiated extension's Action is what prevents the requested effect, the Business MUST set the error message's path to the exact Action occurrence (per the new Actions mechanism); the original SHOULD is retained only for the non-Action case. Core SHOULD clause substance preserved, but the normative structure is now conditional and includes new MUST content not present in 2026-04-08.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    }
+  ]
+}
