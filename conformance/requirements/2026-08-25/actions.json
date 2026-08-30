@@ -1,0 +1,260 @@
+{
+ "_area": "actions",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW generic mechanism at v2026-08-25 (## Actions in overview/index.md + common/types/actions.json). No 04-08 equivalent existed. Feeds Payment Authentication (see payment-authentication.json, payment-3ds-challenge.json, payment-device-data-collection.json areas) and is adopted by Cart/Checkout/Catalog.",
+ "area": "actions",
+ "rows": [
+  {
+   "id": "ACT-001",
+   "requirement": "An Action instance requires `id`; `config` is optional and extension-defined",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:source/schemas/common/types/actions.json#L10",
+   "quote": "Common fields for one outstanding Action instance are id and optional config.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "actions.json $defs.instance.required=[\"id\"]. Wholly new generic mechanism (## Actions) \u2014 no analogous section existed in the 04-08 overview.md; it underpins Payment Authentication, and Cart/Checkout/Catalog Actions adoption."
+  },
+  {
+   "id": "ACT-002",
+   "requirement": "Each Action type's array of instances (keyed by reverse-domain Action type) MUST be non-empty when present",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:source/schemas/common/types/actions.json#L35",
+   "quote": "Non-empty instances of one Action type.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "actions.json additionalProperties (the per-type array) has minItems 1."
+  },
+  {
+   "id": "ACT-003",
+   "requirement": "An Action type key MUST be a reverse-domain name (propertyNames constrained to reverse_domain_name.json)",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:source/schemas/common/types/actions.json#L29",
+   "quote": "\"propertyNames\": {\n    \"$ref\": \"reverse_domain_name.json\"\n  },",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Enforced structurally by the actions.json schema's propertyNames constraint."
+  },
+  {
+   "id": "ACT-004",
+   "requirement": "For a newly processed successful response from a capability that adopts Actions, the Business MUST include every outstanding Action and MUST omit `actions` when none are outstanding",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L680",
+   "quote": "the Business **MUST** include every outstanding Action and **MUST** omit `actions` when none are outstanding.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against a captured response: cross-reference known outstanding work against the actions map."
+  },
+  {
+   "id": "ACT-005",
+   "requirement": "When a Message includes `path`, the Business MUST make it an RFC 9535 JSONPath expression relative to the root of the containing UCP response object",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L641",
+   "quote": "the Business **MUST** make it an RFC 9535 JSONPath expression relative to the root of the containing UCP response object.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by parsing message.path with an RFC 9535 JSONPath parser and confirming it resolves within the response."
+  },
+  {
+   "id": "ACT-006",
+   "requirement": "For a state-changing operation whose requested effect was not applied because of an outstanding Action, the Business MUST return the current resource together with a `recoverable` error Message whose `path` selects the exact Action occurrence",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L695",
+   "quote": "For a state-changing operation whose requested effect was not applied because of an Action, the Business **MUST** instead return the current resource with a `recoverable` error Message whose `path` selects the exact Action occurrence.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Directly checkable against a captured response when an Action is known to be gating the operation."
+  },
+  {
+   "id": "ACT-007",
+   "requirement": "An extension can declare Action type keys only within a reverse-domain namespace controlled by its schema authority (the same Namespace Governance rule as capability names)",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L721",
+   "quote": "Action type keys follow existing [Namespace Governance](#namespace-governance) rules: an extension can declare only types within a reverse-domain namespace controlled by its schema authority.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable via the same authority-binding derivation algorithm as capability names (see CAP area) applied to the Action type key's owning extension."
+  },
+  {
+   "id": "ACT-008",
+   "requirement": "An Action instance MUST remain open to additional top-level fields for forward compatibility, and a Platform MUST tolerate and ignore Action instance fields it does not recognize",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L760",
+   "quote": "A Platform **MUST** tolerate and ignore Action instance\nfields it does not recognize.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "actions.json $defs.instance sets additionalProperties true (schema half); the Platform-tolerance half needs a live Platform receiver."
+  },
+  {
+   "id": "ACT-009",
+   "requirement": "A Business MUST use a distinct `id` for each Action instance in a response",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L763",
+   "quote": "The Business **MUST** use a distinct `id` for each Action instance in a response.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by scanning a single response's actions map for duplicate ids across (and within) type arrays."
+  },
+  {
+   "id": "ACT-010",
+   "requirement": "When successive responses represent the same parent resource, the Business MUST keep the same Action type key and `id` while the same work remains outstanding; replacement work MUST have a new `id`, and the Business MUST NOT reuse an `id` during that resource's lifetime",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L765",
+   "quote": "the Business\n**MUST** keep the same Action type key and `id` while the same work remains outstanding. Replacement work **MUST** have a new `id`, and the Business\n**MUST NOT** reuse an `id` during that resource's lifetime.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable across sequential responses for the same resource (e.g. a Checkout polled via Get)."
+  },
+  {
+   "id": "ACT-011",
+   "requirement": "A Business MUST emit an Action type only when an extension that declares it is active for the containing capability in the negotiated intersection",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L774",
+   "quote": "A Business **MUST** emit an Action type only when an extension that declares it\nis active for the containing capability in the negotiated intersection.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires correlating the emitted Actions map against the negotiated capability set from discovery."
+  },
+  {
+   "id": "ACT-012",
+   "requirement": "A Platform MUST NOT treat any `config` field outside the active Action-type contract as an instruction to load content, render HTML, execute code, run a shell command, or invoke a native API",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L788",
+   "quote": "A Platform **MUST NOT** treat any other field as an\ninstruction to load content, render HTML, execute code, run a shell command, or\ninvoke a native API.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Security-relevant Platform-side trust-boundary rule; needs a live Platform receiver to test (or code review of the Platform's Action dispatcher)."
+  },
+  {
+   "id": "ACT-013",
+   "requirement": "A Platform MUST NOT assume that the effect gated by an Action succeeded merely because an Action surface or external interaction completed; a later Business response remains authoritative for that outcome",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L796",
+   "quote": "A Platform **MUST NOT** assume that the effect gated by an Action succeeded\nmerely because an Action surface or external interaction completed.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side behavior; directly underpins the Payment Authentication reconciliation contract (see PAUTH/TDS/DDC areas)."
+  },
+  {
+   "id": "ACT-014",
+   "requirement": "The common Actions contract defines no generic execution machinery (no URL scheme/origin/delegate policy, no sandbox/permission/presentation model, no timeout/failure/recovery model, no callback/result/state/polling/executor); each concrete Action type must add only the machinery its own processing requires",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L801",
+   "quote": "The common Actions contract defines no generic machinery: no URL scheme, origin,\nor delegate policy; no sandbox, permission, or presentation model; no timeout,\nfailure, or recovery model; and no callback, result, state, polling, or\nexecutor.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Architectural boundary: prevents a tester from expecting generic Actions-level security/timeout machinery outside a concrete Action type's own contract (e.g. Payment Authentication, see PAUTH/TDS/DDC)."
+  }
+ ]
+}

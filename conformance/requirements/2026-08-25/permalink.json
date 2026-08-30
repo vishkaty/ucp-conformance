@@ -1,0 +1,404 @@
+{
+ "_area": "permalink",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW capability at v2026-08-25 (dev.ucp.shopping.permalink; docs/specification/permalink.md, source/schemas/shopping/permalink.json, source/services/shopping/permalink.openapi.json). No 04-08 equivalent existed -- not named in the mission's explicit target-area list, but included per the Method instruction to walk every NEW doc file, given its size and security relevance (open redirect, PII/secret leakage, log/header injection, mass-assignment). Flagged distinctly in P2-REPORT.md as a swept-in bonus area.",
+ "area": "permalink",
+ "rows": [
+  {
+   "id": "PERM-001",
+   "requirement": "A permalink declaration MUST include `config.endpoint`, an absolute HTTPS browser endpoint with a non-empty authority and without userinfo, query, fragment, whitespace, backslashes, or trailing slash",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:source/schemas/shopping/permalink.json#L17",
+   "quote": "\"required\": [\"endpoint\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Wholly new capability (dev.ucp.shopping.permalink). No 04-08 equivalent existed. permalink.json's endpoint pattern enforces the shape; config requires endpoint."
+  },
+  {
+   "id": "PERM-002",
+   "requirement": "A Business MUST NOT treat loading a permalink as authorization to place an order, charge payment, or complete checkout, and MUST NOT return a UCP JSON resource as the primary response",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L34",
+   "quote": "A Business MUST NOT treat loading a permalink as authorization to place an\norder, charge payment, or complete checkout, and MUST NOT return a UCP JSON\nresource as the primary response.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Directly checkable: loading a permalink endpoint must never itself trigger a charge, and the HTTP response must be a redirect, not a UCP JSON body."
+  },
+  {
+   "id": "PERM-003",
+   "requirement": "Business permalink declarations MUST include `config.endpoint`; the endpoint MUST be an absolute HTTPS browser endpoint with a non-empty authority and without userinfo, query, fragment, whitespace, backslashes, or trailing slash",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L49",
+   "quote": "Business declarations MUST include `config.endpoint`. The endpoint MUST be an\nabsolute HTTPS browser endpoint with a non-empty authority and without\nuserinfo, query, fragment, whitespace, backslashes, or trailing slash.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Doc-level restatement of PERM-001; checkable against the advertised profile's config.endpoint."
+  },
+  {
+   "id": "PERM-004",
+   "requirement": "When the Business produces UCP data from a permalink, `line_items[].item.id` MUST identify the resolved purchasable sellable unit",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L168",
+   "quote": "When the Business produces UCP data from the permalink, `line_items[].item.id`\nMUST identify the resolved purchasable sellable unit.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against the initialized cart/checkout state after resolving a compact item path that used a non-purchasable identifier (e.g. a product ID)."
+  },
+  {
+   "id": "PERM-005",
+   "requirement": "An item identifier not matching the raw token grammar `^[A-Za-z0-9._-]+$` MUST be encoded with a leading `~` and base64url-without-padding; item identifiers MUST NOT be percent-encoded to make them fit the compact path",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L189",
+   "quote": "Otherwise, the item identifier MUST be encoded as:\n\n```text\n\"~\" + base64url_no_padding(utf8(item_identifier))\n```\n\nItem identifiers MUST NOT be percent-encoded to make them fit the compact path.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable by round-tripping a non-token-safe item identifier (e.g. containing `/` or `:`) through the compact item path."
+  },
+  {
+   "id": "PERM-006",
+   "requirement": "A Business MUST treat a leading `~` as the encoding marker and decode the remainder as base64url without padding; it MUST reject a token whose remainder is not canonical base64url without padding, and MUST reject a decoded value that is not valid UTF-8 or that contains control characters",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L214",
+   "quote": "A Business MUST treat a leading `~` as the encoding marker and decode the\nremainder as base64url without padding. A Business MUST reject a token whose\nremainder is not canonical base64url without padding, and MUST reject a decoded\nvalue that is not valid UTF-8 or that contains control characters.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable with malformed ~-encoded tokens (non-canonical base64url, invalid UTF-8, embedded control characters)."
+  },
+  {
+   "id": "PERM-007",
+   "requirement": "The raw and `~`-encoded forms of an item identifier MUST resolve to the same decoded identity",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L218",
+   "quote": "The raw and\n`~`-encoded forms of an identifier MUST resolve to the same decoded identity.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable by submitting both forms of the same identifier and confirming identical resolved line_items[].item.id."
+  },
+  {
+   "id": "PERM-008",
+   "requirement": "A Business MUST detect query-parameter-name collisions after JSON-Pointer normalization and MUST NOT resolve them by query-parameter order; it handles them as ambiguous",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L246",
+   "quote": "A Business\nMUST detect these collisions after normalization and MUST NOT resolve them by\nquery-parameter order; it handles them as ambiguous",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by supplying both `buyer/email` and `/buyer/email` (or duplicate `continue_to`) in one permalink URL."
+  },
+  {
+   "id": "PERM-009",
+   "requirement": "A Business MUST NOT forward sensitive values onto the destination URL when selectively exposing a UCP field path",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L260",
+   "quote": "A Business **MUST NOT** forward sensitive values.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Security-relevant; requires knowledge of which submitted fields the business classifies as sensitive."
+  },
+  {
+   "id": "PERM-010",
+   "requirement": "`continue_to` is untrusted input: a Business MUST validate it server-side by percent-decoding once, rejecting unless it starts with a single `/` (not `//`) and contains no scheme/backslash/whitespace/control character, resolving it against the endpoint's origin, and rejecting unless the result is same-origin",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L272",
+   "quote": "`continue_to` is untrusted, externally supplied input, so a Business MUST\nvalidate it server-side, in this order:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "The full 5-step validation algorithm (open-redirect prevention); directly checkable with scheme-relative (`//evil.example`), absolute-URL, and control-character continue_to payloads."
+  },
+  {
+   "id": "PERM-011",
+   "requirement": "A Business MUST NOT reflect the raw `continue_to` value, and the emitted `Location` header MUST NOT contain CR, LF, or other control characters",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L282",
+   "quote": "A Business MUST NOT reflect the raw value, and the emitted `Location`\nMUST NOT contain CR, LF, or other control characters.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the redirect response's Location header (HTTP response-splitting / header-injection prevention)."
+  },
+  {
+   "id": "PERM-012",
+   "requirement": "A Business MUST fall back to its default destination for any `continue_to` value that fails validation",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L286",
+   "quote": "A Business MUST fall back to its default destination for any value that fails\nthis validation.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable with an invalid continue_to value."
+  },
+  {
+   "id": "PERM-013",
+   "requirement": "Platforms MUST NOT generate multiple query parameters that normalize to the same UCP pointer; when multiple values are needed, Platforms MUST use distinct field paths such as indexed array paths",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L404",
+   "quote": "Platforms MUST NOT generate multiple query parameters that normalize to the same\nUCP pointer. When multiple values are needed, Platforms MUST use distinct field\npaths, such as indexed array paths.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side authoring rule; the Business-side detection/rejection half is PERM-008/PERM-014."
+  },
+  {
+   "id": "PERM-014",
+   "requirement": "A Business MUST NOT rely on query-parameter order to resolve duplicate writes to the same UCP pointer; if two query parameters normalize to the same pointer, the Business MUST treat the request as ambiguous unless it has a documented, order-independent policy for that field",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L412",
+   "quote": "A Business MUST NOT rely on query-parameter order to resolve duplicate writes.\nIf two query parameters normalize to the same UCP pointer, a Business MUST treat\nthe request as ambiguous and handle it according to\n[Error Handling](#error-handling), unless the Business has a documented,\norder-independent policy for that field.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting two differently-ordered query parameters that normalize to the same pointer with conflicting values."
+  },
+  {
+   "id": "PERM-015",
+   "requirement": "The compact item path is authoritative for line-item IDs and quantities; query fields targeting the same line items MUST NOT change them",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L388",
+   "quote": "The compact item path is authoritative for line-item IDs and quantities; query\nfields targeting the same line items MUST NOT change them.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable: `/buy/sku_123:2?line_items/0/quantity=5` MUST resolve quantity to 2, not 5."
+  },
+  {
+   "id": "PERM-016",
+   "requirement": "A Business MUST resolve a handled permalink request with `303 See Other` and a `Location` header pointing to a buyer-facing destination; the response MUST include `Cache-Control: no-store` and MUST include a referrer policy that prevents leaking the permalink URL to third parties",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L420",
+   "quote": "A Business MUST resolve a handled permalink request with `303 See Other` and a\n`Location` header pointing to a buyer-facing destination. The response MUST\ninclude `Cache-Control: no-store` and MUST include a referrer policy (such as\n`Referrer-Policy: no-referrer`) that prevents leaking the permalink URL to third\nparties.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the HTTP response status/headers for any handled permalink request."
+  },
+  {
+   "id": "PERM-017",
+   "requirement": "A Business MUST validate and canonicalize untrusted input before it influences the redirect destination",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L434",
+   "quote": "A Business MUST validate and canonicalize untrusted input before it influences\nthe destination",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "General restatement/anchor for the continue_to (PERM-010) and item-token (PERM-005/006) validation rules as applied to destination selection."
+  },
+  {
+   "id": "PERM-018",
+   "requirement": "A Business MUST NOT use permanent redirects such as `301` or `308` for permalink resolution",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L439",
+   "quote": "A Business MUST NOT use permanent redirects such as `301` or `308` for permalink\nresolution.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the HTTP status code of the redirect response."
+  },
+  {
+   "id": "PERM-019",
+   "requirement": "A Business MUST NOT echo sensitive values onto redirect destinations",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L498",
+   "quote": "A Business MUST NOT echo sensitive values (see [Privacy](#privacy)) onto\nredirect destinations.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against the Location header/query string of the redirect for leaked buyer PII or secrets (see PERM-020)."
+  },
+  {
+   "id": "PERM-020",
+   "requirement": "A permalink URL MUST NOT contain payment credentials, payment instrument tokens, customer access tokens, session cookies, AP2 mandates, API keys, bearer tokens, or one-time secrets",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L721",
+   "quote": "Permalinks MUST NOT contain payment credentials, payment instrument tokens,\ncustomer access tokens, session cookies, AP2 mandates, API keys, bearer tokens,\nor one-time secrets.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against any permalink URL a Business documents or generates (e.g. in its own marketing/checkout UI)."
+  },
+  {
+   "id": "PERM-021",
+   "requirement": "A Business MUST validate every permalink input as untrusted: compact-path and ~-encoded item tokens, `continue_to`, and field-path query parameters, to prevent open redirects, response-header injection, mass-assignment of server-owned fields, and log/parser-confusion injection",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L686",
+   "quote": "A Business\nMUST validate every input as untrusted: compact-path and `~`-encoded\nitem tokens",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Umbrella security requirement covering PERM-005/006/007 (item tokens), PERM-010/011/012 (continue_to), and the field-path mass-assignment protection (permalink inputs never set server-owned/response-only fields per the Query Processing section)."
+  },
+  {
+   "id": "PERM-022",
+   "requirement": "A Business SHOULD accept absolute permalink URLs of at least 2,048 octets",
+   "keyword": "SHOULD",
+   "source": "ucp-2026-08-25:docs/specification/permalink.md#L748",
+   "quote": "A Business **SHOULD** accept absolute permalink URLs of at least 2,048 octets.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable by constructing a permalink URL near the 2,048-octet boundary."
+  }
+ ]
+}
