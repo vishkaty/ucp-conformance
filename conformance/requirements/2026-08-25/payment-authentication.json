@@ -1,0 +1,368 @@
+{
+ "_area": "payment-authentication",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW extension at v2026-08-25 (dev.ucp.common.payment.authentication; declares device_data_collection + three_ds_challenge Action types on top of the new generic Actions mechanism). No 04-08 equivalent existed.",
+ "area": "payment-authentication",
+ "rows": [
+  {
+   "id": "PAUTH-001",
+   "requirement": "A Business MUST NOT emit `dev.ucp.common.payment.device_data_collection` or `dev.ucp.common.payment.three_ds_challenge` unless the Payment Authentication extension is active for the Checkout",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L37",
+   "quote": "A Business **MUST NOT** emit either type\nunless this extension is active for the Checkout.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Wholly new extension (dev.ucp.common.payment.authentication); no 04-08 equivalent. Checkable by cross-referencing an emitted actions map against the negotiated capability set."
+  },
+  {
+   "id": "PAUTH-002",
+   "requirement": "Each Payment Authentication Action's `config.payment_instrument_id` MUST identify an instrument in the containing Checkout",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L148",
+   "quote": "Each Action's `config.payment_instrument_id` **MUST** identify an instrument in\nthe containing Checkout.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "payment_authentication.json requires config.payment_instrument_id (minLength 1); cross-referencing against checkout.payment.instruments is a coded check."
+  },
+  {
+   "id": "PAUTH-003",
+   "requirement": "The Platform MUST decline an Action whose instrument or handler association cannot be resolved unambiguously",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L151",
+   "quote": "The Platform **MUST** decline an Action whose instrument or handler\nassociation cannot be resolved unambiguously.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side behavior."
+  },
+  {
+   "id": "PAUTH-004",
+   "requirement": "A Business SHOULD keep at most one Payment Authentication Action outstanding per payment attempt at a time",
+   "keyword": "SHOULD",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L137",
+   "quote": "A Business **SHOULD** keep at most one Payment Authentication Action\noutstanding per payment attempt at a time",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by counting outstanding device_data_collection/three_ds_challenge instances scoped to one payment_instrument_id in a single response."
+  },
+  {
+   "id": "PAUTH-005",
+   "requirement": "If an outstanding Action prevents Complete Checkout from being accepted, the Business MUST return `status: incomplete` with a `recoverable` error Message whose `path` selects the exact Action occurrence",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L171",
+   "quote": "the\nBusiness **MUST** return `status: incomplete` and a `recoverable` error Message\nwhose `path` selects the exact Action occurrence.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Specializes the generic Actions rule (ACT-006) for Checkout Complete."
+  },
+  {
+   "id": "PAUTH-006",
+   "requirement": "While a Checkout is `complete_in_progress`, the Platform MUST NOT start another Update or Complete Checkout operation",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L174",
+   "quote": "While the Checkout is `complete_in_progress`, the Platform **MUST NOT** start\nanother Update or Complete Checkout operation.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side behavior; the Business-observable half is that a Business receiving such an Update/Complete while complete_in_progress is holding may reject it, but the rule as stated binds the Platform."
+  },
+  {
+   "id": "PAUTH-007",
+   "requirement": "A Payment Authentication Action occurrence is single-use: after starting its surface, the Platform MUST NOT process the same Action type and `id` again (including after action.done, action.error, load failure, timeout, or Buyer dismissal); if the Business needs a retry it MUST replace the occurrence with a new `id`",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L179",
+   "quote": "After starting its\nsurface, the Platform **MUST NOT** process the same Action type and `id` again,\nincluding after `action.done`, `action.error`, a load failure, timeout, or Buyer\ndismissal.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The Business-side half (replace with new id for retry) is checkable across sequential Checkout responses."
+  },
+  {
+   "id": "PAUTH-008",
+   "requirement": "After learning a terminal provider outcome, the Business MUST remove the original Action occurrence, replace it with new work under a new `id`, or advance the Checkout; it MUST NOT continue returning an occurrence that no longer represents processable work",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L195",
+   "quote": "It **MUST NOT**\ncontinue returning an occurrence that no longer represents processable work.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable across sequential Checkout responses after a known terminal provider outcome."
+  },
+  {
+   "id": "PAUTH-009",
+   "requirement": "If the same Action occurrence remains after its reconciliation window, the Platform MUST NOT reopen it, and follows the parent Checkout Actions fallback/handoff/cancellation rules instead",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L199",
+   "quote": "the Platform\n**MUST NOT** reopen it and follows the parent Checkout Actions fallback, handoff,\nand cancellation rules.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side behavior."
+  },
+  {
+   "id": "PAUTH-010",
+   "requirement": "A Business MUST drop Actions for payment instruments that are no longer present in the Checkout (superseded work is no longer outstanding)",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L219",
+   "quote": "a Business **MUST** drop Actions\nfor instruments that are no longer present in the Checkout.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable across sequential responses after a Platform switches payment instrument via Update Checkout."
+  },
+  {
+   "id": "PAUTH-011",
+   "requirement": "The Platform MUST decline an Action occurrence whose `config.url` origin is not among the payment handler's allowed origins, and MUST install its message receiver before navigating so an immediately-completing surface cannot race initialization",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L235",
+   "quote": "The Platform **MUST** decline an occurrence whose\n`config.url` origin is not among them, and **MUST** install its message receiver\nbefore navigating so an immediately completing surface cannot race\ninitialization.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side, security-relevant (origin allowlisting) behavior."
+  },
+  {
+   "id": "PAUTH-012",
+   "requirement": "For messages from a native surface, native Platforms MUST expose a JSON-string bridge through `window.EmbeddedActionProtocolConsumer` (Android) or `window.webkit.messageHandlers.EmbeddedActionProtocolConsumer` (iOS)",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L251",
+   "quote": "native\nPlatforms **MUST** expose a JSON-string bridge through\n`window.EmbeddedActionProtocolConsumer` (Android) or\n`window.webkit.messageHandlers.EmbeddedActionProtocolConsumer` (iOS).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side native bridge naming contract; needs a live native Platform to test."
+  },
+  {
+   "id": "PAUTH-013",
+   "requirement": "Every Action surface MUST send an `action.ready` JSON-RPC request before beginning Action-specific work, and its `params.version` MUST equal the active Payment Authentication extension version in the containing Checkout",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L260",
+   "quote": "every surface **MUST** send an\n`action.ready` JSON-RPC request",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "embedded"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Observable on the embedded transport by capturing the surface's JSON-RPC traffic."
+  },
+  {
+   "id": "PAUTH-014",
+   "requirement": "The Platform MUST validate the message source, allowed origin, Action occurrence, and version before responding to `action.ready`",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L279",
+   "quote": "The Platform **MUST** validate the message source, allowed origin, Action\noccurrence, and version before responding.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "embedded"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side, security-relevant."
+  },
+  {
+   "id": "PAUTH-015",
+   "requirement": "The surface MUST wait for the successful `action.ready` response before beginning device data collection, presenting a challenge, or sending `action.done` or `action.error`",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L299",
+   "quote": "The surface **MUST** wait for this successful response before beginning device\ndata collection, presenting a challenge, or sending `action.done` or\n`action.error`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "embedded"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires instrumenting the handler-owned surface's client-side sequencing; not observable from the Business's HTTP responses alone."
+  },
+  {
+   "id": "PAUTH-016",
+   "requirement": "On the web, the Platform MUST validate `event.source` against the mounted surface and `event.origin` against the occurrence's allowed origins before accepting a terminal notification",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L307",
+   "quote": "On the web, the Platform **MUST** validate `event.source` against the mounted\nsurface and `event.origin` against the occurrence's allowed origins.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "embedded"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side, security-relevant (postMessage origin/source validation)."
+  },
+  {
+   "id": "PAUTH-017",
+   "requirement": "A Platform MUST tolerate an unrecognized `action.error` code and reconcile it the same way as a well-known code, since the Error Code vocabulary stays open",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L322",
+   "quote": "a\nsurface **MAY** send another value, and a Platform **MUST** tolerate one\nit does not recognize and reconcile the same way.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side forward-compatibility rule."
+  },
+  {
+   "id": "PAUTH-018",
+   "requirement": "Web Platforms MUST follow the shared Embedded Protocol security requirements (CSP, iframe sandboxing, credentialless iframe evaluation, strict origin validation) for Payment Authentication surfaces",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L335",
+   "quote": "Web Platforms **MUST** follow the shared\n[Embedded Protocol security requirements](../../embedded-protocol.md#security) for\nCSP, iframe sandboxing, credentialless iframe evaluation, and strict origin\nvalidation.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side, security-relevant."
+  },
+  {
+   "id": "PAUTH-019",
+   "requirement": "Platforms MUST parse `config.url` with a conformant URL parser; the URL MUST be absolute, use the `https` scheme, and carry no userinfo component",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L345",
+   "quote": "parse `config.url` with a conformant URL parser; it **MUST** be absolute, use\n  the `https` scheme, and carry no userinfo component;",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side, security-relevant (SSRF/open-redirect-adjacent hardening); the Business-side half (only ever emitting such URLs) is testable directly against a captured config.url."
+  },
+  {
+   "id": "PAUTH-020",
+   "requirement": "The handler MUST document any deviation from the shared sandbox baseline when a Platform grants the frame/webview capabilities the handler requires",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/payment/extensions/authentication.md#L350",
+   "quote": "grant only the frame or webview capabilities required by the handler, which\n  **MUST** document any deviation from the shared sandbox baseline;",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Documentation-contract requirement on the payment handler, not mechanically checkable from wire traffic."
+  }
+ ]
+}
