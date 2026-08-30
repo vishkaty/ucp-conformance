@@ -1,0 +1,62 @@
+{
+ "_area": "replay-protection-payload-matching",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW text at v2026-08-25 within the (otherwise pre-existing, 04-08) Replay Protection section of signatures.md: the mismatched-payload-on-duplicate-key rule, the payload-matching mechanism (Content-Digest/SHA-256), and the platform's fresh-key-on-payload-change obligation. Scope deliberately narrow per the mission instruction ('the idempotency/replay text AS RELEASED, not our pending #782') -- the much larger surrounding signatures.md rewrite (EdDSA/Ed25519 support, WBA dual-audience signatures, JWK OKP shape, key-rotation wording) is NOT extracted here; it is a distinct, large new-normative-surface area outside this mission's named target list. Flagged in P2-REPORT.md for a possible follow-up sweep.",
+ "area": "replay-protection-payload-matching",
+ "rows": [
+  {
+   "id": "REPLAY-001",
+   "requirement": "On a duplicate Idempotency-Key request whose payload does NOT match the original, the business MUST reject with 409 Conflict (REST) / -32000 (MCP) and MUST NOT execute the request",
+   "keyword": "MUST NOT",
+   "source": "ucp-2026-08-25:docs/specification/signatures.md#L834",
+   "quote": "| **On duplicate (mismatched payload)** | Reject with `409 Conflict` (REST) / `-32000` (MCP); do not execute |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "NEW at 08-25: the 04-08 Idempotency Key Requirements table had a single 'On duplicate' row ('Return cached response, do not re-execute') with no mismatched-payload case. 08-25 splits it into matching-payload (unchanged behavior) and mismatched-payload (new: reject) rows."
+  },
+  {
+   "id": "REPLAY-002",
+   "requirement": "Businesses MUST detect whether a duplicate-key request's payload matches the original by comparing the SHA-256 hash of the raw body bytes (the same digest RFC 9530 mandates as Content-Digest)",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/signatures.md#L837",
+   "quote": "Businesses **MUST** detect whether the payload of\na duplicate-key request matches the payload of the original by\ncomparing the SHA-256 hash of the raw body bytes",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "New 'Payload Matching' paragraph. For signed requests the value is the Content-Digest header (persisted alongside the idempotency key); for unsigned requests the business computes the same digest from the received body bytes."
+  },
+  {
+   "id": "REPLAY-003",
+   "requirement": "Platforms MUST generate a fresh idempotency key whenever they modify the request payload, including retries with modified payment instruments, updated shipping addresses, swapped line items, or any other change to the request body",
+   "keyword": "MUST",
+   "source": "ucp-2026-08-25:docs/specification/signatures.md#L845",
+   "quote": "Platforms\ntherefore **MUST** generate a fresh idempotency key whenever they\nmodify the request payload \u2014 including retries with modified payment\ninstruments, updated shipping addresses, swapped line items, or any\nother change to the request body.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "NEW explicit platform-side obligation; directly checkable end-to-end by reusing an idempotency key with a changed body and confirming REPLAY-001's rejection (409/-32000) rather than either the original or a silently-updated response."
+  }
+ ]
+}
