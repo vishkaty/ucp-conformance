@@ -45,8 +45,8 @@
     "repo": "Universal-Commerce-Protocol/ucp-schema",
     "ref": "main",
     "commit": "9b5c32066f0fe5f50918ec612ba43ad70e2547e3",
-    "commit_date": "2026-07-24T11:59:35Z",
-    "note": "Rust CLI (`cargo install ucp-schema`). Used as the schema-validation ORACLE. No release tags; pinned to main SHA. Does NOT cover prose-only invariants (totals sums, lookup dedup, line-item retention) \u2014 those are separate coded checks. RE-PINNED 2026-07-29 from 115ae836 (2026-06-30): picks up ucp-schema #37 (namespace authority binding now enforced on services and payment_handlers, not just capabilities \u2014 ucp#530) and #41 (accept exact authority match, e.g. a handler com.example.pay served from pay.example.com). Both engine changes verified NON-REGRESSING against our conformant fixtures: the full selftest stayed 52/52 green under the new binary, and the new engine's own 68 unit/integration/doc tests pass (incl. verify_bindings_rejects_unbound_service/_payment_handler + accepts_exact_authority_match). Strictly more faithful; #41 is only more permissive, so it cannot introduce a false-reject."
+    "commit_date": "2026-08-27T15:16:34Z",
+    "note": "Rust CLI, the schema-validation ORACLE. G0-a RE-PIN ATTEMPTED 2026-08-30 to head b52518f5 and REVERTED same-day by the verdict-diff: post-#66 head REGRESSES --schema-local-base ref resolution (doubles the base segment: ucp.dev/schemas/schemas/...; A/B proven on the identical command - old Valid, new rc=2), which breaks our fixture selfcheck. Upstream fix being built full-circle (pre-2.0.0-cut URGENT: release PR #67 would ship it). The old pin crashes exit 134 on 08-25 def-selection patterns (our #45/#46 class), so the 08-25 lane (L3) must use a post-fix build, not this pin. Re-pin lands when upstream takes the fix."
   },
   "reference_sample_server": {
     "repo": "Universal-Commerce-Protocol/samples",
