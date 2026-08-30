@@ -162,6 +162,18 @@ async `complete_in_progress` branch. Added a `REVIEWED_EQUIVALENT["CHK-025"]` en
 `conformance/selfcheck/verify_citations.py` (same pattern as the pre-existing `ORD-001` entry)
 documenting this, and flagging the async branch as a candidate for a future oracle/probe.
 
+**Tightened at landing (2026-08-30, extra-high review):** the framing above ("not
+over-strict, it simply doesn't yet exercise the new async branch") undersold the live
+risk — `p_completed` doesn't merely *skip* the async branch, it actively demands
+`order truthy`, which the async `complete_in_progress` response legitimately omits by
+spec. Run against a real 2026-08-25 target that legitimately completes asynchronously,
+this check would misgrade a conformant response as failing. The
+`REVIEWED_EQUIVALENT["CHK-025"]` text was tightened accordingly to: "over-strict
+against a legitimate async target; must branch before any 08-25 execution" — the
+citation-soundness verdict (reviewed-equivalent, not a citation defect) is unchanged;
+only the risk framing is corrected, and it now reads as a landing blocker for wiring
+this check against any live 2026-08-25 target, not a someday nice-to-have.
+
 ## Coverage-lock / review-signoff scope decision
 
 Per the mission's own guidance ("if the gate cannot represent [pending-review], keep the 08-25
@@ -242,3 +254,69 @@ their quotes (no other change needed) — worth doing before the two lanes merge
 - Branch: `lane/0825-register`
 - P0 commit: `342740b` (harness). P1 commit: this directory + citations-gate fix, committed
   alongside this report.
+
+## Carried rows with quote drift (individually reviewed in row notes)
+
+Landing addendum (2026-08-30, extra-high review). PLAN-0825 §A.4/R3 requires a separate
+mechanical proof beyond the REWORDED-46 table above: for every row this lane marked
+`lineage.disposition: "carried"` (same substance, not reworded), if the text sitting at
+its new 2026-08-25 anchor is not byte-identical (post-normalization) to the original
+2026-04-08 quote, the row is flagged and individually reviewed — a blind carry that
+imports 04-08 meaning onto silently-changed text is exactly the semantic-drift failure
+mode §Risks R3 names. All 45 rows below were reviewed against this bar: every one is a
+markup/reflow/relocation/line-number change (table formatting, footnote symbols, added
+section labels, `#723` path moves) with **no substantive requirement change** — each
+row's own `notes` field in its area file records the specific drift found. None required
+reclassification out of `carried`; none are duplicates of the REWORDED-46 table above.
+
+| id | area | drift class (see row `notes` for detail) |
+|---|---|---|
+| MCP-003 | transports | relocated (`#723` doc-tree move); list content unchanged |
+| MCP-005 | transports | relocated (`order-mcp.md` moved under `shopping/order/`) |
+| DSC-024 | discounts-consent | schema unchanged; same line number in the 08-25 pin |
+| DSC-026 | discounts-consent | schema unchanged; same line number in the 08-25 pin |
+| FUL-003 | fulfillment | required-array field order/description unchanged |
+| FUL-006 | fulfillment | groups field description unchanged verbatim |
+| CART-032 | cart | `quantity.minimum` unchanged; new sibling field noted, not in this row's scope |
+| SIG-002 | signatures | reflowed only ("P-256 (ES256)" → "ES256 (ECDSA P-256)") |
+| SIG-003 | signatures | reflowed only ("P-384 (ES384)" → "ES384 (ECDSA P-384)") |
+| SIG-012 | signatures | table column widths / footnote markup style changed only |
+| SIG-014 | signatures | column widths changed only (verbatim substance) |
+| SIG-015 | signatures | footnote markup style changed only |
+| SIG-016 | signatures | footnote symbol shifted (markup only) |
+| SIG-017 | signatures | markup style only |
+| SIG-018 | signatures | markup style only; new adjacent WBA-only column noted, not in scope |
+| SIG-019 | signatures | now one bullet in a two-bullet list; substance unchanged |
+| SIG-021 | signatures | markup style only ("Cond.*" → "Cond. `*`") |
+| SIG-026 | signatures | verbatim; added "**Requests:**" label + one adjacent sentence |
+| SIG-027 | signatures | verbatim; added "**Webhooks:**" label only |
+| SIG-028 | signatures | verbatim; added "**Other responses:**" label only |
+| SIG-041 | signatures | verbatim; renumbered list item only |
+| OVR-004 | overview | text unchanged verbatim |
+| OVR-006 | overview | text unchanged verbatim (byte-identical section) |
+| OVR-009 | overview | text unchanged verbatim; relocated within overview/index.md |
+| OVR-010 | overview | text unchanged verbatim |
+| OVR-011 | overview | text unchanged verbatim |
+| OVR-012 | overview | text unchanged verbatim |
+| OVR-013 | overview | text unchanged verbatim |
+| OVR-014 | overview | text unchanged verbatim |
+| ERR-006 | error-envelope | moved to `common/types/message_error.json`; example edit only |
+| ERR-007 | error-envelope | moved to `common/types/error_code.json`; minor edit only |
+| ERR-024 | error-envelope | moved to `common/types/warning_code.json`; example edit only |
+| ERR-027 | error-envelope | moved to `common/types/info_code.json`; minor edit only |
+| PAY-023 | payment | relocated `shopping/types/` → `common/types/card_payment_instrument.json` |
+| TOT-014 | totals | relocated to `shopping/checkout/index.md`; wording unchanged |
+| ORD-007 | order | moved to `shopping/order/index.md`; wording lightly expanded |
+| ORD-014 | order | moved to `shopping/order/index.md`; scope-table wording expanded |
+| ORD-027 | order | moved to `shopping/order/index.md`; link path adjusted |
+| CHK-018 | checkout-lifecycle | relocated to `shopping/checkout/rest.md` |
+| CHK-019 | checkout-lifecycle | relocated to `shopping/checkout/rest.md` |
+| CHK-020 | checkout-lifecycle | relocated to `shopping/checkout/rest.md` |
+| CHK-021 | checkout-lifecycle | relocated to `shopping/checkout/rest.md` |
+| CHK-022 | checkout-lifecycle | relocated to `shopping/checkout/rest.md` |
+| CHK-031 | checkout-lifecycle | relocated to `shopping/checkout/index.md` |
+| CHK-037 | checkout-lifecycle | schema file path unchanged; only line numbers shifted |
+
+Compact id list (as reviewed): MCP-003/005, DSC-024/026, FUL-003/006, CART-032,
+SIG-002/003/012/014-019/021/026-028/041, OVR-004/006/009-014, ERR-006/007/024/027,
+PAY-023, TOT-014, ORD-007/014/027, CHK-018-022/031/037 — 45 rows.

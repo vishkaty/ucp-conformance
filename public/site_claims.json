@@ -34,9 +34,16 @@
                 "fixture-schema": 73,
                 "fixture-crypto": 4,
                 "self-referenced": 151
+            },
+            "2026-08-25": {
+                "check": 0,
+                "live-wire": 0,
+                "fixture-schema": 0,
+                "fixture-crypto": 0,
+                "self-referenced": 0
             }
         },
-        "reviewed": "2026-08-11"
+        "reviewed": "2026-08-30"
     },
     "claims": [
         {

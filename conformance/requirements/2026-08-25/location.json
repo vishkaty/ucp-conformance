@@ -8,7 +8,7 @@
    "id": "LOC-001",
    "requirement": "A Location's `amenity` entry MUST carry a non-empty `description`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/location.json#L11",
+   "source": "ucp:source/schemas/common/types/location.json#L11",
    "quote": "\"required\": [\"description\"],",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "LOC-002",
    "requirement": "Industry-scoped amenity identifiers MUST append their related service name on top of `dev.ucp.amenity` (e.g. `dev.ucp.amenity.shopping.in_store_pickup`); businesses MAY define custom vocabulary in their own domain",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/amenity_type.json#L5",
+   "source": "ucp:source/schemas/common/types/amenity_type.json#L5",
    "quote": "Industry-scoped features that MUST append their related service name on top of `dev.ucp.amenity` (e.g., dev.ucp.amenity.shopping.in_store_pickup).",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "LOC-003",
    "requirement": "A Location's `timezone` is required when `hours` or `exception_hours` is present",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/location.json#L70",
+   "source": "ucp:source/schemas/common/types/location.json#L70",
    "quote": "\"if\": {\n    \"anyOf\": [\n      { \"required\": [\"hours\"] },\n      { \"required\": [\"exception_hours\"] }\n    ]\n  },\n  \"then\": {\n    \"required\": [\"timezone\"]\n  }",
    "versions": [
     "2026-08-25"
@@ -62,7 +62,7 @@
    "id": "LOC-004",
    "requirement": "The `filters.items` array, when present, MUST be non-empty with unique, non-empty string identifiers",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/location_filter.json#L31",
+   "source": "ucp:source/schemas/common/types/location_filter.json#L31",
    "quote": "\"minItems\": 1,\n      \"uniqueItems\": true,",
    "versions": [
     "2026-08-25"
@@ -80,7 +80,7 @@
    "id": "LOC-005",
    "requirement": "The `filters.hours` object, when present, MUST include `open_at`, an RFC 3339 instant expressed with `Z` or a numeric offset",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/location_filter.json#L11",
+   "source": "ucp:source/schemas/common/types/location_filter.json#L11",
    "quote": "\"required\": [\"open_at\"],",
    "versions": [
     "2026-08-25"
@@ -98,7 +98,7 @@
    "id": "LOC-006",
    "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms \u2014 downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L71",
+   "source": "ucp:docs/specification/common/location/index.md#L71",
    "quote": "A\nLocation ID selects only the physical entity; it does not determine the\ninteraction mode, guarantee availability, or bind operational terms.",
    "versions": [
     "2026-08-25"
@@ -116,7 +116,7 @@
    "id": "LOC-007",
    "requirement": "Final transaction terms that depend on a location (e.g. pickup) MUST be negotiated and finalized authoritatively at Checkout; discovery signals SHOULD NOT be cached or reused across sessions without re-validation",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L85",
+   "source": "ucp:docs/specification/common/location/index.md#L85",
    "quote": "Final transaction terms that depend on a location (e.g., pickup)\n        **MUST** be negotiated and finalized authoritatively. Discovery signals **SHOULD NOT** be cached\n        or reused across sessions without re-validation.",
    "versions": [
     "2026-08-25"
@@ -134,7 +134,7 @@
    "id": "LOC-008",
    "requirement": "The exact `00:00`\u2013`23:59` pair represents the entire local civil date (including DST transitions) as a reserved exception to the closing-boundary rule; every pair with equal `opens` and `closes` is otherwise invalid, including `00:00`\u2013`00:00`",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L115",
+   "source": "ucp:docs/specification/common/location/index.md#L115",
    "quote": "Every pair with equal\n`opens` and `closes` is invalid,\nincluding `00:00`\u2013`00:00`.",
    "versions": [
     "2026-08-25"
@@ -152,7 +152,7 @@
    "id": "LOC-009",
    "requirement": "Intersecting non-identical exception ranges are invalid, including when one range contains another; timed entries with identical bounds can coexist as split shifts, but a full closure stands alone for its bounds",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L138",
+   "source": "ucp:docs/specification/common/location/index.md#L138",
    "quote": "Intersecting non-identical\nexception ranges are invalid, including when one contains another.",
    "versions": [
     "2026-08-25"
@@ -170,7 +170,7 @@
    "id": "LOC-010",
    "requirement": "When a Business emits `hours` or `exception_hours`, it MUST express every `day`, `opens`, `closes`, `valid_from`, and `valid_through` value in the Location's canonical schedule frame and MUST include `timezone` as a valid IANA Time Zone Database identifier",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L178",
+   "source": "ucp:docs/specification/common/location/index.md#L178",
    "quote": "it **MUST** express every `day`, `opens`,\n`closes`, `valid_from`, and `valid_through` value in that frame and **MUST**\ninclude `timezone` as a valid\n[Internet Assigned Numbers Authority (IANA) Time Zone Database](https://www.iana.org/time-zones)\nidentifier.",
    "versions": [
     "2026-08-25"
@@ -188,7 +188,7 @@
    "id": "LOC-011",
    "requirement": "A Business MUST NOT vary the canonical schedule frame according to the requesting Platform's or Buyer's timezone",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L182",
+   "source": "ucp:docs/specification/common/location/index.md#L182",
    "quote": "A Business **MUST NOT** vary the canonical schedule frame according\nto the requesting Platform's or Buyer's timezone.",
    "versions": [
     "2026-08-25"
@@ -206,7 +206,7 @@
    "id": "LOC-012",
    "requirement": "Because JSON Schema does not enforce every semantic constraint, a Business MUST emit only schedules that follow the evaluation rules (unequal opens/closes, valid_from no later than valid_through, valid exception-range intersections)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L184",
+   "source": "ucp:docs/specification/common/location/index.md#L184",
    "quote": "a Business **MUST** emit only schedules that\nfollow the rules above, including unequal `opens` and `closes`, a `valid_from`\nvalue no later than `valid_through`, and valid exception-range intersections.",
    "versions": [
     "2026-08-25"
@@ -224,7 +224,7 @@
    "id": "LOC-013",
    "requirement": "When evaluating a returned schedule, a Platform MUST use the returned Location's `timezone` and MUST NOT reinterpret the canonical schedule values in another timezone",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L194",
+   "source": "ucp:docs/specification/common/location/index.md#L194",
    "quote": "A Platform **MUST** use the returned\nLocation's `timezone`. A Platform **MAY** convert concrete dated occurrences to\nanother timezone for presentation, but it **MUST NOT** reinterpret the canonical\nschedule values in another timezone.",
    "versions": [
     "2026-08-25"
@@ -242,7 +242,7 @@
    "id": "LOC-014",
    "requirement": "A Platform MUST NOT infer that a Location with absent, invalid, or otherwise unusable schedule data is open",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L197",
+   "source": "ucp:docs/specification/common/location/index.md#L197",
    "quote": "A Platform **MUST NOT** infer that a\nLocation with absent, invalid, or otherwise unusable schedule data is open.",
    "versions": [
     "2026-08-25"
@@ -260,7 +260,7 @@
    "id": "LOC-015",
    "requirement": "A Platform MUST NOT use an exception entry's `title` to determine whether a Location is open or closed (it is presentation metadata only)",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L199",
+   "source": "ucp:docs/specification/common/location/index.md#L199",
    "quote": "**MUST NOT** use it to determine whether a\nLocation is open or closed.",
    "versions": [
     "2026-08-25"
@@ -278,7 +278,7 @@
    "id": "LOC-016",
    "requirement": "The Business MUST provide a nonempty, plain-text, buyer-facing `description` for every amenity map entry; an entry without it is schema-invalid and a Platform MUST reject the invalid response rather than infer presentation text from the key",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L207",
+   "source": "ucp:docs/specification/common/location/index.md#L207",
    "quote": "The Business **MUST** provide a nonempty, plain-text, buyer-facing\n`description` for every entry.",
    "versions": [
     "2026-08-25"
@@ -296,7 +296,7 @@
    "id": "LOC-017",
    "requirement": "A Platform MUST NOT suppress an amenity entry solely because its identifier is unrecognized, and MUST NOT infer semantics from an unrecognized identifier or treat it as equivalent to another amenity",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L220",
+   "source": "ucp:docs/specification/common/location/index.md#L220",
    "quote": "and **MUST NOT** suppress an entry solely because its\nidentifier is unrecognized.",
    "versions": [
     "2026-08-25"
@@ -314,7 +314,7 @@
    "id": "LOC-018",
    "requirement": "A Business MUST NOT substitute Context/Signals hints for explicit `distance` or `serves` operands or for `filters.items` item identifiers; they prove neither proximity, serviceability, nor item availability",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L238",
+   "source": "ucp:docs/specification/common/location/index.md#L238",
    "quote": "A Business\n**MUST NOT** substitute them for explicit `distance` or `serves` operands or\nfor `filters.items` item identifiers; they prove neither proximity,\nserviceability, nor item availability",
    "versions": [
     "2026-08-25"
@@ -332,7 +332,7 @@
    "id": "LOC-019",
    "requirement": "Signal values MUST NOT be buyer-asserted claims",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L248",
+   "source": "ucp:docs/specification/common/location/index.md#L248",
    "quote": "Signal values **MUST NOT** be buyer-asserted claims.",
    "versions": [
     "2026-08-25"
@@ -350,7 +350,7 @@
    "id": "LOC-020",
    "requirement": "When a valid Search finds no matches, the Business MUST return an empty `locations` array; no message is required for an ordinary non-match",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L284",
+   "source": "ucp:docs/specification/common/location/index.md#L284",
    "quote": "the Business **MUST** return an empty\n`locations` array.",
    "versions": [
     "2026-08-25"
@@ -368,7 +368,7 @@
    "id": "LOC-021",
    "requirement": "Businesses MUST filter internal-only or non-Buyer-accessible locations (e.g. dark kitchens, fulfillment-only hubs) out of search results",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L314",
+   "source": "ucp:docs/specification/common/location/index.md#L314",
    "quote": "Businesses **MUST** filter out internal-only or non-Buyer-accessible locations (e.g., dark kitchens, fulfillment-only hubs)\n  from search results.",
    "versions": [
     "2026-08-25"
@@ -386,7 +386,7 @@
    "id": "LOC-022",
    "requirement": "Businesses MUST NOT persist precise location inputs beyond the lifecycle of the request, unless explicit Buyer consent is collected",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/index.md#L318",
+   "source": "ucp:docs/specification/common/location/index.md#L318",
    "quote": "Businesses **MUST NOT** persist precise location inputs beyond the lifecycle of the request, unless explicit Buyer\n  consent is collected.",
    "versions": [
     "2026-08-25"
@@ -404,7 +404,7 @@
    "id": "LOC-023",
    "requirement": "For any candidate Location, every explicit structured constraint is conjunctive: distance AND serves AND every supplied filters.* predicate",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L63",
+   "source": "ucp:docs/specification/common/location/search.md#L63",
    "quote": "matches = distance (when present)\n      AND serves (when present)\n      AND every supplied filters.* predicate",
    "versions": [
     "2026-08-25"
@@ -422,7 +422,7 @@
    "id": "LOC-024",
    "requirement": "A Business MUST NOT treat `query` text as creating a `distance` or `serves` relation or a `filters` predicate, and MUST NOT relax an explicit structured constraint because of the `query` text",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L74",
+   "source": "ucp:docs/specification/common/location/search.md#L74",
    "quote": "A Business **MUST NOT**\ntreat `query` text as creating a `distance` or `serves` relation or a\n`filters` predicate.",
    "versions": [
     "2026-08-25"
@@ -440,7 +440,7 @@
    "id": "LOC-025",
    "requirement": "A Business using context/signals/IP-derived locality hints for bounded-browse selection MUST NOT treat that choice as proof that a Location serves a target or falls within an unstated radius",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L96",
+   "source": "ucp:docs/specification/common/location/search.md#L96",
    "quote": "A Business using those hints **MUST NOT** treat that choice as proof\nthat a Location serves a target or falls within an unstated radius; only\nexplicit `distance` and `serves` operands establish spatial matching.",
    "versions": [
     "2026-08-25"
@@ -458,7 +458,7 @@
    "id": "LOC-026",
    "requirement": "The Platform MUST supply `distance.center` whenever it supplies `distance`; the Business MUST NOT derive a missing center from context, signals, an IP address, or `serves`",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L121",
+   "source": "ucp:docs/specification/common/location/search.md#L121",
    "quote": "The Platform **MUST** supply `distance.center` whenever it supplies\n`distance`. The Business **MUST NOT** derive a missing center from `context`,\n`signals`, an Internet Protocol (IP) address, or `serves`;",
    "versions": [
     "2026-08-25"
@@ -476,7 +476,7 @@
    "id": "LOC-027",
    "requirement": "The Business MUST compare the unrounded computed geodesic distance to `distance.max`; a Location matches when that value is less than or equal to `distance.max` (exact equality matches)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L133",
+   "source": "ucp:docs/specification/common/location/search.md#L133",
    "quote": "The Business **MUST** compare the unrounded computed value to\n    `distance.max`; a Location matches when that value is less than or equal\n    to `distance.max`, and exact equality matches.",
    "versions": [
     "2026-08-25"
@@ -494,7 +494,7 @@
    "id": "LOC-028",
    "requirement": "The Business MUST NOT apply a tolerance band, substitute an operand, clamp the radius, or evaluate route/travel/planar distance in place of the geodesic comparison",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L136",
+   "source": "ucp:docs/specification/common/location/search.md#L136",
    "quote": "The Business **MUST NOT** apply a tolerance band, substitute an operand,\n    clamp the radius, or evaluate route, travel, or planar distance in place\n    of the geodesic comparison.",
    "versions": [
     "2026-08-25"
@@ -512,7 +512,7 @@
    "id": "LOC-029",
    "requirement": "A Business that cannot honor a supplied `distance.max` MUST reject the request with an actionable error; it MUST NOT silently clamp the radius or substitute its own, and the permission to return fewer results under Pagination never permits reducing `distance.max`",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L147",
+   "source": "ucp:docs/specification/common/location/search.md#L147",
    "quote": "radius cap below the requested value) **MUST** reject the request with an\n    actionable error; it **MUST NOT** silently clamp the radius or substitute\n    its own.",
    "versions": [
     "2026-08-25"
@@ -530,7 +530,7 @@
    "id": "LOC-030",
    "requirement": "The `serves` relation is a one-entry map: the Platform MUST supply exactly one target representation (`point`, `address`, or a negotiated reverse-domain extension target)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L157",
+   "source": "ucp:docs/specification/common/location/search.md#L157",
    "quote": "the Platform **MUST** supply exactly\none target representation \u2014 `point`, `address`, or a negotiated\nreverse-domain extension target.",
    "versions": [
     "2026-08-25"
@@ -548,7 +548,7 @@
    "id": "LOC-031",
    "requirement": "When supplying an `address` target, the Platform MUST include at least one non-empty `address_country`, `address_region`, or `postal_code`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L165",
+   "source": "ucp:docs/specification/common/location/search.md#L165",
    "quote": "When supplying it, the Platform **MUST**\n    include at least one non-empty `address_country`, `address_region`, or\n    `postal_code`.",
    "versions": [
     "2026-08-25"
@@ -566,7 +566,7 @@
    "id": "LOC-032",
    "requirement": "The Business MUST NOT derive a `serves` target from context, signals, or an IP address; the explicit target alone is authoritative",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L172",
+   "source": "ucp:docs/specification/common/location/search.md#L172",
    "quote": "the Business **MUST NOT** derive a target\nfrom `context`, `signals`, or an IP address.",
    "versions": [
     "2026-08-25"
@@ -584,7 +584,7 @@
    "id": "LOC-033",
    "requirement": "A Business unable to evaluate an otherwise well-formed `serves` target MUST return an actionable request error; it MUST NOT fall back to a coarser interpretation or return broadened results, and MUST return an actionable request error rather than silently omit a namespaced target whose extension was not negotiated",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L182",
+   "source": "ucp:docs/specification/common/location/search.md#L182",
    "quote": "**MUST** return an actionable\nrequest error; it **MUST NOT** fall back to a coarser interpretation or\nreturn broadened results.",
    "versions": [
     "2026-08-25"
@@ -602,7 +602,7 @@
    "id": "LOC-034",
    "requirement": "A Business that receives a `filters` predicate it does not support MUST reject the request with an actionable error; it MUST NOT ignore the filter and return broadened results",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L201",
+   "source": "ucp:docs/specification/common/location/search.md#L201",
    "quote": "A Business\nthat receives a filter it does not support **MUST** reject the request with\nan actionable error; it **MUST NOT** ignore the filter and return broadened\nresults.",
    "versions": [
     "2026-08-25"
@@ -620,7 +620,7 @@
    "id": "LOC-035",
    "requirement": "For each candidate Location, the Business MUST evaluate `filters.hours.open_at` exactly as supplied, converting it via the Location's authoritative `timezone`; the offset in `open_at` does not identify the Location's timezone",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L218",
+   "source": "ucp:docs/specification/common/location/search.md#L218",
    "quote": "For each candidate Location, a Business **MUST** evaluate `open_at` exactly as\nsupplied.",
    "versions": [
     "2026-08-25"
@@ -638,7 +638,7 @@
    "id": "LOC-036",
    "requirement": "A Business MUST return a Location only when it can establish the Location is open at `open_at`; if schedule data is absent, invalid, out of evaluable range, or otherwise unusable, the Location does not match",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L224",
+   "source": "ucp:docs/specification/common/location/search.md#L224",
    "quote": "A Business **MUST** return a Location only when it can establish that the\nLocation is open at `open_at`.",
    "versions": [
     "2026-08-25"
@@ -656,7 +656,7 @@
    "id": "LOC-037",
    "requirement": "A Business MUST NOT round, shift, or otherwise reinterpret the `open_at` instant supplied in the hours filter",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L227",
+   "source": "ucp:docs/specification/common/location/search.md#L227",
    "quote": "A Business **MUST NOT** round, shift, or\notherwise reinterpret the supplied instant.",
    "versions": [
     "2026-08-25"
@@ -674,7 +674,7 @@
    "id": "LOC-038",
    "requirement": "Matching for the amenity filter uses exact whole-key equality (namespace prefixes carry no wildcard/inheritance semantics); a Business MUST NOT ignore a supplied identifier, and when `filters.amenities` is present the Business MUST include every supplied identifier in each returned Location's `amenities` map",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L256",
+   "source": "ucp:docs/specification/common/location/search.md#L256",
    "quote": "A Business **MUST NOT** ignore a supplied identifier: a Location\nwhose authoritative amenity set lacks any supplied key does not match.",
    "versions": [
     "2026-08-25"
@@ -692,7 +692,7 @@
    "id": "LOC-039",
    "requirement": "A Platform MUST reject a returned Location as non-conforming if it omits the amenities map or any requested amenity key, rather than accept a broadened or unverifiable result",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L263",
+   "source": "ucp:docs/specification/common/location/search.md#L263",
    "quote": "A Platform\n**MUST** reject a returned Location as\nnon-conforming if it omits the map or any requested key, rather than accept a\nbroadened or unverifiable result.",
    "versions": [
     "2026-08-25"
@@ -710,7 +710,7 @@
    "id": "LOC-040",
    "requirement": "The Business MUST NOT ignore an unknown/unavailable/unevaluable `filters.items` identifier to return broadened results; such an identifier fails the filter for that Location as an ordinary non-match",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L286",
+   "source": "ucp:docs/specification/common/location/search.md#L286",
    "quote": "The Business\n**MUST NOT** ignore such an identifier to return broadened results; the\ncandidate does not match.",
    "versions": [
     "2026-08-25"
@@ -728,7 +728,7 @@
    "id": "LOC-041",
    "requirement": "The Business MUST revalidate transaction-specific availability, quantities, methods, and terms later in the commerce flow; a Location Search/Lookup item-availability match is a coarse, provisional assertion only",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L295",
+   "source": "ucp:docs/specification/common/location/search.md#L295",
    "quote": "The Business\n**MUST** revalidate transaction-specific availability, quantities, methods,\nand terms later in the commerce flow.",
    "versions": [
     "2026-08-25"
@@ -746,7 +746,7 @@
    "id": "LOC-042",
    "requirement": "When `limit` is omitted, the Business MUST apply a default page size (10 is RECOMMENDED); a Platform MUST NOT assume the response count equals the requested or default page size",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/search.md#L316",
+   "source": "ucp:docs/specification/common/location/search.md#L316",
    "quote": "the Business **MUST** apply a default page\nsize.",
    "versions": [
     "2026-08-25"
@@ -764,7 +764,7 @@
    "id": "LOC-043",
    "requirement": "A Business MUST support lookup by a Location's stable canonical `Location.id`, and MAY additionally support secondary or alias identifiers",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L35",
+   "source": "ucp:docs/specification/common/location/lookup.md#L35",
    "quote": "A Business **MUST**\nsupport lookup by a Location's stable canonical `Location.id` and **MAY**\nadditionally support secondary or alias identifiers.",
    "versions": [
     "2026-08-25"
@@ -782,7 +782,7 @@
    "id": "LOC-044",
    "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request, and when multiple identifiers resolve to the same Location it MUST return that Location only once",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L39",
+   "source": "ucp:docs/specification/common/location/lookup.md#L39",
    "quote": "A Business **MUST**\ndedupe duplicate identifiers in the request.",
    "versions": [
     "2026-08-25"
@@ -800,7 +800,7 @@
    "id": "LOC-045",
    "requirement": "A Business MUST NOT include a Location without an `inputs` entry in a Lookup response; each Location's `inputs` array contains one entry per resolved request identifier",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L52",
+   "source": "ucp:docs/specification/common/location/lookup.md#L52",
    "quote": "A Business **MUST NOT** include a Location without an `inputs`\nentry in a Lookup response.",
    "versions": [
     "2026-08-25"
@@ -818,7 +818,7 @@
    "id": "LOC-046",
    "requirement": "A Business SHOULD accept at least 10 identifiers per Lookup request; when a request exceeds the Business's configured maximum, the Business MUST process the first maximum number of distinct identifiers in request order and return a successful response for that prefix",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L61",
+   "source": "ucp:docs/specification/common/location/lookup.md#L61",
    "quote": "the Business **MUST** process the first\nmaximum number of distinct identifiers in request order and return a successful\nresponse for that prefix.",
    "versions": [
     "2026-08-25"
@@ -836,7 +836,7 @@
    "id": "LOC-047",
    "requirement": "The Business MUST include an informational message with `code: \"batch_limit_applied\"` stating the applied maximum and how many identifiers were not processed; it MUST NOT evaluate the omitted suffix or report its identifiers as unresolved",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L63",
+   "source": "ucp:docs/specification/common/location/lookup.md#L63",
    "quote": "It **MUST** include an informational message with\n`code: \"batch_limit_applied\"`; the message content **MUST** state the applied\nmaximum and how many identifiers were not processed.",
    "versions": [
     "2026-08-25"
@@ -854,7 +854,7 @@
    "id": "LOC-048",
    "requirement": "A Platform MUST NOT interpret the omitted suffix of a batch-limited Lookup request as unresolved, and MAY submit it in a subsequent request",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/location/lookup.md#L67",
+   "source": "ucp:docs/specification/common/location/lookup.md#L67",
    "quote": "A Platform\n**MUST NOT** interpret the omitted suffix as unresolved and **MAY** submit it in\na subsequent request.",
    "versions": [
     "2026-08-25"

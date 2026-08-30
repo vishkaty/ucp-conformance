@@ -10,30 +10,48 @@
 every area file below was verified absent from `conformance/.vendor/ucp` (the
 04-08 pin) before extraction (see "Dedup method").
 
-## Result: 219 rows across 12 area files
+## Result: 219 rows extracted across 12 area files; 216 net after landing de-dup
 
-| File | Area | Prefix | Rows | Named in mission's target list? |
-| --- | --- | --- | --- | --- |
-| `request-constraints.json` | request-constraints | RC | 26 | Yes (#655 + #744) |
-| `actions.json` | actions | ACT | 14 | No — swept in (feeds Payment Authentication; wholly new generic mechanism) |
-| `payment-authentication.json` | payment-authentication | PAUTH | 20 | Yes |
-| `payment-3ds-challenge.json` | payment-3ds-challenge | TDS | 10 | Yes (the "3DS" half) |
-| `payment-device-data-collection.json` | payment-device-data-collection | DDC | 9 | Yes (the "device-data-collection" half) |
-| `split-payments.json` | split-payments | SPL | 18 | Partially — carries the concrete `instrument_group`/`allowed_combinations` mechanism; the release delta names "instrument requirements via constraints (d25cce30)" for the *other* mechanism (see Notes) |
-| `location.json` | location | LOC | 48 | Yes (#589), includes amenity.* |
-| `loyalty.json` | loyalty | LOY | 18 | Yes (loyalty registries) |
-| `buyer-consent-v2.json` | buyer-consent-v2 | CNST | 19 | Yes (the consent surface) |
-| `capability-namespace-authority.json` | capability-namespace-authority | CAP | 12 | Yes (capability naming/namespace rules) |
-| `replay-protection-payload-matching.json` | replay-protection-payload-matching | REPLAY | 3 | Yes (idempotency/replay, as released) |
-| `permalink.json` | permalink | PERM | 22 | No — swept in (wholly new capability, security-heavy) |
-| **Total** | | | **219** | |
+**Landing addendum (2026-08-30, extra-high review):** at merge time, three rows
+duplicated content already owned by P1's carry-forward files and were deleted —
+`CAP-002` (restates `CAP-001` + `CAP-009` combined), `CNST-011` (restates
+`DSC-037`'s core clause, narrowed to own it — see that file's own landing note),
+and `CNST-015` (restates `DSC-036` verbatim). This lane's own extraction/dedup
+method (below) correctly found no antecedent in the 04-08 tree for any of the
+three — the collision is with P1's *carry-forward* rows, which this lane's
+worktree never had visibility into (P1 and P2 ran as parallel, isolated lanes;
+see "Other concurrent lanes" in P1-REPORT.md). The table and the `219`/`219`
+verification figures below are the as-extracted counts this lane actually
+produced and verified in isolation — left as originally written for an accurate
+lane history. The net program-wide count after landing is **216** for this
+lane's files, **694** across the full merged 2026-08-25 register (see
+`conformance/selfcheck/verify_register.py 2026-08-25` -> `694/694 verified`).
+Also at landing: every citation in this lane's 12 files was re-pointed from the
+`ucp-2026-08-25:` alias to `ucp:` (see "Filing conventions" below — the
+alias choice this lane made was sound at the time but is superseded).
+
+| File | Area | Prefix | Rows (as extracted) | Rows (post-landing) | Named in mission's target list? |
+| --- | --- | --- | --- | --- | --- |
+| `request-constraints.json` | request-constraints | RC | 26 | 26 | Yes (#655 + #744) |
+| `actions.json` | actions | ACT | 14 | 14 | No — swept in (feeds Payment Authentication; wholly new generic mechanism) |
+| `payment-authentication.json` | payment-authentication | PAUTH | 20 | 20 | Yes |
+| `payment-3ds-challenge.json` | payment-3ds-challenge | TDS | 10 | 10 | Yes (the "3DS" half) |
+| `payment-device-data-collection.json` | payment-device-data-collection | DDC | 9 | 9 | Yes (the "device-data-collection" half) |
+| `split-payments.json` | split-payments | SPL | 18 | 18 | Partially — carries the concrete `instrument_group`/`allowed_combinations` mechanism; the release delta names "instrument requirements via constraints (d25cce30)" for the *other* mechanism (see Notes) |
+| `location.json` | location | LOC | 48 | 48 | Yes (#589), includes amenity.* |
+| `loyalty.json` | loyalty | LOY | 18 | 18 | Yes (loyalty registries) |
+| `buyer-consent-v2.json` | buyer-consent-v2 | CNST | 19 | 17 (CNST-011, CNST-015 deleted — de-dup) | Yes (the consent surface) |
+| `capability-namespace-authority.json` | capability-namespace-authority | CAP | 12 | 11 (CAP-002 deleted — de-dup) | Yes (capability naming/namespace rules) |
+| `replay-protection-payload-matching.json` | replay-protection-payload-matching | REPLAY | 3 | 3 | Yes (idempotency/replay, as released) |
+| `permalink.json` | permalink | PERM | 22 | 22 | No — swept in (wholly new capability, security-heavy) |
+| **Total** | | | **219** | **216** | |
 
 Every row's `quote` was machine-verified against the pinned vendor source with
 `conformance/selfcheck/verify_register.py 2026-08-25` (see "Verification" below):
-**219/219 verified, 0 line-warnings, 0 failed.** A further 20-row random sample
-was re-read against the source prose by hand for semantic soundness of the
-`requirement`/`keyword`/`testability` classification (not just quote presence);
-no issues found.
+**219/219 verified, 0 line-warnings, 0 failed** (this lane's rows, in isolation,
+at extraction time). A further 20-row random sample was re-read against the
+source prose by hand for semantic soundness of the `requirement`/`keyword`/
+`testability` classification (not just quote presence); no issues found.
 
 ## Per-area detail and what's new vs 04-08
 
@@ -199,6 +217,15 @@ pass's scope bounded and because none were flagged as priorities):
   vendor directory name directly), so **no code change to `verify_register.py`
   was needed or made** — this is purely a citation-format choice, verified
   working end-to-end (219/219 pass) with the existing checker.
+  **Superseded at landing (2026-08-30):** P1's own report flagged that both
+  aliases "resolve correctly today... but only by coincidence of the local
+  vendor folder's name" and recommended standardizing on `ucp:` when the lanes
+  merge. The landing-normalization commit did exactly that — added `"2026-08-25":
+  "ucp-2026-08-25"` to `verify_register.py`'s `VERSION_TREE` and rewrote all 12
+  of this lane's files from the `ucp-2026-08-25:` alias to `ucp:`, so 2026-08-25
+  now resolves the same deliberate way every other version does, not by
+  coincidence. Re-verified 697/697 immediately after the rewrite, before the
+  de-dup above dropped the register to 694/694.
 
 ## Verification
 

@@ -48,6 +48,20 @@ VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08", "2026-08-25"]
 # "current" for site claims just by being appended to VERSIONS. Bump this only when the
 # site is deliberately migrated to a new version's published figures.
 CURRENT_SITE_VERSION = "2026-04-08"
+# ATTRIBUTION SUPPRESSION (landing normalization, 2026-08-30): the comment above
+# already names the hazard — a version-adaptive check (no filename version token) or
+# an unscoped exemptions.json entry auto-EXTENDS its claim onto any version merely by
+# that version joining VERSIONS, with zero individual review of whether the claim
+# still holds against the new (here: reorganized #723) text. Landing L2's new-surface
+# rows made this concrete: 51 checks (26 of them claiming live-wire!) and 24
+# exemptions were auto-attributing to 2026-08-25 the moment its register existed,
+# none reviewed. REGISTER_ONLY_VERSIONS is the wall: every version listed here is
+# forced to GAP — both attribution() (below) and exempt_at() short-circuit for it —
+# regardless of what the auto-attribution walk or exemptions.json would otherwise
+# compute. This is a landing gate, not a permanent home: per PLAN-0825's §G sequencing,
+# a version leaves this set only via an explicit per-id review pass (the "Check
+# conversion phase"), never by silently aging out.
+REGISTER_ONLY_VERSIONS = {"2026-08-25"}
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
 # capture the req-id list: Check("name", [ ... ]) / MCheck("name", [ ... ]) /
 # fixture_check("name", [ ... ]) — schema_check.py's factory builds an engine.Check
@@ -252,7 +266,11 @@ def attribution():
             for i in ids:
                 if i in all_ids[v]:
                     rows.append((v, i, base, None))
-    return rows
+    # REGISTER_ONLY_VERSIONS: drop every attribution at these versions here, at the
+    # single walk every consumer (coverage_map/covered_ids_by_version/evidence.py's
+    # evidence_by_id/export_json) shares — so none of them can independently
+    # disagree by forgetting to re-check the wall.
+    return [r for r in rows if r[0] not in REGISTER_ONLY_VERSIONS]
 
 
 def _covmap_from(rows):
@@ -397,7 +415,14 @@ def exempt_at(exempt, rid, ver):
     its listed versions. A single entry WITHOUT the field keeps the original
     semantics: it applies at every version where the id is a MUST row (matrix only
     ever buckets MUST/MUST NOT rows, and coverage_gate.py separately forbids
-    exempting a covered id)."""
+    exempting a covered id).
+
+    REGISTER_ONLY_VERSIONS short-circuit: an unscoped exemptions.json entry applies
+    "wherever the id is a MUST", which would otherwise auto-grant EXEMPT at a
+    register-only version with exactly the same zero-review hazard attribution()
+    guards against for CHECK. False here forces those ids to GAP instead."""
+    if ver in REGISTER_ONLY_VERSIONS:
+        return False
     meta = exempt.get(rid)
     if meta is None:
         return False

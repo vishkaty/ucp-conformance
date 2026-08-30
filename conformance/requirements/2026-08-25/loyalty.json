@@ -8,7 +8,7 @@
    "id": "LOY-001",
    "requirement": "A loyalty_membership object MUST include `id`, `name`, and `provisional`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/loyalty.json#L132",
+   "source": "ucp:source/schemas/common/loyalty.json#L132",
    "quote": "\"required\": [\"id\", \"name\", \"provisional\"],",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "LOY-002",
    "requirement": "Programs that can be joined independently MUST be modeled as separate sibling entries under the loyalty map, distinguished by reverse-domain naming",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/loyalty.json#L131",
+   "source": "ucp:source/schemas/common/loyalty.json#L131",
    "quote": "Programs that can be joined independently MUST be modeled as separate sibling entries under the loyalty map, distinguished by reverse-domain naming (e.g., 'com.example.rewards' and 'com.example.rewards.card').",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "LOY-003",
    "requirement": "All loyalty map keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/loyalty.json#L168",
+   "source": "ucp:source/schemas/common/loyalty.json#L168",
    "quote": "All loyalty keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace.",
    "versions": [
     "2026-08-25"
@@ -62,7 +62,7 @@
    "id": "LOY-004",
    "requirement": "`display_id` MUST NOT be set if the membership has not been verified",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:source/schemas/common/loyalty.json#L144",
+   "source": "ucp:source/schemas/common/loyalty.json#L144",
    "quote": "MUST NOT be set if the membership has not been verified.",
    "versions": [
     "2026-08-25"
@@ -80,7 +80,7 @@
    "id": "LOY-005",
    "requirement": "Businesses MAY advertise loyalty support for any subset of catalog search, catalog lookup, cart, and checkout capabilities; Platforms SHOULD check which resources are extended",
    "keyword": "MAY",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L100",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L100",
    "quote": "Businesses MAY advertise loyalty\nsupport for any subset of these capabilities. Platforms SHOULD check which resources are\nextended.",
    "versions": [
     "2026-08-25"
@@ -98,7 +98,7 @@
    "id": "LOY-006",
    "requirement": "Programs that can be joined independently MUST be modeled as separate sibling top-level keys in the loyalty extension map, namespaced by reverse-domain naming",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L211",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L211",
    "quote": "Programs that can be joined independently MUST be modeled as separate sibling entries\nunder the loyalty map, distinguished by their reverse-domain naming.",
    "versions": [
     "2026-08-25"
@@ -116,7 +116,7 @@
    "id": "LOY-007",
    "requirement": "When a business populates the loyalty extension from authenticated identity without an explicit eligibility claim, the map key MUST be the same reverse-domain identifier the business would accept as a claim value",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L218",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L218",
    "quote": "In this case, the map key MUST be the same reverse-domain\nidentifier the business would accept as a claim value.",
    "versions": [
     "2026-08-25"
@@ -134,7 +134,7 @@
    "id": "LOY-008",
    "requirement": "When a business verifies a membership claim or determines membership from authenticated identity, it MUST return `provisional: false` and MUST populate the active tier(s) in `tiers` when the program has tier structure (tier-less programs MAY omit `tiers`)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L224",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L224",
    "quote": "When a business verifies a membership claim or determines membership from\n  authenticated identity, it MUST return `provisional: false`.",
    "versions": [
     "2026-08-25"
@@ -152,7 +152,7 @@
    "id": "LOY-009",
    "requirement": "When a membership claim is recognized and accepted but not verified, the business MUST return `provisional: true` and MUST NOT return `display_id` until the membership is verified",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L230",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L230",
    "quote": "When a membership claim in the request is recognized and accepted but not verified by\n  the business, the business MUST return `provisional: true`.",
    "versions": [
     "2026-08-25"
@@ -170,7 +170,7 @@
    "id": "LOY-010",
    "requirement": "When a membership claim is accepted but cannot be verified, the business MUST communicate the failure via a recoverable message with `type: \"error\"` and `code: \"eligibility_invalid\"`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L234",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L234",
    "quote": "the business\n  MUST communicate the failure via a recoverable `message` with `type: \"error\"` and\n  `code: \"eligibility_invalid\"`.",
    "versions": [
     "2026-08-25"
@@ -188,7 +188,7 @@
    "id": "LOY-011",
    "requirement": "At checkout completion, all accepted-but-unverified loyalty claims MUST be resolved per the Eligibility Verification at Completion contract",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L239",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L239",
    "quote": "At checkout completion, all accepted but unverified loyalty claims MUST be resolved per\nthe [Eligibility Verification at Completion](../../shopping/checkout/index.md#eligibility-verification-at-completion)\ncontract defined in the checkout capability.",
    "versions": [
     "2026-08-25"
@@ -206,7 +206,7 @@
    "id": "LOY-012",
    "requirement": "Businesses MUST evaluate conditions beyond membership (e.g. a minimum purchase threshold) before applying a monetary loyalty benefit",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L247",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L247",
    "quote": "Businesses\nMUST evaluate those conditions before applying the benefit.",
    "versions": [
     "2026-08-25"
@@ -224,7 +224,7 @@
    "id": "LOY-013",
    "requirement": "When a monetary loyalty benefit applies, businesses MUST surface the price impact through the base capability's price fields (catalog price/list_price/price_range, or cart/checkout totals / line_items[].totals)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L249",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L249",
    "quote": "When the benefit applies, businesses MUST surface the price impact through the base\ncapability's price fields.",
    "versions": [
     "2026-08-25"
@@ -242,7 +242,7 @@
    "id": "LOY-014",
    "requirement": "If a discount extension applied discount still requires verification because one or more accepted loyalty claims remain unverified, the corresponding applied discount MUST set `provisional: true`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L258",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L258",
    "quote": "If the discount still\nrequires verification, for example because one or more accepted loyalty claims\nremain unverified, the corresponding applied discount MUST set `provisional: true`.",
    "versions": [
     "2026-08-25"
@@ -260,7 +260,7 @@
    "id": "LOY-015",
    "requirement": "Businesses MUST NOT put inapplicable monetary loyalty benefits in the discount extension",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L263",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L263",
    "quote": "Businesses MUST NOT put inapplicable benefits in the discount extension.",
    "versions": [
     "2026-08-25"
@@ -278,7 +278,7 @@
    "id": "LOY-016",
    "requirement": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member identifiers, since that would allow the platform to uniquely identify individual buyers",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L680",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L680",
    "quote": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member\nidentifiers (as this would allow the platform to uniquely identify individual buyers).",
    "versions": [
     "2026-08-25"
@@ -296,7 +296,7 @@
    "id": "LOY-017",
    "requirement": "Loyalty extension response MUST only include `display_id` after verified/authenticated memberships",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L682",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L682",
    "quote": "Loyalty extension response MUST only include `display_id` after verified/authenticated\nmemberships.",
    "versions": [
     "2026-08-25"
@@ -314,7 +314,7 @@
    "id": "LOY-018",
    "requirement": "Loyalty extension response MUST treat all `context.eligibility` values in the request as buyer claims rather than proof",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/common/extensions/loyalty.md#L684",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L684",
    "quote": "Loyalty extension response MUST treat all `context.eligibility` values in the request as\nbuyer claims rather than proof.",
    "versions": [
     "2026-08-25"

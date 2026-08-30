@@ -8,7 +8,7 @@
    "id": "TDS-001",
    "requirement": "A Business SHOULD accept Complete Checkout, begin the payment attempt, and return `complete_in_progress` with the challenge Action; if it cannot accept completion before the challenge, it MUST return `incomplete` with a recoverable error Message whose `path` selects the challenge occurrence",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L48",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L48",
    "quote": "If the Business cannot\naccept completion before the challenge, it follows the core Checkout rule: it\nreturns `incomplete` with a recoverable error Message whose `path` selects the\nchallenge occurrence.",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "TDS-002",
    "requirement": "The Platform performs an ordinary navigation to `config.url` and MUST NOT construct provider requests, parse challenge payloads, or relay 3DS protocol data",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L85",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L85",
    "quote": "The\nPlatform performs an ordinary navigation to it; it **MUST NOT** construct\nprovider requests, parse challenge payloads, or relay 3DS protocol data.",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "TDS-003",
    "requirement": "The Platform MUST: validate the URL per the Payment Authentication contract; load it in an isolated, visible browser-capable surface; complete the action.ready handshake before presenting the challenge; prevent interaction with the rest of Checkout while outstanding; correlate embedded notifications with the Action occurrence and mounted surface; and close the surface after a terminal outcome",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L90",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L90",
    "quote": "The Platform **MUST**:\n\n1. validate the URL according to the Payment Authentication contract, the\n   payment handler and instrument context, and Platform policy;",
    "versions": [
     "2026-08-25"
@@ -62,7 +62,7 @@
    "id": "TDS-004",
    "requirement": "The Platform MUST NOT infer an authentication outcome from frame content, URL changes, or notification diagnostics",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L114",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L114",
    "quote": "The Platform **MUST NOT** infer an authentication outcome from frame content,\nURL changes, or notification diagnostics.",
    "versions": [
     "2026-08-25"
@@ -80,7 +80,7 @@
    "id": "TDS-005",
    "requirement": "When the Platform-facing challenge interaction finishes, the surface MUST send an `action.done` JSON-RPC notification",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L126",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L126",
    "quote": "the surface **MUST**\nsend:",
    "versions": [
     "2026-08-25"
@@ -98,7 +98,7 @@
    "id": "TDS-006",
    "requirement": "Platforms MUST ignore unknown params on `action.done`/`action.error` for UCP processing unless the negotiated handler defines them; such params are never authoritative payment outcomes by default",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L149",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L149",
    "quote": "Platforms **MUST** ignore\nunknown params for UCP processing unless the negotiated handler defines them.",
    "versions": [
     "2026-08-25"
@@ -116,7 +116,7 @@
    "id": "TDS-007",
    "requirement": "The Business MUST choose an outer-surface expiry that accommodates the handler-defined window (e.g. the EMV 3DS 10-minute ACS challenge-interface timer)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L211",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L211",
    "quote": "The Business **MUST** choose an expiry that accommodates the handler-defined\nwindow.",
    "versions": [
     "2026-08-25"
@@ -134,7 +134,7 @@
    "id": "TDS-008",
    "requirement": "When the outer deadline elapses, the Platform MUST close the surface, treat the interaction as abandoned, and follow the non-successful surface reconciliation path; it MUST NOT remount the same Action type and id",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L217",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L217",
    "quote": "It **MUST NOT** remount the same\nAction type and `id`; further handling follows the parent Checkout Actions\nfallback, handoff, and cancellation rules.",
    "versions": [
     "2026-08-25"
@@ -152,7 +152,7 @@
    "id": "TDS-009",
    "requirement": "The handler's trust policy MUST authorize the initial and redirect origins before the Platform displays them",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L227",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L227",
    "quote": "The handler's trust policy **MUST** authorize the initial and redirect origins\nbefore the Platform displays them.",
    "versions": [
     "2026-08-25"
@@ -170,7 +170,7 @@
    "id": "TDS-010",
    "requirement": "A later Checkout response based on server-side provider state remains authoritative regardless of any 3DS surface notification",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/three-ds-challenge.md#L230",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L230",
    "quote": "A later Checkout response based on server-side provider state remains\nauthoritative regardless of any surface notification.",
    "versions": [
     "2026-08-25"

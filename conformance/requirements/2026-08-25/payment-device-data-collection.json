@@ -8,7 +8,7 @@
    "id": "DDC-001",
    "requirement": "If device data collection is merely an optimization the Business will not wait for, the Business MUST NOT emit a device_data_collection Action",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L53",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L53",
    "quote": "If collection is merely an optimization that the Business\nwill not wait for, the Business **MUST NOT** emit an Action.",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "DDC-002",
    "requirement": "The Platform MUST: validate the URL per the Payment Authentication contract; load it in an isolated, invisible browser-capable surface; complete the action.ready handshake before allowing collection to begin; correlate embedded notifications with the Action occurrence and mounted surface; and unmount the surface after a terminal outcome",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L90",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L90",
    "quote": "The Platform **MUST**:\n\n1. validate the URL according to the Payment Authentication contract, the\n   payment handler and instrument context, and Platform policy;",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "DDC-003",
    "requirement": "The invisible device data collection surface MUST NOT be visible to the Buyer or request Buyer interaction",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L107",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L107",
    "quote": "It **MUST NOT** be visible to\nthe Buyer or request Buyer interaction.",
    "versions": [
     "2026-08-25"
@@ -62,7 +62,7 @@
    "id": "DDC-004",
    "requirement": "When the Platform-facing collection step is finished, the surface MUST send an `action.done` JSON-RPC notification",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L122",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L122",
    "quote": "the surface **MUST** send:",
    "versions": [
     "2026-08-25"
@@ -80,7 +80,7 @@
    "id": "DDC-005",
    "requirement": "The provider-domain 3DS-Method timer (EMV 3DS Req 315) begins when the method is invoked and remains owned by the Business/provider; the Platform MUST NOT derive it from the outer surface's load event",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L180",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L180",
    "quote": "the\nPlatform **MUST NOT** derive it from the outer surface's load event.",
    "versions": [
     "2026-08-25"
@@ -98,7 +98,7 @@
    "id": "DDC-006",
    "requirement": "If no valid `action.done` or `action.error` arrives before the outer deadline, the Platform MUST unmount the surface, treat the interaction as timed out, and follow the non-successful surface reconciliation path; it MUST NOT remount the same Action type and id",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L187",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L187",
    "quote": "the Platform\n**MUST** unmount the surface, treat the interaction as timed out,\nand follow the non-successful surface reconciliation path.",
    "versions": [
     "2026-08-25"
@@ -116,7 +116,7 @@
    "id": "DDC-007",
    "requirement": "The handler's trust policy MUST authorize the initial and redirect origins before the Platform loads them",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L199",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L199",
    "quote": "The handler's trust policy **MUST** authorize the initial and redirect origins\nbefore the Platform loads them.",
    "versions": [
     "2026-08-25"
@@ -134,7 +134,7 @@
    "id": "DDC-008",
    "requirement": "The device data collection surface MUST NOT receive Platform credentials or access Platform storage",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L201",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L201",
    "quote": "The surface **MUST NOT** receive Platform credentials or access Platform\nstorage.",
    "versions": [
     "2026-08-25"
@@ -152,7 +152,7 @@
    "id": "DDC-009",
    "requirement": "Provider payloads and collected device data MUST NOT be copied into the Action, notification params, Checkout, or payment instrument",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/payment/extensions/actions/device-data-collection.md#L203",
+   "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L203",
    "quote": "Provider payloads and collected device data **MUST NOT** be copied into the\nAction, notification params, Checkout, or payment instrument.",
    "versions": [
     "2026-08-25"

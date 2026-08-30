@@ -798,8 +798,8 @@
       "id": "DSC-037",
       "requirement": "Omitting the consent field on a request provides no consent update; the business retains its prior (default) position",
       "keyword": "MAY",
-      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L372-L377",
-      "quote": "**Confirm semantics.** The `consent` field is optional on requests;\n   omitting it provides no consent update and the business retains its prior\n   position. When submitting `consent`, platforms MUST include every advertised\n   purpose and segment key, carrying both `granted` and `source` for each.\n   Omitting an advertised key within a submitted `consent` map MUST NOT be\n   used to signal any value.",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L372-L373",
+      "quote": "**Confirm semantics.** The `consent` field is optional on requests;\n   omitting it provides no consent update and the business retains its prior",
       "versions": [
         "2026-08-25"
       ],

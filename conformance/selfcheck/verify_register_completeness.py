@@ -29,6 +29,7 @@ Usage:
   verify_register_completeness.py --json      # machine-readable summary
 """
 import json, re, sys, pathlib
+from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 REQ_DIR = ROOT / "conformance" / "requirements"
@@ -39,6 +40,26 @@ VERSION_TREE = {
     "2026-04-08": "ucp",
     "2026-01-23": "ucp-2026-01-23",
     "2026-01-11": "ucp-2026-01-11",
+    "2026-08-25": "ucp-2026-08-25",
+}
+
+# REPORT-MODE versions (landing normalization, 2026-08-30): 2026-08-25's register is
+# still being built — L1's carry-forward + L2's new-surface rows are in, but the
+# census-closing tooling (schema-constraint census, subject-binding closure, PLAN-0825
+# §G0-c) hasn't landed. Gating this version now would either block every future 08-25
+# commit on ~500 unaccounted keyword occurrences, or invite padding the register to
+# force it green — the exact failure A.1 exists to prevent. Report mode is the bounded
+# honest middle: PRINT the true gap, don't fail the build on it.
+#
+# Fail-noisy self-expiry (P-2, the same mechanism this suite already uses for
+# allowlists/waivers): report mode is itself a live claim ("we are actively closing
+# this, not ignoring it forever") and must die loudly if nobody follows through. Past
+# the flip-by date below, an UNCLOSED report-mode version turns the gate RED instead of
+# silently staying quiet — the version leaves this dict only by the census actually
+# reaching GATE mode (PLAN-0825 §G: at L2's census-closing landing or this date,
+# whichever is first), never by the date quietly passing.
+REPORT_MODE_UNTIL = {
+    "2026-08-25": "2026-09-20",
 }
 VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced"}
 # scope exclusions are file-level and carry an extra reason class: a whole spec file
@@ -168,6 +189,21 @@ def validate_scope(sx):
     return errs
 
 
+def report_mode_status(ver, today=None):
+    """PURE — kill-testable via the `today` override (no real-clock dependency, same
+    pattern as conformance/ci/sources_age.py's evaluate()). Returns one of:
+      "gate"     — ver is not a report-mode version at all (misses always gate)
+      "active"   — ver is report-mode and within its window (misses print, don't gate)
+      "expired"  — ver is report-mode but PAST its flip-by date (misses now gate, loud)
+    `today` is an ISO "YYYY-MM-DD" string; plain string comparison is correct for
+    ISO-formatted dates."""
+    deadline = REPORT_MODE_UNTIL.get(ver)
+    if deadline is None:
+        return "gate"
+    today = today if today is not None else date.today().isoformat()
+    return "active" if today <= deadline else "expired"
+
+
 def rows_by_version_file():
     out = {}
     for vdir in sorted(REQ_DIR.iterdir()):
@@ -183,7 +219,7 @@ def rows_by_version_file():
     return out
 
 
-def main(argv):
+def main(argv, today=None):
     report = "--report" in argv
     as_json = "--json" in argv
     rvf = rows_by_version_file()
@@ -201,7 +237,9 @@ def main(argv):
     used_waivers = set()
     used_scopes = set()
     per_version = {}
-    unaccounted = []
+    unaccounted = []          # EVERY missed occurrence, report-mode or not (visibility)
+    gating_unaccounted = []   # the subset that actually fails the build
+    report_status = {ver: report_mode_status(ver, today) for ver in VERSION_TREE}
 
     for ver, ucp_dir in VERSION_TREE.items():
         total = covered = waived = scoped = missed = 0
@@ -226,23 +264,40 @@ def main(argv):
                     used_waivers.add(key)
                     continue
                 missed += 1
-                unaccounted.append((ver, rel, lineno, kw, raw.strip()[:90]))
+                row = (ver, rel, lineno, kw, raw.strip()[:90])
+                unaccounted.append(row)
+                # report-mode ("active"): counted and printed, but does not gate.
+                # "gate" (not a report-mode version) or "expired" (past flip-by): gates.
+                if report_status[ver] != "active":
+                    gating_unaccounted.append(row)
         per_version[ver] = dict(total=total, covered=covered, waived=waived,
-                                scoped=scoped, missed=missed)
+                                scoped=scoped, missed=missed,
+                                report_mode=report_status[ver])
 
     stale_waivers = [k for k in waiver_idx if k not in used_waivers]
     stale_scopes = [k for k in scope_idx if k not in used_scopes]
 
     if as_json:
-        print(json.dumps(dict(per_version=per_version, unaccounted=len(unaccounted),
+        print(json.dumps(dict(per_version=per_version,
+                              unaccounted=len(unaccounted),
+                              gating_unaccounted=len(gating_unaccounted),
                               waiver_errors=len(waiver_errs), stale_waivers=len(stale_waivers)),
                          indent=2))
-        return 1 if (unaccounted or waiver_errs) else 0
+        return 1 if (gating_unaccounted or waiver_errs) else 0
 
     print("register-completeness — every mandatory keyword in prose must be a row, a "
           "waiver, or an in-scope-excluded file\n")
     for ver, s in per_version.items():
-        flag = "" if s["missed"] == 0 else f"  <-- {s['missed']} UNACCOUNTED"
+        rm = s["report_mode"]
+        if rm == "active":
+            flag = (f"  ({s['missed']} unaccounted — REPORT MODE until "
+                    f"{REPORT_MODE_UNTIL[ver]}, not gated)" if s["missed"] else "  (report mode)")
+        elif rm == "expired":
+            flag = (f"  <-- {s['missed']} UNACCOUNTED — report mode EXPIRED "
+                    f"{REPORT_MODE_UNTIL[ver]}, now GATING" if s["missed"]
+                    else f"  (report mode expired {REPORT_MODE_UNTIL[ver]})")
+        else:
+            flag = "" if s["missed"] == 0 else f"  <-- {s['missed']} UNACCOUNTED"
         print(f"  {ver}:  {s['total']:4} kw   {s['covered']:4} covered   "
               f"{s['scoped']:4} scope-excl   {s['waived']:3} waived   {s['missed']:3} missed{flag}")
 
@@ -260,15 +315,21 @@ def main(argv):
             print(f"    STALE {ver} {f}")
 
     if report or unaccounted:
+        gating_set = set(gating_unaccounted)
         shown = unaccounted if report else unaccounted[:60]
-        print(f"\n  {len(unaccounted)} unaccounted keyword occurrence(s)"
+        print(f"\n  {len(unaccounted)} unaccounted keyword occurrence(s) total "
+              f"({len(gating_unaccounted)} gating, "
+              f"{len(unaccounted) - len(gating_unaccounted)} report-mode)"
               + (f" (showing {len(shown)})" if not report and len(unaccounted) > len(shown) else "") + ":")
-        for (ver, f, l, kw, txt) in shown:
-            print(f"    {ver}  {f}:{l}  [{kw}]  {txt}")
+        for row in shown:
+            ver, f, l, kw, txt = row
+            tag = "" if row in gating_set else "  [report-mode]"
+            print(f"    {ver}  {f}:{l}  [{kw}]  {txt}{tag}")
 
-    ok = not unaccounted and not waiver_errs
+    ok = not gating_unaccounted and not waiver_errs
     print(f"\nregister-completeness: {'PASS' if ok else 'FAIL'}"
-          + ("" if ok else "  — extract the missed clause as a row, or waive it with a reason"))
+          + ("" if ok else "  — extract the missed clause as a row, waive it with a reason, "
+                            "or (report-mode versions past their flip-by date) close the census"))
     return 0 if ok else 1
 
 

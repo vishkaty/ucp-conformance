@@ -8,7 +8,7 @@
    "id": "CAP-001",
    "requirement": "A business_schema capability declaration MUST declare `schema` (not merely `spec`)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/capability.json#L39",
+   "source": "ucp:source/schemas/capability.json#L39",
    "quote": "\"allOf\": [{ \"$ref\": \"#/$defs/base\" }, { \"required\": [\"schema\"] }]",
    "versions": [
     "2026-08-25"
@@ -23,28 +23,10 @@
    "notes": "NEW at 08-25: capability.json's 04-08 business_schema only required the base entity fields (no schema requirement); 08-25 adds `{\"required\": [\"schema\"]}` so platforms can fetch and compose it during negotiation. platform_schema already required both spec+schema at 04-08 (unchanged)."
   },
   {
-   "id": "CAP-002",
-   "requirement": "Authority binding applies to every entity with a remote `schema`: a declared `schema` URL's origin MUST match the namespace authority in its name; a capability MUST declare a `schema`",
-   "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L851",
-   "quote": "Authority binding applies to every entity with a remote `schema`: a declared `schema`\nURL's origin **MUST** match the namespace authority in its name.",
-   "versions": [
-    "2026-08-25"
-   ],
-   "transport": [
-    "any"
-   ],
-   "testability": "testable",
-   "official_oracle": false,
-   "browser_capable": true,
-   "schema_enforced": false,
-   "notes": "REPLACES the 04-08 'Spec URL Binding' subsection (a two-row table + one MUST/SHOULD sentence) with a much more detailed 'Authority Binding' subsection defining an exact derivation algorithm (CAP-003 through CAP-010) and enforcement rule (CAP-011/012). The 04-08 rule text is presumably already registered (P1 carry-forward); this and the following rows are the genuinely NEW algorithmic detail."
-  },
-  {
    "id": "CAP-003",
    "requirement": "A `spec` URL is documentation, not part of the machine trust path: its origin is NOT authority-bound, but it MUST be `https` and MAY be served from any host",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L868",
+   "source": "ucp:docs/specification/overview/index.md#L868",
    "quote": "it\n**MUST** be `https` but **MAY** be served from any host (e.g. a docs subdomain or third-party docs host). Only the\n`schema` URL carries the authority binding defined below.",
    "versions": [
     "2026-08-25"
@@ -62,7 +44,7 @@
    "id": "CAP-004",
    "requirement": "To derive the authority from a `schema` URL, a platform MUST parse it with a conformant (WHATWG) URL parser; it MUST parse, MUST use the `https` scheme, and MUST NOT contain userinfo",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L881",
+   "source": "ucp:docs/specification/overview/index.md#L881",
    "quote": "It **MUST**\nparse, **MUST** use the `https` scheme, and **MUST NOT** contain userinfo (a\n`user:pass@` component). Substring matching on the raw URL is **NOT**\npermitted",
    "versions": [
     "2026-08-25"
@@ -80,7 +62,7 @@
    "id": "CAP-005",
    "requirement": "The `schema` URL host MUST be a registered domain name of at least two labels; IP-literal hosts and single-label hosts are invalid authorities",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L886",
+   "source": "ucp:docs/specification/overview/index.md#L886",
    "quote": "The host **MUST** be a registered domain name of at least two labels.\nIP-literal hosts (`https://203.0.113.10/...`) and single-label hosts\n(`https://localhost/...`) are invalid authorities.",
    "versions": [
     "2026-08-25"
@@ -98,7 +80,7 @@
    "id": "CAP-006",
    "requirement": "The platform derives `authority_prefix` by normalizing the schema URL's hostname (lowercase, strip trailing dot, IDN in A-label/punycode) and reversing its labels",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L889",
+   "source": "ucp:docs/specification/overview/index.md#L889",
    "quote": "Take the URL's hostname (the host without any port), normalize it (lowercase;\nstrip a trailing `.`; internationalized domains in A-label / punycode form),\nand **reverse its labels** to form the `authority_prefix` (host `ucp.dev` \u2192\n`dev.ucp`).",
    "versions": [
     "2026-08-25"
@@ -116,7 +98,7 @@
    "id": "CAP-007",
    "requirement": "The authority binding is valid only if the entity `name` equals `authority_prefix` (exact match) or `name` is `authority_prefix` followed by a `.` and further labels (label-aligned prefix match)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L893",
+   "source": "ucp:docs/specification/overview/index.md#L893",
    "quote": "The binding is valid if and only if **either** of the following holds:\n   - **Exact match** \u2014 `name` equals `authority_prefix`.",
    "versions": [
     "2026-08-25"
@@ -134,7 +116,7 @@
    "id": "CAP-008",
    "requirement": "The authority check treats a public suffix (e.g. co.uk, or a private-section suffix like github.io) as an ordinary authority; declare entities only under a registrable domain (a public suffix plus one label) that you exclusively control",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L940",
+   "source": "ucp:docs/specification/overview/index.md#L940",
    "quote": "declare entities only under a **registrable domain** (a public suffix plus one label) that you\nexclusively control.",
    "versions": [
     "2026-08-25"
@@ -152,7 +134,7 @@
    "id": "CAP-009",
    "requirement": "A platform MUST validate each business-declared `schema` URL's origin against the entity's namespace authority before fetching it; if the origin does not match, the platform MUST NOT fetch it and MUST reject the entity (treated as not present and never activated)",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L951",
+   "source": "ucp:docs/specification/overview/index.md#L951",
    "quote": "If the URL's origin\ndoes not match the entity's namespace authority (per\n[Derivation algorithm](#derivation-algorithm)), the platform **MUST NOT** fetch\nit and **MUST** reject the entity",
    "versions": [
     "2026-08-25"
@@ -170,7 +152,7 @@
    "id": "CAP-010",
    "requirement": "A platform MUST NOT follow redirects (3xx) when fetching a `schema` URL, consistent with profile fetches",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L955",
+   "source": "ucp:docs/specification/overview/index.md#L955",
    "quote": "A platform **MUST NOT** follow redirects (`3xx`) when fetching a `schema` URL, consistent with profile fetches.",
    "versions": [
     "2026-08-25"
@@ -188,7 +170,7 @@
    "id": "CAP-011",
    "requirement": "A business SHOULD apply the same authority-binding check to the platform profile and exclude any entity whose binding fails",
    "keyword": "SHOULD",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L959",
+   "source": "ucp:docs/specification/overview/index.md#L959",
    "quote": "A business **SHOULD**\napply the same check to the platform profile and exclude any entity whose\nbinding fails.",
    "versions": [
     "2026-08-25"
@@ -206,7 +188,7 @@
    "id": "CAP-012",
    "requirement": "Authority binding is not a fetch-safety control: fetching the `schema` URL is additionally subject to the protocol's URL fetch-safety requirements guarding the resolved address against SSRF toward special-use/cloud-metadata addresses and DNS rebinding; the hostname check and the resolved-address check are independent and both apply",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L963",
+   "source": "ucp:docs/specification/overview/index.md#L963",
    "quote": "Binding validates the declared hostname for provenance; it is **not** a\nfetch-safety control and does not authorize dereferencing.",
    "versions": [
     "2026-08-25"

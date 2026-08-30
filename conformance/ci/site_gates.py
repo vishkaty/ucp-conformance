@@ -548,7 +548,16 @@ def consistency():
 
 # ═══ freshness ═══════════════════════════════════════════════════════════════
 def _real_manifest():
-    cov = json.load(open(PUB / "coverage.json"))["versions"]
+    cov_export = json.load(open(PUB / "coverage.json"))["versions"]
+    # A version with zero CHECK and zero EXEMPT is register-only (see matrix.py's
+    # REGISTER_ONLY_VERSIONS / CURRENT_SITE_VERSION doctrine): its census hasn't
+    # closed, so — like 2026-04-08 before its own check/exempt work landed — it
+    # "does not back any site copy" and must not appear as a site-claimed
+    # "supported version" the moment its register merges. Purely data-driven off
+    # the committed export (site_gates.py stays stdlib-only, no cross-module
+    # import of matrix.py) — self-corrects the moment the version gets real
+    # CHECK/EXEMPT rows, with no code change needed here when that happens.
+    cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
     agc = json.load(open(PUB / "agent-coverage.json"))
     # agent registry counts via subprocess import — same source of truth as the
     # agent_governance copy gate (len(CHECKS); non-None DEFECTS)

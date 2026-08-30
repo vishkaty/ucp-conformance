@@ -8,7 +8,7 @@
    "id": "RC-001",
    "requirement": "A request_constraints value's `required` array (naming fields required on the constrained object) MUST be non-empty; an empty array applies no constraint",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/request_constraints.json#L14",
+   "source": "ucp:source/schemas/common/types/request_constraints.json#L14",
    "quote": "Must be non-empty: an empty array applies no constraint.",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "RC-002",
    "requirement": "A request_constraints value's `properties` object MUST be non-empty when present; an empty object applies no constraint",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/request_constraints.json#L23",
+   "source": "ucp:source/schemas/common/types/request_constraints.json#L23",
    "quote": "Must be non-empty: an empty object applies no constraint.",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "RC-003",
    "requirement": "A request_constraints value's `anyOf` array MUST be non-empty, and each branch (Object Constraint) MUST itself be non-empty",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/request_constraints.json#L34",
+   "source": "ucp:source/schemas/common/types/request_constraints.json#L34",
    "quote": "Alternative Object Constraints. The constrained object must satisfy at least one. A branch must be non-empty: an empty branch is satisfied by every object and neutralizes the alternation.",
    "versions": [
     "2026-08-25"
@@ -62,7 +62,7 @@
    "id": "RC-004",
    "requirement": "The Constraint Expression grammar is closed: only `required`, `properties`, and `anyOf` are admitted at the Object Constraint position, and only `enum`/`const` at the Value Constraint position",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:source/schemas/common/types/constraint_expression.json#L35",
+   "source": "ucp:source/schemas/common/types/constraint_expression.json#L35",
    "quote": "\"additionalProperties\": false,",
    "versions": [
     "2026-08-25"
@@ -80,7 +80,7 @@
    "id": "RC-005",
    "requirement": "A Value Constraint MUST carry `enum`, `const`, or both, and its `enum` (when present) MUST be a non-empty array of unique JSON values",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/constraint_expression.json#L39",
+   "source": "ucp:source/schemas/common/types/constraint_expression.json#L39",
    "quote": "A Value Constraint containing `enum`, `const`, or both.",
    "versions": [
     "2026-08-25"
@@ -98,7 +98,7 @@
    "id": "RC-006",
    "requirement": "An instrument_group's `max` MUST be greater than or equal to its `min`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/instrument_group.json#L27",
+   "source": "ucp:source/schemas/common/types/instrument_group.json#L27",
    "quote": "MUST be greater than or equal to `min`.",
    "versions": [
     "2026-08-25"
@@ -116,7 +116,7 @@
    "id": "RC-007",
    "requirement": "An available_payment_instrument's `constraints` field, when present, MUST be a Constraint Expression whose `properties` keys name members of the `constraint_target` declared by the instrument schema for that entry's `type`; requirements on submitted request data belong in `ucp.request_constraints` instead",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:source/schemas/common/types/available_payment_instrument.json#L15",
+   "source": "ucp:source/schemas/common/types/available_payment_instrument.json#L15",
    "quote": "Keys in `properties` name members of the `constraint_target` declared by the instrument schema for this `type`. Requirements on submitted request data belong in `ucp.request_constraints` instead.",
    "versions": [
     "2026-08-25"
@@ -134,7 +134,7 @@
    "id": "RC-008",
    "requirement": "`ucp.request_constraints` MUST be used only in authoritative operation responses; it has no effect in discovery profiles or operation requests",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L187",
+   "source": "ucp:docs/specification/overview/index.md#L187",
    "quote": "`ucp.request_constraints` is used only in authoritative operation responses and has no effect in discovery profiles or operation requests.",
    "versions": [
     "2026-08-25"
@@ -152,7 +152,7 @@
    "id": "RC-009",
    "requirement": "A submitted request is valid under Request Constraints only if it satisfies the resolved request schema AND every object selected by Request Constraints satisfies the corresponding Constraint Expression; Request Constraints can only narrow the resolved schema, never make an otherwise-rejected request valid",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L192",
+   "source": "ucp:docs/specification/overview/index.md#L192",
    "quote": "Request Constraints only narrow the resolved request schema; they cannot make a request valid when that schema rejects it.",
    "versions": [
     "2026-08-25"
@@ -170,7 +170,7 @@
    "id": "RC-010",
    "requirement": "When a Platform performs preflight, it MUST use each chosen value's effective path and complete Constraint Expression (not a partial or approximated form)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L212",
+   "source": "ucp:docs/specification/overview/index.md#L212",
    "quote": "For each chosen value, the Platform **MUST** use its effective path and complete Constraint Expression.",
    "versions": [
     "2026-08-25"
@@ -188,7 +188,7 @@
    "id": "RC-011",
    "requirement": "The Constraint Expression grammar does not admit a `ucp` member/key",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L220",
+   "source": "ucp:docs/specification/overview/index.md#L220",
    "quote": "The grammar does not admit `ucp`.",
    "versions": [
     "2026-08-25"
@@ -206,7 +206,7 @@
    "id": "RC-012",
    "requirement": "Within a Constraint Expression, sibling members (`required`, `properties`, `anyOf`) at the same Object Constraint position all apply together; `anyOf` does not narrow, override, or replace its siblings, and each `anyOf` branch is evaluated against the same selected object and cannot itself carry `path`",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L234",
+   "source": "ucp:docs/specification/overview/index.md#L234",
    "quote": "Members present at the same Object Constraint all apply. `anyOf` does not narrow, override, or replace its siblings; the object must satisfy every sibling member and at least one branch.",
    "versions": [
     "2026-08-25"
@@ -224,7 +224,7 @@
    "id": "RC-013",
    "requirement": "When a Business emits a `path` in a request_constraints value, that `path` MUST be a complete RFC 9535 JSONPath query, and it supersedes the Normalized Path that would otherwise be derived",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L263",
+   "source": "ucp:docs/specification/overview/index.md#L263",
    "quote": "the Business **MUST** make it a complete RFC 9535 JSONPath query.",
    "versions": [
     "2026-08-25"
@@ -242,7 +242,7 @@
    "id": "RC-014",
    "requirement": "A Business MUST provide an explicit `path` when the Normalized Path of the structured response object carrying request_constraints does not identify the intended request objects",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L271",
+   "source": "ucp:docs/specification/overview/index.md#L271",
    "quote": "A Business **MUST** provide an explicit `path` when the Normalized Path of that structured response object does not identify the intended request objects.",
    "versions": [
     "2026-08-25"
@@ -260,7 +260,7 @@
    "id": "RC-015",
    "requirement": "When a constraint must follow a stable identity into the next request (surviving reorder), the Business MUST use an explicit query that encodes that association, rather than relying on positional correspondence",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L274",
+   "source": "ucp:docs/specification/overview/index.md#L274",
    "quote": "the Business **MUST** use an explicit query that encodes that association.",
    "versions": [
     "2026-08-25"
@@ -278,7 +278,7 @@
    "id": "RC-016",
    "requirement": "A Business that constructs a `path` from data MUST serialize and escape each dynamic value as a valid RFC 9535 literal and MUST NOT use unsafe string concatenation",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L277",
+   "source": "ucp:docs/specification/overview/index.md#L277",
    "quote": "A Business that constructs a query from data **MUST** serialize and escape each dynamic value as a valid RFC 9535 literal and **MUST NOT** use unsafe string concatenation.",
    "versions": [
     "2026-08-25"
@@ -296,7 +296,7 @@
    "id": "RC-017",
    "requirement": "Before emitting a request_constraints value, a Business MUST validate the complete value against the shared Request Constraints schema",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L281",
+   "source": "ucp:docs/specification/overview/index.md#L281",
    "quote": "Before emitting a value, a Business **MUST** validate the complete value against",
    "versions": [
     "2026-08-25"
@@ -314,7 +314,7 @@
    "id": "RC-018",
    "requirement": "A Platform MUST validate a request_constraints value against the shared Request Constraints schema before using it for preflight",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L284",
+   "source": "ucp:docs/specification/overview/index.md#L284",
    "quote": "a Platform **MUST** do the same before using that value for preflight;",
    "versions": [
     "2026-08-25"
@@ -332,7 +332,7 @@
    "id": "RC-019",
    "requirement": "A Business MUST ensure that Constraint Expressions which can apply to the same object (via overlapping paths) are jointly satisfiable; contradictory requirements on the same property are a Business authoring error",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L296",
+   "source": "ucp:docs/specification/overview/index.md#L296",
    "quote": "A Business **MUST** ensure expressions that can apply to the same object are jointly satisfiable.",
    "versions": [
     "2026-08-25"
@@ -350,7 +350,7 @@
    "id": "RC-020",
    "requirement": "When a Business includes ucp.request_constraints in an authoritative response, it MUST emit values conforming to the shared Request Constraints schema, MUST use valid effective paths that select only objects, and MUST enforce every constraint it emits against the next Platform request",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L310",
+   "source": "ucp:docs/specification/overview/index.md#L310",
    "quote": "The Business **MUST** emit Request Constraints that conform to the shared Request Constraints schema, **MUST** use valid effective paths that select only objects, and **MUST** enforce every constraint it emits against that next request.",
    "versions": [
     "2026-08-25"
@@ -368,7 +368,7 @@
    "id": "RC-021",
    "requirement": "A Business SHOULD NOT emit Request Constraints for rules that may change before the next request unless it can continue to enforce the advertised constraint",
    "keyword": "SHOULD NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L315",
+   "source": "ucp:docs/specification/overview/index.md#L315",
    "quote": "A Business **SHOULD NOT** emit Request Constraints for rules that may change before the next request unless it can continue to enforce the advertised constraint.",
    "versions": [
     "2026-08-25"
@@ -386,7 +386,7 @@
    "id": "RC-022",
    "requirement": "A Platform performing preflight MUST skip a value that is malformed, unsupported, whose path selects a non-object, or that it cannot evaluate within its resource limits, and MUST continue with any other chosen values rather than treat the unavailable value as pass or fail",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L329",
+   "source": "ucp:docs/specification/overview/index.md#L329",
    "quote": "A Platform performing preflight **MUST** skip the whole unavailable value and continue with any other chosen values.",
    "versions": [
     "2026-08-25"
@@ -404,7 +404,7 @@
    "id": "RC-023",
    "requirement": "Each authoritative resource response supplies the Request Constraints set for the next request to that resource; the following authoritative response's set replaces the prior set, and omitting request_constraints clears the set",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L338",
+   "source": "ucp:docs/specification/overview/index.md#L338",
    "quote": "Each authoritative resource response from the Business supplies Request Constraints for the next request to that resource. The authoritative response to that request supplies the constraints for the following request and replaces the prior set. Omission clears the set.",
    "versions": [
     "2026-08-25"
@@ -422,7 +422,7 @@
    "id": "RC-024",
    "requirement": "Invalid request_constraints values in a new set MUST NOT fall back to preserving stale values from a prior response, and sets MUST NOT be merged by path across responses",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L341",
+   "source": "ucp:docs/specification/overview/index.md#L341",
    "quote": "Invalid values in the new set do not preserve stale values, and sets are not merged by `path`.",
    "versions": [
     "2026-08-25"
@@ -440,7 +440,7 @@
    "id": "RC-025",
    "requirement": "A response containing an authoritative resource MUST supply its Request Constraints set even when it reports an application error; a response without an authoritative resource supplies no set",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L348",
+   "source": "ucp:docs/specification/overview/index.md#L348",
    "quote": "A response without an authoritative resource supplies no Request Constraints set for a following request. A response containing an authoritative resource supplies the set even when it reports an application error.",
    "versions": [
     "2026-08-25"
@@ -458,7 +458,7 @@
    "id": "RC-026",
    "requirement": "Request Constraints add no new outcome or error code; passing schema + Request Constraints validation establishes only schema validity, and the containing operation's existing outcome/error contract (including messages) continues to govern submitted-request and runtime outcomes",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/overview/index.md#L362",
+   "source": "ucp:docs/specification/overview/index.md#L362",
    "quote": "Request Constraints add no outcome or error code.",
    "versions": [
     "2026-08-25"

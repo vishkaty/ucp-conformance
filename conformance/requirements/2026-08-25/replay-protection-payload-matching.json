@@ -8,7 +8,7 @@
    "id": "REPLAY-001",
    "requirement": "On a duplicate Idempotency-Key request whose payload does NOT match the original, the business MUST reject with 409 Conflict (REST) / -32000 (MCP) and MUST NOT execute the request",
    "keyword": "MUST NOT",
-   "source": "ucp-2026-08-25:docs/specification/signatures.md#L834",
+   "source": "ucp:docs/specification/signatures.md#L834",
    "quote": "| **On duplicate (mismatched payload)** | Reject with `409 Conflict` (REST) / `-32000` (MCP); do not execute |",
    "versions": [
     "2026-08-25"
@@ -26,7 +26,7 @@
    "id": "REPLAY-002",
    "requirement": "Businesses MUST detect whether a duplicate-key request's payload matches the original by comparing the SHA-256 hash of the raw body bytes (the same digest RFC 9530 mandates as Content-Digest)",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/signatures.md#L837",
+   "source": "ucp:docs/specification/signatures.md#L837",
    "quote": "Businesses **MUST** detect whether the payload of\na duplicate-key request matches the payload of the original by\ncomparing the SHA-256 hash of the raw body bytes",
    "versions": [
     "2026-08-25"
@@ -44,7 +44,7 @@
    "id": "REPLAY-003",
    "requirement": "Platforms MUST generate a fresh idempotency key whenever they modify the request payload, including retries with modified payment instruments, updated shipping addresses, swapped line items, or any other change to the request body",
    "keyword": "MUST",
-   "source": "ucp-2026-08-25:docs/specification/signatures.md#L845",
+   "source": "ucp:docs/specification/signatures.md#L845",
    "quote": "Platforms\ntherefore **MUST** generate a fresh idempotency key whenever they\nmodify the request payload \u2014 including retries with modified payment\ninstruments, updated shipping addresses, swapped line items, or any\nother change to the request body.",
    "versions": [
     "2026-08-25"
