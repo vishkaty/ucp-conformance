@@ -1,0 +1,60 @@
+[project]
+name = "ucp-merchant-server-golden-0825"
+version = "0.1.0"
+description = "OUR reference server for UCP v2026-08-25 (golden-0825), adapted from the upstream samples flower-shop server since no upstream 08-25 reference exists yet."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "UCP Team" }
+]
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.38.0",
+    "pydantic>=2.12.0",
+    "absl-py>=2.3.1",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "greenlet>=3.0.0",
+    "fastapi-code-generator>=0.5.4",
+    "click==8.1.7",
+    "ucp-sdk==0.5.0",
+    "shortuuid",
+    "httpx>=0.26.0",
+    "cryptography>=42",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "httpx>=0.26.0",
+    "ruff>=0.14.11",
+    "respx>=0.21.0",
+    "http-message-signatures==2.0.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.ruff]
+line-length = 80
+indent-width = 2
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "C4", "SIM", "N", "UP", "D", "PTH", "T20"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+case-sensitive = true

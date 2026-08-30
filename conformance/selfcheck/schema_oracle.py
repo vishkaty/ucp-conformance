@@ -24,6 +24,7 @@ BIN = VENDOR / "ucp-schema" / "target" / "release" / "ucp-schema"
 # validator resolves a capability schema URL https://ucp.dev/schemas/<x> to
 # <base>/schemas/<x>). Each dir therefore CONTAINS a schemas/ subdir.
 SCHEMA_BASE = {
+    "2026-08-25": VENDOR / "ucp-2026-08-25" / "source",
     "2026-04-08": VENDOR / "ucp" / "source",
     "2026-01-23": VENDOR / "ucp-schemas" / "2026-01-23",   # git-extracted source/ tree
     "2026-01-11": VENDOR / "ucp-schemas" / "2026-01-11",
@@ -63,8 +64,19 @@ def validate(payload_path, op, *, request=False, response=False,
     return (r.returncode == 0, (r.stdout + r.stderr).strip())
 
 def _ucp_schema_path(base):
-    """Locate ucp.json (the profile schema) under a schema base dir."""
-    for cand in (base / "schemas" / "ucp.json", base / "source" / "schemas" / "ucp.json"):
+    """Locate the schema that validates a served `{"ucp": {...}}` profile
+    document under a schema base dir. Through 2026-04-08/01-23/01-11, ucp.json
+    carried the `{ucp: ...}` wrapper itself (its business_schema/platform_schema
+    $defs require top-level `ucp`). The 2026-08-25 hierarchy reorg (#723) split
+    that wrapper out into a dedicated profile.json (whose business_schema/
+    platform_schema $defs require `ucp` and $ref ucp.json for the unwrapped
+    metadata) — ucp.json's own $defs no longer require the wrapper. So prefer
+    profile.json when present and fall back to ucp.json for older generations
+    that never had the split, rather than hard-coding the choice per version."""
+    for cand in (
+        base / "schemas" / "profile.json", base / "source" / "schemas" / "profile.json",
+        base / "schemas" / "ucp.json", base / "source" / "schemas" / "ucp.json",
+    ):
         if cand.exists():
             return cand
     return None
