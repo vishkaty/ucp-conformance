@@ -1,0 +1,622 @@
+{
+  "_area": "fulfillment",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "FUL-001",
+      "requirement": "Fulfillment is an extension (dev.ucp.shopping.fulfillment) that adds a fulfillment field to Checkout and/or Catalog (Catalog search/lookup added in 2026-08-25)",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L24",
+      "quote": "This extension adds a `fulfillment` field to Checkout and/or Catalog:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage 2026-04-08->2026-08-25: doc moved fulfillment.md -> shopping/extensions/fulfillment.md. REWORDED (scope expanded): old text was 'This extension adds a `fulfillment` field to Checkout containing:' (Checkout only). New text is 'This extension adds a `fulfillment` field to Checkout and/or Catalog:' and the doc now explicitly documents a second, distinct field role on `dev.ucp.shopping.catalog.search`/`dev.ucp.shopping.catalog.lookup` (see new 'Catalog Discovery' section, L506-680) alongside the original Checkout role. Flagged for review: the extension's reach materially widened.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "FUL-002",
+      "requirement": "fulfillment.methods[] holds fulfillment methods for cart items",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment.json#L8-L10",
+      "quote": "\"methods\": {\n      \"type\": \"array\",\n      \"description\": \"Fulfillment methods for cart items.\",",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: types/fulfillment.json stayed at the same relative path (source/schemas/shopping/types/fulfillment.json); methods field description text unchanged, line anchor shifted by ~1 line. NOTE: the file-level 'ucp_shared_request: true' annotation present in 2026-04-08 was dropped in 2026-08-25 (superseded by per-field ucp_request strings); does not affect this row's tested content.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-003",
+      "requirement": "A fulfillment_method MUST include id, type, and line_item_ids",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7-L11",
+      "quote": "\"required\": [\n    \"id\",\n    \"type\",\n    \"line_item_ids\"\n  ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: fulfillment_method.json required array unchanged (id, type, line_item_ids), reformatted from single-line to multi-line array; same relative path.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-005",
+      "requirement": "fulfillment_method.destinations[] lists addresses (shipping) or retail locations (pickup); selected_destination_id references the chosen one",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L40-L42",
+      "quote": "\"destinations\": {\n      \"type\": \"array\",\n      \"description\": \"Available destinations for this method. In Business responses, each destination carries a `type` and `id`.\",",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: REWORDED. Old description (fulfillment_method.json 2026-04-08): 'Available destinations. For shipping: addresses. For pickup: retail locations.' New description: 'Available destinations for this method. In Business responses, each destination carries a `type` and `id`.' The old two-case (shipping=addresses / pickup=retail locations) phrasing was replaced by a generic self-describing-response statement, because 2026-08-25 adds an entire new '## Destinations' section (fulfillment.md L220-384) generalizing destination typing to any method (well-known `shipping_address`/`business_location` plus negotiated-extension values), superseding the old shipping/pickup-only framing. Also: the old 'Retail Location' concept/schema was renamed 'Business Location Destination' / location_destination.json (see FUL-005 vs old '#### Retail Location' heading, now '#### Business Location Destination'). official_oracle carried forward as true per prior fulfillment_test.py coverage of destination injection/selection; not re-verified against 2026-08-25 conformance suite in this pass. Flagged for review.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "FUL-006",
+      "requirement": "fulfillment_method.groups[] are merchant-generated packages; agent sets selected_option_id on groups to choose shipping method",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L55-L57",
+      "quote": "\"groups\": {\n      \"type\": \"array\",\n      \"description\": \"Fulfillment groups for selecting options. Agent sets selected_option_id on groups to choose shipping method.\",",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: fulfillment_method.json groups field description unchanged verbatim; same relative path, line anchor shifted.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-007",
+      "requirement": "A fulfillment_group MUST include id and line_item_ids",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_group.json#L7",
+      "quote": "\"required\": [\"id\", \"line_item_ids\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: fulfillment_group.json required array unchanged verbatim; same relative path and line.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-008",
+      "requirement": "A fulfillment_option MUST include id, title, and totals",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/fulfillment_option_base.json#L7",
+      "quote": "\"required\": [\"id\", \"title\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: RENAMED/restructured. In 2026-04-08, fulfillment_option.json alone required [\"id\",\"title\",\"totals\"]. In 2026-08-25, fulfillment_option.json was decomposed: a NEW shared file fulfillment_option_base.json (title 'Fulfillment Option Base') now requires [\"id\",\"title\"] (quoted here, L7), and fulfillment_option.json composes it via 'allOf' with a second branch requiring [\"totals\"] (fulfillment_option.json L13: \"required\": [\"totals\"]). The effective combined requirement (id, title, totals all required on a checkout fulfillment_option) is IDENTICAL to 2026-04-08 — only the schema's file/composition structure changed (fulfillment_option_base.json is also reused directly by the new Catalog Discovery 'options[]' shape, per fulfillment.md L580-582). Cites the base file as the more novel change; see FUL-017 for the sibling 'totals' requirement's own prose-level rename.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "renamed"
+      }
+    },
+    {
+      "id": "FUL-009",
+      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L396",
+      "quote": "| `groups[].options[]`  | `title`       | Yes      | Primary label that distinguishes from siblings          |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: Rendering table row unchanged verbatim; doc moved fulfillment.md -> shopping/extensions/fulfillment.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-010",
+      "requirement": "options[].title MUST distinguish this option from its siblings",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L405",
+      "quote": "* **MUST** distinguish this option from its siblings",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-011",
+      "requirement": "options[].title SHOULD include method and speed",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L406",
+      "quote": "* **SHOULD** include method and speed (e.g., \"Express Shipping\", \"Curbside Pickup\")",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-012",
+      "requirement": "options[].title MUST be sufficient for buyer decision if description is absent",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L407",
+      "quote": "* **MUST** be sufficient for buyer decision if `description` is absent",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-013",
+      "requirement": "options[].description MUST NOT repeat title or total; provides supplementary context only",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L411",
+      "quote": "* **MUST NOT** repeat `title` or `total`—provides supplementary context only",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim (note: this bullet still says singular `total` in prose even though the Rendering table's field name changed to `totals` -- see FUL-017; this specific bullet's wording did not change so it is carried as-is).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-014",
+      "requirement": "options[].description SHOULD include timing, carrier, or other decision-relevant details",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L412",
+      "quote": "* **SHOULD** include timing, carrier, or other decision-relevant details",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-015",
+      "requirement": "options[].description SHOULD be a complete phrase",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L413",
+      "quote": "* **SHOULD** be a complete phrase (e.g., \"Arrives Dec 12-15 via FedEx\")",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-016",
+      "requirement": "options[].description MAY be omitted if title is self-explanatory",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L414",
+      "quote": "* **MAY** be omitted if title is self-explanatory",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-017",
+      "requirement": "options[].totals is the required cost breakdown (an array of `total` objects), replacing the old prose name `total` (a nullable scalar)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L398",
+      "quote": "| `groups[].options[]`  | `totals`      | Yes      | Cost breakdown: an array of `total` objects             |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: RENAMED (resolves the divergence the 2026-04-08 row itself flagged). Old Rendering-table row: '| `groups[].options[]`  | `total`       | Yes      | Price in minor units (may be null if not yet available) |' -- the prose named a singular, nullable scalar field `total` even though the schema's actual field was always the array `totals`. New row: '| `groups[].options[]`  | `totals`      | Yes      | Cost breakdown: an array of `total` objects             |' -- prose now uses the correct plural field name `totals` (an array of `total` objects) matching fulfillment_option.json's actual required 'totals' field, and drops the 'may be null if not yet available' nullability language entirely. This is a genuine identifier rename (total -> totals) plus a description rewrite; it converges prose and schema that previously diverged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "renamed"
+      }
+    },
+    {
+      "id": "FUL-018",
+      "requirement": "available_methods[].description MUST be a standalone sentence explaining what, when, and where",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L418",
+      "quote": "* **MUST** be a standalone sentence explaining what, when, and where",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-019",
+      "requirement": "available_methods[].description SHOULD be usable verbatim in platform dialogue",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L419-L420",
+      "quote": "* **SHOULD** be usable verbatim in platform dialogue (e.g., \"Pants available\n    for pickup at Downtown Store today at 2pm\")",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-020",
+      "requirement": "Businesses SHOULD return options[] in a meaningful (business) order",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L424-L425",
+      "quote": "* Businesses **SHOULD** return `options[]` in a meaningful order (e.g., cheapest\n    first, fastest first)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-021",
+      "requirement": "Platforms SHOULD preserve the business-provided option order by default, but MAY re-order options (e.g. to match buyer preferences or surface ranking); platforms MUST preserve the method/option grouping regardless of reordering",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L426-L428",
+      "quote": "* Platforms **SHOULD** preserve that order, but **MAY** re-order it\n    (e.g. to match known buyer preferences or surface-specific ranking);\n    they **MUST** preserve the method/option grouping",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: REWORDED (material change, weakens the old rule). Old text: 'Platforms **SHOULD** render options in the provided order.' New text explicitly permits reordering: 'Platforms **SHOULD** preserve that order, but **MAY** re-order it (e.g. to match known buyer preferences or surface-specific ranking); they **MUST** preserve the method/option grouping.' The old row was a plain SHOULD-preserve-order rule; the new text keeps a SHOULD-preserve-default but adds an explicit MAY-reorder carve-out plus a new MUST about preserving grouping. Flagged for review.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "FUL-022",
+      "requirement": "Platforms SHOULD treat fulfillment as a generic, renderable structure: render each option using title/description/total; present all methods returned; preserve the method/option structure without merging or de-duplicating (the platform, not the business's provided order, now chooses ordering); use available_methods[].description to surface alternatives",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L432,L436-L437",
+      "quote": "Platforms **SHOULD** treat fulfillment as a generic, renderable structure: ... Preserve the method and option structure—do not merge or de-duplicate;\n    the platform chooses ordering",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: REWORDED (one sub-bullet reversed). Old Platform Responsibilities bullets (fulfillment.md 2026-04-08 L203-207) included 'Present options in the order provided by the business' as a sub-requirement of the generic-renderable-structure SHOULD. In 2026-08-25 that bullet is REMOVED and replaced with 'Preserve the method and option structure—do not merge or de-duplicate; the platform chooses ordering' -- i.e. ordering authority flips from the business (provided order) to the platform (chooses ordering), consistent with the new FUL-021 MAY-reorder carve-out. The intro sentence and the 'present all methods returned' / 'use available_methods[].description' bullets are unchanged. Flagged for review.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "FUL-023",
+      "requirement": "Platforms MAY provide enhanced UX for recognized method types; baseline contract is title + description + total is sufficient to render any option",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L440-L444",
+      "quote": "Platforms **MAY** provide enhanced UX for recognized method types (store\nselectors\nfor pickup, carrier logos for shipping), but this is optional. The baseline\ncontract is: **`title` + `description` + `total` is sufficient to render any\noption.**",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-024",
+      "requirement": "When a buyer selects an option the platform cannot fully process, the platform SHOULD use continue_url to hand off to the business's checkout",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L446-L447",
+      "quote": "When a buyer selects an option the platform cannot fully process, the\nplatform **SHOULD** use `continue_url` to hand off to the business's checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-025",
+      "requirement": "If the buyer chooses pickup but the platform does not support split fulfillment, the platform SHOULD use continue_url to hand off to the business's checkout",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L502-L504",
+      "quote": "If the buyer chooses pickup but the platform doesn't support split\nfulfillment, the platform **SHOULD** use `continue_url` to hand off to the\nbusiness's checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-026",
+      "requirement": "When supports_multi_group is false (default), the business MUST consolidate all items into a single group per method",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L786",
+      "quote": "* Business **MUST** consolidate all items into a **single group per method**",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-027",
+      "requirement": "When supports_multi_group is false, the business MAY still return multiple methods (e.g., shipping + pickup) if cart items require it",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L788-L789",
+      "quote": "* Business **MAY** still return multiple methods (e.g., shipping + pickup) if\n    cart items require it",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-028",
+      "requirement": "When supports_multi_group is true, the business MAY return multiple groups per method based on inventory, packaging, or warehouse logic",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L793-L794",
+      "quote": "* Business **MAY** return multiple groups per method based on inventory,\n    packaging, or warehouse logic",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Lineage: unchanged verbatim.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "FUL-030",
+      "requirement": "A shipping_destination MUST include id and type (type is a required const discriminator \"shipping_address\"); it is a postal_address plus required id and type",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/types/shipping_destination.json#L26-L29",
+      "quote": "\"required\": [\n        \"id\",\n        \"type\"\n      ]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Lineage: REWORDED/expanded. Old shipping_destination.json (2026-04-08) required only [\"id\"] and had no `type` field at all. New shipping_destination.json (2026-08-25) requires [\"id\", \"type\"] and adds a `type` property (`\"const\": \"shipping_address\"`, description 'Destination type discriminator.'). This is the schema-level counterpart of the new '## Destinations' section's self-describing-response rule (fulfillment.md: 'in Business responses, every destination carries a required `type`'). The old row's parenthetical ('it is a postal_address plus a required id') is no longer complete: it is now a postal_address plus required id AND type. Flagged for review as a substantive addition, not just a rename.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    }
+  ]
+}

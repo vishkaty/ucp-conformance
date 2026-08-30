@@ -324,7 +324,7 @@ def main():
     if os.path.exists(sc_path):
         sc = json.load(open(sc_path))
         live_wire = ((sc.get("evidence") or {}).get("per_version") or {}) \
-            .get(matrix.VERSIONS[-1], {}).get("live-wire")
+            .get(matrix.CURRENT_SITE_VERSION, {}).get("live-wire")
     lw_re = re.compile(r"(\d+)\+? checks? kill-tested against independent servers?")
     lw_bad = False
     for page in copy_files:
@@ -335,7 +335,7 @@ def main():
                 lw_bad = True
                 failures.append(f"{os.path.relpath(page, ROOT)} claims '{m.group(0)}' but the "
                                 f"published evidence split says live-wire={live_wire} for "
-                                f"{matrix.VERSIONS[-1]} — update the copy")
+                                f"{matrix.CURRENT_SITE_VERSION} — update the copy")
     print(f"  copy freshness (evidence): advertised live-wire count vs published "
           f"({live_wire}) {'✓' if not lw_bad else '✗'}")
 

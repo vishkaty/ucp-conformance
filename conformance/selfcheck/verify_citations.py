@@ -45,6 +45,20 @@ REVIEWED_EQUIVALENT = {
                 "a delta) validates that invariant identically at each version, and is "
                 "reference-gated clean-pass + kill-safe on all three goldens. Verified "
                 "2026-07-03 (spec-truth sweep)."),
+    "CHK-025": ("2026-08-25 restructured Complete Checkout's response contract into three "
+                "branches (sync-completed-with-order / async-complete_in_progress-without-"
+                "order / any-other-status carries its own lifecycle semantics) instead of "
+                "04-08's single unconditional 'response has the checkout object with order "
+                "populated' sentence — hence the low textual similarity. checkout.complete_"
+                "order's predicate (p_completed: status==\"completed\" AND order truthy) "
+                "verifies EXACTLY the sync-completed branch, which both versions describe "
+                "identically (order present with id/permalink_url on synchronous "
+                "completion); the check simply does not exercise the NEW async "
+                "complete_in_progress branch 2026-08-25 introduces (no order expected "
+                "there), so it is not over-strict, just not yet extended to the new branch "
+                "— a genuine 2026-08-25 gap, not a citation-soundness defect. Candidate for "
+                "a new complete_in_progress oracle row in a future completeness pass (see "
+                "P1-REPORT.md 2026-08-25 register build). Verified 2026-08-30."),
 }
 
 

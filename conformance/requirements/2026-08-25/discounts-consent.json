@@ -1,0 +1,820 @@
+{
+  "_area": "discounts-consent",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "DSC-001",
+      "requirement": "Businesses MAY advertise discount support for cart only, checkout only, or both",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L60-L61",
+      "quote": "Businesses MAY advertise discount support for cart only, checkout only, or\nboth.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-001; doc reorganized to docs/specification/shopping/extensions/discount.md (was docs/specification/discount.md). discount is an extension (dev.ucp.shopping.discount) that extends cart and/or checkout; text unchanged in substance.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-002",
+      "requirement": "Platforms SHOULD check which resources are extended before submitting discount codes",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L61-L62",
+      "quote": "Platforms SHOULD check which resources are extended before submitting\ndiscount codes.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-002; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-003",
+      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L134",
+      "quote": "**Replacement semantics**: Submitting `discounts.codes` replaces any previously submitted codes",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-003; doc reorganized, text unchanged (now a bullet under '## Operations').",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-004",
+      "requirement": "Sending an empty array codes:[] removes all discount codes",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L135",
+      "quote": "**Clear codes**: Send empty array `\"codes\": []` to remove all discount codes",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-004; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-005",
+      "requirement": "Discount codes are matched case-insensitively by the business",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L136",
+      "quote": "**Case-insensitive**: Codes are matched case-insensitively by business",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-005; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-006",
+      "requirement": "discounts.applied contains all active discounts (code-based + automatic)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
+      "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-006; doc reorganized, text unchanged. official_oracle carried forward per business_logic_test.py test_discount_flow (that suite targets spec-2026-01-23, so it remains only a partial/approximate oracle, now further removed in time from 2026-08-25).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-007",
+      "requirement": "Rejected codes are communicated via the messages[] array",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L141",
+      "quote": "Rejected codes communicated via `messages[]` (see below)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-007; doc reorganized. Restated at new L152-153 ('businesses communicate this via the messages[] array').",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-008",
+      "requirement": "Discount amounts are reflected in totals[] and line_items[].totals[]",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L142",
+      "quote": "Discount amounts reflected in `totals[]` and `line_items[].totals[]`",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-008; doc reorganized, text unchanged. Oracle carried forward (business_logic_test.py, see DSC-006 caveat).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-009",
+      "requirement": "When a cart is converted to a checkout via cart_id, businesses MUST carry forward any discount codes that were applied to the cart",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L144-L146",
+      "quote": "When a cart is converted to a checkout via the\ncart capability's `cart_id` field, businesses MUST carry forward any discount\ncodes that were applied to the cart.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-009; doc reorganized, text unchanged (now under a '**Cart-to-checkout continuity:**' label).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-010",
+      "requirement": "Codes no longer valid at checkout time SHOULD be communicated via messages[] using standard rejection codes",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L146-L148",
+      "quote": "Codes that are no longer valid at checkout\ntime (e.g., expired, ineligible) SHOULD be communicated via `messages[]` using\nstandard rejection codes.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-010; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-011",
+      "requirement": "Operations affecting order totals SHOULD use type:warning so rejected discounts are surfaced to the user",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L167-L169",
+      "quote": "Operations that affect order totals, or the\n> user's expectation of the total, **SHOULD** use `type: \"warning\"` to ensure\n> they are surfaced to the user rather than silently handled by platforms.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-011; doc reorganized, text unchanged (block now labeled '**Implementation guidance:**'). Rejected discounts still cited as the prime example immediately after (new L170-171).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-012",
+      "requirement": "Automatic discounts appear in discounts.applied with automatic:true and no code field",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L189",
+      "quote": "Appear in `discounts.applied` with `automatic: true` and no `code` field",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-012; doc reorganized, text unchanged. automatic boolean default false (discount.json new L46-50); code optional (discount.json new L34).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-013",
+      "requirement": "Automatic discounts cannot be removed by the platform",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L191",
+      "quote": "Cannot be removed by the platform",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-013; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-014",
+      "requirement": "When the discount extension is active, businesses that accept eligibility claims MUST surface their effect on pricing as provisional discounts in the applied array",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L198-L200",
+      "quote": "Businesses that\nchoose to accept eligibility claims **MUST** surface their effect on pricing\nas provisional discounts in the `applied` array.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-014; content moved to a new '## Eligibility Claims' section (was inline); text unchanged. Now cross-refs [Context](../checkout/index.md#context) instead of the old inline description.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-015",
+      "requirement": "Platforms MUST display provisional discounts to the buyer",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L200-L201",
+      "quote": "Platforms **MUST** display\nprovisional discounts to the buyer.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-015; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-016",
+      "requirement": "When a business recognizes an eligibility claim that affects pricing, it MUST surface a corresponding provisional discount in discounts.applied",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L206-L208",
+      "quote": "When a Business recognizes a\nclaim and it affects pricing, it **MUST** surface a corresponding provisional\ndiscount in the `discounts.applied` array.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-016; now under '### Discount Behavior' subsection, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-017",
+      "requirement": "At checkout completion, all remaining provisional claims MUST be resolved",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L227-L228",
+      "quote": "At checkout completion, all remaining provisional\nclaims **MUST** be resolved",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-017; doc reorganized, text unchanged. Cross-ref now points to shopping/checkout/index.md#eligibility-verification-at-completion.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-018",
+      "requirement": "If a discount has allocations pointing to line items it contributes to items_discount; otherwise (no allocations, or shipping/fees allocations) it contributes to discount",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L304-L306",
+      "quote": "If a discount has `allocations` pointing to line\nitems, it contributes to `items_discount`. Discounts without allocations, or\nwith allocations to shipping/fees, contribute to `discount`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-018; doc reorganized, text unchanged (now under a '**Determining the type:**' label).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-019",
+      "requirement": "Invariant: totals[type=items_discount].amount equals sum of line_items[].totals[type=items_discount].amount",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L313-L314",
+      "quote": "**Invariant:** `totals[type=items_discount].amount` equals\n`sum(line_items[].totals[type=items_discount].amount)`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-019; doc reorganized, text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-020",
+      "requirement": "Discount amounts in discounts.applied are positive integers (value of the discount)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L319-L320",
+      "quote": "Discount amounts in `discounts.applied` are positive\nintegers (the value of the discount).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-020; doc reorganized, text unchanged (now under a '**Amount convention:**' label).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-021",
+      "requirement": "Discount entries in totals[] are negative (strictly < 0); the sign is schema-enforced",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L320-L321",
+      "quote": "Discount entries in `totals[]` are\nnegative (the effect on the receipt) — the sign is schema-enforced.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-021; doc reorganized, text unchanged. Strictly-negative enforcement now lives in source/schemas/common/types/total.json (moved from source/schemas/shopping/types/total.json); not independently re-verified as part of this area (out of scope), cited per area scope as before.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-022",
+      "requirement": "Invariant: sum of allocations[].amount equals applied_discount.amount",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L125",
+      "quote": "**Invariant:** Sum of `allocations[].amount` equals `applied_discount.amount`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-022; doc reorganized, text unchanged. Schema description restates 'Sum of allocation amounts equals total amount' (discount.json new L78).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-023",
+      "requirement": "applied_discount MUST include title and amount",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/discount.json#L29-L32",
+      "quote": "\"required\": [\n        \"title\",\n        \"amount\"\n      ]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-023; schema file re-pinned to the 08-25 tag (path unchanged: source/schemas/shopping/discount.json), required array unchanged, same line number.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-024",
+      "requirement": "applied_discount.method MUST be one of 'each' or 'across' when present",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/discount.json#L51-L56",
+      "quote": "\"method\": {\n          \"type\": \"string\",\n          \"enum\": [\n            \"each\",\n            \"across\"\n          ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-024; schema unchanged, same line number in the 08-25 pin.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-025",
+      "requirement": "applied_discount.priority MUST be an integer >= 1 (lower applied first)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/discount.json#L59-L61",
+      "quote": "\"priority\": {\n          \"type\": \"integer\",\n          \"minimum\": 1,",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-025; schema unchanged, same line number in the 08-25 pin. Stacking order described at discount.md new L98-100.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-026",
+      "requirement": "allocation MUST include path and amount",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/discount.json#L11-L14",
+      "quote": "\"required\": [\n        \"path\",\n        \"amount\"\n      ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-026; schema unchanged, same line number in the 08-25 pin.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-027",
+      "requirement": "discounts.applied is response-only and MUST be omitted from requests",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/shopping/discount.json#L99",
+      "quote": "\"ucp_request\": \"omit\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-027; schema unchanged, same line number in the 08-25 pin. codes remains the request input (discount.json new L86-92).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-028",
+      "requirement": "On checkout complete, the discounts object MUST be omitted from the request",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/shopping/discount.json#L139",
+      "quote": "\"complete\": \"omit\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried from 2026-04-08 DSC-028; schema unchanged, same line number in the 08-25 pin. Contrast with buyer_consent.json where the equivalent 'complete' directive changed from omit to optional (see DSC-034) — the discount extension's own completion-omit rule is unaffected.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-029",
+      "requirement": "Multiple valid discount codes are both applied (accept-both)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
+      "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-029; doc reorganized, same underlying clause as DSC-006. Oracle carried forward (business_logic_test.py test_multiple_discounts_accepted; see DSC-006 caveat on suite vintage).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-030",
+      "requirement": "When multiple codes are submitted and one is invalid, only the valid discount is applied (accept-one-reject-one); rejected appears in messages[] not applied",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/discount.md#L512-L513",
+      "quote": "The code still appears in `discounts.codes` (echoed back)\nbut not in `discounts.applied`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried from 2026-04-08 DSC-030; doc reorganized (moved from old L490 to new L512-513 as the file grew), text unchanged. Oracle carried forward (business_logic_test.py test_multiple_discounts_one_rejected; see DSC-006 caveat).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DSC-031",
+      "requirement": "The buyer object (and its consent field) is optional on all cart and checkout operations — cart create/update and checkout create/update/complete; platforms MAY submit captured consent on complete_checkout alongside payment",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L90-L93",
+      "quote": "The `buyer` object (and therefore `consent`) is optional on all cart and\ncheckout operations — cart `create` / `update`, and checkout `create` / `update`\n/ `complete`. Platforms MAY submit captured consent on `complete_checkout`\nalongside payment.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 DSC-031, buyer-consent.md#L30): \"This extension can be included in `create_checkout` and `update_checkout` operations.\" NEW scope is materially broader: now explicitly includes cart create/update AND checkout complete (platforms MAY submit consent on complete_checkout), whereas the old text only named checkout create/update. This also foreshadows DSC-034's reversal (complete is no longer 'omit').",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-032",
+      "requirement": "When the buyer_consent capability is active, the buyer object within cart and/or checkout carries a consent field (a map of per-purpose consent decisions, not a flat set of booleans)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L84-L85",
+      "quote": "When this capability is active, the **buyer object** within cart and/or checkout\ncarries a `consent` field:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 DSC-032, buyer-consent.md#L27): \"When this extension is supported, the `buyer` object in checkout is extended with a `consent` field containing boolean consent states.\" NEW text drops 'containing boolean consent states' entirely (the field is now a nested Purpose/Segment map — see DSC-033) and extends to cart as well as checkout, not checkout alone.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-033",
+      "requirement": "Each consent purpose/segment carries a boolean granted state, keyed under a reverse-DNS purpose identifier (replacing the old flat analytics/preferences/marketing/sale_of_data boolean properties)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/buyer_consent.json#L13-L14",
+      "quote": "\"granted\": {\n          \"type\": \"boolean\",",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED (with RENAMES) — flag for review. OLD (2026-04-08 DSC-033, buyer_consent.json#L12): top-level boolean properties `analytics`, `preferences`, `marketing`, `sale_of_data` directly on the consent object (\"analytics\": {\"type\": \"boolean\", ...}). NEW: those four flat properties are GONE; the consent object is now keyed by reverse-DNS purpose identifiers (`dev.ucp.consent.analytics`, `dev.ucp.consent.preferences`, `dev.ucp.consent.marketing`, `dev.ucp.consent.sale_or_sharing`) whose VALUE is a consent_purpose object carrying required `granted` (boolean, quoted here), `source`, and `description`. Note the rename `sale_of_data` -> `sale_or_sharing` is a genuine identifier change, not just reverse-DNS namespacing. official_oracle carried forward as true per instructions, but flagged: the old business_logic_test.py assertion (checkout.buyer.consent.marketing/analytics as direct booleans) checks a shape that no longer exists in 2026-08-25 and needs re-verification against the new nested structure before being trusted as a live oracle for this version.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-034",
+      "requirement": "On checkout complete, platforms MAY submit the buyer object (carrying consent) alongside payment — no longer omitted as in 2026-04-08",
+      "keyword": "MAY",
+      "source": "ucp:source/schemas/shopping/buyer_consent.json#L126",
+      "quote": "\"complete\": \"optional\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED — normative reversal, flag for review. OLD (2026-04-08 DSC-034, buyer_consent.json#L64): checkout's buyer/consent ucp_request had `\"complete\": \"omit\"` (buyer object carrying consent was MUST NOT be present on complete_checkout). NEW (buyer_consent.json new L112-131, dev.ucp.shopping.checkout $def): `\"complete\": \"optional\"` — platforms are now explicitly permitted (MAY, not MUST NOT) to submit buyer/consent on complete_checkout (see buyer-consent.md new L92-93: \"Platforms MAY submit captured consent on `complete_checkout` alongside payment\"). This is a genuine behavioral reversal, not a wording tweak — a conformance check written against the old MUST-NOT-omit rule would now incorrectly fail a compliant 08-25 implementation.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-035",
+      "requirement": "The buyer-consent extension defines only the mechanism for establishing and communicating consent state; it does not dictate either party's behavior in response to that state",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L43-L49",
+      "quote": "This extension defines the mechanism by which businesses and platforms establish\nand communicate buyer consent state. It does not dictate either party's behavior\nin response to that state — how a business acts on it (e.g., sending emails,\nsharing data) and how a platform surfaces existing decisions to the buyer (e.g.,\ndisplaying current subscription state with an unsubscribe affordance) are\ngoverned by business policy and applicable regulation, not by this\nspecification.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 DSC-035, buyer-consent.md#L130): \"**Consent is declarative** - The protocol communicates consent, it does not enforce it.\" NEW text drops the term 'declarative' and moves the idea into a '## Scope' section with materially different, more elaborate prose (explicitly scoping out both business response behavior AND platform surfacing behavior as governed by policy/regulation, not the spec). Same underlying non-enforcement intent, different sentence structure and scope statement.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-036",
+      "requirement": "Platforms MUST set a consent purpose/segment's source to \"platform\" only when the granted value reflects the buyer's actual stated preference; for choices with no buyer preference, platforms MUST echo the advertised source unchanged",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L387-L392",
+      "quote": "**Source attribution requires a buyer-stated preference.** Platforms MUST\n   set `source: \"platform\"` only when the `granted` value reflects the buyer's\n   stated preference. For choices to which no buyer preference applies,\n   platforms MUST echo the advertised `source` unchanged. The protocol does\n   not prescribe what counts as a buyer-stated preference; that determination\n   is made by the platform under applicable policy.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 DSC-036, buyer-consent.md#L132): \"**Platforms should not** assume consent without explicit user action\" (SHOULD NOT, pure prose guidance, no structural mechanism). NEW: formalized as a MUST-level rule tied to the new structural `source` field ('business' vs 'platform') introduced by the Purpose/Segment redesign — a genuinely new enforcement mechanism, not just a keyword bump. Keyword changed SHOULD NOT -> MUST for this clause.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DSC-037",
+      "requirement": "Omitting the consent field on a request provides no consent update; the business retains its prior (default) position",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L372-L377",
+      "quote": "**Confirm semantics.** The `consent` field is optional on requests;\n   omitting it provides no consent update and the business retains its prior\n   position. When submitting `consent`, platforms MUST include every advertised\n   purpose and segment key, carrying both `granted` and `source` for each.\n   Omitting an advertised key within a submitted `consent` map MUST NOT be\n   used to signal any value.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED — flag for review. OLD (2026-04-08 DSC-037, buyer-consent.md#L133): \"**Default behavior** when consent is not provided is business-specific.\" NEW text folds the same 'absence keeps the business default' idea into a longer 'Confirm semantics' normative requirement that additionally mandates including every advertised key once `consent` IS submitted, and forbids using key omission within a submitted map to signal a value — new normative content beyond the old one-liner.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    }
+  ]
+}

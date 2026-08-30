@@ -157,7 +157,7 @@ CHECKS = [
           ["status:200", "status:201", 'set:messages.0.code="some_other_error"'],
           # NEG-016@01-era == NEG-001@2026-04-08 (renumbered; 422 mapping there) —
           # see chk_version_unsupported_error's citation trail + AMB-001.
-          req_ids_map={"2026-04-08": ["NEG-001"]}),
+          req_ids_map={"2026-04-08": ["NEG-001"], "2026-08-25": ["NEG-001"]}),
 ]
 
 
