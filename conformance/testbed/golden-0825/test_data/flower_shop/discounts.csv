@@ -1,0 +1,4 @@
+code,type,value,description
+10OFF,percentage,10,10% Off
+WELCOME20,percentage,20,20% Off
+FIXED500,fixed_amount,500,$5.00 Off

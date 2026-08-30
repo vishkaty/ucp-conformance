@@ -1,0 +1,397 @@
+#   Copyright 2026 UCP Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+"""Implementation of UCP routes.
+
+Injects business logic into generated routes.
+"""
+
+import logging
+import re
+from typing import Annotated, Any
+
+import dependencies
+from fastapi import APIRouter
+from fastapi import Body
+from fastapi import Depends
+from fastapi import Path
+from fastapi.routing import APIRoute
+import httpx
+import models
+from models import (
+  UnifiedCartCreateRequest,
+  UnifiedCartUpdateRequest,
+  UnifiedCheckoutCreateRequest,
+)
+from pydantic import BaseModel
+from pydantic import HttpUrl
+from services.cart_service import CartService
+from services.checkout_service import CheckoutService
+from ucp_sdk.models.schemas.shopping.checkout_complete_request import (
+  CheckoutCompleteRequest,
+)
+from ucp_sdk.models.schemas.shopping.order import Order
+from ucp_sdk.models.schemas.shopping.order import PlatformSchema
+from ucp_sdk.models.schemas.common.types.payment_create_request import (
+  PaymentCreateRequest,
+)
+
+logger = logging.getLogger(__name__)
+
+# Implementation wrappers
+
+
+class UcpConfig(BaseModel):
+  """Configuration for UCP."""
+
+  webhook_url: HttpUrl | None = None
+
+
+class Capability(BaseModel):
+  """UCP capability definition."""
+
+  platform: PlatformSchema | None = None
+  config: UcpConfig | None = None
+
+
+class UcpProfile(BaseModel):
+  """UCP discovery profile."""
+
+  capabilities: dict[str, Any] | list[Any] | Any = None
+
+
+class AgentProfile(BaseModel):
+  """Agent profile schema."""
+
+  ucp: UcpProfile | None = None
+
+
+async def extract_webhook_url(ucp_agent: str) -> str | None:
+  """Extract webhook URL from UCP-Agent header."""
+  match = re.search(r'profile="([^"]+)"', ucp_agent)
+  if not match:
+    return None
+
+  profile_uri = match.group(1)
+
+  try:
+    async with httpx.AsyncClient() as client:
+      response = await client.get(profile_uri)
+      if response.status_code != 200:
+        logger.error(
+          "Failed to fetch profile from %s: Status %d",
+          profile_uri,
+          response.status_code,
+        )
+        return None
+
+      try:
+        profile_dict = response.json()
+      except Exception as e:
+        logger.error("Failed to parse JSON from %s: %s", profile_uri, e)
+        return None
+
+      if "ucp" in profile_dict:
+        capabilities = profile_dict["ucp"].get("capabilities", {})
+        if isinstance(capabilities, dict):
+          cap_list = [
+            c_obj for c_list in capabilities.values() for c_obj in c_list
+          ]
+        elif isinstance(capabilities, list):
+          cap_list = capabilities
+        else:
+          cap_list = []
+
+        for cap in cap_list:
+          if isinstance(cap, dict):
+            config = cap.get("config", {})
+            if isinstance(config, dict) and config.get("webhook_url"):
+              return str(config["webhook_url"])
+          else:
+            if (
+              hasattr(cap, "config")
+              and cap.config
+              and hasattr(cap.config, "webhook_url")
+              and cap.config.webhook_url
+            ):
+              return str(cap.config.webhook_url)
+
+      logger.warning("No webhook_url found in profile from %s", profile_uri)
+  except httpx.RequestError as e:
+    logger.error("Network error fetching profile from %s: %s", profile_uri, e)
+  except ValueError as e:
+    logger.error("Failed to decode JSON profile from %s: %s", profile_uri, e)
+  except Exception as e:  # pylint: disable=broad-exception-caught
+    logger.error(
+      "Unexpected error extracting webhook from %s: %s", profile_uri, e
+    )
+  return None
+
+
+async def create_checkout(
+  checkout_req: Annotated[UnifiedCheckoutCreateRequest, Body(...)],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+) -> models.UnifiedCheckout:
+  """Create Checkout Implementation."""
+  # Convert generated model to Unified model which the service expects
+  # Note: `platform` is no longer in UnifiedCheckoutCreateRequest
+  # We construct PlatformSchema separately if headers are present
+  req_dict = checkout_req.model_dump(exclude_unset=True, by_alias=True)
+  unified_req = models.UnifiedCheckoutCreateRequest(**req_dict)
+
+  platform_config = None
+  webhook_url = await extract_webhook_url(common_headers.ucp_agent)
+  if webhook_url:
+    platform_config = PlatformSchema(webhook_url=webhook_url)
+
+  return await checkout_service.create_checkout(
+    unified_req, idempotency_key, platform_config
+  )
+
+
+async def get_checkout(
+  checkout_id: Annotated[str, Path(..., alias="id")],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+) -> models.UnifiedCheckout:
+  """Get Checkout Implementation."""
+  del common_headers  # Unused
+  return await checkout_service.get_checkout(checkout_id)
+
+
+async def update_checkout(
+  checkout_id: Annotated[str, Path(..., alias="id")],
+  checkout_req: Annotated[models.UnifiedCheckoutUpdateRequest, Body(...)],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+) -> models.UnifiedCheckout:
+  """Update Checkout Implementation."""
+  req_dict = checkout_req.model_dump(exclude_unset=True, by_alias=True)
+  unified_req = models.UnifiedCheckoutUpdateRequest(**req_dict)
+
+  platform_config = None
+  webhook_url = await extract_webhook_url(common_headers.ucp_agent)
+  if webhook_url:
+    platform_config = PlatformSchema(webhook_url=webhook_url)
+
+  return await checkout_service.update_checkout(
+    checkout_id, unified_req, idempotency_key, platform_config
+  )
+
+
+async def complete_checkout(
+  checkout_id: Annotated[str, Path(..., alias="id")],
+  payment: Annotated[dict[str, Any], Body(...)],
+  risk_signals: Annotated[dict[str, Any], Body(...)],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+  checkout_complete: Annotated[CheckoutCompleteRequest | None, Body()] = None,
+) -> models.UnifiedCheckout:
+  """Complete Checkout Implementation."""
+  del common_headers  # Unused
+
+  # Parse payment into PaymentCreateRequest
+  payment_req = PaymentCreateRequest(**payment)
+
+  return await checkout_service.complete_checkout(
+    checkout_id,
+    payment_req,
+    risk_signals,
+    idempotency_key,
+    checkout_complete=checkout_complete,
+  )
+
+
+async def cancel_checkout(
+  checkout_id: Annotated[str, Path(..., alias="id")],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+) -> models.UnifiedCheckout:
+  """Cancel Checkout Implementation."""
+  return await checkout_service.cancel_checkout(checkout_id, idempotency_key)
+
+
+async def create_cart(
+  cart_req: Annotated[
+    UnifiedCartCreateRequest,
+    Body(...),
+  ],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  cart_service: Annotated[CartService, Depends(dependencies.get_cart_service)],
+) -> models.UnifiedCart:
+  """Create Cart Implementation."""
+  del common_headers  # Unused
+  return await cart_service.create_cart(cart_req, idempotency_key)
+
+
+async def get_cart(
+  cart_id: Annotated[str, Path(..., alias="id")],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  cart_service: Annotated[CartService, Depends(dependencies.get_cart_service)],
+) -> models.UnifiedCart:
+  """Get Cart Implementation."""
+  del common_headers  # Unused
+  return await cart_service.get_cart(cart_id)
+
+
+async def update_cart(
+  cart_id: Annotated[str, Path(..., alias="id")],
+  cart_req: Annotated[
+    UnifiedCartUpdateRequest,
+    Body(...),
+  ],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  cart_service: Annotated[CartService, Depends(dependencies.get_cart_service)],
+) -> models.UnifiedCart:
+  """Update Cart Implementation."""
+  del common_headers  # Unused
+  return await cart_service.update_cart(cart_id, cart_req, idempotency_key)
+
+
+async def cancel_cart(
+  cart_id: Annotated[str, Path(..., alias="id")],
+  common_headers: Annotated[
+    dependencies.CommonHeaders, Depends(dependencies.common_headers)
+  ],
+  idempotency_key: Annotated[str, Depends(dependencies.idempotency_header)],
+  cart_service: Annotated[CartService, Depends(dependencies.get_cart_service)],
+) -> models.UnifiedCart:
+  """Cancel Cart Implementation."""
+  del common_headers  # Unused
+  return await cart_service.cancel_cart(cart_id, idempotency_key)
+
+
+async def order_event_webhook(
+  partner_id: str,
+  payload: Annotated[Order, Body(...)],
+  # CommonHeaders checks ucp-agent, which might not be present in webhook?
+  # Webhook server used specific headers.
+  # We verify signature using dependency.
+  signature: Annotated[None, Depends(dependencies.verify_signature)],
+  checkout_service: Annotated[
+    CheckoutService, Depends(dependencies.get_checkout_service)
+  ],
+) -> dict[str, Any]:
+  """Order Event Webhook Implementation."""
+  del partner_id, signature  # Unused
+  payload_dict = payload.model_dump(mode="json", by_alias=True)
+  await checkout_service.update_order(payload.id, payload_dict)
+  return {"status": "ok"}
+
+
+# Map operation_id to implementation
+IMPLEMENTATIONS = {
+  "create_checkout": create_checkout,
+  "get_checkout": get_checkout,
+  "update_checkout": update_checkout,
+  "complete_checkout": complete_checkout,
+  "cancel_checkout": cancel_checkout,
+  "order_event_webhook": order_event_webhook,
+  "create_cart": create_cart,
+  "get_cart": get_cart,
+  "update_cart": update_cart,
+  "cancel_cart": cancel_cart,
+}
+
+
+def apply_implementation(router: APIRouter) -> None:
+  """Replace router endpoints with implementations.
+
+  Args:
+      router: The APIRouter to modify.
+
+  """
+  new_routes = []
+  for route in router.routes:
+    if isinstance(route, APIRoute) and route.operation_id in IMPLEMENTATIONS:
+      impl = IMPLEMENTATIONS[route.operation_id]
+      # Prefer the return type annotation of the implementation if provided
+      # and not generic dict[str, Any], so extended response models (like
+      # UnifiedCart, UnifiedCheckout) are preserved for serialization and
+      # OpenAPI schema.
+      return_type = (
+        impl.__annotations__.get("return")
+        if hasattr(impl, "__annotations__")
+        else None
+      )
+      response_model = (
+        return_type
+        if return_type and return_type is not dict[str, Any]
+        else route.response_model
+      )
+
+      new_route = APIRoute(
+        path=route.path,
+        endpoint=impl,
+        methods=route.methods,
+        response_model=response_model,
+        response_model_exclude_none=route.response_model_exclude_none,
+        status_code=route.status_code,
+        tags=route.tags,
+        summary=route.summary,
+        description=route.description,
+        operation_id=route.operation_id,
+        # We do NOT copy route.dependencies because we want the dependencies
+        # from the NEW endpoint (impl). If the original route had
+        # dependencies (e.g. router level), they are usually added when
+        # including router. Here we are modifying the router's own routes.
+        # APIRoute(endpoint=impl) will parse impl's signature. If we passed
+        # `dependencies=route.dependencies`, it would be valid (list of
+        # dependencies). Generated ucp_routes.py doesn't seem to have
+        # route-level dependencies.
+        dependencies=route.dependencies,
+        response_class=route.response_class,
+        name=route.name,
+        callbacks=route.callbacks,
+        openapi_extra=route.openapi_extra,
+        generate_unique_id_function=route.generate_unique_id_function,
+      )
+      new_routes.append(new_route)
+    else:
+      new_routes.append(route)
+
+  router.routes = new_routes
