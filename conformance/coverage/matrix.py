@@ -35,7 +35,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 CONF = os.path.join(ROOT, "conformance")
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
-VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
+# 2026-08-25 added (register-only lane, see conformance/requirements/2026-08-25/):
+# the reorganized-docs carry-forward register exists and is citation-checked, but is
+# deliberately NOT locked into coverage_lock.json / review_signoffs.json yet (no
+# independent-review pass has been done on the checks that now auto-extend their
+# coverage claim to it) and does not back any site copy. See CURRENT_SITE_VERSION.
+VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08", "2026-08-25"]
+# The version whose accounted-coverage figures the public site currently advertises
+# (evidence-class copy freshness in coverage_gate.py). Deliberately a NAMED constant,
+# not VERSIONS[-1]: a newly added spec version starts register-only (no site copy, no
+# ratchet floor, no coverage-lock/review-signoff entries) and must not silently become
+# "current" for site claims just by being appended to VERSIONS. Bump this only when the
+# site is deliberately migrated to a new version's published figures.
+CURRENT_SITE_VERSION = "2026-04-08"
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
 # capture the req-id list: Check("name", [ ... ]) / MCheck("name", [ ... ]) /
 # fixture_check("name", [ ... ]) — schema_check.py's factory builds an engine.Check

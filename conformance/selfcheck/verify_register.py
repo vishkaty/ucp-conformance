@@ -36,6 +36,7 @@ VERSION_TREE = {
     "2026-04-08": "ucp",
     "2026-01-23": "ucp-2026-01-23",
     "2026-01-11": "ucp-2026-01-11",
+    "2026-08-25": "ucp-2026-08-25",
 }
 
 def load_file(repo: str, path: str, ucp_dir: str = "ucp"):
