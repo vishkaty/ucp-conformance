@@ -547,8 +547,54 @@ def consistency():
     return 0 if not fails else 1
 
 # ═══ freshness ═══════════════════════════════════════════════════════════════
+def _coverage_versions():
+    return json.load(open(PUB / "coverage.json"))["versions"]
+
+
+def _state_failures(cov_export):
+    """PLAN-0825 §E — the state field can never disagree with the artifacts it
+    describes. Data-driven, stdlib-only, same style as _real_manifest() (reads only
+    the committed export; no cross-module import of matrix.py):
+
+      state="live"          requires CHECK>0 or EXEMPT>0
+      state="building"      requires CHECK==0 AND EXEMPT==0 (a real register, though
+                             — musts>0 — since matrix.py never emits "building" for
+                             a version with no register rows at all)
+      state="unregistered"  requires zero MUSTs (no register rows at all)
+      any version that BACKS SITE COPY (CHECK>0 or EXEMPT>0 — the exact filter
+      _real_manifest() already uses to decide what counts as a supported version)
+      must be state="live" — the site can never claim a version as supported while
+      its own coverage export calls it anything else.
+
+    Returns the list of failure strings (empty = the state field is honest)."""
+    fails = []
+    for ver, d in sorted(cov_export.items()):
+        state = d.get("state")
+        check, exempt = d.get("check", 0), d.get("exempt", 0)
+        musts = d.get("musts", 0)
+        backs_site = bool(check or exempt)
+        if state not in ("unregistered", "building", "live"):
+            fails.append(f"{ver}: state {state!r} is not one of "
+                         f"unregistered/building/live")
+            continue
+        if state == "live" and not backs_site:
+            fails.append(f"{ver}: state=live but CHECK={check} and EXEMPT={exempt} "
+                         f"(zero of both — this version does not back site copy)")
+        elif state == "building" and backs_site:
+            fails.append(f"{ver}: state=building but has CHECK={check}/EXEMPT={exempt} "
+                         f"— a version with real coverage must be state=live")
+        elif state == "unregistered" and musts:
+            fails.append(f"{ver}: state=unregistered but the register has "
+                         f"{musts} MUST row(s) — a version with a register tree "
+                         f"must be building or live, never unregistered")
+        elif backs_site and state != "live":
+            fails.append(f"{ver}: backs site copy (CHECK={check}/EXEMPT={exempt}>0) "
+                         f"but state={state!r}, not live")
+    return fails
+
+
 def _real_manifest():
-    cov_export = json.load(open(PUB / "coverage.json"))["versions"]
+    cov_export = _coverage_versions()
     # A version with zero CHECK and zero EXEMPT is register-only (see matrix.py's
     # REGISTER_ONLY_VERSIONS / CURRENT_SITE_VERSION doctrine): its census hasn't
     # closed, so — like 2026-04-08 before its own check/exempt work landed — it
@@ -557,6 +603,8 @@ def _real_manifest():
     # the committed export (site_gates.py stays stdlib-only, no cross-module
     # import of matrix.py) — self-corrects the moment the version gets real
     # CHECK/EXEMPT rows, with no code change needed here when that happens.
+    # (This is exactly the `backs_site` test _state_failures() uses too — the two
+    # can never independently disagree about what counts as supported.)
     cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
     agc = json.load(open(PUB / "agent-coverage.json"))
     # agent registry counts via subprocess import — same source of truth as the
@@ -583,11 +631,18 @@ def _real_manifest():
     }
 
 def freshness():
+    state_fails = _state_failures(_coverage_versions())
+    for sf in state_fails:
+        print(f"  x state: {sf}")
     real = _real_manifest()
     f = PUB / "site_claims.json"
     data = json.load(open(f)) if f.exists() else {}
     manifest = data.get("manifest")
     reviewed = data.get("reviewed") or (manifest or {}).get("reviewed", "")
+    if state_fails:
+        print(f"site-freshness: FAIL — {len(state_fails)} version state "
+              f"disagree(s) with its own coverage.json artifacts (see above)")
+        return 1
     if not manifest:
         print(f"site-freshness: FAIL — claims register missing manifest "
               f"(public/site_claims.json needs a top-level {{\"manifest\": …, "
@@ -609,6 +664,79 @@ def freshness():
     print(f"site-freshness: PASS — site claims reviewed {reviewed}, manifest matches "
           f"the product ({json.dumps(real)})")
     return 0
+
+
+# ═══ selftest (PLAN-0825 §E state-consistency kill-tests) ═══════════════════════
+def selftest():
+    """Injection kill-tests for _state_failures() / freshness(): plant an
+    internally-inconsistent `state` field into a SCRATCH copy of public/ (never the
+    committed tree — this repo is untouched before, during, and after) and assert
+    the gate reddens; a correctly-labeled copy must stay green. A validator that
+    can't be made to fail validates nothing (same doctrine as coverage_gate.py's
+    own --selftest).
+
+    Re-invokes site_gates.py as a SUBPROCESS with SPCK_PUBLIC pointed at the scratch
+    dir, rather than calling freshness() in-process, because PUB is resolved once at
+    import time from the environment — a fresh process is the only way to pick up a
+    different SPCK_PUBLIC, and it is also the exact same code path a real CI run
+    takes."""
+    import copy, shutil, tempfile
+    real_cov = json.load(open(ROOT / "public" / "coverage.json"))
+    versions = real_cov["versions"]
+    zero_ver = next((v for v, d in versions.items()
+                     if not d.get("check") and not d.get("exempt")), None)
+    # prefer 2026-04-08 for the "building planted on a real version" case (PLAN-0825
+    # §E names it explicitly — the mature, fully-accounted version); fall back to
+    # whatever live version exists if the register ever moves on.
+    live_ver = "2026-04-08" if (versions.get("2026-04-08", {}).get("check")
+                                or versions.get("2026-04-08", {}).get("exempt")) \
+        else next((v for v, d in versions.items()
+                  if d.get("check") or d.get("exempt")), None)
+    if zero_ver is None or live_ver is None:
+        print("site_gates selftest: SKIP — need at least one zero-check/exempt "
+              "version and one live version in public/coverage.json to exercise "
+              "the state-consistency kill-tests")
+        return 0
+
+    bad = 0
+
+    def run_variant(name, mutate, want_red):
+        nonlocal bad
+        with tempfile.TemporaryDirectory() as tmp:
+            tmpd = pathlib.Path(tmp)
+            for fname in ("coverage.json", "agent-coverage.json", "site_claims.json"):
+                src = ROOT / "public" / fname
+                if src.exists():
+                    shutil.copy(src, tmpd / fname)
+            cov = copy.deepcopy(real_cov)
+            mutate(cov["versions"])
+            (tmpd / "coverage.json").write_text(json.dumps(cov))
+            env = dict(os.environ, SPCK_PUBLIC=str(tmpd))
+            r = subprocess.run(
+                [sys.executable, str(ROOT / "conformance" / "ci" / "site_gates.py"),
+                 "freshness"], cwd=str(ROOT), env=env, capture_output=True, text=True)
+            got_red = r.returncode != 0
+            ok = got_red == want_red
+            print(f"  {'✓' if ok else '✗'} {name}: {'RED' if got_red else 'GREEN'}"
+                  + ("" if ok else f"  <-- expected {'RED' if want_red else 'GREEN'}"
+                                   f"\n{r.stdout}{r.stderr}"))
+            bad += 0 if ok else 1
+
+    run_variant(
+        f"state=live planted on {zero_ver} (zero CHECK, zero EXEMPT)",
+        lambda vs: vs.__setitem__(zero_ver, {**vs[zero_ver], "state": "live"}),
+        want_red=True)
+    run_variant(
+        f"state=building planted on {live_ver} (has real CHECK/EXEMPT rows)",
+        lambda vs: vs.__setitem__(live_ver, {**vs[live_ver], "state": "building"}),
+        want_red=True)
+    run_variant(
+        "correct states (unmodified export)",
+        lambda vs: None,
+        want_red=False)
+
+    print(f"\nsite_gates selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
+    return 1 if bad else 0
 
 
 # ═══ checkdocs ════════════════════════════════════════════════════════════════
@@ -658,9 +786,12 @@ def checkdocs():
 
 # ═══ main ════════════════════════════════════════════════════════════════════
 if __name__ == "__main__":
+    if "--selftest" in sys.argv[1:]:
+        sys.exit(selftest())
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode not in MODES:
-        print("usage: site_gates.py tdd|claims|voice|security|redirects|freshness [--explain]")
+        print("usage: site_gates.py tdd|claims|voice|security|redirects|freshness [--explain]"
+              "|--selftest")
         sys.exit(1)
     if mode == "claims":
         sys.exit(claims(explain="--explain" in sys.argv[2:]))

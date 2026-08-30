@@ -90,6 +90,12 @@ def gates(server):
         ("require-testable-04-08",
          _py(ROOT / "conformance" / "coverage" / "matrix.py",
              "--require", "testable", "--version", "2026-04-08"),               None, ()),
+        # PLAN-0825 §E publication-state kill-tests: _version_state's `unregistered`
+        # branch has no real trigger today (every pinned version already has a
+        # register), so this proves the code path works rather than leaving it
+        # aspirational. Hermetic (no I/O beyond the real matrix export sanity check).
+        ("matrix-state-selftest",
+         _py(ROOT / "conformance" / "coverage" / "matrix.py", "--selftest"),      None, ()),
         ("tls-check",   _py(SELF / "validate_tls_check.py"),                 "controlled", (2,)),
         ("sig-check",   _py(SELF / "validate_sig_check.py"),                    None, (2,)),
         ("oauth-check", _py(SELF / "validate_oauth_checks.py"),                  None, (2,)),
@@ -141,6 +147,10 @@ def gates(server):
         ("site-redirects", _py(ROOT / "conformance" / "ci" / "site_gates.py", "redirects"), None, ()),
         ("site-consistency", _py(ROOT / "conformance" / "ci" / "site_gates.py", "consistency"), None, ()),
         ("site-freshness", _py(ROOT / "conformance" / "ci" / "site_gates.py", "freshness"), None, ()),
+        # PLAN-0825 §E state-consistency kill-tests: a `state` field that disagrees
+        # with its own CHECK/EXEMPT counts must redden freshness(); hermetic
+        # (SPCK_PUBLIC scratch copy, repo untouched) — proves the validator can fail.
+        ("site-state-selftest", _py(ROOT / "conformance" / "ci" / "site_gates.py", "--selftest"), None, ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
                              "--target-name", "flower-shop-official-sample",

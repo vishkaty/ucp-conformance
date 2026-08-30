@@ -156,11 +156,20 @@ def selftest():
     """Injection kill-tests: every synthetic defect below MUST be caught by
     validate_exemptions, and every honest entry must pass. This is the proof the
     exemptions gate can actually fail (a validator that can't fail validates nothing)."""
-    V1, V2, V3 = matrix.VERSIONS  # 2026-01-11, 2026-01-23, 2026-04-08
-    must_ids = {V1: {"AAA-001", "AAA-002", "AAA-003"},
-                V2: {"AAA-001", "AAA-002", "AAA-003"},
-                V3: {"AAA-002", "AAA-003", "AAA-004"}}   # AAA-001 not a MUST at 04-08
-    covered = {V1: set(), V2: set(), V3: {"AAA-002"}}     # AAA-002 covered at 04-08 only
+    # Length-agnostic (P3-adjacent chore, landing-normalization 2026-08-30): matrix.VERSIONS
+    # grew a 4th entry (2026-08-25) and this used to hard-unpack exactly 3, crashing this
+    # dead-but-should-not-crash entrypoint. V1/V2/V3 are still just the first three
+    # versions (2026-01-11, 2026-01-23, 2026-04-08) for the synthetic AAA-* scenario
+    # below; must_ids/covered are seeded for EVERY real version (empty by default) so a
+    # 5th+ version added to VERSIONS in the future can't KeyError here either — the
+    # synthetic AAA-* ids simply aren't a MUST at any version beyond the three named.
+    V1, V2, V3 = matrix.VERSIONS[0], matrix.VERSIONS[1], matrix.VERSIONS[2]
+    must_ids = {v: set() for v in matrix.VERSIONS}
+    must_ids.update({V1: {"AAA-001", "AAA-002", "AAA-003"},
+                     V2: {"AAA-001", "AAA-002", "AAA-003"},
+                     V3: {"AAA-002", "AAA-003", "AAA-004"}})   # AAA-001 not a MUST at 04-08
+    covered = {v: set() for v in matrix.VERSIONS}
+    covered[V3] = {"AAA-002"}                                  # AAA-002 covered at 04-08 only
     ok = lambda e: validate_exemptions(e, must_ids, covered)
     cases = [  # (name, entry-dict, must_fail)
         ("ghost id", {"ZZZ-999": {"class": "client-bound", "reason": "x"}}, True),

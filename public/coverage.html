@@ -172,6 +172,19 @@
       row.appendChild(s);
     });
     card.appendChild(row);
+    if (v.state === "building") {
+      var census = v.census;
+      var msg = "Register in progress: rows are extracted and spec-cited, but checks have not started yet.";
+      if (census) {
+        msg += " Completeness census: " + census.mode + " mode, " + census.unaccounted +
+          " unaccounted normative keyword occurrence(s) outside the register so far" +
+          (census.gate_from ? " (report mode ends " + census.gate_from + ")" : "") + ".";
+      }
+      msg += " This figure is never blended into another version's percentage.";
+      var bn = el("div", "note", msg);
+      bn.style.margin = "2px 0 10px";
+      card.appendChild(bn);
+    }
     var eb = v.evidence_breakdown;
     if (eb) {
       var evl = el("div", "note",

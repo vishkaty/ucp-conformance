@@ -281,7 +281,12 @@ def main(argv, today=None):
         print(json.dumps(dict(per_version=per_version,
                               unaccounted=len(unaccounted),
                               gating_unaccounted=len(gating_unaccounted),
-                              waiver_errors=len(waiver_errs), stale_waivers=len(stale_waivers)),
+                              waiver_errors=len(waiver_errs), stale_waivers=len(stale_waivers),
+                              # the flip-by date per report-mode version, exposed so a
+                              # consumer (matrix.py's `building`-state census — PLAN-0825
+                              # §E) never needs its own copy of REPORT_MODE_UNTIL: this
+                              # is the single source of truth for that date.
+                              report_mode_until=REPORT_MODE_UNTIL),
                          indent=2))
         return 1 if (gating_unaccounted or waiver_errs) else 0
 
