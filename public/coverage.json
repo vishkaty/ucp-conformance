@@ -10397,10 +10397,10 @@
   },
   "2026-08-25": {
    "state": "building",
-   "musts": 625,
+   "musts": 684,
    "check": 0,
    "exempt": 0,
-   "gap": 625,
+   "gap": 684,
    "accounted_pct": 0,
    "evidence_breakdown": {
     "live-wire": 0,
@@ -10409,10 +10409,10 @@
     "self-referenced": 0
    },
    "gap_by_testability": {
-    "manual": 146,
+    "manual": 151,
     "needs-oauth": 15,
-    "needs-receiver": 132,
-    "testable": 332
+    "needs-receiver": 136,
+    "testable": 382
    },
    "areas": [
     {
@@ -10441,11 +10441,11 @@
     },
     {
      "area": "cart",
-     "gap": 14,
+     "gap": 15,
      "gap_manual": 2,
      "gap_needs-receiver": 5,
-     "gap_testable": 7,
-     "musts": 14
+     "gap_testable": 8,
+     "musts": 15
     },
     {
      "area": "catalog",
@@ -10456,11 +10456,11 @@
     },
     {
      "area": "checkout-lifecycle",
-     "gap": 33,
+     "gap": 55,
      "gap_manual": 8,
      "gap_needs-receiver": 11,
-     "gap_testable": 14,
-     "musts": 33
+     "gap_testable": 36,
+     "musts": 55
     },
     {
      "area": "discounts-consent",
@@ -10486,10 +10486,10 @@
     },
     {
      "area": "fulfillment",
-     "gap": 11,
-     "gap_manual": 6,
-     "gap_testable": 5,
-     "musts": 11
+     "gap": 22,
+     "gap_manual": 7,
+     "gap_testable": 15,
+     "musts": 22
     },
     {
      "area": "identity-linking",
@@ -10526,11 +10526,12 @@
     },
     {
      "area": "overview",
-     "gap": 14,
-     "gap_manual": 4,
+     "gap": 27,
+     "gap_manual": 7,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 9,
-     "musts": 14
+     "gap_testable": 10,
+     "musts": 27
     },
     {
      "area": "payment",
@@ -10602,11 +10603,11 @@
     },
     {
      "area": "signatures",
-     "gap": 33,
-     "gap_manual": 2,
-     "gap_needs-receiver": 21,
-     "gap_testable": 10,
-     "musts": 33
+     "gap": 45,
+     "gap_manual": 3,
+     "gap_needs-receiver": 25,
+     "gap_testable": 17,
+     "musts": 45
     },
     {
      "area": "split-payments",
@@ -11034,6 +11035,16 @@
      "status": "gap",
      "requirement": "Each line item's item MUST include id, title, and price",
      "source": "ucp:source/schemas/shopping/types/item.json#L6-L10",
+     "covered_by": []
+    },
+    {
+     "id": "CART-034",
+     "area": "cart",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Businesses MUST include an embedded service binding with config.delegate in cart responses to indicate ECaP (Embedded Cart Protocol) availability and allowed delegations for a specific session.",
+     "source": "ucp:docs/specification/shopping/cart/embedded.md#L84-L86",
      "covered_by": []
     },
     {
@@ -11684,6 +11695,226 @@
      "status": "gap",
      "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims; accepted claims MUST be resolved before completion",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L709-L710",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-058",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the Platform includes quantity_unit on a request line, the Business MUST compare the asserted and authoritative machine identities.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L98-L101",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-059",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a Business cannot or chooses not to convert a mismatched asserted quantity_unit, it MUST reject the request's effect on that line with a recoverable business outcome naming the authoritative basis.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L120-L123",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-060",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the Business revises an off-increment quantity, the revision MUST be returned as a revised line quantity with an explanatory messages[] entry; the Business MUST NOT silently reinterpret the requested quantity.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L249-L252",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-061",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST include quantity_unit on the item in every Cart, Checkout, and Order line response whenever the effective identity differs from the default identity.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L274-L277",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-062",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST compute the line total as price times quantity times 10^-scale and round once at the line; the Platform MUST NOT recompute a line total from the fractional quantity and substitute its own rounding.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L285-L289",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-063",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "On authoritative responses the Business MUST include item.unit_price on every cart, checkout, and order line whose pricing basis differs from its sale basis.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L293-L296",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-064",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "While status is complete_in_progress (the Business is processing the order), the response MUST NOT contain order.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L397-L398",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-065",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "If an Action prevents Complete Checkout from being accepted, the Business MUST return the current Checkout with status: incomplete and an error Message with severity: \"recoverable\" whose path selects that exact Action occurrence.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L435-L437",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-066",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "During complete_in_progress, the Platform MAY repeat Get Checkout with bounded backoff, and MUST stop repeated requests at expires_at.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L450",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-067",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "During complete_in_progress, the Platform MUST NOT start a new Update Checkout operation; if the Business receives one anyway, it MUST leave the Checkout unchanged and return the current Checkout with a recoverable error Message.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L451",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-068",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "During complete_in_progress, the Platform MUST NOT start a new Complete Checkout operation (narrow lost-response recovery retry excepted).",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L452",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-069",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "During complete_in_progress, the Platform MUST follow the fallback, handoff, and cancellation race rules before attempting Cancel Checkout.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L453",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-070",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Because Update Checkout is unavailable after Complete Checkout is accepted, the Business MUST surface any Action that requires input through Update Checkout before accepting Complete Checkout.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L459-L461",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-071",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Action completion signal is not authoritative for Checkout state; the Platform MUST use Get Checkout to confirm that the Business reflected the result.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L464-L466",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-072",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "If the same Action key and id remain, the Platform MUST NOT process it again unless its contract explicitly permits retry and every safe-retry condition holds.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L469-L470",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-073",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Platform MUST NOT attempt Cancel Checkout while either fallback or handoff can still continue the Checkout.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L478-L480",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-074",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Cancellation can race completion; the Platform MUST NOT treat the Checkout as canceled unless the Business reports status: canceled.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L484-L485",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-075",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The optional path field on a message, when present, MUST be an RFC 9535 JSONPath expression relative to the root of the UCP response object.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L643-L644",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-076",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a disclosure Message renders a structured policies[] entry, the Message's code MUST equal that policy's type, to link the two.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L862-L864",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-077",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Platform MUST NOT use Complete Checkout to poll or resume accepted processing; if it does not receive a response, it SHOULD use Get Checkout with bounded backoff and MUST stop at expires_at.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L1109-L1112",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-078",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When retrying the original Complete Checkout request after Get Checkout still cannot establish whether the Business processed it, the Platform MUST NOT use a new idempotency key for that retry.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L1113-L1115",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-079",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A genuinely new Complete Checkout operation after the Checkout returns to ready_for_complete MUST use a fresh idempotency key, even if the payload is unchanged.",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L1116-L1118",
      "covered_by": []
     },
     {
@@ -12634,6 +12865,116 @@
      "status": "gap",
      "requirement": "A shipping_destination MUST include id and type (type is a required const discriminator \"shipping_address\"); it is a postal_address plus required id and type",
      "source": "ucp:source/schemas/shopping/types/shipping_destination.json#L26-L29",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-031",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When Catalog filters.fulfills_to is present, a Business MUST resolve the fulfillment destination and method availability from it rather than from context; other context fields are unaffected.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L80-L82",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-032",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Once a Platform sets selected_destination_id on a Checkout method, a Business MUST use the referenced destination rather than context.location for that method's fulfillment scope; other methods are unaffected.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L83-L86",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-033",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A request that includes destinations[] MUST also include the method's type.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L260",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-034",
+     "area": "fulfillment",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Business Location Destinations appear only in responses; the Platform MUST NOT write Business Location Destinations into destinations[] -- it selects a location by submitting its stable, opaque, Business-scoped ID as selected_destination_id.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L308-L311",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-035",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "For a Business Location Destination, the Business MUST return type: \"business_location\", id, and its Buyer-facing name (and MAY return its Postal Address in address).",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L312-L314",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-036",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the Business accepts a non-null selected_destination_id, its response MUST carry that same selected_destination_id value on the method, and MUST include exactly one destination in that same method's destinations[] whose id equals it, typed as specified in Destinations.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L358-L364",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-037",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "The Business MUST revalidate the selected destination's current availability and terms; recognizing an ID neither reserves inventory nor guarantees eligibility.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L366-L368",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-038",
+     "area": "fulfillment",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST NOT silently substitute another destination: it MUST NOT return a different selected_destination_id, and MUST NOT keep the submitted ID while returning a destination that describes another location.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L368-L371",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-039",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the Business cannot accept a selected_destination_id submitted on Update Checkout, it follows the general rejected-Update behavior: it MUST leave the current Checkout unchanged and MUST return that Checkout with an error Message with severity: \"recoverable\" whose path selects the attempted method's selected_destination_id.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L374-L379",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-040",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "In a Catalog variant's fulfillment.methods[] location field, a Business that advertises pickup at a location MUST accept that same ID as selected_destination_id for that method in Checkout.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L527-L529",
+     "covered_by": []
+    },
+    {
+     "id": "FUL-041",
+     "area": "fulfillment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Where a method states availability, consumers MUST use it for that method and MUST NOT infer per-method availability from the variant-level availability value.",
+     "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L543-L544",
      "covered_by": []
     },
     {
@@ -14577,6 +14918,136 @@
      "covered_by": []
     },
     {
+     "id": "OVR-015",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a Business or Platform includes a unit descriptor whose unit is C62, it MUST use an effective scale of 0; scale can only be omitted or explicitly set to 0.",
+     "source": "ucp:docs/specification/overview/index.md#L58-L60",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-016",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Arithmetic over quantity/amount values MUST be exact; an implementation that cannot produce an exact, in-range result MUST surface an error rather than emit, display, or act on an approximate or wrapped value.",
+     "source": "ucp:docs/specification/overview/index.md#L99-L104",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-017",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "When a Business uses a custom unit identifier, it MUST use that identifier consistently for the same unit; the Platform MUST treat an unrecognized unit value as opaque.",
+     "source": "ucp:docs/specification/overview/index.md#L118-L120",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-018",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST make package form part of the purchasable variant's identity and count packages as each; it MUST NOT use an X-prefixed Rec21-derived package code as quantity_unit.",
+     "source": "ucp:docs/specification/overview/index.md#L140-L143",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-019",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When sending a unit descriptor, a Business or Platform MUST include display_text; the Platform MUST use that value when it does not recognize unit.",
+     "source": "ucp:docs/specification/overview/index.md#L147-L148",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-020",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business and Platform MUST NOT use display_text when matching machine identities or as an input to quantity conversion.",
+     "source": "ucp:docs/specification/overview/index.md#L150-L151",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-021",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "increment is not part of the unit-descriptor machine identity and MUST NOT participate in mismatch comparison.",
+     "source": "ucp:docs/specification/overview/index.md#L167-L169",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-022",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Because the policy-type vocabulary is open, a Platform MUST tolerate unknown type values, presenting the policy from its description.",
+     "source": "ucp:docs/specification/overview/index.md#L3088-L3092",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-023",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When same-type policies contest a node, exactly one governs and replaces the rest; a Platform MUST NOT merge their bodies.",
+     "source": "ucp:docs/specification/overview/index.md#L3124-L3125",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-024",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A tied precedence score means two same-type policies cover a node at the same depth and precision, an authoring error; a Business MUST NOT publish such a collision.",
+     "source": "ucp:docs/specification/overview/index.md#L3155-L3160",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-025",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "So that a policy is always presentable even by a Platform that does not model its type, a Business MUST provide a description, a human-readable summary a Platform MAY surface to the Buyer.",
+     "source": "ucp:docs/specification/overview/index.md#L3174-L3177",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-026",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a Business requires a policy to be shown to the Buyer, it MUST emit a messages[] warning that sets presentation: \"disclosure\", sets path to the item the notice concerns, and sets code to the policy's type.",
+     "source": "ucp:docs/specification/overview/index.md#L3180-L3181",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-027",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A disclosure's content MUST agree with the policy it pairs with -- the notice and the policy are two statements about the same node.",
+     "source": "ucp:docs/specification/overview/index.md#L3198-L3199",
+     "covered_by": []
+    },
+    {
      "id": "PAUTH-001",
      "area": "payment-authentication",
      "keyword": "MUST NOT",
@@ -16387,6 +16858,126 @@
      "covered_by": []
     },
     {
+     "id": "SIG-042",
+     "area": "signatures",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A verifier that encounters a key whose type, curve, or algorithm it does not support MUST NOT reject the published key set; the unsupported key simply becomes unusable to that verifier, and a signature referencing it fails with algorithm_unsupported.",
+     "source": "ucp:docs/specification/signatures.md#L102-L105",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-043",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A key used for dual-audience signatures (those carrying tag=\"web-bot-auth\") MUST publish its kid as the key's JWK SHA-256 Thumbprint (RFC 7638) in every array that lists it.",
+     "source": "ucp:docs/specification/signatures.md#L202-L205",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-044",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST send a Signature-Agent header alongside UCP-Agent (additive, not a replacement): an RFC 8941 Dictionary Structured Field whose member's sf-string value is an HTTPS URL and whose type parameter selects the discovery mechanism.",
+     "source": "ucp:docs/specification/signatures.md#L310-L317",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-045",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST sign the signature-agent component with a ;key=\"<label>\" parameter matching the Signature-Agent dictionary member key (which equals the Signature-Input signature label).",
+     "source": "ucp:docs/specification/signatures.md#L318-L320",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-046",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST set keyid to the JWK SHA-256 Thumbprint of the signing key (RFC 7638), and publish that key with kid set to the same thumbprint so the UCP-Agent and Signature-Agent lookups resolve it identically.",
+     "source": "ucp:docs/specification/signatures.md#L321-L324",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-047",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST include created and expires parameters.",
+     "source": "ucp:docs/specification/signatures.md#L329",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-048",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST include tag=\"web-bot-auth\" so WBA verifiers can select it.",
+     "source": "ucp:docs/specification/signatures.md#L338-L339",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-049",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A WBA-shape signature MUST still cover the same components a default UCP signature does (the Required set in the Signed Components table); the verifier enforces this regardless of tag, so opting into Web Bot Auth never widens what UCP authenticates.",
+     "source": "ucp:docs/specification/signatures.md#L341-L344",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-050",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "EdDSA (Ed25519) signatures MUST use the encoding defined by RFC 8032 section 5.1.6 -- the 64-byte concatenation of the encoded R point and the integer S.",
+     "source": "ucp:docs/specification/signatures.md#L500-L502",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-051",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In Signature-Agent parsing (WBA-shape regime), the verifier MUST locate the dictionary member whose key equals the signature label being verified; if no matching member exists, verification of this signature MUST fail.",
+     "source": "ucp:docs/specification/signatures.md#L627-L630",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-052",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In Signature-Agent parsing (WBA-shape regime), the located member's value MUST be an sf-string containing an HTTPS URL, whose type parameter selects resolution (jwks_uri, cimd, or directory).",
+     "source": "ucp:docs/specification/signatures.md#L631-L634",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-053",
+     "area": "signatures",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In Signature-Agent parsing (WBA-shape regime), verification of the signature MUST fail if the resolved URL is non-HTTPS.",
+     "source": "ucp:docs/specification/signatures.md#L638-L639",
+     "covered_by": []
+    },
+    {
      "id": "SPL-001",
      "area": "split-payments",
      "keyword": "MUST",
@@ -16899,7 +17490,7 @@
    ],
    "census": {
     "mode": "report",
-    "unaccounted": 284,
+    "unaccounted": 125,
     "gate_from": "2026-09-20"
    }
   }

@@ -22,10 +22,11 @@
     {
       "file": "docs/specification/embedded-protocol.md",
       "versions": [
-        "2026-04-08"
+        "2026-04-08",
+        "2026-08-25"
       ],
       "class": "out-of-scope",
-      "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface."
+      "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface. Re-verified against the 2026-08-25 vendor tree (same path, unmoved by the reorg; full 557-line read confirms no server-observable content was added -- JSON-RPC message format, handshake/auth/session-error/lifecycle/state-change message patterns, error codes, and CSP/iframe-sandbox/credentialless-iframe security all remain browser-transport-only)."
     },
     {
       "file": "docs/specification/embedded-cart.md",
@@ -336,13 +337,6 @@
       "line": 216,
       "class": "non-normative",
       "reason": "'They MUST NOT enumerate fields or define payload shapes inline' is the negative half of the same transport-definition authoring rule (L215/L120). Concerns how schema documents are written, not runtime server behavior. (Older versions: DISC-009.)"
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
-      "line": 217,
-      "class": "non-normative",
-      "reason": "'Extensions MUST be self-describing. Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition' is an extension-schema authoring convention, not a runtime obligation observable over HTTP. (Older versions: DISC-010.)"
     },
     {
       "version": "2026-04-08",
@@ -727,13 +721,6 @@
       "file": "docs/specification/payment-handler-guide.md",
       "line": 762,
       "class": "non-normative",
-      "reason": "Under '## Specification Template': 'Sections marked **[REQUIRED]** **MUST** be present...' constrains the structure of downstream handler specification documents authored by spec authors, not a server behavior. Documentation/template checklist."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/payment-handler-guide.md",
-      "line": 762,
-      "class": "non-normative",
       "reason": "Same sentence as the REQUIRED occurrence on L762 under '## Specification Template'; the MUST binds spec-author document structure ('Sections marked [REQUIRED] MUST be present'), not the merchant server."
     },
     {
@@ -748,13 +735,6 @@
       "file": "docs/specification/payment-handler-guide.md",
       "line": 664,
       "class": "non-normative",
-      "reason": "Under '## Specification Template' (2026-01-23): 'Sections marked **[REQUIRED]** **MUST** be present...' constrains downstream handler-spec document structure, authored by spec authors; not a server behavior."
-    },
-    {
-      "version": "2026-01-23",
-      "file": "docs/specification/payment-handler-guide.md",
-      "line": 664,
-      "class": "non-normative",
       "reason": "Same L664 sentence under '## Specification Template' (2026-01-23); the MUST binds spec-author document structure, not the merchant server."
     },
     {
@@ -763,13 +743,6 @@
       "line": 676,
       "class": "non-normative",
       "reason": "Bullet under '## Conformance Checklist for Spec Authors' (2026-01-23): '[ ] All [REQUIRED] sections are present'. Spec-author documentation checklist, not a server obligation."
-    },
-    {
-      "version": "2026-01-11",
-      "file": "docs/specification/payment-handler-guide.md",
-      "line": 359,
-      "class": "non-normative",
-      "reason": "Under '## Specification Template' (2026-01-11): 'Sections marked **[REQUIRED]** **MUST** be present...' constrains downstream handler-spec document structure, authored by spec authors; not a server behavior."
     },
     {
       "version": "2026-01-11",
@@ -824,70 +797,6 @@
       "class": "duplicate",
       "duplicate_of": "TOT-001",
       "reason": "'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half is TOT-018."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/discount.md",
-      "line": 200,
-      "class": "duplicate",
-      "duplicate_of": "DSC-015",
-      "reason": "The 'Platforms MUST display' clause at end of L200 is the same sentence that wraps to L201 which DSC-015 quotes verbatim: Platforms MUST display provisional discounts to the buyer."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/discount.md",
-      "line": 228,
-      "class": "duplicate",
-      "duplicate_of": "DSC-017",
-      "reason": "'claims MUST be resolved' is the L227-228 sentence DSC-017 already quotes: at checkout completion, all remaining provisional claims MUST be resolved."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 143,
-      "class": "duplicate",
-      "duplicate_of": "IDL-012",
-      "reason": "'If the values do not match, the platform MUST abort and discard the authorization response' is the tail of the single iss-validation bullet (L138-144). IDL-012 spans that whole bullet and its requirement explicitly includes the abort/discard-on-mismatch obligation."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 416,
-      "class": "duplicate",
-      "duplicate_of": "IDL-040",
-      "reason": "'the business MUST return:' at L416 is the exact lead-in IDL-040 quotes for the identity_required error (business MUST return HTTP 401, a WWW-Authenticate: Bearer challenge, and a UCP error body with code identity_required)."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 428,
-      "class": "duplicate",
-      "duplicate_of": "IDL-042",
-      "reason": "'the header MUST also include error=invalid_token' is the L427-428 sentence IDL-042 already captures: when the request included an invalid/expired/unverifiable token, the WWW-Authenticate header MUST include error=invalid_token."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 491,
-      "class": "duplicate",
-      "duplicate_of": "IDL-045",
-      "reason": "'the business MUST return:' at L491 is the exact lead-in IDL-045 quotes for the insufficient_scope error (business MUST return HTTP 403, a WWW-Authenticate: Bearer challenge, and a UCP error body with code insufficient_scope)."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 581,
-      "class": "duplicate",
-      "duplicate_of": "IDL-050",
-      "reason": "'Public clients ... cannot keep a client_secret confidential and MUST use none' is exactly IDL-050's requirement (row deliberately spans L578-585)."
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/identity-linking.md",
-      "line": 583,
-      "class": "duplicate",
-      "duplicate_of": "IDL-050",
-      "reason": "'Businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms' is stated verbatim in IDL-050's requirement text; IDL-050 explicitly spans L578-585 and captures both the client 'MUST use none' and this business MUST NOT."
     },
     {
       "version": "2026-04-08",
@@ -954,36 +863,12 @@
       "reason": "'Pre-release implementations ... MUST NOT be surfaced through public discovery' duplicates OVR-010 (protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date/draft version string in their profile version field or supported_versions)."
     },
     {
-      "version": "2026-04-08",
-      "file": "docs/specification/signatures.md",
-      "line": 178,
-      "class": "duplicate",
-      "duplicate_of": "SIG-010",
-      "reason": "'Implementations MUST use sha-256' is explicitly part of SIG-010's requirement: Content-Digest follows RFC 9530 and hashes the raw body bytes; implementations MUST use sha-256."
-    },
-    {
       "version": "2026-01-23",
       "file": "docs/specification/overview.md",
       "line": 197,
       "class": "duplicate",
       "duplicate_of": "DISC-009",
       "reason": "'Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only' is the affirmative half of the same single rule DISC-009 captures from its negative half (L198): transport definitions MUST NOT enumerate fields or define payload shapes inline."
-    },
-    {
-      "version": "2026-01-11",
-      "file": "docs/specification/ap2-mandates.md",
-      "line": 107,
-      "class": "duplicate",
-      "duplicate_of": "PAY-022",
-      "reason": "'The business MUST NOT accept a complete_checkout request that lacks ap2.checkout_mandate' (L107-108) is exactly the obligation PAY-022 captures for negotiated ap2_mandate."
-    },
-    {
-      "version": "2026-01-11",
-      "file": "docs/specification/order.md",
-      "line": 331,
-      "class": "duplicate",
-      "duplicate_of": "ORD-015",
-      "reason": "'MUST sign all webhook payloads using a key from their signing_keys array' (L331-332) is exactly ORD-015 (businesses MUST sign all webhook payloads with a signing_keys key published in /.well-known/ucp, signature carried in Request-Signature as a detached JWT)."
     },
     {
       "version": "2026-08-25",
@@ -1036,38 +921,6 @@
       "class": "duplicate",
       "reason": "Security-Requirements table cell 'Tokenizer MUST verify binding matches before returning credentials' restates the exact-equality binding-verification rule already covered by TOK-001, in one summary-table sentence.",
       "duplicate_of": "TOK-001"
-    },
-    {
-      "version": "2026-08-25",
-      "file": "docs/specification/common/identity-linking/index.md",
-      "line": 175,
-      "class": "duplicate",
-      "reason": "Already covered by IDL-012 (source L170-L176, quote spans this exact text: '...If the values do not match, the platform MUST abort and discard the authorization response.'). The row's second quote fragment begins mid-line (right after 'metadata).' on the same physical line 175), so the per-line substring matcher cannot mark this line even though the row's own cited range and quote content include it, and verify_register.py's whole-file check already confirms the text is present verbatim.",
-      "duplicate_of": "IDL-012"
-    },
-    {
-      "version": "2026-08-25",
-      "file": "docs/specification/common/identity-linking/index.md",
-      "line": 278,
-      "class": "duplicate",
-      "reason": "Already covered by IDL-030 (source L271-L279, quote spans '...The business MUST publish this metadata when the authorization server does not live on the business domain.'). Same mid-line quote-boundary artifact as L175/IDL-012: the fragment begins right after 'domain conventions.' on the same physical line 278.",
-      "duplicate_of": "IDL-030"
-    },
-    {
-      "version": "2026-08-25",
-      "file": "docs/specification/common/identity-linking/index.md",
-      "line": 979,
-      "class": "duplicate",
-      "reason": "Already covered by IDL-050 (source L976-L983, quote spans '...cannot keep a client_secret confidential and MUST use none... Businesses MUST NOT require client_secret_basic...'). Same mid-line quote-boundary artifact: the first quote fragment ends right at 'none' while the actual line 979 continues '; for' onto line 980, so the per-line matcher cannot mark line 979 even though the row's quote content covers it.",
-      "duplicate_of": "IDL-050"
-    },
-    {
-      "version": "2026-08-25",
-      "file": "docs/specification/common/identity-linking/index.md",
-      "line": 981,
-      "class": "duplicate",
-      "reason": "Already covered by IDL-050 (source L976-L983) \u2014 the second half of the same quote ('Businesses MUST NOT require client_secret_basic as the only method...'). Same boundary-artifact class as L979.",
-      "duplicate_of": "IDL-050"
     },
     {
       "version": "2026-08-25",
@@ -1140,6 +993,281 @@
       "class": "duplicate",
       "reason": "'Businesses MUST return `iss` in every authorization response' (L588-590, Mix-Up Attack prevention bullet in the Security Considerations recap) restates IDL-018 verbatim (MUST return the iss parameter in the authorization response, L168-169). Sibling restatements in the SAME bullet are already waived this way (L586 duplicate_of IDL-012, L593 duplicate_of IDL-026) -- L589 was the one line in the bullet the pre-R13 per-physical-line matcher accidentally marked covered via a false-positive short-phrase match ('businesses must' against six unrelated far-away rows), so it was never flagged for its own waiver until the R13 line-boundary-agnostic fix (conformance/selfcheck/verify_register_completeness.py) removed that false positive and surfaced the genuine, pre-existing gap. R13-WAIVER-CLEANUP.md has the full before/after accounting.",
       "duplicate_of": "IDL-018"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/signatures.md",
+      "line": 300,
+      "class": "non-normative",
+      "reason": "'To opt in, a signer makes the following changes to their primary UCP signature. Items marked **MUST** are required by [draft-meunier-webbotauth-httpsig-protocol-00]... consult that draft for full details.' This is a captioning/legend sentence introducing the 7-item numbered list that follows -- it tells the reader which of the 7 items carry a MUST, it does not itself impose an obligation on any party. Each item that is itself normative is separately registered (SIG-044 L310, SIG-045 L318, SIG-046 L321, SIG-047 L329, SIG-048 L338); item 1 (non-normative algorithm guidance) and item 6 (a SHOULD) are correctly not registered as MUST rows."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 811,
+      "class": "non-normative",
+      "reason": "Stale-waiver reorg re-point (see 'A real finding' above). Intro sentence to the Warning Presentation rendering-contract table: 'The presentation field on warning messages controls the rendering contract the platform MUST follow.' Narrative lead-in whose normative cells are already rowed -- the overall rendering contract is ERR-012, and the individual table/prose obligations are ERR-013..ERR-022. Not a distinct server obligation (platform-side rendering, not server-observable). Identical prose was waived at 2026-04-08 docs/specification/checkout.md:332 with this same reasoning; the reorg moved the file/line without re-pointing the waiver."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 817,
+      "class": "duplicate",
+      "duplicate_of": "ERR-015",
+      "reason": "Stale-waiver reorg re-point. Contract-table cell 'Proximity to path | MUST' (disclosure column) summarizes the disclosure prose bullet at L838 that ERR-015 already captures verbatim: platforms MUST display the warning in proximity to the component referenced by path. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:338 (duplicate_of ERR-015, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 818,
+      "class": "duplicate",
+      "duplicate_of": "ERR-016",
+      "reason": "Stale-waiver reorg re-point. Contract-table cell 'Dismissible | MUST NOT' (disclosure column) summarizes the disclosure prose bullet at L842 that ERR-016 already captures verbatim: platforms MUST NOT hide, collapse, or auto-dismiss the disclosure warning. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:339 (duplicate_of ERR-016, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 819,
+      "class": "duplicate",
+      "duplicate_of": "ERR-017",
+      "reason": "Stale-waiver reorg re-point. Contract-table cell 'Render image_url | MUST' (disclosure column) summarizes the disclosure prose bullet at L843 that ERR-017 already captures verbatim: platforms MUST render image_url when present for disclosure warnings. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:340 (duplicate_of ERR-017, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 821,
+      "class": "duplicate",
+      "duplicate_of": "ERR-018",
+      "reason": "Stale-waiver reorg re-point. Table cell '| Escalate if cannot honor | -- | MUST via continue_url |' is the tabular restatement of the disclosure-escalation prose at L850, already captured verbatim by ERR-018 ('Platforms that cannot honor the disclosure rendering contract MUST escalate to merchant UI via continue_url...'). Identical prose was waived at 2026-04-08 docs/specification/checkout.md:342 (duplicate_of ERR-018, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 833,
+      "class": "non-normative",
+      "reason": "Stale-waiver reorg re-point. Section lead-in: 'Warnings with presentation: \"disclosure\" carry notices ... that MUST follow the prescribed rendering contract below.' Narrative pointer to the disclosure rendering-contract bullets that immediately follow, each already rowed (ERR-014 display content, ERR-015 proximity, ERR-016 must-not-hide, ERR-017 image_url). Not a distinct obligation. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:354 with this same reasoning; the reorg moved the file/line without re-pointing the waiver."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 1161,
+      "class": "duplicate",
+      "duplicate_of": "SAE-012",
+      "reason": "Stale-waiver reorg re-point. 'Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.' Already captured by SAE-012 (same verbatim requirement; SAE-012 cites the context schema description that mirrors this checkout/index.md prose). Same normative obligation, different source location. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:640 (duplicate_of SAE-012, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 1170,
+      "class": "duplicate",
+      "duplicate_of": "SAE-001",
+      "reason": "Stale-waiver reorg re-point. 'signal values MUST NOT be buyer-asserted claims -- platforms provide signals based on direct observation or by relaying independently verifiable third-party attestations.' Already captured by SAE-001 (quotes the fuller overview/index.md#Signals statement of the same platform-bound MUST NOT). Platform-provenance obligation, not a business-response wire shape. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:649 (duplicate_of SAE-001, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 1336,
+      "class": "duplicate",
+      "duplicate_of": "TOT-007",
+      "reason": "Stale-waiver reorg re-point. 'MUST NOT alter the rendered output -- the business's presented totals are authoritative' restates TOT-007's prohibition (platforms MUST NOT substitute their own computed totals for the business's values), applied here to the sum-mismatch verification case. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:810 (duplicate_of TOT-007, same target row id, unchanged across versions). The other MUST NOT in the same paragraph (autonomous completion with mismatched totals) is already a distinct row, CHK-055."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 1360,
+      "class": "schema-enforced",
+      "row_id": "TOT-004",
+      "reason": "Stale-waiver reorg re-point. 'Unknown types MUST include display_text (schema-enforced).' The parenthetical explicitly flags schema enforcement and TOT-004 already captures 'unknown (non-well-known) totals types MUST include display_text' with schema_enforced=true. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:834 (row_id TOT-004, same target row id, unchanged across versions -- confirmed TOT-004 still exists at 2026-08-25 with equivalent content and schema_enforced=true)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/index.md",
+      "line": 1376,
+      "class": "duplicate",
+      "duplicate_of": "TOT-001",
+      "reason": "Stale-waiver reorg re-point. 'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half of the same sentence is TOT-018. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:850 (duplicate_of TOT-001, same target row id, unchanged across versions)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 137,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host-side URL-construction step (augmenting continue_url with ep_* query params before loading the iframe) -- browser/host behavior, no server endpoint to probe."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 145,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. ep_version is a URL query parameter the host sets when loading the embedded iframe URL, not a field in any server response."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 162,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. 'in all responses' here means the ECaP JSON-RPC responses exchanged over the postMessage/MessagePort channel during the embedded session, not the original Cart REST/MCP response -- browser-transport session state, not server-observable."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 164,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same ECaP session-bound version-echo rule as L162 (its MUST NOT half); browser-transport session state."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 185,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Conformance requirement on the Embedded Cart's own JS/webview implementation (which JSON-RPC methods it must handle) -- not a server response shape."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 200,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. The ep.cart.ready handshake broadcast is sent over postMessage by the embedded iframe's own code; no server endpoint emits or receives it."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 209,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. delegate is a field of the ep.cart.ready postMessage request payload sent from the iframe to the host, not a server response field."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 210,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Subset-of-config.delegate constraint on the same ep.cart.ready postMessage payload field as L209."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 237,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's obligation to respond to the ep.cart.ready postMessage request -- host-side browser behavior."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 243,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. ucp REQUIRED field of the host's ep.cart.ready postMessage RESPONSE (over the browser transport), not a REST/MCP response."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 244,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. status MUST be success/error on the same postMessage response as L243."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 248,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential/upgrade mutual-exclusion rule on the same ep.cart.ready postMessage response."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 252,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential MUST-be-set-if-auth-requested rule on the same postMessage response."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 253,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential MUST-NOT-be-set-if-upgrade-present rule on the same postMessage response (paired with L248)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 272,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. port MUST be a MessagePort object -- literally a browser API type, the clearest possible marker of browser-transport-only content."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 292,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Embedded Cart's channel-upgrade handling (discard/switch/re-send over the new MessagePort) -- iframe-side browser behavior."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 295,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same channel-upgrade rule as L292 (the MUST-only-over-upgraded-channel half)."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 299,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's error_response behavior on a failed postMessage handshake -- host-side browser behavior."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 301,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's tear-down/redirect behavior on a handshake error -- host-side browser behavior, paired with L299."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 302,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Embedded Cart's MUST-NOT-send-further-messages rule after a handshake error, paired with L299/L301 on the same postMessage error path."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 316,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Error-escalation notification (ep.cart.error) issued by the Embedded Cart over the postMessage channel -- browser transport, not a server endpoint."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 334,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. cart REQUIRED payload field of the ep.cart.start postMessage notification -- the notification itself travels over the browser transport, not as a REST/MCP response."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 369,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.complete postMessage notification."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 405,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.line_items.change postMessage notification."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 433,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.buyer.change postMessage notification."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/cart/embedded.md",
+      "line": 461,
+      "class": "non-normative",
+      "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.messages.change postMessage notification."
     }
   ]
 }
