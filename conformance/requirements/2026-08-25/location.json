@@ -96,7 +96,7 @@
   },
   {
    "id": "LOC-006",
-   "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms \u2014 downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
+   "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms — downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/location/index.md#L71",
    "quote": "A\nLocation ID selects only the physical entity; it does not determine the\ninteraction mode, guarantee availability, or bind operational terms.",
@@ -132,10 +132,10 @@
   },
   {
    "id": "LOC-008",
-   "requirement": "The exact `00:00`\u2013`23:59` pair represents the entire local civil date (including DST transitions) as a reserved exception to the closing-boundary rule; every pair with equal `opens` and `closes` is otherwise invalid, including `00:00`\u2013`00:00`",
+   "requirement": "The exact `00:00`–`23:59` pair represents the entire local civil date (including DST transitions) as a reserved exception to the closing-boundary rule; every pair with equal `opens` and `closes` is otherwise invalid, including `00:00`–`00:00`",
    "keyword": "MUST NOT",
    "source": "ucp:docs/specification/common/location/index.md#L115",
-   "quote": "Every pair with equal\n`opens` and `closes` is invalid,\nincluding `00:00`\u2013`00:00`.",
+   "quote": "Every pair with equal\n`opens` and `closes` is invalid,\nincluding `00:00`–`00:00`.",
    "versions": [
     "2026-08-25"
    ],
@@ -531,7 +531,7 @@
    "requirement": "The `serves` relation is a one-entry map: the Platform MUST supply exactly one target representation (`point`, `address`, or a negotiated reverse-domain extension target)",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/location/search.md#L157",
-   "quote": "the Platform **MUST** supply exactly\none target representation \u2014 `point`, `address`, or a negotiated\nreverse-domain extension target.",
+   "quote": "the Platform **MUST** supply exactly\none target representation — `point`, `address`, or a negotiated\nreverse-domain extension target.",
    "versions": [
     "2026-08-25"
    ],
@@ -867,6 +867,158 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Platform-side interpretation rule."
+  },
+  {
+   "id": "LOC-049",
+   "keyword": "MUST",
+   "requirement": "An amenity entry without a description is schema-invalid; a Platform MUST reject the invalid response rather than infer presentation text from the key.",
+   "quote": "schema-invalid; a Platform **MUST** reject the invalid response rather than\ninfer presentation text from the key.",
+   "source": "ucp:docs/specification/common/location/index.md#L212-L213",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Amenity presentation).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-050",
+   "keyword": "MUST NOT",
+   "requirement": "A Platform MAY enhance recognized amenities with icons, grouping, or other structured presentation, but MUST NOT infer semantics from an unrecognized amenity identifier or treat it as equivalent to another amenity.",
+   "quote": "identifier is unrecognized. A Platform **MAY** enhance recognized amenities\nwith icons, grouping, or other structured presentation, but **MUST NOT** infer\nsemantics from an unrecognized identifier or treat it as equivalent to another\namenity.",
+   "source": "ucp:docs/specification/common/location/index.md#L221-L224",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Amenity presentation, platform-side handling of unrecognized identifiers — distinct from LOC-017 at L220, which covers the business-side non-suppression duty).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-051",
+   "keyword": "MUST NOT",
+   "requirement": "A Business MUST NOT relax an explicit structured search constraint because of the query text: a Location that fails distance, serves, or a filters predicate is excluded no matter how well it matches the query.",
+   "quote": "[Spatial Relations](#spatial-relations). A Business **MUST NOT** relax an\nexplicit structured constraint because of the `query` text: a Location\nthat fails `distance`, `serves`, or a `filters` predicate is excluded no\nmatter how well it matches the query.",
+   "source": "ucp:docs/specification/common/location/search.md#L78-L81",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Spatial Relations, query-text-does-not-override-structured-constraints rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-052",
+   "keyword": "MUST",
+   "requirement": "If a namespaced Search target's extension was not negotiated, the Business MUST return an actionable request error rather than silently omit the target.",
+   "quote": "return broadened results. If a namespaced target's extension was not\nnegotiated, the Business **MUST** return an actionable request error rather\nthan silently omit the target.",
+   "source": "ucp:docs/specification/common/location/search.md#L185-L187",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (namespaced-target extension-not-negotiated error rule — distinct trigger condition from the adjacent unmodeled-postal-code-system error rule already registered nearby).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-053",
+   "keyword": "MUST",
+   "requirement": "When filters.amenities is present, the Business MUST include every supplied identifier in each returned Location's amenities map; a Platform MUST reject a returned Location as non-conforming if it omits the map or any requested key.",
+   "quote": "**MUST** include every supplied identifier in each returned Location's\n`amenities` map. A Platform **MUST** reject a returned Location as\nnon-conforming if it omits the map or any requested key, rather than accept a\nbroadened or unverifiable result.",
+   "source": "ucp:docs/specification/common/location/search.md#L262-L265",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (filters.amenities response-shape guarantee + platform-side conformance check, folded — one integrated rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-054",
+   "keyword": "MUST NOT",
+   "requirement": "A Platform MUST NOT assume that the Search response result count equals either the requested or default page size, since a Business MAY return fewer results (including when enforcing its own maximum page size); this permission applies only to page size, not to distance.max.",
+   "quote": "The Business **MAY** return fewer results than the requested or default page\nsize, including when enforcing its maximum page size. A Platform **MUST NOT**\nassume that the response count equals either value. This permission applies\nonly to page size; it does not permit reducing `distance.max` (see",
+   "source": "ucp:docs/specification/common/location/search.md#L320-L323",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Page Size, platform-side non-assumption rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-055",
+   "keyword": "MUST",
+   "requirement": "When a Location lookup by identifier resolves multiple supplied identifiers to the same Location, the Business MUST return it only once (after deduping duplicate identifiers in the request).",
+   "quote": "A Business **MUST** dedupe duplicate identifiers in the request. When an\nidentifier matches multiple Locations, the Business returns the matching\nLocations and **MAY** limit the result set. When multiple identifiers resolve\nto the same Location, the Business **MUST** return it only once.",
+   "source": "ucp:docs/specification/common/location/lookup.md#L39-L42",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Lookup deduplication).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-056",
+   "keyword": "MUST",
+   "requirement": "A conforming Location REST transport implementation MUST implement endpoints for each Location capability advertised in the Business's UCP profile (each capability MAY be adopted independently), evaluate distance/serves/filters.items only against explicit Platform-supplied operands (never derived from context, signals, or IP address), apply distance, serves, and every supplied filters predicate conjunctively (AND), and support cursor-based pagination for Search per the shared pagination contract.",
+   "quote": "A conforming REST transport implementation **MUST**:\n\n1. Implement endpoints for each Location capability advertised in the Business's UCP profile,\n    per their respective capability requirements ([Search](search.md), [Lookup](lookup.md)).\n    Each capability **MAY** be adopted independently.\n2. Evaluate the `distance` and `serves` relations and the `filters.items`\n    availability predicate only against their explicit Platform-supplied\n    operands. Never derive an operand from `context`, `signals`, or an IP address, and never\n    apply an implicit serviceability or item-availability check when its\n    input is absent.\n3. Apply `distance`, `serves`, and every supplied `filters` predicate\n    conjunctively (AND).\n4. Support cursor-based pagination for Search according to the shared",
+   "source": "ucp:docs/specification/common/location/rest.md#L229-L241",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Conformance, REST transport). Umbrella lead-in for the itemized conformance list — no other list item carries its own MUST keyword (all are descriptive obligations under this one MUST), the same pattern as transports.json MCP-006 for the catalog MCP conformance list.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }

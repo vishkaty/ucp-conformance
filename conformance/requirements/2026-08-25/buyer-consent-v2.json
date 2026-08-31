@@ -309,6 +309,25 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Wholly new channel-segment concept; no 04-08 equivalent (04-08 consent had a single flat `marketing` boolean with no channel granularity)."
+  },
+  {
+   "id": "CNST-020",
+   "keyword": "MUST",
+   "requirement": "On complete_checkout, when a confirmed consent decision has unmet data dependencies, the missing dependencies MUST be surfaced via the standard Error Handling flow (rather than silently transitioning the checkout to completed).",
+   "quote": "Missing dependencies MUST be surfaced via the standard [Error\nHandling](../checkout/index.md#error-handling) flow.",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L356-L357",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (unmet-consent-dependency error-surfacing rule, paired with the adjacent completed-transition prohibition already registered nearby).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }

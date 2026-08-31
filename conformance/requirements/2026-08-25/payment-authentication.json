@@ -363,6 +363,63 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Documentation-contract requirement on the payment handler, not mechanically checkable from wire traffic."
+  },
+  {
+   "id": "PAUTH-021",
+   "keyword": "MUST",
+   "requirement": "If the Business needs the Platform to retry a Payment Authentication surface interaction after the Platform has stopped processing that Action occurrence (per the do-not-reprocess rule), it MUST replace the occurrence with a new id.",
+   "quote": "surface, the Platform **MUST NOT** process the same Action type and `id` again,\nincluding after `action.done`, `action.error`, a load failure, timeout, or Buyer\ndismissal. If the Business needs the Platform to retry the interaction, it\n**MUST** replace the occurrence with a new `id`.",
+   "source": "ucp:docs/specification/payment/extensions/authentication.md#L180-L183",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Action-occurrence retry-via-new-id rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "PAUTH-022",
+   "keyword": "MUST",
+   "requirement": "Every Payment Authentication surface's action.ready JSON-RPC request MUST set params.version equal to the active Payment Authentication extension version in the containing Checkout.",
+   "quote": "response. Its `params.version` **MUST** equal the active Payment Authentication\nextension version in the containing Checkout.",
+   "source": "ucp:docs/specification/payment/extensions/authentication.md#L263-L264",
+   "testability": "testable",
+   "transport": [
+    "embedded"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (action.ready version-matching rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "PAUTH-023",
+   "keyword": "MUST",
+   "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: parse config.url with a conformant URL parser (absolute, https, no userinfo); keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging or leaking session URLs; and treat completion/diagnostic notifications as advisory.",
+   "quote": "In addition, Platforms **MUST**:\n\n- parse `config.url` with a conformant URL parser; it **MUST** be absolute, use\n  the `https` scheme, and carry no userinfo component;\n- keep the surface within the allowed origins; on the web, a `frame-src`\n  directive naming only them makes a cross-origin redirect fail to load rather\n  than silently widen trust;\n- grant only the frame or webview capabilities required by the handler, which\n  **MUST** document any deviation from the shared sandbox baseline;\n- avoid logging session URLs or leaking them through referrers; and\n- treat all completion and diagnostic notifications as advisory.",
+   "source": "ucp:docs/specification/payment/extensions/authentication.md#L343-L353",
+   "testability": "manual",
+   "transport": [
+    "embedded"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Platform embedding-security checklist lead-in). Item 1 (config.url parsing) is separately registered as PAUTH-019 (L345); this row is the umbrella statement for the full 5-item checklist, the same pattern as OVR-* Resolution-Flow-style lead-ins where not every item carries its own keyword.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }

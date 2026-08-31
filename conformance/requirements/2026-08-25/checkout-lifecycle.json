@@ -1652,6 +1652,25 @@
       "browser_capable": true,
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the counterpart rule to CHK-078: distinguishing a genuinely new operation (fresh key) from a lost-response retry (same key)."
+    },
+    {
+      "id": "CHK-080",
+      "keyword": "MUST",
+      "requirement": "When HTTP Message Signatures are used, checkout REST requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.",
+      "quote": "When HTTP Message Signatures are used, requests **MUST** include valid\n`Signature-Input` and `Signature` headers (and `Content-Digest` when a body\nis present) per RFC 9421:",
+      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1419-L1421",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": true,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (Request Signing). Restates the general signature-header requirement SIG-013 (signatures.md#L402-403, request/response component table) but scoped specifically to checkout REST requests with the added Content-Digest-when-body-present conditional -- kept as its own row rather than waived as a duplicate of SIG-013 because it adds that transport-specific detail and is the checkout binding's own testable header-presence assertion.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ],
   "notes": [

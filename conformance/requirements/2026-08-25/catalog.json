@@ -816,6 +816,177 @@
         "from": "2026-04-08",
         "disposition": "carried"
       }
+    },
+    {
+      "id": "CAT-039",
+      "keyword": "MUST",
+      "requirement": "For the unit_price display comparator to be well-defined, the Business MUST use a positive integer for both unit_price.measure.value and unit_price.reference.value.",
+      "quote": "To keep the display comparator defined, the Business **MUST** use a positive\ninteger for both `unit_price.measure.value` and `unit_price.reference.value`.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L104-L105",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (catalog/index.md unit_price comparator rules — a wholly new subsystem at 08-25; the CAT-035..038 wave already registered adjacent sections of this file but not this cluster).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-040",
+      "keyword": "MUST",
+      "requirement": "The Business MUST set unit_price.currency equal to price.currency.",
+      "quote": "The Business **MUST** set `unit_price.currency` equal to `price.currency`.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L106",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rules).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-041",
+      "keyword": "MUST NOT",
+      "requirement": "Within unit_price, the Business MUST use identical values for measure.unit and reference.unit (though MAY use different scale values for those measures), and MUST NOT perform cross-unit or currency conversion as part of the unit-price calculation.",
+      "quote": "Within `unit_price`, the Business **MUST** use identical values for\n`measure.unit` and `reference.unit`. The Business **MAY** use different `scale`\nvalues for those measures. The Business **MUST NOT** perform cross-unit or\ncurrency conversion as part of the unit-price calculation. Each measure",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L107-L110",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rules, folded — the same-unit constraint and the no-conversion prohibition are one integrated invariant read across three sentences).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-042",
+      "keyword": "MUST",
+      "requirement": "The Business MUST compute the unit_price comparator from price.amount and the scaled measure/reference values per the defined formula.",
+      "quote": "represents its integer `value × 10^-scale` in the common unit. The Business\n**MUST** compute the comparator from `price.amount` and those scaled values:\n",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L111-L113",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator formula).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-043",
+      "keyword": "MUST NOT",
+      "requirement": "The Business MUST round the unit_price comparator result once to the currency minor units and return it as unit_price.amount, which is authoritative; the Platform MUST NOT recompute it or substitute its own result.",
+      "quote": "The Business **MUST** round the result once to the currency's minor units\naccording to its pricing rules and return it as `unit_price.amount`. The\nreturned `unit_price.amount` is authoritative. The Platform **MUST NOT**\nrecompute it or substitute its own result.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L118-L121",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rounding + authoritativeness, folded — the Business rounding duty and the Platform non-recompute prohibition are one integrated invariant).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-044",
+      "keyword": "MUST",
+      "requirement": "On transaction lines, the Business MUST echo unit_price on any line whose pricing basis differs from its sale basis.",
+      "quote": "On transaction lines, presence marks the role: the Business **MUST** echo\n`unit_price` on any line whose pricing basis differs from its sale basis (see\n[Checkout — pricing basis](../checkout/index.md#quantity-and-sale-basis)). A",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L134-L136",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price echo-on-transaction-lines rule).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-045",
+      "keyword": "MUST NOT",
+      "requirement": "When get_product returns severity: unrecoverable because an identifier does not resolve, agents MUST NOT retry the same id.",
+      "quote": "doesn't resolve; agents MUST NOT retry the same `id` (see the\n[REST](rest.md#product-not-found) and [MCP](mcp.md#product-not-found)",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L356-L357",
+      "testability": "manual",
+      "transport": [
+        "any"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (catalog error-handling guidance, get_product not-found). Client/agent-side behavioral rule.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-046",
+      "keyword": "MUST",
+      "requirement": "All catalog REST requests MUST include the UCP-Agent header containing the platform profile URI using Dictionary Structured Field syntax (RFC 8941).",
+      "quote": "* **UCP-Agent**: All requests **MUST** include the `UCP-Agent` header\n    containing the platform profile URI using Dictionary Structured Field syntax\n    ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).\n    Format: `profile=\"https://platform.example/profile\"`.",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L521-L524",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": true,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (Specific Header Requirements).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-047",
+      "keyword": "MUST",
+      "requirement": "When the catalog Search limit parameter is omitted, the Business MUST apply a default page size (a default of 10 is RECOMMENDED, but the Business MAY choose another value).",
+      "quote": "count. When `limit` is omitted, the Business **MUST** apply a default page\nsize. A default of 10 is **RECOMMENDED**, but the Business **MAY** choose\nanother value.",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L72-L74",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (Page Size).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ],
   "notes": [
