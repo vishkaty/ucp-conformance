@@ -65,6 +65,15 @@ def gates(server):
         # until L2 lands schema_enforced rows; a gate flip to --enforce is a later,
         # deliberate step per PLAN-0825 G0-c/§G). Still fails on malformed ruling
         # data (our own data-hygiene bugs), which is real regardless of mode.
+        # P3 conversion kickoff (2026-08-31, lane/p3-convert): NEW 2026-08-25 register
+        # rows checkable with neither a live golden nor the ucp-schema CLI oracle
+        # (blocked pre-#66 — G6). Self-referenced evidence class: the judge is our
+        # own implementation of an algorithm the released prose/schema specifies
+        # exactly, kill-tested per-check (valid must accept, negatives must reject —
+        # schema_check_04_08.py idiom). Deliberately unattributed: not wired into
+        # checkset_manifest/matrix/coverage — the coverage/site flip is a separate,
+        # owner-visible step (PLAN-0825 §G conversion-phase discipline).
+        ("struct-check-08-25", _py(CHK / "struct_check_08_25.py"),                None, ()),
         ("schema-census", _py(SELF / "verify_schema_census.py"),                  None, ()),
         # hermetic kill-tests for the census above: proves unreferenced-file
         # detection, stale-ruling (hash-diff self-expiry) detection, and a class
