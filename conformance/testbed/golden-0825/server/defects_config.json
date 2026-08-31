@@ -186,6 +186,65 @@
       "violates": "shopping/buyer_consent.json $defs.consent_purpose.source.enum: [business, platform] -- checked against the buyer-consent extension's combined def.",
       "oracle": {"kind": "against", "schema": "schemas/shopping/buyer_consent.json",
                  "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "consent-purpose-missing-granted",
+      "family": "check-conversion-p3-wave2",
+      "surface": "consent",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [
+        {"op": "set", "path": ["buyer"],
+         "value": {"consent": {"com.example.marketing":
+                     {"source": "platform", "description": "x"}}}}
+      ],
+      "violates": "shopping/buyer_consent.json $defs.consent_purpose.required: [granted, source, description] -- CNST-001. A consent_purpose is an OBJECT with these three members, never a bare boolean (the retired sale_of_data-style shape R5a/R5 warn against carrying forward) -- checked against the buyer-consent extension's combined def, same route/oracle-kind as consent-invalid-source (its sibling mutant, which proves CNST-003's source enum instead of this row's required-fields obligation).",
+      "oracle": {"kind": "against", "schema": "schemas/shopping/buyer_consent.json",
+                 "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "fulfillment-group-drop-id",
+      "family": "check-conversion-p3-wave2",
+      "surface": "fulfillment",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "drop", "path": ["fulfillment", "methods", 0, "groups", 0, "id"]}],
+      "violates": "shopping/types/fulfillment_group.json required: [id, line_item_ids] -- FUL-007. Checked against the fulfillment extension's combined def, same route as fulfillment-drop-method-id (its sibling, which proves FUL-003's method-level required fields instead of this row's group-level ones).",
+      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
+                 "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "fulfillment-option-drop-title",
+      "family": "check-conversion-p3-wave2",
+      "surface": "fulfillment",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "drop", "path": ["fulfillment", "methods", 0, "groups", 0, "options", 0, "title"]}],
+      "violates": "shopping/types/fulfillment_option_base.json required: [id, title] -- FUL-008. The clean POST /checkout-sessions response for this route's fixture body (a shipping method with groups[0].selected_option_id=std-ship) genuinely populates groups[0].options[] from shipping_rates.csv (std-ship/exp-ship-us), so this mutant targets a real served field, not a fabricated one. Checked against the fulfillment extension's combined def.",
+      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
+                 "def": "dev.ucp.shopping.checkout", "op": "create"}
+    }
+  ],
+  "self_referenced_mutants": [
+    {
+      "$comment": "P3 wave 2 (check-conversion): mutants whose violated rule the released schema does NOT itself enforce (additionalProperties/optionality lets the mutated shape validate CLEAN through the official oracle), so the CAUGHT step is judged by the check file's own predicate instead of schema_oracle -- self-referenced evidence class (PLAN-0825 SS B/SS E), not fixture-schema. Loaded into the SAME DefectsEngine.mutants dict as the array above (defects.py merges both -- one arm/disarm mechanism, same hot-reload state file), so arming/disarming works identically; they are simply NOT iterated by validate_golden_0825_battery.py's standing R11 report gate (which loops `config[\"mutants\"]` and requires an oracle rejection or a defects_config.json acknowledgement -- neither applies here, since nothing is actually broken or acknowledged-broken: the schema is just silent on this behavioral rule by design). Graded instead by conformance/checks/golden_check_08_25.py, which arms/disarms these by name directly.",
+      "name": "sig-keys-not-published",
+      "family": "check-conversion-p3-wave2",
+      "surface": "discovery",
+      "route": {"method": "GET", "path": "/.well-known/ucp"},
+      "patch": [{"op": "drop", "path": ["keys"]}],
+      "violates": "overview/index.md#L1262-1265 (SIG-008): 'When a profile publishes signing keys, they MUST appear in the top-level keys[] array.' profile.json's $defs.base declares `keys` OPTIONAL (not in `required`), so a profile that publishes no keys at all is schema-VALID -- the MUST is conditional ('when a profile publishes...') and cannot be phrased as an unconditional schema constraint the oracle can enforce. This golden DOES commit to publishing a webhook-signing key (R14), so for THIS golden the conditional is always active; the check's own predicate is the only thing that can judge it.",
+      "graded_by": "conformance/checks/golden_check_08_25.py: p_keys_published (SIG-008)"
+    },
+    {
+      "name": "pay-credential-leaked-in-response",
+      "family": "check-conversion-p3-wave2",
+      "surface": "payment",
+      "route": {"method": "POST", "path": "/checkout-sessions/{id}/complete"},
+      "patch": [
+        {"op": "set", "path": ["payment"],
+         "value": {"instruments": [{"id": "instr_1", "handler_id": "mock_payment_handler",
+                    "type": "token", "credential": {"type": "token", "token": "R11-MUTANT-CREDENTIAL-LEAK-PROOF"}}]}}
+      ],
+      "violates": "overview/index.md L2511 (PAY-011): 'Credentials flow Platform -> Business only. Businesses MUST NOT echo credentials back in responses.' + common/types/token_credential.json#L21 (PAY-012): the token field's `\"ucp_response\": \"omit\"` annotation. Empirically confirmed (2026-08-31, lane/p3-wave2) that the official oracle does NOT enforce either rule: injecting this exact credential.token into a real, otherwise-valid complete_checkout response still validates_root() clean (`ucp_response: omit` is a codegen/docs directive, not a JSON-Schema keyword any of these schemas turn into additionalProperties:false or a forbidden-field constraint) -- self-referenced by construction, not a defects-mode bug and not an oracle bug either; there is nothing for schema_oracle to catch here. This golden's clean design (checkout-complete and order-GET responses never carry a `payment` field at all) is a compliant, if maximally conservative, way to satisfy both rows; this mutant proves the check would catch a regression that reintroduced the leaked-credential class.",
+      "graded_by": "conformance/checks/golden_check_08_25.py: p_no_credential_leak (PAY-011, PAY-012)"
     }
   ],
   "acknowledged_gaps": {},

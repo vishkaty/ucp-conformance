@@ -211,13 +211,17 @@ def test_corrupt_state_file_is_treated_as_unarmed(tmp_path):
 
 def test_real_catalog_loads_and_every_mutant_has_a_route_and_patch():
     """A schema-lite sanity check on the actual shipped defects_config.json --
-    catches a malformed row before it ever reaches a live boot."""
+    catches a malformed row before it ever reaches a live boot. Covers both
+    "mutants" (oracle-graded) and "self_referenced_mutants" (graded by a check
+    file's own predicate, PLAN-0825 SS B -- same arm/disarm shape, just not
+    iterated by validate_golden_0825_battery.py's standing report gate)."""
     here = Path(__file__).resolve().parent
     config = json.loads((here / "defects_config.json").read_text())
     assert config["mutants"], "defects_config.json must ship at least one mutant"
-    names = [m["name"] for m in config["mutants"]] + [f["name"] for f in config.get("fixture_only", [])]
+    all_mutants = config["mutants"] + config.get("self_referenced_mutants", [])
+    names = [m["name"] for m in all_mutants] + [f["name"] for f in config.get("fixture_only", [])]
     assert len(names) == len(set(names)), "mutant/fixture names must be unique"
-    for m in config["mutants"]:
+    for m in all_mutants:
         assert m["route"]["method"] in ("GET", "POST", "PUT", "DELETE")
         assert m["route"]["path"].startswith("/")
         assert m["patch"], f"{m['name']} has an empty patch"
@@ -226,3 +230,18 @@ def test_real_catalog_loads_and_every_mutant_has_a_route_and_patch():
             assert isinstance(instr["path"], list) and instr["path"]
     for f in config.get("fixture_only", []):
         assert "body" in f
+
+
+def test_self_referenced_mutants_load_into_the_same_engine_as_mutants(tmp_path):
+    """defects_config.json's self_referenced_mutants array is merged into
+    DefectsEngine.mutants alongside the oracle-graded "mutants" array -- one
+    arm/disarm mechanism, not a second code path (P-7)."""
+    cfg = _config_file(tmp_path)
+    cfg.write_text(json.dumps({
+        "mutants": [{"name": "m1", "route": {"method": "GET", "path": "/a"},
+                     "patch": [{"op": "drop", "path": ["x"]}]}],
+        "self_referenced_mutants": [{"name": "m2", "route": {"method": "GET", "path": "/b"},
+                                      "patch": [{"op": "drop", "path": ["y"]}]}],
+    }))
+    engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(tmp_path / "state.json"))
+    assert set(engine.mutants.keys()) == {"m1", "m2"}

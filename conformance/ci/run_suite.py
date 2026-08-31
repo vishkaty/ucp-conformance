@@ -81,6 +81,20 @@ def gates(server):
         # checkset_manifest/matrix/coverage — the coverage/site flip is a separate,
         # owner-visible step (PLAN-0825 §G conversion-phase discipline).
         ("struct-check-08-25", _py(CHK / "struct_check_08_25.py"),                None, ()),
+        # P3 wave 2 (2026-08-31, lane/p3-wave2): the golden-reading counterpart to
+        # struct-check-08-25 above — rows checkable ONLY against a live golden-0825
+        # server, unblocked by the R11 defect-injection battery landing. HERMETIC
+        # (boots its own golden-0825 instance, own port 8198 — never 8182, never
+        # the R11 battery's 8199) so it needs no --server and no already-running
+        # fixture, matching the struct-check precedent; skip_exit_code 2 mirrors
+        # every other oracle-backed gate (schema/fixture/wrapper/schema-01-23/
+        # schema-04-08) when the ucp-schema binary/vendor tree isn't built. Every
+        # row's kill-proof is a NAMED mutant from server/defects_config.json
+        # (either the shared oracle-graded "mutants" array or the new
+        # "self_referenced_mutants" array for rows the released schema cannot
+        # itself enforce — see that file's own $comment and the module docstring
+        # here). Deliberately unattributed, same discipline as struct-check-08-25.
+        ("golden-check-08-25", _py(CHK / "golden_check_08_25.py"),                None, (2,)),
         ("schema-census", _py(SELF / "verify_schema_census.py"),                  None, ()),
         # hermetic kill-tests for the census above: proves unreferenced-file
         # detection, stale-ruling (hash-diff self-expiry) detection, and a class
