@@ -31,9 +31,9 @@ import rules                                                   # noqa: E402
 # VERSION_TREE used to be a private copy here — one of five independent lists across
 # the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam), and it had
 # silently drifted too: it never gained 2026-08-25. Now the single shared source every
-# consumer imports; see conformance/common/spec_versions.py. No RULES entry targets
-# 2026-08-25 yet (see rules.py) so this alone changes no output — it just makes the
-# tree resolvable the day a rule does.
+# consumer imports; see conformance/common/spec_versions.py. rules.py's
+# TRANSPORT_PARITY_0825 (G11 re-attest, 2026-08-31) is the first rule that resolves
+# this tree.
 from common.spec_versions import VERSION_TREE                  # noqa: E402
 
 

@@ -37,6 +37,20 @@ though MCP *does* require it on `complete`/`cancel`. The transports disagree on 
 retry-safety guarantee of create/update. Zero false positives by construction: it is
 a pure structural comparison of two contracts, no example-binding heuristic.
 
+**Re-attested at the v2026-08-25 release pin `cd78fb38`** (2026-08-31, GAP-LEDGER-0825
+G11, unblocked by the version-map consolidation): the finding **PERSISTS, unchanged in
+shape**, on the same four operations. The `#723` hierarchy reorg and `#736`/`#741`
+refactor did not touch this surface: MCP's base `meta` schema
+(`components.schemas.meta.required`) still requires only `ucp-agent`, and only
+`complete_checkout`/`cancel_checkout` carry the per-method `allOf` branch adding
+`idempotency-key`. This corrects an earlier, incorrect manual read recorded in the
+gap ledger ("08-25 half FIXED upstream — meta.required=true on all four MCP ops") —
+that read mistook the *parameter-level* `"meta": {"required": true}` (the `meta`
+object itself is a required RPC param on every method, always true, and unchanged
+across both pins) for the *field-level* requirement of `idempotency-key` within it,
+which is what the rule actually compares. Both pins' finding sets are locked as
+POSITIVE CONTROLs in `validate_speclint.py`.
+
 Run: `python3 conformance/speclint/speclint.py report`
 
 ## Why there is no example-validator (yet)

@@ -44,4 +44,27 @@ TRANSPORT_PARITY = SpecLintRule(
             "source/services/shopping/mcp.openrpc.json"),
 )
 
-RULES = (TRANSPORT_PARITY,)
+TRANSPORT_PARITY_0825 = SpecLintRule(
+    id="SPL-PARITY-IDEM",
+    version="2026-08-25",
+    predicate_class="transport_header_parity",
+    side_a="REST OpenAPI required header parameters "
+           "(source/services/shopping/rest.openapi.json)",
+    side_b="MCP OpenRPC required meta fields "
+           "(source/services/shopping/mcp.openrpc.json)",
+    materiality="Re-verification of SPL-PARITY-IDEM at the v2026-08-25 release pin "
+                "(PLAN-0825 A.3 / GAP-LEDGER-0825 G11): the finding PERSISTS, "
+                "unchanged in shape. REST still requires Idempotency-Key on "
+                "create_cart/create_checkout/update_cart/update_checkout; MCP's "
+                "base `meta` schema (components.schemas.meta.required) requires "
+                "only `ucp-agent`, and only complete_checkout/cancel_checkout gained "
+                "a per-method `allOf` branch adding `idempotency-key` — create/update "
+                "did not. A client generated from one transport's contract still "
+                "emits requests the other transport's server rejects, on the same "
+                "four operations as at 2026-04-08.",
+    disposition="candidate",
+    inputs=("source/services/shopping/rest.openapi.json",
+            "source/services/shopping/mcp.openrpc.json"),
+)
+
+RULES = (TRANSPORT_PARITY, TRANSPORT_PARITY_0825)
