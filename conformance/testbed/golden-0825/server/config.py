@@ -113,6 +113,24 @@ try:
     "retry (exponential backoff).",
     lower_bound=0.0,
   )
+  flags.DEFINE_string(
+    "defects_config",
+    None,
+    "Path to a defects_config.json mutant catalog (R11, PLAN-0825 SS C.4). "
+    "Unset (the default) means defect-injection mode is OFF: the defects "
+    "middleware short-circuits before touching any response, and the served "
+    "bytes are identical to a build with no defects code at all. Set only by "
+    "the battery runner / an explicit DEFECTS_CONFIG env var -- never in a "
+    "normal boot.",
+  )
+  flags.DEFINE_string(
+    "defects_state_file",
+    None,
+    "Path to a small JSON file naming the currently ARMED mutant (or null). "
+    "Re-read on every request that could match a mutant, so a battery can "
+    "arm/disarm mutants against one running server instead of rebooting per "
+    "mutant. Ignored when --defects_config is unset.",
+  )
 except flags.DuplicateFlagError:
   pass
 

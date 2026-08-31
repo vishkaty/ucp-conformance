@@ -19,6 +19,12 @@ set -euo pipefail
 PORT="${PORT:-8283}"
 SIM_SECRET="${SIM_SECRET:-selfcheck-secret}"
 DB_DIR="${DB_DIR:-/tmp/ucp_golden_0825}"
+# R11 defect-injection mode (PLAN-0825 SS C.4): OFF unless a caller exports
+# DEFECTS_CONFIG (normally only conformance/selfcheck/validate_golden_0825_battery.py
+# does). Unset means the --defects_config/--defects_state_file flags are never
+# passed, so a normal boot is identical to a build with no defects code linked.
+DEFECTS_CONFIG="${DEFECTS_CONFIG:-}"
+DEFECTS_STATE_FILE="${DEFECTS_STATE_FILE:-}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 SERVER="$ROOT/server"
 DATA_DIR="${DATA_DIR:-$ROOT/test_data/flower_shop}"
@@ -63,6 +69,20 @@ echo "✓ golden-0825 ucp-sdk $GOT_SDK matches pyproject.toml pin" >&2
     --products_db_path="$DB_DIR/products.db" \
     --transactions_db_path="$DB_DIR/transactions.db" >/dev/null 2>&1 )
 
+# Plain (possibly-empty) strings, not an array: bash 3.2 (macOS's default) treats
+# `"${ARR[@]}"` on an EMPTY array as an unbound-variable error under `set -u`, so an
+# array here would make the common (defects OFF) path crash under nounset. An empty
+# string word-splits to zero arguments and is safe under `set -u`.
+DEFECTS_FLAG=""
+DEFECTS_STATE_FLAG=""
+if [ -n "$DEFECTS_CONFIG" ]; then
+  DEFECTS_FLAG="--defects_config=$DEFECTS_CONFIG"
+  echo "defect-injection mode ON: $DEFECTS_CONFIG" >&2
+fi
+if [ -n "$DEFECTS_STATE_FILE" ]; then
+  DEFECTS_STATE_FLAG="--defects_state_file=$DEFECTS_STATE_FILE"
+fi
+
 echo "starting golden-0825 on :$PORT ..." >&2
 # See serve_golden.sh for why this is `( cd ... && exec ... ) & echo $!` with stdio
 # redirected rather than a plain background job: it detaches every inherited fd so
@@ -71,7 +91,8 @@ echo "starting golden-0825 on :$PORT ..." >&2
     --products_db_path="$DB_DIR/products.db" \
     --transactions_db_path="$DB_DIR/transactions.db" \
     --port="$PORT" \
-    --simulation_secret="$SIM_SECRET" ) >"$DB_DIR/server.log" 2>&1 </dev/null &
+    --simulation_secret="$SIM_SECRET" \
+    $DEFECTS_FLAG $DEFECTS_STATE_FLAG ) >"$DB_DIR/server.log" 2>&1 </dev/null &
 echo $! >"$DB_DIR/server.pid"
 
 WRAPPER_PID="$(cat "$DB_DIR/server.pid")"

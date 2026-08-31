@@ -20,6 +20,13 @@ Gates (each anchored to something we did NOT write, to avoid circularity):
 Server-dependent gates are skipped (not failed) when no golden is reachable, unless
 --require-server. The schema gate skips if the ucp-schema binary isn't built (exit 2).
 
+REPORT-ONLY (printed, never counted toward pass/fail -- matches schema-census's own
+report-mode default): the R11 golden-0825 mutant battery. It boots a second server
+(golden-0825, port 8199) and takes ~15s, too heavy for this per-change gate run; run it
+directly with `python3 conformance/selfcheck/validate_golden_0825_battery.py` and this
+script prints its last recorded result (self-expiring after 14 days -- see
+r11_battery_report_line()).
+
 Usage:
     python3 conformance/ci/run_suite.py [--server http://localhost:8182]
                                         [--require-server] [--skip schema,killrate]
@@ -340,6 +347,40 @@ def run_gate(name, argv, timeout=180):
     return {"rc": p.returncode, "dt": time.monotonic() - t0,
             "tail": tail[-1] if tail else "", "out": p.stdout + p.stderr}
 
+R11_BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
+R11_BATTERY_STALE_DAYS = 14
+
+
+def r11_battery_report_line():
+    """PLAN-0825 SS C.4 (R11): the golden-0825 mutant battery is a REPORT-ONLY
+    line here, not a gate in gates() above -- it boots a server twice and
+    takes ~15s, too heavy for the default per-change run_suite invocation
+    (same call the schema-census gate makes: report-only by default, a flip
+    to a hard gate is a later, deliberate step). Run it directly:
+        python3 conformance/selfcheck/validate_golden_0825_battery.py
+    This function only reads the JSON report that script writes on its own
+    last run and never re-executes it -- so this line is O(1) and never boots
+    anything itself.
+
+    Self-expiring (P-2): a report older than R11_BATTERY_STALE_DAYS is flagged
+    STALE rather than quietly trusted forever, same doctrine as every other
+    intermediate/report-mode state in this suite."""
+    import json as _json
+    if not R11_BATTERY_REPORT.exists():
+        return "R11 battery      · not yet run — see conformance/selfcheck/validate_golden_0825_battery.py"
+    try:
+        report = _json.loads(R11_BATTERY_REPORT.read_text())
+    except (OSError, ValueError) as e:
+        return f"R11 battery      ✗ LAST_RUN.json unreadable ({e})"
+    age_days = (time.time() - report.get("ran_at", 0)) / 86400
+    stale = " [STALE — re-run]" if age_days > R11_BATTERY_STALE_DAYS else ""
+    mark = "✓" if report.get("ok") else "✗"
+    acked = report.get("acknowledged_open", 0)
+    return (f"R11 battery      {mark} {report.get('killed')}/{report.get('total')} killed"
+            + (f" ({acked} acknowledged-open)" if acked else "")
+            + f", {age_days:.1f}d ago{stale}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="TDD/CI gate runner for the UCP conformance suite.")
     ap.add_argument("--server", default="http://localhost:8182",
@@ -408,6 +449,7 @@ def main():
     skipped = [n for n, s, _ in results if s == "SKIP"]
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
+    print(r11_battery_report_line() + "  (report-only, not counted above)")
     if failed:
         print(f"\nRED — gates failed: {', '.join(failed)}")
         return 1
