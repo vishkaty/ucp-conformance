@@ -10397,10 +10397,10 @@
   },
   "2026-08-25": {
    "state": "building",
-   "musts": 571,
+   "musts": 625,
    "check": 0,
    "exempt": 0,
-   "gap": 571,
+   "gap": 625,
    "accounted_pct": 0,
    "evidence_breakdown": {
     "live-wire": 0,
@@ -10409,10 +10409,10 @@
     "self-referenced": 0
    },
    "gap_by_testability": {
-    "manual": 126,
-    "needs-oauth": 4,
-    "needs-receiver": 130,
-    "testable": 311
+    "manual": 146,
+    "needs-oauth": 15,
+    "needs-receiver": 132,
+    "testable": 332
    },
    "areas": [
     {
@@ -10493,11 +10493,11 @@
     },
     {
      "area": "identity-linking",
-     "gap": 57,
-     "gap_manual": 22,
-     "gap_needs-oauth": 2,
-     "gap_testable": 33,
-     "musts": 57
+     "gap": 79,
+     "gap_manual": 30,
+     "gap_needs-oauth": 13,
+     "gap_testable": 36,
+     "musts": 79
     },
     {
      "area": "location",
@@ -10565,6 +10565,13 @@
      "musts": 9
     },
     {
+     "area": "payment-terms",
+     "gap": 23,
+     "gap_manual": 10,
+     "gap_testable": 13,
+     "musts": 23
+    },
+    {
      "area": "permalink",
      "gap": 21,
      "gap_manual": 4,
@@ -10608,6 +10615,14 @@
      "gap_needs-receiver": 5,
      "gap_testable": 12,
      "musts": 18
+    },
+    {
+     "area": "tokenization",
+     "gap": 9,
+     "gap_manual": 2,
+     "gap_needs-receiver": 2,
+     "gap_testable": 5,
+     "musts": 9
     },
     {
      "area": "totals",
@@ -13192,6 +13207,226 @@
      "covered_by": []
     },
     {
+     "id": "IDL-063",
+     "area": "identity-linking",
+     "keyword": "MUST NOT",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Businesses MUST NOT return stored user-specific state unless the request is user-authenticated and authorized for the operation; they MUST only return values that belong to the authenticated user and are appropriate for the current transaction.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L97-L100",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-064",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Platforms MUST treat returned business-owned identifiers as opaque and business-scoped, and MUST NOT infer raw credentials from a display value.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L101-L103",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-065",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Businesses MUST only list providers they explicitly trust in config.providers, and MUST NOT list their own authorization server.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L255-L256",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-066",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a business lists external identity providers of type oauth2 in config.providers, the business MUST support the JWT bearer assertion grant type at its token endpoint to accept JWT authorization grants from those IdPs, and MUST include urn:ietf:params:oauth:grant-type:jwt-bearer in grant_types_supported in its RFC 8414 metadata.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L257-L264",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-067",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "If no listed provider mechanism is supported or suitable, platforms MUST fall back to direct OAuth on the business domain.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L399-L400",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-068",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Platforms MUST ignore any oauth2 mechanism entry in config.providers whose auth_url matches the business's own issuer URI.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L405-L406",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-069",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Platforms MUST treat config.providers entries whose type they do not support as filtered out, rather than rejecting the business's configuration.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L429-L432",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-070",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "For oauth2 providers, platforms MUST discover the authorization server metadata from auth_url using the same two-tier metadata hierarchy as Discovery Step 2 (RFC 8414 primary with section 3.1 path insertion, OIDC fallback on 404 only), treating auth_url as the issuer.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L434-L440",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-071",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "For the chaining path, config.providers is a closed allowlist: a business MUST reject a JWT authorization grant whose iss does not match a listed oauth2 mechanism entry.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L388-L391",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-072",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Platforms requesting a JWT authorization grant via token exchange MUST include at least one of resource/audience (the business's AS issuer URI); when both are sent to the IdP they MUST carry identical values in the resulting grant's aud claim.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L537-L543",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-073",
+     "area": "identity-linking",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "The platform MUST NOT present a raw IdP token directly to a business.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L560-L562",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-074",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "The JWT authorization grant MUST conform to RFC 7523 section 3, with two UCP-specific constraints: aud MUST be a single value (the business's AS issuer URI), not an array, and jti MUST be present (RFC 7523 only says MAY) so businesses can enforce single-use replay protection.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L572-L579",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-075",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Upon receiving a JWT authorization grant, the business's authorization server MUST validate the assertion per RFC 7523 section 3, with UCP-specific requirements: iss MUST match the auth_url of a listed oauth2 mechanism entry; aud MUST match the business's own AS issuer URI exactly; the JWT signature MUST be verified against the IdP's jwks_uri, and the business MUST fail closed if the JWKS cannot be retrieved.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L588-L596",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-076",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "If no requested scope can be satisfied by an Accelerated-IdP-Flow grant's claims, the business MUST return invalid_scope per RFC 6749 section 5.2.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L601-L603",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-077",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "If user interaction (terms acceptance, onboarding) is required, the business MUST reject the JWT authorization grant with invalid_grant.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L605-L607",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-078",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "When the JWT authorization grant lacks a claim the business requires for account resolution, the business MUST reject with invalid_grant.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L635-L637",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-079",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Identity providers of type oauth2 listed in config.providers MUST publish authorization server metadata via RFC 8414 or OpenID Connect Discovery, and that metadata MUST include revocation_endpoint, jwks_uri, and urn:ietf:params:oauth:grant-type:token-exchange in grant_types_supported.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L669-L679",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-080",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "When processing token exchange requests for JWT authorization grants, the IdP MUST authenticate the platform and verify it is authorized to present the subject token; MUST verify the target business is a known relying party the user has authorized (resource/audience MUST carry identical values when both are sent) and MUST NOT issue grants for businesses the user has not authorized; MUST issue a grant conforming to the JWT Authorization Grant requirements; and MUST return issued_token_type as the jwt token-type URN.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L681-L682,L688,L690,L694",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-081",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Advertised scopes MUST apply uniformly across identity paths: the same config.scopes map governs availability whether the platform obtained identity via direct OAuth or the Accelerated IdP Flow, and a business honoring min_acr (for example) MUST apply the same threshold regardless of path.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L751-L756",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-082",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "JWT authorization grants MUST be short-lived.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L1018-L1020",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-083",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "needs-oauth",
+     "status": "gap",
+     "requirement": "Businesses MUST enforce single-use JWT authorization grants by tracking the jti claim within the grant's validity window.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L1021-L1024",
+     "covered_by": []
+    },
+    {
+     "id": "IDL-084",
+     "area": "identity-linking",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Businesses MUST NOT store or forward JWT authorization grants received from platforms.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L1025-L1027",
+     "covered_by": []
+    },
+    {
      "id": "LOC-001",
      "area": "location",
      "keyword": "MUST",
@@ -15182,6 +15417,236 @@
      "covered_by": []
     },
     {
+     "id": "PT-001",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Where terms is present it MUST contain at least one term, and selected_term_id MUST name one of them.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L51-L52",
+     "covered_by": []
+    },
+    {
+     "id": "PT-002",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform that recognizes no type value and reads no payment-term field other than title, description, schedules[].description, and schedules[].amount MUST be able to present what is owed and when, for every term; a Business MUST author terms so this holds.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L61-L65",
+     "covered_by": []
+    },
+    {
+     "id": "PT-003",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Business MUST make each schedule's description a complete buyer-facing statement of when and how that payment is due, so that a Platform can render it verbatim.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L85-L87",
+     "covered_by": []
+    },
+    {
+     "id": "PT-004",
+     "area": "payment-terms",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform MAY use type and due_at for a richer presentation, but MUST NOT present derived timing that contradicts the schedule's description.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L87-L89",
+     "covered_by": []
+    },
+    {
+     "id": "PT-005",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform MUST treat an unrecognized schedule type as not due at completion.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L100-L101",
+     "covered_by": []
+    },
+    {
+     "id": "PT-006",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business MUST omit due_at when the due date depends on a future event it cannot yet determine.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L107-L109",
+     "covered_by": []
+    },
+    {
+     "id": "PT-007",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "For the selected term, the Business MUST ensure that its schedule amounts sum to the checkout total.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L118-L120",
+     "covered_by": []
+    },
+    {
+     "id": "PT-008",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Where the selected term changes what the purchase costs, that difference MUST appear as its own entry in checkout.totals, a negative discount or a positive fee.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L126-L128",
+     "covered_by": []
+    },
+    {
+     "id": "PT-009",
+     "area": "payment-terms",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform MUST NOT assume that the amounts shown in terms[] survive selection unchanged, and MUST re-render from the response.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L140-L141",
+     "covered_by": []
+    },
+    {
+     "id": "PT-010",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business MUST make terms[].id unique within a Checkout, so that a selection resolves to exactly one term.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L143-L144",
+     "covered_by": []
+    },
+    {
+     "id": "PT-011",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform MUST omit selected_term_id on Checkout create (no options exist yet) and MUST omit it on complete (the term is already agreed before ready_for_complete).",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L150-L155",
+     "covered_by": []
+    },
+    {
+     "id": "PT-012",
+     "area": "payment-terms",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business receiving a selected_term_id that no longer resolves MUST NOT silently substitute a term, and MUST report the change as a payment_term_changed warning in messages[].",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L155-L158",
+     "covered_by": []
+    },
+    {
+     "id": "PT-013",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When resolving a downstream conflict caused by a term selection, or when rewriting the selected term's own schedules/due dates/amounts in place without naming a different term, the Business MUST report the change as a payment_term_changed warning in messages[].",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L162-L165",
+     "covered_by": []
+    },
+    {
+     "id": "PT-014",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform cannot pre-compute the effect of a choice, and MUST treat the payment-handler set in each response as authoritative for that response alone.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L183-L184",
+     "covered_by": []
+    },
+    {
+     "id": "PT-015",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The instrument funding a term MUST be capable of every one of that term's schedules; a Business MUST NOT advertise an instrument that cannot fund every schedule of the selected term, and MUST reject one that is submitted.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L189-L192",
+     "covered_by": []
+    },
+    {
+     "id": "PT-016",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A term with more than one schedule MUST be funded by a single instrument.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L196",
+     "covered_by": []
+    },
+    {
+     "id": "PT-017",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Under Warning Presentation, a Platform MUST display every returned payment-terms disclosure, MUST keep it in proximity to the node named by path, and MUST NOT hide, collapse, or auto-dismiss it; a Platform that cannot honor that contract MUST escalate through continue_url rather than silently dropping the notice.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L222-L227",
+     "covered_by": []
+    },
+    {
+     "id": "PT-018",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Where a disclosure governed the accepted term, the Business MUST return that disclosure on the Order with path set to $.payment.accepted_term and MUST use the same target in the applies_to of any paired policy; a Business MUST NOT return disclosures attached to terms the Buyer did not accept.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L231-L234",
+     "covered_by": []
+    },
+    {
+     "id": "PT-019",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business MUST ensure that every applies_to/path target it emits resolves to the intended node on the response that carries it.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L239",
+     "covered_by": []
+    },
+    {
+     "id": "PT-020",
+     "area": "payment-terms",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "A Platform MUST NOT infer that a deferred payment can be inspected, modified, or cancelled through UCP.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L256-L259",
+     "covered_by": []
+    },
+    {
+     "id": "PT-021",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the Order is created, a Business MUST ensure its schedule amounts sum to the Order total, and MUST NOT modify the accepted term after the Order is created (post-purchase changes are recorded in adjustments[]).",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L301-L304",
+     "covered_by": []
+    },
+    {
+     "id": "PT-022",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Platforms MUST: present each term's title and each schedule's description/amount in the Checkout currency; re-render from the Business response after selecting a term rather than reusing terms[] amounts; treat an unrecognized schedule type as not due at completion while still presenting the term; and process disclosures per Warning Presentation, escalating through continue_url when the rendering contract cannot be honored.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L625-L635",
+     "covered_by": []
+    },
+    {
+     "id": "PT-023",
+     "area": "payment-terms",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Businesses MUST: offer terms where relevant; name the selected term in every response carrying terms; ensure schedule descriptions alone state when payment is due; ensure the selected term's schedules sum to the checkout total exactly once; state any cost difference as its own totals entry; return the recomputed Checkout after a selection; report payment_term_changed whenever the effective term changes; place buyer-facing disclosure content in the warning content; and carry the accepted term and its disclosure onto the Order.",
+     "source": "ucp:docs/specification/payment/extensions/terms.md#L648-L667",
+     "covered_by": []
+    },
+    {
      "id": "RC-001",
      "area": "request-constraints",
      "keyword": "MUST",
@@ -16202,6 +16667,96 @@
      "covered_by": []
     },
     {
+     "id": "TOK-001",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Tokenizer MUST verify a binding by exact equality over type and id; it MUST NOT accept a partial match, and MUST NOT reject a request because binding carries members it does not recognize.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L120-L122",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-002",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Tokenizer MUST ignore unrecognized binding members when comparing; an extension that defines additional binding members MUST specify whether those members participate in the comparison, and a Tokenizer implementing that extension MUST follow the extension's definition.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L123-L126",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-003",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Tokenizer MUST treat binding.id as opaque: it MUST NOT require the value to be resolvable, and MUST NOT reject a request because it cannot confirm that the identified resource exists.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L127-L129",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-004",
+     "area": "tokenization",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Tokenizer MUST NOT reject a request solely because it does not recognize binding.type.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L130-L131",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-005",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Every token is issued to exactly one participant. A Tokenizer MUST record that participant at /tokenize (from identity when present, otherwise the authenticated caller); on /detokenize a Tokenizer MUST resolve the requesting participant the same way, MUST verify it matches the participant recorded at issuance, and MUST verify the authenticated caller is that participant or is authorized to act for it. A Tokenizer MUST NOT return the credential when either check fails.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L134-L140",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-006",
+     "area": "tokenization",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "identity is a participant identifier, not a credential, and a Tokenizer MUST NOT accept it as authentication.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L141-L142",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-007",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "The handler's specification MUST state whether it accepts network_token_credential as a source credential for tokenization, as a checkout credential directly, or both.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L71-L75",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-008",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "binding.id is a required field; the caller MUST send a non-empty string.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L106",
+     "covered_by": []
+    },
+    {
+     "id": "TOK-009",
+     "area": "tokenization",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "When publishing your handler, your specification document MUST include: a unique reverse-DNS handler name, endpoint URLs, authentication requirements, onboarding process, accepted credentials, token lifecycle policy, and security acknowledgements.",
+     "source": "ucp:docs/specification/payment/tokenization.md#L254",
+     "covered_by": []
+    },
+    {
      "id": "TOT-001",
      "area": "totals",
      "keyword": "MUST",
@@ -16344,7 +16899,7 @@
    ],
    "census": {
     "mode": "report",
-    "unaccounted": 417,
+    "unaccounted": 298,
     "gate_from": "2026-09-20"
    }
   }
