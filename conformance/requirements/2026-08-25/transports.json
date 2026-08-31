@@ -295,6 +295,63 @@
    ],
    "notes": "New row (Conformance, MCP binding, bullet 1).",
    "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "MCP-014",
+   "keyword": "MUST",
+   "requirement": "MCP clients MUST include a meta object in every cart request containing protocol metadata.",
+   "quote": "MCP clients **MUST** include a `meta` object in every request containing\nprotocol metadata:",
+   "source": "ucp:docs/specification/shopping/cart/mcp.md#L68-L69",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Same per-service pattern as MCP-007/008/010/011.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "MCP-015",
+   "keyword": "MUST NOT",
+   "requirement": "For MCP cart operations on existing carts (get, update, cancel), where a top-level id parameter identifies the target resource, the cart object in the request payload MUST NOT contain an id field.",
+   "quote": "\n* **Requests:** For operations on existing carts (`get`, `update`, `cancel`),\n    a top-level `id` parameter identifies the target resource. The `cart`\n    object in the request payload **MUST NOT** contain an `id` field.",
+   "source": "ucp:docs/specification/shopping/cart/mcp.md#L102-L105",
+   "testability": "manual",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identifier pattern). Cart-service analogue of MCP-002 (checkout's identical id-in-payload prohibition).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "MCP-016",
+   "keyword": "MUST",
+   "requirement": "A conforming cart MCP transport implementation MUST implement JSON-RPC 2.0 correctly, provide all core cart tools, return errors per the Core Specification, return business outcomes as a JSON-RPC result with UCP envelope and messages array, validate tool inputs against UCP schemas, and support HTTP transport with streaming.",
+   "quote": "A conforming MCP transport implementation **MUST**:\n\n1. Implement JSON-RPC 2.0 protocol correctly.\n2. Provide all core cart tools defined in this specification.\n3. Return errors per the [Core Specification](../../overview/index.md#error-handling).\n4. Return business outcomes as JSON-RPC `result` with UCP envelope and\n    `messages` array.\n5. Validate tool inputs against UCP schemas.\n6. Support HTTP transport with streaming.",
+   "source": "ucp:docs/specification/shopping/cart/mcp.md#L651-L659",
+   "testability": "needs-receiver",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Conformance). Cart-service analogue of MCP-003 (checkout's identical six-item conformance list).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/catalog/mcp.md -> docs/specification/shopping/catalog/mcp.md; docs/specification/checkout-a2a.md -> docs/specification/shopping/checkout/a2a.md; docs/specification/checkout-mcp.md -> docs/specification/shopping/checkout/mcp.md; docs/specification/order-mcp.md -> docs/specification/shopping/order/mcp.md. Six of seven rows are byte-identical in substance to 2026-04-08 (only relative link paths and, for MCP-005, a link-syntax convention changed as a mechanical side effect of the reorg). MCP-006 is genuinely reworded because it embeds the same pagination-contract language change already found in CAT-024."

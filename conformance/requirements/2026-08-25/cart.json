@@ -745,6 +745,44 @@
       "browser_capable": true,
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2). shopping/cart/embedded.md is the Embedded Cart Protocol (ECaP) binding -- otherwise a browser host<->iframe postMessage/MessageChannel transport contract (see the WAIVERS-PROPOSED-2.md batch waiving this file's other 27 unaccounted lines as non-normative for a server-endpoint checker), matching the existing embedded-protocol.md / embedded-cart.md scope-exclusion rationale. This ONE line is the exception: it is a requirement on the Cart REST/MCP API response body itself (ucp.services['dev.ucp.shopping'][].config.delegate, per-cart-session), genuinely server-observable and testable independent of any browser/iframe harness -- read in full before concluding the whole file could be blanket scope-excluded, per the tokenization-guide precedent this wave's brief points at."
+    },
+    {
+      "id": "CART-035",
+      "keyword": "MUST NOT",
+      "requirement": "The cart has no status lifecycle; each Action gates only the cart effect specified for its Action type. The Business MUST NOT treat an outstanding Action as a reason to reject an unrelated cart operation.",
+      "quote": "The cart has no status lifecycle. Each Action gates only the cart effect\nspecified for its Action type. The Business **MUST NOT** treat an outstanding\nAction as a reason to reject an unrelated cart operation. The Platform **MAY**",
+      "source": "ucp:docs/specification/shopping/cart/index.md#L119-L121",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (Actions, cart has-no-status-lifecycle guard).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CART-036",
+      "keyword": "MUST",
+      "requirement": "Update Cart performs a full replacement of the cart session. The platform MUST send the entire cart resource; the provided resource replaces the existing cart state on the business side.",
+      "quote": "Performs a full replacement of the cart session. The platform **MUST** send\nthe entire cart resource. The provided resource replaces the existing cart\nstate on the business side.",
+      "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (Update Cart, full-replacement duty -- the cart analogue of checkout's CHK-023).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ]
 }
