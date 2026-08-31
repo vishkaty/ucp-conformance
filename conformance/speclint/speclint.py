@@ -21,15 +21,20 @@ import pathlib
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "conformance"))
 from parsers.openapi import required_headers_by_operation      # noqa: E402
 from parsers.openrpc import required_meta_by_method            # noqa: E402
 from predicates import transport_header_parity                 # noqa: E402
 import rules                                                   # noqa: E402
-
-ROOT = HERE.parents[1]
-VERSION_TREE = {"2026-04-08": "ucp", "2026-01-23": "ucp-2026-01-23",
-                "2026-01-11": "ucp-2026-01-11"}
+# VERSION_TREE used to be a private copy here — one of five independent lists across
+# the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam), and it had
+# silently drifted too: it never gained 2026-08-25. Now the single shared source every
+# consumer imports; see conformance/common/spec_versions.py. No RULES entry targets
+# 2026-08-25 yet (see rules.py) so this alone changes no output — it just makes the
+# tree resolvable the day a rule does.
+from common.spec_versions import VERSION_TREE                  # noqa: E402
 
 
 def _vendor_dir(version):

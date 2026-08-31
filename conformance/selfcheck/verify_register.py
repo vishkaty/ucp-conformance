@@ -18,6 +18,11 @@ import json, re, sys, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]          # repo root
 REQ_DIR = ROOT / "conformance" / "requirements"
 VENDOR = ROOT / "conformance" / ".vendor"
+sys.path.insert(0, str(ROOT / "conformance"))
+# VERSION_TREE used to be a private copy here — one of five independent lists across
+# the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam) — now the single
+# shared source every consumer imports; see conformance/common/spec_versions.py.
+from common.spec_versions import VERSION_TREE  # noqa: E402
 
 def norm(s: str) -> str:
     s = s.replace("**", "").replace("`", "").replace("_", "")
@@ -30,14 +35,6 @@ def parse_source(src: str):
     repo, _, path = repo_path.partition(":")
     lines = [int(n) for n in re.findall(r"L(\d+)", anchor)]
     return repo, path, lines
-
-# the "ucp" repo prefix resolves to a different vendored tree per spec version
-VERSION_TREE = {
-    "2026-04-08": "ucp",
-    "2026-01-23": "ucp-2026-01-23",
-    "2026-01-11": "ucp-2026-01-11",
-    "2026-08-25": "ucp-2026-08-25",
-}
 
 def load_file(repo: str, path: str, ucp_dir: str = "ucp"):
     root = ucp_dir if repo == "ucp" else repo

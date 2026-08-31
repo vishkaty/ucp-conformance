@@ -35,32 +35,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 REQ_DIR = ROOT / "conformance" / "requirements"
 VENDOR = ROOT / "conformance" / ".vendor"
 WAIVERS = ROOT / "conformance" / "coverage" / "register_completeness_waivers.json"
+sys.path.insert(0, str(ROOT / "conformance"))
+# VERSION_TREE and REPORT_MODE_UNTIL used to be private copies here — two of five
+# independent lists across the suite (PLAN-0825 G0-b / A.4, the version-map
+# whack-a-mole seam) — now the single shared source every consumer imports; see
+# conformance/common/spec_versions.py for the full doctrine on both (report-mode's
+# fail-noisy self-expiry included).
+from common.spec_versions import VERSION_TREE, REPORT_MODE_UNTIL  # noqa: E402
 
-VERSION_TREE = {
-    "2026-04-08": "ucp",
-    "2026-01-23": "ucp-2026-01-23",
-    "2026-01-11": "ucp-2026-01-11",
-    "2026-08-25": "ucp-2026-08-25",
-}
-
-# REPORT-MODE versions (landing normalization, 2026-08-30): 2026-08-25's register is
-# still being built — L1's carry-forward + L2's new-surface rows are in, but the
-# census-closing tooling (schema-constraint census, subject-binding closure, PLAN-0825
-# §G0-c) hasn't landed. Gating this version now would either block every future 08-25
-# commit on ~500 unaccounted keyword occurrences, or invite padding the register to
-# force it green — the exact failure A.1 exists to prevent. Report mode is the bounded
-# honest middle: PRINT the true gap, don't fail the build on it.
-#
-# Fail-noisy self-expiry (P-2, the same mechanism this suite already uses for
-# allowlists/waivers): report mode is itself a live claim ("we are actively closing
-# this, not ignoring it forever") and must die loudly if nobody follows through. Past
-# the flip-by date below, an UNCLOSED report-mode version turns the gate RED instead of
-# silently staying quiet — the version leaves this dict only by the census actually
-# reaching GATE mode (PLAN-0825 §G: at L2's census-closing landing or this date,
-# whichever is first), never by the date quietly passing.
-REPORT_MODE_UNTIL = {
-    "2026-08-25": "2026-09-20",
-}
 VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced"}
 # scope exclusions are file-level and carry an extra reason class: a whole spec file
 # whose obligations are structurally outside what a server-endpoint checker can observe
@@ -176,6 +158,44 @@ def validate_waiver(w):
     return errs
 
 
+def stale_file_errors(waiver_idx, scope_idx, vendor=None, version_tree=None):
+    """(version, file, line, message) for every waiver/scope-exclusion entry whose
+    target file does not exist AT ALL in the vendored spec tree for the version it
+    claims to cover (PLAN-0825 A.2 / P-2 fail-noisy self-expiry): "every existing
+    scope-exclusion and waiver is keyed by file path. At 08-25 those paths moved.
+    ... the gate must FAIL on any waiver/scope-exclusion entry, scoped to a version,
+    whose file does not exist in that version's tree — a stale waiver is a stale
+    claim, and today it would go silently inert."
+
+    Deliberately narrower than the pre-existing `stale_waivers`/`stale_scopes` report
+    below (unused entries — a file that exists but coincidentally matched zero
+    occurrences during the scan, e.g. a row was deleted or the file lost its last
+    keyword): that case is not necessarily a FALSE claim, so it stays a printed
+    warning. THIS check is a factual claim ("this path exists at this version") that
+    is simply wrong, exactly the #723-reorg hazard — always a hard gate failure, never
+    merely a warning, kill-tested by validate_spec_versions.py planting a waiver at a
+    ghost path."""
+    vendor = VENDOR if vendor is None else vendor
+    version_tree = VERSION_TREE if version_tree is None else version_tree
+    errs = []
+    for (ver, rel, line), _w in sorted(waiver_idx.items()):
+        ucp_dir = version_tree.get(ver)
+        if ucp_dir and not (vendor / ucp_dir / rel).exists():
+            errs.append((ver, rel, line,
+                         f"waiver targets {rel!r}, which does not exist under "
+                         f"{ucp_dir}/ — the path moved or was deleted; fix the path or "
+                         f"drop the waiver"))
+    for (ver, rel), _sx in sorted(scope_idx.items()):
+        ucp_dir = version_tree.get(ver)
+        if ucp_dir and not (vendor / ucp_dir / rel).exists():
+            errs.append((ver, rel, "-",
+                         f"scope exclusion targets {rel!r}, which does not exist "
+                         f"under {ucp_dir}/ — the path moved or was deleted; fix the "
+                         f"path, scope the exclusion away from this version, or drop "
+                         f"it"))
+    return errs
+
+
 def validate_scope(sx):
     errs = []
     if sx.get("class") not in VALID_SCOPE_CLASSES:
@@ -233,6 +253,10 @@ def main(argv, today=None):
     for sx in scope_list:
         for e in validate_scope(sx):
             waiver_errs.append(("scope", sx.get("file"), "-", e))
+    # P-2 fail-noisy self-expiry (PLAN-0825 A.2): a waiver/scope-exclusion whose file
+    # does not exist AT ALL in the version's vendor tree is a stale, false claim — gate
+    # it the same way a bogus class/reason already gates (waiver_errs), not just warn.
+    waiver_errs += stale_file_errors(waiver_idx, scope_idx)
 
     used_waivers = set()
     used_scopes = set()

@@ -96,6 +96,16 @@ def gates(server):
         # aspirational. Hermetic (no I/O beyond the real matrix export sanity check).
         ("matrix-state-selftest",
          _py(ROOT / "conformance" / "coverage" / "matrix.py", "--selftest"),      None, ()),
+        # PLAN-0825 G0-b kill-test: the version-map consolidation (conformance/common/
+        # spec_versions.py) is genuinely the single source matrix/agent_matrix/
+        # verify_register*/speclint all read — not five copies that happen to agree
+        # today. Proves identity (no private copy crept back in), that a version
+        # appended to the one source appears everywhere, that an unknown version
+        # fails loud, that the concrete agent_matrix/speclint 2026-08-25 regression
+        # stays fixed, and the adjacent stale-waiver fail-noisy fix (PLAN-0825 A.2).
+        # Hermetic (reads the vendored trees already required by register-complete).
+        ("spec-versions-selftest",
+         _py(SELF / "validate_spec_versions.py"),                                None, ()),
         ("tls-check",   _py(SELF / "validate_tls_check.py"),                 "controlled", (2,)),
         ("sig-check",   _py(SELF / "validate_sig_check.py"),                    None, (2,)),
         ("oauth-check", _py(SELF / "validate_oauth_checks.py"),                  None, (2,)),

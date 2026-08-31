@@ -607,6 +607,13 @@ def _real_manifest():
     # can never independently disagree about what counts as supported.)
     cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
     agc = json.load(open(PUB / "agent-coverage.json"))
+    # The SAME backs-site filter applies to the agent lane: a version key whose
+    # agent row is all zeros (register-only, or no agent register at all) backs
+    # no site copy and must not leak into the supported-versions claim through
+    # this union. Symmetric with cov above, so an honest-zero row added for a
+    # new version never widens the public claim on its own.
+    agv = [v for v, d in agc.items()
+           if isinstance(d, dict) and (d.get("check") or d.get("exempt"))]
     # agent registry counts via subprocess import — same source of truth as the
     # agent_governance copy gate (len(CHECKS); non-None DEFECTS)
     r = subprocess.run([sys.executable, "-c",
@@ -627,7 +634,7 @@ def _real_manifest():
         "merchant_checks": merchant,
         "agent_checks": ag["agent_checks"],
         "agent_defects": ag["agent_defects"],
-        "versions": sorted(set(cov) | set(agc)),
+        "versions": sorted(set(cov) | set(agv)),
     }
 
 def freshness():
@@ -653,14 +660,14 @@ def freshness():
     if drift:
         for k, (old, new) in drift.items():
             print(f"  x manifest drift: {k} reviewed as {old} but the product says {new}")
-        # a review dated today covers a same-run product bump; anything older is stale
-        if reviewed < TODAY:
-            print("site-freshness: FAIL — product changed: re-review site claims "
-                  "(update manifest+reviewed after review)")
-            return 1
-        print("site-freshness: PASS (reviewed today) — but regenerate the manifest "
-              "block to match the product")
-        return 0
+        # Drift ALWAYS fails — a same-day grace would let the gate fail toward
+        # green any day the reviewed stamp is bumped (including by automation),
+        # which is exactly the fail-open class this suite exists to forbid. The
+        # legitimate same-run flow is to regenerate the manifest block to match
+        # the product in the same commit; there is never a reason to ship drift.
+        print("site-freshness: FAIL — product changed: regenerate the manifest "
+              "block to match the product and set reviewed after review")
+        return 1
     print(f"site-freshness: PASS — site claims reviewed {reviewed}, manifest matches "
           f"the product ({json.dumps(real)})")
     return 0
@@ -700,7 +707,7 @@ def selftest():
 
     bad = 0
 
-    def run_variant(name, mutate, want_red):
+    def run_variant(name, mutate, want_red, mutate_agc=None):
         nonlocal bad
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
@@ -711,6 +718,10 @@ def selftest():
             cov = copy.deepcopy(real_cov)
             mutate(cov["versions"])
             (tmpd / "coverage.json").write_text(json.dumps(cov))
+            if mutate_agc is not None:
+                agc = json.load(open(tmpd / "agent-coverage.json"))
+                mutate_agc(agc)
+                (tmpd / "agent-coverage.json").write_text(json.dumps(agc))
             env = dict(os.environ, SPCK_PUBLIC=str(tmpd))
             r = subprocess.run(
                 [sys.executable, str(ROOT / "conformance" / "ci" / "site_gates.py"),
@@ -730,6 +741,13 @@ def selftest():
         f"state=building planted on {live_ver} (has real CHECK/EXEMPT rows)",
         lambda vs: vs.__setitem__(live_ver, {**vs[live_ver], "state": "building"}),
         want_red=True)
+    run_variant(
+        f"agent check planted on the all-zero {zero_ver} agent row (backs-site "
+        f"filter must widen the real manifest and redden the 3-version claim)",
+        lambda vs: None,
+        want_red=True,
+        mutate_agc=lambda a: a.__setitem__(
+            zero_ver, {**a.get(zero_ver, {}), "check": 1}))
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,
