@@ -1,0 +1,24 @@
+{
+  "_about": "One-time fenced-hit audit rulings (PLAN-0825 A.2 last bullet, G0-c). verify_schema_census.py re-runs the mandatory-keyword scan INSIDE fenced code blocks across every pinned version's prose spec -- the prose census (verify_register_completeness.py) deliberately skips fences (they are worked examples, not normative prose), so a normative sentence hiding inside one would otherwise be invisible. This audit is a documented, dated, one-time sweep, re-run only on re-pin -- NEVER a standing gate (fences are examples by convention; gating on them would flood false positives, violating speclint's zero-false-positive doctrine). Every hit found gets a ruling here: 'non-normative' (an explanatory code comment restating a requirement that is already normative prose text elsewhere, cited via duplicate_of), 'duplicate' (functionally the same as non-normative for this audit's purposes -- kept as a distinct label for a hit that restates a SPECIFIC prose MUST closely enough to cite verbatim), or 'promote' (the fence hides content with no prose counterpart -- becomes a register-row extraction candidate). An unruled hit is reported (never gates) by verify_schema_census.py until it appears here.",
+  "audit_date": "2026-08-31",
+  "pin": "cd78fb38",
+  "rulings": [
+    {
+      "version": "2026-08-25",
+      "file": "signatures.md",
+      "line": 693,
+      "keyword": "MUST",
+      "class": "duplicate",
+      "duplicate_of": "prose MUST at signatures.md L322 (\"4. MUST set keyid to the JWK SHA-256 Thumbprint of the signing key per RFC 7638\")",
+      "reason": "'// keyid MUST equal the matched JWK's RFC 7638 thumbprint' is a Python-style comment inside a fenced verification-pseudocode example, restating the keyid/thumbprint-matching requirement the surrounding prose already states normatively at L322 (and again at L202-203). The fence is illustrating HOW a verifier checks the requirement, not stating a new one."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "signatures.md",
+      "line": 771,
+      "keyword": "MUST",
+      "class": "non-normative",
+      "reason": "'// No method/idempotency to bind, but the body still MUST be covered.' is an explanatory comment inside a fenced worked-example script, describing why the example's signature-base construction includes content-digest even though the example operation has no bindable method/idempotency-key. It restates the general Content-Digest body-coverage convention shown throughout the same doc's signature-base tables (e.g. the 'content-digest | Cond.' rows) rather than introducing an independent obligation; no exact single-sentence prose antecedent to cite as duplicate_of, hence non-normative rather than duplicate."
+    }
+  ]
+}
