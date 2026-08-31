@@ -180,3 +180,95 @@ After this file (real coverage only):
 ```
 
 ---
+
+## Areas: loyalty, ap2-mandates, permalink, identity-linking, device-data-collection, three-ds-challenge, buyer-consent — commit 7
+
+11 new rows: LOY-019/020, PAY-049/050, PERM-023/024, IDL-085, DDC-010/011, TDS-011, CNST-020.
+Closes every remaining unaccounted line in these seven files.
+
+```
+After this file:
+  2026-08-25:   922 kw    717 covered    142 scope-excl    54 waived     9 missed  (report mode)
+```
+
+`verify_register.py 2026-08-25`: 908/908 verified, 0 line-warnings, 0 FAILED.
+
+No new waivers this batch.
+
+**Side-effect note (not a defect, flagging for adjudication):** applying IDL-085 gives real
+quote-content coverage to `docs/specification/common/identity-linking/index.md:984`, which a
+pre-existing waiver in `register_completeness_waivers.json` also targets (Mix-Up Attack
+section). That pre-existing waiver is now STALE (unused) — confirmed by a local dry-run (see
+below) — and should be dropped by whoever adjudicates this file, as an unrelated 1-line
+cleanup alongside the new waivers below.
+
+---
+
+# Final census — 125 → 0
+
+Verified locally by temporarily pasting this file's 9 waivers into a scratch copy of
+`register_completeness_waivers.json`, running `verify_register_completeness.py --report`, and
+reverting (never committed — `git status`/`git diff` on that file is clean at HEAD). With the
+9 waivers applied:
+
+```
+2026-08-25:   922 kw    717 covered    142 scope-excl    63 waived     0 missed  (report mode)
+```
+
+0 unaccounted. Every one of the original 125 lines is now either a register row or a
+justified waiver proposal in this file — nothing silently dropped.
+
+## Summary: rows added this lane (101 new rows, 7 commits)
+
+| Prefix | File(s) | Count | Range |
+|---|---|---|---|
+| OVR | overview/index.md | 49 | OVR-028..OVR-076 |
+| MCP | catalog/mcp, location/mcp, checkout/mcp, order/mcp, cart/mcp | 10 | MCP-007..MCP-016 |
+| CAT | catalog/index, rest, search | 9 | CAT-039..CAT-047 |
+| LOC | location/index, search, lookup, rest | 8 | LOC-049..LOC-056 |
+| ORD | order/index, rest | 4 | ORD-034..ORD-037 |
+| PAUTH | payment/extensions/authentication.md | 3 | PAUTH-021..PAUTH-023 |
+| PAY | overview/index.md (payment section), ap2-mandates.md | 3 | PAY-048..PAY-050 |
+| DISC | overview/index.md (fetch-safety list) | 3 | DISC-007..DISC-009 |
+| CART | cart/index.md | 2 | CART-035..CART-036 |
+| DDC | device-data-collection.md | 2 | DDC-010..DDC-011 |
+| LOY | loyalty.md | 2 | LOY-019..LOY-020 |
+| PERM | permalink.md | 2 | PERM-023..PERM-024 |
+| CHK | checkout/rest.md | 1 | CHK-080 |
+| CNST | buyer-consent.md | 1 | CNST-020 |
+| IDL | identity-linking/index.md | 1 | IDL-085 |
+| TDS | three-ds-challenge.md | 1 | TDS-011 |
+
+Testability distribution of the 101 new rows: **testable** 53, **needs-receiver** 37,
+**manual** 11.
+
+## Waiver/scope-exclusion proposals (9, all class=duplicate)
+
+All 9 are internal or cross-file restatements of an obligation a register row (added in this
+lane or pre-existing) already states verbatim in substance — none is a missed extraction:
+
+| File | Line | duplicate_of |
+|---|---|---|
+| overview/index.md | 879 | CAP-004 (derivation-algorithm lead-in) |
+| overview/index.md | 1736 | DISC-006 (Platform-Advertisement intro vs. formal restatement) |
+| checkout/rest.md | 231 | CHK-023 (Update Checkout full-replacement, REST prose echo) |
+| checkout/rest.md | 234 | CHK-067 (complete_in_progress freeze, REST prose echo) |
+| checkout/rest.md | 237 | CHK-067 (same clause, REST prose echo) |
+| checkout/mcp.md | 392 | CHK-067 (complete_in_progress freeze, MCP prose echo) |
+| checkout/mcp.md | 395 | CHK-067 (same clause, MCP prose echo) |
+| checkout/mcp.md | 856 | MCP-004 (tools/call transformation, example lead-in) |
+| order/mcp.md | 292 | MCP-012 (messages-check duty, Conformance-bullet echo) |
+
+Zero scope-exclusion proposals were needed — every unaccounted line fell inside a file
+already in scope, and no line was genuinely unclassifiable.
+
+## What this lane did NOT touch
+
+- `conformance/coverage/register_completeness_waivers.json` — not edited, per the mission
+  brief; the 9 waivers above are proposals only.
+- `REPORT_MODE_UNTIL` / any gate-mode flag in `conformance/common/spec_versions.py` — not
+  touched; flipping report mode to gate mode is a deliberate parent-session step after
+  waiver adjudication, per the mission brief.
+- No existing row's `quote`, `source`, or other fields were edited — every line in this
+  lane's diffs is either a wholly new row appended to a `rows[]` array, or (for `order.json`,
+  see the `fixup:` commit) a pure reformatting restoration with zero content change.
