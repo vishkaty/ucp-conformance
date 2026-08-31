@@ -7,7 +7,7 @@
       "surface": "discovery",
       "route": {"method": "GET", "path": "/.well-known/ucp"},
       "patch": [
-        {"op": "drop", "path": ["ucp", "keys", 0, "crv"]}
+        {"op": "drop", "path": ["keys", 0, "crv"]}
       ],
       "violates": "profile.json $defs.jwk_public_key allOf: an EC key requires crv+x+y, an OKP key requires crv+x -- crv is required under either branch, so dropping it from the real published signing key breaks whichever kty this instance actually runs.",
       "upstream": "python-sdk#88 (JWK's 5 conditional rules dropped by generated models)",
@@ -188,13 +188,11 @@
                  "def": "dev.ucp.shopping.checkout", "op": "create"}
     }
   ],
-  "acknowledged_gaps": {
+  "acknowledged_gaps": {},
+  "_acknowledged_gaps_history": {
     "sdkdrop-jwk-missing-crv": {
-      "discovered": "2026-08-31 (R11 battery build, first live run)",
-      "finding": "so.validate_profile() (business_schema, the FULL discovery-document validation path) does NOT reject a keys[] entry missing its allOf-conditionally-required `crv`, even though the SAME payload validated DIRECTLY against profile.json#/$defs/jwk_public_key (no envelope) is correctly rejected (`\"crv\" is a required property`). Reproduced live against the pinned oracle (conformance/.vendor/ucp-schema, built at the SOURCES.lock.json schema_validator pin) on 2026-08-31; both calls, one payload, opposite verdicts. This is an oracle COMPOSITION bug (allOf conditional rules lost somewhere in the business_schema -> base -> keys[] array-items -> jwk_public_key $ref chain), not a defects-mode bug -- the mutant demonstrably FIRES (the served crv field is genuinely absent; see the LOADER-BROKEN check, which this entry does not trip).",
-      "hypothesis": "Exactly the risk STATUS.md's Validator section names as unprobed: 'PR #66 (preserve schema resource identity in bundling/composition/selection) may still matter for deeper multi-extension composition scenarios we did not probe' -- this battery is the probe, and it reproduces. Candidate root cause, not yet bisected further: the oracle's bundler may not preserve conditional (if/then/allOf) constraints when composing a $ref'd def through an array `items` boundary several $ref hops deep, distinct from (but same FAMILY as) the already-acknowledged ucp-schema#43 self-root-ref bug in conformance/ci/known_oracle_divergences.json.",
-      "not_yet_done": "Not bisected to a minimal upstream repro, not filed. This acknowledgement exists so the battery does not silently block on a defects-mode bug that isn't one, and so this finding is not lost -- it belongs in ops/GAP-LEDGER-0825.md and, once bisected, conformance/ci/known_oracle_divergences.json (that file's own rule requires an `upstream` link before an entry counts as acknowledged rather than suppression -- deliberately NOT duplicated here yet).",
-      "expiry": "G0-a (the post-#66 oracle re-pin, PLAN-0825 SS G0) is the natural re-test point: re-run this mutant after the re-pin; if it then reports KILLED, delete this entry (P-2, self-expiring acknowledgement, matching known_oracle_divergences.json's own discipline) -- if it still SURVIVES, the finding graduates from hypothesis to confirmed-post-#66 divergence and gets filed upstream."
+      "note": "RESOLVED 2026-08-31 (lane/p3-wave2, R14 in GAP-LEDGER-0825.md) -- this was NOT an oracle composition bug. Root cause: the golden published its signing key at ucp.keys[] (nested) + the retired top-level signing_keys[], never at the schema-canonical TOP-LEVEL keys[] (profile.json $defs.base: {ucp, keys} siblings; overview/index.md#L1262-1265). Because ucp.keys[] is unvalidated additionalProperties noise (ucp.json's business_schema declares no `keys` property inside `ucp`), the oracle was never actually exercising the allOf-conditional crv rule at all -- there was nothing wrong with PR #66 composition. Fixed: routes/discovery.py now publishes keys[] at the correct top level; ucp_signing._extract_keys reads the same location (it previously read ucp.keys[], the same wrong nested spot, so the bug was internally self-consistent and invisible to the smoke suite -- exactly GAP-LEDGER-0825.md's S8a class). This mutant's patch path is now [\"keys\", 0, \"crv\"]; re-run 2026-08-31: KILLED (\"Validation failed: /keys/0: \\\"crv\\\" is a required property\"). Kept here, emptied from the live acknowledged_gaps above, per that object's own self-expiring discipline (delete once it kills).",
+      "was": "See git history (conformance/testbed/golden-0825/server/defects_config.json before lane/p3-wave2) for the original acknowledged_gaps entry text."
     }
   },
   "fixture_only": [

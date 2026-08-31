@@ -814,9 +814,18 @@ def _extract_keys(document: dict) -> list[dict]:
 
   ``keys[]`` is the canonical RFC 7517 JWK Set field per ucp#566, which removed
   the earlier ``signing_keys[]``; this reference verifier reads only ``keys[]``.
+
+  Location: the TOP LEVEL of the profile document, a SIBLING of ``ucp`` —
+  never nested inside it. This is the published contract, not an inference:
+  profile.json's ``$defs.base`` declares ``properties: {ucp, keys}`` (both at
+  the same level, ``ucp`` required, ``keys`` optional), and
+  overview/index.md#L1262-1265 states it in prose ("When a profile publishes
+  signing keys, they MUST appear in the top-level `keys[]` array"). A
+  document is always `{"ucp": {...}, ...}` at 08-25 (`ucp` is required), so
+  looking for `keys` *inside* `ucp` would silently miss every schema-valid
+  profile's actual key publication.
   """
   if not isinstance(document, dict):
     return []
-  ucp = document.get("ucp", document)
-  value = ucp.get("keys") if isinstance(ucp, dict) else None
+  value = document.get("keys")
   return value if isinstance(value, list) and value else []

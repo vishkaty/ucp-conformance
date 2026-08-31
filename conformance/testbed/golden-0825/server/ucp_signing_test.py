@@ -368,19 +368,30 @@ class ProfileFetchTest(absltest.TestCase):
     finally:
       signing.httpx.AsyncClient = real_client
 
-  def test_reads_keys_from_ucp_envelope(self) -> None:
-    """keys[] (canonical per ucp#566) is read from the ucp envelope."""
-    keys = self._fetch(
-      lambda req: httpx.Response(200, json={"ucp": {"keys": [{"kid": "a"}]}})
-    )
-    self.assertEqual(keys[0]["kid"], "a")
-
   def test_reads_top_level_keys(self) -> None:
-    """A top-level keys[] array (no ucp wrapper) is read."""
+    """keys[] (canonical per ucp#566, profile.json $defs.base) is read from
+    the TOP LEVEL of the document -- a sibling of `ucp`, per
+    overview/index.md#L1262-1265 ("MUST appear in the top-level keys[]
+    array")."""
     keys = self._fetch(
-      lambda req: httpx.Response(200, json={"keys": [{"kid": "b"}]})
+      lambda req: httpx.Response(200, json={"ucp": {"version": "2026-08-25"},
+                                             "keys": [{"kid": "b"}]})
     )
     self.assertEqual(keys[0]["kid"], "b")
+
+  def test_keys_nested_under_ucp_is_not_read(self) -> None:
+    """A keys[] array nested INSIDE `ucp` (rather than beside it) is not the
+    canonical location and must not be read -- this is the exact shape
+    bug this reference verifier itself shipped and fixed (R8/R14 class,
+    GAP-LEDGER-0825.md): self-consistent internally, non-interoperable with
+    a spec-correct counterparty."""
+    with self.assertRaises(signing.SignatureError) as ctx:
+      self._fetch(
+        lambda req: httpx.Response(
+          200, json={"ucp": {"keys": [{"kid": "nested"}]}}
+        )
+      )
+    self.assertEqual(ctx.exception.code, "profile_malformed")
 
   def test_legacy_signing_keys_is_not_read(self) -> None:
     """A profile with only the removed signing_keys[] resolves to no keys.
@@ -390,7 +401,7 @@ class ProfileFetchTest(absltest.TestCase):
     with self.assertRaises(signing.SignatureError) as ctx:
       self._fetch(
         lambda req: httpx.Response(
-          200, json={"ucp": {"signing_keys": [{"kid": "old"}]}}
+          200, json={"ucp": {}, "signing_keys": [{"kid": "old"}]}
         )
       )
     self.assertEqual(ctx.exception.code, "profile_malformed")
@@ -622,20 +633,28 @@ class QueryAndUnresolvedTest(absltest.TestCase):
 
 
 class ExtractKeysTest(absltest.TestCase):
-  """_extract_keys reads keys[] (canonical per ucp#566) and tolerates junk."""
+  """_extract_keys reads top-level keys[] (canonical per ucp#566 + profile.json
+  $defs.base -- a sibling of `ucp`, never nested inside it) and tolerates
+  junk."""
 
   def test_non_dict_document(self) -> None:
     """A non-object profile yields no keys, not an error."""
     self.assertEqual(signing._extract_keys(["not", "a", "dict"]), [])
 
   def test_reads_canonical_keys(self) -> None:
-    """keys[] under the ucp envelope is the canonical source."""
-    doc = {"ucp": {"keys": [{"kid": "k"}]}}
+    """keys[] at the top level (sibling of ucp) is the canonical source."""
+    doc = {"ucp": {"version": "2026-08-25"}, "keys": [{"kid": "k"}]}
     self.assertEqual(signing._extract_keys(doc), [{"kid": "k"}])
+
+  def test_keys_nested_under_ucp_is_ignored(self) -> None:
+    """keys[] nested INSIDE ucp (rather than beside it) is not the canonical
+    location per profile.json $defs.base -- R8/R14 class bug shape."""
+    doc = {"ucp": {"keys": [{"kid": "nested"}]}}
+    self.assertEqual(signing._extract_keys(doc), [])
 
   def test_removed_signing_keys_is_ignored(self) -> None:
     """The removed signing_keys[] field is not read (ucp#566)."""
-    doc = {"ucp": {"signing_keys": [{"kid": "old"}]}}
+    doc = {"ucp": {}, "signing_keys": [{"kid": "old"}]}
     self.assertEqual(signing._extract_keys(doc), [])
 
 
