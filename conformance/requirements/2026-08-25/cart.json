@@ -727,6 +727,24 @@
         "from": "2026-04-08",
         "disposition": "carried"
       }
+    },
+    {
+      "id": "CART-034",
+      "requirement": "Businesses MUST include an embedded service binding with config.delegate in cart responses to indicate ECaP (Embedded Cart Protocol) availability and allowed delegations for a specific session.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/cart/embedded.md#L84-L86",
+      "quote": "Service-level discovery declares that a business supports ECaP, but does not\nguarantee that business will enable it for every cart session. Businesses **MUST** include\nan embedded service binding with `config.delegate` in cart responses to",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2). shopping/cart/embedded.md is the Embedded Cart Protocol (ECaP) binding -- otherwise a browser host<->iframe postMessage/MessageChannel transport contract (see the WAIVERS-PROPOSED-2.md batch waiving this file's other 27 unaccounted lines as non-normative for a server-endpoint checker), matching the existing embedded-protocol.md / embedded-cart.md scope-exclusion rationale. This ONE line is the exception: it is a requirement on the Cart REST/MCP API response body itself (ucp.services['dev.ucp.shopping'][].config.delegate, per-cart-session), genuinely server-observable and testable independent of any browser/iframe harness -- read in full before concluding the whole file could be blanket scope-excluded, per the tokenization-guide precedent this wave's brief points at."
     }
   ]
 }
