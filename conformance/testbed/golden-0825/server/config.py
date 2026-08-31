@@ -96,7 +96,7 @@ try:
     "order-event webhooks as this business (order.md, Webhook Signature "
     "Verification). When unset, an ephemeral demo key is generated at "
     "startup; either way the public JWK is published in the served "
-    "profile's signing_keys[].",
+    "profile's top-level keys[].",
   )
   flags.DEFINE_integer(
     "webhook_delivery_attempts",

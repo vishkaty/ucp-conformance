@@ -124,7 +124,18 @@ class DefectsEngine:
     self.fixtures: dict[str, dict] = {}
     if self.enabled:
       raw = json.loads(self.config_path.read_text(encoding="utf-8"))
-      self.mutants = {m["name"]: m for m in raw.get("mutants", [])}
+      # "mutants" (oracle-graded, iterated by validate_golden_0825_battery.py's
+      # standing R11 gate) and "self_referenced_mutants" (graded by a check
+      # file's own predicate instead -- the released schema doesn't itself
+      # enforce the violated rule, so there is no oracle call that could ever
+      # reject them; see defects_config.json's self_referenced_mutants
+      # $comment) share ONE arm/disarm mechanism -- both are just named
+      # patches against a (method, path). The split is purely about which
+      # report consumes a given name, not about how it's served.
+      self.mutants = {
+          m["name"]: m
+          for m in raw.get("mutants", []) + raw.get("self_referenced_mutants", [])
+      }
       self.fixtures = {f["name"]: f for f in raw.get("fixture_only", [])}
 
   def _armed_name(self) -> str | None:

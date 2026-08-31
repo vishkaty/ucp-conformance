@@ -16,7 +16,8 @@
 
 Order-event webhooks MUST be signed by the business (order.md, Webhook
 Signature Verification) with a key the business publishes in its profile's
-``signing_keys[]`` so platforms can verify the deliveries. This module owns
+``keys[]`` (a top-level sibling of ``ucp``) so platforms can verify the
+deliveries. This module owns
 that identity:
 
 * ``--webhook_signing_key`` loads an operator-provided PEM private key
@@ -84,7 +85,7 @@ def signing_key() -> tuple:
 
 
 def public_jwk() -> dict:
-  """Return the public JWK to publish in the profile's ``signing_keys[]``."""
+  """Return the public JWK to publish in the profile's top-level ``keys[]``."""
   key, kid = signing_key()
   return ucp_signing.jwk_from_public_key(key.public_key(), kid)
 

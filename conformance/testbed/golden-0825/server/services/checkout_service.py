@@ -1009,7 +1009,7 @@ class CheckoutService:
       # deduplicate redelivered events.
       "Idempotency-Key": webhook_id,
       # Sign AS this business: the profile URL platforms fetch our
-      # signing_keys[] from (order.md requires UCP-Agent on deliveries).
+      # keys[] from (order.md requires UCP-Agent on deliveries).
       "UCP-Agent": f'profile="{self.base_url}/.well-known/ucp"',
     }
     attempts = config.FLAGS.webhook_delivery_attempts

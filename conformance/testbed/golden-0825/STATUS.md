@@ -220,20 +220,31 @@ oracle-check. Report-only line in `conformance/ci/run_suite.py` (too heavy —
 two server boots, ~15s — for the default per-change gate run; the schema-
 census precedent), self-expiring after 14 days.
 
-**Result, first live run (2026-08-31): 18/19 killed.** The 19th
-(`sdkdrop-jwk-missing-crv`) is an honest, ACKNOWLEDGED finding, not a hidden
-gap: `so.validate_profile()` (the full `business_schema` chain) does NOT
-enforce `jwk_public_key`'s allOf-conditional `crv` requirement that direct
-validation against the same `$def` (no envelope) correctly catches — an
-oracle COMPOSITION bug, reproduced live against the pinned `ucp-schema`
-binary, matching exactly the risk this document's Validator section already
-flagged as unprobed ("PR #66 ... may still matter for deeper multi-extension
-composition scenarios we did not probe"). Recorded in
-`defects_config.json`'s `acknowledged_gaps` with a self-expiring re-test
-condition (re-run after the G0-a oracle re-pin; delete the entry if it then
-kills, file upstream if it still survives) — never a check that the golden
-itself reads or that any check-conversion work may treat as caught until that
-re-test happens.
+**Result, first live run (2026-08-31): 18/19 killed, 1 acknowledged.** The
+19th (`sdkdrop-jwk-missing-crv`) was recorded as an ACKNOWLEDGED oracle
+COMPOSITION bug at the time — `so.validate_profile()` appeared not to
+enforce `jwk_public_key`'s allOf-conditional `crv` requirement through the
+full `business_schema` chain. **CORRECTED 2026-08-31 (lane/p3-wave2, R14 in
+`ops/GAP-LEDGER-0825.md`): that diagnosis was wrong.** There was no oracle
+bug. This golden published its signing key at `ucp.keys[]` (nested) plus the
+retired top-level `signing_keys[]` — neither is the schema-canonical
+location. `profile.json`'s `$defs.base` declares `keys` as a TOP-LEVEL
+sibling of `ucp` (`properties: {ucp, keys}`), confirmed in prose at
+`overview/index.md#L1262-1265` ("MUST appear in the top-level `keys[]`
+array"). Because `ucp.keys[]` is unvalidated `additionalProperties` noise
+(`ucp.json`'s `business_schema` declares no `keys` property inside `ucp`
+at all), the oracle was never exercising the crv rule in the first place —
+the mutant's patched field simply wasn't schema-governed at that path. This
+golden's own verifier, `ucp_signing._extract_keys`, had the identical bug
+(reading `ucp.keys[]`), so the two sides were self-consistent and the defect
+was invisible to the smoke suite — exactly the class of bug
+`GAP-LEDGER-0825.md`'s S8a entry already named in the Node samples server,
+now found independently in this Python golden. **Fixed**:
+`routes/discovery.py` now publishes `keys[]` at the top level;
+`ucp_signing._extract_keys` reads the same location; the mutant's patch path
+is now `["keys", 0, "crv"]`. Re-run: **19/19 killed, 0 acknowledged**
+(`defects_config.json`'s `acknowledged_gaps` is now empty; the closed entry's
+text is kept in `_acknowledged_gaps_history` for the record).
 
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
