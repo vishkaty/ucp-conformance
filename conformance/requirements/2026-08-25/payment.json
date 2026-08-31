@@ -1054,6 +1054,44 @@
       ],
       "notes": "New row, 2026-08-25 census closure wave (overview/index.md Payment section, Instrument Cardinality, previously unaccounted). The default single-instrument-per-submission constraint and its relaxation condition (split_payments capability active), plus the business-side rejection duty and required error code.",
       "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "PAY-049",
+      "keyword": "MUST",
+      "requirement": "The platform MUST verify the merchant authorization signature (per the AP2 Mandates verify_merchant_authorization procedure).",
+      "quote": "The platform **MUST** verify the signature:",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L314",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (AP2 Mandates, Step 1 merchant-authorization signature verification).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "PAY-050",
+      "keyword": "MUST",
+      "requirement": "When the user confirms the purchase, the platform MUST facilitate the generation of cryptographically verifiable mandates (AP2 Mandates Step 2, User Consent and Mandate Generation).",
+      "quote": "When the user confirms the purchase, the platform **MUST** facilitate the\ngeneration of cryptographically verifiable mandates.",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L340-L341",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (AP2 Mandates, Step 2 lead-in).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ]
 }

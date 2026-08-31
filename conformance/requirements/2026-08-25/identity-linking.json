@@ -1763,6 +1763,25 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "NEW at v2026-08-25 (P2b pass). A data-handling/retention restriction on the business's internal storage, not observable via a single API probe; manual."
+  },
+  {
+   "id": "IDL-085",
+   "keyword": "MUST",
+   "requirement": "To prevent Mix-Up Attacks, Businesses MUST return iss in every authorization response (paired with the Platform's RFC 9207 iss validation) -- without iss validation, an attacker controlling one authorization server can redirect a victim's authorization code to a different server.",
+   "quote": "* **Mix-Up Attack prevention.** Platforms **MUST** validate the `iss`\n  parameter in the authorization response\n  ([RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207){ target=\"_blank\" }).\n  Businesses **MUST**\n  return `iss` in every authorization response. Without `iss` validation,\n  an attacker that controls one authorization server can redirect a",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L984-L989",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": true,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Mix-Up Attack prevention, business-side iss echo).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ],
  "notes": [

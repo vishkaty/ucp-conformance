@@ -327,6 +327,44 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Trust-boundary invariant; underpins the provisional/verified state machine (LOY-008/009/010)."
+  },
+  {
+   "id": "LOY-019",
+   "keyword": "MUST NOT",
+   "requirement": "When a membership claim is recognized and accepted but not yet verified, the business MUST return provisional: true and MAY return display-safe tier context for the state accepted during the session, but MUST NOT return display_id until the membership is verified.",
+   "quote": "* When a membership claim in the request is recognized and accepted but not verified by\n  the business, the business MUST return `provisional: true`. It MAY return display-safe\n  tier context for the state accepted during the session, and MUST NOT return\n  `display_id` until the membership is verified.",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L230-L233",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (provisional-membership display-safety guard).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOY-020",
+   "keyword": "MUST",
+   "requirement": "If a loyalty eligibility claim cannot be verified, the business MUST return a recoverable error via messages[] with code: \"eligibility_invalid\".",
+   "quote": "If the claim cannot be verified, the business MUST return a recoverable error via\n`messages[]`  with `code: \"eligibility_invalid\"`.",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L415-L416",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (eligibility_invalid error rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }

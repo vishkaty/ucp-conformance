@@ -399,6 +399,44 @@
    "browser_capable": true,
    "schema_enforced": true,
    "notes": "Directly checkable by constructing a permalink URL near the 2,048-octet boundary."
+  },
+  {
+   "id": "PERM-023",
+   "keyword": "MUST",
+   "requirement": "If a permalink item identifier contains a character outside the raw token grammar (including /, :, ,, %, ~, whitespace, or non-ASCII), the ~ encoded form MUST be used instead of percent-encoding, to avoid percent-encoded path separators that HTTP infrastructure may reject, decode, or normalize before resolution.",
+   "quote": "including `/`, `:`, `,`, `%`, `~`, whitespace, or non-ASCII characters, the `~`\nencoded form MUST be used instead. This avoids percent-encoded path separators\nsuch as `%2F`, which HTTP servers, proxies, and routers may reject, decode, or\nnormalize before resolution.",
+   "source": "ucp:docs/specification/permalink.md#L197-L200",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (compact item-identifier encoding fallback).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "PERM-024",
+   "keyword": "MUST NOT",
+   "requirement": "Private or highly personalized state SHOULD be consumed server-side and MUST NOT be forwarded to redirect destinations when a permalink would exceed the appropriate budget.",
+   "quote": "When a link would exceed the appropriate budget, reduce it to the compact subset\ndescribed in [Privacy](#privacy). Private or highly personalized state SHOULD be\nconsumed server-side and MUST NOT be forwarded to redirect destinations.",
+   "source": "ucp:docs/specification/permalink.md#L744-L746",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (link-budget privacy guard, redirect-destination forwarding prohibition).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }

@@ -183,6 +183,25 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Checkable by comparing a later Get Checkout response's payment/status state against a prior surface-reported outcome."
+  },
+  {
+   "id": "TDS-011",
+   "keyword": "MUST",
+   "requirement": "Mounting the 3DS Challenge surface MUST follow the shared Payment Authentication rendering contract and Embedded Protocol security requirements.",
+   "quote": "Mounting the surface **MUST** follow the shared\n[Payment Authentication rendering contract](../authentication.md#surface-rendering-and-notifications)\nand [Embedded Protocol security requirements](../../../embedded-protocol.md#security).",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L103-L105",
+   "testability": "needs-receiver",
+   "transport": [
+    "embedded"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (shared surface-mounting contract cross-reference -- the 3DS-Challenge analogue of the device-data-collection.md row).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]
 }
