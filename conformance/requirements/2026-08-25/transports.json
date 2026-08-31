@@ -219,6 +219,25 @@
    ],
    "notes": "New row (Conformance, MCP transport). Umbrella lead-in for the itemized conformance list, same pattern as MCP-006 (catalog) and the new LOC row for location/rest.md's parallel REST conformance list.",
    "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "MCP-010",
+   "keyword": "MUST",
+   "requirement": "MCP clients MUST include a meta object in every checkout request containing protocol metadata.",
+   "quote": "MCP clients **MUST** include a `meta` object in every request containing\nprotocol metadata:",
+   "source": "ucp:docs/specification/shopping/checkout/mcp.md#L82-L83",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Same per-service Request Metadata pattern as MCP-007 (catalog) and MCP-008 (location).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/catalog/mcp.md -> docs/specification/shopping/catalog/mcp.md; docs/specification/checkout-a2a.md -> docs/specification/shopping/checkout/a2a.md; docs/specification/checkout-mcp.md -> docs/specification/shopping/checkout/mcp.md; docs/specification/order-mcp.md -> docs/specification/shopping/order/mcp.md. Six of seven rows are byte-identical in substance to 2026-04-08 (only relative link paths and, for MCP-005, a link-syntax convention changed as a mechanical side effect of the reorg). MCP-006 is genuinely reworded because it embeds the same pagination-contract language change already found in CAT-024."

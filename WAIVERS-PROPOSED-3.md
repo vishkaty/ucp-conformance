@@ -76,3 +76,79 @@ missed extraction — waived below.
 ```
 
 ---
+
+## Area: shopping/checkout/mcp.md + rest.md — commit 4
+
+2 new rows added: MCP-010 (`transports.json`, checkout Request Metadata) and CHK-080
+(`checkout-lifecycle.json`, checkout REST Request Signing header requirement). Covers 2 of
+the 8 unaccounted lines across the two files with real coverage. The other 6 are per-transport
+prose echoes of rules the checkout/index.md operation-contract table (CHK-023, CHK-067) and
+transports.json (MCP-004) already register verbatim in substance — genuine duplicates, waived
+below rather than re-registered a third time. Waivers do not change `verify_register_completeness.py`'s
+local count (this lane does not edit `register_completeness_waivers.json`); the 6 lines below
+remain counted as "missed" in this lane's own runs until adjudicated.
+
+```
+After this file (real coverage only; waivers not yet applied):
+  2026-08-25:   922 kw    690 covered    142 scope-excl    55 waived    36 missed  (report mode)
+  (of the 36: 8 are waiver-proposed in this file + WAIVERS-PROPOSED-3's overview.md pair; the
+   rest await later areas in this same file)
+```
+
+`verify_register.py 2026-08-25`: 882/882 verified, 0 line-warnings, 0 FAILED (up from
+880/880 pre-file).
+
+### Waivers (6)
+
+```json
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/rest.md",
+ "line": 231,
+ "class": "duplicate",
+ "duplicate_of": "CHK-023",
+ "reason": "'Update Checkout is a full replacement operation. The Platform **MUST** send the entire Checkout resource, including any data updates to write-only fields; the supplied resource replaces the existing Checkout session state.' is the REST binding's prose echo of CHK-023 (checkout/index.md#L1078-1081, the operation-contract table's Update Checkout row): 'Performs a full replacement of the checkout resource. The platform is **REQUIRED** to send the entire checkout resource containing any data updates to write-only data fields. The resource provided in the request will replace the existing checkout session state on the business side.' Same obligation (full-resource replacement including write-only fields), same actor (Platform), restated for the REST transport section rather than a second rule."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/rest.md",
+ "line": 234,
+ "class": "duplicate",
+ "duplicate_of": "CHK-067",
+ "reason": "'**MUST NOT** start a new Update Checkout operation while the Checkout is `complete_in_progress`.' restates CHK-067 (checkout/index.md#L451, operation-contract table): 'The Platform **MUST NOT** start a new Update Checkout operation.' verbatim in substance -- the REST section's prose intro to the same complete_in_progress freeze rule the table already states."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/rest.md",
+ "line": 237,
+ "class": "duplicate",
+ "duplicate_of": "CHK-067",
+ "reason": "'new Update Checkout request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.' is the same clause CHK-067 already quotes verbatim ('If the Business receives a new Update Checkout request, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.'), restated in the REST binding's own prose paragraph rather than a second rule."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/mcp.md",
+ "line": 392,
+ "class": "duplicate",
+ "duplicate_of": "CHK-067",
+ "reason": "'The Platform **MUST NOT** start a new `update_checkout` operation while the Checkout is `complete_in_progress`.' is the MCP binding's prose echo of the same complete_in_progress freeze rule CHK-067 already registers from the checkout/index.md operation-contract table -- identical substance, restated per-transport."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/mcp.md",
+ "line": 395,
+ "class": "duplicate",
+ "duplicate_of": "CHK-067",
+ "reason": "'new `update_checkout` request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.' restates the same clause CHK-067 already quotes verbatim, in the MCP binding's own prose paragraph."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/checkout/mcp.md",
+ "line": 856,
+ "class": "duplicate",
+ "duplicate_of": "MCP-004",
+ "reason": "'Implementers **MUST** expose this as an MCP `tools/call` endpoint:' is the Complete Checkout example's intro sentence for the exact same OpenRPC-to-MCP `tools/call` transformation MCP-004 already registers verbatim from this file (L824-826): 'Implementers **MUST** apply this transformation:' followed by the method/params.name, params/params.arguments mapping table. Same obligation (implementers must expose OpenRPC operations as MCP tools/call), restated as a worked-example lead-in for the complete_checkout operation specifically rather than a second, distinct rule."
+}
+```
+
+---
