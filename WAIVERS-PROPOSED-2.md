@@ -194,3 +194,263 @@ different citation.
  "reason": "Stale-waiver reorg re-point. 'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half of the same sentence is TOT-018. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:850 (duplicate_of TOT-001, same target row id, unchanged across versions)."
 }
 ```
+
+
+---
+
+## Area: embedded checkout + embedded-protocol (adjudicated file by file)
+
+Per the brief's warning ("this is the scope-exclusion-candidate class -- adjudicate
+honestly file by file... the landed lane's tokenization-guide precedent shows blanket
+exclusion can be WRONG, read before excluding"): both `embedded-protocol.md` (47
+unaccounted lines) and `shopping/cart/embedded.md` (28 unaccounted lines) were read in
+full, end to end, before any exclusion/waiver was proposed.
+
+**Verdict: `embedded-protocol.md` is genuinely 100% out-of-scope** (a browser
+host<->iframe postMessage/MessageChannel/native-webview transport spec -- JSON-RPC
+message format, handshake, auth escalation, session error, lifecycle/state-change
+notifications, error codes, CSP/iframe-sandbox/credentialless-iframe security -- nothing
+in any of its 557 lines is a server HTTP/MCP endpoint behavior). This is not a new
+finding: the register already scope-excludes this exact file for 2026-04-08 with this
+exact rationale. The file did not move in the 08-25 reorg (same path,
+`docs/specification/embedded-protocol.md`) and a full read confirms the content is
+unchanged in kind. **Proposed fix: extend the existing scope exclusion's `versions` list
+to add `2026-08-25`, not add a new entry or touch its `file`/`reason`.**
+
+**Verdict: `shopping/cart/embedded.md` is NOT 100% out-of-scope.** It is the 2026-08-25
+successor of `embedded-cart.md` (scope-excluded at 04-08 with the same browser-transport
+rationale), and 27 of its 28 unaccounted lines are exactly that -- ECaP's own postMessage
+handshake/payload/notification mechanics, the literal browser `MessagePort` type, host-side
+URL construction. But one line is not: L86 requires the Cart REST/MCP API **response
+body** itself to include an embedded service binding with `config.delegate` when ECaP is
+offered for that session -- a real, server-observable requirement, extracted as CART-034
+in the previous commit. Because a scope exclusion in `verify_register_completeness.py` is
+whole-file with no per-line carve-out (`excluded = (ver, rel) in scope_idx` short-circuits
+every occurrence in the file before any row is even checked), scope-excluding this file
+would have silently hidden CART-034's own row from ever being credited or checked --
+exactly the kind of over-broad exclusion the brief's tokenization-guide precedent warns
+against. **Proposed fix: do not scope-exclude this file; waive its other 27 lines
+individually (below).**
+
+```
+Before this batch:
+  2026-08-25:   922 kw    582 covered     95 scope-excl    20 waived   225 missed  (report mode)
+
+If the embedded-protocol.md scope-exclusion extension is applied (+47 scope-excl):
+  -> scope-excl 95 -> 142, missed 225 -> 178
+
+If the 27 shopping/cart/embedded.md waivers below are ALSO applied (+27 waived):
+  -> waived 20 -> 47, missed 178 -> 151
+```
+
+### Scope exclusion extension (not a new entry -- extend the existing one)
+
+The existing entry in `register_completeness_waivers.json` (`scope_exclusions[]`):
+
+```json
+{
+ "file": "docs/specification/embedded-protocol.md",
+ "versions": ["2026-04-08"],
+ "class": "out-of-scope",
+ "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface."
+}
+```
+
+should become:
+
+```json
+{
+ "file": "docs/specification/embedded-protocol.md",
+ "versions": ["2026-04-08", "2026-08-25"],
+ "class": "out-of-scope",
+ "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface. Re-verified against the 2026-08-25 vendor tree (same path, unmoved by the reorg; full 557-line read confirms no server-observable content was added -- JSON-RPC message format, handshake/auth/session-error/lifecycle/state-change message patterns, error codes, and CSP/iframe-sandbox/credentialless-iframe security all remain browser-transport-only)."
+}
+```
+
+### Line waivers: `shopping/cart/embedded.md`'s other 27 lines (non-normative)
+
+```json
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 137,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host-side URL-construction step (augmenting continue_url with ep_* query params before loading the iframe) -- browser/host behavior, no server endpoint to probe."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 145,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. ep_version is a URL query parameter the host sets when loading the embedded iframe URL, not a field in any server response."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 162,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. 'in all responses' here means the ECaP JSON-RPC responses exchanged over the postMessage/MessagePort channel during the embedded session, not the original Cart REST/MCP response -- browser-transport session state, not server-observable."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 164,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same ECaP session-bound version-echo rule as L162 (its MUST NOT half); browser-transport session state."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 185,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Conformance requirement on the Embedded Cart's own JS/webview implementation (which JSON-RPC methods it must handle) -- not a server response shape."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 200,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. The ep.cart.ready handshake broadcast is sent over postMessage by the embedded iframe's own code; no server endpoint emits or receives it."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 209,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. delegate is a field of the ep.cart.ready postMessage request payload sent from the iframe to the host, not a server response field."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 210,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Subset-of-config.delegate constraint on the same ep.cart.ready postMessage payload field as L209."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 237,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's obligation to respond to the ep.cart.ready postMessage request -- host-side browser behavior."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 243,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. ucp REQUIRED field of the host's ep.cart.ready postMessage RESPONSE (over the browser transport), not a REST/MCP response."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 244,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. status MUST be success/error on the same postMessage response as L243."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 248,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential/upgrade mutual-exclusion rule on the same ep.cart.ready postMessage response."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 252,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential MUST-be-set-if-auth-requested rule on the same postMessage response."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 253,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential MUST-NOT-be-set-if-upgrade-present rule on the same postMessage response (paired with L248)."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 272,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. port MUST be a MessagePort object -- literally a browser API type, the clearest possible marker of browser-transport-only content."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 292,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Embedded Cart's channel-upgrade handling (discard/switch/re-send over the new MessagePort) -- iframe-side browser behavior."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 295,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same channel-upgrade rule as L292 (the MUST-only-over-upgraded-channel half)."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 299,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's error_response behavior on a failed postMessage handshake -- host-side browser behavior."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 301,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's tear-down/redirect behavior on a handshake error -- host-side browser behavior, paired with L299."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 302,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Embedded Cart's MUST-NOT-send-further-messages rule after a handshake error, paired with L299/L301 on the same postMessage error path."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 316,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Error-escalation notification (ep.cart.error) issued by the Embedded Cart over the postMessage channel -- browser transport, not a server endpoint."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 334,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. cart REQUIRED payload field of the ep.cart.start postMessage notification -- the notification itself travels over the browser transport, not as a REST/MCP response."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 369,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.complete postMessage notification."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 405,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.line_items.change postMessage notification."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 433,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.buyer.change postMessage notification."
+},
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/cart/embedded.md",
+ "line": 461,
+ "class": "non-normative",
+ "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.messages.change postMessage notification."
+}
+
+```
