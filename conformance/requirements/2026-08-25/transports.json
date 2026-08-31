@@ -21,8 +21,8 @@
    "notes": "Carried into 2026-08-25: text unchanged, still embedded in Conformance item 2 (catalog/mcp.md, moved under docs/specification/shopping/). Subject: MCP catalog endpoint (server). Server-observable.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -44,8 +44,8 @@
    "notes": "Carried into 2026-08-25: checkout-a2a.md moved to docs/specification/shopping/checkout/a2a.md; text and line numbers within the file are unchanged (this section is byte-identical to 2026-04-08). Subject: business agent (server) response format over A2A transport.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -67,8 +67,8 @@
    "notes": "Carried into 2026-08-25: checkout-mcp.md moved to docs/specification/shopping/checkout/mcp.md; text unchanged, line shifted +2 (122-123 vs old 120-121) due to an added ucp:example annotation earlier in the file. Subject: MCP client constructing the request (identifier-pattern well-formedness).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -90,8 +90,8 @@
    "notes": "Carried into 2026-08-25: the six-item conformance list is unchanged verbatim; only the relative link target for 'Core Specification' updated from overview.md to ../../overview/index.md as a mechanical consequence of the reorg (three extra path segments for the new nesting depth), not a content change. Subject: the MCP transport implementation (server/endpoint).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -113,8 +113,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim; line shifted (804 -> 824) due to earlier additions in checkout/mcp.md (extra ucp:example annotations, expanded Message Signing section). Subject: implementer (server).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -136,8 +136,8 @@
    "notes": "Carried into 2026-08-25: order-mcp.md moved to docs/specification/shopping/order/mcp.md; requirement text unchanged. The OpenRPC schema link changed representation from an absolute URL (https://ucp.dev/services/shopping/mcp.openrpc.json) to the doc-site's internal 'site:' link shorthand (site:services/shopping/mcp.openrpc.json) — a documentation-tooling convention change, not a content change to what businesses must implement. Subject: the business (server/endpoint) under 'Businesses implementing the MCP binding'.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -159,9 +159,28 @@
    "notes": "REWORDED, flagged for review: item 7 of this conformance list changed from \"7. Support cursor-based pagination with default limit of 10.\" (old catalog/mcp.md#L698) to \"7. Support cursor-based pagination for Search according to the shared\\n    pagination contract (see [Pagination](search.md#pagination)).\" (new #L713-714) — the same rewording pattern as CAT-024 in the REST binding, consistent with the pagination.json schema change (default 10 downgraded from schema default to RECOMMENDED). All other joined fragments (items 1, 5, 8) are unchanged verbatim. Umbrella lead-in for the catalog MCP conformance list (items 1,3-8); MCP-001 only captures item 2 (Lookup tools).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "reworded"
+    "from": "2026-04-08",
+    "disposition": "reworded"
    }
+  },
+  {
+   "id": "MCP-007",
+   "keyword": "MUST",
+   "requirement": "MCP clients MUST include a meta object in every catalog request containing protocol metadata.",
+   "quote": "MCP clients **MUST** include a `meta` object in every request containing\nprotocol metadata:",
+   "source": "ucp:docs/specification/shopping/catalog/mcp.md#L64-L65",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Client-side MCP request-shape rule, same pattern as MCP-001/006 (catalog MCP transport) already in this file.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/catalog/mcp.md -> docs/specification/shopping/catalog/mcp.md; docs/specification/checkout-a2a.md -> docs/specification/shopping/checkout/a2a.md; docs/specification/checkout-mcp.md -> docs/specification/shopping/checkout/mcp.md; docs/specification/order-mcp.md -> docs/specification/shopping/order/mcp.md. Six of seven rows are byte-identical in substance to 2026-04-08 (only relative link paths and, for MCP-005, a link-syntax convention changed as a mechanical side effect of the reorg). MCP-006 is genuinely reworded because it embeds the same pagination-contract language change already found in CAT-024."
