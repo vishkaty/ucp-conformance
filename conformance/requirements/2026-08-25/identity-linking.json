@@ -18,7 +18,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"This specification uses OAuth 2.0 as the v1 auth mechanism. The schema is designed for incremental extension: future versions will add delegated identity provider support and non-OAuth authentication mechanisms...\" NEW (08-25): \"This specification uses OAuth 2.0 for authorization. Direct OAuth 2.0 against the business domain (via Discovery) is always available. When the business declares trusted external identity providers in config.providers, platforms MAY instead chain identity from a provider via the Accelerated IdP Flow, skipping the browser-based flow when they already hold a suitable upstream token.\" The 'v1 auth mechanism' / future-version framing is gone: config.providers and the Accelerated IdP Flow (JWT bearer assertion chaining, RFC 8693/7523) are now a SHIPPED feature in this version, not a placeholder (see IDL-056/IDL-057). Capability dev.ucp.common.identity_linking. Identity-linking existed in 2026-01-23 but 04-08 reworked it to capability-driven scopes / RFC 8414 discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"This specification uses OAuth 2.0 as the v1 auth mechanism. The schema is designed for incremental extension: future versions will add delegated identity provider support and non-OAuth authentication mechanisms...\" NEW (08-25): \"This specification uses OAuth 2.0 for authorization. Direct OAuth 2.0 against the business domain (via Discovery) is always available. When the business declares trusted external identity providers in config.providers, platforms MAY instead chain identity from a provider via the Accelerated IdP Flow, skipping the browser-based flow when they already hold a suitable upstream token.\" The 'v1 auth mechanism' / future-version framing is gone: config.providers and the Accelerated IdP Flow (JWT bearer assertion chaining, RFC 8693/7523) are now a SHIPPED feature in this version, not a placeholder (see IDL-056/IDL-057). Capability dev.ucp.common.identity_linking. Identity-linking existed in 2026-01-23 but 04-08 reworked it to capability-driven scopes / RFC 8414 discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -40,7 +40,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 8414 metadata field. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Token-endpoint auth method selection is the platform's request behavior. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 8414 metadata field. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Token-endpoint auth method selection is the platform's request behavior. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -51,7 +51,7 @@
    "requirement": "Confidential clients SHOULD prefer asymmetric token-endpoint auth methods (private_key_jwt or tls_client_auth) and MAY use client_secret_basic where supported.",
    "keyword": "SHOULD",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L132-L134",
-   "quote": "**Confidential clients** (server-side platforms that can protect a\n        credential) **SHOULD** prefer asymmetric methods \u2014\n        `private_key_jwt`",
+   "quote": "**Confidential clients** (server-side platforms that can protect a\n        credential) **SHOULD** prefer asymmetric methods —\n        `private_key_jwt`",
    "versions": [
     "2026-08-25"
    ],
@@ -62,7 +62,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. MAY client_secret_basic where business supports it. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Confidential-client method preference is the platform's choice. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. MAY client_secret_basic where business supports it. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Confidential-client method preference is the platform's choice. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -73,7 +73,7 @@
    "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L142-L145",
-   "quote": "**Public clients** (native, desktop, browser-extension, and on-device\n        agent runtimes per\n        [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n        **MUST** use `none` and rely on PKCE with `S256`",
+   "quote": "**Public clients** (native, desktop, browser-extension, and on-device\n        agent runtimes per\n        [RFC 8252 §8.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n        **MUST** use `none` and rely on PKCE with `S256`",
    "versions": [
     "2026-08-25"
    ],
@@ -84,7 +84,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Capability-driven OAuth model new in 04-08 rework. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Public-client method choice + PKCE use are the platform's request behavior. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Capability-driven OAuth model new in 04-08 rework. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Public-client method choice + PKCE use are the platform's request behavior. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -106,7 +106,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Mirrored at Security Considerations L971-983 (was L581). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Not embedding a client_secret is a property of the platform's distributed binary. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Mirrored at Security Considerations L971-983 (was L581). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Not embedding a client_secret is a property of the platform's distributed binary. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -128,7 +128,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Method-strength selection is the platform's negotiation behavior. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Method-strength selection is the platform's negotiation behavior. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -150,7 +150,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 6750 \u00a72.1. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The Authorization: Bearer header is authored by the platform. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 6750 §2.1. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The Authorization: Bearer header is authored by the platform. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -161,7 +161,7 @@
    "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L156-L158",
-   "quote": "**MUST** process `WWW-Authenticate: Bearer` challenges per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401` and `403` responses to user-authenticated operations.",
+   "quote": "**MUST** process `WWW-Authenticate: Bearer` challenges per\n    [RFC 6750 §3](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401` and `403` responses to user-authenticated operations.",
    "versions": [
     "2026-08-25"
    ],
@@ -172,7 +172,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Challenge processing is the platform's response handling. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Challenge processing is the platform's response handling. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -194,7 +194,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Platforms drive flow from structured scope param, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Extracting the scope param is the platform's response handling. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Platforms drive flow from structured scope param, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Extracting the scope param is the platform's response handling. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -205,7 +205,7 @@
    "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L164-L166",
-   "quote": "**MUST** implement the OAuth 2.0 Authorization Code flow\n    ([RFC 6749 \u00a74.1](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1){ target=\"_blank\" })\n    as the account linking mechanism.",
+   "quote": "**MUST** implement the OAuth 2.0 Authorization Code flow\n    ([RFC 6749 §4.1](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1){ target=\"_blank\" })\n    as the account linking mechanism.",
    "versions": [
     "2026-08-25"
    ],
@@ -216,7 +216,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Authorization Code flow is mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The account-linking flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Authorization Code flow is mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The account-linking flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -238,7 +238,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. PKCE S256 mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). PKCE use on the request side is the platform's; the business-side enforcement is IDL-019/023/036/049 (checked). Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. PKCE S256 mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). PKCE use on the request side is the platform's; the business-side enforcement is IDL-019/023/036/049 (checked). Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -260,7 +260,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Mix-up defense. Issuer declared in RFC 8414 metadata. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). iss validation is the platform's response handling; the business-side iss emission is IDL-018 (checked). Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Mix-up defense. Issuer declared in RFC 8414 metadata. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). iss validation is the platform's response handling; the business-side iss emission is IDL-018 (checked). Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -282,7 +282,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -304,7 +304,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Restated at Security Considerations L1015-1017 (was L617-618). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side revocation endpoint is IDL-027/028 (checked). Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Restated at Security Considerations L1015-1017 (was L617-618). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side revocation endpoint is IDL-027/028 (checked). Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -447,7 +447,7 @@
    "requirement": "For loopback redirect URIs (127.0.0.1 or [::1]) businesses MUST ignore the port component and match on scheme, host, and path only.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L218-L221",
-   "quote": "**Exception \u2014 loopback redirects:** For\n    redirect URIs targeting `127.0.0.1` or `[::1]`, businesses **MUST** ignore\n    the port component and match on scheme, host, and path only",
+   "quote": "**Exception — loopback redirects:** For\n    redirect URIs targeting `127.0.0.1` or `[::1]`, businesses **MUST** ignore\n    the port component and match on scheme, host, and path only",
    "versions": [
     "2026-08-25"
    ],
@@ -458,7 +458,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 8252 \u00a77.3 native/desktop ephemeral ports. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 8252 §7.3 native/desktop ephemeral ports. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -546,7 +546,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 9068 \u00a74. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Graded on its observable core (W2-F5 bar met 2026-08-04): the mint hook now yields deterministic EXPIRED, REVOKED, and FOREIGN-CLIENT tokens \u2014 exp/revocation (identity.expired/revoked_token_rejected, cited IDL-042) plus the client_id/azp binding half (identity.foreign_client_token_rejected, cited HERE) must each draw the invalid_token challenge. Whether an opaque-token business literally inspects iss/aud strings remains not black-box distinguishable; exp + revocation + client binding are the enforceable core the quote names.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. RFC 9068 §4. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Graded on its observable core (W2-F5 bar met 2026-08-04): the mint hook now yields deterministic EXPIRED, REVOKED, and FOREIGN-CLIENT tokens — exp/revocation (identity.expired/revoked_token_rejected, cited IDL-042) plus the client_id/azp binding half (identity.foreign_client_token_rejected, cited HERE) must each draw the invalid_token challenge. Whether an opaque-token business literally inspects iss/aud strings remains not black-box distinguishable; exp + revocation + client binding are the enforceable core the quote names.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -557,7 +557,7 @@
    "requirement": "Businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 Unauthorized (identity_required) and 403 Forbidden (insufficient_scope) responses to user-authenticated operations.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L241-L244",
-   "quote": "**MUST** emit a `WWW-Authenticate: Bearer` challenge per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401 Unauthorized` (`identity_required`) and `403 Forbidden`\n    (`insufficient_scope`) responses to user-authenticated operations.",
+   "quote": "**MUST** emit a `WWW-Authenticate: Bearer` challenge per\n    [RFC 6750 §3](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n    on `401 Unauthorized` (`identity_required`) and `403 Forbidden`\n    (`insufficient_scope`) responses to user-authenticated operations.",
    "versions": [
     "2026-08-25"
    ],
@@ -656,7 +656,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"...This lets platforms discover the authorization server protecting the resource without relying on domain conventions and prepares the deployment for future delegated IdP scenarios where the AS may not live on the business domain.\" (SHOULD only, no explicit MUST condition). NEW (08-25): \"...and prepares the deployment for future delegated domain conventions. The business **MUST** publish this metadata when the authorization server does not live on the business domain.\" A new conditional MUST was added: publishing protected-resource metadata is no longer purely a SHOULD once the AS is off-domain \u2014 it becomes obligatory, consistent with the new Discovery Step 1 (protected-resource-metadata-driven issuer resolution) which now formally allows the AS to live on a different origin.",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"...This lets platforms discover the authorization server protecting the resource without relying on domain conventions and prepares the deployment for future delegated IdP scenarios where the AS may not live on the business domain.\" (SHOULD only, no explicit MUST condition). NEW (08-25): \"...and prepares the deployment for future delegated domain conventions. The business **MUST** publish this metadata when the authorization server does not live on the business domain.\" A new conditional MUST was added: publishing protected-resource metadata is no longer purely a SHOULD once the AS is off-domain — it becomes obligatory, consistent with the new Discovery Step 1 (protected-resource-metadata-driven issuer resolution) which now formally allows the AS to live on a different origin.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -678,7 +678,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); this exact clause's wording is unchanged, though it now sits inside a 3-step Discovery pipeline (a new Step 1 \u2014 protected-resource-metadata issuer resolution \u2014 precedes what was 'step 1' in 04-08; this RFC 8414 fetch is now sub-item 1 of the pipeline's Step 2). See IDL-033 for the issuer-comparison clause that DID change substance. Strict two-tier discovery hierarchy; RFC 8414 primary.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); this exact clause's wording is unchanged, though it now sits inside a 3-step Discovery pipeline (a new Step 1 — protected-resource-metadata issuer resolution — precedes what was 'step 1' in 04-08; this RFC 8414 fetch is now sub-item 1 of the pipeline's Step 2). See IDL-033 for the issuer-comparison clause that DID change substance. Strict two-tier discovery hierarchy; RFC 8414 primary.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -711,7 +711,7 @@
    "requirement": "The issuer value in discovered metadata MUST byte-for-byte match the AS issuer resolved in Discovery Step 1 (which may now be a different origin than the business domain, via protected-resource metadata); platforms MUST NOT normalize before comparison.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L319-L324",
-   "quote": "The `issuer` value in the discovered\nmetadata **MUST** byte-for-byte match the AS issuer selected in Step 1\n(per\n[RFC 8414 \u00a73.3](https://datatracker.ietf.org/doc/html/rfc8414#section-3.3){ target=\"_blank\" }).\nPlatforms **MUST NOT** normalize (e.g., strip trailing slashes) before\ncomparison.",
+   "quote": "The `issuer` value in the discovered\nmetadata **MUST** byte-for-byte match the AS issuer selected in Step 1\n(per\n[RFC 8414 §3.3](https://datatracker.ietf.org/doc/html/rfc8414#section-3.3){ target=\"_blank\" }).\nPlatforms **MUST NOT** normalize (e.g., strip trailing slashes) before\ncomparison.",
    "versions": [
     "2026-08-25"
    ],
@@ -722,7 +722,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"The issuer value in the discovered metadata MUST match the discovery base URI exactly (per RFC 8414 \u00a73.3). ... the value must be a byte-for-byte match.\" where 'discovery base URI' was ALWAYS the business's own domain (a flat two-tier hierarchy). NEW (08-25): \"The issuer value in the discovered metadata MUST byte-for-byte match the AS issuer selected in Step 1 (per RFC 8414 \u00a73.3).\" Discovery is now a 3-step pipeline: a new Step 1 resolves the AS issuer via RFC 9728 protected-resource metadata, and that issuer MAY be hosted on a different origin than the business domain (defaulting to the business domain only when no protected-resource metadata is published). The comparison target for byte-for-byte matching therefore changed from 'always the business domain' to 'whatever Step 1 resolved,' a genuine scope broadening, not just a rename. RFC 8414 \u00a73.3. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (metadata issuer == discovery base, byte-for-byte); the 'platforms MUST NOT normalize' half is platform-bound.",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"The issuer value in the discovered metadata MUST match the discovery base URI exactly (per RFC 8414 §3.3). ... the value must be a byte-for-byte match.\" where 'discovery base URI' was ALWAYS the business's own domain (a flat two-tier hierarchy). NEW (08-25): \"The issuer value in the discovered metadata MUST byte-for-byte match the AS issuer selected in Step 1 (per RFC 8414 §3.3).\" Discovery is now a 3-step pipeline: a new Step 1 resolves the AS issuer via RFC 9728 protected-resource metadata, and that issuer MAY be hosted on a different origin than the business domain (defaulting to the business domain only when no protected-resource metadata is published). The comparison target for byte-for-byte matching therefore changed from 'always the business domain' to 'whatever Step 1 resolved,' a genuine scope broadening, not just a rename. RFC 8414 §3.3. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (metadata issuer == discovery base, byte-for-byte); the 'platforms MUST NOT normalize' half is platform-bound.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -733,7 +733,7 @@
    "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L366",
-   "quote": "Platforms **MUST** request only the derived scope set \u2014 not a superset.",
+   "quote": "Platforms **MUST** request only the derived scope set — not a superset.",
    "versions": [
     "2026-08-25"
    ],
@@ -744,7 +744,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Derived from business config.scopes. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Requesting only the derived scope set is the platform's request authoring. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Derived from business config.scopes. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Requesting only the derived scope set is the platform's request authoring. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -766,7 +766,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). state/iss verification is the platform's response handling. Platform-conformance exemption candidate. This is the Account Linking Flow's own local 'Step 3', unaffected by the separate Discovery-section Step 1/2/3 renumbering (see IDL-033).",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). state/iss verification is the platform's response handling. Platform-conformance exemption candidate. This is the Account Linking Flow's own local 'Step 3', unaffected by the separate Discovery-section Step 1/2/3 renumbering (see IDL-033).",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -821,7 +821,7 @@
    "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L738-L740",
-   "quote": "Platforms **MUST** treat any\nscope listed in `config.scopes` \u2014 well-known or custom \u2014 as gating its\noperations behind user authentication.",
+   "quote": "Platforms **MUST** treat any\nscope listed in `config.scopes` — well-known or custom — as gating its\noperations behind user authentication.",
    "versions": [
     "2026-08-25"
    ],
@@ -832,7 +832,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. config.scopes hard-gates user-auth operations vs scopes_supported accepted vocabulary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Treating config.scopes as gating is the platform's interpretation duty. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. config.scopes hard-gates user-auth operations vs scopes_supported accepted vocabulary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Treating config.scopes as gating is the platform's interpretation duty. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -854,7 +854,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. scope_policy is additionalProperties:true in schema. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring unrecognized per-scope policy fields is the platform's parsing duty. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. scope_policy is additionalProperties:true in schema. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring unrecognized per-scope policy fields is the platform's parsing duty. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -865,7 +865,7 @@
    "requirement": "On identity_required the business MUST return 401 Unauthorized, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'identity_required'.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L814-L820",
-   "quote": "the business **MUST** return:\n\n* HTTP `401 Unauthorized`\n* A `WWW-Authenticate: Bearer` challenge header per\n    [RFC 6750 \u00a73](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n* A UCP error response body containing a message with\n    `code: \"identity_required\"`",
+   "quote": "the business **MUST** return:\n\n* HTTP `401 Unauthorized`\n* A `WWW-Authenticate: Bearer` challenge header per\n    [RFC 6750 §3](https://datatracker.ietf.org/doc/html/rfc6750#section-3){ target=\"_blank\" }\n* A UCP error response body containing a message with\n    `code: \"identity_required\"`",
    "versions": [
     "2026-08-25"
    ],
@@ -920,7 +920,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. When no token presented, error SHOULD be omitted (RFC 6750 \u00a73.1). Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. When no token presented, error SHOULD be omitted (RFC 6750 §3.1). Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -931,7 +931,7 @@
    "requirement": "The identity_required WWW-Authenticate header SHOULD include a resource_metadata parameter pointing to the protected resource metadata document.",
    "keyword": "SHOULD",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L830-L832",
-   "quote": "The header **SHOULD** include a `resource_metadata` parameter\n([RFC 9728 \u00a75.1](https://datatracker.ietf.org/doc/html/rfc9728#section-5.1){ target=\"_blank\" })\npointing to the protected resource metadata document",
+   "quote": "The header **SHOULD** include a `resource_metadata` parameter\n([RFC 9728 §5.1](https://datatracker.ietf.org/doc/html/rfc9728#section-5.1){ target=\"_blank\" })\npointing to the protected resource metadata document",
    "versions": [
     "2026-08-25"
    ],
@@ -975,7 +975,7 @@
    "requirement": "On insufficient_scope the business MUST return 403 Forbidden, a WWW-Authenticate: Bearer challenge, and a UCP error body with code 'insufficient_scope'.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L889-L894",
-   "quote": "the business **MUST** return:\n\n* HTTP `403 Forbidden`\n* A `WWW-Authenticate: Bearer` challenge header per RFC 6750 \u00a73\n* A UCP error response body containing a message with\n    `code: \"insufficient_scope\"`",
+   "quote": "the business **MUST** return:\n\n* HTTP `403 Forbidden`\n* A `WWW-Authenticate: Bearer` challenge header per RFC 6750 §3\n* A UCP error response body containing a message with\n    `code: \"insufficient_scope\"`",
    "versions": [
     "2026-08-25"
    ],
@@ -1041,7 +1041,7 @@
    "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
    "keyword": "MUST NOT",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L933-L936",
-   "quote": "Platforms **MUST NOT** retry an `insufficient_scope` response by\n> re-initiating a fresh account linking flow \u2014 they **MUST** instead request\n> only the missing scope(s) via incremental authorization to preserve\n> previously granted scopes.",
+   "quote": "Platforms **MUST NOT** retry an `insufficient_scope` response by\n> re-initiating a fresh account linking flow — they **MUST** instead request\n> only the missing scope(s) via incremental authorization to preserve\n> previously granted scopes.",
    "versions": [
     "2026-08-25"
    ],
@@ -1052,7 +1052,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Incremental-authorization retry behavior is the platform's flow control. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Incremental-authorization retry behavior is the platform's flow control. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -1085,7 +1085,7 @@
    "requirement": "Public clients cannot keep a client_secret confidential and MUST use 'none'; businesses MUST NOT require client_secret_basic as the only method when serving native or agent platforms.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L976-L983",
-   "quote": "Public clients (native, desktop, and\n  on-device agents per\n  [RFC 8252 \u00a78.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n  cannot keep a `client_secret` confidential and **MUST** use `none`... Businesses **MUST NOT** require\n  `client_secret_basic` as the only method when serving native or agent\n  platforms.",
+   "quote": "Public clients (native, desktop, and\n  on-device agents per\n  [RFC 8252 §8.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.5){ target=\"_blank\" })\n  cannot keep a `client_secret` confidential and **MUST** use `none`... Businesses **MUST NOT** require\n  `client_secret_basic` as the only method when serving native or agent\n  platforms.",
    "versions": [
     "2026-08-25"
    ],
@@ -1118,7 +1118,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Platforms drive flow from structured scope/error params, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Driving flow decisions from structured params is the platform's logic. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. Platforms drive flow from structured scope/error params, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Driving flow decisions from structured params is the platform's logic. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -1184,7 +1184,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. config.scopes vs scopes_supported relationship. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The scopes_supported subset pre-check is the platform's; the business-side scopes_supported publication is IDL-017 (checked). Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. config.scopes vs scopes_supported relationship. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The scopes_supported subset pre-check is the platform's; the business-side scopes_supported publication is IDL-017 (checked). Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -1214,7 +1214,7 @@
   },
   {
    "id": "IDL-056",
-   "requirement": "config.providers is no longer a v1-absent placeholder \u2014 it is a live feature. When config.providers is absent, empty, or no listed provider mechanism is supported/suitable, platforms run/fall back to direct OAuth 2.0 against the business domain via Discovery.",
+   "requirement": "config.providers is no longer a v1-absent placeholder — it is a live feature. When config.providers is absent, empty, or no listed provider mechanism is supported/suitable, platforms run/fall back to direct OAuth 2.0 against the business domain via Discovery.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L180-L185,L393-L394",
    "quote": "When `config.providers` is present, the platform **MAY** chain\n    identity from a listed provider via the\n    [Accelerated IdP Flow](#accelerated-idp-flow). If no listed provider\n    is supported or suitable, the platform **MUST** fall back to direct\n    OAuth on the business domain via [Discovery](#discovery) (see\n    [Identity Providers](#identity-providers)). ... **When absent or empty:** platforms run direct OAuth against the\nbusiness domain via [Discovery](#discovery).",
@@ -1228,7 +1228,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md (Future Extensibility section) -> now split across the 'For Platforms' guidelines and the new 'Identity Providers' section. OLD (04-08, Future Extensibility): \"When `config.providers` is present, the platform uses the provider selection and identity chaining flows defined in that version. When `config.providers` is absent (as in v1), platforms **MUST** fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.\" \u2014 config.providers was an UNSHIPPED placeholder; the fallback was an explicit MUST. NEW (08-25): config.providers + the Accelerated IdP Flow are now a SHIPPED, real feature (see the 'provider' $def and config.providers property in source/schemas/common/identity_linking.json, and the new Identity Providers / Accelerated IdP Flow / IdP Requirements doc sections). The 'absent or empty' fallback is now stated descriptively (\"platforms run direct OAuth against the business domain via Discovery\") rather than as an explicit MUST in that specific bullet, though a companion MUST covers the adjacent 'present but no suitable provider' case (\"the platform **MUST** fall back to direct OAuth on the business domain\"). Net effect unchanged (no providers usable => direct OAuth), but the framing, keyword placement, and surrounding feature status all changed materially. Forward-compat. [prior note retained]: config.providers is a reserved extension point in schema $comment (NOW REMOVED \u2014 see IDL-057). The v1 fallback is the platform's flow selection. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md (Future Extensibility section) -> now split across the 'For Platforms' guidelines and the new 'Identity Providers' section. OLD (04-08, Future Extensibility): \"When `config.providers` is present, the platform uses the provider selection and identity chaining flows defined in that version. When `config.providers` is absent (as in v1), platforms **MUST** fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery.\" — config.providers was an UNSHIPPED placeholder; the fallback was an explicit MUST. NEW (08-25): config.providers + the Accelerated IdP Flow are now a SHIPPED, real feature (see the 'provider' $def and config.providers property in source/schemas/common/identity_linking.json, and the new Identity Providers / Accelerated IdP Flow / IdP Requirements doc sections). The 'absent or empty' fallback is now stated descriptively (\"platforms run direct OAuth against the business domain via Discovery\") rather than as an explicit MUST in that specific bullet, though a companion MUST covers the adjacent 'present but no suitable provider' case (\"the platform **MUST** fall back to direct OAuth on the business domain\"). Net effect unchanged (no providers usable => direct OAuth), but the framing, keyword placement, and surrounding feature status all changed materially. Forward-compat. [prior note retained]: config.providers is a reserved extension point in schema $comment (NOW REMOVED — see IDL-057). The v1 fallback is the platform's flow selection. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -1250,7 +1250,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md (Future Extensibility section retained under the same heading, content changed). OLD (04-08): \"When `config` contains fields not defined in this version of the spec (`providers` or any other future field), platforms **MUST** ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain, as defined here. This ensures v1 platform implementations remain valid as the spec evolves.\" \u2014 ignoring unknown fields ALWAYS led to plain direct OAuth (because providers itself was always unknown/unshipped in v1). NEW (08-25): \"...platforms **MUST** ignore those fields. Platforms **MUST** treat provider entries with an unsupported `type` as filtered out, then apply the rules in [Identity Providers](#identity-providers) to what remains.\" \u2014 because config.providers is now a real, parsed field, 'ignore unrecognized config fields' no longer implies 'always fall back to direct OAuth': a platform must additionally filter unsupported provider *entry types* and then apply the Identity Providers section's rules to the remainder, which may still yield Accelerated IdP chaining if a supported provider entry survives the filter. This is a genuine behavioral broadening, not just a rewording. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring future config fields is the platform's parsing duty. Platform-conformance exemption candidate.",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md (Future Extensibility section retained under the same heading, content changed). OLD (04-08): \"When `config` contains fields not defined in this version of the spec (`providers` or any other future field), platforms **MUST** ignore those fields and proceed using OAuth 2.0 with RFC 8414 discovery on the business domain, as defined here. This ensures v1 platform implementations remain valid as the spec evolves.\" — ignoring unknown fields ALWAYS led to plain direct OAuth (because providers itself was always unknown/unshipped in v1). NEW (08-25): \"...platforms **MUST** ignore those fields. Platforms **MUST** treat provider entries with an unsupported `type` as filtered out, then apply the rules in [Identity Providers](#identity-providers) to what remains.\" — because config.providers is now a real, parsed field, 'ignore unrecognized config fields' no longer implies 'always fall back to direct OAuth': a platform must additionally filter unsupported provider *entry types* and then apply the Identity Providers section's rules to the remainder, which may still yield Accelerated IdP chaining if a supported provider entry survives the filter. This is a genuine behavioral broadening, not just a rewording. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring future config fields is the platform's parsing duty. Platform-conformance exemption candidate.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -1272,7 +1272,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. New trailing sentence added after this clause noting the jwt-bearer grant type advertises Accelerated IdP Flow support \u2014 does not affect this row's MUST. authorization_response_iss_parameter_supported:true advertises RFC 9207; fetchable from /.well-known/oauth-authorization-server.",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged. New trailing sentence added after this clause noting the jwt-bearer grant type advertises Accelerated IdP Flow support — does not affect this row's MUST. authorization_response_iss_parameter_supported:true advertises RFC 9207; fetchable from /.well-known/oauth-authorization-server.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -1294,7 +1294,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: path unchanged (source/schemas/common/identity_linking.json), line shifted 26 -> 25 (a `$comment` above it was removed in the reorg \u2014 see below). OLD (04-08) pattern: \"^[a-z][a-z0-9]*(?:\\\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$\" \u2014 capability-name and scope-name segments allowed only [a-z0-9_], no hyphens. NEW (08-25) pattern: \"^[a-z](?:[a-z0-9-]*[a-z0-9])?(?:\\\\.[a-z0-9](?:[a-z0-9_-]*[a-z0-9_])?)+:[a-z][a-z0-9_]*$\" \u2014 BROADENED to permit hyphens within capability-name segments (and within the interior of scope-name-like sub-segments), while still requiring alnum start/end. Same high-level requirement (config.scopes keys must be valid scope_token strings) but the accepted character set materially changed, so this is a scope-broadening, not a pure rename. Also note: the schema's top-level `$comment` describing config.providers as a 'reserved extension point' was REMOVED in 08-25 (providers is now a real schema property \u2014 see IDL-056/IDL-057), which is why the pattern's line number shifted. scope_token $def applied as propertyNames of config.scopes (schema L96, was L54). Capability-driven scope vocabulary new in 04-08 rework.",
+   "notes": "[2026-08-25] REWORDED — flag for review: path unchanged (source/schemas/common/identity_linking.json), line shifted 26 -> 25 (a `$comment` above it was removed in the reorg — see below). OLD (04-08) pattern: \"^[a-z][a-z0-9]*(?:\\\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$\" — capability-name and scope-name segments allowed only [a-z0-9_], no hyphens. NEW (08-25) pattern: \"^[a-z](?:[a-z0-9-]*[a-z0-9])?(?:\\\\.[a-z0-9](?:[a-z0-9_-]*[a-z0-9_])?)+:[a-z][a-z0-9_]*$\" — BROADENED to permit hyphens within capability-name segments (and within the interior of scope-name-like sub-segments), while still requiring alnum start/end. Same high-level requirement (config.scopes keys must be valid scope_token strings) but the accepted character set materially changed, so this is a scope-broadening, not a pure rename. Also note: the schema's top-level `$comment` describing config.providers as a 'reserved extension point' was REMOVED in 08-25 (providers is now a real schema property — see IDL-056/IDL-057), which is why the pattern's line number shifted. scope_token $def applied as propertyNames of config.scopes (schema L96, was L54). Capability-driven scope vocabulary new in 04-08 rework.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
@@ -1338,7 +1338,7 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged \u2014 unaffected by the Discovery Step 1/2/3 restructuring (see IDL-033), because this row is the issuer-METADATA-vs-iss-PARAMETER equality invariant (a business emitting both values must keep them byte-identical to each other), a distinct invariant from IDL-033 (discovered-metadata issuer vs the Step-1-resolved AS issuer). Subject: business (emits both the RFC 8414 `issuer` metadata value and the `iss` authorization-response parameter, which must be byte-identical) with a platform-side non-normalization corollary. Distinct from IDL-033 (issuer metadata value == discovery base URI) and IDL-018 (business must return `iss` at all): this row is the issuer-metadata-vs-iss-parameter equality invariant. Requires observing an OAuth authorization response, hence needs-oauth. [added by completeness-2026-07-03]",
+   "notes": "[2026-08-25] relocated to docs/specification/common/identity-linking/index.md (was identity-linking.md); wording unchanged — unaffected by the Discovery Step 1/2/3 restructuring (see IDL-033), because this row is the issuer-METADATA-vs-iss-PARAMETER equality invariant (a business emitting both values must keep them byte-identical to each other), a distinct invariant from IDL-033 (discovered-metadata issuer vs the Step-1-resolved AS issuer). Subject: business (emits both the RFC 8414 `issuer` metadata value and the `iss` authorization-response parameter, which must be byte-identical) with a platform-side non-normalization corollary. Distinct from IDL-033 (issuer metadata value == discovery base URI) and IDL-018 (business must return `iss` at all): this row is the issuer-metadata-vs-iss-parameter equality invariant. Requires observing an OAuth authorization response, hence needs-oauth. [added by completeness-2026-07-03]",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
@@ -1347,7 +1347,7 @@
   },
   {
    "id": "IDL-062",
-   "requirement": "In the OIDC Discovery fallback (Discovery pipeline sub-item 2, reached after the RFC 8414 fetch in sub-item 1 returns 404), if the {issuer}/.well-known/openid-configuration fetch \u2014 where {issuer} is now resolved via the new Step 1 protected-resource-metadata lookup, not necessarily the business domain \u2014 returns any non-2xx response, network error, or timeout, the platform MUST abort.",
+   "requirement": "In the OIDC Discovery fallback (Discovery pipeline sub-item 2, reached after the RFC 8414 fetch in sub-item 1 returns 404), if the {issuer}/.well-known/openid-configuration fetch — where {issuer} is now resolved via the new Step 1 protected-resource-metadata lookup, not necessarily the business domain — returns any non-2xx response, network error, or timeout, the platform MUST abort.",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/identity-linking/index.md#L311-L314",
    "quote": "**OIDC Discovery (Fallback):** Fetch\n   `{issuer}/.well-known/openid-configuration`. ... Any non-2xx response, network error, or timeout: **MUST** abort.",
@@ -1361,12 +1361,408 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "[2026-08-25] REWORDED \u2014 flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"2. **OIDC Discovery (Fallback):** Fetch `{business-domain}/.well-known/openid-configuration`. ... Any non-2xx response, network error, or timeout: **MUST** abort the identity linking process.\" \u2014 fetch target was ALWAYS the business's own domain. NEW (08-25): \"2. **OIDC Discovery (Fallback):** Fetch `{issuer}/.well-known/openid-configuration`. ... Any non-2xx response, network error, or timeout: **MUST** abort.\" \u2014 the fetch target is now `{issuer}`, the AS issuer resolved by the NEW Discovery Step 1 (RFC 9728 protected-resource metadata), which MAY be a different origin than the business domain; the trailing qualifier 'the identity linking process' was also dropped from the abort clause. Same abort-on-error obligation, but the scope of WHAT is being discovered (and therefore what an implementer must abort) changed with the pipeline reorg \u2014 paired with IDL-033/IDL-031/IDL-032 which cover the sibling clauses in this same restructured Discovery section. Step-2 (OIDC fallback) abort obligation. IDL-031 covers only the RFC-8414-primary abort; IDL-032 covers only the no-silent-fall-through rule for that same primary step. Neither covers this OIDC-fallback fetch failure. Platform-side discovery behavior, so not server-observable (consistent with IDL-031/IDL-032 being 'manual'). [added by completeness-2026-07-03 tight-residual re-adjudication]",
+   "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/identity-linking.md -> docs/specification/common/identity-linking/index.md. OLD (04-08): \"2. **OIDC Discovery (Fallback):** Fetch `{business-domain}/.well-known/openid-configuration`. ... Any non-2xx response, network error, or timeout: **MUST** abort the identity linking process.\" — fetch target was ALWAYS the business's own domain. NEW (08-25): \"2. **OIDC Discovery (Fallback):** Fetch `{issuer}/.well-known/openid-configuration`. ... Any non-2xx response, network error, or timeout: **MUST** abort.\" — the fetch target is now `{issuer}`, the AS issuer resolved by the NEW Discovery Step 1 (RFC 9728 protected-resource metadata), which MAY be a different origin than the business domain; the trailing qualifier 'the identity linking process' was also dropped from the abort clause. Same abort-on-error obligation, but the scope of WHAT is being discovered (and therefore what an implementer must abort) changed with the pipeline reorg — paired with IDL-033/IDL-031/IDL-032 which cover the sibling clauses in this same restructured Discovery section. Step-2 (OIDC fallback) abort obligation. IDL-031 covers only the RFC-8414-primary abort; IDL-032 covers only the no-silent-fall-through rule for that same primary step. Neither covers this OIDC-fallback fetch failure. Platform-side discovery behavior, so not server-observable (consistent with IDL-031/IDL-032 being 'manual'). [added by completeness-2026-07-03 tight-residual re-adjudication]",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
    },
    "_completeness_batch": "completeness-2026-07-03"
+  },
+  {
+   "id": "IDL-063",
+   "requirement": "Businesses MUST NOT return stored user-specific state unless the request is user-authenticated and authorized for the operation; they MUST only return values that belong to the authenticated user and are appropriate for the current transaction.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L97-L100",
+   "quote": "Businesses **MUST NOT** return stored user-specific state unless the request is\nuser-authenticated and authorized for the operation. They **MUST** only return\nvalues that belong to the authenticated user and are appropriate for the\ncurrent transaction",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): no prior row covers this response-minimization rule (sits before IDL-001's OAuth-mechanism intro, in the general 'state population' prose). Requires comparing an authenticated vs. unauthenticated call to the same operation, hence needs-oauth."
+  },
+  {
+   "id": "IDL-064",
+   "requirement": "Platforms MUST treat returned business-owned identifiers as opaque and business-scoped, and MUST NOT infer raw credentials from a display value.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L101-L103",
+   "quote": "Platforms **MUST** treat returned business-owned identifiers as\nopaque and business-scoped, and **MUST NOT** infer raw credentials from a\ndisplay value.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound interpretation rule, not gradable by a Business-facing check (same class as IDL-002/003/004)."
+  },
+  {
+   "id": "IDL-065",
+   "requirement": "Businesses MUST only list providers they explicitly trust in config.providers, and MUST NOT list their own authorization server.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L255-L256",
+   "quote": "Businesses **MUST** only list providers they explicitly trust and\n**MUST NOT** list their own authorization server.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the General-Guidelines statement of the self-listing-forbidden rule (the Identity Providers section restates it at L401-404 — see WAIVERS-PROPOSED.md, duplicate_of IDL-065). Testable via static inspection of the business's own published config.providers against its own AS issuer, no live grant needed."
+  },
+  {
+   "id": "IDL-066",
+   "requirement": "When a business lists external identity providers of type oauth2 in config.providers, the business MUST support the JWT bearer assertion grant type at its token endpoint to accept JWT authorization grants from those IdPs, and MUST include urn:ietf:params:oauth:grant-type:jwt-bearer in grant_types_supported in its RFC 8414 metadata.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L257-L264",
+   "quote": "When the business lists external identity providers of `type: oauth2` in\n`config.providers`, the business **MUST** support the JWT bearer assertion\ngrant type\n([RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523){ target=\"_blank\" })\nat its token endpoint to accept JWT authorization grants from those\nIdPs, and **MUST** include\n`urn:ietf:params:oauth:grant-type:jwt-bearer` in `grant_types_supported`\nin its RFC 8414 metadata.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the Accelerated IdP Flow's business-side infrastructure requirement. The grant_types_supported metadata field is directly fetchable and checkable (testable); full behavioral support of the grant type would need needs-oauth, but the concretely checkable artifact is the metadata declaration."
+  },
+  {
+   "id": "IDL-067",
+   "requirement": "If no listed provider mechanism is supported or suitable, platforms MUST fall back to direct OAuth on the business domain.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L399-L400",
+   "quote": "If no listed mechanism is supported or suitable, platforms **MUST**\nfall back to direct OAuth on the business domain.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound fallback logic; manual."
+  },
+  {
+   "id": "IDL-068",
+   "requirement": "Platforms MUST ignore any oauth2 mechanism entry in config.providers whose auth_url matches the business's own issuer URI.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L405-L406",
+   "quote": "Platforms **MUST** ignore any `oauth2` mechanism entry whose\n`auth_url` matches the business's own issuer URI.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side defense against a self-referential provider entry; platform-bound, manual."
+  },
+  {
+   "id": "IDL-069",
+   "requirement": "Platforms MUST treat config.providers entries whose type they do not support as filtered out, rather than rejecting the business's configuration.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L429-L432",
+   "quote": "The `type` value is an open string, not a closed enumeration. Platforms\n**MUST** treat provider entries whose `type` they do not support as filtered\nout (see [Provider Selection](#provider-selection)) rather than rejecting the\nbusiness's configuration.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Open-vocabulary tolerance rule on the platform's config-parsing behavior; manual."
+  },
+  {
+   "id": "IDL-070",
+   "requirement": "For oauth2 providers, platforms MUST discover the authorization server metadata from auth_url using the same two-tier metadata hierarchy as Discovery Step 2 (RFC 8414 primary with section 3.1 path insertion, OIDC fallback on 404 only), treating auth_url as the issuer.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L434-L440",
+   "quote": "For `oauth2` providers, platforms **MUST** discover the authorization server\nmetadata from `auth_url` using the same two-tier metadata hierarchy as\n[Discovery](#discovery) Step 2 (RFC 8414 primary with §3.1 path insertion,\nOIDC fallback on 404 only), treating `auth_url` as the issuer. The\nprotected-resource step does not apply — `auth_url` is already the IdP\nissuer — and the business validates the JWT grant's `iss` against it per\n[Business Token Issuance](#business-token-issuance).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side IdP-metadata discovery procedure; manual."
+  },
+  {
+   "id": "IDL-071",
+   "requirement": "For the chaining path, config.providers is a closed allowlist: a business MUST reject a JWT authorization grant whose iss does not match a listed oauth2 mechanism entry.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L388-L391",
+   "quote": "for the chaining path, it is a closed\nallowlist — a business **MUST** reject a JWT authorization grant\nwhose `iss` does not match a listed `oauth2` mechanism entry (see\n[Business Token Issuance](#business-token-issuance)).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the allowlist-closure guarantee underlying the whole Accelerated IdP Flow's trust model. Needs-oauth: proving rejection requires presenting a live JWT grant with an unlisted iss."
+  },
+  {
+   "id": "IDL-072",
+   "requirement": "Platforms requesting a JWT authorization grant via token exchange MUST include at least one of resource/audience (the business's AS issuer URI); when both are sent to the IdP they MUST carry identical values in the resulting grant's aud claim.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L537-L543",
+   "quote": "`resource` and/or `audience`: the business's authorization server\n      issuer URI. Platforms **MUST** include at least one.\n      [RFC 8693 §2.1](https://datatracker.ietf.org/doc/html/rfc8693#section-2.1){ target=\"_blank\" }\n      permits URI values in either parameter; IdP implementations vary\n      in which they accept. The IdP maps the value to the `aud` claim\n      in the resulting grant; when both are sent they **MUST** carry\n      identical values.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the token-exchange request parameters step of the Accelerated IdP Flow. The IdP Requirements section restates the identical-values half at L687-689 (see WAIVERS-PROPOSED.md — covered directly by IDL-073's quote span rather than waived separately). Needs-oauth: verifying the issued grant's aud claim requires a live token-exchange call."
+  },
+  {
+   "id": "IDL-073",
+   "requirement": "The platform MUST NOT present a raw IdP token directly to a business.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L560-L562",
+   "quote": "The platform **MUST NOT** present a raw IdP token directly to a business.\nIdentity chaining ensures each business issues tokens under its own authority\nwith the correct audience binding and scope policy.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Core Accelerated IdP Flow security invariant; platform-bound send-behavior, manual (matches the IDL-002/003/004 platform-request-shape precedent)."
+  },
+  {
+   "id": "IDL-074",
+   "requirement": "The JWT authorization grant MUST conform to RFC 7523 section 3, with two UCP-specific constraints: aud MUST be a single value (the business's AS issuer URI), not an array, and jti MUST be present (RFC 7523 only says MAY) so businesses can enforce single-use replay protection.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L572-L579",
+   "quote": "The grant **MUST** conform to\n[RFC 7523 §3](https://datatracker.ietf.org/doc/html/rfc7523#section-3){ target=\"_blank\" },\nwith two UCP-specific constraints:\n\n* `aud` **MUST** be a single value (the business's AS issuer URI), not an\n  array — chaining targets one business per grant.\n* `jti` **MUST** be present (RFC 7523 says MAY) so businesses can enforce\n  single-use replay protection (see [Security Considerations](#security-considerations)).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the core replay-protection constraint on the JWT authorization grant itself (jti presence tightens the base RFC's MAY to a UCP MUST). One of the more consequential new MUSTs in this section. The earlier preview sentence at L523-524 ('aud MUST be a single-valued URI plus a unique jti') restates this — see WAIVERS-PROPOSED.md, duplicate_of IDL-074. Needs-oauth: verifying aud/jti on an issued grant requires a live token-exchange call."
+  },
+  {
+   "id": "IDL-075",
+   "requirement": "Upon receiving a JWT authorization grant, the business's authorization server MUST validate the assertion per RFC 7523 section 3, with UCP-specific requirements: iss MUST match the auth_url of a listed oauth2 mechanism entry; aud MUST match the business's own AS issuer URI exactly; the JWT signature MUST be verified against the IdP's jwks_uri, and the business MUST fail closed if the JWKS cannot be retrieved.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L588-L596",
+   "quote": "business's authorization server **MUST** validate the assertion per\n[RFC 7523 §3](https://datatracker.ietf.org/doc/html/rfc7523#section-3){ target=\"_blank\" },\nwith the following UCP-specific requirements:\n\n* `iss` **MUST** match the `auth_url` of an `oauth2` mechanism entry\n  listed in `config.providers`.\n* `aud` **MUST** match the business's own AS issuer URI exactly.\n* The JWT signature **MUST** be verified against the IdP's `jwks_uri`; if\n  JWKS cannot be retrieved, the business **MUST** fail closed.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the business-side grant-validation contract (iss allowlist match, exact aud match, signature verification, fail-closed on JWKS unavailability). Needs-oauth: testing requires presenting live grants (valid and deliberately invalid) to the business's token endpoint."
+  },
+  {
+   "id": "IDL-076",
+   "requirement": "If no requested scope can be satisfied by an Accelerated-IdP-Flow grant's claims, the business MUST return invalid_scope per RFC 6749 section 5.2.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L601-L603",
+   "quote": "If no requested\nscope can be satisfied, the business **MUST** return `invalid_scope`\nper [RFC 6749 §5.2](https://datatracker.ietf.org/doc/html/rfc6749#section-5.2){ target=\"_blank\" }",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct error-handling obligation from IDL-075 (post-validation scope-satisfaction failure, not grant-validity failure). Needs-oauth."
+  },
+  {
+   "id": "IDL-077",
+   "requirement": "If user interaction (terms acceptance, onboarding) is required, the business MUST reject the JWT authorization grant with invalid_grant.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L605-L607",
+   "quote": "If user interaction is required (terms acceptance,\nonboarding), the business **MUST** reject the grant with `invalid_grant`\n(see [Chaining Errors at the Token Endpoint](#chaining-errors-at-the-token-endpoint))",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-076 and IDL-078 (interactive-onboarding-required case). Needs-oauth."
+  },
+  {
+   "id": "IDL-078",
+   "requirement": "When the JWT authorization grant lacks a claim the business requires for account resolution, the business MUST reject with invalid_grant.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L635-L637",
+   "quote": "**Missing or insufficient claims.** When the JWT authorization grant\nlacks a claim the business requires (e.g., `email` for account\nresolution), the business **MUST** reject with `invalid_grant`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-077 (missing-claim case, not interaction-required case). Needs-oauth."
+  },
+  {
+   "id": "IDL-079",
+   "requirement": "Identity providers of type oauth2 listed in config.providers MUST publish authorization server metadata via RFC 8414 or OpenID Connect Discovery, and that metadata MUST include revocation_endpoint, jwks_uri, and urn:ietf:params:oauth:grant-type:token-exchange in grant_types_supported.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L669-L679",
+   "quote": "Identity providers of `type: oauth2` listed in `config.providers` **MUST**\npublish authorization server metadata via\n[RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414){ target=\"_blank\" }\nor OpenID Connect Discovery. The metadata **MUST** include:\n\n* `revocation_endpoint` — to support token revocation per the\n    [Token Lifecycle](#token-lifecycle) section.\n* `jwks_uri` — so businesses can verify the signature on JWT authorization\n    grants issued by the IdP.\n* `urn:ietf:params:oauth:grant-type:token-exchange` in `grant_types_supported`\n    — to enable the Accelerated IdP Flow.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): IdP-side metadata publication requirement, analogous to IDL-016/017's business-side RFC 8414 metadata rows. Testable: metadata is fetchable and its field presence directly checkable, no live grant needed."
+  },
+  {
+   "id": "IDL-080",
+   "requirement": "When processing token exchange requests for JWT authorization grants, the IdP MUST authenticate the platform and verify it is authorized to present the subject token; MUST verify the target business is a known relying party the user has authorized (resource/audience MUST carry identical values when both are sent) and MUST NOT issue grants for businesses the user has not authorized; MUST issue a grant conforming to the JWT Authorization Grant requirements; and MUST return issued_token_type as the jwt token-type URN.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L681-L682,L688,L690,L694",
+   "quote": "When processing token exchange requests for JWT authorization grants, the\nIdP **MUST**:\n\n* Authenticate the platform and verify it is authorized to present the\n    subject token\n    ([RFC 8693 §2.1](https://datatracker.ietf.org/doc/html/rfc8693#section-2.1){ target=\"_blank\" }).\n* Verify the target business (identified by `resource` and/or `audience`,\n    which **MUST** carry identical values when both are sent — see\n    [Flow](#flow)) is a known relying party and the user has authorized\n    identity sharing with it. The IdP **MUST NOT** issue grants for\n    businesses the user has not authorized.\n* Issue a JWT authorization grant conforming to the\n    [JWT Authorization Grant](#jwt-authorization-grant) requirements.\n* Return `issued_token_type` as `urn:ietf:params:oauth:token-type:jwt`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the IdP's own token-exchange obligations (the counterpart actor to IDL-072/IDL-074, not a business or platform). Bundles all four bullets, including the resource/audience identical-values restatement (see IDL-072) and the not-issue-unauthorized-grants MUST NOT, into one row. Needs-oauth: requires a live token-exchange call to the IdP."
+  },
+  {
+   "id": "IDL-081",
+   "requirement": "Advertised scopes MUST apply uniformly across identity paths: the same config.scopes map governs availability whether the platform obtained identity via direct OAuth or the Accelerated IdP Flow, and a business honoring min_acr (for example) MUST apply the same threshold regardless of path.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L751-L756",
+   "quote": "Advertised scopes **MUST** apply uniformly across identity paths. The\nsame `config.scopes` map governs scope availability whether the platform\nobtained user identity via direct OAuth or the\n[Accelerated IdP Flow](#accelerated-idp-flow). Per-scope policy gates\nwhich assertions satisfy a scope; businesses honoring `min_acr` (for\nexample) **MUST** apply the same threshold regardless of path.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the cross-path scope-consistency guarantee that keeps the Accelerated IdP Flow from becoming a lower-assurance side door around config.scopes policy. Needs-oauth: verifying uniformity requires exercising both identity paths and comparing outcomes."
+  },
+  {
+   "id": "IDL-082",
+   "requirement": "JWT authorization grants MUST be short-lived.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L1018-L1020",
+   "quote": "**JWT grant lifetime.** JWT authorization grants **MUST** be short-lived;\nthe `exp` claim **SHOULD** be no more than 60 seconds after `iat`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). A qualitative restatement (the only concrete threshold is a SHOULD, not this MUST); no hard testable bound, hence manual rather than needs-oauth/testable."
+  },
+  {
+   "id": "IDL-083",
+   "requirement": "Businesses MUST enforce single-use JWT authorization grants by tracking the jti claim within the grant's validity window.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L1021-L1024",
+   "quote": "**JWT grant single-use.** Businesses **MUST** enforce single-use JWT;\na short exp narrows the replay window, but only jti tracking closes it.\nauthorization grants by tracking the `jti` claim within the grant's\nvalidity window.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-oauth",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass): the runtime replay-tracking enforcement duty, distinct from IDL-074's jti-presence field requirement. Note: the source prose itself reads as if an editorial sentence ('a short exp narrows the replay window, but only jti tracking closes it.') was inserted mid-sentence, breaking grammatical continuity between 'enforce single-use JWT' and 'authorization grants by tracking the jti claim' — quoted verbatim as vendored; the core MUST is unambiguous regardless. Needs-oauth: proving enforcement requires replaying a used grant and observing rejection."
+  },
+  {
+   "id": "IDL-084",
+   "requirement": "Businesses MUST NOT store or forward JWT authorization grants received from platforms.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L1025-L1027",
+   "quote": "**Grant relay.** Businesses **MUST NOT** store or forward JWT\nauthorization grants received from platforms. Grants are bearer\ncredentials scoped to a single audience (`aud`) and a single use.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b pass). A data-handling/retention restriction on the business's internal storage, not observable via a single API probe; manual."
   }
  ],
  "notes": [
@@ -1377,6 +1773,7 @@
   "schema_enforced=true only for real JSON-Schema constraints in identity_linking.json: scope_token regex pattern (IDL-037/IDL-059) and the required config/scopes structure (IDL-060). The scope-name pattern ^[a-z][a-z0-9_]*$ in prose (IDL-037) is a subset of the full schema scope_token pattern, which itself was BROADENED in 08-25 to allow hyphens (IDL-059, reworded).",
   "Scope vocabulary referenced across rows: *.catalog.*:read, dev.ucp.shopping.checkout:manage, dev.ucp.shopping.order:read, dev.ucp.shopping.order:manage (well-known); businesses MAY declare custom scopes following the same {capability}:{scope} convention.",
   "config.scopes (UCP hard gates: scopes that REQUIRE user auth) vs OAuth scopes_supported (accepted vocabulary the AS will honor) are distinct; their set difference is the optional/auth-unlocked layer (IDL-017, IDL-038, IDL-054).",
-  "Schema reorg note (source/schemas/common/identity_linking.json): the scope_policy.description $ref changed from '../shopping/types/description.json' to 'types/description.json' (a common/types/ relocation, per the harness-provided reorg map) \u2014 no existing row quotes that $ref, so no row was affected. The schema's top-level and config-level $comment fields (describing config.providers as a future reserved extension point) were REMOVED, consistent with providers now being a real, documented property."
+  "Schema reorg note (source/schemas/common/identity_linking.json): the scope_policy.description $ref changed from '../shopping/types/description.json' to 'types/description.json' (a common/types/ relocation, per the harness-provided reorg map) — no existing row quotes that $ref, so no row was affected. The schema's top-level and config-level $comment fields (describing config.providers as a future reserved extension point) were REMOVED, consistent with providers now being a real, documented property.",
+  "P2b addition (2026-08-30): 22 new rows (IDL-063..IDL-084) extracting the Accelerated IdP Flow / config.providers mechanics that the register-completeness census proved unregistered (49 missed MUST/MUST NOT occurrences in this file; 12 of the 49 were duplicate-of-existing-row restatements or quote-fragment/line-wrap boundary artifacts of IDL-012/IDL-017/IDL-020/IDL-026/IDL-030/IDL-050/IDL-051/IDL-065/IDL-074, proposed as waivers in WAIVERS-PROPOSED.md rather than new rows; the remaining 37 cover genuinely new normative surface with no 04-08 antecedent, since the Accelerated IdP Flow itself did not exist before this version). No existing IDL-001..062 row was modified."
  ]
 }
