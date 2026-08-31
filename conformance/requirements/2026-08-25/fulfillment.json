@@ -617,6 +617,204 @@
         "from": "2026-04-08",
         "disposition": "reworded"
       }
+    },
+    {
+      "id": "FUL-031",
+      "requirement": "When Catalog filters.fulfills_to is present, a Business MUST resolve the fulfillment destination and method availability from it rather than from context; other context fields are unaffected.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L80-L82",
+      "quote": "* When Catalog `filters.fulfills_to` is present, a Business **MUST** resolve\n    the fulfillment destination and method `availability` from it rather than\n    from `context`. Other `context` fields are unaffected.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): part of the wholly new destination-precedence subsystem. 04-08's fulfillment.md has no `filters.fulfills_to`, no `destinations[]`/`selected_destination_id` typed-object architecture, and no Business Location Destination concept -- the whole 'Destinations' section (this file's ## Destinations onward) is new normative surface, consistent with FUL-030's own note flagging the schema-level counterpart as a substantive 08-25 addition."
+    },
+    {
+      "id": "FUL-032",
+      "requirement": "Once a Platform sets selected_destination_id on a Checkout method, a Business MUST use the referenced destination rather than context.location for that method's fulfillment scope; other methods are unaffected.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L83-L86",
+      "quote": "* Once a Platform sets `selected_destination_id` on a Checkout method, a\n    Business **MUST** use the referenced destination rather than\n    `context.location` for that method's fulfillment scope. Other methods are\n    unaffected.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the second precedence rule of the same new subsystem as FUL-031."
+    },
+    {
+      "id": "FUL-033",
+      "requirement": "A request that includes destinations[] MUST also include the method's type.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L260",
+      "quote": "A request that includes `destinations[]` MUST also include the method's\n`type`. The well-known values are:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): part of the new typed destinations[] request/response contract."
+    },
+    {
+      "id": "FUL-034",
+      "requirement": "Business Location Destinations appear only in responses; the Platform MUST NOT write Business Location Destinations into destinations[] -- it selects a location by submitting its stable, opaque, Business-scoped ID as selected_destination_id.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L308-L311",
+      "quote": "Business Location Destinations appear only in responses; `destinations[]` on a\n`pickup` method is not a request field. The Platform **MUST NOT** write\nBusiness Location Destinations into `destinations[]`; it selects a location by\nsubmitting its stable, opaque, Business-scoped ID as",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the Business Location Destination subsection has no 04-08 antecedent (04-08 has no typed destination objects at all)."
+    },
+    {
+      "id": "FUL-035",
+      "requirement": "For a Business Location Destination, the Business MUST return type: \"business_location\", id, and its Buyer-facing name (and MAY return its Postal Address in address).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L312-L314",
+      "quote": "`selected_destination_id`. The Business **MUST** return\n`type: \"business_location\"`, `id`, and its Buyer-facing `name`, and **MAY**\nreturn its Postal Address in `address`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the Business-side response-shape counterpart of FUL-034, same new subsection."
+    },
+    {
+      "id": "FUL-036",
+      "requirement": "When the Business accepts a non-null selected_destination_id, its response MUST carry that same selected_destination_id value on the method, and MUST include exactly one destination in that same method's destinations[] whose id equals it, typed as specified in Destinations.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L358-L364",
+      "quote": "When the Business accepts a non-null `selected_destination_id`, its response:\n\n* **MUST** carry that same `selected_destination_id` value on the method; and\n* **MUST** include exactly one destination in that same method's\n    `destinations[]` whose `id` equals it, typed as specified in\n    [Destinations](#destinations) — so the response is self-describing whatever\n    the ID's source.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): part of the new 'Selection and Location Identity' section (no 04-08 antecedent). Two MUSTs of one integrated echo-back contract registered as a single row since they describe the same response, read as one rule."
+    },
+    {
+      "id": "FUL-037",
+      "requirement": "The Business MUST revalidate the selected destination's current availability and terms; recognizing an ID neither reserves inventory nor guarantees eligibility.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L366-L368",
+      "quote": "The Business **MUST** revalidate the selected destination's current\navailability and terms; recognizing an ID neither reserves inventory nor\nguarantees eligibility.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): same new Selection and Location Identity section. Revalidation is an internal business-logic obligation not directly observable from a single request/response pair without a controlled fixture that changes availability between selection and Checkout, hence manual."
+    },
+    {
+      "id": "FUL-038",
+      "requirement": "The Business MUST NOT silently substitute another destination: it MUST NOT return a different selected_destination_id, and MUST NOT keep the submitted ID while returning a destination that describes another location.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L368-L371",
+      "quote": "guarantees eligibility. The Business **MUST NOT** silently substitute another\ndestination: it **MUST NOT** return a different `selected_destination_id`, and\n**MUST NOT** keep the submitted ID while returning a destination that\ndescribes another location. A Business that cannot honor the submitted\nselection rejects it rather than replacing it.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the anti-substitution guarantee immediately following FUL-037 in the same section. Three MUST NOT clauses of one integrated no-silent-substitution rule registered as a single row; the three all restate the same 'echo back exactly what was submitted' guarantee from different angles rather than being independently distinguishable obligations."
+    },
+    {
+      "id": "FUL-039",
+      "requirement": "When the Business cannot accept a selected_destination_id submitted on Update Checkout, it follows the general rejected-Update behavior: it MUST leave the current Checkout unchanged and MUST return that Checkout with an error Message with severity: \"recoverable\" whose path selects the attempted method's selected_destination_id.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L374-L379",
+      "quote": "When the Business cannot accept a `selected_destination_id` submitted on\n[Update Checkout](../checkout/index.md#update-checkout) — the ID is not recognized for\nthat method, or revalidation fails — it follows the general behavior for a\nrejected Update: it **MUST** leave the current Checkout unchanged and\n**MUST** return that Checkout with an error Message with\n`severity: \"recoverable\"` whose `path` selects the attempted method's\n`selected_destination_id` (for example",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the rejection-path counterpart of FUL-036/FUL-037/FUL-038, closing the same new Selection and Location Identity section. Two MUSTs (unchanged Checkout; error Message with the specified shape) of one rejection contract registered as a single row."
+    },
+    {
+      "id": "FUL-040",
+      "requirement": "In a Catalog variant's fulfillment.methods[] location field, a Business that advertises pickup at a location MUST accept that same ID as selected_destination_id for that method in Checkout.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L527-L529",
+      "quote": "Business's stable identifier for that place. A Business that advertises\npickup at a `location` **MUST** accept that same ID as\n`selected_destination_id` for that method in Checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the Catalog-discovery-to-Checkout-selection continuity guarantee for the new location-scoped `location` field on Catalog fulfillment methods; no 04-08 antecedent (04-08's Catalog section has no comparable place-identity carry-forward rule)."
+    },
+    {
+      "id": "FUL-041",
+      "requirement": "Where a method states availability, consumers MUST use it for that method and MUST NOT infer per-method availability from the variant-level availability value.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L543-L544",
+      "quote": "for that method. Where a method states `availability`, consumers MUST use\nit for that method and MUST NOT infer per-method availability from the\nvariant-level value.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the variant-vs-method availability precedence rule; no 04-08 antecedent (04-08 has no per-method availability field distinct from variant-level availability). Two keywords (MUST / MUST NOT) forming one precedence rule, registered as a single row."
     }
   ]
 }
