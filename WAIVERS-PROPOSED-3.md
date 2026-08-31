@@ -152,3 +152,31 @@ After this file (real coverage only; waivers not yet applied):
 ```
 
 ---
+
+## Area: shopping/order/mcp.md + index.md + rest.md — commit 5
+
+7 new rows added: MCP-011..013 (`transports.json`), ORD-034..037 (`order.json`). Covers 10 of
+the 11 unaccounted lines. The 11th is an internal same-file duplicate.
+
+```
+After this file (real coverage only):
+  2026-08-25:   922 kw    697 covered    142 scope-excl    55 waived    28 missed  (report mode)
+```
+
+`verify_register.py 2026-08-25`: 889/889 verified, 0 line-warnings, 0 FAILED (up from
+882/882 pre-file).
+
+### Waivers (1)
+
+```json
+{
+ "version": "2026-08-25",
+ "file": "docs/specification/shopping/order/mcp.md",
+ "line": 292,
+ "class": "duplicate",
+ "duplicate_of": "MCP-012",
+ "reason": "'* **MUST** check the `messages` array in responses before accessing order data' (Conformance list, bullet 2) restates the exact same obligation MCP-012 already registers from this same file's Error Handling section (L284-285): 'Platforms **MUST** check `messages` before accessing order fields.' Same actor (platform), same rule (check messages before touching order fields), restated as a Conformance-checklist bullet rather than a second rule."
+}
+```
+
+---
