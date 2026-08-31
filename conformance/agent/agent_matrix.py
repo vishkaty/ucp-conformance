@@ -20,10 +20,17 @@ import argparse, glob, importlib, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
+CONF = os.path.dirname(HERE)
+sys.path.insert(0, CONF)
+# VERSIONS used to be a private copy here — one of five independent lists across the
+# suite (PLAN-0825 G0-b / A.4) — and had silently drifted: it never gained 2026-08-25,
+# so the agent axis had no visibility into the newest spec at all. Both VERSIONS and
+# REGISTER_ONLY_VERSIONS now come from the single shared source; see
+# conformance/common/spec_versions.py for what each means.
+from common.spec_versions import VERSIONS, REGISTER_ONLY_VERSIONS  # noqa: E402
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
-VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
 
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
@@ -69,7 +76,16 @@ def _client_bound_ids():
 
 
 def agent_rows(ver):
-    """The agent-subject MUST ids at `ver`."""
+    """The agent-subject MUST ids at `ver`.
+
+    REGISTER_ONLY_VERSIONS short-circuit (2026-08-30, closing the seam matrix.py
+    already walls off): a register-only version's rows have had zero individual
+    review — attributing real agent-MUST ids to it here would be exactly the
+    zero-review auto-attribution hazard matrix.py's attribution()/exempt_at() already
+    guard against on the merchant axis, just via a different (agent-subject heuristic)
+    code path. Empty set is the honest number: zero rows, not a silent guess."""
+    if ver in REGISTER_ONLY_VERSIONS:
+        return set()
     cb = _client_bound_ids()
     ids = set()
     for f in glob.glob(os.path.join(REQ, ver, "*.json")):

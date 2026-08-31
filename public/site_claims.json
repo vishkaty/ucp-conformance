@@ -7,9 +7,10 @@
         "versions": [
             "2026-01-11",
             "2026-01-23",
-            "2026-04-08"
+            "2026-04-08",
+            "2026-08-25"
         ],
-        "reviewed": "2026-08-04"
+        "reviewed": "2026-08-30"
     },
     "evidence": {
         "_about": "Honest EVIDENCE-CLASS split of the coverage matrix's CHECK bucket - the accounting totals above conflate a check kill-tested live against an independently-authored server with one that only validates our own fixture. This block names the split so the public claim cannot imply everything is wire-tested. Derived MECHANICALLY (never hand-labeled) by conformance/coverage/evidence.py from how each check actually runs, plus the recorded run in conformance/coverage/reach_report.json (which independent targets each wire check actually graded on). Classes: live-wire = graded on an independent server (flower golden / node reference); fixture-schema = our fixture validated through the OFFICIAL ucp-schema oracle; fixture-crypto = self-signed crypto primitive self-test; self-referenced = only our own fixture, no independent oracle or target (the fixture-circularity class we flag upstream as conformance#79, present in our own suite and counted here). Kill-tested + drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class): if these numbers drift from a fresh matrix export, CI goes red.",

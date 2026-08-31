@@ -28,40 +28,20 @@ Stage-C reconciliation.
 import json, os, re, glob, sys, argparse, subprocess
 from collections import defaultdict, Counter
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import evidence  # noqa: E402 — the evidence-class layer (sibling module)
-
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 CONF = os.path.join(ROOT, "conformance")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, CONF)
+import evidence  # noqa: E402 — the evidence-class layer (sibling module)
+# VERSIONS / CURRENT_SITE_VERSION / REGISTER_ONLY_VERSIONS used to be hand-maintained
+# HERE, one of five independent copies of the same data across the suite (PLAN-0825
+# G0-b / A.4 — the version-map whack-a-mole seam). All three now live in
+# conformance/common/spec_versions.py, the single source every consumer imports;
+# see that module's docstring for what each field means and why it isn't a formula.
+from common.spec_versions import (  # noqa: E402
+    VERSIONS, CURRENT_SITE_VERSION, REGISTER_ONLY_VERSIONS)
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
-# 2026-08-25 added (register-only lane, see conformance/requirements/2026-08-25/):
-# the reorganized-docs carry-forward register exists and is citation-checked, but is
-# deliberately NOT locked into coverage_lock.json / review_signoffs.json yet (no
-# independent-review pass has been done on the checks that now auto-extend their
-# coverage claim to it) and does not back any site copy. See CURRENT_SITE_VERSION.
-VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08", "2026-08-25"]
-# The version whose accounted-coverage figures the public site currently advertises
-# (evidence-class copy freshness in coverage_gate.py). Deliberately a NAMED constant,
-# not VERSIONS[-1]: a newly added spec version starts register-only (no site copy, no
-# ratchet floor, no coverage-lock/review-signoff entries) and must not silently become
-# "current" for site claims just by being appended to VERSIONS. Bump this only when the
-# site is deliberately migrated to a new version's published figures.
-CURRENT_SITE_VERSION = "2026-04-08"
-# ATTRIBUTION SUPPRESSION (landing normalization, 2026-08-30): the comment above
-# already names the hazard — a version-adaptive check (no filename version token) or
-# an unscoped exemptions.json entry auto-EXTENDS its claim onto any version merely by
-# that version joining VERSIONS, with zero individual review of whether the claim
-# still holds against the new (here: reorganized #723) text. Landing L2's new-surface
-# rows made this concrete: 51 checks (26 of them claiming live-wire!) and 24
-# exemptions were auto-attributing to 2026-08-25 the moment its register existed,
-# none reviewed. REGISTER_ONLY_VERSIONS is the wall: every version listed here is
-# forced to GAP — both attribution() (below) and exempt_at() short-circuit for it —
-# regardless of what the auto-attribution walk or exemptions.json would otherwise
-# compute. This is a landing gate, not a permanent home: per PLAN-0825's §G sequencing,
-# a version leaves this set only via an explicit per-id review pass (the "Check
-# conversion phase"), never by silently aging out.
-REGISTER_ONLY_VERSIONS = {"2026-08-25"}
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
 # capture the req-id list: Check("name", [ ... ]) / MCheck("name", [ ... ]) /
 # fixture_check("name", [ ... ]) — schema_check.py's factory builds an engine.Check
