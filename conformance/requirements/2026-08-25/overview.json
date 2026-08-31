@@ -323,6 +323,240 @@
      "from": "2026-04-08",
      "disposition": "carried"
    }
+  },
+  {
+   "id": "OVR-015",
+   "keyword": "MUST",
+   "requirement": "When a Business or Platform includes a unit descriptor whose unit is C62, it MUST use an effective scale of 0; scale can only be omitted or explicitly set to 0.",
+   "quote": "descriptor whose `unit` is `C62`, it **MUST** use an effective `scale` of `0`;\n`scale` can only be omitted or explicitly set to `0`.",
+   "source": "ucp:docs/specification/overview/index.md#L58-L60",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the canonical-form constraint for the default sale-basis unit (C62/each). This whole section (## Quantities and units) has no 04-08 overview.md antecedent — 04-08 has no shared quantity representation, no unit-descriptor machine identity, and no C62/Rec20 vocabulary."
+  },
+  {
+   "id": "OVR-016",
+   "keyword": "MUST",
+   "requirement": "Arithmetic over quantity/amount values MUST be exact; an implementation that cannot produce an exact, in-range result MUST surface an error rather than emit, display, or act on an approximate or wrapped value.",
+   "quote": "Arithmetic over these values **MUST** be exact. Within the wire range,\nIEEE 754 binary64 — a JavaScript `Number` from `JSON.parse` — holds every\ninteger exactly; products such as `amount × quantity` can exceed 64 bits, so\nuse wider or arbitrary-precision integers, or overflow checks. An\nimplementation that cannot produce an exact, in-range result **MUST**\nsurface an error rather than emit, display, or act on an approximate or\nwrapped value.",
+   "source": "ucp:docs/specification/overview/index.md#L99-L104",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the exactness invariant and its overflow/fail-loud failure mode. Two MUST keywords (L99, L103) of one integrated exactness rule registered as a single row."
+  },
+  {
+   "id": "OVR-017",
+   "keyword": "MUST",
+   "requirement": "When a Business uses a custom unit identifier, it MUST use that identifier consistently for the same unit; the Platform MUST treat an unrecognized unit value as opaque.",
+   "quote": "**MUST** use that identifier consistently for the same unit. The Platform\n**MUST** treat an unrecognized `unit` value as opaque. The following table is",
+   "source": "ucp:docs/specification/overview/index.md#L118-L120",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the custom-unit-identifier consistency rule and the Platform's opaque-handling counterpart. Two MUSTs (Business consistency, Platform opacity) of one integrated rule registered as a single row; consistency across responses is not observable from a single request/response pair, hence manual."
+  },
+  {
+   "id": "OVR-018",
+   "keyword": "MUST",
+   "requirement": "The Business MUST make package form part of the purchasable variant's identity and count packages as each; it MUST NOT use an X-prefixed Rec21-derived package code as quantity_unit.",
+   "quote": "Business **MUST** make package form part of the purchasable variant's identity\nand count packages as `each`. The Business **MUST NOT** use an X-prefixed\nRec21-derived package code as `quantity_unit`.",
+   "source": "ucp:docs/specification/overview/index.md#L140-L143",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the package-vs-each modeling rule that keeps X-prefixed Rec21 package codes out of quantity_unit. Two keywords (MUST, MUST NOT) of one integrated rule registered as a single row."
+  },
+  {
+   "id": "OVR-019",
+   "keyword": "MUST",
+   "requirement": "When sending a unit descriptor, a Business or Platform MUST include display_text; the Platform MUST use that value when it does not recognize unit.",
+   "quote": "When sending a unit descriptor, a Business or Platform **MUST** include\n`display_text`. The Platform **MUST** use that value when it does not recognize\n`unit`.",
+   "source": "ucp:docs/specification/overview/index.md#L147-L148",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the display_text inclusion requirement and its fallback-rendering counterpart. Two MUSTs of one integrated rule registered as a single row."
+  },
+  {
+   "id": "OVR-020",
+   "keyword": "MUST NOT",
+   "requirement": "The Business and Platform MUST NOT use display_text when matching machine identities or as an input to quantity conversion.",
+   "quote": "localized label. The Business and Platform **MUST NOT** use `display_text` when\nmatching machine identities or as an input to quantity conversion.",
+   "source": "ucp:docs/specification/overview/index.md#L150-L151",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the display_text-is-not-machine-identity guard, closing the Display Text subsection."
+  },
+  {
+   "id": "OVR-021",
+   "keyword": "MUST NOT",
+   "requirement": "increment is not part of the unit-descriptor machine identity and MUST NOT participate in mismatch comparison.",
+   "quote": "adjustments) are bounded only by `scale`. `increment` is not part of the\nunit-descriptor machine identity and **MUST NOT** participate in mismatch\ncomparison.",
+   "source": "ucp:docs/specification/overview/index.md#L167-L169",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Quantities-and-units section): the identity-scope boundary for the Ordering Increment mechanism — increment shapes what is asked for, scale/unit alone define identity."
+  },
+  {
+   "id": "OVR-022",
+   "keyword": "MUST",
+   "requirement": "Because the policy-type vocabulary is open, a Platform MUST tolerate unknown type values, presenting the policy from its description.",
+   "quote": "A Business **MAY** define custom types in its own domain (e.g.,\n`com.example.policy.price_match`) and **MAY** add type-specific fields that a\nPlatform modeling that `type` can read for structured context. Because the\nvocabulary is open, a Platform **MUST** tolerate unknown `type` values,\npresenting the policy from its `description`",
+   "source": "ucp:docs/specification/overview/index.md#L3088-L3092",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the open-vocabulary tolerance rule for policy types. This whole section (## Policies, including Policy types, Targeting, Precedence, Absent vs. empty, and Presenting policies) has no 04-08 overview.md antecedent at all (grep confirms zero hits for 'Policies'/'Normalized Path'/policy-targeting content in the 04-08 tree); it is the definitional home the new checkout/index.md CHK-076 (this wave's disclosure-to-policy-code rule) cross-references."
+  },
+  {
+   "id": "OVR-023",
+   "keyword": "MUST NOT",
+   "requirement": "When same-type policies contest a node, exactly one governs and replaces the rest; a Platform MUST NOT merge their bodies.",
+   "quote": "Policies of the **same** `type` can contest a node. When they do, exactly one\ngoverns and **replaces** the rest — a Platform **MUST NOT** merge their bodies.",
+   "source": "ucp:docs/specification/overview/index.md#L3124-L3125",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the no-merging rule for same-type policy precedence resolution (Precedence subsection)."
+  },
+  {
+   "id": "OVR-024",
+   "keyword": "MUST NOT",
+   "requirement": "A tied precedence score means two same-type policies cover a node at the same depth and precision, an authoring error; a Business MUST NOT publish such a collision.",
+   "quote": "4. When the greatest score is shared, the outcome is **undefined**. A tie\n   requires two policies to cover the node at the same depth and precision;\n   since a node has one ancestor at each depth, they contest the *same* node —\n   two overlapping Set matches, or two Response-wide entries of one `type`. This\n   is an authoring error, not an artifact of path targeting: naming the node by\n   an id would collide the same way. A Business **MUST NOT** publish such a\n   collision.",
+   "source": "ucp:docs/specification/overview/index.md#L3155-L3160",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the authoring-time prohibition on a precedence-tie collision, step 4 of the deepest-covering-match resolution algorithm. Not observable from a single response (requires inspecting the Business's whole published policy set for a given node), hence manual."
+  },
+  {
+   "id": "OVR-025",
+   "keyword": "MUST",
+   "requirement": "So that a policy is always presentable even by a Platform that does not model its type, a Business MUST provide a description, a human-readable summary a Platform MAY surface to the Buyer.",
+   "quote": "reason over them for its own decisions — eligibility, a computed return\ndeadline. So that a policy is always presentable — even by a Platform that does\nnot model its `type` — a Business **MUST** provide a `description`, a\nhuman-readable summary a Platform **MAY** surface to the Buyer.",
+   "source": "ucp:docs/specification/overview/index.md#L3174-L3177",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the description-required rule that makes every policy presentable regardless of type recognition (Presenting policies subsection)."
+  },
+  {
+   "id": "OVR-026",
+   "keyword": "MUST",
+   "requirement": "When a Business requires a policy to be shown to the Buyer, it MUST emit a messages[] warning that sets presentation: \"disclosure\", sets path to the item the notice concerns, and sets code to the policy's type.",
+   "quote": "When a Business **requires** a policy to be shown to the Buyer — a final-sale\nitem, a regulatory notice — it **MUST** emit a `messages[]` warning that:",
+   "source": "ucp:docs/specification/overview/index.md#L3180-L3181",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the mandatory-disclosure-warning trigger; the three-part shape it must satisfy (presentation/path/code) is the bullet list immediately following this MUST, read as one obligation."
+  },
+  {
+   "id": "OVR-027",
+   "keyword": "MUST",
+   "requirement": "A disclosure's content MUST agree with the policy it pairs with -- the notice and the policy are two statements about the same node.",
+   "quote": "1. A disclosure's content **MUST** agree with the policy it pairs with —\n   the notice and the policy are two statements about the same node.",
+   "source": "ucp:docs/specification/overview/index.md#L3198-L3199",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the content-agreement rule between a disclosure Message and the policy that governs its target node (per the Precedence algorithm OVR-023/OVR-024 define). Cross-checking two independently-authored text fields for semantic agreement is not mechanically testable, hence manual."
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/overview.md -> docs/specification/overview/index.md (2028 -> 3747 lines; substantial new content added — Authority Binding rewrite, Sale Basis-adjacent quantities/units section, expanded identity-resolution URL rules, expanded Capability Versions prose — but every row's own quoted clause was individually verified against the new file). OVR-002 and OVR-003 are the two security-relevant reworded rows: together they show the spec/schema REQUIRED-for-all-capabilities + both-URLs-origin-bound rule split into schema MUST + spec MAY, with origin-authority binding now explicit to schema only. OVR-007 is reworded for a MAY->SHOULD strengthening on the adjacent force-refresh permission (the row's own MUST NOT clause is unchanged)."
