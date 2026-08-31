@@ -903,6 +903,222 @@
     "from": "2026-04-08",
     "disposition": "carried"
    }
+  },
+  {
+   "id": "SIG-042",
+   "requirement": "A verifier that encounters a key whose type, curve, or algorithm it does not support MUST NOT reject the published key set; the unsupported key simply becomes unusable to that verifier, and a signature referencing it fails with algorithm_unsupported.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/signatures.md#L102-L105",
+   "quote": "* The `kty`/`crv`/`alg` vocabularies are **open**. A verifier that\n  encounters a key whose type, curve, or algorithm it does not support\n  **MUST NOT** reject the published key set; the unsupported key simply\n  remains unusable to that verifier.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the open-vocabulary tolerance rule. At 04-08 the Signature Algorithms table was a CLOSED list (ES256/ES384 only); 08-25 adds EdDSA and, with it, this forward-compatibility rule that an unrecognized kty/crv/alg on a published key must not cause the verifier to reject the whole key set (only that one key is unusable). Subject is the verifying party; observable only by publishing a key set containing an unsupported algorithm and confirming the other keys still resolve, hence needs-receiver."
+  },
+  {
+   "id": "SIG-043",
+   "requirement": "A key used for dual-audience signatures (those carrying tag=\"web-bot-auth\") MUST publish its kid as the key's JWK SHA-256 Thumbprint (RFC 7638) in every array that lists it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L202-L205",
+   "quote": "A key used for **dual-audience** signatures (those carrying\n`tag=\"web-bot-auth\"`) **MUST** publish its `kid` as the key's JWK SHA-256\nThumbprint ([RFC 7638](https://www.rfc-editor.org/rfc/rfc7638)) in every\narray that lists it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): part of the wholly new WBA Interop surface (no 04-08 antecedent -- WBA Interop does not exist in the 04-08 tree). Binds the key-publishing party (Business/Platform publishing its JWK set); a structural key-format requirement checkable by inspecting the published key set, not a single request/response, hence manual."
+  },
+  {
+   "id": "SIG-044",
+   "requirement": "A WBA-shape signature MUST send a Signature-Agent header alongside UCP-Agent (additive, not a replacement): an RFC 8941 Dictionary Structured Field whose member's sf-string value is an HTTPS URL and whose type parameter selects the discovery mechanism.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L310-L317",
+   "quote": "2. **MUST send a `Signature-Agent` header** alongside `UCP-Agent`. An\n   RFC 8941 Dictionary Structured Field whose member's sf-string value\n   is an HTTPS URL and whose `type` parameter selects the discovery\n   mechanism; the member key matches the `Signature-Input` signature\n   label. See\n   [Deployment Patterns](overview/index.md#deployment-patterns-for-wba-interop)\n   for the `jwks_uri`/`cimd`/`directory` variants and how each can reuse\n   the UCP profile. (`data:` URI inline form is out of scope.)",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #2 of the 7-item list a signer follows to shape its primary signature as dual-audience. No 04-08 antecedent. Signer-side header-emission requirement, directly observable on the wire."
+  },
+  {
+   "id": "SIG-045",
+   "requirement": "A WBA-shape signature MUST sign the signature-agent component with a ;key=\"<label>\" parameter matching the Signature-Agent dictionary member key (which equals the Signature-Input signature label).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L318-L320",
+   "quote": "3. **MUST sign the `signature-agent` component with `;key=\"<label>\"`**\n   matching the `Signature-Agent` dictionary member key (which equals\n   the `Signature-Input` signature label). Per WBA §4.2.1.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #3. No 04-08 antecedent. Signer-side component-signing requirement, directly observable in the Signature-Input covered-components list."
+  },
+  {
+   "id": "SIG-046",
+   "requirement": "A WBA-shape signature MUST set keyid to the JWK SHA-256 Thumbprint of the signing key (RFC 7638), and publish that key with kid set to the same thumbprint so the UCP-Agent and Signature-Agent lookups resolve it identically.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L321-L324",
+   "quote": "4. **MUST set `keyid` to the JWK SHA-256 Thumbprint** of the signing\n   key per [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638), and\n   publish that key with `kid` set to the same thumbprint (see\n   [Key Format](#key-format-jwk)) so the `UCP-Agent` and `Signature-Agent`\n   lookups resolve it identically.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #4, the dual-audience keyid/kid binding rule (same mechanism SIG-043 requires on the publishing side). No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-047",
+   "requirement": "A WBA-shape signature MUST include created and expires parameters.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L329",
+   "quote": "5. **MUST include `created` and `expires` parameters.** The `expires`",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #5. No 04-08 antecedent (created/expires are OPTIONAL-by-default UCP signature parameters elsewhere in this spec; WBA-shape signatures make them mandatory). Directly observable in Signature-Input parameters."
+  },
+  {
+   "id": "SIG-048",
+   "requirement": "A WBA-shape signature MUST include tag=\"web-bot-auth\" so WBA verifiers can select it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L338-L339",
+   "quote": "7. **MUST include `tag=\"web-bot-auth\"`.** WBA verifiers select\n   signatures by this tag.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #7, the final item of the 7-point list (item 1 is non-normative guidance, item 6 is a SHOULD; both correctly excluded from the register). No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-049",
+   "requirement": "A WBA-shape signature MUST still cover the same components a default UCP signature does (the Required set in the Signed Components table); the verifier enforces this regardless of tag, so opting into Web Bot Auth never widens what UCP authenticates.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L341-L344",
+   "quote": "**Component requirements preserved — and enforced.** A WBA-shape\nsignature **MUST** still cover the same components a default UCP\nsignature does (the Required set in the\n[Signed Components](#rest-request-signing) table); WBA accepts them as",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the closing guarantee of the WBA Interop section -- WBA opt-in is additive, never a downgrade of what a default UCP signature already covers. No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-050",
+   "requirement": "EdDSA (Ed25519) signatures MUST use the encoding defined by RFC 8032 section 5.1.6 -- the 64-byte concatenation of the encoded R point and the integer S.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L500-L502",
+   "quote": "* **EdDSA (Ed25519)** signatures **MUST** use the encoding defined by\n  RFC 8032 §5.1.6 — the 64-byte concatenation of the encoded `R` point\n  and the integer `S`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the EdDSA sibling bullet SIG-019's own note already flagged as new content with no 04-08 antecedent (04-08 supported EC/ECDSA keys only, no OKP/EdDSA). Signature-encoding requirement, directly checkable against the signature bytes on the wire."
+  },
+  {
+   "id": "SIG-051",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), the verifier MUST locate the dictionary member whose key equals the signature label being verified; if no matching member exists, verification of this signature MUST fail.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L627-L630",
+   "quote": "2. **MUST** locate the dictionary member whose key equals the\n   signature label being verified (for `Signature-Input: sig1=...`,\n   find member `sig1`). If no matching member exists, verification\n   of this signature **MUST** fail.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 2 of the wholly new \"Signature-Agent parsing rules (WBA-shape regime)\" list (paired with the pre-existing UCP-Agent parsing rules, unaffected). Two MUSTs in one integrated obligation (locate the member; fail if absent) registered as a single row since they are one rule read as one sentence. Verifier-side parsing behavior; needs a receiver to observe the fail branch."
+  },
+  {
+   "id": "SIG-052",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), the located member's value MUST be an sf-string containing an HTTPS URL, whose type parameter selects resolution (jwks_uri, cimd, or directory).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L631-L634",
+   "quote": "3. The member's value **MUST** be an sf-string containing an HTTPS\n   URL. Its `type` parameter selects resolution — `jwks_uri` (a JWK\n   Set URL, e.g. the UCP profile), `cimd` (a Client ID Metadata\n   Document), or `directory` (an origin hosting a well-known\n   directory); see",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 3 of the Signature-Agent parsing rules. No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-053",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), verification of the signature MUST fail if the resolved URL is non-HTTPS.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L638-L639",
+   "quote": "4. Verification of this signature **MUST** fail if the URL is\n   non-HTTPS.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 4 (final) of the Signature-Agent parsing rules, the non-HTTPS rejection branch. No 04-08 antecedent."
   }
  ]
 }
