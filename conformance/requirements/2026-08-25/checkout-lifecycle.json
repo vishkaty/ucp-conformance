@@ -1256,6 +1256,402 @@
         "from": "2026-04-08",
         "disposition": "carried"
       }
+    },
+    {
+      "id": "CHK-058",
+      "requirement": "When the Platform includes quantity_unit on a request line, the Business MUST compare the asserted and authoritative machine identities.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L98-L101",
+      "quote": "The Platform **MAY** include `quantity_unit` on a request line to assert the\nbasis it believes it is ordering in. When the Platform includes it, the Business\n**MUST** compare the asserted and authoritative\n[machine identities](../../overview/index.md#quantities-and-units).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): part of the quantities-and-units request-verification rule; 04-08's checkout.md has no quantity_unit/sale-basis concept at all (grep confirms zero occurrences), so this whole subsystem is new normative surface."
+    },
+    {
+      "id": "CHK-059",
+      "requirement": "When a Business cannot or chooses not to convert a mismatched asserted quantity_unit, it MUST reject the request's effect on that line with a recoverable business outcome naming the authoritative basis.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L120-L123",
+      "quote": "* **Reject, recoverably.** When it cannot or chooses not to convert (for\n    example, a quantity of fasteners denominated in litres), the Business\n    **MUST** reject the request's effect on that line with a recoverable\n    business outcome naming the authoritative basis.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the reject branch of the two-way mismatch-resolution rule (the convert branch, CHK-058's sibling bullet, is a MAY)."
+    },
+    {
+      "id": "CHK-060",
+      "requirement": "When the Business revises an off-increment quantity, the revision MUST be returned as a revised line quantity with an explanatory messages[] entry; the Business MUST NOT silently reinterpret the requested quantity.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L249-L252",
+      "quote": "it with a recoverable business outcome. A revision **MUST** be returned as a\nrevised line `quantity` with an explanatory `messages[]` entry; the Business\n**MUST NOT** silently reinterpret the requested quantity.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the transparency guarantee for the ordering-increment revision mechanism (increment itself is a MAY declaration). Two keywords of one integrated obligation (revise transparently; never silently) registered as a single row."
+    },
+    {
+      "id": "CHK-061",
+      "requirement": "The Business MUST include quantity_unit on the item in every Cart, Checkout, and Order line response whenever the effective identity differs from the default identity.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L274-L277",
+      "quote": "**Echoing the sale basis.** The Business **MAY** omit `quantity_unit` from a\nresponse line whose effective sale-basis identity is the default identity. The\nBusiness **MUST** include `quantity_unit` on the item in every Cart, Checkout,\nand Order line response whenever the effective identity differs from the\ndefault identity.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the response-echo rule for a non-default sale basis, closing the omission loophole CHK-058's sibling MAY would otherwise leave ambiguous."
+    },
+    {
+      "id": "CHK-062",
+      "requirement": "The Business MUST compute the line total as price times quantity times 10^-scale and round once at the line; the Platform MUST NOT recompute a line total from the fractional quantity and substitute its own rounding.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L285-L289",
+      "quote": "The Business **MUST** compute the line total as\n`price × quantity × 10^-scale` and round once at the line. The presented\n`totals[]` remain authoritative (see [Totals](index.md#totals)). The Platform\n**MUST NOT** recompute a line total from the fractional quantity and substitute\nits own rounding.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the two-way rounding-authority rule for a fractional quantity line total (Business computes/rounds once; Platform never recomputes/re-rounds). No 04-08 antecedent (04-08 has no quantity_unit/sale-basis concept, so no fractional-quantity line-total formula existed to guard). Two keywords (MUST, MUST NOT) of one integrated rounding-authority rule registered as a single row."
+    },
+    {
+      "id": "CHK-063",
+      "requirement": "On authoritative responses the Business MUST include item.unit_price on every cart, checkout, and order line whose pricing basis differs from its sale basis.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L293-L296",
+      "quote": "**Pricing basis.** `item.price` is always denominated against the sale basis,\nbut the Business MAY quote it from a different measurement basis — for\nexample, apples priced per pound and sold per `each`. On authoritative\nresponses the Business **MUST** include `item.unit_price` on every cart,\ncheckout, and order line whose pricing basis differs from its sale basis:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the response-echo rule for the pricing-basis-vs-sale-basis distinction (the last piece of the new quantities-and-units subsystem in this file)."
+    },
+    {
+      "id": "CHK-064",
+      "requirement": "While status is complete_in_progress (the Business is processing the order), the response MUST NOT contain order.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L397-L398",
+      "quote": "* **`complete_in_progress`**: The Complete Checkout request was accepted and the\n    Business is processing the order. The response **MUST NOT** contain `order`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the complete_in_progress status invariant; distinct from the SHOULD-level status descriptions CHK-030/031/032 already cover for the other status values (requires_escalation/ready_for_complete/canceled)."
+    },
+    {
+      "id": "CHK-065",
+      "requirement": "If an Action prevents Complete Checkout from being accepted, the Business MUST return the current Checkout with status: incomplete and an error Message with severity: \"recoverable\" whose path selects that exact Action occurrence.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L435-L437",
+      "quote": "If an Action prevents Complete Checkout from being accepted, the Business\n**MUST** return the current Checkout with `status: incomplete` and an error\nMessage with `severity: \"recoverable\"` whose `path` selects that exact Action\noccurrence.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): part of the wholly new Actions mechanism (no 04-08 antecedent: Actions do not exist in the 04-08 tree)."
+    },
+    {
+      "id": "CHK-066",
+      "requirement": "During complete_in_progress, the Platform MAY repeat Get Checkout with bounded backoff, and MUST stop repeated requests at expires_at.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L450",
+      "quote": "| Get Checkout | The Platform **MAY** invoke Get Checkout; the Business's response is authoritative. The Platform **MAY** repeat Get Checkout with bounded backoff set by the Action contract or Platform policy, and **MUST** stop repeated requests at `expires_at`. |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): row 1 of the new complete_in_progress operation-contract table (## Actions > #### Accepted completion)."
+    },
+    {
+      "id": "CHK-067",
+      "requirement": "During complete_in_progress, the Platform MUST NOT start a new Update Checkout operation; if the Business receives one anyway, it MUST leave the Checkout unchanged and return the current Checkout with a recoverable error Message.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L451",
+      "quote": "| Update Checkout | The Platform **MUST NOT** start a new Update Checkout operation. Duplicate requests remain subject to [Replay Protection](../../signatures.md#replay-protection). If the Business receives a new Update Checkout request, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message. |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): row 2 of the same table; two keywords (Platform-side MUST NOT, Business-side MUST) of one integrated contract registered as a single row."
+    },
+    {
+      "id": "CHK-068",
+      "requirement": "During complete_in_progress, the Platform MUST NOT start a new Complete Checkout operation (narrow lost-response recovery retry excepted).",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L452",
+      "quote": "| Complete Checkout | The Platform **MUST NOT** start a new Complete Checkout operation during `complete_in_progress`. See [Complete Checkout](#complete-checkout) for the narrow lost-response recovery retry. |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): row 3 of the same table."
+    },
+    {
+      "id": "CHK-069",
+      "requirement": "During complete_in_progress, the Platform MUST follow the fallback, handoff, and cancellation race rules before attempting Cancel Checkout.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L453",
+      "quote": "| Cancel Checkout | The Platform **MUST** follow the fallback, handoff, and cancellation race rules below before attempting Cancel Checkout. |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): row 4 (final) of the same table."
+    },
+    {
+      "id": "CHK-070",
+      "requirement": "Because Update Checkout is unavailable after Complete Checkout is accepted, the Business MUST surface any Action that requires input through Update Checkout before accepting Complete Checkout.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L459-L461",
+      "quote": "Because Update Checkout is unavailable after Complete Checkout is accepted, the\nBusiness **MUST** surface any Action that requires input through Update Checkout\nbefore accepting Complete Checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the pre-acceptance surfacing obligation that makes the CHK-067 unavailability rule fair to the Platform."
+    },
+    {
+      "id": "CHK-071",
+      "requirement": "The Action completion signal is not authoritative for Checkout state; the Platform MUST use Get Checkout to confirm that the Business reflected the result.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L464-L466",
+      "quote": "need time to receive and apply its result. The Action completion signal is not\nauthoritative for Checkout state. The Platform **MUST** use\n[Get Checkout](#get-checkout) to confirm that the Business reflected the result,",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the verification-not-trust rule for asynchronous Action processing."
+    },
+    {
+      "id": "CHK-072",
+      "requirement": "If the same Action key and id remain, the Platform MUST NOT process it again unless its contract explicitly permits retry and every safe-retry condition holds.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L469-L470",
+      "quote": "If the same Action key and `id` remain, the Platform **MUST NOT** process it\nagain unless its contract explicitly permits retry and every safe-retry\ncondition holds.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the duplicate-processing guard for outstanding Actions."
+    },
+    {
+      "id": "CHK-073",
+      "requirement": "The Platform MUST NOT attempt Cancel Checkout while either fallback or handoff can still continue the Checkout.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L478-L480",
+      "quote": "no fallback can continue the Checkout and `continue_url` is available, the\nPlatform **SHOULD** use it to hand off the Checkout to the Buyer. The Platform\n**MUST NOT** attempt Cancel Checkout while either fallback or handoff can still\ncontinue the Checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the cancellation-is-last-resort ordering rule that CHK-069's table row points to."
+    },
+    {
+      "id": "CHK-074",
+      "requirement": "Cancellation can race completion; the Platform MUST NOT treat the Checkout as canceled unless the Business reports status: canceled.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L484-L485",
+      "quote": "still reports `complete_in_progress`. Cancellation can race completion; the\nPlatform **MUST NOT** treat the Checkout as canceled unless the Business reports\n`status: canceled`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the race-outcome verification rule closing the fallback/handoff/cancellation sequence CHK-069 through CHK-074 together specify."
+    },
+    {
+      "id": "CHK-075",
+      "requirement": "The optional path field on a message, when present, MUST be an RFC 9535 JSONPath expression relative to the root of the UCP response object.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L643-L644",
+      "quote": "`path` **MUST** be an [RFC 9535](https://www.rfc-editor.org/rfc/rfc9535)\nJSONPath expression relative to the root of the UCP response object. When `path`\nis omitted, the message applies to the response as a whole.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the format constraint on Message.path; 04-08's checkout.md has no RFC 9535/JSONPath requirement (path was a looser, undefined-format field there)."
+    },
+    {
+      "id": "CHK-076",
+      "requirement": "When a disclosure Message renders a structured policies[] entry, the Message's code MUST equal that policy's type, to link the two.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L862-L864",
+      "quote": "(e.g., `prop65`, `allergens`, `energy_label`). When the disclosure renders a\nstructured `policies[]` entry, the `code` **MUST** equal that policy's `type`\nto link the two (see [Policies](../../overview/index.md#policies)).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the disclosure-Message-to-Policy linking rule; genuinely new (04-08's checkout.md has no `policies[]` cross-reference at all -- grep for 'policies\\[\\]' and 'equal that policy' both return zero hits in the 04-08 tree), tied to the new overview.md Policies section this same P2b wave 2 pass also extracts."
+    },
+    {
+      "id": "CHK-077",
+      "requirement": "The Platform MUST NOT use Complete Checkout to poll or resume accepted processing; if it does not receive a response, it SHOULD use Get Checkout with bounded backoff and MUST stop at expires_at.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L1109-L1112",
+      "quote": "The Platform **MUST NOT** use Complete Checkout to poll or resume accepted\nprocessing. If the Platform does not receive a response to Complete Checkout, it\n**SHOULD** use Get Checkout with bounded backoff to obtain the current state and\n**MUST** stop at `expires_at`.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the lost-response recovery contract's polling boundary; no 04-08 antecedent (04-08 has no complete_in_progress-driven retry semantics). Two MUST/MUST NOT keyword occurrences (L1109, L1112) of one integrated rule registered as a single row."
+    },
+    {
+      "id": "CHK-078",
+      "requirement": "When retrying the original Complete Checkout request after Get Checkout still cannot establish whether the Business processed it, the Platform MUST NOT use a new idempotency key for that retry.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L1113-L1115",
+      "quote": "whether the Business processed the original request, the Platform **MAY** submit\nthe identical original Complete Checkout request again with the same idempotency\nkey. The Platform **MUST NOT** use a new idempotency key for that retry.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the same-key requirement for the narrow lost-response recovery retry."
+    },
+    {
+      "id": "CHK-079",
+      "requirement": "A genuinely new Complete Checkout operation after the Checkout returns to ready_for_complete MUST use a fresh idempotency key, even if the payload is unchanged.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L1116-L1118",
+      "quote": "A genuinely new Complete Checkout operation after the Checkout returns to\n`ready_for_complete`\n**MUST** use a fresh idempotency key, even if the payload is unchanged.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "NEW at v2026-08-25 (P2b wave 2): the counterpart rule to CHK-078: distinguishing a genuinely new operation (fresh key) from a lost-response retry (same key)."
     }
   ],
   "notes": [
