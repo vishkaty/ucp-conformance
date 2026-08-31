@@ -50,6 +50,26 @@ def gates(server):
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
+        # R13: the completeness matcher's coverage decision (register-complete above)
+        # must not silently regress to the pre-fix per-physical-line algorithm, which
+        # missed a covered line whenever a row's "..." elision landed mid-physical-line
+        # (proven on IDL-012/030/050). Hermetic; carries a frozen copy of the old
+        # algorithm as its own kill-test mutant, plus a class negative against
+        # over-matching.
+        ("completeness-matcher", _py(SELF / "validate_completeness_matcher.py"),  None, ()),
+        # G0-c (PLAN-0825 A.3): the schema-constraint denominator proof — every
+        # schema/service file in the pinned corpus is either referenced by a
+        # register row or carried in a recorded, hash-pinned ruling, plus the
+        # one-time fenced-hit audit. REPORT-ONLY by default (real findings never
+        # fail this gate — 153 files are honestly unreferenced today, expected
+        # until L2 lands schema_enforced rows; a gate flip to --enforce is a later,
+        # deliberate step per PLAN-0825 G0-c/§G). Still fails on malformed ruling
+        # data (our own data-hygiene bugs), which is real regardless of mode.
+        ("schema-census", _py(SELF / "verify_schema_census.py"),                  None, ()),
+        # hermetic kill-tests for the census above: proves unreferenced-file
+        # detection, stale-ruling (hash-diff self-expiry) detection, and a class
+        # negative against over-firing, all independent of today's real findings.
+        ("schema-census-killtest", _py(SELF / "validate_schema_census.py"),       None, ()),
         ("coverage-lock", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py"), None, ()),
         ("review-signoff", _py(ROOT / "conformance" / "coverage" / "verify_review_signoffs.py"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),

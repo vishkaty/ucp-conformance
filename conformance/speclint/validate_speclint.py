@@ -29,6 +29,8 @@ from predicates import transport_header_parity                 # noqa: E402
 
 ROOT = HERE.parents[1]
 VENDOR = ROOT / "conformance" / ".vendor" / "ucp" / "source" / "services" / "shopping"
+VENDOR_0825 = (ROOT / "conformance" / ".vendor" / "ucp-2026-08-25" / "source"
+               / "services" / "shopping")
 FIX = HERE / "fixtures" / "class_negatives"
 
 # Independently hand-verified at pin a2d8bf0b (and re-verified on current ucp
@@ -42,24 +44,56 @@ EXPECTED_PARITY = {
     ("update_checkout", "Idempotency-Key", "rest"),
 }
 
+# Re-attested at the v2026-08-25 release pin cd78fb38 (GAP-LEDGER-0825 G11,
+# PLAN-0825 A.3, 2026-08-31 mechanical re-run): the #723 reorg + #736/#741
+# refactor did NOT change this shape — REST still requires Idempotency-Key on
+# the same four operations; MCP's base `meta` schema still requires only
+# `ucp-agent`, and only complete_checkout/cancel_checkout carry the per-method
+# `allOf` branch that adds `idempotency-key`. Identical to EXPECTED_PARITY by
+# value (kept as its own named constant, not an alias, so a future edit to
+# either pin's golden set is a deliberate, reviewed change to ONE of them, not
+# an accidental shared mutation).
+EXPECTED_PARITY_0825 = {
+    ("create_cart", "Idempotency-Key", "rest"),
+    ("create_checkout", "Idempotency-Key", "rest"),
+    ("update_cart", "Idempotency-Key", "rest"),
+    ("update_checkout", "Idempotency-Key", "rest"),
+}
+
 
 def _load(path):
     return json.loads(pathlib.Path(path).read_text())
 
 
+def _transport_parity_findings(vendor_dir):
+    rest = required_headers_by_operation(_load(vendor_dir / "rest.openapi.json"))
+    mcp = required_meta_by_method(_load(vendor_dir / "mcp.openrpc.json"))
+    return {(f.operation, f.header, f.required_in)
+            for f in transport_header_parity(rest, mcp)}
+
+
 def check_transport_parity():
     failures = []
 
-    # POSITIVE CONTROL — vendored spec must reproduce the golden finding set.
-    rest = required_headers_by_operation(_load(VENDOR / "rest.openapi.json"))
-    mcp = required_meta_by_method(_load(VENDOR / "mcp.openrpc.json"))
-    got = {(f.operation, f.header, f.required_in)
-           for f in transport_header_parity(rest, mcp)}
+    # POSITIVE CONTROL (2026-04-08) — vendored spec must reproduce the golden
+    # finding set.
+    got = _transport_parity_findings(VENDOR)
     if got != EXPECTED_PARITY:
         failures.append(
-            "POSITIVE CONTROL mismatch on vendored spec:\n"
+            "POSITIVE CONTROL mismatch on 2026-04-08 vendored spec:\n"
             f"    missing (expected, not found): {sorted(EXPECTED_PARITY - got)}\n"
             f"    unexpected (found, not expected): {sorted(got - EXPECTED_PARITY)}")
+
+    # POSITIVE CONTROL (2026-08-25) — the re-attest lock (G11): proves the
+    # mechanical finding at the release pin matches what was independently
+    # verified, so an upstream fix OR a new divergence turns this gate red
+    # instead of the claim silently going stale.
+    got_0825 = _transport_parity_findings(VENDOR_0825)
+    if got_0825 != EXPECTED_PARITY_0825:
+        failures.append(
+            "POSITIVE CONTROL mismatch on 2026-08-25 vendored spec (G11 re-attest):\n"
+            f"    missing (expected, not found): {sorted(EXPECTED_PARITY_0825 - got_0825)}\n"
+            f"    unexpected (found, not expected): {sorted(got_0825 - EXPECTED_PARITY_0825)}")
 
     # CLASS NEGATIVE — a consistent synthetic pair must yield zero findings.
     crest = required_headers_by_operation(_load(FIX / "parity_consistent_rest.openapi.json"))
@@ -79,8 +113,11 @@ def main():
             print("  " + f)
         return 1
     print("SPECLINT GATE: PASS")
-    print(f"  transport_header_parity: {len(EXPECTED_PARITY)} golden findings "
-          "reproduced; class-negative silent.")
+    print(f"  transport_header_parity @2026-04-08: {len(EXPECTED_PARITY)} golden "
+          "findings reproduced")
+    print(f"  transport_header_parity @2026-08-25: {len(EXPECTED_PARITY_0825)} golden "
+          "findings reproduced (G11 re-attest)")
+    print("  class-negative silent.")
     return 0
 
 
