@@ -170,6 +170,82 @@ binary under test stays the one the repo pins. Tests that need the oracle call
 `_require_oracle()` and SKIP (not silently pass) when either the vendor tree or
 the built binary is missing.
 
+## R11: defect-injection mode + mutant battery (PLAN-0825 SS C.4 / SS8-L3.4)
+
+The smoke suite's kill-check (above) proves the oracle CAN reject a broken
+payload in principle. It does not prove the wall holds for the specific
+constraint classes that actually broke ucp-sdk 0.5.0, or across every served
+surface. R11 closes that gap: a config-driven defect-injection mode the
+golden itself ships, off by default, plus a battery runner that proves it.
+
+**Design.** `server/defects.py` is the one choke point: a single ASGI
+middleware in `server.py` that, when armed (`--defects_config` set AND a
+mutant named in `--defects_state_file`), patches a matching response's JSON
+body per `server/defects_config.json` — DATA, never per-scenario server code
+(the walls doctrine). The arm state is hot-reloaded per request from the tiny
+state file, so ONE server boot serves the whole battery instead of a
+boot-per-mutant. `--defects_config` unset (the default; a normal boot never
+sets it) short-circuits before any body is even read — see
+`server/defects_test.py` for the exact byte-identity proof (object identity,
+not just equality, at the unit level; an end-to-end boot-to-boot byte
+comparison is NOT meaningful here because golden-0825 mints a fresh ephemeral
+webhook-signing keypair every boot — see
+`conformance/selfcheck/validate_golden_0825_battery.py`'s phase-0 docstring).
+
+**Catalog** (`server/defects_config.json`, 19 mutants): 4 mirror the proven
+ucp-sdk 0.5.0 constraint-drop families (python-sdk#88-#93 — JWK's 5
+conditional rules, the C62/scale rule, the maxProperties family, discriminator
+array-retyping) served as real wire responses; 14 more cover the served core
+one per surface/op (discovery, checkout ×5, cart ×4, order ×2, discount,
+fulfillment, consent); 1 (maxProperties/`location_serves`) is fixture-only,
+served through a dedicated `GET /testing/defect-fixtures/{key}` test route
+(secret-gated like `/testing/simulate-shipping/{id}`, 404s whenever defects
+mode is off) because this golden honestly does not implement Location
+Search/Lookup — grafting that schema onto an unrelated business response
+would validate vacuously, so it gets its own minimal wire host instead of a
+fabricated capability.
+
+**Battery runner**
+(`conformance/selfcheck/validate_golden_0825_battery.py`, own port 8199 —
+never 8182, selftest.sh's main golden): boots the golden, arms each mutant in
+turn, and requires FIRED (the response demonstrably reflects the configured
+patch — proven by re-walking the same patch instructions the server applied,
+not just "differs somewhere") + CAUGHT (the mutant's declared official-
+validator call rejects it) + RESTORED (disarmed, the same op validates clean
+again). `--selftest` kill-tests the runner itself: a planted mutant with a
+typo'd route (configured, never served) alongside a known-good positive
+control, asserting the runner reports the first as `LOADER-BROKEN` and the
+second `KILLED` — proving the fired-check actually does its job, not just the
+oracle-check. Report-only line in `conformance/ci/run_suite.py` (too heavy —
+two server boots, ~15s — for the default per-change gate run; the schema-
+census precedent), self-expiring after 14 days.
+
+**Result, first live run (2026-08-31): 18/19 killed.** The 19th
+(`sdkdrop-jwk-missing-crv`) is an honest, ACKNOWLEDGED finding, not a hidden
+gap: `so.validate_profile()` (the full `business_schema` chain) does NOT
+enforce `jwk_public_key`'s allOf-conditional `crv` requirement that direct
+validation against the same `$def` (no envelope) correctly catches — an
+oracle COMPOSITION bug, reproduced live against the pinned `ucp-schema`
+binary, matching exactly the risk this document's Validator section already
+flagged as unprobed ("PR #66 ... may still matter for deeper multi-extension
+composition scenarios we did not probe"). Recorded in
+`defects_config.json`'s `acknowledged_gaps` with a self-expiring re-test
+condition (re-run after the G0-a oracle re-pin; delete the entry if it then
+kills, file upstream if it still survives) — never a check that the golden
+itself reads or that any check-conversion work may treat as caught until that
+re-test happens.
+
+The barred door (SS C.6) is unaffected by this work: golden-0825 remains
+absent from `conformance/ci/differential_targets.json` and
+`conformance/coverage/` — this lane adds test machinery, no evidence claims.
+
+Run:
+```
+python3 conformance/selfcheck/validate_golden_0825_battery.py
+python3 conformance/selfcheck/validate_golden_0825_battery.py --selftest
+cd conformance/testbed/golden-0825/server && uv run --group dev pytest defects_test.py -v
+```
+
 ## Deliberately NOT done (budget-box)
 
 - MCP/embedded/A2A transports (`routes/mcp.py` exists, untested) — REST is the
@@ -201,3 +277,15 @@ the built binary is missing.
 - `conformance/testbed/golden-0825/smoke/test_golden_0825_smoke.py` — the TDD suite
 - `conformance/selfcheck/schema_oracle.py` — extended (not rewritten) with the
   2026-08-25 schema base and the profile.json/ucp.json fallback
+- `conformance/testbed/golden-0825/server/defects.py` — R11 defect-injection
+  engine (the middleware choke point + mutation primitive)
+- `conformance/testbed/golden-0825/server/defects_config.json` — the 19-mutant
+  catalog (DATA)
+- `conformance/testbed/golden-0825/server/defects_test.py` — hermetic unit
+  tests (byte-identity proof + patch correctness)
+- `conformance/testbed/golden-0825/server/server_state.py` — the shared,
+  lazily-constructed `DefectsEngine` singleton
+- `conformance/testbed/golden-0825/server/routes/defect_fixtures.py` —
+  test-only fixture-echo route for the one mutant with no natural business host
+- `conformance/selfcheck/validate_golden_0825_battery.py` — the battery runner
+  (own boot, own port 8199, `--selftest` kill-tests the runner itself)

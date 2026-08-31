@@ -208,11 +208,9 @@ def _completed_order_id():
     return completed["order"]["id"]
 
 
-def perform(route, mutant_name=None):
+def perform(route):
     """Issue the exact request a mutant's route names, using a freshly-created
-    resource where the op needs one to exist. mutant_name is only used to decide
-    which fixture-building helper applies; it is NOT sent to the server (arming
-    happens separately via the state file)."""
+    resource where the op needs one to exist."""
     method, path = route["method"], route["path"]
     if path == "/.well-known/ucp":
         return http("GET", path, expect_json=True)
@@ -365,7 +363,7 @@ def run_mutant(m, state_file, acknowledged, request_route=None):
     return {"name": name, "verdict": "KILLED", "detail": detail}
 
 
-def run_fixture(f, expect_disabled_404=None):
+def run_fixture(f):
     name = f["name"]
     route = f["route"]
     status, body = perform(route)
@@ -472,10 +470,38 @@ def main():
         if r["verdict"] not in ("KILLED", "SURVIVED-ACKNOWLEDGED"):
             ok = False
     killed = sum(1 for r in results if r["verdict"] == "KILLED")
-    print(f"\n{killed}/{len(results)} mutants killed; "
-          f"disabled-mode byte-identity: {'OK' if phase01_ok else 'FAILED'}")
+    acked = sum(1 for r in results if r["verdict"] == "SURVIVED-ACKNOWLEDGED")
+    print(f"\n{killed}/{len(results)} mutants killed"
+          + (f" ({acked} acknowledged-open)" if acked else "")
+          + f"; disabled-mode byte-identity: {'OK' if phase01_ok else 'FAILED'}")
     print("R11 battery:", "PASS" if ok else "FAIL")
+
+    _write_last_run_report(ok, results, phase01_ok, killed, acked)
     return 0 if ok else 1
+
+
+def _write_last_run_report(ok, results, phase01_ok, killed, acked):
+    """Standalone gate, report-only line in run_suite.py (this battery boots a
+    server twice and takes ~15s -- too heavy to run on every default run_suite
+    invocation, matching the schema-census precedent: report-only by default,
+    a deliberate flip to a hard default gate is a later, separate step). This
+    is the artifact run_suite.py's report line reads; see its docstring there
+    for the staleness rule (P-2, self-expiring: an old report is flagged, not
+    quietly trusted forever)."""
+    out_dir = GOLDEN_DIR / "battery"
+    out_dir.mkdir(exist_ok=True)
+    report = {
+        "ran_at": time.time(),
+        "ran_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "ok": ok,
+        "killed": killed,
+        "acknowledged_open": acked,
+        "total": len(results),
+        "disabled_mode_byte_identity_ok": phase01_ok,
+        "survivors": [r["name"] for r in results if r["verdict"] == "SURVIVED"],
+        "loader_broken": [r["name"] for r in results if r["verdict"] == "LOADER-BROKEN"],
+    }
+    (out_dir / "LAST_RUN.json").write_text(json.dumps(report, indent=1))
 
 
 # ---------------------------------------------------------------------------
