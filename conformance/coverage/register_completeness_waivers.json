@@ -3,9 +3,21 @@
  "scope_exclusions": [
   {
    "file": "docs/specification/embedded-checkout.md",
-   "versions": "*",
+   "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08"
+   ],
    "class": "out-of-scope",
    "reason": "Embedded-Protocol (EP) binding for checkout: a browser host-page <-> iframe integration built on window.postMessage / MessagePort. Its obligations bind the host page and the embedded UI surface, not the server's HTTP/MCP API, and are not observable by pointing a conformance checker at a server URL. A different harness (a headless browser driving the EP handshake) would be required; out of scope for this server-endpoint suite."
+  },
+  {
+   "file": "docs/specification/shopping/checkout/embedded.md",
+   "versions": [
+    "2026-08-25"
+   ],
+   "class": "out-of-scope",
+   "reason": "The #723 hierarchy reorg relocated embedded-checkout.md to shopping/checkout/embedded.md (verified present in the 2026-08-25 vendor tree; content and MUST count unchanged at 63). Same Embedded-Protocol (EP) binding as before: a browser host-page <-> iframe integration built on window.postMessage / MessagePort, not observable from a server endpoint."
   },
   {
    "file": "docs/specification/embedded-protocol.md",
@@ -25,21 +37,49 @@
   },
   {
    "file": "docs/specification/payment-handler-template.md",
-   "versions": "*",
+   "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08"
+   ],
    "class": "non-normative-doc",
    "reason": "A fill-in-the-blank TEMPLATE ('# {Handler Name} Payment Handler', '{reverse-dns.name}') for authors WRITING a payment-handler specification. Its MUST/REQUIRED clauses bind the author of a handler spec (e.g. 'Specifications MUST document these field mappings'), not the merchant server under test. No server-observable obligation lives here."
   },
   {
-   "file": "docs/specification/tokenization-guide.md",
-   "versions": "*",
+   "file": "docs/specification/payment/template.md",
+   "versions": [
+    "2026-08-25"
+   ],
    "class": "non-normative-doc",
-   "reason": "An explanatory guide to the tokenization flow. The normative tokenization contract is defined in the payment-handler schemas and the tokenization OpenAPI it links to; the guide's prose keywords restate or contextualize those, and are not an independent normative source for server conformance."
+   "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated payment-handler-template.md to payment/template.md (verified present in the 2026-08-25 vendor tree; still the same fill-in-the-blank TEMPLATE for authors WRITING a payment-handler specification, MUST count unchanged at 9). Its MUST/REQUIRED clauses bind the handler-spec author, not the merchant server under test."
+  },
+  {
+   "file": "docs/specification/tokenization-guide.md",
+   "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08"
+   ],
+   "class": "non-normative-doc",
+   "reason": "An explanatory guide to the tokenization flow. The normative tokenization contract is defined in the payment-handler schemas and the tokenization OpenAPI it links to; the guide's prose keywords restate or contextualize those, and are not an independent normative source for server conformance. NOTE (2026-08-30): the #736/#741 payment refactor's successor file, payment/tokenization.md, is DELIBERATELY NOT given an equivalent 2026-08-25 entry here — it grew from 4 to 21 MUST/MUST-NOT occurrences, adding real Tokenizer binding/verification obligations (e.g. 'A Tokenizer MUST verify a binding by exact equality...') that read as genuinely new, potentially server/role-observable normative surface, not mere restatement. Left to the 2026-08-25 census (report mode) for L2 extraction/adjudication rather than silently re-excluded."
   },
   {
    "file": "docs/specification/examples/platform-tokenizer-payment-handler.md",
-   "versions": "*",
+   "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08"
+   ],
    "class": "non-normative-doc",
    "reason": "A worked, illustrative example of one payment-handler configuration. Keywords describe what this specific example scenario does; they are not independent normative obligations on a UCP server. Examples are non-normative by spec convention."
+  },
+  {
+   "file": "docs/specification/payment/examples/platform-tokenizer-payment-handler.md",
+   "versions": [
+    "2026-08-25"
+   ],
+   "class": "non-normative-doc",
+   "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated examples/platform-tokenizer-payment-handler.md to payment/examples/platform-tokenizer-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 12, credential schemas renamed CardCredential/TokenCredential -> PanCredential/NetworkTokenCredential/TokenCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server."
   },
   {
    "file": "docs/specification/examples/processor-tokenizer-payment-handler.md",
@@ -52,9 +92,21 @@
   },
   {
    "file": "docs/specification/examples/encrypted-credential-handler.md",
-   "versions": "*",
+   "versions": [
+    "2026-01-11",
+    "2026-01-23",
+    "2026-04-08"
+   ],
    "class": "non-normative-doc",
    "reason": "A worked, illustrative example of an encrypted-credential payment handler. Non-normative by spec convention; keywords narrate the example scenario, not independent server obligations."
+  },
+  {
+   "file": "docs/specification/payment/examples/encrypted-credential-payment-handler.md",
+   "versions": [
+    "2026-08-25"
+   ],
+   "class": "non-normative-doc",
+   "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated AND renamed examples/encrypted-credential-handler.md to payment/examples/encrypted-credential-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 5, credential schema renamed CardCredential -> PanCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server."
   },
   {
    "file": "docs/specification/examples/business-tokenizer-payment-handler.md",
