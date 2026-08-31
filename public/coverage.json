@@ -10397,10 +10397,10 @@
   },
   "2026-08-25": {
    "state": "building",
-   "musts": 684,
+   "musts": 785,
    "check": 0,
    "exempt": 0,
-   "gap": 684,
+   "gap": 785,
    "accounted_pct": 0,
    "evidence_breakdown": {
     "live-wire": 0,
@@ -10409,10 +10409,10 @@
     "self-referenced": 0
    },
    "gap_by_testability": {
-    "manual": 151,
+    "manual": 162,
     "needs-oauth": 15,
-    "needs-receiver": 136,
-    "testable": 382
+    "needs-receiver": 173,
+    "testable": 435
    },
    "areas": [
     {
@@ -10425,11 +10425,11 @@
     },
     {
      "area": "buyer-consent-v2",
-     "gap": 15,
+     "gap": 16,
      "gap_manual": 2,
      "gap_needs-receiver": 1,
-     "gap_testable": 12,
-     "musts": 15
+     "gap_testable": 13,
+     "musts": 16
     },
     {
      "area": "capability-namespace-authority",
@@ -10441,26 +10441,27 @@
     },
     {
      "area": "cart",
-     "gap": 15,
+     "gap": 17,
      "gap_manual": 2,
      "gap_needs-receiver": 5,
-     "gap_testable": 8,
-     "musts": 15
+     "gap_testable": 10,
+     "musts": 17
     },
     {
      "area": "catalog",
-     "gap": 32,
-     "gap_manual": 5,
-     "gap_testable": 27,
-     "musts": 32
+     "gap": 41,
+     "gap_manual": 6,
+     "gap_needs-receiver": 1,
+     "gap_testable": 34,
+     "musts": 41
     },
     {
      "area": "checkout-lifecycle",
-     "gap": 55,
+     "gap": 56,
      "gap_manual": 8,
      "gap_needs-receiver": 11,
-     "gap_testable": 36,
-     "musts": 55
+     "gap_testable": 37,
+     "musts": 56
     },
     {
      "area": "discounts-consent",
@@ -10472,10 +10473,11 @@
     },
     {
      "area": "discovery-and-profile",
-     "gap": 6,
+     "gap": 9,
      "gap_manual": 1,
-     "gap_testable": 5,
-     "musts": 6
+     "gap_needs-receiver": 1,
+     "gap_testable": 7,
+     "musts": 9
     },
     {
      "area": "error-envelope",
@@ -10493,77 +10495,77 @@
     },
     {
      "area": "identity-linking",
-     "gap": 79,
+     "gap": 80,
      "gap_manual": 30,
      "gap_needs-oauth": 13,
-     "gap_testable": 36,
-     "musts": 79
+     "gap_testable": 37,
+     "musts": 80
     },
     {
      "area": "location",
-     "gap": 48,
+     "gap": 56,
      "gap_manual": 13,
-     "gap_needs-receiver": 6,
-     "gap_testable": 29,
-     "musts": 48
+     "gap_needs-receiver": 8,
+     "gap_testable": 35,
+     "musts": 56
     },
     {
      "area": "loyalty",
-     "gap": 17,
+     "gap": 19,
      "gap_manual": 1,
      "gap_needs-receiver": 1,
-     "gap_testable": 15,
-     "musts": 17
-    },
-    {
-     "area": "order",
-     "gap": 25,
-     "gap_manual": 4,
-     "gap_needs-oauth": 1,
-     "gap_needs-receiver": 6,
-     "gap_testable": 14,
-     "musts": 25
-    },
-    {
-     "area": "overview",
-     "gap": 27,
-     "gap_manual": 7,
-     "gap_needs-oauth": 1,
-     "gap_needs-receiver": 9,
-     "gap_testable": 10,
-     "musts": 27
-    },
-    {
-     "area": "payment",
-     "gap": 44,
-     "gap_manual": 13,
-     "gap_needs-receiver": 15,
-     "gap_testable": 16,
-     "musts": 44
-    },
-    {
-     "area": "payment-3ds-challenge",
-     "gap": 10,
-     "gap_manual": 3,
-     "gap_needs-receiver": 5,
-     "gap_testable": 2,
-     "musts": 10
-    },
-    {
-     "area": "payment-authentication",
-     "gap": 19,
-     "gap_manual": 2,
-     "gap_needs-receiver": 10,
-     "gap_testable": 7,
+     "gap_testable": 17,
      "musts": 19
     },
     {
-     "area": "payment-device-data-collection",
-     "gap": 9,
+     "area": "order",
+     "gap": 29,
+     "gap_manual": 4,
+     "gap_needs-oauth": 1,
+     "gap_needs-receiver": 7,
+     "gap_testable": 17,
+     "musts": 29
+    },
+    {
+     "area": "overview",
+     "gap": 76,
+     "gap_manual": 14,
+     "gap_needs-oauth": 1,
+     "gap_needs-receiver": 33,
+     "gap_testable": 28,
+     "musts": 76
+    },
+    {
+     "area": "payment",
+     "gap": 47,
+     "gap_manual": 13,
+     "gap_needs-receiver": 17,
+     "gap_testable": 17,
+     "musts": 47
+    },
+    {
+     "area": "payment-3ds-challenge",
+     "gap": 11,
      "gap_manual": 3,
-     "gap_needs-receiver": 5,
+     "gap_needs-receiver": 6,
+     "gap_testable": 2,
+     "musts": 11
+    },
+    {
+     "area": "payment-authentication",
+     "gap": 22,
+     "gap_manual": 3,
+     "gap_needs-receiver": 11,
+     "gap_testable": 8,
+     "musts": 22
+    },
+    {
+     "area": "payment-device-data-collection",
+     "gap": 11,
+     "gap_manual": 3,
+     "gap_needs-receiver": 7,
      "gap_testable": 1,
-     "musts": 9
+     "musts": 11
     },
     {
      "area": "payment-terms",
@@ -10574,10 +10576,10 @@
     },
     {
      "area": "permalink",
-     "gap": 21,
+     "gap": 23,
      "gap_manual": 4,
-     "gap_testable": 17,
-     "musts": 21
+     "gap_testable": 19,
+     "musts": 23
     },
     {
      "area": "replay-protection-payload-matching",
@@ -10634,10 +10636,11 @@
     },
     {
      "area": "transports",
-     "gap": 7,
-     "gap_manual": 1,
-     "gap_needs-receiver": 6,
-     "musts": 7
+     "gap": 17,
+     "gap_manual": 3,
+     "gap_needs-receiver": 8,
+     "gap_testable": 6,
+     "musts": 17
     },
     {
      "area": "version-negotiation-and-protocol-errors",
@@ -11048,6 +11051,26 @@
      "covered_by": []
     },
     {
+     "id": "CART-035",
+     "area": "cart",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The cart has no status lifecycle; each Action gates only the cart effect specified for its Action type. The Business MUST NOT treat an outstanding Action as a reason to reject an unrelated cart operation.",
+     "source": "ucp:docs/specification/shopping/cart/index.md#L119-L121",
+     "covered_by": []
+    },
+    {
+     "id": "CART-036",
+     "area": "cart",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Update Cart performs a full replacement of the cart session. The platform MUST send the entire cart resource; the provided resource replaces the existing cart state on the business side.",
+     "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
+     "covered_by": []
+    },
+    {
      "id": "CAT-001",
      "area": "catalog",
      "keyword": "MUST",
@@ -11365,6 +11388,96 @@
      "status": "gap",
      "requirement": "Disclosure warnings (presentation:\"disclosure\") carry notices that platforms must not hide or dismiss",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L348-L349",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-039",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "For the unit_price display comparator to be well-defined, the Business MUST use a positive integer for both unit_price.measure.value and unit_price.reference.value.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L104-L105",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-040",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST set unit_price.currency equal to price.currency.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L106",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-041",
+     "area": "catalog",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Within unit_price, the Business MUST use identical values for measure.unit and reference.unit (though MAY use different scale values for those measures), and MUST NOT perform cross-unit or currency conversion as part of the unit-price calculation.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L107-L110",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-042",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST compute the unit_price comparator from price.amount and the scaled measure/reference values per the defined formula.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L111-L113",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-043",
+     "area": "catalog",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The Business MUST round the unit_price comparator result once to the currency minor units and return it as unit_price.amount, which is authoritative; the Platform MUST NOT recompute it or substitute its own result.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L118-L121",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-044",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "On transaction lines, the Business MUST echo unit_price on any line whose pricing basis differs from its sale basis.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L134-L136",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-045",
+     "area": "catalog",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "When get_product returns severity: unrecoverable because an identifier does not resolve, agents MUST NOT retry the same id.",
+     "source": "ucp:docs/specification/shopping/catalog/index.md#L356-L357",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-046",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "All catalog REST requests MUST include the UCP-Agent header containing the platform profile URI using Dictionary Structured Field syntax (RFC 8941).",
+     "source": "ucp:docs/specification/shopping/catalog/rest.md#L521-L524",
+     "covered_by": []
+    },
+    {
+     "id": "CAT-047",
+     "area": "catalog",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When the catalog Search limit parameter is omitted, the Business MUST apply a default page size (a default of 10 is RECOMMENDED, but the Business MAY choose another value).",
+     "source": "ucp:docs/specification/shopping/catalog/search.md#L72-L74",
      "covered_by": []
     },
     {
@@ -11918,6 +12031,16 @@
      "covered_by": []
     },
     {
+     "id": "CHK-080",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When HTTP Message Signatures are used, checkout REST requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.",
+     "source": "ucp:docs/specification/shopping/checkout/rest.md#L1419-L1421",
+     "covered_by": []
+    },
+    {
      "id": "CNST-001",
      "area": "buyer-consent-v2",
      "keyword": "MUST",
@@ -12068,6 +12191,16 @@
      "covered_by": []
     },
     {
+     "id": "CNST-020",
+     "area": "buyer-consent-v2",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "On complete_checkout, when a confirmed consent decision has unmet data dependencies, the missing dependencies MUST be surfaced via the standard Error Handling flow (rather than silently transitioning the checkout to completed).",
+     "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L356-L357",
+     "covered_by": []
+    },
+    {
      "id": "DDC-001",
      "area": "payment-device-data-collection",
      "keyword": "MUST NOT",
@@ -12158,6 +12291,26 @@
      "covered_by": []
     },
     {
+     "id": "DDC-010",
+     "area": "payment-device-data-collection",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Mounting the Device Data Collection surface MUST follow the shared Payment Authentication rendering contract and Embedded Protocol security requirements.",
+     "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L101-L103",
+     "covered_by": []
+    },
+    {
+     "id": "DDC-011",
+     "area": "payment-device-data-collection",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "If no valid action.done or action.error arrives before the outer deadline, the Platform MUST unmount the surface, treat the interaction as timed out, and follow the non-successful surface reconciliation path; the Platform MUST NOT remount the same Action type and id.",
+     "source": "ucp:docs/specification/payment/extensions/actions/device-data-collection.md#L187-L191",
+     "covered_by": []
+    },
+    {
      "id": "DISC-001",
      "area": "discovery-and-profile",
      "keyword": "MUST",
@@ -12215,6 +12368,36 @@
      "status": "gap",
      "requirement": "Platforms MUST include their profile URI in every request.",
      "source": "ucp:docs/specification/overview/index.md#L1780-L1781",
+     "covered_by": []
+    },
+    {
+     "id": "DISC-007",
+     "area": "discovery-and-profile",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Implementations MUST NOT follow redirects (3xx) when dereferencing a URL during identity resolution (the profile, or any jwks_uri / CIMD document a verifier follows).",
+     "source": "ucp:docs/specification/overview/index.md#L2287",
+     "covered_by": []
+    },
+    {
+     "id": "DISC-008",
+     "area": "discovery-and-profile",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Implementations MUST reject URLs dereferenced during identity resolution that resolve to special-use IP addresses (RFC 6890 loopback, link-local including the cloud-metadata address 169.254.169.254, private, and other reserved ranges), except a loopback target when the verifier itself runs on the same loopback interface (local development).",
+     "source": "ucp:docs/specification/overview/index.md#L2296-L2299",
+     "covered_by": []
+    },
+    {
+     "id": "DISC-009",
+     "area": "discovery-and-profile",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "If a business profile cannot be fetched (timeout, DNS failure, 5xx) or fails validation (invalid schema, signing keys, signature mismatch), businesses MUST reject the request with an appropriate error and status code.",
+     "source": "ucp:docs/specification/overview/index.md#L2312-L2315",
      "covered_by": []
     },
     {
@@ -13768,6 +13951,16 @@
      "covered_by": []
     },
     {
+     "id": "IDL-085",
+     "area": "identity-linking",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "To prevent Mix-Up Attacks, Businesses MUST return iss in every authorization response (paired with the Platform's RFC 9207 iss validation) -- without iss validation, an attacker controlling one authorization server can redirect a victim's authorization code to a different server.",
+     "source": "ucp:docs/specification/common/identity-linking/index.md#L984-L989",
+     "covered_by": []
+    },
+    {
      "id": "LOC-001",
      "area": "location",
      "keyword": "MUST",
@@ -14248,6 +14441,86 @@
      "covered_by": []
     },
     {
+     "id": "LOC-049",
+     "area": "location",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "An amenity entry without a description is schema-invalid; a Platform MUST reject the invalid response rather than infer presentation text from the key.",
+     "source": "ucp:docs/specification/common/location/index.md#L212-L213",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-050",
+     "area": "location",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A Platform MAY enhance recognized amenities with icons, grouping, or other structured presentation, but MUST NOT infer semantics from an unrecognized amenity identifier or treat it as equivalent to another amenity.",
+     "source": "ucp:docs/specification/common/location/index.md#L221-L224",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-051",
+     "area": "location",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business MUST NOT relax an explicit structured search constraint because of the query text: a Location that fails distance, serves, or a filters predicate is excluded no matter how well it matches the query.",
+     "source": "ucp:docs/specification/common/location/search.md#L78-L81",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-052",
+     "area": "location",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "If a namespaced Search target's extension was not negotiated, the Business MUST return an actionable request error rather than silently omit the target.",
+     "source": "ucp:docs/specification/common/location/search.md#L185-L187",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-053",
+     "area": "location",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When filters.amenities is present, the Business MUST include every supplied identifier in each returned Location's amenities map; a Platform MUST reject a returned Location as non-conforming if it omits the map or any requested key.",
+     "source": "ucp:docs/specification/common/location/search.md#L262-L265",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-054",
+     "area": "location",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Platform MUST NOT assume that the Search response result count equals either the requested or default page size, since a Business MAY return fewer results (including when enforcing its own maximum page size); this permission applies only to page size, not to distance.max.",
+     "source": "ucp:docs/specification/common/location/search.md#L320-L323",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-055",
+     "area": "location",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a Location lookup by identifier resolves multiple supplied identifiers to the same Location, the Business MUST return it only once (after deduping duplicate identifiers in the request).",
+     "source": "ucp:docs/specification/common/location/lookup.md#L39-L42",
+     "covered_by": []
+    },
+    {
+     "id": "LOC-056",
+     "area": "location",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming Location REST transport implementation MUST implement endpoints for each Location capability advertised in the Business's UCP profile (each capability MAY be adopted independently), evaluate distance/serves/filters.items only against explicit Platform-supplied operands (never derived from context, signals, or IP address), apply distance, serves, and every supplied filters predicate conjunctively (AND), and support cursor-based pagination for Search per the shared pagination contract.",
+     "source": "ucp:docs/specification/common/location/rest.md#L229-L241",
+     "covered_by": []
+    },
+    {
      "id": "LOY-001",
      "area": "loyalty",
      "keyword": "MUST",
@@ -14418,6 +14691,26 @@
      "covered_by": []
     },
     {
+     "id": "LOY-019",
+     "area": "loyalty",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a membership claim is recognized and accepted but not yet verified, the business MUST return provisional: true and MAY return display-safe tier context for the state accepted during the session, but MUST NOT return display_id until the membership is verified.",
+     "source": "ucp:docs/specification/common/extensions/loyalty.md#L230-L233",
+     "covered_by": []
+    },
+    {
+     "id": "LOY-020",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "If a loyalty eligibility claim cannot be verified, the business MUST return a recoverable error via messages[] with code: \"eligibility_invalid\".",
+     "source": "ucp:docs/specification/common/extensions/loyalty.md#L415-L416",
+     "covered_by": []
+    },
+    {
      "id": "MCP-001",
      "area": "transports",
      "keyword": "MUST",
@@ -14475,6 +14768,106 @@
      "status": "gap",
      "requirement": "A conforming catalog MCP transport implementation MUST implement JSON-RPC 2.0 correctly, validate tool inputs against UCP schemas, support cursor-based pagination for Search per the shared pagination contract, and return -32602 (Invalid params) for requests exceeding batch size limits (the catalog MCP conformance list beyond the Lookup-tool exposure that MCP-001 covers).",
      "source": "ucp:docs/specification/shopping/catalog/mcp.md#L705-L715",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-007",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "MCP clients MUST include a meta object in every catalog request containing protocol metadata.",
+     "source": "ucp:docs/specification/shopping/catalog/mcp.md#L64-L65",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-008",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Platform using MCP for Location MUST include a meta object with meta[\"ucp-agent\"].profile in every request, identifying the Platform's UCP profile for version compatibility checks and capability negotiation.",
+     "source": "ucp:docs/specification/common/location/mcp.md#L62-L65",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-009",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming Location MCP transport implementation MUST implement JSON-RPC 2.0 correctly, implement tools for each Location capability advertised in the Business's UCP profile (each capability MAY be adopted independently), evaluate distance/serves/filters.items only against explicit Platform-supplied operands (never derived from context, signals, or IP address), apply distance, serves, and every supplied filters predicate conjunctively (AND), and support cursor-based pagination for Search per the shared pagination contract.",
+     "source": "ucp:docs/specification/common/location/mcp.md#L260-L274",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-010",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "MCP clients MUST include a meta object in every checkout request containing protocol metadata.",
+     "source": "ucp:docs/specification/shopping/checkout/mcp.md#L82-L83",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-011",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "MCP clients MUST include a meta object in every order request containing protocol metadata.",
+     "source": "ucp:docs/specification/shopping/order/mcp.md#L61-L62",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-012",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "When the business cannot return an order, Platforms MUST check the messages array before accessing order fields.",
+     "source": "ucp:docs/specification/shopping/order/mcp.md#L284-L285",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-013",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Platforms implementing the order MCP binding MUST include meta.ucp-agent.profile on all requests.",
+     "source": "ucp:docs/specification/shopping/order/mcp.md#L289-L291",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-014",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "MCP clients MUST include a meta object in every cart request containing protocol metadata.",
+     "source": "ucp:docs/specification/shopping/cart/mcp.md#L68-L69",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-015",
+     "area": "transports",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "For MCP cart operations on existing carts (get, update, cancel), where a top-level id parameter identifies the target resource, the cart object in the request payload MUST NOT contain an id field.",
+     "source": "ucp:docs/specification/shopping/cart/mcp.md#L102-L105",
+     "covered_by": []
+    },
+    {
+     "id": "MCP-016",
+     "area": "transports",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A conforming cart MCP transport implementation MUST implement JSON-RPC 2.0 correctly, provide all core cart tools, return errors per the Core Specification, return business outcomes as a JSON-RPC result with UCP envelope and messages array, validate tool inputs against UCP schemas, and support HTTP transport with streaming.",
+     "source": "ucp:docs/specification/shopping/cart/mcp.md#L651-L659",
      "covered_by": []
     },
     {
@@ -14778,6 +15171,46 @@
      "covered_by": []
     },
     {
+     "id": "ORD-034",
+     "area": "order",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When an order adjustment settles against an actual measurement, the adjustment MUST carry the settled measure, and its unit identity MUST match the pricing basis (no conversion); a pure price settlement uses quantity: 0 so the count is untouched.",
+     "source": "ucp:docs/specification/shopping/order/index.md#L380-L382",
+     "covered_by": []
+    },
+    {
+     "id": "ORD-035",
+     "area": "order",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A Business MUST authenticate requests to order data before returning a response.",
+     "source": "ucp:docs/specification/shopping/order/index.md#L670-L671",
+     "covered_by": []
+    },
+    {
+     "id": "ORD-036",
+     "area": "order",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Platforms implementing the order REST binding MUST include the UCP-Agent header with the profile URL on all requests.",
+     "source": "ucp:docs/specification/shopping/order/rest.md#L255-L257",
+     "covered_by": []
+    },
+    {
+     "id": "ORD-037",
+     "area": "order",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Businesses implementing the order REST binding MUST serve all endpoints over HTTPS with TLS 1.3+.",
+     "source": "ucp:docs/specification/shopping/order/rest.md#L263-L265",
+     "covered_by": []
+    },
+    {
      "id": "OVR-001",
      "area": "overview",
      "keyword": "MUST",
@@ -15048,6 +15481,496 @@
      "covered_by": []
     },
     {
+     "id": "OVR-028",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Vendors MUST use their own reverse-domain namespace (com.{vendor}.* or org.{org}.*) for custom capabilities; the dev.ucp.* namespace is reserved for capabilities sanctioned by the UCP governing body.",
+     "source": "ucp:docs/specification/overview/index.md#L980",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-029",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Transport definitions (OpenAPI/OpenRPC) for a service MUST be thin: they declare method names and reference base schemas only.",
+     "source": "ucp:docs/specification/overview/index.md#L1007-L1008",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-030",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only; they MUST NOT enumerate fields or define payload shapes inline.",
+     "source": "ucp:docs/specification/overview/index.md#L1105-L1106",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-031",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Extensions MUST be self-describing: each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition.",
+     "source": "ucp:docs/specification/overview/index.md#L1107-L1109",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-032",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Platforms MUST resolve extension schemas client-side by fetching and composing base schemas with active extension schemas.",
+     "source": "ucp:docs/specification/overview/index.md#L1110-L1111",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-033",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "In an extension schema using allOf composition, the $defs key MUST use the full parent capability name (reverse-domain format) to enable deterministic schema resolution.",
+     "source": "ucp:docs/specification/overview/index.md#L1115-L1117",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-034",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Extension schemas MUST have a $defs entry for each parent capability declared in the extension's extends field.",
+     "source": "ucp:docs/specification/overview/index.md#L1144-L1145",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-035",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The $defs key for a parent capability in an extension schema MUST match the parent's full capability name exactly.",
+     "source": "ucp:docs/specification/overview/index.md#L1146",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-036",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Keys in an extension schema's requires.capabilities object MUST be a subset of the extension's $defs keys.",
+     "source": "ucp:docs/specification/overview/index.md#L1204-L1206",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-037",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Once ucp.version and capability versions are selected, if the extension schema declares a requires object, Platforms and Businesses MUST verify that the selected ucp.version and capability versions satisfy its declared constraints during schema resolution.",
+     "source": "ucp:docs/specification/overview/index.md#L1209-L1211",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-038",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Platforms MUST resolve schemas following the defined sequence: Discovery, Negotiation, Schema Fetch, Version Compatibility, Compose, Validate.",
+     "source": "ucp:docs/specification/overview/index.md#L1232",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-039",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "In a UCP profile, the services and payment_handlers registries MUST be present even when empty; ucp.capabilities is optional and MAY be omitted.",
+     "source": "ucp:docs/specification/overview/index.md#L1258-L1259",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-040",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When a UCP profile publishes signing keys, they MUST appear in the top-level keys[] array \u2014 the canonical UCP profile field every UCP verifier reads.",
+     "source": "ucp:docs/specification/overview/index.md#L1264-L1265",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-041",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Schema authors MUST NOT define a domain field named ucp in structured object schemas or extensions \u2014 the member name ucp is reserved as the protocol namespace at every eligible structured scope.",
+     "source": "ucp:docs/specification/overview/index.md#L1566-L1567",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-042",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Consumers MUST ignore members inside the ucp container that they do not recognize (tolerant reader) \u2014 the ucp container is open, existing so documents produced under a newer UCP version remain readable by older consumers.",
+     "source": "ucp:docs/specification/overview/index.md#L1574-L1575",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-043",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "Only UCP core defines members inside the ucp container; extension authors MUST NOT place extension data there \u2014 an unrecognized member inside ucp means 'defined by a newer UCP version,' never 'extension data.'",
+     "source": "ucp:docs/specification/overview/index.md#L1578",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-044",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Producers MUST NOT emit a ucp member as a direct child of another ucp member (ucp.ucp) \u2014 no direct recursion.",
+     "source": "ucp:docs/specification/overview/index.md#L1582-L1583",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-045",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "If a ucp member is present as a direct child of another ucp member, a receiving Business or Platform MUST NOT interpret it as another protocol namespace and MUST ignore that child.",
+     "source": "ucp:docs/specification/overview/index.md#L1584-L1585",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-046",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A Business or Platform MUST NOT interpret a dictionary key named ucp as the protocol namespace; the key and its value are ordinary dictionary data (the reservation stops at a dictionary container).",
+     "source": "ucp:docs/specification/overview/index.md#L1593-L1594",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-047",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A Business or Platform encountering a ucp member at an eligible structured scope processes the members it recognizes, each per its own definition, and MUST ignore unrecognized members.",
+     "source": "ucp:docs/specification/overview/index.md#L1602",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-048",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "For a selected message direction, a UCP-aware resolver MUST produce a resolved schema that recognizes and validates ambient ucp at every eligible structured scope against the central vocabulary in ucp.json#/$defs/members, subject to that vocabulary's applicability in the selected direction.",
+     "source": "ucp:docs/specification/overview/index.md#L1624-L1627",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-049",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "map_order rule 1: Producers MUST NOT rely on JSON object member order for UCP map-valued registries; map_order is the order carrier.",
+     "source": "ucp:docs/specification/overview/index.md#L1654-L1655",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-050",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "map_order rule 5: the order array is not an allowlist \u2014 consumers MUST NOT interpret omission of a key from map_order as removal, ineligibility, or reduced support.",
+     "source": "ucp:docs/specification/overview/index.md#L1664-L1665",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-051",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "map_order rule 6: Producers MUST name a present, map-valued target and MUST list only keys present in that target map; a receiving Business or Platform MUST NOT reject the containing document solely because a map_order entry names an absent, unrecognized, or non-map target, or a key absent from its target map, and if it processes map_order it MUST ignore the unusable entry.",
+     "source": "ucp:docs/specification/overview/index.md#L1666-L1671",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-052",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "map_order rule 7: Producers MUST NOT list the same map key more than once in an order array; consumers MUST NOT reject the containing document solely because an order array repeats a map key, and consumers that process map_order MUST honor the first occurrence and ignore later repetitions.",
+     "source": "ucp:docs/specification/overview/index.md#L1672-L1675",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-053",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "map_order rule 8: if map_order, or its entry for a field, is absent, no order is declared; consumers MUST NOT fall back to object member order.",
+     "source": "ucp:docs/specification/overview/index.md#L1677",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-054",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Over HTTP transport, Platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header to communicate their profile URI.",
+     "source": "ucp:docs/specification/overview/index.md#L1739-L1741",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-055",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Over MCP transport, Platforms MUST include a meta object containing request metadata (the ucp-agent profile) with each tool call.",
+     "source": "ucp:docs/specification/overview/index.md#L1751-L1752",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-056",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Negotiation Protocol, Platform Requirements item 3 (Namespace Validation): before fetching, platforms MUST validate that each capability's schema URL origin matches its namespace authority, and MUST reject capabilities that fail this binding.",
+     "source": "ucp:docs/specification/overview/index.md#L1785-L1788",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-057",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Negotiation Protocol, Platform Requirements item 4 (Schema Resolution): Platforms MUST fetch and compose schemas for negotiated capabilities before making requests.",
+     "source": "ucp:docs/specification/overview/index.md#L1789-L1790",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-058",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Negotiation Protocol, Business Requirements item 1 (Profile Resolution): upon receiving a request with a platform profile URI, businesses MUST fetch and validate the platform profile unless already cached.",
+     "source": "ucp:docs/specification/overview/index.md#L1794-L1796",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-059",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Negotiation Protocol, Business Requirements item 2 (Capability Intersection): Businesses MUST compute the intersection of platform and business capabilities.",
+     "source": "ucp:docs/specification/overview/index.md#L1800-L1801",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-060",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (e.g. 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
+     "source": "ucp:docs/specification/overview/index.md#L2083-L2085",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-061",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Business-to-platform webhooks MUST be signed.",
+     "source": "ucp:docs/specification/overview/index.md#L2188-L2189",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-062",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "For a WBA-shape signature resolved via Signature-Agent, the signature MUST satisfy the WBA agent-signature requirements (draft-meunier-webbotauth-httpsig-protocol-00 \u00a74.2), and the Signature-Agent member value MUST be an HTTPS URL.",
+     "source": "ucp:docs/specification/overview/index.md#L2396-L2400",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-063",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "For a WBA-shape signature (tag=\"web-bot-auth\"), the verifier MUST also confirm that keyid equals the RFC 7638 SHA-256 thumbprint of the matched JWK, binding the advertised key identity to its bytes; if it fails, the signature is skipped.",
+     "source": "ucp:docs/specification/overview/index.md#L2425-L2429",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-064",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Identity Resolution Algorithm step 5: independent of tag and transport, the signature MUST cover the request target (@method, @authority, @path; @query when present), the body when present (content-digest, content-type), and each of the request headers ucp-agent, signature-agent, idempotency-key when present.",
+     "source": "ucp:docs/specification/overview/index.md#L2431-L2437",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-065",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The request MUST be rejected (key_not_found, algorithm_unsupported, or a related error) only when every signature on the request has been skipped or fails verification.",
+     "source": "ucp:docs/specification/overview/index.md#L2451-L2453",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-066",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Implementations MUST treat the request as a single authenticated identity only when the Signature-Agent and UCP-Agent URLs are the same after normalization; otherwise they are distinct identities and policy decides whether either suffices.",
+     "source": "ucp:docs/specification/overview/index.md#L2465-L2467",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-067",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "UCP MCP servers MUST return the UCP response payload in structuredContent (MCP tool responses use a dual-output pattern for backward compatibility).",
+     "source": "ucp:docs/specification/overview/index.md#L3011",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-068",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "All UCP communication MUST occur over HTTPS.",
+     "source": "ucp:docs/specification/overview/index.md#L3304",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-069",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Initial Service and Capability Discovery, step 3: when the selected protocol version is a key in supported_versions, the Platform MUST verify that the fetched profile's ucp.version equals the supported_versions key it selected; on mismatch the Platform MUST NOT use that profile.",
+     "source": "ucp:docs/specification/overview/index.md#L3521-L3523",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-070",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Initial Service and Capability Discovery, step 4: if no mutually supported protocol version exists between Platform and Business, Businesses MUST respond with a version_unsupported error.",
+     "source": "ucp:docs/specification/overview/index.md#L3527-L3529",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-071",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Businesses MUST validate the platform's protocol version on every request (Request-Time Validation).",
+     "source": "ucp:docs/specification/overview/index.md#L3543-L3544",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-072",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Request-Time Validation item 4: Businesses MUST include the negotiated protocol version in every response.",
+     "source": "ucp:docs/specification/overview/index.md#L3559-L3560",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-073",
+     "area": "overview",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "The protocol version MUST be a dated release in YYYY-MM-DD format; Businesses MUST NOT advertise a non-date version string (e.g. \"draft\") in their profile version field or in supported_versions, and pre-release implementations MUST NOT be surfaced through public discovery.",
+     "source": "ucp:docs/specification/overview/index.md#L3596-L3599",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-074",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "UCP MUST re-certify the snapshot before publishing any updated artifacts for a release (including an approved backport).",
+     "source": "ucp:docs/specification/overview/index.md#L3694",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-075",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A Business or Platform that selects ucp.version D MUST declare version D on every dev.ucp.* service, capability, and extension entry in its profile.",
+     "source": "ucp:docs/specification/overview/index.md#L3711-L3713",
+     "covered_by": []
+    },
+    {
+     "id": "OVR-076",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "A Platform that encounters a dev.ucp.* entry whose version differs from the profile's ucp.version MUST reject that entry \u2014 treated as not present and never activated \u2014 and MAY continue with the remaining entries.",
+     "source": "ucp:docs/specification/overview/index.md#L3714-L3716",
+     "covered_by": []
+    },
+    {
      "id": "PAUTH-001",
      "area": "payment-authentication",
      "keyword": "MUST NOT",
@@ -15235,6 +16158,36 @@
      "status": "gap",
      "requirement": "The handler MUST document any deviation from the shared sandbox baseline when a Platform grants the frame/webview capabilities the handler requires",
      "source": "ucp:docs/specification/payment/extensions/authentication.md#L350",
+     "covered_by": []
+    },
+    {
+     "id": "PAUTH-021",
+     "area": "payment-authentication",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "If the Business needs the Platform to retry a Payment Authentication surface interaction after the Platform has stopped processing that Action occurrence (per the do-not-reprocess rule), it MUST replace the occurrence with a new id.",
+     "source": "ucp:docs/specification/payment/extensions/authentication.md#L180-L183",
+     "covered_by": []
+    },
+    {
+     "id": "PAUTH-022",
+     "area": "payment-authentication",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Every Payment Authentication surface's action.ready JSON-RPC request MUST set params.version equal to the active Payment Authentication extension version in the containing Checkout.",
+     "source": "ucp:docs/specification/payment/extensions/authentication.md#L263-L264",
+     "covered_by": []
+    },
+    {
+     "id": "PAUTH-023",
+     "area": "payment-authentication",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "gap",
+     "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: parse config.url with a conformant URL parser (absolute, https, no userinfo); keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging or leaking session URLs; and treat completion/diagnostic notifications as advisory.",
+     "source": "ucp:docs/specification/payment/extensions/authentication.md#L343-L353",
      "covered_by": []
     },
     {
@@ -15678,6 +16631,36 @@
      "covered_by": []
     },
     {
+     "id": "PAY-048",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "A checkout submission MUST contain exactly one payment instrument unless the dev.ucp.common.payment.split_payments capability is active; Businesses MUST reject submissions that violate this constraint with a payment_failed error in messages[].",
+     "source": "ucp:docs/specification/overview/index.md#L2581-L2584",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-049",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "The platform MUST verify the merchant authorization signature (per the AP2 Mandates verify_merchant_authorization procedure).",
+     "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L314",
+     "covered_by": []
+    },
+    {
+     "id": "PAY-050",
+     "area": "payment",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "When the user confirms the purchase, the platform MUST facilitate the generation of cryptographically verifiable mandates (AP2 Mandates Step 2, User Consent and Mandate Generation).",
+     "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L340-L341",
+     "covered_by": []
+    },
+    {
      "id": "PERM-001",
      "area": "permalink",
      "keyword": "MUST",
@@ -15885,6 +16868,26 @@
      "status": "gap",
      "requirement": "A Business MUST validate every permalink input as untrusted: compact-path and ~-encoded item tokens, `continue_to`, and field-path query parameters, to prevent open redirects, response-header injection, mass-assignment of server-owned fields, and log/parser-confusion injection",
      "source": "ucp:docs/specification/permalink.md#L686",
+     "covered_by": []
+    },
+    {
+     "id": "PERM-023",
+     "area": "permalink",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "If a permalink item identifier contains a character outside the raw token grammar (including /, :, ,, %, ~, whitespace, or non-ASCII), the ~ encoded form MUST be used instead of percent-encoding, to avoid percent-encoded path separators that HTTP infrastructure may reject, decode, or normalize before resolution.",
+     "source": "ucp:docs/specification/permalink.md#L197-L200",
+     "covered_by": []
+    },
+    {
+     "id": "PERM-024",
+     "area": "permalink",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "gap",
+     "requirement": "Private or highly personalized state SHOULD be consumed server-side and MUST NOT be forwarded to redirect destinations when a permalink would exceed the appropriate budget.",
+     "source": "ucp:docs/specification/permalink.md#L744-L746",
      "covered_by": []
     },
     {
@@ -17258,6 +18261,16 @@
      "covered_by": []
     },
     {
+     "id": "TDS-011",
+     "area": "payment-3ds-challenge",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Mounting the 3DS Challenge surface MUST follow the shared Payment Authentication rendering contract and Embedded Protocol security requirements.",
+     "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L103-L105",
+     "covered_by": []
+    },
+    {
      "id": "TOK-001",
      "area": "tokenization",
      "keyword": "MUST",
@@ -17489,9 +18502,9 @@
     }
    ],
    "census": {
-    "mode": "report",
-    "unaccounted": 125,
-    "gate_from": "2026-09-20"
+    "mode": "gate",
+    "unaccounted": 0,
+    "gate_from": ""
    }
   }
  }

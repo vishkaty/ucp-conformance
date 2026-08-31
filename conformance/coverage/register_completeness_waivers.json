@@ -957,14 +957,6 @@
     {
       "version": "2026-08-25",
       "file": "docs/specification/common/identity-linking/index.md",
-      "line": 984,
-      "class": "duplicate",
-      "reason": "'Mix-Up Attack prevention. Platforms MUST validate the iss parameter in the authorization response' (Security Considerations summary) restates the primary Mix-Up-Attack rule already covered by IDL-012 (L170-176). Same class as the 2026-04-08 precedent (old L586 duplicate_of IDL-012).",
-      "duplicate_of": "IDL-012"
-    },
-    {
-      "version": "2026-08-25",
-      "file": "docs/specification/common/identity-linking/index.md",
       "line": 991,
       "class": "duplicate",
       "reason": "'Authentication challenges. Businesses MUST emit WWW-Authenticate: Bearer challenges...' (Security Considerations summary) restates IDL-026 (L241-244). Same class as the 2026-04-08 precedent (old L593 duplicate_of IDL-026).",
@@ -1268,6 +1260,78 @@
       "line": 461,
       "class": "non-normative",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.messages.change postMessage notification."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/overview/index.md",
+      "line": 879,
+      "class": "duplicate",
+      "duplicate_of": "CAP-004",
+      "reason": "'For the `schema` URL of an entity whose name is `name`, a platform **MUST** apply the following:' is the lead-in sentence for the numbered Derivation Algorithm list (items 1-4) that CAP-004 (L881, URL parsing), CAP-005 (L886, registered-domain host), CAP-006 (L889, authority_prefix derivation), and CAP-007 (L893, exact/prefixed match) already register individually, one row per list item. This sentence states no obligation beyond 'apply the following steps' -- the steps themselves carry the substance and are each already a row. duplicate_of names CAP-004 as the first/representative item; the full itemization is CAP-004..CAP-007."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/overview/index.md",
+      "line": 1736,
+      "class": "duplicate",
+      "duplicate_of": "DISC-006",
+      "reason": "'Platforms **MUST** communicate their profile URI with each request to enable capability negotiation.' (### Platform Advertisement on Request, section intro) restates, in different words, the exact same obligation DISC-006 already registers verbatim from L1780-1781: 'Platforms **MUST** include their profile URI in every request using the transport-appropriate mechanism.' (Negotiation Protocol > Platform Requirements, item 1, Profile Advertisement). Both sentences require the identical thing -- profile URI on every request -- from the identical actor (the platform); L1736 is the section's plain-prose introduction, L1780 is its formal enumerated restatement that DISC-006 covers. Not a second obligation."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "line": 231,
+      "class": "duplicate",
+      "duplicate_of": "CHK-023",
+      "reason": "'Update Checkout is a full replacement operation. The Platform **MUST** send the entire Checkout resource, including any data updates to write-only fields; the supplied resource replaces the existing Checkout session state.' is the REST binding's prose echo of CHK-023 (checkout/index.md#L1078-1081, the operation-contract table's Update Checkout row): 'Performs a full replacement of the checkout resource. The platform is **REQUIRED** to send the entire checkout resource containing any data updates to write-only data fields. The resource provided in the request will replace the existing checkout session state on the business side.' Same obligation (full-resource replacement including write-only fields), same actor (Platform), restated for the REST transport section rather than a second rule."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "line": 234,
+      "class": "duplicate",
+      "duplicate_of": "CHK-067",
+      "reason": "'**MUST NOT** start a new Update Checkout operation while the Checkout is `complete_in_progress`.' restates CHK-067 (checkout/index.md#L451, operation-contract table): 'The Platform **MUST NOT** start a new Update Checkout operation.' verbatim in substance -- the REST section's prose intro to the same complete_in_progress freeze rule the table already states."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/rest.md",
+      "line": 237,
+      "class": "duplicate",
+      "duplicate_of": "CHK-067",
+      "reason": "'new Update Checkout request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.' is the same clause CHK-067 already quotes verbatim ('If the Business receives a new Update Checkout request, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.'), restated in the REST binding's own prose paragraph rather than a second rule."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/mcp.md",
+      "line": 392,
+      "class": "duplicate",
+      "duplicate_of": "CHK-067",
+      "reason": "'The Platform **MUST NOT** start a new `update_checkout` operation while the Checkout is `complete_in_progress`.' is the MCP binding's prose echo of the same complete_in_progress freeze rule CHK-067 already registers from the checkout/index.md operation-contract table -- identical substance, restated per-transport."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/mcp.md",
+      "line": 395,
+      "class": "duplicate",
+      "duplicate_of": "CHK-067",
+      "reason": "'new `update_checkout` request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.' restates the same clause CHK-067 already quotes verbatim, in the MCP binding's own prose paragraph."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/mcp.md",
+      "line": 856,
+      "class": "duplicate",
+      "duplicate_of": "MCP-004",
+      "reason": "'Implementers **MUST** expose this as an MCP `tools/call` endpoint:' is the Complete Checkout example's intro sentence for the exact same OpenRPC-to-MCP `tools/call` transformation MCP-004 already registers verbatim from this file (L824-826): 'Implementers **MUST** apply this transformation:' followed by the method/params.name, params/params.arguments mapping table. Same obligation (implementers must expose OpenRPC operations as MCP tools/call), restated as a worked-example lead-in for the complete_checkout operation specifically rather than a second, distinct rule."
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/order/mcp.md",
+      "line": 292,
+      "class": "duplicate",
+      "duplicate_of": "MCP-012",
+      "reason": "'* **MUST** check the `messages` array in responses before accessing order data' (Conformance list, bullet 2) restates the exact same obligation MCP-012 already registers from this same file's Error Handling section (L284-285): 'Platforms **MUST** check `messages` before accessing order fields.' Same actor (platform), same rule (check messages before touching order fields), restated as a Conformance-checklist bullet rather than a second rule."
     }
   ]
 }

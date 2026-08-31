@@ -102,7 +102,9 @@ CURRENT_SITE_VERSION = "2026-04-08"
 REGISTER_ONLY_VERSIONS = {"2026-08-25"}
 
 REPORT_MODE_UNTIL = {
-    "2026-08-25": "2026-09-20",
+    # 2026-08-25 graduated 2026-08-31: census closed at 0 unaccounted (922 kw =
+    # 717 rows + 142 scope-excl + 63 waivers), 20 days ahead of the flip-by date.
+    # The census now GATES for every pinned version.
 }
 
 
