@@ -1132,6 +1132,14 @@
       "class": "duplicate",
       "reason": "'scopes_supported. Businesses MUST populate scopes_supported in RFC 8414 metadata.' (Security Considerations summary) restates IDL-017 (L205-208) verbatim.",
       "duplicate_of": "IDL-017"
+    },
+    {
+      "version": "2026-04-08",
+      "file": "docs/specification/identity-linking.md",
+      "line": 589,
+      "class": "duplicate",
+      "reason": "'Businesses MUST return `iss` in every authorization response' (L588-590, Mix-Up Attack prevention bullet in the Security Considerations recap) restates IDL-018 verbatim (MUST return the iss parameter in the authorization response, L168-169). Sibling restatements in the SAME bullet are already waived this way (L586 duplicate_of IDL-012, L593 duplicate_of IDL-026) -- L589 was the one line in the bullet the pre-R13 per-physical-line matcher accidentally marked covered via a false-positive short-phrase match ('businesses must' against six unrelated far-away rows), so it was never flagged for its own waiver until the R13 line-boundary-agnostic fix (conformance/selfcheck/verify_register_completeness.py) removed that false positive and surfaced the genuine, pre-existing gap. R13-WAIVER-CLEANUP.md has the full before/after accounting.",
+      "duplicate_of": "IDL-018"
     }
   ]
 }

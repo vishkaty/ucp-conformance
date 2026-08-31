@@ -97,6 +97,29 @@ def scan_keywords(path: pathlib.Path):
     return out, lines
 
 
+def flatten_lines(flines):
+    """Build (flat_text, line_spans) for line-boundary-agnostic quote matching (R13).
+
+    flat_text is every line's normalized text (norm() already collapses whitespace
+    including newlines) concatenated with a single separating space; line_spans maps
+    each line's [start, end) character range in flat_text back to its 1-based line
+    number. Blank normalized lines carry no span — they can never hold a keyword or
+    quoted content, and including them would just add ambiguous zero-width spans.
+    """
+    parts = []
+    spans = []
+    pos = 0
+    for idx, raw in enumerate(flines, start=1):
+        nl = norm(raw)
+        if not nl:
+            continue
+        parts.append(nl)
+        spans.append((pos, pos + len(nl), idx))
+        pos += len(nl) + 1
+        parts.append(" ")
+    return "".join(parts), spans
+
+
 def covered_lines_for(rows, flines):
     """The set of line numbers in this file covered by these register rows.
 
@@ -104,13 +127,30 @@ def covered_lines_for(rows, flines):
     only if some row's actual quote text sits on it. This is deliberately tight — a
     loose +/-N window would let a row be deleted (shrinking the denominator to inflate
     the percentage) while an adjacent row's window still 'covered' the orphaned line.
-    So we mark a line covered when: the row's normalized quote fragment appears on that
-    line, OR that line's own text is contained in the fragment (which marks every line
-    a multi-line quote spans). The row's exact cited line is added only as a EXACT
-    anchor (no window), to tolerate a quote that is paraphrased around a precisely
-    cited line."""
+
+    R13 fix: matching happens against the WHOLE FILE'S flattened text (line breaks
+    normalized away, same as a fragment's own newlines already were via norm()), not
+    per physical line. The original per-line matcher required either the fragment to
+    sit wholly on one line or a line's FULL text to be wholly contained in the
+    fragment — so a row whose "..." elision lands mid-physical-line (the elided text
+    starts or ends partway through what the vendored file renders as one line, e.g. a
+    prose sentence wrapped across lines where the kept prefix ends mid-line and the
+    kept suffix resumes mid-line) left that physical line's real coverage invisible:
+    the fragment neither fully contains nor is fully contained by the line, even
+    though the row's quote is verbatim over the span it does cover (proven on
+    IDL-012/030/050, whose elisions land inside physical lines 173 and 175 of
+    identity-linking/index.md — see validate_completeness_matcher.py). Matching in
+    flattened-file space instead marks a line covered whenever the matched span
+    OVERLAPS that line's range at all, which is exactly "this line carries some
+    verbatim-quoted content" — no proximity window, still quote-content anchored, and
+    the anti-gaming property (a deleted row can't be covered by a neighbor's fuzzy
+    window) is unaffected because the match is still exact substring content, just
+    unbound from physical line boundaries. The row's exact cited line is added
+    separately as an EXACT anchor (no window), to tolerate a quote that is
+    paraphrased around a precisely cited line.
+    """
     covered = set()
-    nfile_lines = [norm(x) for x in flines]
+    flat_text, spans = flatten_lines(flines)
     for row in rows:
         _, _, cited = parse_source(row.get("source", ""))
         for L in cited:
@@ -119,10 +159,16 @@ def covered_lines_for(rows, flines):
             nf = norm(frag)
             if len(nf) < 8:
                 continue
-            for idx, nl in enumerate(nfile_lines, start=1):
-                # fragment sits on this line, OR this line is part of a multi-line quote
-                if nf in nl or (len(nl) >= 12 and nl in nf):
-                    covered.add(idx)
+            start = 0
+            while True:
+                idx = flat_text.find(nf, start)
+                if idx == -1:
+                    break
+                mstart, mend = idx, idx + len(nf)
+                for (lstart, lend, lineno) in spans:
+                    if lstart < mend and lend > mstart:
+                        covered.add(lineno)
+                start = idx + 1
     return covered
 
 
