@@ -1035,6 +1035,25 @@
         "from": "2026-04-08",
         "disposition": "carried"
       }
+    },
+    {
+      "id": "PAY-048",
+      "keyword": "MUST",
+      "requirement": "A checkout submission MUST contain exactly one payment instrument unless the dev.ucp.common.payment.split_payments capability is active; Businesses MUST reject submissions that violate this constraint with a payment_failed error in messages[].",
+      "quote": "**Instrument Cardinality:** A checkout submission **MUST** contain exactly one\npayment instrument unless the `dev.ucp.common.payment.split_payments` capability is\nactive. Businesses **MUST** reject submissions that violate this constraint with\na `payment_failed` error in `messages[]`. See",
+      "source": "ucp:docs/specification/overview/index.md#L2581-L2584",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (overview/index.md Payment section, Instrument Cardinality, previously unaccounted). The default single-instrument-per-submission constraint and its relaxation condition (split_payments capability active), plus the business-side rejection duty and required error code.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ]
 }

@@ -21,8 +21,8 @@
    "notes": "Carried into 2026-08-25: overview.md moved to overview/index.md; text unchanged, still under Namespace Governance > Naming Convention. Enforced by ucp.json services/capabilities propertyNames -> common/types/reverse_domain_name.json (schema also relocated to common/types/).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -44,8 +44,8 @@
    "notes": "REWORDED, flagged for review (security-relevant): OLD quote (overview.md#L82, old section '#### Spec URL Binding'): \"The `spec` and `schema` fields are **REQUIRED** for all capabilities.\" — BOTH spec and schema were mandatory for every capability. NEW quote (new section '#### Authority Binding'): schema is MUST for capabilities (and conditionally for services/payment handlers), while spec is downgraded to MAY — explicitly optional, described elsewhere in the same section as documentation that is 'not part of the machine trust path'. This is a genuine normative relaxation (REQUIRED -> optional for spec), not a cosmetic reword. Keyword updated from the old ad-hoc 'REQUIRED' to 'MUST' to match the new text's primary clause (schema). See OVR-003 for the paired origin-binding change.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "reworded"
+    "from": "2026-04-08",
+    "disposition": "reworded"
    }
   },
   {
@@ -67,8 +67,8 @@
    "notes": "REWORDED, flagged for review (security-relevant): OLD quote (overview.md#L83): \"The `spec` and `schema` fields are **REQUIRED** for all capabilities. The origin ... of these URLs **MUST** match the namespace authority:\" — origin-authority binding applied to BOTH the spec and schema URLs of capabilities. NEW quote narrows this explicitly to the schema URL only ('every entity with a remote schema'), and a few lines later the same new section states outright: \"The `spec` URL is documentation, not part of the machine trust path, so its origin is **not** authority-bound: it **MUST** be `https` but **MAY** be served from any host.\" Binding also now extends beyond capabilities to any entity with a remote schema (services, payment handlers), broader than the old capability-only scope. Net effect: spec URLs are EXEMPTED from the provenance/origin check that used to apply to them; schema-origin binding is unchanged in effect but now framed as 'provenance, not trust'. Cross-cuts OVR-002 (spec also downgraded from REQUIRED to MAY there).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "reworded"
+    "from": "2026-04-08",
+    "disposition": "reworded"
    }
   },
   {
@@ -90,8 +90,8 @@
    "notes": "Carried into 2026-08-25: text unchanged (still item 4 of the '#### Business Requirements' negotiation list); relocated within overview/index.md.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -113,8 +113,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim under '#### Response Capability Selection'; the two-item criteria list immediately below (intersection AND operation-type relevance) is unchanged in substance.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -136,8 +136,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim (this Identity Binding section is byte-identical to 2026-04-08); relocated within overview/index.md.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -159,8 +159,8 @@
    "notes": "REWORDED, flagged for review: OLD quote (overview.md#L1108): \"implementations **MAY** force-refresh the cached profile — but\\n**MUST NOT** do so more than once per TTL floor per origin.\" NEW quote strengthens the permission from MAY to SHOULD and adds 'once': \"implementations **SHOULD** force-refresh the cached profile once —\\n   but **MUST NOT** do so more than once per TTL floor per origin.\" The row's own tracked keyword (MUST NOT do so more than once per TTL floor) is textually unchanged, so keyword stays MUST NOT, but the adjacent permission's normative strength increased (optional -> recommended), which is why this is reworded rather than carried. Also note: this numbered list (items 1-7) now applies more broadly ('any URL dereferenced during identity resolution — the profile, and any jwks_uri or CIMD document'), not just profile fetches, per the new lead-in sentence a few lines above item 1 — a broader context change surrounding this row's specific clause. Subject: business (verifier) discovery-cache/DoS-protection behavior; not externally observable via the conformance HTTP surface -> manual.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "reworded"
+    "from": "2026-04-08",
+    "disposition": "reworded"
    }
   },
   {
@@ -182,8 +182,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim under REST Transport (Core) conventions; relocated within overview/index.md.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -205,8 +205,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim; relocated within overview/index.md (the surrounding Initial Service and Capability Discovery flow gained more numbered detail, but this closing statement is untouched).",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -228,8 +228,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim under '##### Pre-release Versions'. Enforced by ucp.json #/$defs/version pattern ^\\d{4}-\\d{2}-\\d{2}$.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -251,8 +251,8 @@
    "notes": "Carried into 2026-08-25: this closing pair of sentences is unchanged verbatim. Note the preceding '#### Capability Versions' lead-in paragraph was substantially expanded (exact-version-equality rules, multi-version array semantics for dev.ucp.* vs third-party extensions) but that expanded prose is not part of this row's quoted clause.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -274,8 +274,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim (step 3 of the '#### Business Requirements' negotiation list); relocated within overview/index.md.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -297,8 +297,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim under REST Transport (Core) conventions.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -320,8 +320,8 @@
    "notes": "Carried into 2026-08-25: text unchanged verbatim under REST Transport (Core) conventions.",
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
-     "from": "2026-04-08",
-     "disposition": "carried"
+    "from": "2026-04-08",
+    "disposition": "carried"
    }
   },
   {
@@ -557,6 +557,937 @@
     "2026-08-25"
    ],
    "notes": "NEW at v2026-08-25 (P2b wave 2, overview.md Policies section): the content-agreement rule between a disclosure Message and the policy that governs its target node (per the Precedence algorithm OVR-023/OVR-024 define). Cross-checking two independently-authored text fields for semantic agreement is not mechanically testable, hence manual."
+  },
+  {
+   "id": "OVR-028",
+   "keyword": "MUST",
+   "requirement": "Vendors MUST use their own reverse-domain namespace (com.{vendor}.* or org.{org}.*) for custom capabilities; the dev.ucp.* namespace is reserved for capabilities sanctioned by the UCP governing body.",
+   "quote": "governing body. Vendors **MUST** use their own reverse-domain namespace for",
+   "source": "ucp:docs/specification/overview/index.md#L980",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (overview/index.md 'Governance Model' table + prose, previously unaccounted). Vendor-namespace obligation for custom (non-dev.ucp) capabilities; enforced structurally by the reverse-domain naming pattern but the *choice* to use one's own namespace rather than dev.ucp.* is a publisher-side authoring rule, not machine-checkable from a single response.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-029",
+   "keyword": "MUST",
+   "requirement": "Transport definitions (OpenAPI/OpenRPC) for a service MUST be thin: they declare method names and reference base schemas only.",
+   "quote": "Transport definitions **MUST** be thin: they declare method names and reference\nbase schemas only. See [Requirements](#requirements) for details.",
+   "source": "ucp:docs/specification/overview/index.md#L1007-L1008",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row. Umbrella statement in '#### Service Definition' preceding the itemized 'Requirements' list (OVR-030/031/032 below) that states the same thin-transport constraint per-item; kept as its own row (not waivered as duplicate) because it is the general obligation the 'Capabilities' section restates for capability-level transport artifacts specifically, and because it is the only MUST attached to the 'Service Definition' subsection.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-030",
+   "keyword": "MUST NOT",
+   "requirement": "Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only; they MUST NOT enumerate fields or define payload shapes inline.",
+   "quote": "- Transport definitions (OpenAPI/OpenRPC) **MUST** reference base schemas\n    only. They **MUST NOT** enumerate fields or define payload shapes inline.",
+   "source": "ucp:docs/specification/overview/index.md#L1105-L1106",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Schema Composition > Requirements, item 1). Companion/detail of OVR-029's general 'thin transport' statement, but this item adds the explicit MUST NOT (no inline payload shapes) not present in the earlier statement, so it is not a pure duplicate.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-031",
+   "keyword": "MUST",
+   "requirement": "Extensions MUST be self-describing: each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition.",
+   "quote": "- Extensions **MUST** be self-describing. Each extension schema **MUST**\n    declare the types it introduces and how it modifies base types using `allOf`\n    composition.",
+   "source": "ucp:docs/specification/overview/index.md#L1107-L1109",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Schema Composition > Requirements, item 2).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-032",
+   "keyword": "MUST",
+   "requirement": "Platforms MUST resolve extension schemas client-side by fetching and composing base schemas with active extension schemas.",
+   "quote": "- Platforms **MUST** resolve schemas client-side by fetching and composing\n    base schemas with active extension schemas.",
+   "source": "ucp:docs/specification/overview/index.md#L1110-L1111",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Schema Composition > Requirements, item 3).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-033",
+   "keyword": "MUST",
+   "requirement": "In an extension schema using allOf composition, the $defs key MUST use the full parent capability name (reverse-domain format) to enable deterministic schema resolution.",
+   "quote": "Extension schemas define composed types using `allOf`. The `$defs` key **MUST**\nuse the full parent capability name (reverse-domain format) to enable\ndeterministic schema resolution:",
+   "source": "ucp:docs/specification/overview/index.md#L1115-L1117",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Extension Schema Pattern). Structurally checkable against a fetched extension schema's $defs keys.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-034",
+   "keyword": "MUST",
+   "requirement": "Extension schemas MUST have a $defs entry for each parent capability declared in the extension's extends field.",
+   "quote": "- Extension schemas **MUST** have a `$defs` entry for each parent declared in\n    `extends`",
+   "source": "ucp:docs/specification/overview/index.md#L1144-L1145",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Extension Schema Pattern > Requirements, item 1).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-035",
+   "keyword": "MUST",
+   "requirement": "The $defs key for a parent capability in an extension schema MUST match the parent's full capability name exactly.",
+   "quote": "- The `$defs` key **MUST** match the parent's full capability name exactly",
+   "source": "ucp:docs/specification/overview/index.md#L1146",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Extension Schema Pattern > Requirements, item 2).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-036",
+   "keyword": "MUST",
+   "requirement": "Keys in an extension schema's requires.capabilities object MUST be a subset of the extension's $defs keys.",
+   "quote": "Keys in `requires.capabilities` **MUST** be a subset of the\nextension's `$defs` keys. These ranges verify dependencies after exact\nversions are selected; they do not select versions. The `ucp.version` is",
+   "source": "ucp:docs/specification/overview/index.md#L1204-L1206",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Version Requirements).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-037",
+   "keyword": "MUST",
+   "requirement": "Once ucp.version and capability versions are selected, if the extension schema declares a requires object, Platforms and Businesses MUST verify that the selected ucp.version and capability versions satisfy its declared constraints during schema resolution.",
+   "quote": "is present, Platforms and Businesses **MUST** verify that the selected\n`ucp.version` and capability versions satisfy the declared constraints during\nschema resolution. Incompatible extensions are excluded from the active",
+   "source": "ucp:docs/specification/overview/index.md#L1209-L1211",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Version Requirements).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-038",
+   "keyword": "MUST",
+   "requirement": "Platforms MUST resolve schemas following the defined sequence: Discovery, Negotiation, Schema Fetch, Version Compatibility, Compose, Validate.",
+   "quote": "Platforms **MUST** resolve schemas following this sequence:",
+   "source": "ucp:docs/specification/overview/index.md#L1232",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Resolution Flow lead-in). The six numbered steps below it carry no keyword of their own — this sentence is the only MUST governing the resolution-order requirement, so it is a substantive row rather than a duplicate lead-in (contrast OVR-879-area and L1736, waived below as true duplicates of a fully-itemized rule elsewhere).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-039",
+   "keyword": "MUST",
+   "requirement": "In a UCP profile, the services and payment_handlers registries MUST be present even when empty; ucp.capabilities is optional and MAY be omitted.",
+   "quote": "registries **MUST** be present even when empty. `ucp.capabilities` is optional\nand **MAY** be omitted, though useful commerce profiles normally advertise at",
+   "source": "ucp:docs/specification/overview/index.md#L1258-L1259",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Profile Structure).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-040",
+   "keyword": "MUST",
+   "requirement": "When a UCP profile publishes signing keys, they MUST appear in the top-level keys[] array — the canonical UCP profile field every UCP verifier reads.",
+   "quote": "they **MUST** appear in the top-level `keys[]` array — the canonical\nUCP profile field that every UCP verifier reads. `keys[]` is a JWK Set",
+   "source": "ucp:docs/specification/overview/index.md#L1264-L1265",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Profile Structure).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-041",
+   "keyword": "MUST NOT",
+   "requirement": "Schema authors MUST NOT define a domain field named ucp in structured object schemas or extensions — the member name ucp is reserved as the protocol namespace at every eligible structured scope.",
+   "quote": "eligible scope. Schema authors **MUST NOT** define a domain field named `ucp`\nin structured object schemas or extensions.",
+   "source": "ucp:docs/specification/overview/index.md#L1566-L1567",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (The ucp Protocol Namespace). Publisher/schema-authoring rule, not directly observable from a single response, but conformance can spot-check that no shipped extension schema defines a domain field literally named ucp.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-042",
+   "keyword": "MUST",
+   "requirement": "Consumers MUST ignore members inside the ucp container that they do not recognize (tolerant reader) — the ucp container is open, existing so documents produced under a newer UCP version remain readable by older consumers.",
+   "quote": "**Openness.** The `ucp` container is open. Consumers **MUST** ignore members\ninside `ucp` that they do not recognize (tolerant reader). Openness exists so",
+   "source": "ucp:docs/specification/overview/index.md#L1574-L1575",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (The ucp Protocol Namespace > Openness).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-043",
+   "keyword": "MUST NOT",
+   "requirement": "Only UCP core defines members inside the ucp container; extension authors MUST NOT place extension data there — an unrecognized member inside ucp means 'defined by a newer UCP version,' never 'extension data.'",
+   "quote": "`ucp`, and extension authors **MUST NOT** place extension data there. An",
+   "source": "ucp:docs/specification/overview/index.md#L1578",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Openness). Extension-authoring rule.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-044",
+   "keyword": "MUST NOT",
+   "requirement": "Producers MUST NOT emit a ucp member as a direct child of another ucp member (ucp.ucp) — no direct recursion.",
+   "quote": "**No direct recursion.** Producers **MUST NOT** emit a `ucp` member as a direct\nchild of another `ucp` member (`ucp.ucp`). If one is present, a receiving",
+   "source": "ucp:docs/specification/overview/index.md#L1582-L1583",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (No direct recursion, first sentence).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-045",
+   "keyword": "MUST",
+   "requirement": "If a ucp member is present as a direct child of another ucp member, a receiving Business or Platform MUST NOT interpret it as another protocol namespace and MUST ignore that child.",
+   "quote": "Business or Platform **MUST NOT** interpret it as another protocol namespace and\n**MUST** ignore that child. Structured objects beneath the namespace, such as a",
+   "source": "ucp:docs/specification/overview/index.md#L1584-L1585",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (No direct recursion, receiver-side handling).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-046",
+   "keyword": "MUST NOT",
+   "requirement": "A Business or Platform MUST NOT interpret a dictionary key named ucp as the protocol namespace; the key and its value are ordinary dictionary data (the reservation stops at a dictionary container).",
+   "quote": "Business or Platform **MUST NOT** interpret a dictionary key named `ucp` as\nthe protocol namespace; the key and its value are ordinary dictionary data.",
+   "source": "ucp:docs/specification/overview/index.md#L1593-L1594",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Ambient vocabulary).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-047",
+   "keyword": "MUST",
+   "requirement": "A Business or Platform encountering a ucp member at an eligible structured scope processes the members it recognizes, each per its own definition, and MUST ignore unrecognized members.",
+   "quote": "definition, and **MUST** ignore unrecognized members (see *Openness* above).",
+   "source": "ucp:docs/specification/overview/index.md#L1602",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Ambient vocabulary, closing sentence — the general processing rule; distinct from the Openness-section MUST at L1574 which is scoped specifically to the top-level ucp container).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-048",
+   "keyword": "MUST",
+   "requirement": "For a selected message direction, a UCP-aware resolver MUST produce a resolved schema that recognizes and validates ambient ucp at every eligible structured scope against the central vocabulary in ucp.json#/$defs/members, subject to that vocabulary's applicability in the selected direction.",
+   "quote": "vocabulary. For a selected message direction, a UCP-aware resolver **MUST**\nproduce a resolved schema that recognizes and validates ambient `ucp` at every\neligible structured scope against the central vocabulary in\n`ucp.json#/$defs/members`, subject to that vocabulary's applicability in the",
+   "source": "ucp:docs/specification/overview/index.md#L1624-L1627",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Schema processing).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-049",
+   "keyword": "MUST NOT",
+   "requirement": "map_order rule 1: Producers MUST NOT rely on JSON object member order for UCP map-valued registries; map_order is the order carrier.",
+   "quote": "1. Producers **MUST NOT** rely on JSON object member order for UCP map-valued\n    registries; `map_order` is the order carrier.",
+   "source": "ucp:docs/specification/overview/index.md#L1654-L1655",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (map_order rule 1 of 9).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-050",
+   "keyword": "MUST NOT",
+   "requirement": "map_order rule 5: the order array is not an allowlist — consumers MUST NOT interpret omission of a key from map_order as removal, ineligibility, or reduced support.",
+   "quote": "5. The order array is not an allowlist: consumers **MUST NOT** interpret\n    omission of a key as removal, ineligibility, or reduced support.",
+   "source": "ucp:docs/specification/overview/index.md#L1664-L1665",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (map_order rule 5 of 9).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-051",
+   "keyword": "MUST",
+   "requirement": "map_order rule 6: Producers MUST name a present, map-valued target and MUST list only keys present in that target map; a receiving Business or Platform MUST NOT reject the containing document solely because a map_order entry names an absent, unrecognized, or non-map target, or a key absent from its target map, and if it processes map_order it MUST ignore the unusable entry.",
+   "quote": "6. Producers **MUST** name a present, map-valued target and **MUST** list only\n    keys present in that target map. A receiving Business\n    or Platform **MUST NOT** reject the containing document solely because an\n    entry names an absent, unrecognized, or non-map target, or a key absent from\n    its target map. If it processes `map_order`, it **MUST** ignore the unusable\n    entry.",
+   "source": "ucp:docs/specification/overview/index.md#L1666-L1671",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (map_order rule 6 of 9, folded — one integrated rule stated across three MUST/MUST NOT clauses on adjacent lines: producer well-formedness, receiver tolerant-reader non-rejection, and unusable-entry handling).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-052",
+   "keyword": "MUST NOT",
+   "requirement": "map_order rule 7: Producers MUST NOT list the same map key more than once in an order array; consumers MUST NOT reject the containing document solely because an order array repeats a map key, and consumers that process map_order MUST honor the first occurrence and ignore later repetitions.",
+   "quote": "7. Producers **MUST NOT** list the same map key more than once in an order\n    array. Consumers **MUST NOT** reject the containing document solely because\n    an order array repeats a map key. Consumers that process `map_order`\n    **MUST** honor the first occurrence and ignore later repetitions.",
+   "source": "ucp:docs/specification/overview/index.md#L1672-L1675",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (map_order rule 7 of 9, folded — same integrated-rule pattern as rule 6 above).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-053",
+   "keyword": "MUST NOT",
+   "requirement": "map_order rule 8: if map_order, or its entry for a field, is absent, no order is declared; consumers MUST NOT fall back to object member order.",
+   "quote": "    consumers **MUST NOT** fall back to object member order.",
+   "source": "ucp:docs/specification/overview/index.md#L1677",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (map_order rule 8 of 9).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-054",
+   "keyword": "MUST",
+   "requirement": "Over HTTP transport, Platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header to communicate their profile URI.",
+   "quote": "**HTTP Transport:** Platforms **MUST** use Dictionary Structured Field syntax\n([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){ target=\"_blank\" })\nin the UCP-Agent header:",
+   "source": "ucp:docs/specification/overview/index.md#L1739-L1741",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": true,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Platform Advertisement on Request > HTTP Transport).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-055",
+   "keyword": "MUST",
+   "requirement": "Over MCP transport, Platforms MUST include a meta object containing request metadata (the ucp-agent profile) with each tool call.",
+   "quote": "**MCP Transport:** Platforms **MUST** include a `meta` object containing request\nmetadata:",
+   "source": "ucp:docs/specification/overview/index.md#L1751-L1752",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Platform Advertisement on Request > MCP Transport).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-056",
+   "keyword": "MUST",
+   "requirement": "Negotiation Protocol, Platform Requirements item 3 (Namespace Validation): before fetching, platforms MUST validate that each capability's schema URL origin matches its namespace authority, and MUST reject capabilities that fail this binding.",
+   "quote": "3. **Namespace Validation**: Before fetching, platforms **MUST** validate that\n    each capability's `schema` URL origin matches its namespace authority (see\n    [Authority Binding](#authority-binding)) and **MUST** reject capabilities\n    that fail this binding.",
+   "source": "ucp:docs/specification/overview/index.md#L1785-L1788",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Negotiation Protocol > Platform Requirements, item 3). Restates the Authority Binding enforcement duty (CAP-009) specifically as a platform-side negotiation-protocol step; kept distinct from CAP-009 because it is the platform's own enumerated Negotiation Protocol obligation, addressed to a different actor context (protocol requirements checklist vs. the Authority Binding section's Enforcement subsection).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-057",
+   "keyword": "MUST",
+   "requirement": "Negotiation Protocol, Platform Requirements item 4 (Schema Resolution): Platforms MUST fetch and compose schemas for negotiated capabilities before making requests.",
+   "quote": "4. **Schema Resolution**: Platforms **MUST** fetch and compose schemas for\n    negotiated capabilities before making requests.",
+   "source": "ucp:docs/specification/overview/index.md#L1789-L1790",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Negotiation Protocol > Platform Requirements, item 4).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-058",
+   "keyword": "MUST",
+   "requirement": "Negotiation Protocol, Business Requirements item 1 (Profile Resolution): upon receiving a request with a platform profile URI, businesses MUST fetch and validate the platform profile unless already cached.",
+   "quote": "1. **Profile Resolution**: Upon receiving a request with a platform profile\n    URI, businesses **MUST** fetch and validate the platform profile unless\n    already cached. Because businesses negotiate by capability name and serve",
+   "source": "ucp:docs/specification/overview/index.md#L1794-L1796",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Negotiation Protocol > Business Requirements, item 1).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-059",
+   "keyword": "MUST",
+   "requirement": "Negotiation Protocol, Business Requirements item 2 (Capability Intersection): Businesses MUST compute the intersection of platform and business capabilities.",
+   "quote": "2. **Capability Intersection**: Businesses **MUST** compute the intersection of\n    platform and business capabilities.",
+   "source": "ucp:docs/specification/overview/index.md#L1800-L1801",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Negotiation Protocol > Business Requirements, item 2).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-060",
+   "keyword": "MUST",
+   "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (e.g. 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
+   "quote": "    When using Streamable HTTP transport, servers **MUST** return the\n    corresponding HTTP status code (e.g., `429` for rate limit) alongside\n    the JSON-RPC error. The HTTP status code is the primary signal for",
+   "source": "ucp:docs/specification/overview/index.md#L2083-L2085",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (JSON-RPC error mapping, Streamable HTTP).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-061",
+   "keyword": "MUST",
+   "requirement": "Business-to-platform webhooks MUST be signed.",
+   "quote": "Business-to-platform webhooks **MUST** be signed. See\n[Message Signatures — When Signatures Apply](../signatures.md#when-signatures-apply).",
+   "source": "ucp:docs/specification/overview/index.md#L2188-L2189",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Authentication Mechanisms). Cross-references signatures.md#when-signatures-apply for the full signing requirement; kept here as its own row since this is the overview-level statement of the webhook-signing obligation, distinct from the signatures.md mechanics rows.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-062",
+   "keyword": "MUST",
+   "requirement": "For a WBA-shape signature resolved via Signature-Agent, the signature MUST satisfy the WBA agent-signature requirements (draft-meunier-webbotauth-httpsig-protocol-00 §4.2), and the Signature-Agent member value MUST be an HTTPS URL.",
+   "quote": "      Such a signature **MUST** satisfy the WBA agent-signature\n      requirements in\n      [draft-meunier-webbotauth-httpsig-protocol-00](https://datatracker.ietf.org/doc/draft-meunier-webbotauth-httpsig-protocol/00/)\n      §4.2 (see [WBA Interop](../signatures.md#wba-interop) for the\n      signer-side shape). The member value **MUST** be an HTTPS URL.",
+   "source": "ucp:docs/specification/overview/index.md#L2396-L2400",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identity Resolution Algorithm, step 1, Signature-Agent sub-bullet).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-063",
+   "keyword": "MUST",
+   "requirement": "For a WBA-shape signature (tag=\"web-bot-auth\"), the verifier MUST also confirm that keyid equals the RFC 7638 SHA-256 thumbprint of the matched JWK, binding the advertised key identity to its bytes; if it fails, the signature is skipped.",
+   "quote": "   (`tag=\"web-bot-auth\"`), the verifier **MUST** also confirm `keyid`\n   equals the [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638) SHA-256\n   thumbprint of the matched JWK — the WBA architecture draft §4.2\n   requires this, binding the advertised key identity to its bytes. If\n   it fails, skip this signature.",
+   "source": "ucp:docs/specification/overview/index.md#L2425-L2429",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identity Resolution Algorithm, step 4).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-064",
+   "keyword": "MUST",
+   "requirement": "Identity Resolution Algorithm step 5: independent of tag and transport, the signature MUST cover the request target (@method, @authority, @path; @query when present), the body when present (content-digest, content-type), and each of the request headers ucp-agent, signature-agent, idempotency-key when present.",
+   "quote": "   Independent of `tag` and transport, the signature **MUST** cover the\n   request target (`@method`, `@authority`, `@path`; `@query` when a\n   query string is present), the body when present (`content-digest`,\n   `content-type`), and each of these request headers when present:\n   `ucp-agent`, `signature-agent`, `idempotency-key` (a closed set — a\n   header added to UCP later is gate-required only if its defining\n   section says so). If any",
+   "source": "ucp:docs/specification/overview/index.md#L2431-L2437",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identity Resolution Algorithm, step 5, covered-component enforcement).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-065",
+   "keyword": "MUST",
+   "requirement": "The request MUST be rejected (key_not_found, algorithm_unsupported, or a related error) only when every signature on the request has been skipped or fails verification.",
+   "quote": "The request **MUST** be rejected (`key_not_found`,\n`algorithm_unsupported`, or related error) only when every signature\nhas been skipped or fails verification.",
+   "source": "ucp:docs/specification/overview/index.md#L2451-L2453",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identity Resolution Algorithm, rejection condition).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-066",
+   "keyword": "MUST",
+   "requirement": "Implementations MUST treat the request as a single authenticated identity only when the Signature-Agent and UCP-Agent URLs are the same after normalization; otherwise they are distinct identities and policy decides whether either suffices.",
+   "quote": "Implementations **MUST** treat the request as a single authenticated\nidentity only when those URLs are the same after normalization;\notherwise they are distinct identities and policy decides whether",
+   "source": "ucp:docs/specification/overview/index.md#L2465-L2467",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Identity Resolution Algorithm, Authenticated identity).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-067",
+   "keyword": "MUST",
+   "requirement": "UCP MCP servers MUST return the UCP response payload in structuredContent (MCP tool responses use a dual-output pattern for backward compatibility).",
+   "quote": "- **MUST** return the UCP response payload in `structuredContent`",
+   "source": "ucp:docs/specification/overview/index.md#L3011",
+   "testability": "testable",
+   "transport": [
+    "mcp"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (MCP Transport > Response Format).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-068",
+   "keyword": "MUST",
+   "requirement": "All UCP communication MUST occur over HTTPS.",
+   "quote": "All UCP communication **MUST** occur over **HTTPS**.",
+   "source": "ucp:docs/specification/overview/index.md#L3304",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Security > Transport Security). Blanket top-level statement, distinct from the narrower published-artifact/profile HTTPS rules already registered (DISC-001, DISC-004).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-069",
+   "keyword": "MUST",
+   "requirement": "Initial Service and Capability Discovery, step 3: when the selected protocol version is a key in supported_versions, the Platform MUST verify that the fetched profile's ucp.version equals the supported_versions key it selected; on mismatch the Platform MUST NOT use that profile.",
+   "quote": "    Platform **MUST** verify that the fetched profile's `ucp.version`\n    equals the `supported_versions` key it selected; on mismatch the\n    Platform **MUST NOT** use that profile. Otherwise this profile",
+   "source": "ucp:docs/specification/overview/index.md#L3521-L3523",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Initial Service and Capability Discovery, step 3).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-070",
+   "keyword": "MUST",
+   "requirement": "Initial Service and Capability Discovery, step 4: if no mutually supported protocol version exists between Platform and Business, Businesses MUST respond with a version_unsupported error.",
+   "quote": "    the Platform's protocol version. Platforms **SHOULD NOT** send requests\n    with an incompatible version; Businesses **MUST** respond with a\n    `version_unsupported` error.",
+   "source": "ucp:docs/specification/overview/index.md#L3527-L3529",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Initial Service and Capability Discovery, step 4 — the 'no mutual version at all' case, distinct from NEG-001's 'declared version mismatched at request time' case at L3553).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-071",
+   "keyword": "MUST",
+   "requirement": "Businesses MUST validate the platform's protocol version on every request (Request-Time Validation).",
+   "quote": "Businesses **MUST** validate the platform's protocol version on\nevery request:",
+   "source": "ucp:docs/specification/overview/index.md#L3543-L3544",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Request-Time Validation lead-in). The umbrella per-request validation obligation; its sub-clauses are separately registered (NEG-001 for the version_unsupported branch, NEG-002 for capabilities_incompatible, OVR-* below for the response-inclusion item).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-072",
+   "keyword": "MUST",
+   "requirement": "Request-Time Validation item 4: Businesses MUST include the negotiated protocol version in every response.",
+   "quote": "4. Businesses **MUST** include the negotiated protocol version in\n    every response.",
+   "source": "ucp:docs/specification/overview/index.md#L3559-L3560",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Request-Time Validation, item 4).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-073",
+   "keyword": "MUST NOT",
+   "requirement": "The protocol version MUST be a dated release in YYYY-MM-DD format; Businesses MUST NOT advertise a non-date version string (e.g. \"draft\") in their profile version field or in supported_versions, and pre-release implementations MUST NOT be surfaced through public discovery.",
+   "quote": "The protocol version **MUST** be a dated release in `YYYY-MM-DD` format.\nBusinesses **MUST NOT** advertise a non-date version string (e.g.\n`\"draft\"`) in their profile `version` field or in `supported_versions`.\nPre-release implementations are not stable and MUST NOT be surfaced",
+   "source": "ucp:docs/specification/overview/index.md#L3596-L3599",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Pre-release Versions, folded — three MUST/MUST NOT clauses stating one integrated pre-release-hygiene rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-074",
+   "keyword": "MUST",
+   "requirement": "UCP MUST re-certify the snapshot before publishing any updated artifacts for a release (including an approved backport).",
+   "quote": "**MUST** re-certify the snapshot before publishing any updated artifacts.",
+   "source": "ucp:docs/specification/overview/index.md#L3694",
+   "testability": "manual",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Component Versioning and Release Snapshots). Governance-process obligation on the UCP release process itself, not on a single Business/Platform implementation — manual/process-review testability, consistent with how the register already treats governance-council-scoped rules elsewhere (P-11).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-075",
+   "keyword": "MUST",
+   "requirement": "A Business or Platform that selects ucp.version D MUST declare version D on every dev.ucp.* service, capability, and extension entry in its profile.",
+   "quote": "A Business or Platform that selects `ucp.version` `D` **MUST** declare version\n`D` on every `dev.ucp.*` service, capability, and extension entry in its\nprofile. A Platform that encounters a `dev.ucp.*` entry whose `version`",
+   "source": "ucp:docs/specification/overview/index.md#L3711-L3713",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Component Versioning and Release Snapshots, closing paragraph, first sentence).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "OVR-076",
+   "keyword": "MUST",
+   "requirement": "A Platform that encounters a dev.ucp.* entry whose version differs from the profile's ucp.version MUST reject that entry — treated as not present and never activated — and MAY continue with the remaining entries.",
+   "quote": "differs from the profile's `ucp.version` **MUST** reject that entry — treated\nas not present and never activated — and **MAY** continue with the remaining\nentries. An older release is selected only through a separate",
+   "source": "ucp:docs/specification/overview/index.md#L3714-L3716",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Component Versioning and Release Snapshots, closing paragraph, second sentence).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/overview.md -> docs/specification/overview/index.md (2028 -> 3747 lines; substantial new content added — Authority Binding rewrite, Sale Basis-adjacent quantities/units section, expanded identity-resolution URL rules, expanded Capability Versions prose — but every row's own quoted clause was individually verified against the new file). OVR-002 and OVR-003 are the two security-relevant reworded rows: together they show the spec/schema REQUIRED-for-all-capabilities + both-URLs-origin-bound rule split into schema MUST + spec MAY, with origin-authority binding now explicit to schema only. OVR-007 is reworded for a MAY->SHOULD strengthening on the adjacent force-refresh permission (the row's own MUST NOT clause is unchanged)."

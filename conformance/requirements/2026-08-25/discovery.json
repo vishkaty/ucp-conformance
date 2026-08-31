@@ -133,6 +133,63 @@
         "from": "2026-04-08",
         "disposition": "carried"
       }
+    },
+    {
+      "id": "DISC-007",
+      "requirement": "Implementations MUST NOT follow redirects (3xx) when dereferencing a URL during identity resolution (the profile, or any jwks_uri / CIMD document a verifier follows).",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L2287",
+      "quote": "2. Implementations **MUST NOT** follow redirects (3xx).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave. This is the broadened verifier-side no-redirect rule (rule 2 of the URL fetch-safety list) that DISC-002 already flagged as an unregistered companion: DISC-002 covers the narrower, unchanged \"Profile endpoints MUST NOT use redirects (3xx)\" statement at L2239; this row covers the broadened rule 2 in the fetch-safety list at L2287, which DISC-004 (rule 1, HTTPS-only) already establishes applies to every URL dereferenced during identity resolution, not just the initial profile fetch. CLI-only: browser fetch auto-follows redirects opaquely.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "DISC-008",
+      "requirement": "Implementations MUST reject URLs dereferenced during identity resolution that resolve to special-use IP addresses (RFC 6890 loopback, link-local including the cloud-metadata address 169.254.169.254, private, and other reserved ranges), except a loopback target when the verifier itself runs on the same loopback interface (local development).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2296-L2299",
+      "quote": "7. Implementations **MUST** reject URLs that resolve to special-use IP\n   addresses ([RFC 6890](https://www.rfc-editor.org/rfc/rfc6890) —\n   loopback, link-local including the cloud-metadata address\n   `169.254.169.254`, private, and other reserved ranges), except a",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave (URL fetch-safety list, rule 7 — the SSRF/special-use-address guard). Server-side (verifier) DNS-resolution behavior; not browser-observable.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "DISC-009",
+      "requirement": "If a business profile cannot be fetched (timeout, DNS failure, 5xx) or fails validation (invalid schema, signing keys, signature mismatch), businesses MUST reject the request with an appropriate error and status code.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2312-L2315",
+      "quote": "If a profile cannot be fetched (timeout, DNS failure, 5xx) or fails\nvalidation (invalid schema, signing keys, signature mismatch),\nbusinesses **MUST** reject the request with an appropriate error and\nstatus code (see [Error Handling](#error-handling)).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave (Fetching, closing paragraph — the terminal error-handling duty when platform-profile fetch/validation fails).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ]
 }
