@@ -41,6 +41,13 @@
    }
   },
   {
+   "op": "prm_discovery",
+   "method": "GET",
+   "path": "/.well-known/oauth-protected-resource",
+   "status": 404,
+   "flags": {}
+  },
+  {
    "op": "as_discovery",
    "method": "GET",
    "path": "/.well-known/oauth-authorization-server",
@@ -169,6 +176,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -291,6 +305,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -374,12 +395,12 @@
     "kind": "flags",
     "op": "authorize",
     "clean": {
-     "rejected": true,
-     "iss_validated": false
+     "iss_validated": false,
+     "rejected": true
     },
     "mutant": {
-     "rejected": null,
-     "iss_validated": null
+     "iss_validated": null,
+     "rejected": null
     }
    },
    "catching": [
@@ -440,6 +461,13 @@
       "sig_verified": true,
       "sig_reason": "ok"
      }
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -561,6 +589,13 @@
       "sig_verified": true,
       "sig_reason": "ok"
      }
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -713,6 +748,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -799,6 +841,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -881,8 +930,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 7 ops (at create_checkout)",
-    "mutant": "kept going \u2014 reached complete (11 ops)"
+    "clean": "stopped safely after 8 ops (at create_checkout)",
+    "mutant": "kept going \u2014 reached complete (12 ops)"
    },
    "catching": [
     {
@@ -943,6 +992,13 @@
       "sig_verified": true,
       "sig_reason": "ok"
      }
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -1156,6 +1212,13 @@
       "sig_verified": true,
       "sig_reason": "ok"
      }
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -1396,6 +1459,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1515,6 +1585,13 @@
       "sig_verified": true,
       "sig_reason": "ok"
      }
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
     },
     {
      "op": "as_discovery",
@@ -1671,6 +1748,13 @@
      }
     },
     {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
+     "flags": {}
+    },
+    {
      "op": "as_discovery",
      "method": "GET",
      "path": "/.well-known/oauth-authorization-server",
@@ -1712,6 +1796,13 @@
      "method": "POST",
      "path": "/catalog/product",
      "status": 200,
+     "flags": {}
+    },
+    {
+     "op": "prm_discovery",
+     "method": "GET",
+     "path": "/.well-known/oauth-protected-resource",
+     "status": 404,
      "flags": {}
     },
     {
@@ -1784,8 +1875,8 @@
    ],
    "highlight": {
     "kind": "stopped",
-    "clean": "stopped safely after 5 ops (at as_discovery)",
-    "mutant": "kept going \u2014 reached authorize (11 ops)"
+    "clean": "stopped safely after 6 ops (at as_discovery)",
+    "mutant": "kept going \u2014 reached authorize (12 ops)"
    },
    "catching": [
     {
