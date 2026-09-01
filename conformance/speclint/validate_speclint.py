@@ -52,6 +52,26 @@ EXPECTED_SIGEX_0825 = {
     ("docs/specification/shopping/order/index.md", "ucp-agent"),
 }
 
+# HARDENING CONTROL. Each case in fixtures/class_negatives/sigex_hardening/ is a
+# way the first parser failed toward GREEN, i.e. a real violation it could not
+# see, or a false clean. Case A is not hypothetical: the spec ships a 4-space
+# indented http fence inside a MkDocs `=== "Request"` tab at
+# shopping/order/rest.md, and the original column-0-only fence regex was blind to
+# it, so "I swept every fenced block" was false until this was fixed.
+#   A line 17  violation inside an indented (tab) fence      MUST be found
+#   B line 32  keyid="ucp-agent" parameter value             MUST NOT count as coverage
+#   C line 47  lowercased header names                       MUST be found
+#   D line 64  "..." in a PARAMETER, list omits ucp-agent    MUST be found (not excused)
+#   E line 77  two signatures, sig2 covers ucp-agent         MUST NOT fire
+#   F line 89  two signatures, neither covers                MUST be found
+EXPECTED_SIGEX_HARDENING = {
+    ("hardening.md", 17, "ucp-agent"),
+    ("hardening.md", 32, "ucp-agent"),
+    ("hardening.md", 47, "ucp-agent"),
+    ("hardening.md", 64, "ucp-agent"),
+    ("hardening.md", 89, "ucp-agent"),
+}
+
 # Independently hand-verified at pin a2d8bf0b (and re-verified on current ucp
 # main 63be476): REST requires Idempotency-Key on all writes; MCP meta requires
 # it only on complete/cancel, so exactly these four create/update operations
@@ -146,6 +166,18 @@ def check_signature_example_coverage():
     if neg:
         failures.append(f"CLASS NEGATIVE fired on a conformant example: {neg}")
 
+    # HARDENING CONTROL — the parser must SEE every shape it once missed, and
+    # must still not fire on the two look-alike clean shapes. Both directions in
+    # one fixture, so a regression either way is caught.
+    hard = signature_example_coverage(
+        signed_examples_in_tree(FIX / "sigex_hardening"))
+    got_hard = {(f.source, f.line, f.component) for f in hard}
+    if got_hard != EXPECTED_SIGEX_HARDENING:
+        failures.append(
+            "HARDENING CONTROL mismatch:\n"
+            f"    missed (expected, not found): {sorted(EXPECTED_SIGEX_HARDENING - got_hard)}\n"
+            f"    false-flagged (found, not expected): {sorted(got_hard - EXPECTED_SIGEX_HARDENING)}")
+
     return failures
 
 
@@ -163,6 +195,8 @@ def main():
           "findings reproduced (G11 re-attest)")
     print(f"  signature_example_coverage @2026-08-25: "
           f"{len(EXPECTED_SIGEX_0825)} golden findings reproduced")
+    print(f"  signature_example_coverage hardening: "
+          f"{len(EXPECTED_SIGEX_HARDENING)} once-missed shapes now caught")
     print("  class-negatives silent.")
     return 0
 
