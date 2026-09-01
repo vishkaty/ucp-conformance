@@ -19,6 +19,13 @@ cp -R "$SRC/requirements/." "$DST/requirements/"
 # dep is common/crypto, and its "parent-of-agent on sys.path" resolution works in the bundle.
 cp "$SRC"/agent/*.py "$DST/agent/"
 cp "$SRC"/agent/*.json "$DST/agent/"
+# agent/fixtures_08_25 (frozen counterparty captures, e.g. the R8 key-location kill-proof's
+# golden-0825 discovery fixture): a real subdirectory, so it needs an explicit copy like
+# testbed/ below — the *.py/*.json globs above are flat and don't reach it.
+if [ -d "$SRC/agent/fixtures_08_25" ]; then
+  mkdir -p "$DST/agent/fixtures_08_25"
+  cp "$SRC"/agent/fixtures_08_25/*.json "$DST/agent/fixtures_08_25/"
+fi
 cp "$SRC"/common/*.py "$DST/common/"
 # testbed (AP2 mandate tooling): the agent lane mints mandate chains via testbed/mint,
 # and the codec/verifiers are pure stdlib — ship them so the packaged two-sided CLI

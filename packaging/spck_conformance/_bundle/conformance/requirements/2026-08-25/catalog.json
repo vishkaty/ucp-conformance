@@ -1,0 +1,999 @@
+{
+  "_area": "catalog",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "area": "catalog",
+  "rows": [
+    {
+      "id": "CAT-001",
+      "requirement": "Pagination response MUST include has_next_page",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/pagination.json#L41",
+      "quote": "\"required\": [\"has_next_page\"]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: pagination.json moved from source/schemas/shopping/types/ to source/schemas/common/types/ (a shared value type promoted to the new common/ tree); response $defs required has_next_page is unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-002",
+      "requirement": "When has_next_page is true, cursor MUST be present (if/then schema constraint)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/pagination.json#L42-L48",
+      "quote": "\"if\": {\n        \"properties\": { \"has_next_page\": { \"const\": true } },\n        \"required\": [\"has_next_page\"]\n      },\n      \"then\": {\n        \"required\": [\"cursor\"]\n      }",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25 (path relocated shopping/types/ -> common/types/; if/then constraint text unchanged). Schema-enforced via if/then; prose at new L29 says cursor MUST be present when has_next_page is true.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-003",
+      "requirement": "Cursor to fetch next page MUST be present when has_next_page is true",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/pagination.json#L29",
+      "quote": "\"description\": \"Cursor to fetch the next page of results. MUST be present when has_next_page is true.\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25 (path relocated shopping/types/ -> common/types/; text unchanged verbatim). Prose-in-schema restatement of the if/then constraint.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-004",
+      "requirement": "Cursors are opaque strings (a Business MAY encode them as stateless keyset tokens)",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L66-L67",
+      "quote": "Cursors are opaque strings. A\nBusiness **MAY** encode them as stateless keyset tokens.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Renamed in 2026-08-25: the actor term changed from 'implementations' to the defined role 'Business' (this release formalizes capitalized Platform/Business roles throughout the spec). Old quote: \"Cursors are opaque strings\\nthat implementations MAY encode as stateless keyset tokens.\" New quote: \"Cursors are opaque strings. A\\nBusiness **MAY** encode them as stateless keyset tokens.\" Substance (MAY encode as stateless keyset tokens) and sentence structure are otherwise identical. Opacity is a contract on clients; schema types cursor as string only.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "renamed"
+      }
+    },
+    {
+      "id": "CAT-005",
+      "requirement": "limit request parameter has minimum 1; when omitted the Business MUST apply a default page size (10 is RECOMMENDED, but the Business MAY choose another value)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/pagination.json#L16-L20",
+      "quote": "\"limit\": {\n          \"type\": \"integer\",\n          \"minimum\": 1,\n          \"description\": \"Requested page size, not a guaranteed result count. When omitted, the Business MUST apply a default page size. A default of 10 is RECOMMENDED, but the Business MAY choose another value. The Business MAY return fewer results than the requested or default page size, including when enforcing its maximum page size. A Platform MUST NOT assume that the response count equals either value.\"\n        }",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "REWORDED, flagged for review: the schema literally dropped the \"default\": 10 keyword. OLD schema (shopping/types/pagination.json#L16-20): \"limit\": { \"type\": \"integer\", \"minimum\": 1, \"default\": 10, \"description\": \"Requested page size. Implementations MAY clamp to a lower maximum.\" } — default 10 was a literal schema default. NEW schema removes the literal default and instead states in prose that the Business MUST apply *a* default page size, with 10 only RECOMMENDED (not required) and the Business MAY choose a different value. This downgrades the specific value \"10\" from a schema default to a RECOMMENDED prose value, while adding a new MUST that some default be applied. minimum:1 remains schema-enforced; the exact-default-of-10 guarantee no longer exists. Also absorbs the substance of old CAT-007/CAT-008 (fewer-results / MUST NOT assume count) directly into the schema description, duplicating search.md prose.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "CAT-007",
+      "requirement": "limit is a hint; a Business MAY return fewer results than the requested or default page size, including when enforcing its own maximum page size",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L76-L77",
+      "quote": "The Business **MAY** return fewer results than the requested or default page\nsize, including when enforcing its maximum page size.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED, flagged for review: OLD text: \"The `limit` parameter is a requested page size, not a guaranteed count.\\nImplementations SHOULD accept a page size of at least 10. When the\\nrequested limit exceeds the implementation's maximum, implementations\\nMAY clamp to their maximum silently — returning fewer results without\\nerror.\" NEW text drops the \"SHOULD accept at least 10\" floor entirely (see CAT-006, now DEAD) and the \"clamp...silently...without error\" framing, replacing it with a more general \"MAY return fewer results than the requested OR DEFAULT page size\" statement that also covers the new default-page-size mechanism (CAT-005). Same core permission (business may legitimately return fewer than requested) but the specific silent-clamping language is gone and scope is broadened to include the default case.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "CAT-008",
+      "requirement": "A Platform MUST NOT assume the response count equals the requested or default page size",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L77-L78",
+      "quote": "A Platform **MUST NOT**\nassume that the response count equals either value.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED, flagged for review: OLD quote: \"Clients MUST NOT assume the response size equals the requested limit.\" NEW quote: \"A Platform **MUST NOT**\\nassume that the response count equals either value.\" Actor renamed Clients -> Platform, and scope broadened from just the requested limit to \"either value\" (requested OR the new default page size introduced by CAT-005) — a genuine normative expansion, not just a rename, so classified reworded rather than renamed. Client-side constraint; not server-testable.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "CAT-009",
+      "requirement": "A valid search request MUST include at least one of: a query string, one or more filters, or an extension-defined input",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L40-L41",
+      "quote": "A valid search request MUST include at least one of: a `query` string,\none or more `filters`, or an extension-defined input.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged (this paragraph is byte-identical to the 2026-04-08 source, only the file's parent directory moved). search_request schema has no anyOf/required enforcing this; prose-only.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-010",
+      "requirement": "Implementations MUST validate that incoming requests contain at least one recognized input",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L47-L48",
+      "quote": "Implementations MUST validate that incoming requests contain at least one\nrecognized input",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-011",
+      "requirement": "Implementations SHOULD reject empty or invalid requests with an appropriate error",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L48-L49",
+      "quote": "SHOULD reject empty or invalid requests with an\nappropriate error.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-012",
+      "requirement": "Empty search returns products:[] with no messages (not an error)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L376",
+      "quote": "When search finds no matches, return an empty array without messages.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated to the Common Scenarios section further down index.md (L376 vs old L191) due to the new Sale Basis/Quantity Units content inserted earlier in the file. Still phrased as instruction, not RFC keyword.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-013",
+      "requirement": "Lookup MUST support lookup by product ID and variant ID",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L51-L52",
+      "quote": "Implementations MUST support\nlookup by product ID and variant ID.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: lookup.md is byte-identical to 2026-04-08 for this content; text and line numbers unchanged. Also restated in catalog_lookup.json#L106 ids description.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-014",
+      "requirement": "get_product MUST support product ID and variant ID for the single id parameter",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L106",
+      "quote": "\"description\": \"Product or variant identifier. Implementations MUST support product ID and variant ID.\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged; line shifted (94 -> 106) because get_product_request gained filters/context/signals/attribution properties. Prose-in-schema; not structurally enforced.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-015",
+      "requirement": "Duplicate identifiers in the request MUST be deduplicated",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L56",
+      "quote": "Duplicate identifiers in the request MUST be deduplicated.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line number unchanged (lookup.md byte-identical for this section).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-016",
+      "requirement": "When multiple identifiers resolve to the same product, it MUST be returned once",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L58-L59",
+      "quote": "When multiple identifiers\nresolve to the same product, it MUST be returned once.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-017",
+      "requirement": "Variants without an inputs entry MUST NOT appear in lookup responses",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L71-L72",
+      "quote": "Variants without an `inputs` entry MUST NOT appear in\nlookup responses.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged. Partly schema-enforced: lookup_variant requires inputs with minItems:1 (catalog_lookup.json#L14-L19), so any variant present must carry inputs; presence/exclusion logic itself is prose.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-018",
+      "requirement": "lookup response variants MUST include a non-empty inputs array (correlation metadata)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L14-L19",
+      "quote": "\"required\": [\"inputs\"],\n          \"properties\": {\n            \"inputs\": {\n              \"type\": \"array\",\n              \"items\": { \"$ref\": \"types/input_correlation.json\" },\n              \"minItems\": 1,",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: lookup_variant allOf block unchanged, same line numbers.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-019",
+      "requirement": "For get_product / catalog/product, an unknown identifier (NOT_FOUND) returns HTTP 200 with ucp.status:\"error\" and a descriptive message",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L479-L482",
+      "quote": "When the identifier does not resolve to a product, the server returns HTTP 200\nwith `ucp.status: \"error\"` and a descriptive message. This is an application\noutcome, not a transport error — the handler executed and reports its result\nvia the UCP envelope.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged; relocated within rest.md (L479 vs old L464) due to reorg. Stated descriptively; MUST keyword inferred from \"returns HTTP 200\".",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-020",
+      "requirement": "All application-level outcomes (incl. not-found) return HTTP 200 with the UCP envelope and optional messages array",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L543-L544",
+      "quote": "All application-level outcomes return HTTP 200 with the UCP envelope and optional\n`messages` array.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within rest.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-021",
+      "requirement": "When all batch identifiers fail lookup, products array is empty; response MAY include informational not_found messages",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L549-L550",
+      "quote": "When all requested identifiers fail lookup, the `products` array is empty. The response\nMAY include informational messages indicating which identifiers were not found.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within rest.md. Batch lookup (HTTP 200) differs from get_product single-resource error.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-022",
+      "requirement": "When the Lookup capability is advertised, both /catalog/lookup and /catalog/product MUST be available",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L603",
+      "quote": "When the Lookup capability is advertised, both `/catalog/lookup` and `/catalog/product` MUST be available.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, still embedded in Conformance item 1.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-023",
+      "requirement": "REST transport MUST implement endpoints for each advertised catalog capability per its requirements",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L601-L603",
+      "quote": "A conforming REST transport implementation **MUST**:\n\n1. Implement endpoints for each catalog capability advertised in the business's UCP profile, per their respective capability requirements ([Search](search.md), [Lookup](lookup.md)).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: Conformance list intro and item 1 unchanged verbatim; relocated within rest.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-024",
+      "requirement": "REST transport MUST support cursor-based pagination for Search per the shared pagination contract",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L605-L606",
+      "quote": "3. Support cursor-based pagination for Search according to the shared\n    pagination contract (see [Pagination](search.md#pagination)).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "REWORDED, flagged for review: OLD quote: \"3. Support cursor-based pagination with default limit of 10.\" NEW quote drops the literal \"default limit of 10\" and instead refers to the shared pagination contract in search.md (whose default-of-10 is now only RECOMMENDED, see CAT-005). Consistent with the pagination.json schema change.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "CAT-025",
+      "requirement": "REST transport MUST return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L607",
+      "quote": "4. Return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned (MAY include informational `not_found` messages).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-026",
+      "requirement": "REST transport MUST return HTTP 400 with request_too_large error for requests exceeding batch size limits",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L608",
+      "quote": "5. Return HTTP 400 with `request_too_large` error for requests exceeding batch size limits.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged. Lookup.md#L77-79 restates MUST reject; HTTP 400 request_too_large for REST.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-027",
+      "requirement": "Lookup implementations MAY enforce a maximum batch size and MUST reject requests exceeding their limit with an appropriate error",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L76-L79",
+      "quote": "Implementations\nMAY enforce a maximum batch size and MUST reject requests exceeding their limit\nwith an appropriate error (HTTP 400 `request_too_large` for REST, JSON-RPC\n`-32602` for MCP).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged. Note: the preceding sentence in this same Batch Size section ('Implementations SHOULD accept at least 10 identifiers per request.') is unchanged from 2026-04-08 too and was never separately rowed under catalog.json (it is a lookup-specific batch-size SHOULD, distinct from the now-DEAD search page-size SHOULD, CAT-006).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-028",
+      "requirement": "Lookup ids array is required with minItems 1",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L29-L34",
+      "quote": "\"required\": [\"ids\"],\n      \"properties\": {\n        \"ids\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" },\n          \"minItems\": 1,",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged (lookup_request gained filters/context/signals/attribution properties after this block, but ids/minItems is identical).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-029",
+      "requirement": "search_response MUST include ucp and products",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_search.json#L35-L38",
+      "quote": "\"required\": [\n        \"ucp\",\n        \"products\"\n      ]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged (context/signals refs repointed to ../common/types/ but same line count). Empty-results case is products:[] (still required, present as empty array).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-030",
+      "requirement": "lookup_response MUST include ucp and products",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L54-L57",
+      "quote": "\"required\": [\n        \"ucp\",\n        \"products\"\n      ]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: text and line numbers unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-031",
+      "requirement": "get_product_response MUST include ucp and a singular product object",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L167-L170",
+      "quote": "\"required\": [\n        \"ucp\",\n        \"product\"\n      ]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "Carried into 2026-08-25: text unchanged; line shifted (155 -> 167) because lookup_response gained an actions/policies properties earlier in the file.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-032",
+      "requirement": "For Variant ID lookups via get_product, the requested variant MUST be the first element (featured)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L131",
+      "quote": "**Variant ID**: The requested variant MUST be the first element (featured).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line number unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-033",
+      "requirement": "get_product response MUST include product.selected when the product has configurable options",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L164-L165",
+      "quote": "The response MUST include `product.selected` when the product has\nconfigurable options",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line number unchanged. Conditional requirement; schema lists selected but not unconditionally required.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-034",
+      "requirement": "In get_product selected input, each option name MUST appear at most once",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L156",
+      "quote": "Each option name MUST appear at most once.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text and line number unchanged. Reclassified 2026-07-02 (carried forward from 2026-04-08 register): the MUST binds the CLIENT'S request `selected` input (lookup.md '#### Input'), not the merchant. No merchant-observable obligation exists, so a merchant check would grade something the spec never requires of merchants. Response-side product.selected uniqueness is not normatively stated either. Candidate for a documented client-side exemption.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-035",
+      "requirement": "Eligibility and policy enforcement MUST occur at checkout time using binding transaction data (catalog context signals are provisional)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L185-L186",
+      "quote": "Eligibility and policy enforcement MUST occur at checkout time using\nbinding transaction data.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within index.md (new Sale Basis/Quantity Units section inserted earlier in the file pushed this down from old L68). Cross-cuts catalog/checkout; relevant to catalog context handling.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-036",
+      "requirement": "Signal values MUST NOT be buyer-asserted claims",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L204",
+      "quote": "Signal values MUST NOT be buyer-asserted claims.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within index.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-037",
+      "requirement": "Catalog responses SHOULD NOT be reused across sessions without re-validation",
+      "keyword": "SHOULD NOT",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L56-L57",
+      "quote": "Responses can be session-specific and **SHOULD NOT** be\nreused across sessions without re-validation.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within index.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-038",
+      "requirement": "Disclosure warnings (presentation:\"disclosure\") carry notices that platforms must not hide or dismiss",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L348-L349",
+      "quote": "Warnings with `presentation: \"disclosure\"` carry notices (e.g., allergen\ndeclarations, safety warnings) that platforms must not hide or dismiss.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "Carried into 2026-08-25: text unchanged, relocated within index.md; rendering-contract cross-reference now points to ../checkout/index.md instead of ../checkout.md. Lowercase \"must not\"; rendering contract is in checkout/index.md (out of scope here).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "CAT-039",
+      "keyword": "MUST",
+      "requirement": "For the unit_price display comparator to be well-defined, the Business MUST use a positive integer for both unit_price.measure.value and unit_price.reference.value.",
+      "quote": "To keep the display comparator defined, the Business **MUST** use a positive\ninteger for both `unit_price.measure.value` and `unit_price.reference.value`.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L104-L105",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (catalog/index.md unit_price comparator rules — a wholly new subsystem at 08-25; the CAT-035..038 wave already registered adjacent sections of this file but not this cluster).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-040",
+      "keyword": "MUST",
+      "requirement": "The Business MUST set unit_price.currency equal to price.currency.",
+      "quote": "The Business **MUST** set `unit_price.currency` equal to `price.currency`.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L106",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rules).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-041",
+      "keyword": "MUST NOT",
+      "requirement": "Within unit_price, the Business MUST use identical values for measure.unit and reference.unit (though MAY use different scale values for those measures), and MUST NOT perform cross-unit or currency conversion as part of the unit-price calculation.",
+      "quote": "Within `unit_price`, the Business **MUST** use identical values for\n`measure.unit` and `reference.unit`. The Business **MAY** use different `scale`\nvalues for those measures. The Business **MUST NOT** perform cross-unit or\ncurrency conversion as part of the unit-price calculation. Each measure",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L107-L110",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rules, folded — the same-unit constraint and the no-conversion prohibition are one integrated invariant read across three sentences).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-042",
+      "keyword": "MUST",
+      "requirement": "The Business MUST compute the unit_price comparator from price.amount and the scaled measure/reference values per the defined formula.",
+      "quote": "represents its integer `value × 10^-scale` in the common unit. The Business\n**MUST** compute the comparator from `price.amount` and those scaled values:\n",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L111-L113",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": true,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator formula).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-043",
+      "keyword": "MUST NOT",
+      "requirement": "The Business MUST round the unit_price comparator result once to the currency minor units and return it as unit_price.amount, which is authoritative; the Platform MUST NOT recompute it or substitute its own result.",
+      "quote": "The Business **MUST** round the result once to the currency's minor units\naccording to its pricing rules and return it as `unit_price.amount`. The\nreturned `unit_price.amount` is authoritative. The Platform **MUST NOT**\nrecompute it or substitute its own result.",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L118-L121",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price comparator rounding + authoritativeness, folded — the Business rounding duty and the Platform non-recompute prohibition are one integrated invariant).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-044",
+      "keyword": "MUST",
+      "requirement": "On transaction lines, the Business MUST echo unit_price on any line whose pricing basis differs from its sale basis.",
+      "quote": "On transaction lines, presence marks the role: the Business **MUST** echo\n`unit_price` on any line whose pricing basis differs from its sale basis (see\n[Checkout — pricing basis](../checkout/index.md#quantity-and-sale-basis)). A",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L134-L136",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (unit_price echo-on-transaction-lines rule).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-045",
+      "keyword": "MUST NOT",
+      "requirement": "When get_product returns severity: unrecoverable because an identifier does not resolve, agents MUST NOT retry the same id.",
+      "quote": "doesn't resolve; agents MUST NOT retry the same `id` (see the\n[REST](rest.md#product-not-found) and [MCP](mcp.md#product-not-found)",
+      "source": "ucp:docs/specification/shopping/catalog/index.md#L356-L357",
+      "testability": "manual",
+      "transport": [
+        "any"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (catalog error-handling guidance, get_product not-found). Client/agent-side behavioral rule.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-046",
+      "keyword": "MUST",
+      "requirement": "All catalog REST requests MUST include the UCP-Agent header containing the platform profile URI using Dictionary Structured Field syntax (RFC 8941).",
+      "quote": "* **UCP-Agent**: All requests **MUST** include the `UCP-Agent` header\n    containing the platform profile URI using Dictionary Structured Field syntax\n    ([RFC 8941](https://datatracker.ietf.org/doc/html/rfc8941){target=\"_blank\"}).\n    Format: `profile=\"https://platform.example/profile\"`.",
+      "source": "ucp:docs/specification/shopping/catalog/rest.md#L521-L524",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": true,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (Specific Header Requirements).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "CAT-047",
+      "keyword": "MUST",
+      "requirement": "When the catalog Search limit parameter is omitted, the Business MUST apply a default page size (a default of 10 is RECOMMENDED, but the Business MAY choose another value).",
+      "quote": "count. When `limit` is omitted, the Business **MUST** apply a default page\nsize. A default of 10 is **RECOMMENDED**, but the Business **MAY** choose\nanother value.",
+      "source": "ucp:docs/specification/shopping/catalog/search.md#L72-L74",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (Page Size).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    }
+  ],
+  "notes": [
+    "2026-08-25 REORG: docs/specification/catalog/{index,lookup,mcp,rest,search}.md moved to docs/specification/shopping/catalog/{index,lookup,mcp,rest,search}.md. source/schemas/shopping/types/pagination.json moved to source/schemas/common/types/pagination.json (a shared value type promoted to the new common/ tree, confirmed by directory diff); source/schemas/shopping/catalog_lookup.json and catalog_search.json did NOT move (still under source/schemas/shopping/).",
+    "DEAD (CAT-006): 'Implementations SHOULD accept a page size of at least 10' (old docs/specification/catalog/search.md#L72) has no surviving equivalent anywhere in 08-25. Grepped the whole docs/ and source/ trees for 'at least 10' and 'page size' (2026-08-30): the only 'at least 10' hits are catalog/lookup.md#L76 (a DIFFERENT, unrelated batch-size SHOULD already covered by CAT-027's context, unchanged since 04-08) and common/location/lookup.md#L57 (an unrelated capability). The 08-25 Page Size section (search.md L69-78) replaces the minimum-floor SHOULD with a default-page-size mechanism (see CAT-005/007/008); no requirement obliges a Business to accept a requested page size of any particular minimum. Treated as a genuine requirement removal, not a rename/reword, because no text anywhere states or implies the old floor.",
+    "SECURITY-RELEVANT: no requirement in the 08-25 in-scope files mandates stripping scripts/HTML from product or variant descriptions, same finding as 2026-04-08. Not rowed (no verbatim quote available).",
+    "Pagination if/then constraint (has_next_page const true => required cursor) remains the only structurally schema-enforced cross-field rule (CAT-002). Dedup (CAT-015/016), variant-exclusion logic (CAT-017 partial), search input-presence (CAT-009/010), and not-found-HTTP-200 (CAT-019/020) remain PROSE requirements => schema_enforced=false, except where backed by a structural constraint (CAT-017/018, CAT-028, CAT-029..031).",
+    "The 2026-08-25 release formalizes capitalized 'Business' and 'Platform' as defined roles; several rows carried forward unchanged in substance now read with this vocabulary in the surrounding (unquoted) prose even where the exact quoted clause did not change (e.g. CAT-009/010/011 in search.md kept 'Implementations', untouched)."
+  ]
+}

@@ -1,0 +1,170 @@
+{
+ "_area": "tokenization",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW area at v2026-08-25 (P2b pass): the cross-handler Tokenizer contract in payment/tokenization.md (title 'Tokenization Guide', but the Binding/Security-Requirements/Handler-Specification-Requirements sections bind an actual protocol participant — any Tokenizer payment handler — not just spec authors, so their MUSTs are real, testable conformance surface despite the file's 'Guide' framing). NEVER registered at any prior version: the 04-08 predecessor (docs/specification/tokenization-guide.md) had only a much narrower checkout_id-scoped binding rule ('Tokenizer MUST verify binding matches on /detokenize', shopping/types/binding.json) and was itself never added to the 04-08/01-23/01-11 registers (grepped: zero hits). 08-25 generalized binding from a checkout-specific primitive to a generic capability-resource binding (type+id, common/types/binding.json — see PAY-026's carried-forward note in payment.json) and added the participant-scoping (identity/binding.md), opaque-id, and unrecognized-type-tolerance rules extracted below, none of which existed in the 04-08 text. The three worked-example files (payment/examples/*-payment-handler.md) and the authoring guide/template (payment/guide.md, payment/template.md) are deliberately NOT rowed here — their MUSTs bind spec authors writing a NEW handler doc or narrate one illustrative scenario, matching the existing register_completeness_waivers.json non-normative-doc class already used for their 04-08/01-23/01-11 predecessors (payment-handler-guide.md, payment-handler-template.md, examples/*.md); see WAIVERS-PROPOSED.md for the corresponding 2026-08-25 scope-exclusion entries (paths moved under payment/ and one file was renamed: examples/encrypted-credential-handler.md -> payment/examples/encrypted-credential-payment-handler.md).",
+ "area": "tokenization",
+ "rows": [
+  {
+   "id": "TOK-001",
+   "requirement": "A Tokenizer MUST verify a binding by exact equality over type and id; it MUST NOT accept a partial match, and MUST NOT reject a request because binding carries members it does not recognize.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L120-L122",
+   "quote": "A Tokenizer **MUST** verify a binding by exact equality over `type` and\n`id`. A Tokenizer **MUST NOT** accept a partial match, and **MUST NOT**\nreject a request because `binding` carries members it does not recognize.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "Core replay-guard invariant of the new generic binding model (rule 1 of 4 in the 'Binding' section). Fixture-testable against any Tokenizer implementation: feed a binding with a matching type but a different id (or vice versa) and assert rejection; feed one carrying an unrecognized extra member and assert it does NOT cause rejection. No 04-08 equivalent (the old checkout_id-only binding had no equality/partial-match rule)."
+  },
+  {
+   "id": "TOK-002",
+   "requirement": "A Tokenizer MUST ignore unrecognized binding members when comparing; an extension that defines additional binding members MUST specify whether those members participate in the comparison, and a Tokenizer implementing that extension MUST follow the extension's definition.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L123-L126",
+   "quote": "A\nTokenizer **MUST** ignore unrecognized members when comparing. An extension\nthat defines additional `binding` members **MUST** specify whether those\nmembers participate in the comparison; a Tokenizer implementing that\nextension **MUST** follow the extension's definition.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "The extensibility half of the binding-comparison rule (rule 1 continued): a Tokenizer serving one capability today must not break when `binding` grows new members later. Fixture-testable: send an unrecognized member and assert it is ignored, not treated as a mismatch."
+  },
+  {
+   "id": "TOK-003",
+   "requirement": "A Tokenizer MUST treat binding.id as opaque: it MUST NOT require the value to be resolvable, and MUST NOT reject a request because it cannot confirm that the identified resource exists.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L127-L129",
+   "quote": "A Tokenizer **MUST** treat `binding.id` as opaque: it **MUST NOT** require\nthe value to be resolvable, and **MUST NOT** reject a request because it\ncannot confirm that the identified resource exists.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "Binding rule 2 of 4: a Tokenizer cannot demand cross-checking binding.id against the owning capability's own store. Fixture-testable: send a well-formed but unresolvable/fictitious id and assert the Tokenizer does not reject solely on that basis."
+  },
+  {
+   "id": "TOK-004",
+   "requirement": "A Tokenizer MUST NOT reject a request solely because it does not recognize binding.type.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/tokenization.md#L130-L131",
+   "quote": "A Tokenizer **MUST NOT** reject a request solely because it does not\nrecognize `binding.type`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "Binding rule 3 of 4: forward-compatibility guarantee — a Tokenizer built for today's capabilities MUST remain usable by capabilities defined later without an implementation change. Fixture-testable: send a made-up, unrecognized binding.type and assert it is not rejected on that basis alone."
+  },
+  {
+   "id": "TOK-005",
+   "requirement": "Every token is issued to exactly one participant. A Tokenizer MUST record that participant at /tokenize (from identity when present, otherwise the authenticated caller); on /detokenize a Tokenizer MUST resolve the requesting participant the same way, MUST verify it matches the participant recorded at issuance, and MUST verify the authenticated caller is that participant or is authorized to act for it. A Tokenizer MUST NOT return the credential when either check fails.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L134-L140",
+   "quote": "Every token is issued to exactly one participant. A Tokenizer **MUST**\nrecord that participant at `/tokenize` — from `identity` when present,\notherwise the authenticated caller. On `/detokenize` a Tokenizer **MUST**\nresolve the requesting participant the same way, **MUST** verify it matches\nthe participant recorded at issuance, and **MUST** verify that the\nauthenticated caller is that participant or is authorized to act for it. A\nTokenizer **MUST NOT** return the credential when either check fails.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "Binding rule 4 of 4: the participant-scoping half, replacing 04-08's removed delegated-identity property (see PAY-026 carried-forward note in payment.json). Needs-receiver, not testable by a single-request fixture: proving the MUST NOT requires a stateful /tokenize-then-/detokenize round trip against a live Tokenizer, presenting a caller/identity that does not match the participant recorded at issuance, and observing that the credential is withheld."
+  },
+  {
+   "id": "TOK-006",
+   "requirement": "identity is a participant identifier, not a credential, and a Tokenizer MUST NOT accept it as authentication.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/tokenization.md#L141-L142",
+   "quote": "`identity` is a participant identifier, not a credential, and a Tokenizer\n**MUST NOT** accept it as authentication.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "Closes an impersonation vector adjacent to TOK-005: a caller cannot authenticate itself merely by asserting an `identity` value. Needs-receiver: proving rejection requires a live call presenting only `identity` (no valid Authorization/credential) against a real Tokenizer."
+  },
+  {
+   "id": "TOK-007",
+   "requirement": "The handler's specification MUST state whether it accepts network_token_credential as a source credential for tokenization, as a checkout credential directly, or both.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L71-L75",
+   "quote": "A handler **MAY** accept\n`network_token_credential.json` as a source credential for tokenization, or\n**MAY** accept it directly as a checkout credential, since the token is\nunusable without a matching cryptogram. The handler's specification **MUST**\nstate which of the two it accepts.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "A real interoperability requirement (which network-token acceptance mode a specific handler supports must be disclosed so a Platform can drive it correctly), not a document-formatting convention — distinguishing it from the waived guide/template rows. Manual: only checkable by reading the handler's own published specification document, not observable from a single API call."
+  },
+  {
+   "id": "TOK-008",
+   "requirement": "binding.id is a required field; the caller MUST send a non-empty string.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L106",
+   "quote": "The caller **MUST** send a non-empty string",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": true,
+   "notes": "source/schemas/common/types/binding.json requires id (minLength 1) — schema-enforced. binding.type is $ref reverse_domain_name.json, also required."
+  },
+  {
+   "id": "TOK-009",
+   "requirement": "When publishing your handler, your specification document MUST include: a unique reverse-DNS handler name, endpoint URLs, authentication requirements, onboarding process, accepted credentials, token lifecycle policy, and security acknowledgements.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/tokenization.md#L254",
+   "quote": "When publishing your handler, your specification document **MUST** include:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "The lead-in to the 'Handler Specification Requirements' table (7 required content elements). A genuine interoperability disclosure requirement (analogous to a Discovery profile's required fields), not a spec-authoring style convention. Manual: verified by reviewing the handler's published specification document."
+  }
+ ]
+}

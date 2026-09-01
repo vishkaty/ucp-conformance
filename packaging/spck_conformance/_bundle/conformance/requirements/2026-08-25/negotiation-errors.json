@@ -1,0 +1,116 @@
+{
+  "_area": "version-negotiation-and-protocol-errors",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "NEG-001",
+      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1862,L3553",
+      "quote": "| `version_unsupported`       | Platform's protocol version not supported            | 422  | -32001 |  ...  Business **MUST** return a `version_unsupported`",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: docs/specification/overview.md -> docs/specification/overview/index.md (doc-tree reorg #723); the Negotiation Errors table and the Request-Time Validation narrative are unchanged in content, only line numbers moved (table 699->1862, narrative 1912->3553). DISCREPANCY (carried forward): official conformance suite protocol_test asserts HTTP 400 for incompatible version; the spec maps to 422 and the suite is pinned to spec 2026-01-23. Spec is authoritative. Tester accepts 422; if 400 is seen, emit a FLAG citing the suite-vs-spec conflict, not a silent pass. See ambiguity register AMB-001.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "NEG-002",
+      "requirement": "When no compatible capabilities exist in the intersection, the business MUST return a capabilities_incompatible error, mapped to HTTP 200 with the error in the UCP body (NOT a 4xx).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1863,L3557",
+      "quote": "| `capabilities_incompatible` | No compatible capabilities in intersection           | 200  | result |  ...  business **MUST** return a `capabilities_incompatible` error",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; table and narrative content unchanged, line numbers moved (table 700->1863, narrative 1916->3557). A tester expecting 4xx for 'incompatible' is still WRONG: this is 200-with-error-body. See AMB-006.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "NEG-003",
+      "requirement": "A resolved-but-unfetchable profile (timeout/non-2xx) maps to profile_unreachable, HTTP 424.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1860",
+      "quote": "| `profile_unreachable`       | Resolved URL but fetch failed (timeout, non-2xx)     | 424  | -32001 |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; table row content unchanged, line shifted 697->1860. Tester-side classification of its own profile fetch failures.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "NEG-004",
+      "requirement": "A fetched profile that is not valid JSON or violates schema maps to profile_malformed, HTTP 422.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1861",
+      "quote": "| `profile_malformed`         | Fetched content is not valid JSON or violates schema | 422  | -32001 |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated; table row content unchanged, line shifted 698->1861. Schema validity is still checked via the ucp-schema oracle (profile/ucp.json).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "NEG-005",
+      "requirement": "A request whose platform profile URL is malformed, MISSING, or unresolvable is rejected with invalid_profile_url (REST 400 / MCP -32001)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1859",
+      "quote": "| `invalid_profile_url`       | Profile URL is malformed, missing, or unresolvable   | 400  | -32001 |",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; table row content unchanged, line shifted 696->1859. Added-2026-07-03 rationale (wave-2 adversarial review F4) still applies unchanged: the Negotiation Errors table binds the BUSINESS to reject a request without a resolvable platform profile URL (the 'missing' case = no/empty UCP-Agent); MUST inferred from the table's normative error-code mapping. This is the merchant-observable ENFORCEMENT dual of the requester-bound header rows (client-bound, exempted) that reference this row.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    }
+  ]
+}

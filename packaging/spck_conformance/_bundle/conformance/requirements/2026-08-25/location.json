@@ -1,0 +1,1024 @@
+{
+ "_area": "location",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW capability family at v2026-08-25: dev.ucp.common.location.search + dev.ucp.common.location.lookup (#589), plus the shared Location/amenity/operating-hours model (common/types/location.json, location_filter.json, amenity_type.json, location_distance.json, location_serves.json, daily_hour.json, exception_hour.json, geo.json). No 04-08 equivalent existed (04-08's shopping/types/retail_location.json carried none of this: no hours, no amenities, no distance/serves relations, no item-availability filter). amenity.* naming convention rows are folded in here (LOC-002) rather than a separate AMN area, since amenity_type.json is a Location-scoped type with no independent capability of its own.",
+ "area": "location",
+ "rows": [
+  {
+   "id": "LOC-001",
+   "requirement": "A Location's `amenity` entry MUST carry a non-empty `description`",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/location.json#L11",
+   "quote": "\"required\": [\"description\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Wholly new capability family (dev.ucp.common.location.search / .lookup, #589). No 04-08 equivalent existed (04-08 shopping/types/retail_location.json had no amenities/hours model). location.json $defs.amenity requires description (minLength 1)."
+  },
+  {
+   "id": "LOC-002",
+   "requirement": "Industry-scoped amenity identifiers MUST append their related service name on top of `dev.ucp.amenity` (e.g. `dev.ucp.amenity.shopping.in_store_pickup`); businesses MAY define custom vocabulary in their own domain",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/amenity_type.json#L5",
+   "quote": "Industry-scoped features that MUST append their related service name on top of `dev.ucp.amenity` (e.g., dev.ucp.amenity.shopping.in_store_pickup).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "amenity_type.json $ref's reverse_domain_name.json for the syntactic shape; this 2-tier hierarchy rule is prose-only on top of that."
+  },
+  {
+   "id": "LOC-003",
+   "requirement": "A Location's `timezone` is required when `hours` or `exception_hours` is present",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/location.json#L70",
+   "quote": "\"if\": {\n    \"anyOf\": [\n      { \"required\": [\"hours\"] },\n      { \"required\": [\"exception_hours\"] }\n    ]\n  },\n  \"then\": {\n    \"required\": [\"timezone\"]\n  }",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "location.json if/then conditional requirement."
+  },
+  {
+   "id": "LOC-004",
+   "requirement": "The `filters.items` array, when present, MUST be non-empty with unique, non-empty string identifiers",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/location_filter.json#L31",
+   "quote": "\"minItems\": 1,\n      \"uniqueItems\": true,",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "location_filter.json filters.items constraints."
+  },
+  {
+   "id": "LOC-005",
+   "requirement": "The `filters.hours` object, when present, MUST include `open_at`, an RFC 3339 instant expressed with `Z` or a numeric offset",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/location_filter.json#L11",
+   "quote": "\"required\": [\"open_at\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "location_filter.json filters.hours.required + pattern enforcing the Z/offset suffix."
+  },
+  {
+   "id": "LOC-006",
+   "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms — downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L71",
+   "quote": "A\nLocation ID selects only the physical entity; it does not determine the\ninteraction mode, guarantee availability, or bind operational terms.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Architectural boundary between Location discovery and downstream transactional capabilities (e.g. Fulfillment)."
+  },
+  {
+   "id": "LOC-007",
+   "requirement": "Final transaction terms that depend on a location (e.g. pickup) MUST be negotiated and finalized authoritatively at Checkout; discovery signals SHOULD NOT be cached or reused across sessions without re-validation",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L85",
+   "quote": "Final transaction terms that depend on a location (e.g., pickup)\n        **MUST** be negotiated and finalized authoritatively. Discovery signals **SHOULD NOT** be cached\n        or reused across sessions without re-validation.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Provisional-vs-authoritative boundary rule; the caching half is a Platform-side SHOULD NOT."
+  },
+  {
+   "id": "LOC-008",
+   "requirement": "The exact `00:00`–`23:59` pair represents the entire local civil date (including DST transitions) as a reserved exception to the closing-boundary rule; every pair with equal `opens` and `closes` is otherwise invalid, including `00:00`–`00:00`",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L115",
+   "quote": "Every pair with equal\n`opens` and `closes` is invalid,\nincluding `00:00`–`00:00`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Directly checkable against any emitted hours/exception_hours entry via a coded check; not JSON-Schema-expressible (needs cross-field opens!=closes comparison, with a carve-out for the 00:00/23:59 full-day literal)."
+  },
+  {
+   "id": "LOC-009",
+   "requirement": "Intersecting non-identical exception ranges are invalid, including when one range contains another; timed entries with identical bounds can coexist as split shifts, but a full closure stands alone for its bounds",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L138",
+   "quote": "Intersecting non-identical\nexception ranges are invalid, including when one contains another.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires cross-referencing every pair of exception_hours entries for date-range overlap; a coded check, not schema-expressible."
+  },
+  {
+   "id": "LOC-010",
+   "requirement": "When a Business emits `hours` or `exception_hours`, it MUST express every `day`, `opens`, `closes`, `valid_from`, and `valid_through` value in the Location's canonical schedule frame and MUST include `timezone` as a valid IANA Time Zone Database identifier",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L178",
+   "quote": "it **MUST** express every `day`, `opens`,\n`closes`, `valid_from`, and `valid_through` value in that frame and **MUST**\ninclude `timezone` as a valid\n[Internet Assigned Numbers Authority (IANA) Time Zone Database](https://www.iana.org/time-zones)\nidentifier.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The IANA-identifier validity check is testable against the IANA tz database; the 'expressed in that frame' half needs cross-referencing against the timezone value."
+  },
+  {
+   "id": "LOC-011",
+   "requirement": "A Business MUST NOT vary the canonical schedule frame according to the requesting Platform's or Buyer's timezone",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L182",
+   "quote": "A Business **MUST NOT** vary the canonical schedule frame according\nto the requesting Platform's or Buyer's timezone.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires issuing the same Location lookup from two different request-context timezones and confirming identical returned hours/timezone."
+  },
+  {
+   "id": "LOC-012",
+   "requirement": "Because JSON Schema does not enforce every semantic constraint, a Business MUST emit only schedules that follow the evaluation rules (unequal opens/closes, valid_from no later than valid_through, valid exception-range intersections)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L184",
+   "quote": "a Business **MUST** emit only schedules that\nfollow the rules above, including unequal `opens` and `closes`, a `valid_from`\nvalue no later than `valid_through`, and valid exception-range intersections.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Coded cross-field check on any emitted hours/exception_hours entry."
+  },
+  {
+   "id": "LOC-013",
+   "requirement": "When evaluating a returned schedule, a Platform MUST use the returned Location's `timezone` and MUST NOT reinterpret the canonical schedule values in another timezone",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L194",
+   "quote": "A Platform **MUST** use the returned\nLocation's `timezone`. A Platform **MAY** convert concrete dated occurrences to\nanother timezone for presentation, but it **MUST NOT** reinterpret the canonical\nschedule values in another timezone.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side interpretation rule."
+  },
+  {
+   "id": "LOC-014",
+   "requirement": "A Platform MUST NOT infer that a Location with absent, invalid, or otherwise unusable schedule data is open",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L197",
+   "quote": "A Platform **MUST NOT** infer that a\nLocation with absent, invalid, or otherwise unusable schedule data is open.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side safety rule (fail-closed on unusable schedule data)."
+  },
+  {
+   "id": "LOC-015",
+   "requirement": "A Platform MUST NOT use an exception entry's `title` to determine whether a Location is open or closed (it is presentation metadata only)",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L199",
+   "quote": "**MUST NOT** use it to determine whether a\nLocation is open or closed.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side; complements the Business-side rule that `title` does not affect schedule evaluation (index.md#L105-106)."
+  },
+  {
+   "id": "LOC-016",
+   "requirement": "The Business MUST provide a nonempty, plain-text, buyer-facing `description` for every amenity map entry; an entry without it is schema-invalid and a Platform MUST reject the invalid response rather than infer presentation text from the key",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L207",
+   "quote": "The Business **MUST** provide a nonempty, plain-text, buyer-facing\n`description` for every entry.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Schema half (LOC-001) plus the Platform-side rejection rule which needs a receiver."
+  },
+  {
+   "id": "LOC-017",
+   "requirement": "A Platform MUST NOT suppress an amenity entry solely because its identifier is unrecognized, and MUST NOT infer semantics from an unrecognized identifier or treat it as equivalent to another amenity",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L220",
+   "quote": "and **MUST NOT** suppress an entry solely because its\nidentifier is unrecognized.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side amenity-presentation rule protecting custom/vendor amenity identifiers."
+  },
+  {
+   "id": "LOC-018",
+   "requirement": "A Business MUST NOT substitute Context/Signals hints for explicit `distance` or `serves` operands or for `filters.items` item identifiers; they prove neither proximity, serviceability, nor item availability",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L238",
+   "quote": "A Business\n**MUST NOT** substitute them for explicit `distance` or `serves` operands or\nfor `filters.items` item identifiers; they prove neither proximity,\nserviceability, nor item availability",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires confirming a Business does not silently broaden or narrow matching based on context/signals alone."
+  },
+  {
+   "id": "LOC-019",
+   "requirement": "Signal values MUST NOT be buyer-asserted claims",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L248",
+   "quote": "Signal values **MUST NOT** be buyer-asserted claims.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Shared Signals contract (overview/index.md#signals) reused by Location; abuse-prevention invariant."
+  },
+  {
+   "id": "LOC-020",
+   "requirement": "When a valid Search finds no matches, the Business MUST return an empty `locations` array; no message is required for an ordinary non-match",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L284",
+   "quote": "the Business **MUST** return an empty\n`locations` array.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "search_response.locations is a required array; an empty array on no-match is directly checkable."
+  },
+  {
+   "id": "LOC-021",
+   "requirement": "Businesses MUST filter internal-only or non-Buyer-accessible locations (e.g. dark kitchens, fulfillment-only hubs) out of search results",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/index.md#L314",
+   "quote": "Businesses **MUST** filter out internal-only or non-Buyer-accessible locations (e.g., dark kitchens, fulfillment-only hubs)\n  from search results.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Security/privacy-relevant; not verifiable from the wire alone without knowledge of the business's internal location set."
+  },
+  {
+   "id": "LOC-022",
+   "requirement": "Businesses MUST NOT persist precise location inputs beyond the lifecycle of the request, unless explicit Buyer consent is collected",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/index.md#L318",
+   "quote": "Businesses **MUST NOT** persist precise location inputs beyond the lifecycle of the request, unless explicit Buyer\n  consent is collected.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Data-retention rule; not observable from the wire, requires server-side/policy verification."
+  },
+  {
+   "id": "LOC-023",
+   "requirement": "For any candidate Location, every explicit structured constraint is conjunctive: distance AND serves AND every supplied filters.* predicate",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L63",
+   "quote": "matches = distance (when present)\n      AND serves (when present)\n      AND every supplied filters.* predicate",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by combining distance + serves + a filter in one request and confirming every returned Location satisfies all three."
+  },
+  {
+   "id": "LOC-024",
+   "requirement": "A Business MUST NOT treat `query` text as creating a `distance` or `serves` relation or a `filters` predicate, and MUST NOT relax an explicit structured constraint because of the `query` text",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L74",
+   "quote": "A Business **MUST NOT**\ntreat `query` text as creating a `distance` or `serves` relation or a\n`filters` predicate.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by pairing a `query` string that textually implies a location/relation with an explicit constraint that excludes it, and confirming the explicit constraint wins."
+  },
+  {
+   "id": "LOC-025",
+   "requirement": "A Business using context/signals/IP-derived locality hints for bounded-browse selection MUST NOT treat that choice as proof that a Location serves a target or falls within an unstated radius",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L96",
+   "quote": "A Business using those hints **MUST NOT** treat that choice as proof\nthat a Location serves a target or falls within an unstated radius; only\nexplicit `distance` and `serves` operands establish spatial matching.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Prevents a Business from silently promoting soft hints into spatial proof."
+  },
+  {
+   "id": "LOC-026",
+   "requirement": "The Platform MUST supply `distance.center` whenever it supplies `distance`; the Business MUST NOT derive a missing center from context, signals, an IP address, or `serves`",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L121",
+   "quote": "The Platform **MUST** supply `distance.center` whenever it supplies\n`distance`. The Business **MUST NOT** derive a missing center from `context`,\n`signals`, an Internet Protocol (IP) address, or `serves`;",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting `distance` with `max` but no `center` and confirming the Business rejects the request as invalid rather than deriving a center."
+  },
+  {
+   "id": "LOC-027",
+   "requirement": "The Business MUST compare the unrounded computed geodesic distance to `distance.max`; a Location matches when that value is less than or equal to `distance.max` (exact equality matches)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L133",
+   "quote": "The Business **MUST** compare the unrounded computed value to\n    `distance.max`; a Location matches when that value is less than or equal\n    to `distance.max`, and exact equality matches.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable with a Location placed at exactly distance.max from the supplied center."
+  },
+  {
+   "id": "LOC-028",
+   "requirement": "The Business MUST NOT apply a tolerance band, substitute an operand, clamp the radius, or evaluate route/travel/planar distance in place of the geodesic comparison",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L136",
+   "quote": "The Business **MUST NOT** apply a tolerance band, substitute an operand,\n    clamp the radius, or evaluate route, travel, or planar distance in place\n    of the geodesic comparison.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires precise geodesic-distance test fixtures near the boundary to distinguish from a tolerant or planar implementation."
+  },
+  {
+   "id": "LOC-029",
+   "requirement": "A Business that cannot honor a supplied `distance.max` MUST reject the request with an actionable error; it MUST NOT silently clamp the radius or substitute its own, and the permission to return fewer results under Pagination never permits reducing `distance.max`",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L147",
+   "quote": "radius cap below the requested value) **MUST** reject the request with an\n    actionable error; it **MUST NOT** silently clamp the radius or substitute\n    its own.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by requesting a radius above the business's configured cap and confirming rejection rather than a silently-clamped result set."
+  },
+  {
+   "id": "LOC-030",
+   "requirement": "The `serves` relation is a one-entry map: the Platform MUST supply exactly one target representation (`point`, `address`, or a negotiated reverse-domain extension target)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L157",
+   "quote": "the Platform **MUST** supply exactly\none target representation — `point`, `address`, or a negotiated\nreverse-domain extension target.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting a `serves` map with zero or multiple target keys and confirming rejection."
+  },
+  {
+   "id": "LOC-031",
+   "requirement": "When supplying an `address` target, the Platform MUST include at least one non-empty `address_country`, `address_region`, or `postal_code`",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L165",
+   "quote": "When supplying it, the Platform **MUST**\n    include at least one non-empty `address_country`, `address_region`, or\n    `postal_code`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against the submitted address object."
+  },
+  {
+   "id": "LOC-032",
+   "requirement": "The Business MUST NOT derive a `serves` target from context, signals, or an IP address; the explicit target alone is authoritative",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L172",
+   "quote": "the Business **MUST NOT** derive a target\nfrom `context`, `signals`, or an IP address.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Companion rule to LOC-025/LOC-026 for the serves relation specifically."
+  },
+  {
+   "id": "LOC-033",
+   "requirement": "A Business unable to evaluate an otherwise well-formed `serves` target MUST return an actionable request error; it MUST NOT fall back to a coarser interpretation or return broadened results, and MUST return an actionable request error rather than silently omit a namespaced target whose extension was not negotiated",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L182",
+   "quote": "**MUST** return an actionable\nrequest error; it **MUST NOT** fall back to a coarser interpretation or\nreturn broadened results.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable with a target format the business is known not to model (e.g. an unsupported postal-code system)."
+  },
+  {
+   "id": "LOC-034",
+   "requirement": "A Business that receives a `filters` predicate it does not support MUST reject the request with an actionable error; it MUST NOT ignore the filter and return broadened results",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L201",
+   "quote": "A Business\nthat receives a filter it does not support **MUST** reject the request with\nan actionable error; it **MUST NOT** ignore the filter and return broadened\nresults.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting a filters key the business does not advertise support for and confirming rejection rather than a silently-broadened result."
+  },
+  {
+   "id": "LOC-035",
+   "requirement": "For each candidate Location, the Business MUST evaluate `filters.hours.open_at` exactly as supplied, converting it via the Location's authoritative `timezone`; the offset in `open_at` does not identify the Location's timezone",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L218",
+   "quote": "For each candidate Location, a Business **MUST** evaluate `open_at` exactly as\nsupplied.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by supplying open_at with an offset that differs from the Location's own timezone and confirming evaluation uses the Location's timezone, not the request's offset."
+  },
+  {
+   "id": "LOC-036",
+   "requirement": "A Business MUST return a Location only when it can establish the Location is open at `open_at`; if schedule data is absent, invalid, out of evaluable range, or otherwise unusable, the Location does not match",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L224",
+   "quote": "A Business **MUST** return a Location only when it can establish that the\nLocation is open at `open_at`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fail-closed rule for the hours filter; checkable with a Location lacking usable schedule data."
+  },
+  {
+   "id": "LOC-037",
+   "requirement": "A Business MUST NOT round, shift, or otherwise reinterpret the `open_at` instant supplied in the hours filter",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L227",
+   "quote": "A Business **MUST NOT** round, shift, or\notherwise reinterpret the supplied instant.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable with an open_at value near a schedule boundary (e.g. exactly at `closes`)."
+  },
+  {
+   "id": "LOC-038",
+   "requirement": "Matching for the amenity filter uses exact whole-key equality (namespace prefixes carry no wildcard/inheritance semantics); a Business MUST NOT ignore a supplied identifier, and when `filters.amenities` is present the Business MUST include every supplied identifier in each returned Location's `amenities` map",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L256",
+   "quote": "A Business **MUST NOT** ignore a supplied identifier: a Location\nwhose authoritative amenity set lacks any supplied key does not match.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "The 'must include every supplied identifier in the returned amenities map' half is directly checkable against the response."
+  },
+  {
+   "id": "LOC-039",
+   "requirement": "A Platform MUST reject a returned Location as non-conforming if it omits the amenities map or any requested amenity key, rather than accept a broadened or unverifiable result",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L263",
+   "quote": "A Platform\n**MUST** reject a returned Location as\nnon-conforming if it omits the map or any requested key, rather than accept a\nbroadened or unverifiable result.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side defensive validation rule."
+  },
+  {
+   "id": "LOC-040",
+   "requirement": "The Business MUST NOT ignore an unknown/unavailable/unevaluable `filters.items` identifier to return broadened results; such an identifier fails the filter for that Location as an ordinary non-match",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/search.md#L286",
+   "quote": "The Business\n**MUST NOT** ignore such an identifier to return broadened results; the\ncandidate does not match.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by filtering on a fabricated/unknown item identifier and confirming candidates are excluded, not broadened."
+  },
+  {
+   "id": "LOC-041",
+   "requirement": "The Business MUST revalidate transaction-specific availability, quantities, methods, and terms later in the commerce flow; a Location Search/Lookup item-availability match is a coarse, provisional assertion only",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L295",
+   "quote": "The Business\n**MUST** revalidate transaction-specific availability, quantities, methods,\nand terms later in the commerce flow.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Cross-capability boundary rule (Location vs. Catalog/Cart/Checkout availability)."
+  },
+  {
+   "id": "LOC-042",
+   "requirement": "When `limit` is omitted, the Business MUST apply a default page size (10 is RECOMMENDED); a Platform MUST NOT assume the response count equals the requested or default page size",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/search.md#L316",
+   "quote": "the Business **MUST** apply a default page\nsize.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by omitting `limit` and confirming a bounded, non-empty-by-default page size is applied."
+  },
+  {
+   "id": "LOC-043",
+   "requirement": "A Business MUST support lookup by a Location's stable canonical `Location.id`, and MAY additionally support secondary or alias identifiers",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/lookup.md#L35",
+   "quote": "A Business **MUST**\nsupport lookup by a Location's stable canonical `Location.id` and **MAY**\nadditionally support secondary or alias identifiers.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable with a Lookup request using the canonical id returned by a prior Search."
+  },
+  {
+   "id": "LOC-044",
+   "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request, and when multiple identifiers resolve to the same Location it MUST return that Location only once",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/lookup.md#L39",
+   "quote": "A Business **MUST**\ndedupe duplicate identifiers in the request.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting duplicate/alias identifiers that resolve to the same Location and confirming a single returned entry with a merged `inputs` array (see LOC-045)."
+  },
+  {
+   "id": "LOC-045",
+   "requirement": "A Business MUST NOT include a Location without an `inputs` entry in a Lookup response; each Location's `inputs` array contains one entry per resolved request identifier",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/lookup.md#L52",
+   "quote": "A Business **MUST NOT** include a Location without an `inputs`\nentry in a Lookup response.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "location_lookup.json lookup_location requires `inputs` (schema half); checkable directly against the response."
+  },
+  {
+   "id": "LOC-046",
+   "requirement": "A Business SHOULD accept at least 10 identifiers per Lookup request; when a request exceeds the Business's configured maximum, the Business MUST process the first maximum number of distinct identifiers in request order and return a successful response for that prefix",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/lookup.md#L61",
+   "quote": "the Business **MUST** process the first\nmaximum number of distinct identifiers in request order and return a successful\nresponse for that prefix.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting more identifiers than the business's advertised/observed maximum and confirming a truncated-but-successful response."
+  },
+  {
+   "id": "LOC-047",
+   "requirement": "The Business MUST include an informational message with `code: \"batch_limit_applied\"` stating the applied maximum and how many identifiers were not processed; it MUST NOT evaluate the omitted suffix or report its identifiers as unresolved",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/location/lookup.md#L63",
+   "quote": "It **MUST** include an informational message with\n`code: \"batch_limit_applied\"`; the message content **MUST** state the applied\nmaximum and how many identifiers were not processed.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the messages[] array of a batch-limited Lookup response."
+  },
+  {
+   "id": "LOC-048",
+   "requirement": "A Platform MUST NOT interpret the omitted suffix of a batch-limited Lookup request as unresolved, and MAY submit it in a subsequent request",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/location/lookup.md#L67",
+   "quote": "A Platform\n**MUST NOT** interpret the omitted suffix as unresolved and **MAY** submit it in\na subsequent request.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-side interpretation rule."
+  },
+  {
+   "id": "LOC-049",
+   "keyword": "MUST",
+   "requirement": "An amenity entry without a description is schema-invalid; a Platform MUST reject the invalid response rather than infer presentation text from the key.",
+   "quote": "schema-invalid; a Platform **MUST** reject the invalid response rather than\ninfer presentation text from the key.",
+   "source": "ucp:docs/specification/common/location/index.md#L212-L213",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (Amenity presentation).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-050",
+   "keyword": "MUST NOT",
+   "requirement": "A Platform MAY enhance recognized amenities with icons, grouping, or other structured presentation, but MUST NOT infer semantics from an unrecognized amenity identifier or treat it as equivalent to another amenity.",
+   "quote": "identifier is unrecognized. A Platform **MAY** enhance recognized amenities\nwith icons, grouping, or other structured presentation, but **MUST NOT** infer\nsemantics from an unrecognized identifier or treat it as equivalent to another\namenity.",
+   "source": "ucp:docs/specification/common/location/index.md#L221-L224",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Amenity presentation, platform-side handling of unrecognized identifiers — distinct from LOC-017 at L220, which covers the business-side non-suppression duty).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-051",
+   "keyword": "MUST NOT",
+   "requirement": "A Business MUST NOT relax an explicit structured search constraint because of the query text: a Location that fails distance, serves, or a filters predicate is excluded no matter how well it matches the query.",
+   "quote": "[Spatial Relations](#spatial-relations). A Business **MUST NOT** relax an\nexplicit structured constraint because of the `query` text: a Location\nthat fails `distance`, `serves`, or a `filters` predicate is excluded no\nmatter how well it matches the query.",
+   "source": "ucp:docs/specification/common/location/search.md#L78-L81",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Spatial Relations, query-text-does-not-override-structured-constraints rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-052",
+   "keyword": "MUST",
+   "requirement": "If a namespaced Search target's extension was not negotiated, the Business MUST return an actionable request error rather than silently omit the target.",
+   "quote": "return broadened results. If a namespaced target's extension was not\nnegotiated, the Business **MUST** return an actionable request error rather\nthan silently omit the target.",
+   "source": "ucp:docs/specification/common/location/search.md#L185-L187",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (namespaced-target extension-not-negotiated error rule — distinct trigger condition from the adjacent unmodeled-postal-code-system error rule already registered nearby).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-053",
+   "keyword": "MUST",
+   "requirement": "When filters.amenities is present, the Business MUST include every supplied identifier in each returned Location's amenities map; a Platform MUST reject a returned Location as non-conforming if it omits the map or any requested key.",
+   "quote": "**MUST** include every supplied identifier in each returned Location's\n`amenities` map. A Platform **MUST** reject a returned Location as\nnon-conforming if it omits the map or any requested key, rather than accept a\nbroadened or unverifiable result.",
+   "source": "ucp:docs/specification/common/location/search.md#L262-L265",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (filters.amenities response-shape guarantee + platform-side conformance check, folded — one integrated rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-054",
+   "keyword": "MUST NOT",
+   "requirement": "A Platform MUST NOT assume that the Search response result count equals either the requested or default page size, since a Business MAY return fewer results (including when enforcing its own maximum page size); this permission applies only to page size, not to distance.max.",
+   "quote": "The Business **MAY** return fewer results than the requested or default page\nsize, including when enforcing its maximum page size. A Platform **MUST NOT**\nassume that the response count equals either value. This permission applies\nonly to page size; it does not permit reducing `distance.max` (see",
+   "source": "ucp:docs/specification/common/location/search.md#L320-L323",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Page Size, platform-side non-assumption rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-055",
+   "keyword": "MUST",
+   "requirement": "When a Location lookup by identifier resolves multiple supplied identifiers to the same Location, the Business MUST return it only once (after deduping duplicate identifiers in the request).",
+   "quote": "A Business **MUST** dedupe duplicate identifiers in the request. When an\nidentifier matches multiple Locations, the Business returns the matching\nLocations and **MAY** limit the result set. When multiple identifiers resolve\nto the same Location, the Business **MUST** return it only once.",
+   "source": "ucp:docs/specification/common/location/lookup.md#L39-L42",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Lookup deduplication).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOC-056",
+   "keyword": "MUST",
+   "requirement": "A conforming Location REST transport implementation MUST implement endpoints for each Location capability advertised in the Business's UCP profile (each capability MAY be adopted independently), evaluate distance/serves/filters.items only against explicit Platform-supplied operands (never derived from context, signals, or IP address), apply distance, serves, and every supplied filters predicate conjunctively (AND), and support cursor-based pagination for Search per the shared pagination contract.",
+   "quote": "A conforming REST transport implementation **MUST**:\n\n1. Implement endpoints for each Location capability advertised in the Business's UCP profile,\n    per their respective capability requirements ([Search](search.md), [Lookup](lookup.md)).\n    Each capability **MAY** be adopted independently.\n2. Evaluate the `distance` and `serves` relations and the `filters.items`\n    availability predicate only against their explicit Platform-supplied\n    operands. Never derive an operand from `context`, `signals`, or an IP address, and never\n    apply an implicit serviceability or item-availability check when its\n    input is absent.\n3. Apply `distance`, `serves`, and every supplied `filters` predicate\n    conjunctively (AND).\n4. Support cursor-based pagination for Search according to the shared",
+   "source": "ucp:docs/specification/common/location/rest.md#L229-L241",
+   "testability": "needs-receiver",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": false,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (Conformance, REST transport). Umbrella lead-in for the itemized conformance list — no other list item carries its own MUST keyword (all are descriptive obligations under this one MUST), the same pattern as transports.json MCP-006 for the catalog MCP conformance list.",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  }
+ ]
+}

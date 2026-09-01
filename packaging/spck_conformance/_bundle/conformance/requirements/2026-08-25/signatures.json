@@ -1,0 +1,1124 @@
+{
+ "_area": "signatures",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "rows": [
+  {
+   "id": "SIG-001",
+   "requirement": "UCP signs and verifies HTTP messages using RFC 9421 HTTP Message Signatures across all HTTP-based transports.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L42-L43",
+   "quote": "UCP uses HTTP Message Signatures ([RFC 9421](https://www.rfc-editor.org/rfc/rfc9421))\nfor all HTTP-based transports:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim to docs/specification/signatures.md#L42-L43 (unchanged top-level path; content re-verified line-by-line). Request-signature is STUBBED as literal \"test\" in the suite (integration_test_utils get_headers, L133); the suite does NOT verify signatures.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-002",
+   "requirement": "All implementations MUST support verifying P-256 (ES256) signatures.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L95-L96",
+   "quote": "All implementations **MUST** support verifying `ES256` (ECDSA P-256)\n  signatures. This is the universal UCP baseline.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; reflowed only (\"P-256 (ES256)\" -> \"ES256 (ECDSA P-256)\", plus an added clarifying sentence \"This is the universal UCP baseline.\"). Same MUST obligation. The surrounding table now lists a third family (EdDSA/Ed25519, optional) alongside ECDSA P-256/P-384 -- see SIG-003 and the new (out-of-scope, not carried) EdDSA-optional clause at L98-101. Verification row; suite stubs request-signature so official_oracle=false.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-003",
+   "requirement": "Support for P-384 (ES384) signatures is OPTIONAL.",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/signatures.md#L97",
+   "quote": "Support for `ES384` (ECDSA P-384) is **OPTIONAL**.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; reflowed only (\"P-384 (ES384)\" -> \"ES384 (ECDSA P-384)\"). Same obligation.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-004",
+   "requirement": "Signers SHOULD use an algorithm accepted by every verifier the signature must satisfy (the receiving UCP verifier, plus any WBA verifier or AP2 layer it opts into), defaulting to ES256 absent a specific counterparty constraint.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/signatures.md#L112-L121",
+   "quote": "A signer **SHOULD** use an\n  algorithm accepted by every verifier the same signature must satisfy —\n  the receiving UCP verifier, plus any WBA verifier or AP2 layer it opts\n  that signature into. ... **Default to `ES256`** absent a specific counterparty constraint — it is\n  the universal UCP baseline and also a valid Web Bot Auth algorithm.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old text (docs/specification/signatures.md#L95, 2026-04-08) flatly said \"Signers **SHOULD** use P-256 for maximum compatibility\". New text (signatures.md#L112-121, 2026-08-25) replaces this with a counterparty-driven algorithm-choice framework: choose whatever algorithm every verifier the signature must satisfy (UCP + any WBA/AP2 layer) accepts, defaulting to ES256 absent a specific constraint. The SHOULD-level recommendation still functionally resolves to \"prefer ES256\" in the common case, but the rule is now conditional/counterparty-scoped rather than a flat compatibility preference, and pulls in WBA/AP2 as new considerations (new WBA Interop section, #wba-interop). Human review recommended to confirm the tester's SIG-004 check (does the platform default to a broadly-compatible algorithm) still matches intent under this broadened framing.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-005",
+   "requirement": "Signers MAY use a non-default algorithm (not limited to P-384) when required to satisfy a counterparty, publishing multiple keys of different algorithms selected per-signature by kid only when no single algorithm satisfies every verifier.",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/signatures.md#L112-L117",
+   "quote": "One key suffices when a single algorithm satisfies\n  all of them; publish multiple keys of different algorithms (selected\n  per-signature by `kid`) only when no single algorithm does.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old text (docs/specification/signatures.md#L96, 2026-04-08) narrowly said \"Signers **MAY** use P-384 when both parties support it\". That standalone P-384-specific permission no longer exists verbatim; it has been generalized (signatures.md#L112-117, 2026-08-25) into a counterparty-driven multi-key rule covering ANY algorithm (P-384 or the newly-added EdDSA/Ed25519) -- publish multiple keys, one per compatible algorithm, only when a single algorithm cannot satisfy every verifier. No RFC-2119 keyword literally attaches to this specific clause in the new text (it reads as descriptive guidance rather than a bare MAY), so the MAY keyword is carried forward on the editorial judgment that the permission is still optional/discretionary. Human review recommended: confirm the generalized multi-key permission still covers the old P-384 case and that keyword MAY remains the right classification absent an explicit RFC-2119 term in the new sentence.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-006",
+   "requirement": "The algorithm is derived from the key's kty/crv fields in the JWK; alg is NOT included in Signature-Input parameters.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/signatures.md#L124-L125",
+   "quote": "The algorithm is derived from the key's `kty`/`crv` field in the JWK;\n  `alg` is **NOT** included in `Signature-Input` parameters.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] RENAMED — old (signatures.md#L97, 2026-04-08): \"derived from the key's `crv` field\" (single field). New (signatures.md#L124-125, 2026-08-25): \"derived from the key's `kty`/`crv` field\" (compound; `kty` is now also load-bearing because the key can be EC (ECDSA) or OKP (EdDSA), and kty disambiguates the algorithm family before crv selects the curve). Sentence structure and the alg-NOT-in-Signature-Input prohibition are otherwise identical. Phrased as a prohibition (alg NOT in Signature-Input).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "renamed"
+   }
+  },
+  {
+   "id": "SIG-007",
+   "requirement": "Public keys MUST be represented using JSON Web Key (JWK) format as defined in RFC 7517.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L142-L143",
+   "quote": "Public keys **MUST** be represented using **JSON Web Key (JWK)** format as\ndefined in [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical text at new line anchor. Pure-doc-structural JWK format check; browser_capable=true. (New text immediately following this sentence also defines the OKP shape for EdDSA keys and notes the JWK vocabulary is open -- additive context, not a change to this MUST.)",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-008",
+   "requirement": "Public keys are published in the signer's UCP profile; the publishing contract and the verifier's key-list lookup rule (which key list to read per resolution mechanism) are specified in Profile Structure and Key Discovery (overview/index.md), rather than a single self-contained signing_keys[] statement.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L213-L217",
+   "quote": "Public keys are published in the signer's UCP profile. See\n[Profile Structure](overview/index.md#profile-structure) for the publishing\ncontract and [Key Discovery](overview/index.md#key-discovery) for the\nverifier lookup rule (which key list to read for each resolution\nmechanism).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old text (signatures.md#L135-136, 2026-04-08): \"Public keys are published in the `signing_keys` array of the party's UCP profile at `/.well-known/ucp`.\" -- a single self-contained sentence naming the array and the well-known path directly. New text (signatures.md#L213-217, 2026-08-25) drops the `signing_keys` name (the array is now called `keys[]` throughout the doc -- see Key Rotation, L223-228) and defers both the publishing contract and the verifier lookup rule to two separate cross-referenced sections in overview/index.md (Profile Structure, Key Discovery), because resolution is now capability-based (UCP-Agent vs Signature-Agent / WBA regime) rather than a single fixed array. Same underlying requirement (keys are published in the profile) but materially restructured and delegated. Key discovery via signing_keys[] renamed keys[] in profile; doc-structural so browser_capable=true.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-009",
+   "requirement": "During key rotation, continue accepting signatures from old keys for a grace period of minimum 7 days.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L226",
+   "quote": "**Grace period** — Continue accepting signatures from old keys (minimum 7 days)",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (numbered-list item \"3.\" in both old and new; quote strips the leading numeral per established register convention). Grace-period acceptance is receiver-side behavior over time.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-010",
+   "requirement": "Content-Digest follows RFC 9530 and hashes the raw body bytes; implementations MUST use sha-256.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L413-L416",
+   "quote": "`Content-Digest` follows [RFC 9530](https://www.rfc-editor.org/rfc/rfc9530) and\nhashes the raw body bytes. This binds the message body to the signature without\nrequiring JSON canonicalization. Implementations **MUST** use `sha-256`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim; new text appends one trailing cross-reference sentence (to AP2 Mandates - Canonicalization) after the quoted MUST, which does not alter this requirement. Crypto digest computation; not browser-capable.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-011",
+   "requirement": "Proxies, API gateways, and other intermediaries MUST NOT re-serialize JSON bodies, as this would invalidate the signature.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/signatures.md#L419-L420",
+   "quote": "Proxies, API gateways, and other intermediaries\n**MUST NOT** re-serialize JSON bodies, as this would invalidate the signature.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim; now labeled under a \"**Intermediary Warning:**\" heading with one trailing explanatory sentence added after it. Intermediary-bound MUST NOT; not observable via the two protocol parties.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-012",
+   "requirement": "Content-Digest header is required when a request/response has a body.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L404,L407",
+   "quote": "| `Content-Digest`  | Request/Response | Cond. `*`  | SHA-256 hash of request/response body        |\n...\n* `*` Required when request/response has a body",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; identical substance, table column widths and footnote markup style changed cosmetically (\"Cond.*\" -> \"Cond. `*`\"; footnote line now starts with a leading bullet \"* `*`\" rather than a bare backslash-star). Conditional requirement: body present => Content-Digest required. New table also gained a `Signature-Agent` row (WBA-only, out of scope for this row).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-013",
+   "requirement": "Signature-Input and Signature headers are required on requests and responses.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L402-L403",
+   "quote": "| `Signature-Input` | Request/Response | Yes        | Describes signed components                  |\n| `Signature`       | Request/Response | Yes        | Contains signature value                     |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (only table column widths changed).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-014",
+   "requirement": "REST request signed components MUST include @method, @authority, and @path (all Required).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L430-L432",
+   "quote": "| `@method`         | Yes          | HTTP method (GET, POST, etc.)                                |\n| `@authority`      | Yes          | Target host (prevents cross-host relay)                      |\n| `@path`           | Yes          | Request path                                                 |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (column widths changed only). Reclassified from testable (signatures area pass): binds the REQUEST SIGNER. Requests to a merchant are platform-authored (client-bound); the merchant-authored requests subject to this component table are webhook notifications, so merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Not observable by probing merchant endpoints: verify_rest_request verifies only the components listed in Signature-Input — the receiver is not required to enforce the signer's component table.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-015",
+   "requirement": "REST request signed components MUST include content-digest and content-type when the request has a body.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L437-L438,L448",
+   "quote": "| `content-digest`  | Cond. `†`    | Body digest (if body present)                                |\n| `content-type`    | Cond. `†`    | Content-Type (if body present)                                |\n...\n* `†` Required if request has a body",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; identical substance, footnote markup style changed (\"\\u2020 Required...\" -> \"* `†` Required...\"). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-016",
+   "requirement": "idempotency-key MUST be a signed component for POST, PUT, DELETE, PATCH requests.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L436,L446",
+   "quote": "| `idempotency-key` | Cond. `****` | Idempotency header (state-changing)                          |\n...\n* `****` Required for POST, PUT, DELETE, PATCH",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; identical substance. Footnote symbol shifted from \\*** (2026-04-08) to **** (2026-08-25) purely because the new `signature-agent` conditional row was inserted ahead of it in the table, consuming the \\*** slot — not a content change. Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-017",
+   "requirement": "@query MUST be a signed component if the request has query parameters.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L433,L440",
+   "quote": "| `@query`          | Cond. `*`    | Query string (if present)                                    |\n...\n* `*` Required if request has query parameters",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (markup style only). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-018",
+   "requirement": "ucp-agent MUST be a signed component if the UCP-Agent header is present.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L434,L442",
+   "quote": "| `ucp-agent`       | Cond. `**`   | Profile URL (binds identity)                                 |\n...\n* `**` Required if `UCP-Agent` header is present",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (markup style only). New table also adds a WBA-only `signature-agent` conditional row (Cond. `***`, required if Signature-Agent header present) immediately after this one — a genuinely new component, out of scope for this carried row since it has no 2026-04-08 antecedent. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-019",
+   "requirement": "ECDSA signatures MUST use fixed-width raw r||s encoding per RFC 9421, not ASN.1/DER (64 bytes P-256, 96 bytes P-384).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L494-L497",
+   "quote": "**ECDSA** signatures **MUST** use fixed-width raw `r||s` encoding per\n  RFC 9421 §3.3.1, **not** ASN.1/DER. The signature value is the\n  concatenation of `r` and `s` as fixed-length unsigned big-endian\n  integers: 64 bytes for P-256 (32 + 32), 96 bytes for P-384 (48 + 48).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; now presented as one bullet in a two-bullet list (ECDSA / EdDSA) rather than a standalone paragraph, and pins the RFC section (§3.3.1) that was unspecified before. A new sibling bullet requires EdDSA (Ed25519) signatures to use RFC 8032 §5.1.6 encoding (64-byte R||S) -- new content, no 2026-04-08 antecedent, not carried by this row. Raw r||s not DER; verification row, suite stubs signature.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-020",
+   "requirement": "REST response signed components use @status instead of @method (Required).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L539,L545",
+   "quote": "Response signatures use `@status` instead of `@method`:\n...\n| `@status`        | Yes        | HTTP status code (200, 201, etc.) |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (column width only).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-021",
+   "requirement": "REST response signed components MUST include content-digest and content-type if the response has a body.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L546-L547,L549",
+   "quote": "| `content-digest` | Cond. `*`  | Body digest (if body present)     |\n| `content-type`   | Cond. `*`  | Content-Type (if body present)    |\n...\n* `*` Required if response has a body",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried; markup style only (\"Cond.*\" -> \"Cond. `*`\"). Response-signing behavior verified by the receiving party.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-022",
+   "requirement": "Idempotency-Key must have minimum 128 bits of entropy (e.g., UUID v4, 22+ char alphanumeric).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L830",
+   "quote": "| **Entropy** | Minimum 128 bits (e.g., UUID v4, 22+ char alphanumeric) |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row. Client/signer-bound MUST — not observable on a business response.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-023",
+   "requirement": "Server storage of idempotency keys must be a minimum of 24 hours, recommended 48 hours.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L832",
+   "quote": "| **Server storage** | Minimum 24 hours, recommended 48 hours |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row. Server-side retention behavior.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-024",
+   "requirement": "On idempotency storage failure, fail closed (reject request with 503).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L835",
+   "quote": "| **On storage failure** | Fail closed (reject request with 503) |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row (now the last row in the table; a new \"On duplicate (mismatched payload)\" row was inserted above it — new content, out of scope, see SIG-025 notes). Fail-closed 503; receiver-side fault injection required.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-025",
+   "requirement": "On duplicate idempotency key with a matching payload, return the cached response and do not re-execute.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L833",
+   "quote": "| **On duplicate (matching payload)** | Return cached response, do not re-execute |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] RENAMED — old row label (signatures.md#L485, 2026-04-08): \"**On duplicate**\". New row label (signatures.md#L833, 2026-08-25): \"**On duplicate (matching payload)**\" -- disambiguated because the table gained a new sibling row \"**On duplicate (mismatched payload)** | Reject with `409 Conflict` (REST) / `-32000` (MCP); do not execute\" (signatures.md#L834) covering the case where a reused idempotency key carries a different payload. The matching-payload requirement itself (cached response, no re-execution) is unchanged; only the label was qualified to distinguish it from the new mismatched-payload row. The mismatched-payload requirement is new content with no 2026-04-08 antecedent and is not carried by any existing SIG row (flagged here informationally, not added as a new row per task scope).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "renamed"
+   }
+  },
+  {
+   "id": "SIG-026",
+   "requirement": "Platforms SHOULD sign all requests when using HTTP Message Signatures.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/signatures.md#L863-L864",
+   "quote": "**Requests:** Platforms **SHOULD** sign all requests when using HTTP Message\nSignatures.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim; now labeled \"**Requests:**\" and followed by one added sentence noting alternative auth mechanisms (API keys, OAuth, mTLS) may be used instead — additive, does not change this SHOULD.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-027",
+   "requirement": "Webhook notifications MUST be signed.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L867-L868",
+   "quote": "**Webhooks:** Webhook notifications **MUST** be signed. Recipients cannot\notherwise verify authenticity of server-initiated push messages.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (added \"**Webhooks:**\" label only). Webhook-signing row; requires a receiver/webhook sender.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-028",
+   "requirement": "Signatures are RECOMMENDED for payment authorization responses and checkout completion responses.",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/signatures.md#L870-L873",
+   "quote": "**Other responses:** Signatures are **RECOMMENDED** for:\n\n* Payment authorization responses\n* Checkout completion responses",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim (added \"**Other responses:**\" label only). RECOMMENDED maps to SHOULD.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-029",
+   "requirement": "Signatures are OPTIONAL for cart operations, catalog queries, and error responses (4xx, 5xx).",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/signatures.md#L875-L879",
+   "quote": "Signatures are **OPTIONAL** for:\n\n* Cart operations (low-value, synchronous)\n* Catalog queries (read-only)\n* Error responses (4xx, 5xx)",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim. OPTIONAL maps to MAY.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-030",
+   "requirement": "For default UCP signatures, the RFC 9421 created parameter is OPTIONAL; UCP handles replay protection at the business layer via idempotency keys, not signature timestamps. WBA-shape signatures additionally require created/expires (and SHOULD carry a nonce), with freshness enforcement application-defined.",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/signatures.md#L850-L853",
+   "quote": "For **default UCP** signatures, the RFC 9421 `created`\nparameter is **OPTIONAL** and replay protection is handled at the\nbusiness layer through idempotency keys, not signature timestamps.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old text (signatures.md#L488, 2026-04-08) stated a blanket rule: \"The RFC 9421 `created` parameter is **OPTIONAL**. UCP handles replay protection at the business layer through idempotency keys, not signature timestamps.\" New text (signatures.md#L850-856, 2026-08-25) SCOPES that OPTIONAL rule explicitly to \"**default UCP**\" signatures and carves out an exception: \"**WBA-shape** signatures additionally carry `created`/`expires` (and SHOULD carry a `nonce`) for WBA verifiers; enforcing that freshness window is application-defined (RFC 9421 §3.2.1).\" This narrows the scope of the old blanket OPTIONAL statement (it no longer applies universally -- WBA-shape signatures have their own additional timestamp requirements) rather than just rewording it. Human review recommended to confirm the tester's created-param check is scoped to default-UCP-regime signatures only, and does not misfire against WBA-shape signatures which legitimately carry created/expires.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-031",
+   "requirement": "signature_missing maps to HTTP 401 (required signature header/field not present).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L922",
+   "quote": "| `signature_missing`     | 401  | Required signature header/field not present          |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row. Error code/status binding; verified by signature-checking receiver.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-032",
+   "requirement": "signature_invalid maps to HTTP 401 (signature verification failed).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L923",
+   "quote": "| `signature_invalid`     | 401  | Signature verification failed                        |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-033",
+   "requirement": "key_not_found maps to HTTP 401 (key ID not found in signer's published key set).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L924",
+   "quote": "| `key_not_found`         | 401  | Key ID not found in signer's published key set       |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] RENAMED — old (signatures.md#L553, 2026-04-08): \"Key ID not found in signer's `signing_keys`\" (named a specific array). New (signatures.md#L924, 2026-08-25): \"Key ID not found in signer's published key set\" (generalized wording; the array itself was also renamed `signing_keys[]` -> `keys[]` elsewhere in this doc, and resolution is now capability-based across possibly more than one key list -- see Identity Resolution Algorithm, overview/index.md). Same error code, same HTTP status, same triggering condition; only the identifying phrase for \"where keys live\" changed.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "renamed"
+   }
+  },
+  {
+   "id": "SIG-034",
+   "requirement": "digest_mismatch maps to HTTP 400 (body digest doesn't match Content-Digest header).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L925",
+   "quote": "| `digest_mismatch`       | 400  | Body digest doesn't match `Content-Digest` header    |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-035",
+   "requirement": "algorithm_unsupported maps to HTTP 400 (signature algorithm not supported).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L926",
+   "quote": "| `algorithm_unsupported` | 400  | Signature algorithm not supported                    |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical row. Wave-3 review F1 (2026-07-03) removed an UNSOUND check that probed a bogus `alg` Signature-Input PARAMETER: the algorithm is derived from the key kty/crv, `alg` is not a parameter, so that probe had no spec-conformant trigger. Re-adjudicated 2026-08-04 (receiver-gap wave): the spec-true wire trigger is a signature whose keyid RESOLVES to a key published in the signer's key set with an UNSUPPORTED kty/crv-derived algorithm — resolution succeeds (so key_not_found is wrong), verification cannot proceed under any supported algorithm, and the error registry maps exactly this to algorithm_unsupported -> 400. Covered by signature.algorithm_unsupported_400 (merchant_checks_04_08_signatures): the suite signs citing the platform's published Ed25519 kid (config signature.unsupported_alg_kid); the controlled fixture implements the branch ahead of key lookup. Note the 2026-08-25 spec now natively supports EdDSA/Ed25519 as an OPTIONAL algorithm (was previously unsupported-by-spec, only usable as a deliberately-unsupported test fixture) -- re-verify the fixture's premise (an UNSUPPORTED algorithm) still holds if the reference/tester now recognizes Ed25519.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-036",
+   "requirement": "Verification must reconstruct the signature base and skip the candidate signature with signature_invalid if verification fails (ECDSA or EdDSA); under multi-signature handling the request is rejected only when every candidate signature skips.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L737-L738",
+   "quote": "if not verify(signature_base, signature, public_key):\n        return skip_signature(\"signature_invalid\")",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old pseudocode (signatures.md#L404, 2026-04-08): \"if not ecdsa_verify(signature_base, signature, public_key):\\n        return error(\\\"signature_invalid\\\")\" -- a hard, single-shot rejection. New pseudocode (signatures.md#L737-738, 2026-08-25): \"if not verify(signature_base, signature, public_key):\\n        return skip_signature(\\\"signature_invalid\\\")\" -- the verify function is now algorithm-generic (ECDSA or EdDSA per public_key type, not ECDSA-only) and the failure action changed from an immediate error() to skip_signature(), which under the new multi-signature/WBA architecture means \"try the next candidate signature; reject the message only when every candidate skips\" (see signatures.md#L668-674). This is a behavioral broadening, not just a rename: a single failed signature no longer necessarily rejects the request outright if another valid candidate signature is present. Human review recommended to confirm the tester's signature_invalid check still fires correctly in the (dominant) single-signature case and is not defeated by an attacker supplying an extra bogus candidate alongside a valid one.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-037",
+   "requirement": "Verification must skip the candidate signature with key_not_found when the kid does not resolve to a key in the signer's resolved (capability-filtered) key set.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L689-L690",
+   "quote": "if not public_key:\n        return skip_signature(\"key_not_found\")",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old pseudocode (signatures.md#L387, 2026-04-08): \"if not public_key:\\n        return error(\\\"key_not_found\\\")\", with public_key resolved from a fixed `profile.signing_keys` array fetched via the UCP-Agent profile URL. New pseudocode (signatures.md#L689-690, 2026-08-25) is otherwise identical in this exact line, but (a) the failure action is now skip_signature() rather than error() -- see the SIG-036 note on the skip-and-retry multi-signature model -- and (b) the key resolution one step earlier (line 685-688) is now capability-based (`resolve_signer_key_set(request.headers)` filtered by `sig_capable()`, honoring both UCP-Agent and WBA Signature-Agent regimes) rather than a single fixed `profile.signing_keys` lookup. Same triggering condition (kid not found) and error code, but the surrounding resolution and failure-handling model changed materially. Human review recommended for the same multi-candidate concern as SIG-036.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-038",
+   "requirement": "Verification must skip the candidate signature with digest_mismatch when Content-Digest does not match the recomputed sha-256 of the raw body bytes.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L726-L727",
+   "quote": "if request.headers[\"Content-Digest\"] != expected:\n            return skip_signature(\"digest_mismatch\")",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] REWORDED — flag for review: old pseudocode (signatures.md#L393, 2026-04-08): \"if request.headers[\\\"Content-Digest\\\"] != expected:\\n            return error(\\\"digest_mismatch\\\")\". New pseudocode (signatures.md#L726-727, 2026-08-25) is textually near-identical (same comparison, same error code) but the failure action changed from error() to skip_signature() -- see SIG-036 note on the skip-and-retry multi-signature model, which also applies here since this check runs after key/algorithm resolution inside the same per-candidate verification routine. Human review recommended for the same multi-candidate concern as SIG-036.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "reworded"
+   }
+  },
+  {
+   "id": "SIG-039",
+   "requirement": "In the RFC 8941 Dictionary of the `UCP-Agent` header, the `profile` key is REQUIRED and must be present when determining the signer's profile URL.",
+   "keyword": "REQUIRED",
+   "source": "ucp:docs/specification/signatures.md#L618",
+   "quote": "Extract the `profile` key (REQUIRED)",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim; now under the heading \"**`UCP-Agent` parsing rules** (default UCP regime):\" (was \"**Parsing Rules:**\") because the doc now also defines separate \"**`Signature-Agent` parsing rules** (WBA-shape regime):\" immediately after (new content, no 2026-04-08 antecedent, not carried by any SIG row). Subject: party emitting/verifying the `UCP-Agent` header on signed REST messages. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-040",
+   "requirement": "The `profile` value in the `UCP-Agent` header MUST be a quoted string containing an HTTPS URL (non-HTTPS URLs must be rejected).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L619",
+   "quote": "Value MUST be a quoted string containing an HTTPS URL",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical numbered-list item (now item 3 under \"UCP-Agent parsing rules (default UCP regime)\"). Format constraint on the profile URL value. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-041",
+   "requirement": "For business profiles, the `UCP-Agent` profile URL MUST point to `/.well-known/ucp`; platform profile URLs are not path-constrained.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L620-L621",
+   "quote": "For business profiles, URL MUST point to `/.well-known/ucp`; platform\n   profile URLs are not path-constrained",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] carried verbatim, identical numbered-list item (now item 4 under \"UCP-Agent parsing rules (default UCP regime)\"). Path constraint on business profile URLs. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "SIG-042",
+   "requirement": "A verifier that encounters a key whose type, curve, or algorithm it does not support MUST NOT reject the published key set; the unsupported key simply becomes unusable to that verifier, and a signature referencing it fails with algorithm_unsupported.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/signatures.md#L102-L105",
+   "quote": "* The `kty`/`crv`/`alg` vocabularies are **open**. A verifier that\n  encounters a key whose type, curve, or algorithm it does not support\n  **MUST NOT** reject the published key set; the unsupported key simply\n  remains unusable to that verifier.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the open-vocabulary tolerance rule. At 04-08 the Signature Algorithms table was a CLOSED list (ES256/ES384 only); 08-25 adds EdDSA and, with it, this forward-compatibility rule that an unrecognized kty/crv/alg on a published key must not cause the verifier to reject the whole key set (only that one key is unusable). Subject is the verifying party; observable only by publishing a key set containing an unsupported algorithm and confirming the other keys still resolve, hence needs-receiver."
+  },
+  {
+   "id": "SIG-043",
+   "requirement": "A key used for dual-audience signatures (those carrying tag=\"web-bot-auth\") MUST publish its kid as the key's JWK SHA-256 Thumbprint (RFC 7638) in every array that lists it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L202-L205",
+   "quote": "A key used for **dual-audience** signatures (those carrying\n`tag=\"web-bot-auth\"`) **MUST** publish its `kid` as the key's JWK SHA-256\nThumbprint ([RFC 7638](https://www.rfc-editor.org/rfc/rfc7638)) in every\narray that lists it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): part of the wholly new WBA Interop surface (no 04-08 antecedent -- WBA Interop does not exist in the 04-08 tree). Binds the key-publishing party (Business/Platform publishing its JWK set); a structural key-format requirement checkable by inspecting the published key set, not a single request/response, hence manual."
+  },
+  {
+   "id": "SIG-044",
+   "requirement": "A WBA-shape signature MUST send a Signature-Agent header alongside UCP-Agent (additive, not a replacement): an RFC 8941 Dictionary Structured Field whose member's sf-string value is an HTTPS URL and whose type parameter selects the discovery mechanism.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L310-L317",
+   "quote": "2. **MUST send a `Signature-Agent` header** alongside `UCP-Agent`. An\n   RFC 8941 Dictionary Structured Field whose member's sf-string value\n   is an HTTPS URL and whose `type` parameter selects the discovery\n   mechanism; the member key matches the `Signature-Input` signature\n   label. See\n   [Deployment Patterns](overview/index.md#deployment-patterns-for-wba-interop)\n   for the `jwks_uri`/`cimd`/`directory` variants and how each can reuse\n   the UCP profile. (`data:` URI inline form is out of scope.)",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #2 of the 7-item list a signer follows to shape its primary signature as dual-audience. No 04-08 antecedent. Signer-side header-emission requirement, directly observable on the wire."
+  },
+  {
+   "id": "SIG-045",
+   "requirement": "A WBA-shape signature MUST sign the signature-agent component with a ;key=\"<label>\" parameter matching the Signature-Agent dictionary member key (which equals the Signature-Input signature label).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L318-L320",
+   "quote": "3. **MUST sign the `signature-agent` component with `;key=\"<label>\"`**\n   matching the `Signature-Agent` dictionary member key (which equals\n   the `Signature-Input` signature label). Per WBA §4.2.1.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #3. No 04-08 antecedent. Signer-side component-signing requirement, directly observable in the Signature-Input covered-components list."
+  },
+  {
+   "id": "SIG-046",
+   "requirement": "A WBA-shape signature MUST set keyid to the JWK SHA-256 Thumbprint of the signing key (RFC 7638), and publish that key with kid set to the same thumbprint so the UCP-Agent and Signature-Agent lookups resolve it identically.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L321-L324",
+   "quote": "4. **MUST set `keyid` to the JWK SHA-256 Thumbprint** of the signing\n   key per [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638), and\n   publish that key with `kid` set to the same thumbprint (see\n   [Key Format](#key-format-jwk)) so the `UCP-Agent` and `Signature-Agent`\n   lookups resolve it identically.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #4, the dual-audience keyid/kid binding rule (same mechanism SIG-043 requires on the publishing side). No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-047",
+   "requirement": "A WBA-shape signature MUST include created and expires parameters.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L329",
+   "quote": "5. **MUST include `created` and `expires` parameters.** The `expires`",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #5. No 04-08 antecedent (created/expires are OPTIONAL-by-default UCP signature parameters elsewhere in this spec; WBA-shape signatures make them mandatory). Directly observable in Signature-Input parameters."
+  },
+  {
+   "id": "SIG-048",
+   "requirement": "A WBA-shape signature MUST include tag=\"web-bot-auth\" so WBA verifiers can select it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L338-L339",
+   "quote": "7. **MUST include `tag=\"web-bot-auth\"`.** WBA verifiers select\n   signatures by this tag.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): WBA opt-in requirement #7, the final item of the 7-point list (item 1 is non-normative guidance, item 6 is a SHOULD; both correctly excluded from the register). No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-049",
+   "requirement": "A WBA-shape signature MUST still cover the same components a default UCP signature does (the Required set in the Signed Components table); the verifier enforces this regardless of tag, so opting into Web Bot Auth never widens what UCP authenticates.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L341-L344",
+   "quote": "**Component requirements preserved — and enforced.** A WBA-shape\nsignature **MUST** still cover the same components a default UCP\nsignature does (the Required set in the\n[Signed Components](#rest-request-signing) table); WBA accepts them as",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the closing guarantee of the WBA Interop section -- WBA opt-in is additive, never a downgrade of what a default UCP signature already covers. No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-050",
+   "requirement": "EdDSA (Ed25519) signatures MUST use the encoding defined by RFC 8032 section 5.1.6 -- the 64-byte concatenation of the encoded R point and the integer S.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L500-L502",
+   "quote": "* **EdDSA (Ed25519)** signatures **MUST** use the encoding defined by\n  RFC 8032 §5.1.6 — the 64-byte concatenation of the encoded `R` point\n  and the integer `S`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): the EdDSA sibling bullet SIG-019's own note already flagged as new content with no 04-08 antecedent (04-08 supported EC/ECDSA keys only, no OKP/EdDSA). Signature-encoding requirement, directly checkable against the signature bytes on the wire."
+  },
+  {
+   "id": "SIG-051",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), the verifier MUST locate the dictionary member whose key equals the signature label being verified; if no matching member exists, verification of this signature MUST fail.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L627-L630",
+   "quote": "2. **MUST** locate the dictionary member whose key equals the\n   signature label being verified (for `Signature-Input: sig1=...`,\n   find member `sig1`). If no matching member exists, verification\n   of this signature **MUST** fail.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 2 of the wholly new \"Signature-Agent parsing rules (WBA-shape regime)\" list (paired with the pre-existing UCP-Agent parsing rules, unaffected). Two MUSTs in one integrated obligation (locate the member; fail if absent) registered as a single row since they are one rule read as one sentence. Verifier-side parsing behavior; needs a receiver to observe the fail branch."
+  },
+  {
+   "id": "SIG-052",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), the located member's value MUST be an sf-string containing an HTTPS URL, whose type parameter selects resolution (jwks_uri, cimd, or directory).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L631-L634",
+   "quote": "3. The member's value **MUST** be an sf-string containing an HTTPS\n   URL. Its `type` parameter selects resolution — `jwks_uri` (a JWK\n   Set URL, e.g. the UCP profile), `cimd` (a Client ID Metadata\n   Document), or `directory` (an origin hosting a well-known\n   directory); see",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 3 of the Signature-Agent parsing rules. No 04-08 antecedent."
+  },
+  {
+   "id": "SIG-053",
+   "requirement": "In Signature-Agent parsing (WBA-shape regime), verification of the signature MUST fail if the resolved URL is non-HTTPS.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/signatures.md#L638-L639",
+   "quote": "4. Verification of this signature **MUST** fail if the URL is\n   non-HTTPS.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "NEW at v2026-08-25 (P2b wave 2): item 4 (final) of the Signature-Agent parsing rules, the non-HTTPS rejection branch. No 04-08 antecedent."
+  }
+ ]
+}

@@ -1,0 +1,370 @@
+{
+ "_area": "loyalty",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW extension at v2026-08-25 (dev.ucp.common.loyalty; common/loyalty.json). No 04-08 equivalent existed. Extends catalog search, catalog lookup, cart, and checkout.",
+ "area": "loyalty",
+ "rows": [
+  {
+   "id": "LOY-001",
+   "requirement": "A loyalty_membership object MUST include `id`, `name`, and `provisional`",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/loyalty.json#L132",
+   "quote": "\"required\": [\"id\", \"name\", \"provisional\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Wholly new extension (dev.ucp.common.loyalty). No 04-08 equivalent existed."
+  },
+  {
+   "id": "LOY-002",
+   "requirement": "Programs that can be joined independently MUST be modeled as separate sibling entries under the loyalty map, distinguished by reverse-domain naming",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/loyalty.json#L131",
+   "quote": "Programs that can be joined independently MUST be modeled as separate sibling entries under the loyalty map, distinguished by reverse-domain naming (e.g., 'com.example.rewards' and 'com.example.rewards.card').",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by confirming distinct, independently-verifiable programs never share one loyalty map key."
+  },
+  {
+   "id": "LOY-003",
+   "requirement": "All loyalty map keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/loyalty.json#L168",
+   "quote": "All loyalty keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "loyalty.json $defs.loyalty.propertyNames refs reverse_domain_name.json."
+  },
+  {
+   "id": "LOY-004",
+   "requirement": "`display_id` MUST NOT be set if the membership has not been verified",
+   "keyword": "MUST NOT",
+   "source": "ucp:source/schemas/common/loyalty.json#L144",
+   "quote": "MUST NOT be set if the membership has not been verified.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Cross-field check: display_id absent whenever provisional:true."
+  },
+  {
+   "id": "LOY-005",
+   "requirement": "Businesses MAY advertise loyalty support for any subset of catalog search, catalog lookup, cart, and checkout capabilities; Platforms SHOULD check which resources are extended",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L100",
+   "quote": "Businesses MAY advertise loyalty\nsupport for any subset of these capabilities. Platforms SHOULD check which resources are\nextended.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against the business profile's dev.ucp.common.loyalty capability's `extends` array."
+  },
+  {
+   "id": "LOY-006",
+   "requirement": "Programs that can be joined independently MUST be modeled as separate sibling top-level keys in the loyalty extension map, namespaced by reverse-domain naming",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L211",
+   "quote": "Programs that can be joined independently MUST be modeled as separate sibling entries\nunder the loyalty map, distinguished by their reverse-domain naming.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Doc-level restatement of LOY-002."
+  },
+  {
+   "id": "LOY-007",
+   "requirement": "When a business populates the loyalty extension from authenticated identity without an explicit eligibility claim, the map key MUST be the same reverse-domain identifier the business would accept as a claim value",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L218",
+   "quote": "In this case, the map key MUST be the same reverse-domain\nidentifier the business would accept as a claim value.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by comparing the response's loyalty map key against the identifier the business documents/accepts as a context.eligibility claim value."
+  },
+  {
+   "id": "LOY-008",
+   "requirement": "When a business verifies a membership claim or determines membership from authenticated identity, it MUST return `provisional: false` and MUST populate the active tier(s) in `tiers` when the program has tier structure (tier-less programs MAY omit `tiers`)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L224",
+   "quote": "When a business verifies a membership claim or determines membership from\n  authenticated identity, it MUST return `provisional: false`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the response's loyalty entry."
+  },
+  {
+   "id": "LOY-009",
+   "requirement": "When a membership claim is recognized and accepted but not verified, the business MUST return `provisional: true` and MUST NOT return `display_id` until the membership is verified",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L230",
+   "quote": "When a membership claim in the request is recognized and accepted but not verified by\n  the business, the business MUST return `provisional: true`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the response's loyalty entry."
+  },
+  {
+   "id": "LOY-010",
+   "requirement": "When a membership claim is accepted but cannot be verified, the business MUST communicate the failure via a recoverable message with `type: \"error\"` and `code: \"eligibility_invalid\"`",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L234",
+   "quote": "the business\n  MUST communicate the failure via a recoverable `message` with `type: \"error\"` and\n  `code: \"eligibility_invalid\"`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against messages[] (also demonstrated in the worked example at L415-451)."
+  },
+  {
+   "id": "LOY-011",
+   "requirement": "At checkout completion, all accepted-but-unverified loyalty claims MUST be resolved per the Eligibility Verification at Completion contract",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L239",
+   "quote": "At checkout completion, all accepted but unverified loyalty claims MUST be resolved per\nthe [Eligibility Verification at Completion](../../shopping/checkout/index.md#eligibility-verification-at-completion)\ncontract defined in the checkout capability.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Cross-references the (pre-existing, 04-08) Checkout eligibility-verification contract; the loyalty-specific binding to it is new."
+  },
+  {
+   "id": "LOY-012",
+   "requirement": "Businesses MUST evaluate conditions beyond membership (e.g. a minimum purchase threshold) before applying a monetary loyalty benefit",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L247",
+   "quote": "Businesses\nMUST evaluate those conditions before applying the benefit.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable end-to-end by submitting a cart below/above a documented benefit threshold."
+  },
+  {
+   "id": "LOY-013",
+   "requirement": "When a monetary loyalty benefit applies, businesses MUST surface the price impact through the base capability's price fields (catalog price/list_price/price_range, or cart/checkout totals / line_items[].totals)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L249",
+   "quote": "When the benefit applies, businesses MUST surface the price impact through the base\ncapability's price fields.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the response's totals/price fields."
+  },
+  {
+   "id": "LOY-014",
+   "requirement": "If a discount extension applied discount still requires verification because one or more accepted loyalty claims remain unverified, the corresponding applied discount MUST set `provisional: true`",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L258",
+   "quote": "If the discount still\nrequires verification, for example because one or more accepted loyalty claims\nremain unverified, the corresponding applied discount MUST set `provisional: true`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against discounts.applied[].provisional cross-referenced with the loyalty entry's own provisional state."
+  },
+  {
+   "id": "LOY-015",
+   "requirement": "Businesses MUST NOT put inapplicable monetary loyalty benefits in the discount extension",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L263",
+   "quote": "Businesses MUST NOT put inapplicable benefits in the discount extension.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by confirming discounts.applied[] never contains a benefit the business separately reports as ineligible via `benefits`/messages."
+  },
+  {
+   "id": "LOY-016",
+   "requirement": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member identifiers, since that would allow the platform to uniquely identify individual buyers",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L680",
+   "quote": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member\nidentifiers (as this would allow the platform to uniquely identify individual buyers).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Privacy-relevant; checkable by confirming `id` values are business-internal opaque identifiers rather than raw stable member/account numbers, and that only `display_id` (masked) is ever human-recognizable."
+  },
+  {
+   "id": "LOY-017",
+   "requirement": "Loyalty extension response MUST only include `display_id` after verified/authenticated memberships",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L682",
+   "quote": "Loyalty extension response MUST only include `display_id` after verified/authenticated\nmemberships.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable; restates LOY-004/LOY-009's display_id gating at the extension level."
+  },
+  {
+   "id": "LOY-018",
+   "requirement": "Loyalty extension response MUST treat all `context.eligibility` values in the request as buyer claims rather than proof",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L684",
+   "quote": "Loyalty extension response MUST treat all `context.eligibility` values in the request as\nbuyer claims rather than proof.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Trust-boundary invariant; underpins the provisional/verified state machine (LOY-008/009/010)."
+  },
+  {
+   "id": "LOY-019",
+   "keyword": "MUST NOT",
+   "requirement": "When a membership claim is recognized and accepted but not yet verified, the business MUST return provisional: true and MAY return display-safe tier context for the state accepted during the session, but MUST NOT return display_id until the membership is verified.",
+   "quote": "* When a membership claim in the request is recognized and accepted but not verified by\n  the business, the business MUST return `provisional: true`. It MAY return display-safe\n  tier context for the state accepted during the session, and MUST NOT return\n  `display_id` until the membership is verified.",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L230-L233",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": true,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (provisional-membership display-safety guard).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  },
+  {
+   "id": "LOY-020",
+   "keyword": "MUST",
+   "requirement": "If a loyalty eligibility claim cannot be verified, the business MUST return a recoverable error via messages[] with code: \"eligibility_invalid\".",
+   "quote": "If the claim cannot be verified, the business MUST return a recoverable error via\n`messages[]`  with `code: \"eligibility_invalid\"`.",
+   "source": "ucp:docs/specification/common/extensions/loyalty.md#L415-L416",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row (eligibility_invalid error rule).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  }
+ ]
+}

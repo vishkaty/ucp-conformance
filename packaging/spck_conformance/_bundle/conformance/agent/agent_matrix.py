@@ -20,10 +20,30 @@ import argparse, glob, importlib, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
+CONF = os.path.dirname(HERE)
+sys.path.insert(0, CONF)
+# VERSIONS used to be a private copy here — one of five independent lists across the
+# suite (PLAN-0825 G0-b / A.4) — and had silently drifted: it never gained 2026-08-25,
+# so the agent axis had no visibility into the newest spec at all. VERSIONS now comes
+# from the single shared source; see conformance/common/spec_versions.py.
+#
+# AGENT_REGISTER_ONLY_VERSIONS (NOT the merchant matrix.py's REGISTER_ONLY_VERSIONS —
+# a SEPARATE set, on purpose, since 2026-08-31): this axis used to short-circuit on
+# the SAME shared REGISTER_ONLY_VERSIONS the merchant matrix uses, which meant the
+# merchant lane's 2026-08-25 Check-conversion-phase graduation silently ALSO
+# un-short-circuited the agent axis — agent_rows() started returning the full,
+# never-reviewed 2026-08-25 denominator (~220 ids), caught only because
+# agent_governance.py's DENOMINATOR-DRIFT lock correctly refused the silent
+# widening. A shared set makes one lane's graduation structurally unable to leave
+# the other lane's wall standing, so the two are separate sets now: this axis
+# graduates a version only when ITS OWN denominator has been reviewed
+# (agent_denominator_audit.json + a regenerated agent_denominator_lock.json), fully
+# independent of the merchant matrix's own graduation. See spec_versions.py's
+# docstring for the fuller incident writeup.
+from common.spec_versions import VERSIONS, AGENT_REGISTER_ONLY_VERSIONS  # noqa: E402
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
-VERSIONS = ["2026-01-11", "2026-01-23", "2026-04-08"]
 
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
@@ -52,8 +72,26 @@ AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (
 # order-schema shape, an MCP endpoint the server exposes, an A2A response the business agent
 # returns). They are NOT achievable on the agent axis and must not inflate the denominator.
 # Every id is spec-cited in agent_denominator_audit.json (independent adjudication + verify).
+#
+# 2026-08-25 agent-lane graduation review (agent_denominator_audit.json's
+# "2026-08-25_review" section) added 9 more, all flat/global exactly like the original
+# 11 above (a heuristic match on "platform"/"business"/"consumer" substring text that,
+# on individual read, binds ONLY the Business): CAT-005, LOC-016, LOC-042 (a schema
+# description or adjoining sentence bundles a Business clause and an ALREADY
+# separately-registered Platform clause — CAT-008/LOC-049/LOC-054 own that Platform
+# clause under its own id; this id's own quote is Business-only), CHK-058, CART-035,
+# OVR-070 (the row's only MUST binds Business; an adjacent Platform sentence is SHOULD
+# NOT / MAY, not MUST), OVR-058, OVR-071 (both explicitly headed "Business
+# Requirements" / restate NEG-001's business-only branch), IDL-081 (a business
+# consent-policy consistency guarantee, verified by exercising both identity paths and
+# comparing the BUSINESS's own enforcement — no platform-bound clause exists in the
+# row). None of these 9 were ever candidates at an earlier version (verified: none
+# appear in agent_rows("2026-04-08") today, so this addition cannot regress the
+# already-graduated 04-08 denominator/lock).
 NOT_AGENT_BOUND = {"A2A-001", "MCP-001", "NEG-001", "NEG-002", "NEG-003", "NEG-004",
-                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019"}
+                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019",
+                   "CAT-005", "LOC-016", "LOC-042", "CHK-058", "CART-035",
+                   "OVR-070", "OVR-058", "OVR-071", "IDL-081"}
 
 
 def _client_bound_ids():
@@ -69,7 +107,19 @@ def _client_bound_ids():
 
 
 def agent_rows(ver):
-    """The agent-subject MUST ids at `ver`."""
+    """The agent-subject MUST ids at `ver`.
+
+    AGENT_REGISTER_ONLY_VERSIONS short-circuit (2026-08-30, closing the seam
+    matrix.py already walls off on the merchant axis; split into its own set
+    2026-08-31 — see this module's import comment and spec_versions.py's
+    docstring): a register-only-on-THIS-AXIS version's rows have had zero agent-
+    subject review — attributing real agent-MUST ids to it here would be exactly
+    the zero-review auto-attribution hazard matrix.py's attribution()/exempt_at()
+    already guard against on the merchant axis, just via a different (agent-subject
+    heuristic) code path AND a different (agent-only) review clock. Empty set is
+    the honest number: zero rows, not a silent guess."""
+    if ver in AGENT_REGISTER_ONLY_VERSIONS:
+        return set()
     cb = _client_bound_ids()
     ids = set()
     for f in glob.glob(os.path.join(REQ, ver, "*.json")):
