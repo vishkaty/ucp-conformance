@@ -1,0 +1,422 @@
+{
+ "_area": "payment-terms",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW capability at v2026-08-25 (dev.ucp.common.payment.terms, docs/specification/payment/extensions/terms.md): payment schedules (deposits, installments, trade credit, pay-in-full) as a Checkout/Order extension exposing terms[] and selected_term_id on checkout.payment and payment.accepted_term on the Order. No 04-08 equivalent existed (grepped conformance/.vendor/ucp for any 'terms'/'schedules' payment-timing capability: zero hits). Extends dev.ucp.shopping.checkout and dev.ucp.shopping.order per its own profile declaration (L274-277).",
+ "area": "payment-terms",
+ "rows": [
+  {
+   "id": "PT-001",
+   "requirement": "Where terms is present it MUST contain at least one term, and selected_term_id MUST name one of them.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L51-L52",
+   "quote": "Where `terms` is present it **MUST** contain at least one term, and\n`selected_term_id` **MUST** name one of them.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Prevents an ambiguous total: without a resolvable selection, the Checkout total would match no stated term. Fixture-testable on any response carrying terms: array is non-empty and selected_term_id resolves to one of its entries."
+  },
+  {
+   "id": "PT-002",
+   "requirement": "A Platform that recognizes no type value and reads no payment-term field other than title, description, schedules[].description, and schedules[].amount MUST be able to present what is owed and when, for every term; a Business MUST author terms so this holds.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L61-L65",
+   "quote": "Given the Checkout's `currency`, a Platform that recognizes no `type` value and\nreads no payment-term field other than `title`, `description`,\n`schedules[].description`, and `schedules[].amount` **MUST** be able to present\nwhat is owed and when, for every term. A Business **MUST** author terms so this\nholds.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The presentation floor: a naive Platform must be able to render amounts and timing from only 4 fields, and the Business is the one obligated to author content meeting that bar. Manual: whether authored text 'presents what is owed and when' is a content-quality judgment, not a mechanical assertion."
+  },
+  {
+   "id": "PT-003",
+   "requirement": "A Business MUST make each schedule's description a complete buyer-facing statement of when and how that payment is due, so that a Platform can render it verbatim.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L85-L87",
+   "quote": "A Business **MUST** make each schedule's `description` a complete buyer-facing\nstatement of when and how that payment is due, so that a Platform can render it\nverbatim.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Content-completeness obligation on the Business; manual (judgment of whether a description is 'complete'), consistent with PT-002."
+  },
+  {
+   "id": "PT-004",
+   "requirement": "A Platform MAY use type and due_at for a richer presentation, but MUST NOT present derived timing that contradicts the schedule's description.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L87-L89",
+   "quote": "A Platform **MAY** use `type` and `due_at` for a richer presentation\n— a calendar view, a countdown, a reminder — but **MUST NOT** present derived\ntiming that contradicts the `description`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform rendering constraint (binds the request/render author, not the Business's response) — manual, matching the identity-linking precedent for client-behavior MUSTs no merchant check can grade."
+  },
+  {
+   "id": "PT-005",
+   "requirement": "A Platform MUST treat an unrecognized schedule type as not due at completion.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L100-L101",
+   "quote": "A Platform **MUST** treat an unrecognized\n`type` as not due at completion.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Open-vocabulary tolerance rule on the Platform's interpretation logic. Manual: platform-bound behavior, not observable via a Business-facing check."
+  },
+  {
+   "id": "PT-006",
+   "requirement": "A Business MUST omit due_at when the due date depends on a future event it cannot yet determine.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L107-L109",
+   "quote": "A Business **SHOULD** provide it\nwhen it can determine the due date at checkout, and **MUST** omit it when the\ndate depends on a future event",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable: a schedule whose due date is not yet determinable (e.g. 'due on delivery') must not carry a due_at value."
+  },
+  {
+   "id": "PT-007",
+   "requirement": "For the selected term, the Business MUST ensure that its schedule amounts sum to the checkout total.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L118-L120",
+   "quote": "For the\n**selected** term, the Business **MUST** ensure that sum equals the checkout\n`total`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Core financial-correctness invariant for this capability (arithmetic: sum(selected_term.schedules[].amount) == checkout.total) — fixture-testable, high priority for a live check, analogous to TOT-001/TOT-007's totals-authority guarantees."
+  },
+  {
+   "id": "PT-008",
+   "requirement": "Where the selected term changes what the purchase costs, that difference MUST appear as its own entry in checkout.totals, a negative discount or a positive fee.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L126-L128",
+   "quote": "Where the selected term changes what the purchase costs — a discount for paying\ntoday, a finance charge for paying over time — that difference **MUST** appear\nas its own entry in `checkout.totals`, a negative `discount` or a positive\n`fee`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable: when a term's payable amount differs from the base price, checkout.totals must carry a matching discount/fee line."
+  },
+  {
+   "id": "PT-009",
+   "requirement": "A Platform MUST NOT assume that the amounts shown in terms[] survive selection unchanged, and MUST re-render from the response.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L140-L141",
+   "quote": "A Platform **MUST NOT** assume that the amounts shown in `terms[]`\nsurvive selection unchanged, and **MUST** re-render from the response.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform-bound re-render obligation; manual, not gradable by a Business-facing check."
+  },
+  {
+   "id": "PT-010",
+   "requirement": "A Business MUST make terms[].id unique within a Checkout, so that a selection resolves to exactly one term.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L143-L144",
+   "quote": "A Business **MUST** make `terms[].id` unique within a Checkout, so\nthat a selection resolves to exactly one term.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable: all terms[].id values in one Checkout response are pairwise distinct."
+  },
+  {
+   "id": "PT-011",
+   "requirement": "A Platform MUST omit selected_term_id on Checkout create (no options exist yet) and MUST omit it on complete (the term is already agreed before ready_for_complete).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L150-L155",
+   "quote": "A Platform **MUST**\nomit it on create, because term IDs are scoped to a Checkout and no options\nexist yet — the create response establishes the options, if any, and the default\namong them. A Platform **MUST** omit it on complete, because the term is already\nagreed before a Checkout can reach `ready_for_complete`, and the amount due at\ncompletion follows from it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Binds the request author (Platform), matching the identity-linking precedent (e.g. IDL-002/003/004) where a client-request-shape MUST is manual/platform-conformance rather than gradable by a check against the Business under test."
+  },
+  {
+   "id": "PT-012",
+   "requirement": "A Business receiving a selected_term_id that no longer resolves MUST NOT silently substitute a term, and MUST report the change as a payment_term_changed warning in messages[].",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L155-L158",
+   "quote": "A Business receiving a selection that no\nlonger resolves — because the options changed — **MUST NOT** silently substitute\na term, and **MUST** report the change as a `payment_term_changed` warning in\n`messages[]`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable: submit a selected_term_id that is no longer offered and assert the response carries a payment_term_changed warning rather than a silently substituted term."
+  },
+  {
+   "id": "PT-013",
+   "requirement": "When resolving a downstream conflict caused by a term selection, or when rewriting the selected term's own schedules/due dates/amounts in place without naming a different term, the Business MUST report the change as a payment_term_changed warning in messages[].",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L162-L165",
+   "quote": "**MUST** report the change as a `payment_term_changed` warning in `messages[]`.\nA Business **MUST** also report that warning when changing the selected term\nin place, by altering its schedules, due dates, or amounts, without naming a\ndifferent term.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Distinct trigger from PT-012 (conflict-caused change or in-place rewrite, vs. a stale/unresolvable id): fixture-testable by inducing each condition and asserting the warning is present."
+  },
+  {
+   "id": "PT-014",
+   "requirement": "A Platform cannot pre-compute the effect of a choice, and MUST treat the payment-handler set in each response as authoritative for that response alone.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L183-L184",
+   "quote": "A Platform therefore cannot pre-compute the effect of a choice, and **MUST**\ntreat the set in each response as authoritative for that response alone.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Platform trust-model obligation (do not cache/reuse a prior response's handler eligibility); manual, not gradable by a Business-facing check."
+  },
+  {
+   "id": "PT-015",
+   "requirement": "The instrument funding a term MUST be capable of every one of that term's schedules; a Business MUST NOT advertise an instrument that cannot fund every schedule of the selected term, and MUST reject one that is submitted.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L189-L192",
+   "quote": "The instrument funding a term is charged once for each of that term's\nschedules, and **MUST** be capable of every one of them. A Business **MUST NOT**\nadvertise an instrument that cannot fund every schedule of the selected term,\nand **MUST** reject one that is submitted.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Business-side instrument-eligibility logic, server-observable via ucp.payment_handlers advertisement and the accept/reject outcome of a submitted instrument that cannot fund every schedule (e.g. a single-charge-only instrument against a multi-schedule term)."
+  },
+  {
+   "id": "PT-016",
+   "requirement": "A term with more than one schedule MUST be funded by a single instrument.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L196",
+   "quote": "A term with more than one schedule **MUST** be funded by a single instrument.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable: a multi-schedule term's payment_handlers/instrument assignment cannot be split across more than one instrument (defines the boundary with Split Payments, which composes only with single-schedule terms)."
+  },
+  {
+   "id": "PT-017",
+   "requirement": "Under Warning Presentation, a Platform MUST display every returned payment-terms disclosure, MUST keep it in proximity to the node named by path, and MUST NOT hide, collapse, or auto-dismiss it; a Platform that cannot honor that contract MUST escalate through continue_url rather than silently dropping the notice.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L222-L227",
+   "quote": "Presentation](../../shopping/checkout/index.md#warning-presentation) a Platform **MUST** display\nevery returned disclosure, **MUST** keep it in proximity to the node named by\n`path`, and **MUST NOT** hide, collapse, or auto-dismiss it. A Platform that\ncannot honor that contract — for example one that collapses a list of terms and\nso cannot preserve proximity for each — **MUST** escalate through `continue_url`\nrather than silently dropping the notice.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The Warning Presentation disclosure rendering contract (the general rule lives in shopping/checkout/index.md, ERR-012/014-018 in checkout-lifecycle.json/error-envelope.json) re-asserted specifically for payment-terms disclosures, with its own escalation example. Filed as its own row rather than a duplicate waiver because it is the authoritative statement for THIS extension's disclosure obligation and its exact text does not appear at the general location. Manual: platform rendering behavior."
+  },
+  {
+   "id": "PT-018",
+   "requirement": "Where a disclosure governed the accepted term, the Business MUST return that disclosure on the Order with path set to $.payment.accepted_term and MUST use the same target in the applies_to of any paired policy; a Business MUST NOT return disclosures attached to terms the Buyer did not accept.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L231-L234",
+   "quote": "Where a disclosure governed the term the Buyer\naccepted, the Business **MUST** return that disclosure on the Order with its\n`path` set to `$.payment.accepted_term`, and **MUST** use the same target in\nthe `applies_to` of any policy paired with it. A Business **MUST NOT** return\ndisclosures attached to terms the Buyer did not accept.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable on an Order response: the accepted-term disclosure carries the fixed path $.payment.accepted_term, and no disclosure for a non-accepted term is present."
+  },
+  {
+   "id": "PT-019",
+   "requirement": "A Business MUST ensure that every applies_to/path target it emits resolves to the intended node on the response that carries it.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L239",
+   "quote": "A Business **MUST** ensure that every target it emits\nresolves to the intended node on the response that carries it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Fixture-testable to the structural floor: every applies_to/path JSON-pointer resolves to an existing node in the same response (not dangling) — whether it is the node an author 'intended' is a judgment call beyond that floor."
+  },
+  {
+   "id": "PT-020",
+   "requirement": "A Platform MUST NOT infer that a deferred payment can be inspected, modified, or cancelled through UCP.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L256-L259",
+   "quote": "This extension discloses when money is due. It does not\ndefine credential storage, future-charge authorization, how a Business executes\ncapture, or mandate requirements, and a Platform **MUST NOT** infer that a\ndeferred payment can be inspected, modified, or cancelled through UCP.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Scope-boundary rule (this extension discloses timing only; it is not a payment-execution/capture-management capability). Manual: a platform-inference restriction, not directly observable via a single API probe."
+  },
+  {
+   "id": "PT-021",
+   "requirement": "When the Order is created, a Business MUST ensure its schedule amounts sum to the Order total, and MUST NOT modify the accepted term after the Order is created (post-purchase changes are recorded in adjustments[]).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L301-L304",
+   "quote": "When the Order is\ncreated, a Business **MUST** ensure its schedule amounts sum to the Order\n`total`. A Business **MUST NOT** modify the accepted term after the Order\nis created; post-purchase changes are recorded in `adjustments[]`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Order-side counterpart to PT-007 (arithmetic invariant) plus an immutability guarantee, both fixture-testable against an Order response."
+  },
+  {
+   "id": "PT-022",
+   "requirement": "Platforms MUST: present each term's title and each schedule's description/amount in the Checkout currency; re-render from the Business response after selecting a term rather than reusing terms[] amounts; treat an unrecognized schedule type as not due at completion while still presenting the term; and process disclosures per Warning Presentation, escalating through continue_url when the rendering contract cannot be honored.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L625-L635",
+   "quote": "Platforms **MUST**:\n\n* Present each term's `title`, and each schedule's `description` and `amount`,\n  formatted in the Checkout `currency`.\n* Re-render from the Business response after selecting a term, rather than\n  reusing amounts read from `terms[]`.\n* Treat an unrecognized schedule `type` as not due at completion, and present\n  the term regardless.\n* Process disclosures attached to terms per\n  [Warning Presentation](../../shopping/checkout/index.md#warning-presentation), escalating through\n  `continue_url` when the rendering contract cannot be honored.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The 'Platform responsibilities' conformance checklist; each bullet restates a rendering obligation stated in prose earlier in the file (PT-002/PT-005/PT-009/PT-017). Filed as one combined row (matching the IDL-040-style bundled-checklist convention) rather than per-bullet duplicate waivers, since the checklist is itself the canonical conformance-facing summary. Manual: platform rendering behavior."
+  },
+  {
+   "id": "PT-023",
+   "requirement": "Businesses MUST: offer terms where relevant; name the selected term in every response carrying terms; ensure schedule descriptions alone state when payment is due; ensure the selected term's schedules sum to the checkout total exactly once; state any cost difference as its own totals entry; return the recomputed Checkout after a selection; report payment_term_changed whenever the effective term changes; place buyer-facing disclosure content in the warning content; and carry the accepted term and its disclosure onto the Order.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/terms.md#L648-L667",
+   "quote": "Businesses **MUST**:\n\n* Offer terms where a Checkout has a choice to present or schedules to disclose.\n* Name one of the offered terms in `selected_term_id` on every response that\n  carries `terms`.\n* Ensure every term's schedules state, in `description` alone, when each payment\n  is due.\n* Ensure the selected term's schedule amounts sum to the checkout total exactly\n  once.\n* State any difference the selected term makes to what the purchase costs as its\n  own entry in `checkout.totals`.\n* Return the recomputed Checkout after a selection, including any change to\n  totals, policies, messages, or eligible payment handlers.\n* Report a `payment_term_changed` warning whenever a response changes the term\n  in effect, whether by naming a different term or by rewriting the selected one\n  in place.\n* Place any content that must reach the Buyer in the disclosure `content`, not\n  only in the paired policy `description`.\n* Carry the accepted term onto the Order as `payment.accepted_term`, along with\n  any disclosure that governed it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The 'Business responsibilities' conformance checklist — mostly restates PT-001/PT-007/PT-008/PT-012/PT-013/PT-018 in one place, but 'Return the recomputed Checkout after a selection' is the only all-caps-MUST statement of that obligation anywhere in the file (the earlier prose at L134-138 states it descriptively, without an RFC-2119 keyword). Server-observable business response behavior throughout: testable."
+  }
+ ]
+}

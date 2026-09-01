@@ -246,6 +246,30 @@ is now `["keys", 0, "crv"]`. Re-run: **19/19 killed, 0 acknowledged**
 (`defects_config.json`'s `acknowledged_gaps` is now empty; the closed entry's
 text is kept in `_acknowledged_gaps_history` for the record).
 
+**UPDATE 2026-09-01 (lane/p3-wave2): +3 mutants** (consent-purpose-missing-
+granted, fulfillment-group-drop-id, fulfillment-option-drop-title) landed as
+part of the P3 check-conversion wave 2 golden-reading rows (`conformance/
+checks/golden_check_08_25.py`) — catalog 22 oracle-graded + 2 self-referenced
+(sig-keys-not-published, pay-credential-leaked-in-response, graded by that
+check file instead of this battery). **22/22 killed, 0 acknowledged.**
+
+**UPDATE 2026-09-01 (lane/p3-wave3): +9 mutants** for the cart/checkout-
+lifecycle/order rows golden_check_08_25.py converts this wave
+(cart-line-item-drop-quantity, cart-quantity-below-minimum, cart-item-drop-
+price, order-drop-currency, order-drop-line-items, order-line-item-drop-
+status, order-quantity-drop-fulfilled, order-expectation-drop-method-type,
+order-event-drop-occurred-at) — catalog **31 oracle-graded + 2 self-
+referenced, 31/31 killed, 0 acknowledged**. The last of the 9
+(order-event-drop-occurred-at) first SURVIVED against this battery's own
+generic `/orders/{id}` fixture: a bare create→complete order never populates
+`fulfillment.events[]` (only `POST /testing/simulate-shipping/{id}` does, via
+`services/checkout_service.py`'s `ship_order`), so `defects.py`'s permissive
+apply_patch() silently no-oped on the unresolvable `events[0]` path. Fixed by
+having the battery's own `_completed_order_id()` fixture call
+simulate-shipping once before returning — a ROUTE-keyed fixture enrichment
+(makes `/orders/{id}` representative for every order mutant), not a
+per-mutant special case.
+
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
 `conformance/coverage/` — this lane adds test machinery, no evidence claims.

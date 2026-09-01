@@ -62,11 +62,46 @@ Rows converted (register: conformance/requirements/2026-08-25/):
   CNST-003 consent_purpose.source MUST be exactly          (fixture-schema)
            "business" or "platform"
 
+P3 wave 3 additions (2026-09-01, lane/p3-wave3) — checkout-lifecycle, cart, order
+golden-wire rows, all fixture-schema, all judged by _oracle_root against the base
+cart/checkout/order schema (no extension involved, unlike FUL-*/CNST-* above):
+  CHK-033     Checkout status enum constrained to the six lifecycle values
+  CHK-034     Checkout response MUST include required top-level fields --
+              proven across create/read/update/cancel (4 sibling Row entries,
+              1 register row; no dedicated "required fields" mutant exists for
+              the complete op, so that op is not one of the 4)
+  CART-029    Cart response MUST include required top-level fields -- proven
+              across create/read/update/cancel (4 sibling Row entries)
+  CART-031    Cart line item MUST include id/item/quantity/totals
+  CART-032    Cart line item quantity MUST be an integer >= 1
+  CART-033    Cart line item's item MUST include id/title/price
+  ORD-003     order.currency is REQUIRED
+  ORD-004     order.line_items is REQUIRED
+  ORD-005     Each order line item requires id/item/quantity/totals/status
+  ORD-006     Order line item quantity requires total/fulfilled
+  ORD-018     Each fulfillment expectation requires id/line_items/
+              method_type/destination
+  ORD-019     Each fulfillment event requires id/occurred_at/type/line_items
+              (fixture calls POST /testing/simulate-shipping/{id} first so
+              fulfillment.events[] is non-empty -- a bare create->complete
+              order never populates one)
+  ORD-020     Order confirmation requires id and permalink_url
+
+9 new mutants added to defects_config.json's "mutants" array this wave
+(cart-line-item-drop-quantity, cart-quantity-below-minimum, cart-item-drop-price,
+order-drop-currency, order-drop-line-items, order-line-item-drop-status,
+order-quantity-drop-fulfilled, order-expectation-drop-method-type,
+order-event-drop-occurred-at); the other 6 rows above (CHK-033/034 x4,
+CART-029 x4, ORD-003/004/020) reuse the 21 mutants already in the battery
+catalog from R11/wave 2, previously exercised only by the report-only battery
+gate and now also load-bearing for a register row here.
+
 Rows explicitly LEFT BLOCKED this wave (one-line reasons; never a vacuous check —
 see the module-level BLOCKED list at the bottom and the lane report for the
 full evidence trail):
   SIG-044..049 (WBA-shape), SIG-050 (EdDSA signature encoding),
-  PAY-020/021/022/024 + pan_credential/network_token_credential successors.
+  PAY-020/021/022/024 + pan_credential/network_token_credential successors,
+  ORD-008/ORD-034 (adjustments -- this golden never produces one organically).
 
 Wiring: run_suite.py gate "golden-check-08-25" (hermetic — boots its own
 golden-0825, own port, no dependency on an already-running --server or on 8182).
@@ -293,6 +328,109 @@ def _create_checkout_with_consent(purpose_fields):
     return http("POST", "/checkout-sessions", body)
 
 
+def _checkout_read_response():
+    """CHK-034's read sub-check: a fresh checkout's GET response (create itself
+    is never mutated here -- checkout-read-drop-totals only matches GET)."""
+    st, checkout = _create_checkout()
+    if st != 201 or not isinstance(checkout, dict):
+        return 0, None
+    return http("GET", f"/checkout-sessions/{checkout['id']}")
+
+
+def _checkout_update_response():
+    """CHK-034's update sub-check: PUT full-replacement per CART-017/CHK-020's
+    own MUST (the same line_items + fulfillment shape create used, matching
+    checkout-update-drop-line-items' target field)."""
+    st, checkout = _create_checkout()
+    if st != 201 or not isinstance(checkout, dict):
+        return 0, None
+    return http("PUT", f"/checkout-sessions/{checkout['id']}", {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+    })
+
+
+def _checkout_cancel_response():
+    st, checkout = _create_checkout()
+    if st != 201 or not isinstance(checkout, dict):
+        return 0, None
+    return http("POST", f"/checkout-sessions/{checkout['id']}/cancel")
+
+
+def _create_cart():
+    body = {"line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}]}
+    return http("POST", "/carts", body)
+
+
+def _cart_read_response():
+    st, cart = _create_cart()
+    if st != 201 or not isinstance(cart, dict):
+        return 0, None
+    return http("GET", f"/carts/{cart['id']}")
+
+
+def _cart_update_response():
+    st, cart = _create_cart()
+    if st != 201 or not isinstance(cart, dict):
+        return 0, None
+    return http("PUT", f"/carts/{cart['id']}", {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 2}],
+    })
+
+
+def _cart_cancel_response():
+    st, cart = _create_cart()
+    if st != 201 or not isinstance(cart, dict):
+        return 0, None
+    return http("POST", f"/carts/{cart['id']}/cancel")
+
+
+def _order_response():
+    """ORD-*'s base fixture: a full create -> complete round trip, then GET the
+    resulting order. Returns (status, body); (0, None) if any leg of the setup
+    itself fails (an ERROR, not a row verdict, mirroring _complete_checkout's
+    own convention)."""
+    completed = _complete_checkout()
+    if completed is None:
+        return 0, None
+    order_id = (completed.get("order") or {}).get("id")
+    if not order_id:
+        return 0, None
+    return http("GET", f"/orders/{order_id}")
+
+
+def _order_response_after_shipping():
+    """ORD-019's fixture: same as _order_response, plus one POST
+    /testing/simulate-shipping/{id} call first so fulfillment.events[] is
+    non-empty (services/checkout_service.py's ship_order -- the only path in
+    this golden that ever populates an event). This test-only route is
+    Simulation-Secret-gated like /testing/simulate-shipping already is
+    elsewhere in this file, and its own route never matches an armed order-*
+    mutant (all of them target GET /orders/{id}), so calling it mid-sequence
+    is safe under every arm state."""
+    completed = _complete_checkout()
+    if completed is None:
+        return 0, None
+    order_id = (completed.get("order") or {}).get("id")
+    if not order_id:
+        return 0, None
+    st_ship, _ = http("POST", f"/testing/simulate-shipping/{order_id}")
+    if st_ship != 200:
+        return 0, None
+    return http("GET", f"/orders/{order_id}")
+
+
+def _complete_checkout_status():
+    """CHK-033's fixture: reuse _complete_checkout's create->complete round
+    trip, but return the completed CHECKOUT response itself (not the order) --
+    checkout-complete-bad-status targets POST /checkout-sessions/{id}/complete,
+    and _complete_checkout already returns exactly that response."""
+    completed = _complete_checkout()
+    if completed is None:
+        return 0, None
+    return 200, completed
+
+
 def _complete_checkout():
     """A full create -> complete round trip with a real (token) credential —
     the same mock_payment_handler success path validate_golden_0825_battery.py
@@ -369,6 +507,20 @@ def _oracle_against(schema_rel, def_name, op):
     return judge
 
 
+def _oracle_root(schema_rel, op):
+    """P3 wave 3: validate a payload against a ROOT schema (no --def) -- for
+    CART-*/CHK-*/ORD-* rows, whose fields (line_items, currency, totals,
+    fulfillment.expectations/events) live on the base checkout/cart/order
+    schemas themselves, not an extension's combined def like the FUL-*/CNST-*
+    rows above."""
+    def judge(status, body):
+        if status not in (200, 201) or not isinstance(body, dict):
+            return False, f"request failed: status {status}"
+        return so.validate_root(body, schema_rel, op=op, version=VERSION,
+                                 direction="response")
+    return judge
+
+
 CHECKS = [
     Row("SIG-007", ["SIG-007"], "fixture-schema",
         "Public keys MUST be represented using JWK (RFC 7517).",
@@ -442,6 +594,113 @@ CHECKS = [
             {"granted": True, "source": "platform", "description": "x"}),
         _oracle_against("schemas/shopping/buyer_consent.json", "dev.ucp.shopping.checkout", "create"),
         "consent-invalid-source"),
+
+    # P3 wave 3: checkout-lifecycle (CHK-033/CHK-034), cart (CART-029/031/032/033),
+    # order (ORD-003/004/005/006/018/019/020) -- all fixture-schema, all judged by
+    # _oracle_root against the base cart/checkout/order schema (no extension
+    # involved). CHK-034/CART-029 are each ONE register row proven across several
+    # ops via several sibling Row entries sharing the same req_ids -- the same
+    # multi-check-per-requirement precedent struct_check_08_25.py's PERM-005 sets
+    # (two internal checks, one req_id).
+    Row("CHK-033", ["CHK-033"], "fixture-schema",
+        "Checkout status field enum is constrained to the six lifecycle values.",
+        _complete_checkout_status,
+        _oracle_root("schemas/shopping/checkout.json", "complete"),
+        "checkout-complete-bad-status"),
+    Row("CHK-034.create", ["CHK-034"], "fixture-schema",
+        "Checkout response MUST include required top-level fields: ucp, id, "
+        "line_items, status, currency, totals, links. (create op)",
+        _create_checkout,
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "checkout-create-drop-id"),
+    Row("CHK-034.read", ["CHK-034"], "fixture-schema",
+        "Checkout response MUST include required top-level fields. (read op)",
+        _checkout_read_response,
+        _oracle_root("schemas/shopping/checkout.json", "read"),
+        "checkout-read-drop-totals"),
+    Row("CHK-034.update", ["CHK-034"], "fixture-schema",
+        "Checkout response MUST include required top-level fields. (update op)",
+        _checkout_update_response,
+        _oracle_root("schemas/shopping/checkout.json", "update"),
+        "checkout-update-drop-line-items"),
+    Row("CHK-034.cancel", ["CHK-034"], "fixture-schema",
+        "Checkout response MUST include required top-level fields. (cancel op)",
+        _checkout_cancel_response,
+        _oracle_root("schemas/shopping/checkout.json", "cancel"),
+        "checkout-cancel-drop-currency"),
+
+    Row("CART-029.create", ["CART-029"], "fixture-schema",
+        "A cart response object MUST include ucp, id, line_items, currency, "
+        "and totals. (create op)",
+        _create_cart,
+        _oracle_root("schemas/shopping/cart.json", "create"),
+        "cart-create-drop-id"),
+    Row("CART-029.read", ["CART-029"], "fixture-schema",
+        "A cart response object MUST include required top-level fields. (read op)",
+        _cart_read_response,
+        _oracle_root("schemas/shopping/cart.json", "read"),
+        "cart-read-drop-totals"),
+    Row("CART-029.update", ["CART-029"], "fixture-schema",
+        "A cart response object MUST include required top-level fields. (update op)",
+        _cart_update_response,
+        _oracle_root("schemas/shopping/cart.json", "update"),
+        "cart-update-drop-line-items"),
+    Row("CART-029.cancel", ["CART-029"], "fixture-schema",
+        "A cart response object MUST include required top-level fields. (cancel op)",
+        _cart_cancel_response,
+        _oracle_root("schemas/shopping/cart.json", "cancel"),
+        "cart-cancel-drop-currency"),
+    Row("CART-031", ["CART-031"], "fixture-schema",
+        "Each cart line item MUST include id, item, quantity, and totals.",
+        _create_cart,
+        _oracle_root("schemas/shopping/cart.json", "create"),
+        "cart-line-item-drop-quantity"),
+    Row("CART-032", ["CART-032"], "fixture-schema",
+        "Line item quantity MUST be an integer of at least 1.",
+        _create_cart,
+        _oracle_root("schemas/shopping/cart.json", "create"),
+        "cart-quantity-below-minimum"),
+    Row("CART-033", ["CART-033"], "fixture-schema",
+        "Each line item's item MUST include id, title, and price.",
+        _create_cart,
+        _oracle_root("schemas/shopping/cart.json", "create"),
+        "cart-item-drop-price"),
+
+    Row("ORD-003", ["ORD-003"], "fixture-schema",
+        "order.currency is REQUIRED on the order entity.",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-drop-currency"),
+    Row("ORD-004", ["ORD-004"], "fixture-schema",
+        "line_items is REQUIRED on the order entity.",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-drop-line-items"),
+    Row("ORD-005", ["ORD-005"], "fixture-schema",
+        "Each order line item requires id, item, quantity, totals, and status.",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-line-item-drop-status"),
+    Row("ORD-006", ["ORD-006"], "fixture-schema",
+        "Line item quantity requires total and fulfilled (non-negative integers).",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-quantity-drop-fulfilled"),
+    Row("ORD-018", ["ORD-018"], "fixture-schema",
+        "Each expectation requires id, line_items, method_type, and destination.",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-expectation-drop-method-type"),
+    Row("ORD-019", ["ORD-019"], "fixture-schema",
+        "Each fulfillment event requires id, occurred_at, type, and line_items.",
+        _order_response_after_shipping,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-event-drop-occurred-at"),
+    Row("ORD-020", ["ORD-020"], "fixture-schema",
+        "Order confirmation requires id and permalink_url.",
+        _order_response,
+        _oracle_root("schemas/shopping/order.json", "read"),
+        "order-drop-permalink"),
 ]
 
 
@@ -564,6 +823,22 @@ BLOCKED = [
      "(_process_payment) also only recognizes the RETIRED card/token "
      "discriminators, zero support for pan/network_token, so even a "
      "successor-schema check would have nothing real to grade yet."),
+    ("ORD-008/ORD-034 (order adjustment required-field shape / settled-measure "
+     "conditional)",
+     "this golden has no code path that ever produces an order adjustment -- "
+     "ship_order (the only order-mutation route besides the unexercised PUT "
+     "/orders/{id}) only appends fulfillment events, never adjustments "
+     "(services/checkout_service.py has no returns/refunds/exchanges logic at "
+     "all). PUT /orders/{id} accepts a caller-supplied order document "
+     "verbatim (STATUS.md: 'no schema validation was proven for that path'), "
+     "so fabricating an adjustment through it would be testing the platform's "
+     "own echo, not a business-authored response -- the same kind of "
+     "not-a-real-target problem the fixture_only lane exists for, but "
+     "adjustment.json has no natural request-side host either (unlike "
+     "location_serves.json's dedicated fixture route). Building organic "
+     "adjustment support is a real feature addition (a return/refund flow), "
+     "out of a schema-migration-conversion wave's budget; recorded here, not "
+     "silently skipped."),
 ]
 
 

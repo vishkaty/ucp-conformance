@@ -220,6 +220,87 @@
       "violates": "shopping/types/fulfillment_option_base.json required: [id, title] -- FUL-008. The clean POST /checkout-sessions response for this route's fixture body (a shipping method with groups[0].selected_option_id=std-ship) genuinely populates groups[0].options[] from shipping_rates.csv (std-ship/exp-ship-us), so this mutant targets a real served field, not a fabricated one. Checked against the fulfillment extension's combined def.",
       "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
                  "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "cart-line-item-drop-quantity",
+      "family": "check-conversion-p3-wave3",
+      "surface": "cart",
+      "route": {"method": "POST", "path": "/carts"},
+      "patch": [{"op": "drop", "path": ["line_items", 0, "quantity"]}],
+      "violates": "shopping/types/line_item.json required: [id, item, quantity, totals] -- CART-031. Checked against bare cart.json (line_items is a base cart field, not extension-added), same route/oracle-kind as the four per-surface-cart top-level mutants above; this one targets the LINE ITEM level instead of the cart's own top level.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
+    },
+    {
+      "name": "cart-quantity-below-minimum",
+      "family": "check-conversion-p3-wave3",
+      "surface": "cart",
+      "route": {"method": "POST", "path": "/carts"},
+      "patch": [{"op": "set", "path": ["line_items", 0, "quantity"], "value": 0}],
+      "violates": "shopping/types/line_item.json properties.quantity: {type: integer, minimum: 1} -- CART-032 (line item quantity MUST be an integer of at least 1; 0 is schema-invalid, distinct from cart-line-item-drop-quantity's required-field violation).",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
+    },
+    {
+      "name": "cart-item-drop-price",
+      "family": "check-conversion-p3-wave3",
+      "surface": "cart",
+      "route": {"method": "POST", "path": "/carts"},
+      "patch": [{"op": "drop", "path": ["line_items", 0, "item", "price"]}],
+      "violates": "shopping/types/item.json required: [id, title, price] -- CART-033 (a line item's `item` sub-object).",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
+    },
+    {
+      "name": "order-drop-currency",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["currency"]}],
+      "violates": "shopping/order.json required includes currency -- ORD-003.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "order-drop-line-items",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["line_items"]}],
+      "violates": "shopping/order.json required includes line_items -- ORD-004.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "order-line-item-drop-status",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["line_items", 0, "status"]}],
+      "violates": "shopping/types/order_line_item.json required: [id, item, quantity, totals, status] -- ORD-005. Sibling of order-drop-line-items (that mutant drops the whole array; this one drops one required member of a line item to prove the row's own per-item MUST).",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "order-quantity-drop-fulfilled",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["line_items", 0, "quantity", "fulfilled"]}],
+      "violates": "shopping/types/order_line_item.json $defs quantity.required: [total, fulfilled] -- ORD-006.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "order-expectation-drop-method-type",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["fulfillment", "expectations", 0, "method_type"]}],
+      "violates": "shopping/types/expectation.json required: [id, line_items, method_type, destination] -- ORD-018.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "order-event-drop-occurred-at",
+      "family": "check-conversion-p3-wave3",
+      "surface": "order",
+      "route": {"method": "GET", "path": "/orders/{id}"},
+      "patch": [{"op": "drop", "path": ["fulfillment", "events", 0, "occurred_at"]}],
+      "violates": "shopping/types/fulfillment_event.json required: [id, occurred_at, type, line_items] -- ORD-019. apply_patch() is a no-op on a path that fails to resolve (defects.py's own documented permissive-patch behavior), so this mutant only fires against an order whose fulfillment.events[] is non-empty -- the checking row's own fixture calls POST /testing/simulate-shipping/{id} before each GET /orders/{id} to populate events[0] (the same test-only route STATUS.md's R11 section already documents as secret-gated and safe to call regardless of arm state, since its own route never matches an armed mutant here).",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
     }
   ],
   "self_referenced_mutants": [

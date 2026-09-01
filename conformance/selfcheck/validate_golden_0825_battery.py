@@ -205,7 +205,21 @@ def _completed_order_id():
         "risk_signals": {},
     })
     assert st == 200, f"fixture order-completion failed: {st} {completed}"
-    return completed["order"]["id"]
+    order_id = completed["order"]["id"]
+    # P3 wave 3: also simulate a shipment so fulfillment.events[] is non-empty --
+    # the ROUTE-keyed fixture for /orders/{id}, not a per-mutant special case
+    # (the walls doctrine): a bare create->complete order has expectations[] but
+    # ZERO events (services/checkout_service.py's ship_order is the only path in
+    # this golden that ever appends one), so any mutant targeting a field under
+    # fulfillment.events[0] (order-event-drop-occurred-at) would be silently a
+    # no-op against an empty array -- defects.py's apply_patch() is documented
+    # permissive on an unresolvable path (see defects.py's own docstring), so a
+    # thin fixture doesn't error, it just never fires. Populating events[] here
+    # makes the canonical order fixture representative of a real shipped order
+    # for EVERY order-surface mutant, not just this one.
+    st_ship, _ = http("POST", f"/testing/simulate-shipping/{order_id}")
+    assert st_ship == 200, f"fixture order-shipping-simulation failed: {st_ship}"
+    return order_id
 
 
 def perform(route):
