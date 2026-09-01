@@ -322,6 +322,68 @@
      "PAY-041"
     ]
    }
+  },
+  {
+   "batch": "agent-phaseB-0825-kickoff-2026-09-01",
+   "date": "2026-09-01",
+   "reviewer": "author review vs the pinned 2026-08-25 register (per-id quote diff against the 2026-04-08 twin; GAP-LEDGER-0825.md R5/R8/R9 rows cross-checked for the dormant over-strict-predicate hazard class)",
+   "spec_reverified": true,
+   "notes": "First 08-25 agent-lane batch (Phase B kickoff, 220 agent MUSTs / CHECK 0 -> CHECK 51). Each of these 51 req_ids already carries a 2026-04-08 signoff above; this entry records the SEPARATE 08-25-specific re-review each one received before its ACheck's `versions` was extended: id-stable across both registers, and every row whose quote differs was individually diffed (CAT-008/IDL-001/IDL-031/IDL-032/IDL-033/IDL-057[excluded]/IDL-062/SIG-002/SIG-014/SIG-015/SIG-016/SIG-018/SIG-036/DISC-006/CHK-037 all reworded or relocated headings only -- same assertion this file's predicates grade; IDL-033/SIG-036 carry a real mechanism delta, addressed below, not just a wording diff). Two prerequisite fixes landed first in reference_agent.py: extract_signing_keys() reads BOTH the 04-08 nested ucp.signing_keys[] location and the 08-25 top-level keys[] location (R8/R14/S8a -- kill-proofed in test_r8_keys_location.py against a real frozen golden-0825 capture, not just our own sandbox), and discover_protected_resource_metadata() implements 08-25's new identity-linking Discovery Step 1 (RFC 9728), so agent.validates_issuer_match (IDL-033) compares against the Step-1-resolved AS issuer rather than coincidentally reusing the 04-08 two-step answer. agent.verifies_business_signature (SIG-002/SIG-036) reasoning: 08-25's SIG-036 rewording adds multi-signature/multi-algorithm handling ('the request is rejected only when every candidate signature skips') -- our reference agent and sandbox only ever produce ONE signature, the n=1 degenerate case of that rule, under which 'reject on invalid' is unchanged; the multi-signature composition itself is NOT exercised and is out of scope for this batch. Three rows explicitly NOT ported (see the in-line comment at each ACheck in agent_checks.py for the full reasoning): IDL-057 (its scenario data's stand-in unrecognized field, `providers`, is now spec-defined at 08-25 -- porting as-is would cite the wrong requirement), DSC-034 (omit -> optional, a genuine normative reversal already correctly reflected in the register's 08-25 keyword=MAY, so it is absent from the 08-25 agent denominator and was never a candidate), and PAY-032/PAY-041 (AP2 mandates -- deferred to a dedicated Fable-reviewed pass given R9's card_credential deprecation in the same schema neighborhood).",
+   "ids": {
+    "2026-08-25": [
+     "CAT-008",
+     "CAT-009",
+     "CAT-034",
+     "CHK-008",
+     "CHK-035",
+     "CHK-036",
+     "CHK-037",
+     "CHK-038",
+     "CHK-046",
+     "CHK-055",
+     "DISC-006",
+     "DSC-027",
+     "DSC-028",
+     "IDL-001",
+     "IDL-002",
+     "IDL-004",
+     "IDL-005",
+     "IDL-007",
+     "IDL-008",
+     "IDL-009",
+     "IDL-010",
+     "IDL-011",
+     "IDL-012",
+     "IDL-014",
+     "IDL-031",
+     "IDL-032",
+     "IDL-033",
+     "IDL-034",
+     "IDL-035",
+     "IDL-038",
+     "IDL-044",
+     "IDL-048",
+     "IDL-051",
+     "IDL-055",
+     "IDL-061",
+     "IDL-062",
+     "ORD-015",
+     "OVR-008",
+     "PAY-009",
+     "PAY-010",
+     "PAY-017",
+     "PAY-019",
+     "PAY-024",
+     "SIG-001",
+     "SIG-002",
+     "SIG-014",
+     "SIG-015",
+     "SIG-016",
+     "SIG-018",
+     "SIG-036",
+     "TOT-010"
+    ]
+   }
   }
  ]
 }

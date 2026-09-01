@@ -22,9 +22,9 @@
  },
  "2026-08-25": {
   "agent_musts": 220,
-  "check": 0,
+  "check": 51,
   "exempt": 3,
-  "gap": 217,
-  "accounted_pct": 1
+  "gap": 166,
+  "accounted_pct": 25
  }
 }

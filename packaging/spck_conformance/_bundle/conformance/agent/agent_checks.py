@@ -13,6 +13,27 @@ Phase A: the model + an EMPTY registry (zero coverage — the foundation runs gr
 any check exists). Phase B adds the P0 rounded slice (UCP-Agent, signature verification,
 identity/OAuth/iss, escalation-follow).
 
+Phase B, 2026-08-25 kickoff (agent lane; the 08-25 register graduated 220 agent MUSTs /
+CHECK 0 / GAP 217 on 2026-09-01 — see spec_versions.py's AGENT_REGISTER_ONLY_VERSIONS
+docstring): 40 of the above ACheck objects (51 req_ids) had their `versions` extended to
+also cover 2026-08-25, each individually verified against the pinned 08-25 register text
+(id-stable across versions here; a handful are cosmetically reworded/relocated, none
+change the assertion this file grades) and, where the register itself flagged a
+"reworded"/normative-reversal disposition, checked against GAP-LEDGER-0825.md's R5/R8/R9
+rows for exactly the dormant-over-strict-predicate hazard those rows warn about. Two
+prerequisite fixes landed first (reference_agent.py): extract_signing_keys() reads the
+business's signing-key set from BOTH the 04-08 nested location AND the 08-25 top-level
+`keys[]` location (the R8/R14/S8a class), and discover_protected_resource_metadata()
+implements 08-25's new identity-linking Discovery Step 1 (RFC 9728), so IDL-033's
+issuer-match check genuinely exercises the 08-25 three-step pipeline rather than
+coincidentally landing on the 04-08 answer. THREE rows are deliberately NOT ported this
+batch (commented in-line at each ACheck): IDL-057 (a "future field" the check exercises,
+`providers`, is now spec-defined at 08-25 — porting as-is would cite the wrong
+requirement), DSC-034 (a genuine normative reversal, omit -> optional — the register
+already excludes it from the 08-25 agent denominator), and the two AP2 mandate checks
+(PAY-032/PAY-041 — deferred to a dedicated, Fable-reviewed pass given R9's card_credential
+deprecation in the same schema neighborhood and the money-adjacent mechanism).
+
 Isolation: this tree (conformance/agent/) is NOT globbed by the merchant coverage_map
 (which scans conformance/checks/*.py, non-recursive) nor the merchant collectors — so
 adding agent checks here cannot move the merchant coverage numbers.
@@ -812,126 +833,159 @@ def p_validates_oauth_state(log):
 
 CHECKS = [
     ACheck("agent.sends_ucp_agent", ["DISC-006", "CHK-046", "ORD-015"], "MUST",
-           p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08"]),
+           p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.follows_escalation", ["CHK-008", "PAY-017"], "MUST",
-           p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08"]),
+           p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08", "2026-08-25"]),
     # (IDL-001 "uses OAuth 2.0 as the v1 auth mechanism" co-cited on uses_authorization_code_flow
     #  below; IDL-038 "treat config.scopes as gating ops behind user auth" on processes_auth_challenge)
     ACheck("agent.verifies_business_signature", ["SIG-036", "SIG-002"], "MUST",
            p_verifies_business_signature, kill_mutation="skip_sig_verify",
-           versions=["2026-04-08"], scenario="bad_signature"),
+           versions=["2026-04-08", "2026-08-25"], scenario="bad_signature"),
     ACheck("agent.uses_pkce", ["IDL-011"], "MUST",
-           p_uses_pkce, kill_mutation="no_pkce", versions=["2026-04-08"]),
+           p_uses_pkce, kill_mutation="no_pkce", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.validates_iss", ["IDL-012"], "MUST",
            p_validates_iss, kill_mutation="skip_iss_validation",
-           versions=["2026-04-08"], scenario="bad_iss"),
+           versions=["2026-04-08", "2026-08-25"], scenario="bad_iss"),
     ACheck("agent.request_signature_verifies", ["SIG-001"], "MUST",
-           p_request_signature_verifies, kill_mutation="sign_corrupt", versions=["2026-04-08"]),
+           p_request_signature_verifies, kill_mutation="sign_corrupt", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.signs_core_components", ["SIG-014"], "MUST",
-           p_signs_core_components, kill_mutation="sign_omit_authority", versions=["2026-04-08"]),
+           p_signs_core_components, kill_mutation="sign_omit_authority", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.signs_body_components", ["SIG-015"], "MUST",
-           p_signs_body_components, kill_mutation="sign_omit_digest", versions=["2026-04-08"]),
+           p_signs_body_components, kill_mutation="sign_omit_digest", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.signs_idempotency_key", ["SIG-016"], "MUST",
-           p_signs_idempotency_key, kill_mutation="sign_omit_idem", versions=["2026-04-08"]),
+           p_signs_idempotency_key, kill_mutation="sign_omit_idem", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.signs_ucp_agent_component", ["SIG-018"], "MUST",
            p_signs_ucp_agent_component, kill_mutation="ucp_agent_not_signed",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.processes_auth_challenge", ["IDL-008", "IDL-038"], "MUST",
            p_processes_auth_challenge, kill_mutation="no_bearer_retry",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.sends_bearer_token", ["IDL-007"], "MUST",
            p_sends_bearer_token, kill_mutation="no_bearer_header",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.extracts_challenge_scope", ["IDL-009"], "MUST",
            p_extracts_challenge_scope, kill_mutation="ignore_challenge_scope",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.public_client_pkce_proof", ["IDL-004"], "MUST",
            p_public_client_pkce_proof, kill_mutation="no_pkce_verifier",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.no_client_secret", ["IDL-005"], "MUST NOT",
            p_no_client_secret, kill_mutation="embed_client_secret",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.validates_oauth_state", ["IDL-035"], "MUST",
            p_validates_oauth_state, kill_mutation="skip_state_validation",
-           versions=["2026-04-08"], scenario="bad_state"),
+           versions=["2026-04-08", "2026-08-25"], scenario="bad_state"),
     ACheck("agent.validates_issuer_match", ["IDL-033"], "MUST",
            p_validates_issuer_match, kill_mutation="normalize_issuer",
-           versions=["2026-04-08"], scenario="bad_issuer"),
+           versions=["2026-04-08", "2026-08-25"], scenario="bad_issuer"),
     ACheck("agent.aborts_on_discovery_error", ["IDL-031", "IDL-032"], "MUST",
            p_aborts_on_discovery_error, kill_mutation="oidc_fallthrough_on_error",
-           versions=["2026-04-08"], scenario="discovery_error"),
+           versions=["2026-04-08", "2026-08-25"], scenario="discovery_error"),
     ACheck("agent.no_autocomplete_mismatched_totals", ["CHK-055", "TOT-010"], "MUST NOT",
            p_no_autocomplete_mismatched_totals, kill_mutation="complete_on_mismatch",
-           versions=["2026-04-08"], scenario="mismatched_totals"),
+           versions=["2026-04-08", "2026-08-25"], scenario="mismatched_totals"),
     ACheck("agent.honors_available_instruments", ["PAY-009", "PAY-010"], "MUST NOT",
            p_honors_available_instruments, kill_mutation="use_unavailable_instrument",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.uses_authorization_code_flow", ["IDL-010", "IDL-001"], "MUST",
-           p_authorization_code_flow, kill_mutation="implicit_grant", versions=["2026-04-08"]),
+           p_authorization_code_flow, kill_mutation="implicit_grant", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.uses_advertised_auth_method", ["IDL-002"], "MUST",
            p_uses_advertised_auth_method, kill_mutation="unadvertised_auth_method",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.requests_only_derived_scopes", ["IDL-034"], "MUST",
            p_requests_only_derived_scopes, kill_mutation="request_scope_superset",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
+    # NOT extended to 2026-08-25 (agent phase B kickoff, 08-25 batch — deliberately
+    # BLOCKED, not overlooked): IDL-057's 08-25 text added a genuinely new clause —
+    # "Platforms MUST treat provider entries with an unsupported type as filtered out,
+    # then apply the rules in Identity Providers to what remains" (common/identity-
+    # linking/index.md#L1049-1053) — meaning `providers` is now a RECOGNIZED,
+    # spec-defined config field at 08-25, not an example of an "unrecognized future
+    # field" any more. This check's own scenario data (sandbox._identity_linking_config
+    # under "future_config") uses `providers` as its stand-in unrecognized field —
+    # porting the check unmodified at 08-25 would grade the WRONG requirement (citing
+    # a config key the released spec now defines) under IDL-057's id. Needs: (1) a new
+    # sandbox config field that's genuinely unrecognized at 08-25 (providers no longer
+    # qualifies), (2) a real Identity Providers filtering model if this check is meant
+    # to also cover the new provider-filtering clause. Tracked, not silently dropped.
     ACheck("agent.ignores_future_config", ["IDL-057"], "MUST",
            p_ignores_future_config, kill_mutation="abort_on_future_config",
            versions=["2026-04-08"], scenario="future_config"),
     ACheck("agent.aborts_on_oidc_fallback_error", ["IDL-062"], "MUST",
            p_aborts_on_oidc_fallback_error, kill_mutation="oidc_fallback_no_abort",
-           versions=["2026-04-08"], scenario="oidc_fallback_error"),
+           versions=["2026-04-08", "2026-08-25"], scenario="oidc_fallback_error"),
     ACheck("agent.no_iss_normalization", ["IDL-061"], "MUST",
            p_no_iss_normalization, kill_mutation="normalize_iss",
-           versions=["2026-04-08"], scenario="iss_normalized"),
+           versions=["2026-04-08", "2026-08-25"], scenario="iss_normalized"),
     ACheck("agent.revokes_token_on_unlink", ["IDL-014", "IDL-055"], "MUST",
            p_revokes_token_on_unlink, kill_mutation="skip_revocation",
-           versions=["2026-04-08"], scenario="auth_challenge"),
+           versions=["2026-04-08", "2026-08-25"], scenario="auth_challenge"),
     ACheck("agent.owns_authz_request", ["IDL-044"], "MUST",
            p_owns_authz_request, kill_mutation="adopt_prebaked_authz",
-           versions=["2026-04-08"], scenario="prebaked_continue_url"),
+           versions=["2026-04-08", "2026-08-25"], scenario="prebaked_continue_url"),
     ACheck("agent.incremental_scope_only", ["IDL-048"], "MUST NOT",
            p_incremental_scope_only, kill_mutation="reinit_fresh_link",
-           versions=["2026-04-08"], scenario="incremental_scope"),
+           versions=["2026-04-08", "2026-08-25"], scenario="incremental_scope"),
     ACheck("agent.ignores_error_description", ["IDL-051"], "MUST NOT",
            p_ignores_error_description, kill_mutation="follow_error_description",
-           versions=["2026-04-08"], scenario="misleading_error_description"),
+           versions=["2026-04-08", "2026-08-25"], scenario="misleading_error_description"),
     ACheck("agent.omits_ucp_on_request", ["CHK-036"], "MUST NOT",
-           p_omits_ucp_on_request, kill_mutation="send_ucp_envelope", versions=["2026-04-08"]),
+           p_omits_ucp_on_request, kill_mutation="send_ucp_envelope", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.omits_response_only_fields", ["CHK-037"], "MUST NOT",
            p_omits_response_only_fields, kill_mutation="send_response_only_fields",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.omits_checkout_id", ["CHK-035"], "MUST NOT",
-           p_omits_checkout_id, kill_mutation="send_checkout_id", versions=["2026-04-08"]),
+           p_omits_checkout_id, kill_mutation="send_checkout_id", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.uses_json_content_type", ["OVR-008"], "MUST",
            p_uses_json_content_type, kill_mutation="wrong_content_type",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.paginates_by_has_next_page", ["CAT-008"], "MUST NOT",
            p_paginates_by_has_next_page, kill_mutation="assume_count_is_limit",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.sends_valid_search_input", ["CAT-009"], "MUST",
            p_sends_valid_search_input, kill_mutation="empty_search_request",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.selected_option_names_unique", ["CAT-034"], "MUST",
            p_selected_option_names_unique, kill_mutation="duplicate_option_name",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.line_items_create_not_complete", ["CHK-038"], "MUST",
            p_line_items_create_not_complete, kill_mutation="omit_line_items_on_create",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
     # (CHK-039 payment-required-on-complete DEFERRED: its only kill — omit payment — cascades
     #  into follows_escalation/honors_available_instruments since the escalate-token+instrument
     #  live in payment; needs a non-cascading design, not a muddy diagonal.)
     ACheck("agent.omits_discounts_on_request", ["DSC-027", "DSC-028"], "MUST NOT",
            p_omits_discounts_on_request, kill_mutation="send_discounts_on_request",
-           versions=["2026-04-08"]),
+           versions=["2026-04-08", "2026-08-25"]),
+    # NOT extended to 2026-08-25 (agent phase B kickoff, 08-25 batch): DSC-034 is a
+    # NORMATIVE REVERSAL, not a rewording — buyer_consent.json's `complete` ucp_request
+    # annotation flipped from "omit" (04-08: buyer/consent MUST be omitted on complete)
+    # to "optional" (08-25: platforms MAY submit it) — buyer-consent.md's own new prose
+    # says so explicitly. The register already reflects this correctly: DSC-034's 08-25
+    # keyword is MAY, so agent_rows("2026-08-25") does not even carry this id (verified:
+    # it is absent from the 08-25 agent-subject denominator). Porting this MUST-NOT
+    # check to 08-25 would be exactly the dormant over-strict predicate GAP-LEDGER-
+    # 0825.md's R5 row warns about — false-failing a compliant 08-25 platform that
+    # legitimately sends buyer/consent on complete. Left at 04-08 only, correctly.
     ACheck("agent.omits_buyer_on_complete", ["DSC-034"], "MUST NOT",
            p_omits_buyer_on_complete, kill_mutation="send_buyer_on_complete",
            versions=["2026-04-08"]),
     ACheck("agent.instrument_has_ids", ["PAY-019"], "MUST",
-           p_instrument_has_ids, kill_mutation="omit_instrument_ids", versions=["2026-04-08"]),
+           p_instrument_has_ids, kill_mutation="omit_instrument_ids", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.credential_has_type", ["PAY-024"], "MUST",
-           p_credential_has_type, kill_mutation="omit_credential_type", versions=["2026-04-08"]),
+           p_credential_has_type, kill_mutation="omit_credential_type", versions=["2026-04-08", "2026-08-25"]),
     # AP2 mandate obligations (ap2-mandates.md) — graded in the "ap2" scenario, where the
     # sandbox advertises dev.ucp.shopping.ap2_mandate and the session is Security Locked.
+    #
+    # NOT extended to 2026-08-25 (agent phase B kickoff, 08-25 batch): PAY-032/PAY-041's
+    # quoted text is unchanged, but the mandate MECHANISM these two checks exercise is
+    # money-adjacent (signed payment-authorization artifacts) and R9 (GAP-LEDGER-0825.md)
+    # flags a related deprecation in this exact area — card_credential -> pan_credential/
+    # network_token_credential — that has not yet been audited for whether it touches the
+    # AP2 mandate/credential wrapping shape at 08-25. Per house policy (Fable review for
+    # money-adjacent mechanisms before shipping), this pair is deliberately deferred to a
+    # dedicated, reviewed follow-up rather than ported on this batch's lighter-weight
+    # per-row diffing alone.
     ACheck("agent.ap2_provides_mandates_on_complete", ["PAY-032", "PAY-041"], "MUST",
            p_ap2_provides_mandates, kill_mutation="ap2_ignore_mandates",
            versions=["2026-04-08"], capability="dev.ucp.shopping.ap2_mandate",

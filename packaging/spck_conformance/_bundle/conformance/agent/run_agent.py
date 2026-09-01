@@ -61,8 +61,13 @@ def main():
         log = ReferenceAgent(base).run_flow()      # conformant sanity flow
         # the order-cancel probe only exists under incremental_scope; it legitimately 404s on
         # the conformant surface, so don't count that expected 404 against the boot sanity.
+        # prm_discovery (08-25 identity-linking Step 1, RFC 9728) also legitimately 404s on
+        # every scenario here -- the sandbox never serves protected-resource metadata, which
+        # IS the documented default case (discover_protected_resource_metadata falls back to
+        # the business domain) -- so its 404 is expected, not a boot failure either.
         booted = all(e["response"]["status"] in (200, 201)
-                     or e["request"]["path"].endswith("/cancel") for e in log)
+                     or e["request"]["path"].endswith("/cancel")
+                     or e["op"] == "prm_discovery" for e in log)
     results, unsound, ref_ops = reference_gate()
     ref_ops = ref_ops or len(log)
 

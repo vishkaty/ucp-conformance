@@ -95,6 +95,43 @@ _AGENT_SIG_KID = "spck-agent-sig-2026"
 _AGENT_D, _AGENT_Q = crypto.keypair(b"spck-reference-agent-request-signing-key-2026")
 
 
+def extract_signing_keys(body):
+    """The business's published RFC 9421 signing-key set, read from EVERY canonical
+    location across the pinned spec versions -- never a single hardcoded field.
+
+    At 2026-04-08 the key set lives NESTED at `ucp.signing_keys[]`. At 2026-08-25 that
+    field was retired (ucp#566) and the canonical location moved to a TOP-LEVEL `keys[]`
+    array, a SIBLING of `ucp` (profile.json `$defs.base`; overview/index.md#L1262-1265:
+    "platforms publish signing keys ... they MUST appear in the top-level keys[] array").
+
+    This is the exact bug class GAP-LEDGER-0825.md's R8/R14/S8a rows document: our own
+    golden-0825 (routes/discovery.py, fixed by R14) AND both upstream samples servers
+    (S8a/S8a-py) independently shipped a verifier that read only ONE location -- and
+    because the write side made the identical mistake, each was self-consistent and the
+    bug was invisible to a verifier that only ever talks to itself. A platform/agent that
+    hardcodes one location has the SAME failure mode against a real 08-25 business:
+    self.jwks silently stays empty and `_verify_sig` no-ops (see its `not self.jwks`
+    guard) rather than failing loud -- a verifier that can never verify.
+
+    Reading both locations is the fix on the CONSUMING side, and it is safe: harmless
+    when the other field is simply absent (the common case at either version), never
+    masks a genuinely keyless profile (both empty -> still empty -> verification stays
+    gated off), and forward-compatible with a business that (during a migration window)
+    publishes both. kid-deduplicated so a business publishing the same key at both
+    locations doesn't double-count it."""
+    top = body.get("keys") or []
+    nested = ((body.get("ucp") or {}).get("signing_keys")) or []
+    seen, out = set(), []
+    for jwk in list(top) + list(nested):
+        kid = isinstance(jwk, dict) and jwk.get("kid")
+        if kid and kid in seen:
+            continue
+        if kid:
+            seen.add(kid)
+        out.append(jwk)
+    return out
+
+
 class ReferenceAgent:
     PROFILE = "https://spck.dev/agent"
 
@@ -111,6 +148,7 @@ class ReferenceAgent:
         self.issued_tokens = []      # access tokens minted this session (to revoke on unlink)
         self.current_token = None    # the Bearer token currently held
         self.current_granted = set()  # the scope set granted to current_token (IDL-048)
+        self.as_issuer = None        # the AS issuer resolved by discover_protected_resource_metadata
 
     @staticmethod
     def signing_jwk():
@@ -199,8 +237,9 @@ class ReferenceAgent:
 
     def discover(self):
         r = self._send("discover", "GET", "/.well-known/ucp")
-        prof = (r.get("body") or {}).get("ucp") or {}
-        self.jwks = prof.get("signing_keys") or []
+        body = r.get("body") or {}
+        prof = body.get("ucp") or {}
+        self.jwks = extract_signing_keys(body)      # R8/R14/S8a: reads BOTH key locations
         self.identity = prof.get("identity") or {}
         # AP2 negotiation: when the business advertises dev.ucp.shopping.ap2_mandate the
         # session is Security Locked — a conformant platform MUST provide the mandate
@@ -224,12 +263,36 @@ class ReferenceAgent:
             scopes.append("dev.ucp.shopping.order:admin")   # not in config.scopes
         return scopes
 
+    def discover_protected_resource_metadata(self):
+        """08-25 identity-linking Discovery Step 1 (RFC 9728), common/identity-linking/
+        index.md#L286-295: platforms fetch the business's protected-resource metadata and
+        use the selected `authorization_servers` entry as the AS issuer -- which MAY be a
+        DIFFERENT origin than the business domain. When the business publishes no PRM (a
+        404 -- 'single-host deployments'), the AS issuer DEFAULTS to the business domain:
+        exactly the case our sandbox models today (no PRM route configured -> falls through
+        to its blanket 404). Sets self.as_issuer, which Step 3 (issuer validation, IDL-033)
+        keys off -- never self.server directly -- so a check graded against this genuinely
+        exercises the 08-25 three-step pipeline rather than coincidentally landing on the
+        same answer the old 04-08 two-step flow gave. No-op at 04-08 (the spec has no PRM
+        step there); the request is harmless there too (a benign extra 404)."""
+        r = self._send("prm_discovery", "GET", "/.well-known/oauth-protected-resource")
+        st = r.get("status") or 0
+        if 200 <= st < 300:
+            servers = (r.get("body") or {}).get("authorization_servers") or []
+            self.as_issuer = servers[0] if servers else self.server
+        else:
+            self.as_issuer = self.server        # no PRM published -> business domain
+        return self.as_issuer
+
     def discover_oauth_metadata(self):
-        """RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257):
-        fetch {base}/.well-known/oauth-authorization-server. On 2xx the `issuer` MUST match the
-        discovery base URI byte-for-byte, with NO normalization (IDL-033). On 404 fall back to
-        OIDC discovery; on any OTHER non-2xx/error the platform MUST abort and MUST NOT proceed
-        to the OIDC fallback (IDL-031/032)."""
+        """RFC 8414 authorization-server metadata discovery (identity-linking.md L236-257 @
+        04-08; common/identity-linking/index.md Step 2 @ 08-25): fetch
+        {as_issuer}/.well-known/oauth-authorization-server. On 2xx the `issuer` MUST
+        byte-for-byte match the AS issuer selected in Step 1 (self.as_issuer -- the business
+        domain by default, see discover_protected_resource_metadata), with NO normalization
+        (IDL-033). On 404 fall back to OIDC discovery; on any OTHER non-2xx/error the
+        platform MUST abort and MUST NOT proceed to the OIDC fallback (IDL-031/032)."""
+        as_issuer = self.as_issuer or self.server
         r = self._send("as_discovery", "GET", "/.well-known/oauth-authorization-server")
         entry = self.log[-1]
         st = r.get("status") or 0
@@ -237,9 +300,9 @@ class ReferenceAgent:
             meta = r.get("body") or {}
             issuer = meta.get("issuer")
             if self.defect == "normalize_issuer":
-                matched = (issuer or "").rstrip("/") == self.server.rstrip("/")   # WRONG
+                matched = (issuer or "").rstrip("/") == as_issuer.rstrip("/")   # WRONG
             else:
-                matched = (issuer == self.server)              # IDL-033: byte-for-byte
+                matched = (issuer == as_issuer)                 # IDL-033: byte-for-byte
             entry["issuer_matched"] = matched
             if not matched:
                 entry["rejected"] = True
@@ -556,6 +619,8 @@ class ReferenceAgent:
         if self.unknown_config_fields and self.defect == "abort_on_future_config":
             self.log[-1]["aborted_on_unknown_config"] = True
             return self.log
+        self.discover_protected_resource_metadata()   # 08-25 Step 1 (RFC 9728); defaults to
+                                                        # the business domain when absent
         self.discover_oauth_metadata()     # RFC 8414 AS-metadata discovery (issuer/abort rules)
         # IDL-031/033/062: a discovery abort (non-404 error, or an OIDC-fallback failure) or a
         # rejected issuer MUST abort the identity-linking process — do not proceed to
