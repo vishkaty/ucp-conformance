@@ -45,6 +45,19 @@ Areas converted (register: conformance/requirements/2026-08-25/):
      identity-resolution URL fetch-safety rules -- HTTPS-only, no-redirect-follow,
      and the SSRF/special-use-address guard -- each a pure algorithm over a URL/
      status/IP string, no live golden or oracle needed).
+  5. catalog.json (P3 wave 4, 2026-09-01) — CAT-001, CAT-002, CAT-003, CAT-015,
+     CAT-016, CAT-017, CAT-018, CAT-028, CAT-029, CAT-030, CAT-031, CAT-032,
+     CAT-039..CAT-043: pagination/lookup/search required-field shapes read LIVE
+     from the vendored pagination.json/catalog_lookup.json/catalog_search.json
+     (P-7, same live-schema-read idiom Area 1/2 already use) plus three pure
+     algorithms golden-0825 cannot exercise (it implements no /catalog/* route
+     at all -- STATUS.md; verified 2026-09-01 empty grep of the golden server
+     tree for "catalog"): request-id dedup + resolve-to-one-product-per-match
+     (CAT-015/016), the inputs-required variant filter (CAT-017/018), the
+     variant-ID-first reordering rule (CAT-032), and the unit_price comparator
+     formula (CAT-039..043, catalog/index.md#L104-121's own explicit formula --
+     the strongest kind of prose to convert this way, an EXACT deterministic
+     computation, not a judgment call).
 
 Wiring: run_suite.py gate "struct-check-08-25" (hermetic, needs=None — no server, no
 oracle). Deliberately NOT wired into checkset_manifest.py / matrix.py / coverage
@@ -554,7 +567,260 @@ DISCOVERY_FETCH_SAFETY_CHECKS = [
 ]
 
 
-CHECKS = CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS + DISCOVERY_FETCH_SAFETY_CHECKS
+# =====================================================================================
+# Area 5 — catalog: pagination/lookup/search required-field shapes (read LIVE from the
+# vendored schema files, same idiom as Area 1's business_schema_requires_schema) plus
+# three pure algorithms (dedup+merge-by-product, the inputs-required variant filter,
+# variant-ID-first reordering) and the unit_price comparator formula.
+# Source: source/schemas/common/types/pagination.json,
+#         source/schemas/shopping/catalog_lookup.json,
+#         source/schemas/shopping/catalog_search.json,
+#         docs/specification/shopping/catalog/lookup.md#L45-L135,
+#         docs/specification/shopping/catalog/index.md#L104-L121, all @ cd78fb38.
+# Golden-0825 implements no /catalog/* route at all (STATUS.md; empty grep of the
+# server tree for "catalog", verified 2026-09-01), so these are self-referenced —
+# our own code implementing the prose/schema exactly, kill-tested against negatives —
+# with no live wire target, exactly this file's established evidence ceiling for a
+# NEW algorithm (module docstring above).
+# =====================================================================================
+
+PAGINATION_SCHEMA_PATH = VENDOR / "source" / "schemas" / "common" / "types" / "pagination.json"
+_REAL_PAGINATION_DOC = json.loads(PAGINATION_SCHEMA_PATH.read_text())
+
+CATALOG_LOOKUP_SCHEMA_PATH = VENDOR / "source" / "schemas" / "shopping" / "catalog_lookup.json"
+_REAL_CATALOG_LOOKUP_DOC = json.loads(CATALOG_LOOKUP_SCHEMA_PATH.read_text())
+
+CATALOG_SEARCH_SCHEMA_PATH = VENDOR / "source" / "schemas" / "shopping" / "catalog_search.json"
+_REAL_CATALOG_SEARCH_DOC = json.loads(CATALOG_SEARCH_SCHEMA_PATH.read_text())
+
+
+def pagination_response_requires_has_next_page(doc):
+    """CAT-001: pagination.json's response def MUST require has_next_page."""
+    node = (doc.get("$defs") or {}).get("response")
+    if not isinstance(node, dict):
+        return False
+    return "has_next_page" in (node.get("required") or [])
+
+
+def pagination_cursor_required_when_has_next_page(doc):
+    """CAT-002/CAT-003: the response def's own if/then MUST require cursor when
+    has_next_page is const true."""
+    node = (doc.get("$defs") or {}).get("response")
+    if not isinstance(node, dict):
+        return False
+    if_ = node.get("if") or {}
+    then_ = node.get("then") or {}
+    if_wants_true = (if_.get("properties") or {}).get("has_next_page", {}).get("const") is True
+    then_requires_cursor = "cursor" in (then_.get("required") or [])
+    return bool(if_wants_true and then_requires_cursor)
+
+
+def _mutant_pagination_doc_without_has_next_page_required():
+    doc = copy.deepcopy(_REAL_PAGINATION_DOC)
+    node = doc["$defs"]["response"]
+    node["required"] = [r for r in node["required"] if r != "has_next_page"]
+    return doc
+
+
+def _mutant_pagination_doc_without_cursor_conditional():
+    doc = copy.deepcopy(_REAL_PAGINATION_DOC)
+    node = doc["$defs"]["response"]
+    node["then"] = {"required": []}
+    return doc
+
+
+def _def_requires(doc, def_name, keys):
+    """Shared reader for CAT-028..031: a named $defs entry's `required` list
+    MUST include every key in `keys`."""
+    node = (doc.get("$defs") or {}).get(def_name)
+    if not isinstance(node, dict):
+        return False
+    req = node.get("required") or []
+    return all(k in req for k in keys)
+
+
+def _lookup_request_ids_min_one(doc):
+    """CAT-028: lookup_request.ids MUST be required with minItems 1."""
+    if not _def_requires(doc, "lookup_request", ["ids"]):
+        return False
+    ids_prop = ((doc["$defs"]["lookup_request"].get("properties") or {}).get("ids") or {})
+    return ids_prop.get("minItems") == 1
+
+
+def _mutant_catalog_lookup_doc(mutate):
+    doc = copy.deepcopy(_REAL_CATALOG_LOOKUP_DOC)
+    mutate(doc)
+    return doc
+
+
+CATALOG_SCHEMA_CHECKS = [
+    Check("catalog.pagination_response_requires_has_next_page", ["CAT-001"],
+          pagination_response_requires_has_next_page,
+          [(_REAL_PAGINATION_DOC,)],
+          [(_mutant_pagination_doc_without_has_next_page_required(),),
+           ({"$defs": {"response": {}}},), ({},)]),
+    Check("catalog.pagination_cursor_required_when_has_next_page", ["CAT-002", "CAT-003"],
+          pagination_cursor_required_when_has_next_page,
+          [(_REAL_PAGINATION_DOC,)],
+          [(_mutant_pagination_doc_without_cursor_conditional(),),
+           ({"$defs": {"response": {}}},), ({},)]),
+    Check("catalog.lookup_request_requires_ids_min_one", ["CAT-028"],
+          _lookup_request_ids_min_one,
+          [(_REAL_CATALOG_LOOKUP_DOC,)],
+          [(_mutant_catalog_lookup_doc(
+              lambda d: d["$defs"]["lookup_request"].__setitem__("required", [])),),
+           (_mutant_catalog_lookup_doc(
+              lambda d: d["$defs"]["lookup_request"]["properties"]["ids"].pop("minItems")),),
+           ({},)]),
+    Check("catalog.lookup_response_requires_ucp_and_products", ["CAT-030"],
+          lambda doc: _def_requires(doc, "lookup_response", ["ucp", "products"]),
+          [(_REAL_CATALOG_LOOKUP_DOC,)],
+          [(_mutant_catalog_lookup_doc(
+              lambda d: d["$defs"].__setitem__("lookup_response", {"required": ["ucp"]})),),
+           ({},)]),
+    Check("catalog.get_product_response_requires_ucp_and_product", ["CAT-031"],
+          lambda doc: _def_requires(doc, "get_product_response", ["ucp", "product"]),
+          [(_REAL_CATALOG_LOOKUP_DOC,)],
+          [(_mutant_catalog_lookup_doc(
+              lambda d: d["$defs"].__setitem__("get_product_response", {"required": ["ucp"]})),),
+           ({},)]),
+    Check("catalog.search_response_requires_ucp_and_products", ["CAT-029"],
+          lambda doc: _def_requires(doc, "search_response", ["ucp", "products"]),
+          [(_REAL_CATALOG_SEARCH_DOC,)],
+          [({"$defs": {"search_response": {"required": ["ucp"]}}},), ({},)]),
+]
+
+
+def dedupe_lookup_ids(ids):
+    """CAT-015: duplicate identifiers in the request MUST be deduplicated
+    (order-preserving, first occurrence wins)."""
+    seen, out = set(), []
+    for i in ids:
+        if i not in seen:
+            seen.add(i)
+            out.append(i)
+    return out
+
+
+def resolve_lookup_products(ids, id_to_product):
+    """CAT-015/CAT-016 combined: dedup the request ids, resolve each to a
+    product key, and return each MATCHED product exactly once (first-resolution
+    order) -- 'When multiple identifiers resolve to the same product, it MUST
+    be returned once.' An id with no entry in id_to_product is simply unmatched
+    (not an error at this layer)."""
+    seen_products, out = set(), []
+    for i in dedupe_lookup_ids(ids):
+        key = id_to_product.get(i)
+        if key is None or key in seen_products:
+            continue
+        seen_products.add(key)
+        out.append(key)
+    return out
+
+
+def filter_lookup_variants(variants):
+    """CAT-017/CAT-018 combined: a variant without a non-empty `inputs` entry
+    MUST NOT appear in a lookup response (catalog_lookup.json's lookup_variant
+    def: inputs required, minItems 1)."""
+    return [v for v in variants if v.get("inputs")]
+
+
+def order_variants_for_lookup(requested_variant_id, all_variant_ids):
+    """CAT-032: for a Variant ID lookup, the requested variant MUST be the
+    first element (featured); the rest keep their existing relative order."""
+    if requested_variant_id not in all_variant_ids:
+        return list(all_variant_ids)
+    rest = [v for v in all_variant_ids if v != requested_variant_id]
+    return [requested_variant_id] + rest
+
+
+CATALOG_LOOKUP_ALGORITHM_CHECKS = [
+    Check("catalog.lookup_dedup_and_merge_by_product", ["CAT-015", "CAT-016"],
+          lambda ids, id_to_product, want: resolve_lookup_products(ids, id_to_product) == want,
+          [(["sku1", "sku1", "sku2"], {"sku1": "prod_A", "sku2": "prod_A"}, ["prod_A"]),
+           (["a", "b"], {"a": "prod_A", "b": "prod_B"}, ["prod_A", "prod_B"]),
+           (["a", "missing", "a"], {"a": "prod_A"}, ["prod_A"])],
+          [(["sku1", "sku1", "sku2"], {"sku1": "prod_A", "sku2": "prod_A"}, ["prod_A", "prod_A"]),
+           (["a", "b"], {"a": "prod_A", "b": "prod_B"}, ["prod_A"])]),
+    Check("catalog.lookup_variants_require_nonempty_inputs", ["CAT-017", "CAT-018"],
+          lambda variants, want: [v["id"] for v in filter_lookup_variants(variants)] == want,
+          [([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
+             {"id": "v2", "inputs": []},
+             {"id": "v3"}], ["v1"])],
+          [([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
+             {"id": "v2", "inputs": []},
+             {"id": "v3"}], ["v1", "v2"]),
+           ([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
+             {"id": "v2", "inputs": []},
+             {"id": "v3"}], ["v1", "v2", "v3"])]),
+    Check("catalog.variant_id_lookup_requested_variant_first", ["CAT-032"],
+          lambda requested, all_ids, want: order_variants_for_lookup(requested, all_ids) == want,
+          [("v2", ["v1", "v2", "v3"], ["v2", "v1", "v3"]),
+           ("v1", ["v1", "v2", "v3"], ["v1", "v2", "v3"])],
+          [("v2", ["v1", "v2", "v3"], ["v1", "v2", "v3"])]),  # unordered/naive -- must fail
+]
+
+
+def compute_unit_price_amount(price_amount, measure_value, measure_scale,
+                               reference_value, reference_scale):
+    """CAT-042/CAT-043: catalog/index.md#L104-121's unit_price comparator
+    formula, computed once and rounded once (the spec fixes the formula and
+    the single-rounding discipline, not a rounding MODE — this uses Python's
+    default round-half-to-even, which the prose does not forbid).
+    `(price.amount / (measure.value x 10^-measure.scale))
+       x (reference.value x 10^-reference.scale)`
+    CAT-039 (positive-integer precondition) is enforced by the caller /
+    exercised by its own dedicated check below, not re-validated here."""
+    measure_in_common_unit = measure_value * (10 ** -measure_scale)
+    reference_in_common_unit = reference_value * (10 ** -reference_scale)
+    comparator = (price_amount / measure_in_common_unit) * reference_in_common_unit
+    return round(comparator)
+
+
+def unit_price_measure_reference_values_positive(measure_value, reference_value):
+    """CAT-039: both unit_price.measure.value and unit_price.reference.value
+    MUST be positive integers (so the comparator denominator is well-defined)."""
+    return (isinstance(measure_value, int) and not isinstance(measure_value, bool)
+            and measure_value > 0
+            and isinstance(reference_value, int) and not isinstance(reference_value, bool)
+            and reference_value > 0)
+
+
+CATALOG_UNIT_PRICE_CHECKS = [
+    Check("catalog.unit_price_measure_reference_values_positive", ["CAT-039"],
+          unit_price_measure_reference_values_positive,
+          [(5000, 1), (1, 1)],
+          [(0, 1), (5000, 0), (-1, 1), (1, -5)]),
+    Check("catalog.unit_price_currency_matches_price_currency", ["CAT-040"],
+          lambda price_currency, unit_price_currency: price_currency == unit_price_currency,
+          [("USD", "USD"), ("EUR", "EUR")],
+          [("USD", "EUR"), ("USD", "")]),
+    Check("catalog.unit_price_measure_and_reference_same_unit", ["CAT-041"],
+          lambda measure_unit, reference_unit: measure_unit == reference_unit,
+          [("MTR", "MTR"), ("KGM", "KGM")],
+          [("MTR", "LTR"), ("MTR", "")]),
+    Check("catalog.unit_price_comparator_formula", ["CAT-042", "CAT-043"],
+          lambda price_amount, mv, ms, rv, rs, want:
+              compute_unit_price_amount(price_amount, mv, ms, rv, rs) == want,
+          # measure/reference SHAPE lifted verbatim from the spec's own worked
+          # example (catalog/index.md#L127-131): a 50 m cable spool sold by `each`,
+          # measure {value: 5000, scale: 2} (= 50 m) and reference {value: 1,
+          # scale: 0} (= 1 m). The spec's example stops at the measure/reference
+          # shape -- it names no price.amount or resulting comparator -- so the
+          # $70.00 spool price (7000 minor units) and the 140-minor-unit answer
+          # below are OUR OWN worked numbers, not the spec's; only the formula
+          # itself (compute_unit_price_amount, quoted verbatim in its own
+          # docstring) is spec-derived.
+          [(7000, 5000, 2, 1, 0, 140),
+           (10000, 1, 0, 1, 0, 10000),   # 1:1 measure/reference -> unit price == price
+           (999, 3, 0, 1, 0, 333)],      # exact division, proves rounding is applied once
+          [(7000, 5000, 2, 1, 0, 141),   # off-by-one -- proves the formula is exercised
+           (7000, 5000, 2, 1, 0, 7000)]),  # naive "echo price.amount" bug
+]
+
+
+CHECKS = (CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS + DISCOVERY_FETCH_SAFETY_CHECKS
+          + CATALOG_SCHEMA_CHECKS + CATALOG_LOOKUP_ALGORITHM_CHECKS + CATALOG_UNIT_PRICE_CHECKS)
 
 
 def run():

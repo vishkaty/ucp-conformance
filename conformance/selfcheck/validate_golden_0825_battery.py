@@ -295,12 +295,31 @@ def run_oracle(oracle_cfg, body):
 # ---------------------------------------------------------------------------
 
 
-def patch_applied(body, patch):
+def patch_applied(body, patch, before=None):
     """True iff every instruction in `patch` is observably true of `body`: a
     'set' path holds exactly instr['value']; a 'drop' path's key is absent from
     its parent (or the parent itself is already absent -- also a valid 'gone').
     Reuses defects._get_parent so this check and the server's own apply_patch
-    agree on what a path means (no second path-walker to drift out of sync)."""
+    agree on what a path means (no second path-walker to drift out of sync).
+
+    `before` (the pre-arm clean body, when the caller has one) fixes a real
+    blind spot for `drop` on a LIST INDEX that isn't the last element: dropping
+    index N shifts every later element down by one, so the mutated list still
+    has *something* at index N -- a naive `0 <= N < len(parent)` post-hoc check
+    on the armed body alone would misread that shift as "the drop never fired"
+    (found live 2026-09-01 converting TOT-005/totals-missing-subtotal, whose
+    mutant drops totals[0] in a 3+-element array: LOADER-BROKEN even though the
+    server-side apply_patch -- proven correct by every OTHER mutant here --
+    genuinely removed it). With `before` available, the mechanical proof a drop
+    fired is comparing the SAME parent array's length before vs. after: exactly
+    one shorter, and only that. This does not need to compare element values
+    (fragile under duplicates); apply_patch is deterministic and this is the
+    only instruction touching the path, so a length delta of exactly -1 is
+    conclusive. Without `before` (a caller that has no clean-body reference),
+    the check falls back to the prior index-presence heuristic, which is exact
+    for a LAST-index drop and only ever under-fires (reports LOADER-BROKEN
+    instead of KILLED) for a non-last index -- fails closed, never a silent
+    false KILLED."""
     for instr in patch:
         path = instr["path"]
         parent = defects._get_parent(body, path)
@@ -317,8 +336,15 @@ def patch_applied(body, patch):
                 continue  # already absent upstream -- vacuously dropped
             if isinstance(parent, dict) and last in parent:
                 return False
-            if isinstance(parent, list) and isinstance(last, int) and 0 <= last < len(parent):
-                return False
+            if isinstance(parent, list) and isinstance(last, int):
+                if before is not None:
+                    before_parent = defects._get_parent(before, path)
+                    if isinstance(before_parent, list) and 0 <= last < len(before_parent):
+                        if len(parent) != len(before_parent) - 1:
+                            return False
+                        continue  # length-delta proof above supersedes the index check below
+                if 0 <= last < len(parent):
+                    return False
     return True
 
 
@@ -355,7 +381,7 @@ def run_mutant(m, state_file, acknowledged, request_route=None):
         return {"name": name, "verdict": "LOADER-BROKEN",
                 "detail": f"armed response was not a JSON object ({armed_status}): {armed_body!r}"}
 
-    fired = patch_applied(armed_body, m["patch"])
+    fired = patch_applied(armed_body, m["patch"], before=clean_body)
     if not fired:
         return {"name": name, "verdict": "LOADER-BROKEN",
                 "detail": "armed response does not reflect the configured patch -- "

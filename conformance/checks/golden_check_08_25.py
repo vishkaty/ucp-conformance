@@ -103,6 +103,63 @@ full evidence trail):
   PAY-020/021/022/024 + pan_credential/network_token_credential successors,
   ORD-008/ORD-034 (adjustments -- this golden never produces one organically).
 
+P3 wave 4 additions (2026-09-01, lane/p3-wave4) — discount (checkout_service.py's
+real discount-code engine: batch lookup by code, case-insensitive match, positive
+applied[].amount / negative totals[] amount, replace-not-accumulate on every
+recalculation) and totals (the same checkout wire responses' totals[] array),
+all fixture-schema, all judged by _oracle_against/_oracle_root:
+  DSC-020     discounts.applied[].amount MUST be a positive integer
+  DSC-023     applied_discount MUST include title and amount
+  DSC-026     allocation MUST include path and amount
+  TOT-005     Exactly one totals entry of type "subtotal" MUST be present
+  TOT-006     Exactly one totals entry of type "total" MUST be present
+  TOT-014,    Subtractive well-known totals types (discount, items_discount)
+  DSC-021     MUST have negative amounts (one register requirement, two ids —
+              discount.md's own DSC-021 restates checkout/index.md's TOT-014
+              verbatim for the discount type specifically; same schema
+              constraint, same mutant, same check — the CHK-034-style
+              multi-id-one-Row precedent this file already uses)
+  TOT-015     Additive well-known totals types (subtotal, fulfillment, tax,
+              fee) MUST have non-negative amounts
+  TOT-020     Each top-level totals entry requires both type and amount
+
+7 new mutants added to defects_config.json's "mutants" array this wave
+(discount-applied-drop-title, discount-allocation-drop-path,
+totals-discount-amount-not-negative, totals-fulfillment-amount-negative,
+totals-missing-subtotal, totals-missing-total, totals-entry-drop-type);
+DSC-020 reuses the "discount-negative-amount" mutant that has sat in the
+battery catalog since R11/wave 2 without a load-bearing check until now.
+
+Rows explicitly LEFT BLOCKED this wave (see the module-level BLOCKED list):
+  DSC-003/004/005/007 (discount-code replacement/clear/case-match/rejection-
+  messaging semantics -- multi-request behavioral proofs, not a single mutant
+  arm/disarm; deferred, not attempted, to keep this wave's checks to the
+  proven single-mutant idiom), DSC-006/DSC-008/DSC-012/DSC-029/DSC-030
+  (this golden never applies an AUTOMATIC discount and never REJECTS a
+  submitted code -- only exact-match code lookup exists in
+  services/checkout_service.py, so "automatic:true" / rejected-code-messaging
+  / accept-one-reject-one rows have no organic code path), DSC-018/DSC-019
+  (items_discount classification -- the golden's one allocation always points
+  at $.totals[?(@.type=='subtotal')], never at a line item, so it never
+  produces an items_discount total; same "not organically produced" doctrine
+  as ORD-008/034), DSC-022 (allocations-sum-to-amount invariant -- trivially
+  true by construction, only ever one allocation, not a meaningful kill-test),
+  DSC-024/DSC-025 (applied_discount.method/priority -- never set by
+  AppliedDiscount(...) in checkout_service.py, so no wire response ever
+  carries either field to mutate), DSC-027/DSC-028 (discounts.applied /
+  discounts on complete are ucp_request:"omit" -- REQUEST-side obligations;
+  defects.py mutates only served RESPONSE bodies, the same PAY-020/021/024
+  no-natural-fit reason already recorded above), TOT-004 (unknown totals
+  types require display_text -- this golden only ever emits the well-known
+  subtotal/fulfillment/discount/total types, never a custom one), TOT-017/
+  TOT-019 (totals[].lines[] sub-line invariant/shape -- this golden never
+  populates a `lines[]` sub-breakdown on any totals entry), TOT-021 (price.json
+  amount+currency -- grepped clean across the whole 08-25 corpus:
+  price.json is referenced ONLY by price_range.json, a catalog-only type;
+  this golden implements no catalog capability at all, so no wire response
+  ever carries a price.json-shaped object -- checkout/cart/order line items
+  carry a bare amount.json integer instead).
+
 Wiring: run_suite.py gate "golden-check-08-25" (hermetic — boots its own
 golden-0825, own port, no dependency on an already-running --server or on 8182).
 ATTRIBUTED into matrix.py / coverage export as of the 2026-08-31 conversion-phase
@@ -324,6 +381,24 @@ def _create_checkout_with_consent(purpose_fields):
         "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
         "fulfillment": _fulfillment_block(),
         "buyer": {"consent": {"com.example.marketing": purpose_fields}},
+    }
+    return http("POST", "/checkout-sessions", body)
+
+
+def _create_checkout_with_discount(codes):
+    """DSC-020/DSC-023/DSC-026/TOT-014's fixture: a checkout with a real
+    fulfillment method AND one matching discount code (10OFF -- 10% off,
+    test_data/flower_shop/discounts.csv), so checkout_service.py's discount
+    engine actually populates discounts.applied[0] and a totals[] entry of
+    type "discount". Empirically verified live 2026-09-01: with this exact
+    fixture, totals[] is always [subtotal(0), fulfillment(1), discount(2),
+    total(3)] -- the order _enrich_and_recalculate builds them in -- which is
+    what the totals-discount-amount-not-negative mutant's fixed index relies
+    on."""
+    body = {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+        "discounts": {"codes": codes},
     }
     return http("POST", "/checkout-sessions", body)
 
@@ -701,6 +776,62 @@ CHECKS = [
         _order_response,
         _oracle_root("schemas/shopping/order.json", "read"),
         "order-drop-permalink"),
+
+    # P3 wave 4: discount (checkout_service.py's real code-based discount
+    # engine) and totals (the same checkout wire response's totals[] array).
+    # DSC-020/023/026 are judged against the discount extension's combined
+    # def (dev.ucp.shopping.checkout) -- bare checkout.json's
+    # additionalProperties policy leaves an unknown `discounts` key
+    # unchecked, exactly the reason discount-negative-amount's own
+    # defects_config.json note already gives. TOT-005/006/014/015/020 are
+    # judged against bare checkout.json (oracle_root) since totals[] lives on
+    # the base schema itself, matching CHK-034/CART-029's own precedent.
+    Row("DSC-020", ["DSC-020"], "fixture-schema",
+        "Discount amounts in discounts.applied MUST be positive integers "
+        "(the value of the discount).",
+        lambda: _create_checkout_with_discount(["10OFF"]),
+        _oracle_against("schemas/shopping/discount.json", "dev.ucp.shopping.checkout", "create"),
+        "discount-negative-amount"),
+    Row("DSC-023", ["DSC-023"], "fixture-schema",
+        "An applied_discount object MUST include title and amount.",
+        lambda: _create_checkout_with_discount(["10OFF"]),
+        _oracle_against("schemas/shopping/discount.json", "dev.ucp.shopping.checkout", "create"),
+        "discount-applied-drop-title"),
+    Row("DSC-026", ["DSC-026"], "fixture-schema",
+        "An allocation object MUST include path and amount.",
+        lambda: _create_checkout_with_discount(["10OFF"]),
+        _oracle_against("schemas/shopping/discount.json", "dev.ucp.shopping.checkout", "create"),
+        "discount-allocation-drop-path"),
+    Row("TOT-014", ["TOT-014", "DSC-021"], "fixture-schema",
+        "Subtractive well-known totals types (discount, items_discount) "
+        "MUST have negative amounts (checkout/index.md's TOT-014 and "
+        "discount.md's DSC-021 state the identical schema-enforced rule for "
+        "the discount type specifically -- one requirement, two register "
+        "ids, one check, matching CHK-034's own multi-id precedent).",
+        lambda: _create_checkout_with_discount(["10OFF"]),
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "totals-discount-amount-not-negative"),
+    Row("TOT-015", ["TOT-015"], "fixture-schema",
+        "Additive well-known totals types (subtotal, fulfillment, tax, fee) "
+        "MUST have non-negative amounts.",
+        _create_checkout,
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "totals-fulfillment-amount-negative"),
+    Row("TOT-005", ["TOT-005"], "fixture-schema",
+        "Exactly one totals entry of type \"subtotal\" MUST be present.",
+        _create_checkout,
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "totals-missing-subtotal"),
+    Row("TOT-006", ["TOT-006"], "fixture-schema",
+        "Exactly one totals entry of type \"total\" MUST be present.",
+        _create_checkout,
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "totals-missing-total"),
+    Row("TOT-020", ["TOT-020"], "fixture-schema",
+        "Each top-level totals entry requires both type and amount.",
+        _create_checkout,
+        _oracle_root("schemas/shopping/checkout.json", "create"),
+        "totals-entry-drop-type"),
 ]
 
 
@@ -839,6 +970,73 @@ BLOCKED = [
      "adjustment support is a real feature addition (a return/refund flow), "
      "out of a schema-migration-conversion wave's budget; recorded here, not "
      "silently skipped."),
+    ("DSC-003/004/005/007 (discount-code replacement / clear-with-empty-array "
+     "/ case-insensitive-match / rejected-code-messaging semantics)",
+     "each is a genuine live behavior this golden implements correctly "
+     "(checkout_service.py rebuilds discounts.applied from scratch on every "
+     "recalculation -- 'discounts.applied = None' before the codes loop -- "
+     "and discount_map keys are upper()-cased both sides), but none is a "
+     "single-request schema violation defects.py's response-patch grammar "
+     "can arm/disarm: proving replacement/clearing needs two real requests "
+     "(create then update) and a mutant that forges an accumulation bug on "
+     "the SECOND response; proving rejection-messaging needs a submitted "
+     "code with no matching row in discounts.csv and an assertion on "
+     "messages[] this golden's discount engine does not currently populate "
+     "(silently drops non-matching codes -- a real, DIFFERENT finding, "
+     "recorded as a new GAP-LEDGER-0825.md row rather than converted around "
+     "this wave). Left for a follow-up wave with a two-request Row idiom, "
+     "not attempted here to keep this wave to the proven single-arm-cycle "
+     "pattern every other row in this file uses."),
+    ("DSC-006/DSC-008/DSC-012/DSC-029/DSC-030 (discounts.applied contents / "
+     "automatic-discount flag / accept-one-reject-one)",
+     "this golden's discount engine (services/checkout_service.py) only "
+     "implements exact-match code lookup against discounts.csv -- there is "
+     "no automatic-discount code path (AppliedDiscount(...) never sets "
+     "automatic=True) and no code-rejection path (a non-matching code is "
+     "silently skipped, not surfaced in messages[] -- same finding as "
+     "DSC-007 above). DSC-006/DSC-029 are the same quote duplicated under "
+     "two ids (discount.md#L140 appears verbatim in both the Request and "
+     "Response subsections) and would only restate DSC-020's/DSC-023's own "
+     "positive evidence without a new mutant to kill-test."),
+    ("DSC-018/DSC-019 (items_discount classification / line-item-totals "
+     "sum invariant)",
+     "this golden's one allocation always points at "
+     "\"$.totals[?(@.type=='subtotal')]\" (services/checkout_service.py, "
+     "hardcoded), never at a line item or fee/shipping target, so it never "
+     "produces an items_discount total or a line_items[].totals[type="
+     "items_discount] entry to sum -- same not-organically-produced doctrine "
+     "as ORD-008/034 above."),
+    ("DSC-022 (sum of allocations[].amount equals applied_discount.amount)",
+     "trivially true by construction (checkout_service.py always emits "
+     "exactly one allocation whose amount equals the discount's own amount) "
+     "-- not a meaningful kill-test with only one allocation ever produced."),
+    ("DSC-024/DSC-025 (applied_discount.method enum / priority minimum)",
+     "AppliedDiscount(...) in checkout_service.py never sets either field "
+     "(only code/title/amount/allocations), so no wire response ever "
+     "carries method or priority to mutate."),
+    ("DSC-027/DSC-028 (discounts.applied is response-only / discounts is "
+     "omitted from the complete request)",
+     "REQUEST-side obligations (what the platform must NOT send) -- "
+     "defects.py mutates only served RESPONSE bodies, the same "
+     "PAY-020/021/024 no-natural-fit reason already recorded above."),
+    ("TOT-004 (unknown totals type MUST include display_text)",
+     "this golden only ever emits the well-known subtotal/fulfillment/"
+     "discount/total types (services/checkout_service.py's "
+     "_enrich_and_recalculate); no code path constructs a custom type."),
+    ("TOT-017/TOT-019 (totals[].lines[] sub-line sum invariant / required "
+     "shape)",
+     "this golden never populates a `lines[]` sub-breakdown on any totals "
+     "entry -- TotalResponse(...) is constructed without it everywhere in "
+     "checkout_service.py."),
+    ("TOT-021 (price.json requires amount and currency)",
+     "grepped clean across the whole 08-25 corpus (conformance/.vendor/"
+     "ucp-2026-08-25/source/schemas/): price.json is referenced ONLY by "
+     "price_range.json, a catalog-only type. This golden implements no "
+     "catalog capability at all (no /catalog/* route) -- checkout/cart/"
+     "order line items carry a bare amount.json integer (verified live "
+     "2026-09-01: line_items[0].item.price is 3500, not an {amount, "
+     "currency} object), so no wire response this golden serves ever "
+     "carries a price.json-shaped value to mutate."),
 ]
 
 
