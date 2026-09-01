@@ -67,4 +67,29 @@ TRANSPORT_PARITY_0825 = SpecLintRule(
             "source/services/shopping/mcp.openrpc.json"),
 )
 
-RULES = (TRANSPORT_PARITY, TRANSPORT_PARITY_0825)
+SIGNATURE_EXAMPLE_COVERAGE_0825 = SpecLintRule(
+    id="SPL-SIGEX-COVERAGE",
+    version="2026-08-25",
+    predicate_class="signature_example_coverage",
+    side_a="Headers a shipped signed example actually carries "
+           "(docs/specification/**/*.md fenced http blocks)",
+    side_b="Components that same example's own Signature-Input covers",
+    materiality="The identity-resolution gate (overview/index.md, Enforce "
+                "covered-component requirements) names a CLOSED set of request "
+                "headers a signature MUST cover when present, and requires a "
+                "verifier to SKIP a signature whose covered set omits any of them, "
+                "since an uncovered header is treated as unsigned. Two shipped "
+                "examples carry UCP-Agent while their own Signature-Input omits "
+                "ucp-agent, so the spec models a request that a conformant verifier "
+                "is required to skip, in the one place an implementer copies from. "
+                "Both sides live in the SAME fenced block, so neither can be argued "
+                "away as a reading of prose. Filed upstream 2026-09-01 for "
+                "shopping/checkout/rest.md; shopping/order/index.md is already "
+                "addressed by our open ucp#659.",
+    disposition="candidate",
+    inputs=("docs/specification/shopping/checkout/rest.md",
+            "docs/specification/shopping/order/index.md",
+            "docs/specification/overview/index.md"),
+)
+
+RULES = (TRANSPORT_PARITY, TRANSPORT_PARITY_0825, SIGNATURE_EXAMPLE_COVERAGE_0825)

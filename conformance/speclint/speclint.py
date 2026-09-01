@@ -27,6 +27,8 @@ sys.path.insert(0, str(ROOT / "conformance"))
 from parsers.openapi import required_headers_by_operation      # noqa: E402
 from parsers.openrpc import required_meta_by_method            # noqa: E402
 from predicates import transport_header_parity                 # noqa: E402
+from predicates import signature_example_coverage              # noqa: E402
+from parsers.signed_examples import signed_examples_in_tree    # noqa: E402
 import rules                                                   # noqa: E402
 # VERSION_TREE used to be a private copy here — one of five independent lists across
 # the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam), and it had
@@ -75,7 +77,36 @@ def _run_transport_parity(rule):
     return out
 
 
-_RUNNERS = {"transport_header_parity": _run_transport_parity}
+def _run_signature_example_coverage(rule):
+    """Findings where a shipped example carries a gate header it does not sign.
+
+    Both sides are cited into the SAME fenced block, so a reader can check the
+    contradiction without leaving the example.
+    """
+    pin_root = _vendor_dir(rule.version)
+    docs = pin_root / "docs" / "specification"
+    findings = signature_example_coverage(signed_examples_in_tree(docs))
+    rel_pin = pin_root.relative_to(ROOT)
+    out = []
+    for f in findings:
+        # f.source is already the repo-relative docs path (docs/specification/...),
+        # so it hangs directly off the pin root - never off docs/ again.
+        pinned = f"{rel_pin}/{f.source}"
+        out.append({
+            "rule": rule.id,
+            "operation": f.source,
+            "summary": (f'example at {f.source}:{f.line} carries the '
+                        f'{f.component} header but its Signature-Input does not '
+                        f'cover "{f.component}", so a conformant verifier must '
+                        f'skip this signature'),
+            "side_a": f"{pinned}#L{f.line} (headers the example carries)",
+            "side_b": f"{pinned}#L{f.line} (that example's own Signature-Input)",
+        })
+    return out
+
+
+_RUNNERS = {"transport_header_parity": _run_transport_parity,
+            "signature_example_coverage": _run_signature_example_coverage}
 
 
 def cmd_list():

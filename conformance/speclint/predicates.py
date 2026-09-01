@@ -62,3 +62,44 @@ def transport_header_parity(rest_required: dict,
                     optional_in="mcp" if in_rest else "rest",
                 ))
     return sorted(findings)
+
+
+# The identity-resolution gate (overview/index.md, "Enforce covered-component
+# requirements, in every regime") names a CLOSED set of request headers a
+# signature MUST cover when the request carries them, and states that a verifier
+# MUST SKIP a signature whose covered set omits any of them, because "a target,
+# body, or header the signature does not cover is treated as unsigned".
+GATE_REQUEST_HEADERS = ("ucp-agent", "signature-agent", "idempotency-key")
+
+
+@dataclass(frozen=True, order=True)
+class SignatureExampleFinding:
+    """One shipped example carrying a gate header its own Signature-Input omits."""
+    source: str        # doc path the example lives in
+    line: int          # 1-based line of the example's first content line
+    component: str     # the gate-required component that is present but uncovered
+
+
+def signature_example_coverage(examples,
+                               gate_headers: tuple = GATE_REQUEST_HEADERS) -> list:
+    """Findings where an example carries a gate header its signature does not cover.
+
+    Both sides come from the SAME fenced block: the headers the example prints and
+    the components its own `Signature-Input` names. A finding therefore means the
+    spec ships a request whose signature a conformant verifier is required to skip.
+
+    Examples whose covered set is elided (`...` inside the component list) are
+    skipped: they illustrate syntax and assert no complete covered set, so judging
+    their completeness would be a false positive. Response examples (no HTTP
+    request line) are skipped: the gate governs request headers.
+
+    Returns a deterministically sorted list.
+    """
+    out = []
+    for ex in examples:
+        if ex.elided or not ex.is_request:
+            continue
+        for header in gate_headers:
+            if header in ex.headers and header not in ex.covered:
+                out.append(SignatureExampleFinding(ex.source, ex.line, header))
+    return sorted(out)

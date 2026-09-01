@@ -26,12 +26,31 @@ sys.path.insert(0, str(HERE))
 from parsers.openapi import required_headers_by_operation      # noqa: E402
 from parsers.openrpc import required_meta_by_method            # noqa: E402
 from predicates import transport_header_parity                 # noqa: E402
+from predicates import signature_example_coverage              # noqa: E402
+from parsers.signed_examples import signed_examples_in_tree    # noqa: E402
 
 ROOT = HERE.parents[1]
 VENDOR = ROOT / "conformance" / ".vendor" / "ucp" / "source" / "services" / "shopping"
 VENDOR_0825 = (ROOT / "conformance" / ".vendor" / "ucp-2026-08-25" / "source"
                / "services" / "shopping")
 FIX = HERE / "fixtures" / "class_negatives"
+VENDOR_0825_DOCS = (ROOT / "conformance" / ".vendor" / "ucp-2026-08-25"
+                    / "docs" / "specification")
+
+# Independently hand-verified at the v2026-08-25 release pin (2026-09-01).
+# The identity-resolution gate (overview/index.md) requires a signature to
+# cover ucp-agent, signature-agent and idempotency-key WHEN PRESENT, and to
+# be SKIPPED otherwise. Exactly two shipped examples carry a gate header
+# their own Signature-Input omits, so a conformant verifier must skip the
+# very requests the spec offers as models. Both are ucp-agent.
+#   - shopping/checkout/rest.md : filed upstream 2026-09-01 (our PR)
+#   - shopping/order/index.md   : already fixed by our open ucp#659
+# This set IS the golden: an upstream fix OR a new violation turns the gate
+# red rather than letting the claim go stale.
+EXPECTED_SIGEX_0825 = {
+    ("docs/specification/shopping/checkout/rest.md", "ucp-agent"),
+    ("docs/specification/shopping/order/index.md", "ucp-agent"),
+}
 
 # Independently hand-verified at pin a2d8bf0b (and re-verified on current ucp
 # main 63be476): REST requires Idempotency-Key on all writes; MCP meta requires
@@ -105,8 +124,33 @@ def check_transport_parity():
     return failures
 
 
+def _sigex_findings(docs_dir):
+    examples = signed_examples_in_tree(docs_dir)
+    return {(f.source, f.component) for f in signature_example_coverage(examples)}
+
+
+def check_signature_example_coverage():
+    failures = []
+
+    # POSITIVE CONTROL — the vendored release pin must reproduce the golden set.
+    got = _sigex_findings(VENDOR_0825_DOCS)
+    if got != EXPECTED_SIGEX_0825:
+        failures.append(
+            "POSITIVE CONTROL mismatch on 2026-08-25 vendored docs:\n"
+            f"    missing (expected, not found): {sorted(EXPECTED_SIGEX_0825 - got)}\n"
+            f"    unexpected (found, not expected): {sorted(got - EXPECTED_SIGEX_0825)}")
+
+    # CLASS NEGATIVE — a conformant example must yield zero findings, proving the
+    # predicate does not constant-FIRE on any signed example.
+    neg = signature_example_coverage(signed_examples_in_tree(FIX / "sigex_conformant"))
+    if neg:
+        failures.append(f"CLASS NEGATIVE fired on a conformant example: {neg}")
+
+    return failures
+
+
 def main():
-    failures = check_transport_parity()
+    failures = check_transport_parity() + check_signature_example_coverage()
     if failures:
         print("SPECLINT GATE: FAIL")
         for f in failures:
@@ -117,7 +161,9 @@ def main():
           "findings reproduced")
     print(f"  transport_header_parity @2026-08-25: {len(EXPECTED_PARITY_0825)} golden "
           "findings reproduced (G11 re-attest)")
-    print("  class-negative silent.")
+    print(f"  signature_example_coverage @2026-08-25: "
+          f"{len(EXPECTED_SIGEX_0825)} golden findings reproduced")
+    print("  class-negatives silent.")
     return 0
 
 
