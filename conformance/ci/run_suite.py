@@ -296,6 +296,13 @@ def gates(server):
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
+        # R8/R14/S8a kill-proof (agent phase B, 08-25 kickoff): proves
+        # reference_agent.extract_signing_keys reads the 08-25 top-level keys[] location
+        # against a REAL frozen golden-0825 capture (not just our own sandbox), and that
+        # the pre-fix nested-only reader finds nothing on that same capture. Hermetic —
+        # frozen fixture, no live server needed.
+        ("agent-r8-keys", _py(ROOT / "conformance" / "agent" / "test_r8_keys_location.py"),
+         None, ()),
         # the public interop demo (public/agent-demo.json) must stay real + in sync with the
         # harness: every case's catching check still kills its defect, no drift.
         ("agent-demo",  _py(ROOT / "conformance" / "agent" / "build_demo_data.py", "--check"), None, ()),
