@@ -41,6 +41,10 @@ Areas converted (register: conformance/requirements/2026-08-25/):
   3. permalink.json — PERM-005, PERM-006, PERM-007, PERM-010, PERM-011, PERM-012 (the
      compact item-identifier encode/decode algorithm and the continue_to destination-
      preference validation algorithm; NEW capability at 08-25, no 04-08 equivalent).
+  4. discovery.json — DISC-002, DISC-004, DISC-007, DISC-008 (P3 wave 3: the
+     identity-resolution URL fetch-safety rules -- HTTPS-only, no-redirect-follow,
+     and the SSRF/special-use-address guard -- each a pure algorithm over a URL/
+     status/IP string, no live golden or oracle needed).
 
 Wiring: run_suite.py gate "struct-check-08-25" (hermetic, needs=None — no server, no
 oracle). Deliberately NOT wired into checkset_manifest.py / matrix.py / coverage
@@ -457,7 +461,100 @@ PERMALINK_CHECKS = [
 ]
 
 
-CHECKS = CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS
+# =====================================================================================
+# Area 4 — identity-resolution URL fetch-safety (DISC-002, DISC-004, DISC-007, DISC-008)
+# Source: docs/specification/overview/index.md#L2283-2299 @ cd78fb38 -- the numbered
+# fetch-safety rules list that binds "any URL dereferenced during identity resolution
+# -- the profile, and any jwks_uri or CIMD document a verifier follows": rule 1 (DISC-
+# 004's broadened HTTPS-only guard, carried-forward from the narrower 04-08 "profile
+# URLs" wording), rule 2 (DISC-002's unchanged "Profile endpoints MUST NOT use
+# redirects" + DISC-007's broadened verifier-side companion -- one algorithm, two
+# register rows, same PERM-011/012-style combine precedent above), and rule 7
+# (DISC-008's SSRF / special-use-address guard). Structural residue beyond wave 1:
+# CAP-001..007 (wave 1) was the only capability-namespace area; these are the
+# remaining pure algorithms in discovery.json that need neither a live golden nor the
+# oracle CLI (DISC-001/003/005 are header/wire behaviors -- MCheck-idiom, out of
+# scope here by the same construction struct_check's docstring already states for
+# signatures/payment/fulfillment/consent).
+# =====================================================================================
+
+import ipaddress
+
+
+def dereference_url_scheme_ok(url):
+    """DISC-004 (rule 1): reject any identity-resolution URL (profile, jwks_uri,
+    CIMD document) not served over https."""
+    if not isinstance(url, str) or not url:
+        return False
+    try:
+        parts = urllib.parse.urlsplit(url)
+    except ValueError:
+        return False
+    return parts.scheme == "https"
+
+
+def dereference_may_proceed(status_code):
+    """DISC-002/DISC-007 (rule 2): a compliant implementation dereferencing a
+    profile/jwks_uri/CIMD URL during identity resolution MUST NOT follow a 3xx
+    redirect -- it treats the response as a rejection instead of re-issuing the
+    request against Location. Returns True iff the response status permits the
+    implementation to proceed (use the response), False iff it MUST reject
+    (any 3xx, read literally per the rule's own unqualified "redirects (3xx)")."""
+    code = int(status_code)
+    return not (300 <= code < 400)
+
+
+def dereference_target_allowed(ip_str, verifier_is_loopback=False):
+    """DISC-008 (rule 7): reject URLs that resolve to special-use addresses (RFC
+    6890 -- loopback, link-local including the cloud-metadata address
+    169.254.169.254, private, and other reserved ranges), EXCEPT a loopback
+    target when the verifier itself runs on the same loopback interface (local
+    development). Python's ipaddress.is_global is the released rule's complement
+    for MOST special-use ranges (False for loopback/link-local/private/reserved/
+    unspecified) but NOT multicast (a multicast address is still `is_global`
+    in this stdlib's own classification -- verified empirically, not assumed --
+    so it needs an explicit exclusion; multicast is squarely "other reserved
+    ranges" under RFC 6890 and MUST be rejected same as the rest). Fail CLOSED
+    (reject) on an unparsable address rather than fail open."""
+    try:
+        addr = ipaddress.ip_address(ip_str)
+    except ValueError:
+        return False
+    if addr.is_loopback:
+        return bool(verifier_is_loopback)
+    return addr.is_global and not addr.is_multicast
+
+
+DISCOVERY_FETCH_SAFETY_CHECKS = [
+    Check("discovery.dereference_url_https_only", ["DISC-004"],
+          dereference_url_scheme_ok,
+          [("https://business.example/.well-known/ucp",),
+           ("https://issuer.example/jwks.json",)],
+          [("http://business.example/.well-known/ucp",),   # not https
+           ("ftp://business.example/x",),                   # not https
+           ("business.example/.well-known/ucp",),           # no scheme at all
+           ("",), (None,)]),
+    Check("discovery.dereference_no_redirect_follow", ["DISC-002", "DISC-007"],
+          dereference_may_proceed,
+          [(200,), (404,), (500,), (299,), (400,)],           # non-3xx -> may proceed
+          [(300,), (301,), (302,), (303,), (304,), (307,), (308,), (399,)]),  # 3xx -> MUST reject
+    Check("discovery.dereference_target_not_special_use", ["DISC-008"],
+          dereference_target_allowed,
+          [("8.8.8.8",), ("1.1.1.1",), ("2001:4860:4860::8888",),
+           ("127.0.0.1", True)],                              # loopback exception: verifier on loopback
+          [("127.0.0.1",),                                    # loopback, verifier NOT on loopback
+           ("127.0.0.1", False),
+           ("169.254.169.254",),                               # cloud-metadata address, named in the rule
+           ("169.254.1.1",),                                   # link-local
+           ("10.0.0.1",), ("192.168.1.1",), ("172.16.0.5",),   # RFC 1918 private
+           ("::1",),                                           # IPv6 loopback, no exception granted
+           ("fc00::1",),                                       # IPv6 unique-local (reserved)
+           ("224.0.0.1",),                                     # multicast
+           ("not-an-ip",)]),                                   # unparsable -- fail closed
+]
+
+
+CHECKS = CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS + DISCOVERY_FETCH_SAFETY_CHECKS
 
 
 def run():
