@@ -167,65 +167,66 @@ def _check_regression_fixed(fails):
 
 
 def _check_agent_wall_independent_of_merchant_wall(fails):
-    """The incident this split fixed, kill-tested directly (2026-08-31): the two
-    walls (matrix.py's REGISTER_ONLY_VERSIONS, agent_matrix.py's
-    AGENT_REGISTER_ONLY_VERSIONS) must be able to disagree — one lane graduating a
-    version must never silently graduate the other. Proven both directions:
+    """The incident this split fixed (2026-08-31), kill-tested directly and
+    DURABLY. The two walls (matrix.py's REGISTER_ONLY_VERSIONS, agent_matrix.py's
+    AGENT_REGISTER_ONLY_VERSIONS) must be independent — one lane graduating a
+    version must never silently graduate the other.
 
-      1. The merchant wall is ALREADY empty (2026-08-25 graduated there) while the
-         agent wall still holds 2026-08-25 — the two sets disagreeing right now,
-         live, is the steady state this split exists to make possible.
-      2. Simulate the agent lane's OWN graduation happening the wrong way — a
-         version REMOVED from AGENT_REGISTER_ONLY_VERSIONS with no matching
-         agent_denominator_lock.json update (i.e. exactly the un-reviewed removal
-         that caused this incident) — and prove agent_governance.py's
-         DENOMINATOR-DRIFT lock reddens for that version. A wall split that can't
-         be shown to still be backstopped by the lock would just be moving the
-         hazard, not closing it.
+    Until 2026-09-01 this also asserted that the two walls currently DISAGREE on
+    2026-08-25 (merchant graduated 2026-08-31, agent had not yet). That was true at
+    the time, but it was a transient fact about ONE version's rollout order, not a
+    durable property of the split — the moment the agent lane ALSO graduated
+    2026-08-25 (agent_denominator_audit.json's "2026-08-25_review", same landing as
+    this edit) that assertion went stale by construction. Deleting it would have
+    silently lost the incident's coverage the next time this file was touched;
+    instead the assertion is rewritten below to test the MECHANISM directly, in a
+    form that stays meaningful forever regardless of how many versions have
+    graduated on either lane: simulate an un-reviewed wall mutation on an
+    ALREADY-graduated, always-available real version (today's newest,
+    spec_versions.VERSIONS[-1], which is unwalled on the agent axis exactly like
+    every other real version once both lanes have graduated) and prove
+    agent_governance.py's DENOMINATOR-DRIFT lock reddens for it. A wall split that
+    can't be shown to still be backstopped by the lock would just be moving the
+    hazard, not closing it — never delete this coverage, only re-target it.
 
     Mutates spec_versions.AGENT_REGISTER_ONLY_VERSIONS in place (same object
     agent_matrix holds — see _check_identity) and restores it in `finally`, exactly
     like _check_new_version_appears_everywhere's synthetic-version pattern."""
-    merchant_ver = spec_versions.VERSIONS[-1]     # 2026-08-25 today
-    disagree = (merchant_ver not in spec_versions.REGISTER_ONLY_VERSIONS
-                and merchant_ver in spec_versions.AGENT_REGISTER_ONLY_VERSIONS)
-    print(f"  {'OK ' if disagree else 'XX '} the two walls currently DISAGREE on "
-          f"{merchant_ver!r} (merchant graduated, agent has not): {disagree}")
-    if not disagree:
-        fails.append(f"the merchant and agent walls agree on {merchant_ver!r} right "
-                     f"now — this proves nothing about independence; expected the "
-                     f"merchant lane graduated ahead of the agent lane")
-
-    if merchant_ver not in spec_versions.AGENT_REGISTER_ONLY_VERSIONS:
-        print(f"  SKIP simulated-removal check: {merchant_ver!r} is not currently "
-              f"agent-register-only, nothing to remove")
-        return
+    target = spec_versions.VERSIONS[-1]     # any real, register-backed, graduated version
 
     fails_before, _ = agent_governance.run()
-    drift_before = [f for f in fails_before if f"DENOMINATOR-DRIFT {merchant_ver}" in f]
+    drift_before = [f for f in fails_before if f"DENOMINATOR-DRIFT {target}" in f]
     ok_clean_before = not drift_before
     print(f"  {'OK ' if ok_clean_before else 'XX '} agent_governance is clean on "
-          f"{merchant_ver!r} BEFORE the simulated removal: {ok_clean_before}")
+          f"{target!r} BEFORE the simulated wall mutation: {ok_clean_before}")
     if not ok_clean_before:
         fails.append(f"agent_governance already shows DENOMINATOR-DRIFT for "
-                     f"{merchant_ver!r} before any mutation — the committed lock "
-                     f"and the wall already disagree")
+                     f"{target!r} before any mutation — the committed lock and the "
+                     f"live register already disagree")
 
-    spec_versions.AGENT_REGISTER_ONLY_VERSIONS.discard(merchant_ver)
+    # Simulate an un-reviewed wall change WITHOUT touching agent_denominator_lock.json
+    # — exactly the 2026-08-31 incident shape (a wall moved with no matching lock
+    # regeneration), mutated in the direction that is actually exercisable once both
+    # lanes have graduated every real version: walling an already-reviewed version
+    # (forcing its live agent denominator to zero) rather than unwalling one (every
+    # real version starts unwalled now, so there is nothing left to "remove").
+    # Either direction is the same drift the lock exists to catch.
+    spec_versions.AGENT_REGISTER_ONLY_VERSIONS.add(target)
     try:
         fails_after, _ = agent_governance.run()
-        drift_after = [f for f in fails_after if f"DENOMINATOR-DRIFT {merchant_ver}" in f]
+        drift_after = [f for f in fails_after if f"DENOMINATOR-DRIFT {target}" in f]
         ok_catches = bool(drift_after)
         print(f"  {'OK ' if ok_catches else 'XX '} agent_governance reddens with "
-              f"DENOMINATOR-DRIFT {merchant_ver!r} AFTER simulating an un-reviewed "
-              f"wall removal (lock still bites): {ok_catches}")
+              f"DENOMINATOR-DRIFT {target!r} AFTER simulating an un-reviewed wall "
+              f"mutation (lock still bites): {ok_catches}")
         if not ok_catches:
-            fails.append(f"removing {merchant_ver!r} from AGENT_REGISTER_ONLY_VERSIONS "
-                         f"without a matching agent_denominator_lock.json regeneration "
-                         f"did NOT redden agent_governance's DENOMINATOR-DRIFT check — "
-                         f"the exact 2026-08-31 incident would recur silently")
+            fails.append(f"walling {target!r} into AGENT_REGISTER_ONLY_VERSIONS "
+                         f"without a matching agent_denominator_lock.json "
+                         f"regeneration did NOT redden agent_governance's "
+                         f"DENOMINATOR-DRIFT check — an unreviewed membership change "
+                         f"would pass silently, the exact 2026-08-31 incident shape")
     finally:
-        spec_versions.AGENT_REGISTER_ONLY_VERSIONS.add(merchant_ver)
+        spec_versions.AGENT_REGISTER_ONLY_VERSIONS.discard(target)
 
 
 def _check_stale_waiver_fail_noisy(fails):

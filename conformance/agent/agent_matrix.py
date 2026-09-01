@@ -72,8 +72,26 @@ AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (
 # order-schema shape, an MCP endpoint the server exposes, an A2A response the business agent
 # returns). They are NOT achievable on the agent axis and must not inflate the denominator.
 # Every id is spec-cited in agent_denominator_audit.json (independent adjudication + verify).
+#
+# 2026-08-25 agent-lane graduation review (agent_denominator_audit.json's
+# "2026-08-25_review" section) added 9 more, all flat/global exactly like the original
+# 11 above (a heuristic match on "platform"/"business"/"consumer" substring text that,
+# on individual read, binds ONLY the Business): CAT-005, LOC-016, LOC-042 (a schema
+# description or adjoining sentence bundles a Business clause and an ALREADY
+# separately-registered Platform clause — CAT-008/LOC-049/LOC-054 own that Platform
+# clause under its own id; this id's own quote is Business-only), CHK-058, CART-035,
+# OVR-070 (the row's only MUST binds Business; an adjacent Platform sentence is SHOULD
+# NOT / MAY, not MUST), OVR-058, OVR-071 (both explicitly headed "Business
+# Requirements" / restate NEG-001's business-only branch), IDL-081 (a business
+# consent-policy consistency guarantee, verified by exercising both identity paths and
+# comparing the BUSINESS's own enforcement — no platform-bound clause exists in the
+# row). None of these 9 were ever candidates at an earlier version (verified: none
+# appear in agent_rows("2026-04-08") today, so this addition cannot regress the
+# already-graduated 04-08 denominator/lock).
 NOT_AGENT_BOUND = {"A2A-001", "MCP-001", "NEG-001", "NEG-002", "NEG-003", "NEG-004",
-                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019"}
+                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019",
+                   "CAT-005", "LOC-016", "LOC-042", "CHK-058", "CART-035",
+                   "OVR-070", "OVR-058", "OVR-071", "IDL-081"}
 
 
 def _client_bound_ids():
