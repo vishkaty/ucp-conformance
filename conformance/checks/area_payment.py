@@ -27,6 +27,14 @@ import v2026_01_23 as core  # noqa: E402
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "selfcheck"))
 from verdict_gate import CLEAN, DEVIATION  # noqa: E402
 
+# Reviewed applicable versions for checks below that don't declare their own
+# `versions=` — see area_fulfillment.py's identical marker for the full rationale
+# (PLAN-0825 "Check conversion phase" doctrine; hand-curated, never a formula).
+# payment.handler_ids_advertised (PAY-002) also matches a 2026-08-25 id; its 08-25
+# shape is not yet reviewed, so it stays off this list until a deliberate per-check
+# review adds 2026-08-25 explicitly.
+VERSIONS = ("2026-01-11", "2026-01-23", "2026-04-08")
+
 # The credential token core._PAYMENT submits on /complete; the business MUST NOT
 # echo it back (unidirectional Platform -> Business credential flow).
 _SUBMITTED_TOKEN = core._PAYMENT["payment"]["instruments"][0]["credential"]["token"]

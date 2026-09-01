@@ -7,26 +7,27 @@
         "versions": [
             "2026-01-11",
             "2026-01-23",
-            "2026-04-08"
+            "2026-04-08",
+            "2026-08-25"
         ],
-        "reviewed": "2026-08-30"
+        "reviewed": "2026-08-31"
     },
     "evidence": {
         "_about": "Honest EVIDENCE-CLASS split of the coverage matrix's CHECK bucket - the accounting totals above conflate a check kill-tested live against an independently-authored server with one that only validates our own fixture. This block names the split so the public claim cannot imply everything is wire-tested. Derived MECHANICALLY (never hand-labeled) by conformance/coverage/evidence.py from how each check actually runs, plus the recorded run in conformance/coverage/reach_report.json (which independent targets each wire check actually graded on). Classes: live-wire = graded on an independent server (flower golden / node reference); fixture-schema = our fixture validated through the OFFICIAL ucp-schema oracle; fixture-crypto = self-signed crypto primitive self-test; self-referenced = only our own fixture, no independent oracle or target (the fixture-circularity class we flag upstream as conformance#79, present in our own suite and counted here). Kill-tested + drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class): if these numbers drift from a fresh matrix export, CI goes red.",
         "per_version": {
             "2026-01-11": {
                 "check": 121,
-                "live-wire": 49,
+                "live-wire": 0,
                 "fixture-schema": 16,
                 "fixture-crypto": 0,
-                "self-referenced": 56
+                "self-referenced": 105
             },
             "2026-01-23": {
                 "check": 129,
-                "live-wire": 53,
+                "live-wire": 0,
                 "fixture-schema": 22,
                 "fixture-crypto": 0,
-                "self-referenced": 54
+                "self-referenced": 107
             },
             "2026-04-08": {
                 "check": 276,
@@ -36,14 +37,14 @@
                 "self-referenced": 151
             },
             "2026-08-25": {
-                "check": 0,
+                "check": 27,
                 "live-wire": 0,
-                "fixture-schema": 0,
+                "fixture-schema": 7,
                 "fixture-crypto": 0,
-                "self-referenced": 0
+                "self-referenced": 20
             }
         },
-        "reviewed": "2026-08-30"
+        "reviewed": "2026-08-31"
     },
     "claims": [
         {
@@ -102,10 +103,10 @@
         },
         {
             "id": "CLAIM-006",
-            "text": "Every normative MUST across three spec versions is accounted for",
+            "text": "Every normative MUST across four spec versions is accounted for",
             "page": "index.html",
             "class": "REG",
-            "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; 'three' should render from coverage.json:$.spec_pins key count",
+            "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; bumped three->four 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS (spec_pins now carries 4 entries, all backing real accounted MUSTs); 'four' should render from coverage.json:$.spec_pins key count",
             "added": "2026-07-09",
             "review_by": "2026-10-09"
         },
@@ -532,7 +533,7 @@
             "text": "Tests run against the pinned UCP spec versions",
             "page": "docs.html",
             "class": "REG",
-            "evidence": "public/coverage.json:$.spec_pins (3 pins: 2026-01-11, 2026-01-23, 2026-04-08); version-date ids are excluded by the claims-gate date allowlist, listed here for freshness traceability; carries guide.html CLAIM-043",
+            "evidence": "public/coverage.json:$.spec_pins (4 pins: 2026-01-11, 2026-01-23, 2026-04-08, 2026-08-25 — bumped 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS); version-date ids are excluded by the claims-gate date allowlist, listed here for freshness traceability; carries guide.html CLAIM-043",
             "added": "2026-07-09",
             "review_by": "2026-10-09"
         },

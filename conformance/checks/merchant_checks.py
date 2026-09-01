@@ -19,6 +19,20 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, a2a_call, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
 
+# Reviewed applicable versions for every check below whose OWN `versions=` kwarg is
+# None (the default) — see area_fulfillment.py's identical marker for the full
+# rationale (PLAN-0825 "Check conversion phase" doctrine; hand-curated, never a
+# formula: `[v for v in VERSIONS if v != "2026-08-25"]` would repeat this exact bug
+# the moment a 5th version lands). WITHOUT this marker, matrix.py's attribution()
+# falls back to "every pinned version" (file_targets, since this filename carries no
+# version token) — so the moment 2026-08-25's register landed, 53 of this file's
+# checks silently started counting there too, unreviewed (spec_versions.py's
+# REGISTER_ONLY_VERSIONS docstring: "51 checks (26 live-wire!) ... auto-attributed
+# the moment its register existed, none reviewed"). A check with its own explicit
+# `versions=(...)` is unaffected either way (its own tuple always wins over this
+# module fallback) — this marker only closes the gap for the versions=None majority.
+VERSIONS = ("2026-01-11", "2026-01-23", "2026-04-08")
+
 STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
                "complete_in_progress", "completed", "canceled"}
 

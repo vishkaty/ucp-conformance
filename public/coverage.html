@@ -195,6 +195,27 @@
       evl.style.margin = "2px 0 8px";
       card.appendChild(evl);
     }
+    // PLAN-0825 §E evidence ceiling — verbatim, never hand-edited: this exact
+    // sentence names what's STRUCTURALLY true of 2026-08-25 today (no
+    // independently-authored implementation exists anywhere in the ecosystem
+    // for it yet, so the strongest honest evidence any 08-25 check can carry is
+    // fixture-schema — never live-wire, per the check-conversion-phase doctrine).
+    // Visibility is DATA-DRIVEN off the fresh export, not a flag: it renders only
+    // for 2026-08-25 while its own live-wire count is 0, and retires itself the
+    // moment reach_report.json ever shows otherwise (evidence_breakdown['live-wire']
+    // > 0 there implies an independent implementation graded it) — never by
+    // hand-editing this block. (2026-01-11/2026-01-23 also read live-wire:0 today,
+    // but for a different, non-structural reason — independent implementations DO
+    // exist for them, the committed reach report just hasn't graded them — so this
+    // sentence, which asserts NO implementation exists, is scoped to 08-25 only.)
+    if (VER === "2026-08-25" && eb && (eb["live-wire"] || 0) === 0) {
+      var ceiling = el("div", "note",
+        "no independently-authored 08-25 implementation exists yet; evidence for " +
+        "this version is at most fixture-schema");
+      ceiling.style.margin = "2px 0 8px";
+      ceiling.style.fontStyle = "italic";
+      card.appendChild(ceiling);
+    }
     bar(card, segsFor(v), v.musts);
     var lg = el("div", "legend");
     [["seg-check", "Checked (kill-rate-validated)"], ["seg-exempt", "Exempt (documented)"],

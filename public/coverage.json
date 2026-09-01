@@ -22,10 +22,10 @@
    "gap": 19,
    "accounted_pct": 89,
    "evidence_breakdown": {
-    "live-wire": 49,
+    "live-wire": 0,
     "fixture-schema": 16,
     "fixture-crypto": 0,
-    "self-referenced": 56
+    "self-referenced": 105
    },
    "gap_by_testability": {
     "manual": 2,
@@ -120,11 +120,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-002",
@@ -137,11 +134,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-003",
@@ -155,11 +149,8 @@
       "area_lifecycle2.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-004",
@@ -172,11 +163,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-005",
@@ -189,11 +177,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-006",
@@ -206,11 +191,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-007",
@@ -223,11 +205,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-008",
@@ -240,11 +219,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-012",
@@ -258,11 +234,8 @@
       "area_lifecycle2.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-013",
@@ -275,11 +248,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-014",
@@ -292,11 +262,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-015",
@@ -475,11 +442,8 @@
       "area_negotiation.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-002",
@@ -553,11 +517,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-009",
@@ -603,11 +564,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-014",
@@ -648,11 +606,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-003",
@@ -680,11 +635,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-005",
@@ -698,11 +650,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-006",
@@ -716,11 +665,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-007",
@@ -734,11 +680,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-010",
@@ -766,11 +709,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-012",
@@ -783,11 +723,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-013",
@@ -1018,11 +955,8 @@
       "area_fulfillment.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-004",
@@ -1035,11 +969,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-007",
@@ -1052,11 +983,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-008",
@@ -1070,11 +998,8 @@
       "area_fulfillment.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-009",
@@ -1155,11 +1080,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-029",
@@ -1183,11 +1105,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDL-001",
@@ -1359,11 +1278,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDM-004",
@@ -1376,11 +1292,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDM-005",
@@ -1521,11 +1434,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-013",
@@ -1566,11 +1476,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-016",
@@ -1583,11 +1490,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-017",
@@ -1600,11 +1504,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-018",
@@ -1631,11 +1532,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-020",
@@ -1677,11 +1575,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-002",
@@ -1695,11 +1590,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-003",
@@ -1712,11 +1604,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-004",
@@ -1730,11 +1619,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-005",
@@ -1747,11 +1633,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-006",
@@ -1806,11 +1689,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-011",
@@ -1957,11 +1837,8 @@
      "covered_by": [
       "area_payment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-004",
@@ -2033,11 +1910,8 @@
       "area_payment.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-010",
@@ -2370,11 +2244,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-002",
@@ -2387,11 +2258,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-003",
@@ -2404,11 +2272,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-004",
@@ -2491,11 +2356,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-006",
@@ -2523,11 +2385,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-008",
@@ -2540,11 +2399,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-009",
@@ -2557,11 +2413,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     }
    ]
   },
@@ -2573,10 +2426,10 @@
    "gap": 20,
    "accounted_pct": 89,
    "evidence_breakdown": {
-    "live-wire": 53,
+    "live-wire": 0,
     "fixture-schema": 22,
     "fixture-crypto": 0,
-    "self-referenced": 54
+    "self-referenced": 107
    },
    "gap_by_testability": {
     "manual": 2,
@@ -2672,11 +2525,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-002",
@@ -2690,11 +2540,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-003",
@@ -2708,11 +2555,8 @@
       "area_lifecycle2.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-004",
@@ -2726,11 +2570,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-005",
@@ -2744,11 +2585,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-006",
@@ -2761,11 +2599,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-007",
@@ -2778,11 +2613,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-008",
@@ -2796,11 +2628,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-012",
@@ -2815,11 +2644,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-013",
@@ -2832,11 +2658,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-014",
@@ -2849,11 +2672,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-015",
@@ -2904,11 +2724,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-019",
@@ -3091,11 +2908,8 @@
       "area_negotiation.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-002",
@@ -3170,11 +2984,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-009",
@@ -3221,11 +3032,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-014",
@@ -3266,11 +3074,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-003",
@@ -3298,11 +3103,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-005",
@@ -3316,11 +3118,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-006",
@@ -3334,11 +3133,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-007",
@@ -3352,11 +3148,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-010",
@@ -3384,11 +3177,8 @@
       "area_discount.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-012",
@@ -3401,11 +3191,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-013",
@@ -3664,11 +3451,8 @@
       "area_fulfillment.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-004",
@@ -3681,11 +3465,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-007",
@@ -3698,11 +3479,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-008",
@@ -3717,11 +3495,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-009",
@@ -3802,11 +3577,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-029",
@@ -3830,11 +3602,8 @@
      "covered_by": [
       "area_fulfillment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDL-001",
@@ -4006,11 +3775,8 @@
      "covered_by": [
       "area_lifecycle2.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDM-004",
@@ -4024,11 +3790,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "IDM-005",
@@ -4190,11 +3953,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-013",
@@ -4235,11 +3995,8 @@
      "covered_by": [
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-016",
@@ -4252,11 +4009,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-017",
@@ -4269,11 +4023,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-018",
@@ -4300,11 +4051,8 @@
      "covered_by": [
       "area_negotiation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-020",
@@ -4346,11 +4094,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-002",
@@ -4364,11 +4109,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-003",
@@ -4381,11 +4123,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-004",
@@ -4399,11 +4138,8 @@
       "area_order.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-005",
@@ -4416,11 +4152,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-006",
@@ -4475,11 +4208,8 @@
      "covered_by": [
       "area_order.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-011",
@@ -4626,11 +4356,8 @@
      "covered_by": [
       "area_payment.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-003",
@@ -4716,11 +4443,8 @@
       "area_payment.py",
       "merchant_checks.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-010",
@@ -5067,11 +4791,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-002",
@@ -5084,11 +4805,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-003",
@@ -5101,11 +4819,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SEC-004",
@@ -5133,11 +4848,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-002",
@@ -5165,11 +4877,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-004",
@@ -5183,11 +4892,8 @@
       "merchant_checks.py",
       "v2026_01_23.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-005",
@@ -5200,11 +4906,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-006",
@@ -5232,11 +4935,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-008",
@@ -5249,11 +4949,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "VAL-009",
@@ -5266,11 +4963,8 @@
      "covered_by": [
       "area_validation.py"
      ],
-     "evidence": "live-wire",
-     "reach": [
-      "flower-shop-official-sample",
-      "nodejs-reference-sample"
-     ]
+     "evidence": "self-referenced",
+     "reach": []
     }
    ]
   },
@@ -10396,47 +10090,49 @@
    ]
   },
   "2026-08-25": {
-   "state": "building",
+   "state": "live",
    "musts": 785,
-   "check": 0,
+   "check": 27,
    "exempt": 0,
-   "gap": 785,
-   "accounted_pct": 0,
+   "gap": 758,
+   "accounted_pct": 3,
    "evidence_breakdown": {
     "live-wire": 0,
-    "fixture-schema": 0,
+    "fixture-schema": 7,
     "fixture-crypto": 0,
-    "self-referenced": 0
+    "self-referenced": 20
    },
    "gap_by_testability": {
     "manual": 162,
     "needs-oauth": 15,
     "needs-receiver": 173,
-    "testable": 435
+    "testable": 408
    },
    "areas": [
     {
      "area": "actions",
-     "gap": 14,
+     "check": 1,
+     "gap": 13,
      "gap_manual": 1,
      "gap_needs-receiver": 4,
-     "gap_testable": 9,
+     "gap_testable": 8,
      "musts": 14
     },
     {
      "area": "buyer-consent-v2",
-     "gap": 16,
+     "check": 2,
+     "gap": 14,
      "gap_manual": 2,
      "gap_needs-receiver": 1,
-     "gap_testable": 13,
+     "gap_testable": 11,
      "musts": 16
     },
     {
      "area": "capability-namespace-authority",
-     "gap": 10,
+     "check": 6,
+     "gap": 4,
      "gap_manual": 2,
      "gap_needs-receiver": 2,
-     "gap_testable": 6,
      "musts": 10
     },
     {
@@ -10488,9 +10184,10 @@
     },
     {
      "area": "fulfillment",
-     "gap": 22,
+     "check": 4,
+     "gap": 18,
      "gap_manual": 7,
-     "gap_testable": 15,
+     "gap_testable": 11,
      "musts": 22
     },
     {
@@ -10511,10 +10208,11 @@
     },
     {
      "area": "loyalty",
-     "gap": 19,
+     "check": 2,
+     "gap": 17,
      "gap_manual": 1,
      "gap_needs-receiver": 1,
-     "gap_testable": 17,
+     "gap_testable": 15,
      "musts": 19
     },
     {
@@ -10537,10 +10235,11 @@
     },
     {
      "area": "payment",
-     "gap": 47,
+     "check": 2,
+     "gap": 45,
      "gap_manual": 13,
      "gap_needs-receiver": 17,
-     "gap_testable": 17,
+     "gap_testable": 15,
      "musts": 47
     },
     {
@@ -10576,9 +10275,10 @@
     },
     {
      "area": "permalink",
-     "gap": 23,
+     "check": 6,
+     "gap": 17,
      "gap_manual": 4,
-     "gap_testable": 19,
+     "gap_testable": 13,
      "musts": 23
     },
     {
@@ -10597,18 +10297,20 @@
     },
     {
      "area": "signals-attribution-eligibility",
-     "gap": 13,
+     "check": 2,
+     "gap": 11,
      "gap_manual": 1,
      "gap_needs-receiver": 8,
-     "gap_testable": 4,
+     "gap_testable": 2,
      "musts": 13
     },
     {
      "area": "signatures",
-     "gap": 45,
+     "check": 2,
+     "gap": 43,
      "gap_manual": 3,
      "gap_needs-receiver": 25,
-     "gap_testable": 17,
+     "gap_testable": 15,
      "musts": 45
     },
     {
@@ -10725,10 +10427,14 @@
      "area": "actions",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An extension can declare Action type keys only within a reverse-domain namespace controlled by its schema authority (the same Namespace Governance rule as capability names)",
      "source": "ucp:docs/specification/overview/index.md#L721",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ACT-008",
@@ -10805,60 +10511,84 @@
      "area": "capability-namespace-authority",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A business_schema capability declaration MUST declare `schema` (not merely `spec`)",
      "source": "ucp:source/schemas/capability.json#L39",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-003",
      "area": "capability-namespace-authority",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A `spec` URL is documentation, not part of the machine trust path: its origin is NOT authority-bound, but it MUST be `https` and MAY be served from any host",
      "source": "ucp:docs/specification/overview/index.md#L868",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-004",
      "area": "capability-namespace-authority",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "To derive the authority from a `schema` URL, a platform MUST parse it with a conformant (WHATWG) URL parser; it MUST parse, MUST use the `https` scheme, and MUST NOT contain userinfo",
      "source": "ucp:docs/specification/overview/index.md#L881",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-005",
      "area": "capability-namespace-authority",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The `schema` URL host MUST be a registered domain name of at least two labels; IP-literal hosts and single-label hosts are invalid authorities",
      "source": "ucp:docs/specification/overview/index.md#L886",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-006",
      "area": "capability-namespace-authority",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The platform derives `authority_prefix` by normalizing the schema URL's hostname (lowercase, strip trailing dot, IDN in A-label/punycode) and reversing its labels",
      "source": "ucp:docs/specification/overview/index.md#L889",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-007",
      "area": "capability-namespace-authority",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The authority binding is valid only if the entity `name` equals `authority_prefix` (exact match) or `name` is `authority_prefix` followed by a `.` and further labels (label-aligned prefix match)",
      "source": "ucp:docs/specification/overview/index.md#L893",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAP-008",
@@ -12045,10 +11775,14 @@
      "area": "buyer-consent-v2",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A consent_purpose object MUST include `granted`, `source`, and `description`",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L11",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CNST-002",
@@ -12065,10 +11799,14 @@
      "area": "buyer-consent-v2",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "`source` MUST be exactly `\"business\"` or `\"platform\"`",
      "source": "ucp:source/schemas/shopping/buyer_consent.json#L19",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CNST-004",
@@ -12945,30 +12683,42 @@
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A fulfillment_method MUST include id, type, and line_item_ids",
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7-L11",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "FUL-007",
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A fulfillment_group MUST include id and line_item_ids",
      "source": "ucp:source/schemas/shopping/types/fulfillment_group.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "FUL-008",
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A fulfillment_option MUST include id, title, and totals",
      "source": "ucp:source/schemas/shopping/types/fulfillment_option_base.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "FUL-009",
@@ -13045,10 +12795,14 @@
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A shipping_destination MUST include id and type (type is a required const discriminator \"shipping_address\"); it is a postal_address plus required id and type",
      "source": "ucp:source/schemas/shopping/types/shipping_destination.json#L26-L29",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "FUL-031",
@@ -14545,10 +14299,14 @@
      "area": "loyalty",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All loyalty map keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace",
      "source": "ucp:source/schemas/common/loyalty.json#L168",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "LOY-004",
@@ -14565,10 +14323,14 @@
      "area": "loyalty",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Programs that can be joined independently MUST be modeled as separate sibling top-level keys in the loyalty extension map, namespaced by reverse-domain naming",
      "source": "ucp:docs/specification/common/extensions/loyalty.md#L211",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "LOY-007",
@@ -16285,20 +16047,28 @@
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Credentials flow Platform -> Business only; businesses MUST NOT echo credentials back in responses",
      "source": "ucp:docs/specification/overview/index.md#L2511",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-012",
      "area": "payment",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Token credential value MUST NOT be echoed in responses (token field is omit-on-response)",
      "source": "ucp:source/schemas/common/types/token_credential.json#L21",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-014",
@@ -16705,30 +16475,42 @@
      "area": "permalink",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "An item identifier not matching the raw token grammar `^[A-Za-z0-9._-]+$` MUST be encoded with a leading `~` and base64url-without-padding; item identifiers MUST NOT be percent-encoded to make them fit the compact path",
      "source": "ucp:docs/specification/permalink.md#L189",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-006",
      "area": "permalink",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A Business MUST treat a leading `~` as the encoding marker and decode the remainder as base64url without padding; it MUST reject a token whose remainder is not canonical base64url without padding, and MUST reject a decoded value that is not valid UTF-8 or that contains control characters",
      "source": "ucp:docs/specification/permalink.md#L214",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-007",
      "area": "permalink",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The raw and `~`-encoded forms of an item identifier MUST resolve to the same decoded identity",
      "source": "ucp:docs/specification/permalink.md#L218",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-008",
@@ -16755,30 +16537,42 @@
      "area": "permalink",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "`continue_to` is untrusted input: a Business MUST validate it server-side by percent-decoding once, rejecting unless it starts with a single `/` (not `//`) and contains no scheme/backslash/whitespace/control character, resolving it against the endpoint's origin, and rejecting unless the result is same-origin",
      "source": "ucp:docs/specification/permalink.md#L272",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-011",
      "area": "permalink",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A Business MUST NOT reflect the raw `continue_to` value, and the emitted `Location` header MUST NOT contain CR, LF, or other control characters",
      "source": "ucp:docs/specification/permalink.md#L282",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-012",
      "area": "permalink",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A Business MUST fall back to its default destination for any `continue_to` value that fails validation",
      "source": "ucp:docs/specification/permalink.md#L286",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PERM-013",
@@ -17415,20 +17209,28 @@
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "All signal keys MUST use reverse-domain naming to ensure provenance and prevent collisions in the shared namespace",
      "source": "ucp:docs/specification/overview/index.md#L3322-L3323",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SAE-003",
      "area": "signals-attribution-eligibility",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Reverse-domain identifiers (signal keys, eligibility claims, purpose keys, etc.) MUST match the shared reverse_domain_name.json pattern, now extended to allow hyphens, digit-led later segments, and punycode TLDs",
      "source": "ucp:source/schemas/common/types/reverse_domain_name.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SAE-007",
@@ -17565,20 +17367,28 @@
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Public keys MUST be represented using JSON Web Key (JWK) format as defined in RFC 7517.",
      "source": "ucp:docs/specification/signatures.md#L142-L143",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "SIG-008",
      "area": "signatures",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Public keys are published in the signer's UCP profile; the publishing contract and the verifier's key-list lookup rule (which key list to read per resolution mechanism) are specified in Profile Structure and Key Discovery (overview/index.md), rather than a single self-contained signing_keys[] statement.",
      "source": "ucp:docs/specification/signatures.md#L213-L217",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "SIG-009",
@@ -18500,12 +18310,7 @@
      "source": "ucp:source/schemas/common/types/price.json#L7-L10",
      "covered_by": []
     }
-   ],
-   "census": {
-    "mode": "gate",
-    "unaccounted": 0,
-    "gate_from": ""
-   }
+   ]
   }
  }
 }

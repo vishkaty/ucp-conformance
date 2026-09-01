@@ -682,6 +682,19 @@ def selftest():
     can't be made to fail validates nothing (same doctrine as coverage_gate.py's
     own --selftest).
 
+    The "zero CHECK, zero EXEMPT" condition each variant needs is CONSTRUCTED
+    inside the mutation itself, never discovered by scanning the committed export
+    for a version that happens to already be register-only. Discovering it would
+    make these kill-tests silently stop exercising the moment every pinned spec
+    version matures to real CHECK/EXEMPT rows — exactly what happened at the
+    2026-08-25 conversion-phase flip (R4/PLAN-0825 §G4): 2026-08-25 was the last
+    naturally-zero version, and the flip gave it 27 real CHECK rows, so a
+    discovery-based `zero_ver` silently went None and the WHOLE selftest started
+    returning a bare SKIP with no red flag anywhere — a maturing product quietly
+    disarming its own kill-tests forever is the opposite of what a kill-test gate
+    is for. Self-sufficient construction means these variants keep exercising the
+    real code path no matter how many real versions eventually go live.
+
     Re-invokes site_gates.py as a SUBPROCESS with SPCK_PUBLIC pointed at the scratch
     dir, rather than calling freshness() in-process, because PUB is resolved once at
     import time from the environment — a fresh process is the only way to pick up a
@@ -690,8 +703,15 @@ def selftest():
     import copy, shutil, tempfile
     real_cov = json.load(open(ROOT / "public" / "coverage.json"))
     versions = real_cov["versions"]
-    zero_ver = next((v for v, d in versions.items()
-                     if not d.get("check") and not d.get("exempt")), None)
+    if not versions:
+        print("site_gates selftest: SKIP — public/coverage.json has no versions "
+              "at all to exercise the state-consistency kill-tests against")
+        return 0
+    # subject_ver: any real, stable version key — its REAL check/exempt/state don't
+    # matter, since variants 1 and 3 below overwrite them in the scratch copy only.
+    # Deterministic (not "whichever happens to be zero today") so the test doesn't
+    # depend on the register's current maturity.
+    subject_ver = sorted(versions)[0]
     # prefer 2026-04-08 for the "building planted on a real version" case (PLAN-0825
     # §E names it explicitly — the mature, fully-accounted version); fall back to
     # whatever live version exists if the register ever moves on.
@@ -699,11 +719,17 @@ def selftest():
                                 or versions.get("2026-04-08", {}).get("exempt")) \
         else next((v for v, d in versions.items()
                   if d.get("check") or d.get("exempt")), None)
-    if zero_ver is None or live_ver is None:
-        print("site_gates selftest: SKIP — need at least one zero-check/exempt "
-              "version and one live version in public/coverage.json to exercise "
-              "the state-consistency kill-tests")
+    if live_ver is None:
+        print("site_gates selftest: SKIP — need at least one live (real CHECK/"
+              "EXEMPT) version in public/coverage.json to exercise the "
+              "state-consistency kill-tests")
         return 0
+    # a version key GUARANTEED to never be a real spec version (never collides with
+    # common.spec_versions.VERSIONS, today or after any future landing) — used ONLY
+    # by the agent-widening variant below, planted into agent-coverage.json alone,
+    # never into coverage.json's `versions` (so _state_failures never even sees it;
+    # only the backs-site UNION in _real_manifest() does).
+    synth_ver = "2099-01-01-selftest-synthetic"
 
     bad = 0
 
@@ -734,20 +760,22 @@ def selftest():
             bad += 0 if ok else 1
 
     run_variant(
-        f"state=live planted on {zero_ver} (zero CHECK, zero EXEMPT)",
-        lambda vs: vs.__setitem__(zero_ver, {**vs[zero_ver], "state": "live"}),
+        f"state=live planted on {subject_ver} forced to zero CHECK/EXEMPT",
+        lambda vs: vs.__setitem__(subject_ver,
+                                  {**vs[subject_ver], "check": 0, "exempt": 0,
+                                   "state": "live"}),
         want_red=True)
     run_variant(
         f"state=building planted on {live_ver} (has real CHECK/EXEMPT rows)",
         lambda vs: vs.__setitem__(live_ver, {**vs[live_ver], "state": "building"}),
         want_red=True)
     run_variant(
-        f"agent check planted on the all-zero {zero_ver} agent row (backs-site "
-        f"filter must widen the real manifest and redden the 3-version claim)",
+        f"agent check planted on a synthetic all-zero version ({synth_ver}) absent "
+        f"from coverage.json entirely (backs-site filter must widen the real "
+        f"manifest via the agent axis ALONE and redden the version-count claim)",
         lambda vs: None,
         want_red=True,
-        mutate_agc=lambda a: a.__setitem__(
-            zero_ver, {**a.get(zero_ver, {}), "check": 1}))
+        mutate_agc=lambda a: a.__setitem__(synth_ver, {"check": 1, "exempt": 0}))
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,

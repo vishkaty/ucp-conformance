@@ -31,9 +31,19 @@ selftest that proves it can FAIL. Four families:
 
   4. PUBLISHED-SPLIT SYNC — the honest split published in public/site_claims.json
      ($.evidence.per_version) must equal a fresh matrix export's breakdown, and the
-     committed reach report must be structurally sound (keys "module:check_id",
-     targets only from ci/differential_targets.json — the independent-target
-     register).
+     committed reach report must be structurally sound (keys "version:module:
+     check_id", targets only from ci/differential_targets.json — the independent-
+     target register).
+
+  5. VERSION-AXIS KILL-TESTS (R4) — reach evidence must never cross a spec version:
+     a check graded at version V must NOT classify live-wire when evaluated at a
+     DIFFERENT version it's also attributed to (negative control — this is the
+     leak that let a single 2026-04-08 differential run silently "corroborate"
+     2026-01-11/2026-01-23, and would have handed 2026-08-25 live-wire credit for
+     a version with zero independently-authored implementation), and MUST classify
+     live-wire when evaluated at the SAME version it was graded at (positive
+     control — proves the version-keyed path isn't simply demoting everything to
+     self-referenced "safely" while silently zeroing real corroboration).
 
 Exit 0 = all hold; 1 = a classification lie, a totals drift, or a stale published
 split. Hermetic: no server, no network — the reach report is committed data.
@@ -71,29 +81,33 @@ def representative_checks():
     import merchant_checks
     import merchant_checks_04_08_receiver as recv
 
-    def expect(chk, stem, reach, want, name):
-        got, _targets = evidence.classify_check(chk, stem, reach)
+    def expect(chk, stem, version, reach, want, name):
+        got, _targets = evidence.classify_check(chk, stem, version, reach)
         if got != want:
             fails.append(f"{name}: classified '{got}', mechanics dictate '{want}'")
 
     # A wire-probing receiver check: wire by construction; live-wire ONLY with
-    # graded independent reach, self-referenced without.
+    # graded independent reach AT THE SAME VERSION, self-referenced without.
     esc = _find(recv.CHECKS_04_08_RECEIVER, "checkout.escalation_continue_url")
     if evidence.acquisition(esc) != "wire":
         fails.append("receiver escalation check must be acquisition 'wire' "
                      f"(got {evidence.acquisition(esc)})")
-    expect(esc, "merchant_checks_04_08_receiver", {}, "self-referenced",
+    expect(esc, "merchant_checks_04_08_receiver", "2026-04-08", {}, "self-referenced",
            "wire receiver check with NO independent reach")
-    synth_reach = {"merchant_checks_04_08_receiver:checkout.escalation_continue_url":
+    synth_reach = {"2026-04-08:merchant_checks_04_08_receiver:checkout.escalation_continue_url":
                    ["flower-shop-official-sample"]}
-    expect(esc, "merchant_checks_04_08_receiver", synth_reach, "live-wire",
-           "wire receiver check WITH graded independent reach")
+    expect(esc, "merchant_checks_04_08_receiver", "2026-04-08", synth_reach, "live-wire",
+           "wire receiver check WITH graded independent reach (positive control, R4 H3)")
+    expect(esc, "merchant_checks_04_08_receiver", "2026-01-23", synth_reach, "self-referenced",
+           "wire receiver check graded at 2026-04-08 must NOT credit a sibling "
+           "version (negative control, R4)")
 
     # The AP2 _MERCHANT_SEED self-tests: fixture acquisition, crypto oracle.
     ap2 = _find(area_04_08_ap2.CHECKS, "payment.ap2_authorization_authentic")
-    expect(ap2, "area_04_08_ap2", {}, "fixture-crypto", "AP2 seed-key self-test")
+    expect(ap2, "area_04_08_ap2", "2026-04-08", {}, "fixture-crypto", "AP2 seed-key self-test")
     ap2n = _find(area_04_08_ap2.CHECKS, "payment.ap2_mandate_nested_binding")
-    expect(ap2n, "area_04_08_ap2", {}, "fixture-crypto", "AP2 nested-binding self-test")
+    expect(ap2n, "area_04_08_ap2", "2026-04-08", {}, "fixture-crypto",
+           "AP2 nested-binding self-test")
 
     # A schema-oracle fixture_check (the schema_check.py factory whose fetch lambda
     # ignores `base`): fixture acquisition, official-oracle verdict.
@@ -101,11 +115,12 @@ def representative_checks():
     if evidence.acquisition(cart) != "fixture":
         fails.append("fixture_check must be acquisition 'fixture' "
                      f"(got {evidence.acquisition(cart)}) — its fetch ignores base")
-    expect(cart, "area_04_08_cart", {}, "fixture-schema", "schema-oracle fixture_check")
+    expect(cart, "area_04_08_cart", "2026-04-08", {}, "fixture-schema",
+           "schema-oracle fixture_check")
 
     # A schema-tier namedtuple check (valid+negatives run through the oracle).
     st = schema_check_04_08_payment.CHECKS[0]
-    expect(st, "schema_check_04_08_payment", {}, "fixture-schema",
+    expect(st, "schema_check_04_08_payment", "2026-04-08", {}, "fixture-schema",
            "schema-tier namedtuple check")
 
     # A live 01-era engine check reaches engine.fetch only through module helpers —
@@ -134,7 +149,8 @@ def representative_checks():
     else:
         lw = [k for k in real
               if evidence.classify_check(
-                  _find_by_key(k), k.split(":", 1)[0], real)[0] == "live-wire"]
+                  _find_by_key(k), _stem_of_key(k), _version_of_key(k), real)[0]
+              == "live-wire"]
         if len(lw) < 20:
             fails.append(f"only {len(lw)} wire checks classify live-wire under the "
                          "committed reach report — corroboration layer looks broken")
@@ -144,15 +160,27 @@ def representative_checks():
 _KEY_CACHE = {}
 
 
+def _version_of_key(key):
+    return key.split(":", 1)[0]
+
+
+def _stem_of_key(key):
+    return key.split(":", 2)[1]
+
+
 def _find_by_key(key):
-    """Resolve a reach key 'module_stem:check_id' to the live check object."""
+    """Resolve a reach key 'version:module_stem:check_id' to the live check
+    object (version-independent lookup — the same check object can be attributed
+    to several versions; the CACHE is keyed by module:check_id only, but the
+    caller separately extracts and passes the version)."""
     if not _KEY_CACHE:
         for path in matrix.check_files():
             checks, _mod = matrix._module_checks(path)
             stem = os.path.splitext(os.path.basename(path))[0]
             for c in checks or []:
                 _KEY_CACHE[f"{stem}:{c.id}"] = c
-    return _KEY_CACHE[key]
+    _, stem, cid = key.split(":", 2)
+    return _KEY_CACHE[f"{stem}:{cid}"]
 
 
 def classifier_kill_tests():
@@ -166,26 +194,26 @@ def classifier_kill_tests():
     fixture_fetch = lambda base: engine.Resp(200, {}, b'{"x": 1}')          # noqa: E731
     plain_pred = lambda r: "clean-pass"                                     # noqa: E731
 
-    def expect(chk, stem, reach, want, name):
-        got, _t = evidence.classify_check(chk, stem, reach)
+    def expect(chk, stem, version, reach, want, name):
+        got, _t = evidence.classify_check(chk, stem, version, reach)
         if got != want:
             fails.append(f"KILL {name}: classified '{got}', must be '{want}'")
 
     # fixture + hand-written predicate = self-referenced. A classifier that defaults
     # the fixture tier to fixture-schema mislabels THIS and reds here.
     expect(Check("k.fixture_plain", ["ZZZ-001"], "MUST", fixture_fetch, plain_pred, []),
-           "synthetic", {}, "self-referenced", "fixture + plain predicate")
+           "synthetic", "2026-04-08", {}, "self-referenced", "fixture + plain predicate")
 
     # crypto-routed predicate = fixture-crypto, never fixture-schema.
     def crypto_pred(r):
         return crypto.b64url_decode("AA") and "clean-pass"
     expect(Check("k.fixture_crypto", ["ZZZ-002"], "MUST", fixture_fetch, crypto_pred, []),
-           "synthetic", {}, "fixture-crypto", "fixture + crypto predicate")
+           "synthetic", "2026-04-08", {}, "fixture-crypto", "fixture + crypto predicate")
 
     # schema_predicate-built predicate = fixture-schema.
     expect(Check("k.fixture_schema", ["ZZZ-003"], "MUST", fixture_fetch,
                  schema_check.schema_predicate("create_checkout", "response"), []),
-           "synthetic", {}, "fixture-schema", "fixture + schema-oracle predicate")
+           "synthetic", "2026-04-08", {}, "fixture-schema", "fixture + schema-oracle predicate")
 
     # wire reached only through a local helper chain: transitivity required.
     def _helper(base):
@@ -200,27 +228,42 @@ def classifier_kill_tests():
 
     # RECORDED but never GRADED on an independent target is NOT corroboration:
     # only clean-pass/deviation statuses may grant live-wire.
-    reach_ungraded = {"synthetic:k.wire_indirect": []}
-    expect(wire_chk, "synthetic", reach_ungraded, "self-referenced",
+    reach_ungraded = {"2026-04-08:synthetic:k.wire_indirect": []}
+    expect(wire_chk, "synthetic", "2026-04-08", reach_ungraded, "self-referenced",
            "wire check recorded but never graded")
-    expect(wire_chk, "synthetic", {"synthetic:k.wire_indirect": ["nodejs-reference-sample"]},
-           "live-wire", "wire check graded on an independent target")
+    reach_graded = {"2026-04-08:synthetic:k.wire_indirect": ["nodejs-reference-sample"]}
+    expect(wire_chk, "synthetic", "2026-04-08", reach_graded,
+           "live-wire", "wire check graded on an independent target (positive control)")
+
+    # R4 (H1/negative control): the SAME reach report, evaluated at a DIFFERENT
+    # version the check object is also attributed to, must NOT inherit the grade —
+    # this is the exact leak that let a single 04-08 run "corroborate" 01-11/01-23,
+    # and would have handed 2026-08-25 live-wire credit with zero independently-
+    # authored implementation. A classifier that ignores the version parameter
+    # (falls back to a bare module:check_id lookup) reds here.
+    expect(wire_chk, "synthetic", "2026-01-23", reach_graded, "self-referenced",
+           "wire check graded at 2026-04-08 must not credit 2026-01-23 (R4 negative control)")
+    expect(wire_chk, "synthetic", "2026-08-25", reach_graded, "self-referenced",
+           "wire check graded at 2026-04-08 must not credit 2026-08-25 (R4 negative control)")
 
     # load_reach: a skip/not-tested status must not count as graded ...
     import tempfile
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tf:
         json.dump({"checks": {
-            "m:a": {"targets": {"flower-shop-official-sample":
-                                "not-tested (needs config: x)"}},
-            "m:b": {"targets": {"flower-shop-official-sample": "deviation"}},
-            "m:c": {"targets": {"nodejs-reference-sample": "clean-pass"}}}}, tf)
+            "2026-04-08:m:a": {"version": "2026-04-08",
+                               "targets": {"flower-shop-official-sample":
+                                          "not-tested (needs config: x)"}},
+            "2026-04-08:m:b": {"version": "2026-04-08",
+                               "targets": {"flower-shop-official-sample": "deviation"}},
+            "2026-01-23:m:c": {"version": "2026-01-23",
+                               "targets": {"nodejs-reference-sample": "clean-pass"}}}}, tf)
         path = tf.name
     got = evidence.load_reach(path)
     os.unlink(path)
-    if "m:a" in got:
+    if "2026-04-08:m:a" in got:
         fails.append("KILL load_reach: a not-tested status was counted as graded")
-    if got.get("m:b") != ["flower-shop-official-sample"] or \
-       got.get("m:c") != ["nodejs-reference-sample"]:
+    if got.get("2026-04-08:m:b") != ["flower-shop-official-sample"] or \
+       got.get("2026-01-23:m:c") != ["nodejs-reference-sample"]:
         fails.append(f"KILL load_reach: graded statuses mis-loaded ({got})")
     # ... and a MISSING report fails closed (every wire check demotes).
     if evidence.load_reach("/nonexistent/reach.json") != {}:
@@ -229,7 +272,7 @@ def classifier_kill_tests():
     # per-id aggregation takes the STRONGEST class; text-scan rows fail closed.
     rows = [("2026-04-08", "ZZZ-009", "synthetic.py", wire_chk),
             ("2026-04-08", "ZZZ-009", "other.py", None)]
-    ev = evidence.evidence_by_id(rows, {"synthetic:k.wire_indirect": ["x"]})
+    ev = evidence.evidence_by_id(rows, {"2026-04-08:synthetic:k.wire_indirect": ["x"]})
     if ev["2026-04-08"]["ZZZ-009"]["evidence"] != "live-wire":
         fails.append("KILL aggregation: strongest class must win per id")
     ev2 = evidence.evidence_by_id([("2026-04-08", "ZZZ-010", "ghost.py", None)], {})
@@ -238,6 +281,20 @@ def classifier_kill_tests():
     if evidence.strongest(["self-referenced", "fixture-crypto", "fixture-schema"]) \
             != "fixture-schema":
         fails.append("KILL strongest(): rank order broken")
+
+    # R4 (evidence_by_id cross-version aggregation): the SAME check object attributed
+    # to TWO versions, with reach graded at only ONE of them, must classify live-wire
+    # at that version and self-referenced at the sibling — proving the (id(chk),
+    # version) cache key (not id(chk) alone) actually takes effect end-to-end.
+    rows_multiver = [("2026-04-08", "ZZZ-011", "synthetic.py", wire_chk),
+                      ("2026-01-11", "ZZZ-011", "synthetic.py", wire_chk)]
+    ev3 = evidence.evidence_by_id(rows_multiver,
+                                   {"2026-04-08:synthetic:k.wire_indirect": ["x"]})
+    if ev3["2026-04-08"]["ZZZ-011"]["evidence"] != "live-wire":
+        fails.append("KILL cross-version cache: graded version must classify live-wire")
+    if ev3["2026-01-11"]["ZZZ-011"]["evidence"] != "self-referenced":
+        fails.append("KILL cross-version cache: ungraded sibling version must NOT "
+                     "inherit live-wire from the same check object's other-version grade")
     return fails
 
 
@@ -299,9 +356,19 @@ def published_sync(export):
     rr = json.load(open(rr_path))
     registered = {t["name"] for t in json.load(open(os.path.join(
         CONF, "ci", "differential_targets.json")))["targets"]}
+    known_versions = set(matrix.VERSIONS)
     for key, entry in (rr.get("checks") or {}).items():
-        if ":" not in key:
-            fails.append(f"reach report key '{key}' is not 'module:check_id'")
+        parts = key.split(":", 2)
+        if len(parts) != 3:
+            fails.append(f"reach report key '{key}' is not 'version:module:check_id'")
+            continue
+        ver, _mod, _cid = parts
+        if ver not in known_versions:
+            fails.append(f"reach report key '{key}': version '{ver}' is not a "
+                         f"known spec version {sorted(known_versions)}")
+        if entry.get("version") != ver:
+            fails.append(f"reach report {key}: entry.version={entry.get('version')!r} "
+                         f"disagrees with its own key prefix {ver!r}")
         rogue = set(entry.get("targets") or {}) - registered
         if rogue:
             fails.append(f"reach report {key}: target(s) {sorted(rogue)} are not in "

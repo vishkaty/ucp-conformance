@@ -70,9 +70,30 @@ full evidence trail):
 
 Wiring: run_suite.py gate "golden-check-08-25" (hermetic — boots its own
 golden-0825, own port, no dependency on an already-running --server or on 8182).
-Deliberately NOT wired into checkset_manifest.py / matrix.py / coverage export /
-REGISTER_ONLY_VERSIONS: per the lane brief, unattributed pending the owner-visible
-coverage/site flip, exactly struct_check_08_25.py's precedent.
+ATTRIBUTED into matrix.py / coverage export as of the 2026-08-31 conversion-phase
+flip (CHECKS below, mirroring struct_check_08_25.py's own precedent — VERSIONS
+marker scopes both files to 2026-08-25 only). Deliberately NOT wired into
+checkset_manifest.py (that manifest governs the LIVE 01/04-08 checksets run_suite.py
+gates release on; this file's own gate is separate and hermetic, per above).
+
+EVIDENCE CLASSIFICATION is MECHANICAL, never the `evidence` field above (that field
+is documentation for the human reading this file, matching the table in this
+docstring — coverage/evidence.py never reads it): each Row exposes `predicate`
+(NOT `fetch_fn`), so evidence.acquisition() sees no wire-reaching fetch and
+classifies 'fixture' — correct in spirit, since a golden-0825 instance is a local,
+ephemerally-booted synthetic target, never an independently-authored server (it can
+never appear in ci/differential_targets.json, so it must never be reachable via the
+'wire' acquisition path, which exists ONLY to test for INDEPENDENT-target reach and
+would otherwise force every row here into the live-wire/self-referenced binary,
+losing the fixture-schema distinction entirely). From there, coverage/evidence.py's
+existing _fixture_oracle() mechanism (unchanged) walks each row's `predicate`
+closure: SIG-007/FUL-003/FUL-007/FUL-008/FUL-030/CNST-001/CNST-003 transitively
+reference the `so` (schema_oracle) module global -> fixture-schema; SIG-008/
+PAY-011/PAY-012 reference only this file's own p_keys_published/p_no_credential_leak
+predicates, no oracle reach -> self-referenced. This MUST equal the table above —
+if it ever doesn't, the classifier is not deriving what the file's own docstring
+claims, which is exactly the hand-label-vs-mechanics gap validate_evidence_class.py
+exists to catch.
 
 Run:  python3 conformance/checks/golden_check_08_25.py
 Exit 0 = every row clean-pass + kill-safe; 1 = a row failed or a mutant survived;
@@ -330,7 +351,7 @@ def p_no_credential_leak(status, body):
 # the rows
 # ---------------------------------------------------------------------------
 
-Row = namedtuple("Row", "id req_ids evidence doc make_request judge mutant")
+Row = namedtuple("Row", "id req_ids evidence doc make_request predicate mutant")
 
 
 def _oracle_profile(status, body):
@@ -348,7 +369,7 @@ def _oracle_against(schema_rel, def_name, op):
     return judge
 
 
-ROWS = [
+CHECKS = [
     Row("SIG-007", ["SIG-007"], "fixture-schema",
         "Public keys MUST be represented using JWK (RFC 7517).",
         lambda: http("GET", "/.well-known/ucp"),
@@ -450,17 +471,17 @@ def run():
         g.start()
         try:
             results = []
-            for row in ROWS:
+            for row in CHECKS:
                 arm(state_file, None)
                 c_status, c_body = row.make_request()
-                c_ok, c_detail = row.judge(c_status, c_body)
+                c_ok, c_detail = row.predicate(c_status, c_body)
                 if not c_ok:
                     results.append((row, "CLEAN-FAILED", f"unmutated golden already fails: {c_detail}"))
                     continue
 
                 arm(state_file, row.mutant)
                 a_status, a_body = row.make_request()
-                a_ok, a_detail = row.judge(a_status, a_body)
+                a_ok, a_detail = row.predicate(a_status, a_body)
                 arm(state_file, None)
 
                 if a_ok:
@@ -468,7 +489,7 @@ def run():
                     continue
 
                 r_status, r_body = row.make_request()
-                r_ok, r_detail = row.judge(r_status, r_body)
+                r_ok, r_detail = row.predicate(r_status, r_body)
                 if not r_ok:
                     results.append((row, "RESTORE-FAILED", f"disarmed but still red: {r_detail}"))
                     continue
