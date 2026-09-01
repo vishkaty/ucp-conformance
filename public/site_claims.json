@@ -37,14 +37,14 @@
                 "self-referenced": 151
             },
             "2026-08-25": {
-                "check": 27,
+                "check": 44,
                 "live-wire": 0,
-                "fixture-schema": 7,
+                "fixture-schema": 20,
                 "fixture-crypto": 0,
-                "self-referenced": 20
+                "self-referenced": 24
             }
         },
-        "reviewed": "2026-08-31"
+        "reviewed": "2026-09-01"
     },
     "claims": [
         {
