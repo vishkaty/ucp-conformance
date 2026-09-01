@@ -10092,21 +10092,21 @@
   "2026-08-25": {
    "state": "live",
    "musts": 785,
-   "check": 27,
+   "check": 44,
    "exempt": 0,
-   "gap": 758,
-   "accounted_pct": 3,
+   "gap": 741,
+   "accounted_pct": 6,
    "evidence_breakdown": {
     "live-wire": 0,
-    "fixture-schema": 7,
+    "fixture-schema": 20,
     "fixture-crypto": 0,
-    "self-referenced": 20
+    "self-referenced": 24
    },
    "gap_by_testability": {
     "manual": 162,
     "needs-oauth": 15,
     "needs-receiver": 173,
-    "testable": 408
+    "testable": 391
    },
    "areas": [
     {
@@ -10137,10 +10137,11 @@
     },
     {
      "area": "cart",
-     "gap": 17,
+     "check": 4,
+     "gap": 13,
      "gap_manual": 2,
      "gap_needs-receiver": 5,
-     "gap_testable": 10,
+     "gap_testable": 6,
      "musts": 17
     },
     {
@@ -10153,10 +10154,11 @@
     },
     {
      "area": "checkout-lifecycle",
-     "gap": 56,
+     "check": 2,
+     "gap": 54,
      "gap_manual": 8,
      "gap_needs-receiver": 11,
-     "gap_testable": 37,
+     "gap_testable": 35,
      "musts": 56
     },
     {
@@ -10169,10 +10171,11 @@
     },
     {
      "area": "discovery-and-profile",
-     "gap": 9,
+     "check": 4,
+     "gap": 5,
      "gap_manual": 1,
      "gap_needs-receiver": 1,
-     "gap_testable": 7,
+     "gap_testable": 3,
      "musts": 9
     },
     {
@@ -10217,11 +10220,12 @@
     },
     {
      "area": "order",
-     "gap": 29,
+     "check": 7,
+     "gap": 22,
      "gap_manual": 4,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 7,
-     "gap_testable": 17,
+     "gap_testable": 10,
      "musts": 29
     },
     {
@@ -10725,10 +10729,14 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A cart response object MUST include ucp, id, line_items, currency, and totals",
      "source": "ucp:source/schemas/shopping/cart.json#L32-L38",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CART-030",
@@ -10745,30 +10753,42 @@
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each cart line item MUST include id, item, quantity, and totals",
      "source": "ucp:source/schemas/shopping/types/line_item.json#L7-L12",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CART-032",
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line item quantity MUST be an integer of at least 1",
      "source": "ucp:source/schemas/shopping/types/line_item.json#L27",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CART-033",
      "area": "cart",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each line item's item MUST include id, title, and price",
      "source": "ucp:source/schemas/shopping/types/item.json#L6-L10",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CART-034",
@@ -11375,20 +11395,28 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "status field enum is constrained to the six lifecycle values",
      "source": "ucp:source/schemas/shopping/checkout.json#L67-L74",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CHK-034",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Checkout response MUST include required top-level fields: ucp, id, line_items, status, currency, totals, links",
      "source": "ucp:source/schemas/shopping/checkout.json#L8-L16",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "CHK-035",
@@ -12063,10 +12091,14 @@
      "area": "discovery-and-profile",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them.",
      "source": "ucp:docs/specification/overview/index.md#L2239",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-003",
@@ -12083,10 +12115,14 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Implementations MUST reject URLs (the profile, or any jwks_uri / CIMD document dereferenced during identity resolution) not served over HTTPS.",
      "source": "ucp:docs/specification/overview/index.md#L2286",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-005",
@@ -12113,20 +12149,28 @@
      "area": "discovery-and-profile",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Implementations MUST NOT follow redirects (3xx) when dereferencing a URL during identity resolution (the profile, or any jwks_uri / CIMD document a verifier follows).",
      "source": "ucp:docs/specification/overview/index.md#L2287",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-008",
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Implementations MUST reject URLs dereferenced during identity resolution that resolve to special-use IP addresses (RFC 6890 loopback, link-local including the cloud-metadata address 169.254.169.254, private, and other reserved ranges), except a loopback target when the verifier itself runs on the same loopback interface (local development).",
      "source": "ucp:docs/specification/overview/index.md#L2296-L2299",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-009",
@@ -14707,40 +14751,56 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "order.currency is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-004",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "line_items is REQUIRED on the order entity",
      "source": "ucp:source/schemas/shopping/order.json#L25",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-005",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each order line item requires id, item, quantity, totals, and status",
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-006",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Line item quantity requires total and fulfilled (non-negative integers)",
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L24",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-007",
@@ -14797,30 +14857,42 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each expectation requires id, line_items, method_type, and destination",
      "source": "ucp:source/schemas/shopping/types/expectation.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-019",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each fulfillment event requires id, occurred_at, type, and line_items",
      "source": "ucp:source/schemas/shopping/types/fulfillment_event.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-020",
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Order confirmation requires id and permalink_url",
      "source": "ucp:source/schemas/shopping/types/order_confirmation.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ORD-021",
