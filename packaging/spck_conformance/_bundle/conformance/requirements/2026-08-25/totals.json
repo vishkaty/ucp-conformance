@@ -1,0 +1,380 @@
+{
+ "_area": "totals",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "rows": [
+  {
+   "id": "TOT-001",
+   "requirement": "Platforms MUST render all top-level totals entries in the order provided",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1296",
+   "quote": "Platforms MUST render all top-level entries in the order provided:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); content verbatim unchanged, only the path moved under the shopping/checkout/ reorg. Rendering/display behavior; not enforceable by JSON Schema.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-002",
+   "requirement": "Platforms MUST NOT interpret, filter, reorder, aggregate, or apply their own display logic to totals",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1313",
+   "quote": "Platforms MUST NOT interpret, filter, reorder, aggregate, or apply display\nlogic of their own.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Rendering-behavior prohibition; not schema-checkable.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-004",
+   "requirement": "Unknown (non-well-known) totals types MUST include display_text",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1320",
+   "quote": "unknown types MUST include `display_text`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema-enforced via totals.json if/then: type not in well-known enum -> require display_text (now at source/schemas/common/types/totals.json, see SIG area totals-schema relocation note).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-005",
+   "requirement": "Exactly one totals entry of type subtotal MUST be present",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1323",
+   "quote": "Exactly one `type: \"subtotal\"` MUST be present.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema-enforced: source/schemas/common/types/totals.json (was source/schemas/shopping/types/totals.json) contains subtotal minContains:1 maxContains:1 -- schema content byte-identical apart from its $id, confirmed by diff.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-006",
+   "requirement": "Exactly one totals entry of type total MUST be present",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1324",
+   "quote": "Exactly one `type: \"total\"` MUST be present.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema-enforced: source/schemas/common/types/totals.json contains total minContains:1 maxContains:1 (relocated from shopping/types/, content unchanged apart from $id).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-007",
+   "requirement": "Platforms MUST NOT substitute their own computed totals for the business values",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1328-L1329",
+   "quote": "Platforms MUST NOT substitute their own computed totals for the business's\nvalues.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Display-behavior prohibition.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-008",
+   "requirement": "Platforms MAY verify sum of non-total entry amounts equals the total entry amount",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1329",
+   "quote": "Platforms MAY verify the provided totals:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged, same worked python example (assert sum(...) == total_entry.amount) immediately below. PROSE-ONLY arithmetic invariant; verification is MAY/optional and NOT in totals.json. We implement sum(non-total)==total as a coded check (AMB-004).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-010",
+   "requirement": "Platforms MUST NOT autonomously complete a checkout with mismatched totals",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1337-L1338",
+   "quote": "platforms MUST NOT autonomously complete\na checkout with mismatched totals.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral; depends on the optional sum check.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-011",
+   "requirement": "On mismatched totals, platforms SHOULD reject the checkout or escalate for buyer review via continue_url",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1338-L1339",
+   "quote": "Platforms SHOULD reject the checkout or\nescalate and ask for buyer review via `continue_url`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral recommendation.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-012",
+   "requirement": "When display_text is provided, platforms MUST use it",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1353",
+   "quote": "When `display_text` is provided, platforms MUST use it.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Display behavior.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-014",
+   "requirement": "Subtractive well-known types (discount, items_discount) MUST have negative amounts",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1355-L1356",
+   "quote": "convention for well-known types is schema-enforced: subtractive types\n(discount, items_discount) MUST have negative amounts",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema strictly-negative: source/schemas/common/types/total.json (relocated from shopping/types/, content unchanged apart from $id) if type in [discount, items_discount] then amount exclusiveMaximum:0.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-015",
+   "requirement": "Additive well-known types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1356-L1357",
+   "quote": "additive types\n(subtotal, fulfillment, tax, fee) MUST have non-negative amounts.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema non-negative: source/schemas/common/types/total.json (relocated from shopping/types/) if type in [subtotal, fulfillment, tax, fee] then amount minimum:0.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-017",
+   "requirement": "Sum of a parent entry lines[] amounts MUST equal the parent entry amount",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1374",
+   "quote": "**Invariant:** `sum(lines[].amount)` MUST equal the parent entry's `amount`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. PROSE-ONLY arithmetic invariant; no JSON-Schema construct enforces it. We implement as a coded check (AMB-004).",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-018",
+   "requirement": "Platforms SHOULD render sub-lines when provided",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1377-L1378",
+   "quote": "Platforms SHOULD render sub-lines\nwhen provided.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Display behavior.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-019",
+   "requirement": "Each sub-line entry requires both display_text and amount",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/totals.json#L19-L22",
+   "quote": "\"required\": [\n                \"display_text\",\n                \"amount\"\n              ],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated (file/line anchor only) — totals.json moved from source/schemas/shopping/types/ to source/schemas/common/types/ in this release (confirmed: shared value types moved to a new common/types/ folder). File content is byte-identical apart from its $id (\"https://ucp.dev/schemas/shopping/types/totals.json\" -> \"https://ucp.dev/schemas/common/types/totals.json\", not itself part of this row's quoted requirement), confirmed by diff; line numbers unchanged (still L19-22). Schema-required on lines[] item objects.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-020",
+   "requirement": "Each top-level totals entry requires both type and amount",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/total.json#L7-L10",
+   "quote": "\"required\": [\n    \"type\",\n    \"amount\"\n  ],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated (file/line anchor only) — total.json moved from source/schemas/shopping/types/ to source/schemas/common/types/ in this release. File content byte-identical apart from its $id (\"https://ucp.dev/schemas/shopping/types/total.json\" -> \"https://ucp.dev/schemas/common/types/total.json\", not itself part of this row's quoted requirement), confirmed by diff; line numbers unchanged (still L7-10). Schema-required fields on each total entry.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  },
+  {
+   "id": "TOT-021",
+   "requirement": "Price requires a non-negative integer amount and an ISO 4217 currency code",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/price.json#L7-L10",
+   "quote": "\"required\": [\n    \"amount\",\n    \"currency\"\n  ],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "[2026-08-25] relocated (file/line anchor only) — price.json moved from source/schemas/shopping/types/ to source/schemas/common/types/ in this release. File content byte-identical apart from its $id (\"https://ucp.dev/schemas/shopping/types/price.json\" -> \"https://ucp.dev/schemas/common/types/price.json\", not itself part of this row's quoted requirement), confirmed by diff; line numbers unchanged (still L7-10). price.json amount $ref amount.json (integer minimum:0); currency pattern ^[A-Z]{3}$. Distinct from signed_amount used by totals entries which permits negatives.",
+   "lineage": {
+    "from": "2026-04-08",
+    "disposition": "carried"
+   }
+  }
+ ]
+}

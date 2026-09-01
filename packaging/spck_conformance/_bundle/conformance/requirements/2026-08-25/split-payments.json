@@ -1,0 +1,332 @@
+{
+ "_area": "split-payments",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "NEW capability at v2026-08-25 (dev.ucp.common.payment.split_payments; common/payment_split_payments.json, common/types/business_split_payments_config.json, common/types/instrument_group.json). No 04-08 equivalent existed. instrument_group.json's shared min/max-vs-types grammar is also referenced from the Request Constraints area (see RC-006) as the concrete carrier of 'instrument requirements via constraints' named in the release delta, but the allowed_combinations/matching-algorithm/error-handling normative text extracted here is specific to Split Payments and is filed separately to keep areas focused.",
+ "area": "split-payments",
+ "rows": [
+  {
+   "id": "SPL-001",
+   "requirement": "A Business declaring the Split Payments capability MUST declare a non-empty `allowed_combinations` array, each combination itself a non-empty array of instrument groups",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/common/types/business_split_payments_config.json#L7",
+   "quote": "\"required\": [\"allowed_combinations\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Wholly new capability (dev.ucp.common.payment.split_payments). No 04-08 equivalent existed. business_split_payments_config.json requires allowed_combinations (minItems 1) and each combination has minItems 1."
+  },
+  {
+   "id": "SPL-002",
+   "requirement": "Real payment handlers publishing non-`card` instrument types under Split Payments MUST publish their own credential schemas",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L26",
+   "quote": "real handlers MUST publish their credential schemas.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "gift_card/store_credit/loyalty instrument types are illustrative in the spec; only `card` has a normative instrument schema in the base spec."
+  },
+  {
+   "id": "SPL-003",
+   "requirement": "Handlers using foreign-currency-denominated instruments or non-currency instruments (e.g. loyalty points) MUST convert each instrument's contribution to the checkout currency",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L53",
+   "quote": "Handlers using foreign-currency-denominated instruments\n(e.g., a CAD gift card in a USD checkout) or non-currency instruments\nlike loyalty points MUST convert each instrument's contribution to the\ncheckout currency.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable against a completed checkout: every reported per-instrument `amount` must be expressed in checkout.currency minor units."
+  },
+  {
+   "id": "SPL-004",
+   "requirement": "A submitted instrument set is valid only if there exists an assignment of each submitted instrument to exactly one instrument group such that the instrument's type is in the assigned group's `types` and every group's instrument count falls within its min/max",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L95",
+   "quote": "a submission matches a combination if there exists\nan assignment of each submitted instrument to exactly one group such that\n\n* the instrument's `type` is in the assigned group's `types`, and\n* every group's instrument count falls within its `min` and `max`\n  (inclusive).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The matching algorithm itself; the Business MAY use any algorithm to find the assignment (L102-103), but the outcome (match/no-match) is externally observable and testable."
+  },
+  {
+   "id": "SPL-005",
+   "requirement": "The Business MUST derive a contribution for each submitted instrument, in array order",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L151",
+   "quote": "The business MUST derive a contribution for each\ninstrument, in array order:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable via the response's per-instrument amount and ordering against the request's payment.instruments array order."
+  },
+  {
+   "id": "SPL-006",
+   "requirement": "For a specified-amount instrument, the Business MUST authorize for the stated `amount`",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L153",
+   "quote": "**Specified-amount**: the business MUST authorize for the stated\n     `amount`.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires observing the actual authorization against the stated request amount (e.g. via a payment-provider double or sandbox)."
+  },
+  {
+   "id": "SPL-007",
+   "requirement": "A zero available balance on an open-amount instrument is a valid $0 contribution, not a failure",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L158",
+   "quote": "A zero available balance is a valid $0 contribution, not a failure.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable end-to-end: submit an instrument known to have a $0 balance and confirm the checkout does not fail solely for that reason (amount:0, no payment_failed for that instrument)."
+  },
+  {
+   "id": "SPL-008",
+   "requirement": "If the Business cannot process an instrument with a specified amount, or cannot achieve the final total, it MUST return `payment_failed` in messages[] and MUST void or reverse any authorizations it made",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L164",
+   "quote": "the business MUST return\n`payment_failed` in `messages[]` and MUST void or reverse any\nauthorizations it made.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The messages[] half is testable from the response; the void/reverse half requires observing the payment provider's ledger (needs-receiver)."
+  },
+  {
+   "id": "SPL-009",
+   "requirement": "The buyer MUST NOT remain charged for an incomplete split, even though reversal MAY retry transiently",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L166",
+   "quote": "Reversal MAY retry transiently (e.g., to work\naround acquirer rate limits or a failing void call), but the buyer\nMUST NOT remain charged for an incomplete split.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The atomic-invariant guarantee for split payments; requires provider-side settlement observation."
+  },
+  {
+   "id": "SPL-010",
+   "requirement": "The Business MUST process each split-payments request as a fresh, full submission, without reference to prior requests or responses (split-payments state, including authorizations, does not persist between requests)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L172",
+   "quote": "The business\nMUST process each request as a fresh, full submission, without\nreference to prior requests or responses.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by resubmitting a modified instrument set (e.g. replacement card after a decline, per the worked example at L438-518) and confirming the business treats it as new intent rather than resuming prior state."
+  },
+  {
+   "id": "SPL-011",
+   "requirement": "When a split is incomplete or has failed, the Business MUST emit a `payment_failed` error for each failed instrument, with `path` pointing at that instrument",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L183",
+   "quote": "the business MUST emit a `payment_failed` error for each failed\ninstrument, with `path` pointing at the instrument.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Directly checkable against the messages[] array of a partially-failed split-payment response."
+  },
+  {
+   "id": "SPL-012",
+   "requirement": "If any submitted instrument cannot be processed (invalid credentials, fraud flag, hard decline, expired, insufficient funds), the Business MUST return an error; a zero available balance on an open-amount instrument is not a failure",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L217",
+   "quote": "If any instrument cannot be processed (invalid credentials, fraud flag,\n  hard decline, expired, insufficient funds), the business MUST return an error. For\n  open-amount instruments, a zero available balance is not a failure.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Requires a payment-provider double capable of simulating each failure mode."
+  },
+  {
+   "id": "SPL-013",
+   "requirement": "If the checkout total cannot be reached after applying all submitted instruments, the Business MUST return an error",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L220",
+   "quote": "If the checkout total cannot be reached after applying all submitted\n  instruments, the business MUST return an error.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting instruments whose combined contribution is known to fall short of the checkout total."
+  },
+  {
+   "id": "SPL-014",
+   "requirement": "If the sum of all specified `amount` values exceeds the checkout total, the Business MUST return an error",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L222",
+   "quote": "If the sum of all specified `amount` values exceeds the\n  checkout total, the business MUST return an error.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable by summing request-supplied amounts against checkout.currency total; a coded arithmetic check, not full JSON-Schema-enforced."
+  },
+  {
+   "id": "SPL-015",
+   "requirement": "If the submitted instruments did not match any valid `allowed_combinations`, the Business MUST return an error",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L224",
+   "quote": "If the submitted instruments did not match any valid `allowed_combinations`, the business MUST return an error.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by submitting an instrument-type combination known not to appear in the business's declared allowed_combinations."
+  },
+  {
+   "id": "SPL-016",
+   "requirement": "On the checkout response, the Business MUST set `amount` on every instrument that was authorized or charged, reflecting the actual contribution, and MUST derive and report the actual contribution for open-amount instruments",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L228",
+   "quote": "the business MUST set `amount` on every\ninstrument that was authorized or charged, reflecting the actual\ncontribution.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Directly checkable against the response's payment.instruments[].amount for each successfully-processed instrument."
+  },
+  {
+   "id": "SPL-017",
+   "requirement": "The Business MUST omit `amount` on every other instrument (e.g. a provisional authorization that was voided when a later instrument failed, or an instrument never attempted)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L232",
+   "quote": "The\nbusiness MUST omit `amount` on all other instruments (e.g., a\nprovisional authorization that was voided when a later instrument\nfailed, or an instrument the business never attempted).",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against the response payload for non-processed instruments."
+  },
+  {
+   "id": "SPL-018",
+   "requirement": "The Platform MUST NOT treat prior response `amount` values as preserved state on subsequent requests, and the Business MUST NOT rely on the Platform echoing them; each request is fresh intent",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L238",
+   "quote": "The platform MUST NOT treat prior response `amount` values\nas preserved state on subsequent requests, and the business MUST NOT\nrely on the platform echoing them.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "The Platform-side half needs a live Platform; the Business-side half (not depending on echoed amounts) is checkable by omitting amount on a resubmission and confirming the business still re-derives it rather than erroring."
+  }
+ ]
+}

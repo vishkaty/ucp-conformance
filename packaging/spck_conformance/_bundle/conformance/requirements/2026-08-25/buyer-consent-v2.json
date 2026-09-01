@@ -1,0 +1,333 @@
+{
+ "_area": "buyer-consent-v2",
+ "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "_note": "REWRITTEN extension at v2026-08-25. The 04-08 buyer-consent extension (dev.ucp.shopping.buyer_consent) carried four flat, independent booleans (analytics, preferences, marketing, sale_of_data) already registered as DSC-* rows in conformance/requirements/2026-04-08/discounts-consent.json (carried forward by the P1 lane). At 08-25 the SAME capability name is replaced wholesale by a two-level purpose+segment model with source attribution, well-known dev.ucp.consent.* identifiers, data-dependency messaging, and seven numbered normative requirements -- effectively all-new normative text under the old capability name. Filed as a separate file/prefix (CNST) rather than extending DSC-* to avoid colliding with the P1 carry-forward file of the same area; at merge time the maintainer of the full register should decide whether DSC-* (04-08 shape) is superseded/removed for 2026-08-25 or coexists as a deprecated shape note.",
+ "area": "buyer-consent-v2",
+ "rows": [
+  {
+   "id": "CNST-001",
+   "requirement": "A consent_purpose object MUST include `granted`, `source`, and `description`",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/shopping/buyer_consent.json#L11",
+   "quote": "\"required\": [\"granted\", \"source\", \"description\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "REPLACES the 04-08 consent model entirely: 04-08 buyer_consent.json's `consent` object was four independent optional booleans (analytics, preferences, marketing, sale_of_data) with no source/description/segment structure. 08-25 introduces a two-level purpose+segment model. Filed separately from the 04-08 DSC-* carry-forward (see file docstring)."
+  },
+  {
+   "id": "CNST-002",
+   "requirement": "A consent_segment object MUST include `granted`, `source`, and `description`, and MUST NOT itself carry a nested `segments` member (segments do not nest further)",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/shopping/buyer_consent.json#L44",
+   "quote": "Overrides the parent's `granted` value for this scope. Segments do not nest further.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "consent_segment.json $defs has no `segments` property, unlike consent_purpose; nesting is structurally bounded to one level. (Quote picked from the segment description to disambiguate from the identical required-array text shared with consent_purpose at L11.)"
+  },
+  {
+   "id": "CNST-003",
+   "requirement": "`source` MUST be exactly `\"business\"` or `\"platform\"`",
+   "keyword": "MUST",
+   "source": "ucp:source/schemas/shopping/buyer_consent.json#L19",
+   "quote": "\"enum\": [\"business\", \"platform\"],",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Enum-constrained on both consent_purpose and consent_segment."
+  },
+  {
+   "id": "CNST-004",
+   "requirement": "The consent extension is bounded to one level of nesting: purposes have segments; segments do not nest further",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L38",
+   "quote": "The structure is bounded to one level of nesting: purposes have segments;\nsegments do not nest further.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Structural invariant, also schema_enforced (CNST-002)."
+  },
+  {
+   "id": "CNST-005",
+   "requirement": "Businesses are responsible for selecting the initial `granted` value according to their applicable policy before advertising consent options; the advertised value with `source: \"business\"` is the business's authoritative default",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L51",
+   "quote": "Businesses are responsible for selecting the initial `granted` value according\nto their applicable policy before advertising consent options.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Policy-authorship rule; not mechanically checkable beyond confirming a business-sourced default is present."
+  },
+  {
+   "id": "CNST-006",
+   "requirement": "`description` and `links` are response-only; the platform does not echo them on confirm. `granted` and `source` are required in both directions",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L146",
+   "quote": "`description` and `links` are response-only; the platform does not echo them on\nconfirm. `granted` and `source` are required in both directions:",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Checkable by comparing an advertise (response) payload's shape against a subsequent confirm (request) payload's shape."
+  },
+  {
+   "id": "CNST-007",
+   "requirement": "On create/update cart and create/update checkout, businesses SHOULD surface missing consent-dependency data (e.g. SMS marketing needing a phone number) as `warning` messages so the platform can collect it on a subsequent operation",
+   "keyword": "SHOULD",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L336",
+   "quote": "businesses SHOULD surface missing dependencies as `warning` messages so the\nplatform can collect the data on a subsequent operation.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable against messages[] (code: missing_consent_data, example at L341-352)."
+  },
+  {
+   "id": "CNST-008",
+   "requirement": "On complete_checkout, businesses MUST NOT transition the checkout to `completed` while a confirmed consent decision has unmet data dependencies; missing dependencies MUST be surfaced via the standard Error Handling flow",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L354",
+   "quote": "businesses MUST NOT transition the checkout to\n`completed` while a confirmed consent decision has unmet data dependencies.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Directly checkable end-to-end: confirm SMS marketing consent without a phone number and attempt complete_checkout."
+  },
+  {
+   "id": "CNST-009",
+   "requirement": "Businesses MUST advertise the complete set of consent options they support; when presenting a choice, platforms MUST use the advertised `description`, `links`, `granted` value, and purpose/segment grouping",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L361",
+   "quote": "Businesses MUST advertise the complete\n   set of consent options they support. Platforms decide which choices to\n   present to the buyer and when; when presenting a choice, platforms MUST\n   use the advertised `description`, `links`, `granted` value, and\n   purpose/segment grouping.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Normative requirement #1 ('Use the advertised settings')."
+  },
+  {
+   "id": "CNST-010",
+   "requirement": "Identifiers outside the `dev.ucp.consent.*` namespace are opaque handles; platforms MUST NOT infer semantics from such paths alone",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L367",
+   "quote": "Identifiers outside the `dev.ucp.consent.*` namespace\n   are opaque handles; platforms MUST NOT infer semantics from such paths\n   alone.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Continuation of normative requirement #1; namespace-authority-adjacent trust rule for custom purposes/segments."
+  },
+  {
+   "id": "CNST-012",
+   "requirement": "When submitting `consent`, platforms MUST include every advertised purpose and segment key, carrying both `granted` and `source` for each; omitting an advertised key within a submitted `consent` map MUST NOT be used to signal any value",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L374",
+   "quote": "When submitting `consent`, platforms MUST include every advertised\n   purpose and segment key, carrying both `granted` and `source` for each.\n   Omitting an advertised key within a submitted `consent` map MUST NOT be\n   used to signal any value.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Normative requirement #2, second half. Checkable by comparing a confirm payload's key set against the full advertised set."
+  },
+  {
+   "id": "CNST-013",
+   "requirement": "Businesses MUST ignore purposes and segments in a request that were not advertised in a prior response; platforms MUST NOT prompt for or transmit purposes or segments the business did not advertise",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L379",
+   "quote": "Businesses MUST ignore purposes and\n   segments in a request that were not advertised in a prior response. Platforms\n   MUST NOT prompt for or transmit purposes or segments the business did not\n   advertise.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Normative requirement #3 ('Advertised set is authoritative'). Checkable by submitting an un-advertised purpose/segment key and confirming it has no effect."
+  },
+  {
+   "id": "CNST-014",
+   "requirement": "For an advertised segment, the segment's `granted` value overrides the parent purpose's `granted` for that segment (more-specific values win)",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L384",
+   "quote": "For an advertised segment, the segment's\n   `granted` value overrides the parent purpose's `granted` for that segment.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": true,
+   "notes": "Normative requirement #4 ('More-specific values win'); directly checkable against the worked example (L162-210, marketing off but marketing.sms on)."
+  },
+  {
+   "id": "CNST-016",
+   "requirement": "A consent decision captured with a specific business is attributable only to that business; platforms MUST NOT propagate it as the basis for `source: \"platform\"` in a different business's request",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L394",
+   "quote": "platforms MUST NOT\n   propagate it as the basis for `source: \"platform\"` in a different business's\n   request.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "needs-receiver",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Normative requirement #6 ('Per-business attribution'); a Platform-side cross-business isolation rule, needs a receiver spanning two businesses to test directly."
+  },
+  {
+   "id": "CNST-017",
+   "requirement": "Platforms MAY persist a buyer's prior platform-captured preferences across interactions with the same business and MAY suppress re-presentation of unchanged values; where preferences are persisted, platforms SHOULD give the buyer the ability to change them",
+   "keyword": "MAY",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L401",
+   "quote": "Platforms MAY persist a buyer's prior\n   preferences (`source: \"platform\"`) across interactions with the same\n   business and MAY suppress re-presentation of unchanged values.",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "manual",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Normative requirement #7 ('Persistence and reversibility'); Platform-side UX policy."
+  },
+  {
+   "id": "CNST-018",
+   "requirement": "This extension defines four well-known purpose identifiers under the `dev.ucp.consent.*` namespace: analytics, marketing, preferences, sale_or_sharing",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L120",
+   "quote": "| `dev.ucp.consent.analytics`       | Analytics and performance measurement                     |\n| `dev.ucp.consent.marketing`       | Marketing communications                                  |\n| `dev.ucp.consent.preferences`     | Remembering buyer preferences                             |\n| `dev.ucp.consent.sale_or_sharing` | Sale or sharing of personal data with third parties       |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Replaces the 04-08 flat boolean set (analytics/preferences/marketing/sale_of_data) with reverse-DNS purpose identifiers; `sale_of_data` is renamed `dev.ucp.consent.sale_or_sharing`."
+  },
+  {
+   "id": "CNST-019",
+   "requirement": "This extension defines two well-known marketing segment identifiers: `dev.ucp.consent.marketing.email` and `dev.ucp.consent.marketing.sms`",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L132",
+   "quote": "| `dev.ucp.consent.marketing.email` | Email   |\n| `dev.ucp.consent.marketing.sms`   | SMS     |",
+   "versions": [
+    "2026-08-25"
+   ],
+   "transport": [
+    "any"
+   ],
+   "testability": "testable",
+   "official_oracle": false,
+   "browser_capable": true,
+   "schema_enforced": false,
+   "notes": "Wholly new channel-segment concept; no 04-08 equivalent (04-08 consent had a single flat `marketing` boolean with no channel granularity)."
+  },
+  {
+   "id": "CNST-020",
+   "keyword": "MUST",
+   "requirement": "On complete_checkout, when a confirmed consent decision has unmet data dependencies, the missing dependencies MUST be surfaced via the standard Error Handling flow (rather than silently transitioning the checkout to completed).",
+   "quote": "Missing dependencies MUST be surfaced via the standard [Error\nHandling](../checkout/index.md#error-handling) flow.",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L356-L357",
+   "testability": "testable",
+   "transport": [
+    "rest"
+   ],
+   "schema_enforced": false,
+   "official_oracle": false,
+   "browser_capable": true,
+   "versions": [
+    "2026-08-25"
+   ],
+   "notes": "New row, 2026-08-25 census closure wave (unmet-consent-dependency error-surfacing rule, paired with the adjacent completed-transition prohibition already registered nearby).",
+   "_completeness_batch": "completeness-2026-08-31-w4"
+  }
+ ]
+}

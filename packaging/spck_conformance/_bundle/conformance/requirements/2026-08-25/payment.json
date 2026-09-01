@@ -1,0 +1,1097 @@
+{
+  "_area": "payment",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "PAY-001",
+      "requirement": "A business/platform/response profile advertises payment handlers in the payment_handlers registry, keyed by reverse-domain name",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/ucp.json#L180",
+      "quote": "\"required\": [\"services\", \"payment_handlers\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated anchor only — ucp.json kept its path; the platform_schema required-clause shifted from L150 (04-08) to L180 (08-25) because new $defs (version_constraint, requires, map_order, members) were inserted earlier in the file. Wording unchanged. payment_handlers is also required on business_schema (new L210, was L180) and response_checkout_schema (new L249, was L219).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-002",
+      "requirement": "Every payment handler declaration MUST include an id (handler instance identifier)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/payment_handler.json#L13",
+      "quote": "\"required\": [\"id\"]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] no change — payment_handler.json's $defs.base is byte-identical at the same line; only its available_instruments $ref target moved (shopping/types/ -> common/types/, see PAY-007), which doesn't affect this clause.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-003",
+      "requirement": "Checkout/Order responses echo handlers in ucp.payment_handlers; the response payment_handlers array is required and each entry conforms to the handler response_schema (which requires id)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/ucp.json#L249",
+      "quote": "\"required\": [\"payment_handlers\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated anchor only (response_checkout_schema required-clause shifted from L219 to L249); wording unchanged. response_order_schema (post-purchase) still intentionally omits a payment_handlers requirement.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-004",
+      "requirement": "A platform-schema payment handler declaration MUST additionally include spec and schema URLs",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/payment_handler.json#L32",
+      "quote": "\"allOf\": [{ \"$ref\": \"#/$defs/base\" }, { \"required\": [\"spec\", \"schema\"] }]",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] no change — same file, same line. business_schema and response_schema still add nothing beyond base.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-005",
+      "requirement": "When a handler declares available_instruments, the array MUST contain at least one instrument type (minItems 1)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/payment_handler.json#L22",
+      "quote": "\"minItems\": 1",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] no change in payment_handler.json itself; the $ref target for available_instruments items moved from shopping/types/available_payment_instrument.json to common/types/available_payment_instrument.json (see PAY-007).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-006",
+      "requirement": "available_instruments is optional; when absent the handler places no restrictions and supports the full set of instrument types defined by its handler schema",
+      "keyword": "MAY",
+      "source": "ucp:docs/specification/payment/guide.md#L189",
+      "quote": "**`available_instruments`** is optional. When absent, the handler places no\nrestrictions on instrument types or constraints",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: docs/specification/payment-handler-guide.md -> docs/specification/payment/guide.md (doc-tree reorg #723); wording unchanged, line shifted 194->189.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-007",
+      "requirement": "An available_payment_instrument MUST include a type (instrument type identifier)",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/available_payment_instrument.json#L7",
+      "quote": "\"required\": [\"type\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: source/schemas/shopping/types/available_payment_instrument.json -> source/schemas/common/types/available_payment_instrument.json (common-primitives refactor #736/#741); the required:[type] clause is unchanged and still on line 7. Note: the sibling 'constraints' field was restructured — no longer a free-form object with minProperties:1, now a $ref to the new constraint_expression.json (a generic Constraint Expression keyed by the instrument schema's declared constraint_target). This does not affect the type-required assertion in this row.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-008",
+      "requirement": "Platforms MUST treat the response_schema available_instruments / handler config as authoritative for the checkout",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/guide.md#L283",
+      "quote": "**Runtime configuration** with resolved context: merchant identity, resolved `available_instruments` for this checkout, tokenization specs, and other state needed to process the transaction. Platforms **MUST** treat this as authoritative.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: payment-handler-guide.md -> payment/guide.md; same table cell, wording unchanged, line shifted 212->283.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-009",
+      "requirement": "The available_instruments returned in the response_schema is authoritative; platforms MUST treat it as authoritative and MUST NOT use instrument types or constraints that contradict it",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/payment/guide.md#L377-L378",
+      "quote": "Platforms **MUST** treat it as authoritative and **MUST NOT** attempt\nto use instrument types or apply constraints that contradict it.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 303->377.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-010",
+      "requirement": "Platforms MUST treat the available_instruments in the checkout response as authoritative for that checkout",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2576-L2577",
+      "quote": "Platforms **MUST** treat the\n`available_instruments` in the response as authoritative for that checkout.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: docs/specification/overview.md -> docs/specification/overview/index.md (doc-tree reorg #723); wording unchanged, line shifted 1203->2576.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-011",
+      "requirement": "Credentials flow Platform -> Business only; businesses MUST NOT echo credentials back in responses",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L2511",
+      "quote": "Credentials flow **Platform → Business** only. Businesses **MUST NOT** echo credentials back in responses.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 1151->2511.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-012",
+      "requirement": "Token credential value MUST NOT be echoed in responses (token field is omit-on-response)",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/common/types/token_credential.json#L21",
+      "quote": "\"ucp_response\": \"omit\"",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/token_credential.json -> common/types/token_credential.json; the token field's ucp_response:omit is unchanged, still line 21.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-013",
+      "requirement": "The platform (Client) acts as an intermediary that SHOULD NOT touch raw financial credentials",
+      "keyword": "SHOULD NOT",
+      "source": "ucp:docs/specification/overview/index.md#L2487-L2488",
+      "quote": "the platform (Client) acts as an intermediary that **SHOULD NOT**\ntouch raw financial credentials.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 1127->2487.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-014",
+      "requirement": "Businesses MUST validate handler_id before processing (ensure handler is in the advertised set)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2903",
+      "quote": "Validate handler_id before processing (ensure handler is in advertised set)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; checklist item verbatim unchanged, line shifted 1513->2903.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-015",
+      "requirement": "Businesses MUST dynamically filter the handlers list based on the context of the cart (e.g., removing BNPL for subscription items, filtering regional methods by shipping address)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2553-L2554",
+      "quote": "**Dynamic Filtering:** Businesses **MUST** filter the `handlers` list based on\nthe context of the cart",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 1193->2553.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-016",
+      "requirement": "Businesses SHOULD implement idempotency for payment processing to prevent double-charges",
+      "keyword": "SHOULD",
+      "source": "ucp:docs/specification/overview/index.md#L2905",
+      "quote": "Implement idempotency for payment processing (prevent double-charges)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; checklist item verbatim unchanged, line shifted 1515->2905.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-017",
+      "requirement": "On 3DS/SCA soft-decline the business returns status requires_escalation with a continue_url; the platform MUST open continue_url for the buyer to complete the bank check then retry completion",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2793-L2794",
+      "quote": "*The platform **MUST** now open `continue_url` in a WebView/Window for the user\nto complete the bank check, then retry the completion.*",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 1409->2793.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-018",
+      "requirement": "continue_url MUST be provided when checkout status is requires_escalation",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/shopping/checkout.json#L126",
+      "quote": "URL for checkout handoff and session recovery. MUST be provided when status is requires_escalation.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] checkout.json kept its path; continue_url's description shifted from L113 to L126 (file grew above it). Wording unchanged; still not encoded as a schema if/then (schema_enforced:false). requires_escalation still enumerated at the same L69.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-019",
+      "requirement": "A payment instrument MUST include id, handler_id, and type",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/payment_instrument.json#L7-L11",
+      "quote": "\"required\": [\n    \"id\",\n    \"handler_id\",\n    \"type\"\n  ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/payment_instrument.json -> common/types/payment_instrument.json; the required clause is unchanged. Note: the 'id' field's description gained new identity-linking language (business-owned saved instrument ids on identity-linked responses) — that's the identity-linking area's concern, not this row's; doesn't change this requirement.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-020",
+      "requirement": "A payment credential MUST include a type discriminator",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/payment_credential.json#L7",
+      "quote": "\"required\": [\"type\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/payment_credential.json -> common/types/payment_credential.json; unchanged, still line 7.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-021",
+      "requirement": "A card credential MUST include type and card_number_type",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/card_credential.json#L13-L16",
+      "quote": "\"required\": [\n        \"type\",\n        \"card_number_type\"\n      ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] REWORDED — flag for review: relocated shopping/types/card_credential.json -> common/types/card_credential.json AND the schema now carries `\"deprecated\": true`. OLD (04-08) description: 'A card credential containing sensitive payment card details including raw Primary Account Numbers (PANs). This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials. CRITICAL: Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites.' NEW (08-25) description: 'Deprecated: use PAN Credential (`pan_credential.json`) or Network Token Credential (`network_token_credential.json`). A card credential containing sensitive payment card details including raw Primary Account Numbers (PANs). This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials. CRITICAL: ... (same PCI/TLS sentence).' The required=[type,card_number_type] clause itself is byte-for-byte unchanged, but the schema it governs is now legacy: new handler specs are steered to pan_credential.json (type const 'pan', required=[type,number], verified via cvc) and network_token_credential.json (type const 'network_token', required=[type,number,cryptogram]), which split the old card_number_type enum (fpan|network_token|dpan) into two distinct schemas. Recommend a follow-up completeness pass adding PAN/Network-Token rows; not added here per the carry-forward-only scope of this pass. card_credential_test.py (official oracle) still exercises this shape.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "PAY-022",
+      "requirement": "Card credential (raw PAN) MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials",
+      "keyword": "MUST NOT",
+      "source": "ucp:source/schemas/common/types/card_credential.json#L5",
+      "quote": "This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] REWORDED — flag for review: this exact sentence survives verbatim inside card_credential.json's description, but the schema itself is now `\"deprecated\": true` with a new preamble: 'Deprecated: use PAN Credential (`pan_credential.json`) or Network Token Credential (`network_token_credential.json`).' OLD full description (04-08): 'A card credential containing sensitive payment card details including raw Primary Account Numbers (PANs). This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials. CRITICAL: Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites.' NEW (08-25): 'Deprecated: use PAN Credential (`pan_credential.json`) or Network Token Credential (`network_token_credential.json`). A card credential containing sensitive payment card details including raw Primary Account Numbers (PANs). This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials. CRITICAL: Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites.' Human review needed: decide whether the register should retire this row in favor of equivalent MUST-NOT rows on pan_credential.json / network_token_credential.json (both schemas carry the identical MUST-NOT-for-checkout sentence verbatim) the next time this area gets a full completeness pass.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "PAY-023",
+      "requirement": "A card payment instrument MUST have type const 'card'",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/card_payment_instrument.json#L30-L32",
+      "quote": "\"required\": [\n        \"type\"\n      ],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/card_payment_instrument.json -> common/types/card_payment_instrument.json; required+const('card') unchanged (const now at L36, was L45). Note: the $defs sub-schema changed shape — old 'available_card_payment_instrument' with a constraints.brands array (minItems 1, uniqueItems) is gone; replaced by a $defs.constraint_target with a single 'brand' string member consumed via the new constraint_expression.json pattern (same restructuring as PAY-007's available_payment_instrument.json). Doesn't affect this row's own required/const assertion.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-024",
+      "requirement": "A token credential MUST include type and token",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/token_credential.json#L12",
+      "quote": "\"required\": [\"type\", \"token\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/token_credential.json -> common/types/token_credential.json; unchanged, still line 12.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-025",
+      "requirement": "If using token credentials, the handler schema MUST include an expiration field (expiry, ttl, or similar) so platforms know when to refresh credentials",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/guide.md#L700-L702",
+      "quote": "If using token credentials, the schema **MUST** include an\nexpiration field (`expiry`, `ttl`, or similar) to ensure platforms know when to\nrefresh credentials.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: payment-handler-guide.md -> payment/guide.md; wording unchanged, line shifted 626->700.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-026",
+      "requirement": "A token binding MUST include a type (the reverse-domain capability that owns the bound resource, e.g. dev.ucp.shopping.checkout) and an id (opaque identifier of that resource within the owning capability), preventing token reuse across different resources",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/binding.json#L7",
+      "quote": "\"required\": [\"type\", \"id\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] REWORDED — flag for review: relocated shopping/types/binding.json -> common/types/binding.json AND the shape changed. OLD (04-08, shopping/types/binding.json#L7): required=[\"checkout_id\"] — 'A token binding MUST include the checkout_id the token is bound to (prevents token reuse across checkouts/participants).' Old binding.json also had an optional 'identity' property (payment_identity.json, required only when acting on behalf of another participant, old #L15). NEW (08-25, common/types/binding.json#L7): required=[\"type\",\"id\"] — binding is generalized from a checkout-specific primitive into a generic capability-resource binding: 'type' is a reverse-domain-name naming the owning capability (e.g. dev.ucp.shopping.checkout) and 'id' is an opaque identifier of the bound resource within it (e.g., a checkout id); description broadened from an implicit checkout/participant scope to 'Binds a credential or token to a specific capability resource. Prevents reuse across different resources.' The 'identity' (payment_identity) delegated-binding property is REMOVED from binding.json itself; the equivalent now lives as a sibling top-level 'identity' field alongside 'binding' in the new Tokenization Handler's request/response bodies (source/handlers/tokenization/openapi.json#L28-33, L148-153; see docs/specification/payment/tokenization.md), a new generic tokenization-handler surface this release introduces (not present in 04-08). Human review needed: confirm PAY-026/PAY-027 still capture the intended semantics under the new tokenization.md guide, and whether a dedicated row for the new Tokenization Handler surface belongs in a future completeness pass. binding_test.py (official oracle) will need updating for the new {type,id} shape.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "PAY-027",
+      "requirement": "A payment identity MUST include an access_token uniquely identifying the participant tokens are bound to",
+      "keyword": "MUST",
+      "source": "ucp:source/schemas/common/types/payment_identity.json#L7",
+      "quote": "\"required\": [\"access_token\"],",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": true,
+      "notes": "[2026-08-25] relocated: shopping/types/payment_identity.json -> common/types/payment_identity.json; required=[access_token] unchanged, still line 7. Usage context shifted: no longer nested under binding.identity (binding.json dropped its identity property — see PAY-026); now referenced as a sibling 'identity' field alongside 'binding' in the new Tokenization Handler request/response bodies (source/handlers/tokenization/openapi.json, docs/specification/payment/tokenization.md) — same purpose (identify the participant tokens are bound to when acting on behalf of another party), new home.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-028",
+      "requirement": "Every payment handler specification MUST define the core elements (identity, participants, prerequisites, declaration, instrument, credential, acquisition, processing, error mapping)",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/guide.md#L50",
+      "quote": "Every payment handler specification **MUST** define the core elements below.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: payment-handler-guide.md -> payment/guide.md; wording and line number (50) unchanged.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-029",
+      "requirement": "A payment handler specification MUST define which credential types are accepted by the business",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/guide.md#L697",
+      "quote": "The specification **MUST** define which credential types are accepted by the",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 623->697.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-030",
+      "requirement": "Sensitive data such as Payment Credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L3308-L3309",
+      "quote": "Sensitive data (such as Payment Credentials or PII) **MUST** be handled\naccording to PCI-DSS and GDPR guidelines.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 1682->3308.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-031",
+      "requirement": "When AP2 is active, the business must embed a cryptographic signature in checkout responses proving the terms are authentic.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L29",
+      "quote": "* **Businesses** **MUST** embed a cryptographic signature in checkout",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated: docs/specification/ap2-mandates.md -> docs/specification/payment/extensions/ap2-mandates.md (doc-tree reorg #723); wording unchanged, same line 29. FYI (non-disposition-affecting): the AP2 capability identifier itself was renamed from `dev.ucp.shopping.ap2_mandate` (04-08) to `dev.ucp.common.payment.ap2_mandate` (08-25) throughout this document — see PAY-033 for the one row where a renamed identifier actually falls inside the quoted clause.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-032",
+      "requirement": "Platforms must provide cryptographically signed mandates during the complete operation proving user authorization.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L31",
+      "quote": "* **Platforms** **MUST** provide cryptographically signed proofs (Mandates)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, same line 31.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-033",
+      "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level keys array of its profile.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L104",
+      "quote": "the trusted platform provider model, the platform **MUST** provide at least one",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] RENAMED — the platform-profile array carrying AP2 signing keys was renamed from `signing_keys` (04-08: 'the platform **MUST** provide at least one key in the top-level `signing_keys` array in their profile', old ap2-mandates.md#L98-99) to `keys` (08-25: '...the top-level `keys` array in their profile', new #L104-105). Renamed consistently everywhere in this doc: the 'Signing Key Requirements' bullet ('Key provided in the platform profile's `keys`', was `signing_keys`, new #L124) and the verification pseudocode ('get_key_by_kid(merchant_profile.keys, header.kid)', new #L334). Also relocated docs/specification/ap2-mandates.md -> docs/specification/payment/extensions/ap2-mandates.md.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "renamed"
+      }
+    },
+    {
+      "id": "PAY-034",
+      "requirement": "When AP2 is negotiated, the business must include ap2.merchant_authorization in all checkout responses.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L112",
+      "quote": "The business **MUST** include `ap2.merchant_authorization` in all",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 106->112.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-035",
+      "requirement": "The business must not accept a complete_checkout request that lacks ap2.checkout_mandate.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L114",
+      "quote": "The business **MUST NOT** accept a `complete_checkout` request that",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 108->114.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-036",
+      "requirement": "The platform must verify the business's signature before presenting the checkout to the user.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L116",
+      "quote": "The platform **MUST** verify the business's signature before presenting",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 110->116.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-037",
+      "requirement": "A public signing key must be available for the business to verify the mandate's signature.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L121",
+      "quote": "To utilize this extension, a public signing key **MUST** be available for the",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 115->121. The bullet immediately below (naming where the key comes from) uses the renamed `keys` array — see PAY-033.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-038",
+      "requirement": "If a public key cannot be resolved or the signature is invalid, the business must return an error.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L127-L128",
+      "quote": "If a public key cannot be resolved, or if the signature is invalid, the business\n**MUST** return an error.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 122->127.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-039",
+      "requirement": "Businesses must embed their signature in the checkout response body under ap2.merchant_authorization using JWS detached content.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L160",
+      "quote": "Businesses **MUST** embed their signature in the checkout response body under",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 140->160.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-040",
+      "requirement": "The business's signature must cover both the JWS header and the checkout payload (preventing alg-substitution attacks).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L195",
+      "quote": "The signature **MUST** cover both the JWS header and the checkout payload. This",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 172->195.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-041",
+      "requirement": "The platform must produce two distinct mandate artifacts (checkout_mandate and payment_mandate).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L223",
+      "quote": "**MUST** produce two distinct mandate artifacts:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 200->223.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-042",
+      "requirement": "The checkout mandate must contain the full checkout response including the ap2.merchant_authorization field.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L230",
+      "quote": "The checkout mandate **MUST** contain the full checkout response including the",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 207->230.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-043",
+      "requirement": "All JSON payloads must be canonicalized using JSON Canonicalization Scheme (JCS) per RFC 8785.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L241",
+      "quote": "All JSON payloads **MUST** be canonicalized using **JSON Canonicalization",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 218->241.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-044",
+      "requirement": "Once AP2 is negotiated, both parties must follow the defined mandate flow steps to ensure cryptographic integrity.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L271",
+      "quote": "is locked into the following flow. Both parties **MUST** follow these steps to",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 242->271. The section header 'The Mandate Flow' now references the renamed capability `dev.ucp.common.payment.ap2_mandate` (was `dev.ucp.shopping.ap2_mandate`) immediately above this line — informational only, not part of this row's quote.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-045",
+      "requirement": "A completion request without mandates must result in a session failure.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L273",
+      "quote": "a completion request without mandates **MUST** result in a session failure.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 244->273.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-046",
+      "requirement": "The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic channels.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L346",
+      "quote": "mandate credentials. The platform provider **MUST** ensure that mandates",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 314->346.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-047",
+      "requirement": "Upon receiving the complete request, the business must perform the defined negotiation-enforcement and mandate/authorization verification steps.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L413",
+      "quote": "Upon receiving the `complete` request, the business **MUST**:",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated; wording unchanged, line shifted 380->413.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "PAY-048",
+      "keyword": "MUST",
+      "requirement": "A checkout submission MUST contain exactly one payment instrument unless the dev.ucp.common.payment.split_payments capability is active; Businesses MUST reject submissions that violate this constraint with a payment_failed error in messages[].",
+      "quote": "**Instrument Cardinality:** A checkout submission **MUST** contain exactly one\npayment instrument unless the `dev.ucp.common.payment.split_payments` capability is\nactive. Businesses **MUST** reject submissions that violate this constraint with\na `payment_failed` error in `messages[]`. See",
+      "source": "ucp:docs/specification/overview/index.md#L2581-L2584",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (overview/index.md Payment section, Instrument Cardinality, previously unaccounted). The default single-instrument-per-submission constraint and its relaxation condition (split_payments capability active), plus the business-side rejection duty and required error code.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "PAY-049",
+      "keyword": "MUST",
+      "requirement": "The platform MUST verify the merchant authorization signature (per the AP2 Mandates verify_merchant_authorization procedure).",
+      "quote": "The platform **MUST** verify the signature:",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L314",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row, 2026-08-25 census closure wave (AP2 Mandates, Step 1 merchant-authorization signature verification).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "PAY-050",
+      "keyword": "MUST",
+      "requirement": "When the user confirms the purchase, the platform MUST facilitate the generation of cryptographically verifiable mandates (AP2 Mandates Step 2, User Consent and Mandate Generation).",
+      "quote": "When the user confirms the purchase, the platform **MUST** facilitate the\ngeneration of cryptographically verifiable mandates.",
+      "source": "ucp:docs/specification/payment/extensions/ap2-mandates.md#L340-L341",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "New row (AP2 Mandates, Step 2 lead-in).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    }
+  ]
+}

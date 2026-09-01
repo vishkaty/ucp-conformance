@@ -1,0 +1,195 @@
+{
+  "_area": "discovery-and-profile",
+  "_spec_commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+  "rows": [
+    {
+      "id": "DISC-001",
+      "requirement": "Published artifacts (business profiles, and the schema and transport-description artifacts they reference) MUST be served over HTTPS.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2238",
+      "quote": "Published artifacts **MUST** be served over HTTPS.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] REWORDED — flag for review: relocated docs/specification/overview.md -> docs/specification/overview/index.md (doc-tree reorg #723). OLD (04-08, #L1053): 'Profiles **MUST** be served over HTTPS.' NEW (08-25, #L2238): 'Published artifacts **MUST** be served over HTTPS.' Scope broadened: the new '### Profile Requirements / #### Hosting' section explicitly states 'Profiles, and the schema and transport-description artifacts they reference, must be reliably hosted' — so the HTTPS rule now binds every artifact a profile references, not just the profile document itself. Human review: consider extending our HTTPS check to schema/transport-doc fetches, not just the initial profile fetch. Profile is still the business well-known profile document.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DISC-002",
+      "requirement": "Profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them.",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L2239",
+      "quote": "Profile endpoints **MUST NOT** use redirects (3xx).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated only; wording unchanged (still scoped to 'Profile endpoints', not broadened like DISC-001/003/004). Companion impl rule (verifier-side, now itself broadened) at new #L2287: 'Implementations **MUST NOT** follow redirects (3xx).' — see DISC-004 for the parallel HTTPS broadening on that same verifier-rules list. Browser fetch auto-follows redirects opaquely -> CLI-only to assert no-redirect.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DISC-003",
+      "requirement": "Published artifact responses MUST send Cache-Control with public and max-age>=60, and MUST NOT use private/no-store/no-cache.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2240-L2242",
+      "quote": "Published artifacts **MUST** include a `Cache-Control` header with\n`public` and `max-age` of at least 60 seconds, and **MUST NOT** be\nserved with `private`, `no-store`, or `no-cache` directives.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] REWORDED — flag for review: relocated overview.md -> overview/index.md. OLD (04-08, #L1055-1057): 'Profile responses **MUST** include a `Cache-Control` header with `public` and `max-age` of at least 60 seconds. Profiles **MUST NOT** be served with `private`, `no-store`, or `no-cache` directives.' (two sentences, scoped to profile responses/profiles). NEW (08-25, #L2240-2242): merged into one sentence and re-scoped from 'Profile responses'/'Profiles' to 'Published artifacts' — same broadened-scope change as DISC-001. Also NEW and not previously present: a 4th numbered rule at #L2243-2244 — 'Published artifacts **SHOULD** include a validator (`ETag` or `Last-Modified`) so consumers can revalidate cached copies efficiently.' Out of scope to add as a new row in this carry-forward pass; flagged for a future completeness sweep. Reading response headers cross-origin is CORS-restricted in browser -> CLI-only.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DISC-004",
+      "requirement": "Implementations MUST reject URLs (the profile, or any jwks_uri / CIMD document dereferenced during identity resolution) not served over HTTPS.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2286",
+      "quote": "Implementations **MUST** reject URLs not served over HTTPS.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] REWORDED — flag for review: relocated. OLD (04-08, #L1098): 'Implementations **MUST** reject profile URLs not served over HTTPS.' NEW (08-25, #L2286): 'Implementations **MUST** reject URLs not served over HTTPS.' — dropped the word 'profile'; the immediately preceding sentence (#L2283-2284) explicitly broadens scope: 'These rules apply to any URL dereferenced during identity resolution — the profile, and any `jwks_uri` or CIMD document a verifier follows.' So the HTTPS-only requirement now explicitly covers jwks_uri and CIMD document fetches too, not just the profile URL. Human review: confirm our tester's URL-scheme check runs against every dereferenced URL in the identity-resolution chain, not only the initial profile fetch. Tester-side behavior we also implement in our own profile fetcher.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "reworded"
+      }
+    },
+    {
+      "id": "DISC-005",
+      "requirement": "service endpoint MUST be a valid HTTPS URL.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1035",
+      "quote": "`endpoint` **MUST** be a valid URL with scheme (https)",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated only; same '### Services' rules list, wording unchanged, line shifted 147->1035. Official suite protocol_test still asserts a non-null rest endpoint.",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DISC-006",
+      "requirement": "Platforms MUST include their profile URI in every request.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L1780-L1781",
+      "quote": "Platforms **MUST** include their profile URI in\nevery request using the transport-appropriate mechanism.",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "manual",
+      "official_oracle": true,
+      "browser_capable": true,
+      "schema_enforced": false,
+      "notes": "[2026-08-25] relocated only (now under '### Negotiation Protocol / #### Platform Requirements', item 1 'Profile Advertisement'); wording unchanged, line shifted 622->1780. Still REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it — same subject-binding as before (reclassified 2026-07-02, unaffected by this reorg). The tester itself satisfies the obligation as the platform: every suite request carries UCP-Agent profile=... (merchant_checks._hdr).",
+      "lineage": {
+        "from": "2026-04-08",
+        "disposition": "carried"
+      }
+    },
+    {
+      "id": "DISC-007",
+      "requirement": "Implementations MUST NOT follow redirects (3xx) when dereferencing a URL during identity resolution (the profile, or any jwks_uri / CIMD document a verifier follows).",
+      "keyword": "MUST NOT",
+      "source": "ucp:docs/specification/overview/index.md#L2287",
+      "quote": "2. Implementations **MUST NOT** follow redirects (3xx).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave. This is the broadened verifier-side no-redirect rule (rule 2 of the URL fetch-safety list) that DISC-002 already flagged as an unregistered companion: DISC-002 covers the narrower, unchanged \"Profile endpoints MUST NOT use redirects (3xx)\" statement at L2239; this row covers the broadened rule 2 in the fetch-safety list at L2287, which DISC-004 (rule 1, HTTPS-only) already establishes applies to every URL dereferenced during identity resolution, not just the initial profile fetch. CLI-only: browser fetch auto-follows redirects opaquely.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "DISC-008",
+      "requirement": "Implementations MUST reject URLs dereferenced during identity resolution that resolve to special-use IP addresses (RFC 6890 loopback, link-local including the cloud-metadata address 169.254.169.254, private, and other reserved ranges), except a loopback target when the verifier itself runs on the same loopback interface (local development).",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2296-L2299",
+      "quote": "7. Implementations **MUST** reject URLs that resolve to special-use IP\n   addresses ([RFC 6890](https://www.rfc-editor.org/rfc/rfc6890) —\n   loopback, link-local including the cloud-metadata address\n   `169.254.169.254`, private, and other reserved ranges), except a",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "testable",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave (URL fetch-safety list, rule 7 — the SSRF/special-use-address guard). Server-side (verifier) DNS-resolution behavior; not browser-observable.",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    },
+    {
+      "id": "DISC-009",
+      "requirement": "If a business profile cannot be fetched (timeout, DNS failure, 5xx) or fails validation (invalid schema, signing keys, signature mismatch), businesses MUST reject the request with an appropriate error and status code.",
+      "keyword": "MUST",
+      "source": "ucp:docs/specification/overview/index.md#L2312-L2315",
+      "quote": "If a profile cannot be fetched (timeout, DNS failure, 5xx) or fails\nvalidation (invalid schema, signing keys, signature mismatch),\nbusinesses **MUST** reject the request with an appropriate error and\nstatus code (see [Error Handling](#error-handling)).",
+      "versions": [
+        "2026-08-25"
+      ],
+      "transport": [
+        "rest"
+      ],
+      "testability": "needs-receiver",
+      "official_oracle": false,
+      "browser_capable": false,
+      "schema_enforced": false,
+      "notes": "New row, 2026-08-25 census closure wave (Fetching, closing paragraph — the terminal error-handling duty when platform-profile fetch/validation fails).",
+      "_completeness_batch": "completeness-2026-08-31-w4"
+    }
+  ]
+}
