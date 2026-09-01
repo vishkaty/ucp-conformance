@@ -34,6 +34,21 @@ already excludes it from the 08-25 agent denominator), and the two AP2 mandate c
 (PAY-032/PAY-041 — deferred to a dedicated, Fable-reviewed pass given R9's card_credential
 deprecation in the same schema neighborhood and the money-adjacent mechanism).
 
+Phase B-2 (2026-09-01, lane/agent-b2): the next coherent GAP batch after the 08-25
+kickoff — 5 new ACheck objects (9 req_ids: SIG-010/012/013/022, CART-017/024/036), all
+versions=["2026-04-08", "2026-08-25"] (each is id-stable and GAP at both versions, not
+08-25-only). CART-030 was investigated, built, and then RETRACTED before landing: its own
+schema anchor (source/schemas/shopping/cart.json#L15-24) re-read on a second pass turned
+out to govern a DIFFERENT field than assumed — `cart_id` on the "Checkout with Cart"
+create_checkout/update_checkout variant (cart-to-checkout conversion), not the cart
+resource's own top-level `id` on Update Cart — so the built check was silently testing the
+wrong operation/field; caught, removed, and left GAP with the corrected reason below rather
+than shipped mis-cited. Full rationale, and the rows investigated and left BLOCKED
+(IDL-067/068/069/070/073/080/085, IDL-064, CART-020, CART-030, CHK-023/024, the whole
+complete_in_progress cluster, plus two flagged denominator questions — SIG-011 and
+IDL-085/IDL-080's own subject), is
+commented in-line at the batch's own block near the end of CHECKS.
+
 Isolation: this tree (conformance/agent/) is NOT globbed by the merchant coverage_map
 (which scans conformance/checks/*.py, non-recursive) nor the merchant collectors — so
 adding agent checks here cannot move the merchant coverage numbers.
@@ -201,6 +216,81 @@ def p_signs_idempotency_key(log):
 def p_signs_ucp_agent_component(log):
     """SIG-018: ucp-agent MUST be a signed component if the UCP-Agent header is present."""
     return _covers(log, {"ucp-agent"})
+
+
+# ---- agent phase B-2 (2026-09-01): RFC 9421 HEADER hygiene, distinct from the covered-
+# COMPONENT-list checks above. SIG-014/015/016/018 grade what a signed header COVERS; the
+# three below grade the literal HEADER's presence/shape -- a signer can get the component
+# list right while still failing these (that is exactly what each new defect isolates).
+def p_content_digest_sha256(log):
+    """SIG-010 (signatures.md L413-416): 'Content-Digest follows RFC 9530 and hashes the raw
+    body bytes ... Implementations MUST use sha-256.' Every request the agent sends with a
+    body MUST carry a Content-Digest header tagged sha-256=. sign_wrong_digest_algo relabels
+    it (same underlying bytes, a non-conforming algorithm tag)."""
+    bodied = [e for e in log if e["request"].get("body") is not None]
+    if not bodied:
+        return DEVIATION
+    for e in bodied:
+        cd = (e["request"]["headers"] or {}).get("Content-Digest", "")
+        if not cd.startswith("sha-256="):
+            return DEVIATION
+    return CLEAN
+
+
+def p_content_digest_header_present(log):
+    """SIG-012 (signatures.md L404,L407): the `Content-Digest` header is 'Cond. `*`' —
+    '`*` Required when request/response has a body.' Distinct from SIG-015 (content-digest
+    as a SIGNED COMPONENT, already covered by signs_body_components): this is the literal
+    header's presence, which sign_request_headers still emits "for integrity" even when a
+    sign_omit_digest-style defect drops it from the covered-component list. Every request
+    the agent sends with a body MUST carry the header outright.
+    sig_drop_content_digest_header strips it entirely."""
+    bodied = [e for e in log if e["request"].get("body") is not None]
+    if not bodied:
+        return DEVIATION
+    for e in bodied:
+        if "Content-Digest" not in (e["request"]["headers"] or {}):
+            return DEVIATION
+    return CLEAN
+
+
+def p_signature_headers_paired(log):
+    """SIG-013 (signatures.md L402-403): `Signature-Input` and `Signature` are both listed
+    'Yes' (unconditionally required) in the REST Binding headers table. Whenever the agent's
+    request carries Signature-Input (i.e. it chose to sign, SIG-026 SHOULD), it MUST also
+    carry Signature — a signer that computes one without the other is not observing the
+    header pair the wire format requires. sig_drop_signature_header emits Signature-Input
+    but withholds Signature."""
+    signed = [e for e in log if "Signature-Input" in (e["request"]["headers"] or {})]
+    if not signed:
+        return DEVIATION      # the reference agent always signs; absence would be a boot failure
+    for e in signed:
+        if "Signature" not in (e["request"]["headers"] or {}):
+            return DEVIATION
+    return CLEAN
+
+
+_UUID4_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+                       re.IGNORECASE)
+
+
+def p_idempotency_key_entropy(log):
+    """SIG-022 (signatures.md L830, the Idempotency-Key entropy table): 'Entropy: Minimum
+    128 bits (e.g., UUID v4, 22+ char alphanumeric).' Graded structurally against the row's
+    own two named compliant forms (a literal entropy MEASUREMENT is not decidable from one
+    observed sample — the spec itself defines compliance by construction/format, not by a
+    statistical test): every state-changing (POST/PUT/DELETE/PATCH) request's
+    idempotency-key header MUST be a UUID v4 OR >=22 alphanumeric characters.
+    weak_idempotency_key sends a short literal that is neither."""
+    reqs = [e for e in log if e["request"]["method"] in ("POST", "PUT", "DELETE", "PATCH")]
+    if not reqs:
+        return DEVIATION
+    for e in reqs:
+        key = (e["request"]["headers"] or {}).get("idempotency-key", "")
+        ok = bool(_UUID4_RE.match(key)) or (key.isalnum() and len(key) >= 22)
+        if not ok:
+            return DEVIATION
+    return CLEAN
 
 
 # ---- WWW-Authenticate: Bearer challenge handling (RFC 6750) -------------------
@@ -418,6 +508,28 @@ def p_selected_option_names_unique(log):
         if len(names) != len(set(names)):
             return DEVIATION
     return CLEAN
+
+
+# ---- agent phase B-2 (2026-09-01): Cart lifecycle (cart/index.md, cart/rest.md) ----------
+def p_cart_full_replacement(log):
+    """CART-017/CART-036 (cart/index.md#L213-215): 'Performs a full replacement of the cart
+    session. The platform MUST send the entire cart resource; the provided resource replaces
+    the existing cart state on the business side.' (CART-017 is the same sentence's own
+    registered row at cart/index.md#L214.) The Update Cart request's `line_items` MUST carry
+    forward every line item the cart already held (by the id the business assigned it), not
+    only a newly added one. cart_partial_update sends only the new item — the exact
+    partial-PATCH shape full replacement forbids."""
+    created = next((e for e in log if e["op"] == "create_cart"), None)
+    updated = next((e for e in log if e["op"] == "update_cart"), None)
+    if not (created and updated):
+        return DEVIATION
+    prior = ((created.get("response") or {}).get("body") or {}).get("line_items") or []
+    prior_ids = {li.get("id") for li in prior if isinstance(li, dict)}
+    if not prior_ids:
+        return DEVIATION                     # the sandbox always seeds >=1 line item here
+    sent = updated["request"].get("body") or {}
+    sent_ids = {li.get("id") for li in (sent.get("line_items") or []) if isinstance(li, dict)}
+    return CLEAN if prior_ids <= sent_ids else DEVIATION
 
 
 def _req_bodies(log, ops):
@@ -832,7 +944,12 @@ def p_validates_oauth_state(log):
 
 
 CHECKS = [
-    ACheck("agent.sends_ucp_agent", ["DISC-006", "CHK-046", "ORD-015"], "MUST",
+    # CART-024 (cart/rest.md#L478: "All requests MUST include the UCP-Agent header
+    # containing the platform profile URI") added agent phase B-2 (2026-09-01): the SAME
+    # global header-omission defect (no_ucp_agent) now also strips it from create_cart/
+    # update_cart, since run_flow() exercises the cart lifecycle unconditionally — this is
+    # a genuine, not vacuous, extension (the predicate already scans every non-discover op).
+    ACheck("agent.sends_ucp_agent", ["DISC-006", "CHK-046", "ORD-015", "CART-024"], "MUST",
            p_sends_ucp_agent, kill_mutation="no_ucp_agent", versions=["2026-04-08", "2026-08-25"]),
     ACheck("agent.follows_escalation", ["CHK-008", "PAY-017"], "MUST",
            p_follows_escalation, kill_mutation="ignore_escalation", versions=["2026-04-08", "2026-08-25"]),
@@ -994,4 +1111,122 @@ CHECKS = [
            p_ap2_two_distinct_mandates, kill_mutation="ap2_reuse_checkout_mandate",
            versions=["2026-04-08"], capability="dev.ucp.shopping.ap2_mandate",
            scenario="ap2"),
+
+    # ---- agent phase B-2, 2026-09-01 (lane/agent-b2): the next coherent GAP batch after the
+    # 08-25 kickoff. Two families, both re-verified against the pinned 08-25 register text
+    # (conformance/.vendor/ucp-2026-08-25 @ cd78fb38) and, for the shared ids, cross-checked
+    # against the 2026-04-08 register too (id-stable, same requirement, so ported to both):
+    #
+    # (1) RFC 9421 HEADER hygiene (SIG-010/012/013/022) — distinct from the covered-COMPONENT
+    # checks SIG-014/015/016/018 already grade. Two new prerequisite crypto extensions landed
+    # first (common/crypto.py, additive/opt-in only — every existing caller's behavior is
+    # byte-identical): content_digest()/sign_request_headers() gained an optional digest_algo
+    # override (default unchanged) so a defect can emit a self-consistent MISLABELED digest
+    # (SIG-010) without a second hash implementation. SIG-022 (idempotency-key entropy) was
+    # flagged "not reverse-harness-testable" in the 2026-07-03 signoff (see
+    # agent_review_signoffs.json, batch agent-P0-B5) — re-examined here: the row's own MUST
+    # text defines compliance by TWO NAMED FORMS ("e.g., UUID v4, 22+ char alphanumeric"), so
+    # grading structurally against those forms (not attempting a statistical entropy estimate,
+    # which genuinely would be undecidable from one sample) is a legitimate, non-vacuous
+    # check — the reference agent's uuid4() already satisfies it, and a short literal
+    # (weak_idempotency_key) does not. SIG-011 (proxies/API-gateways MUST NOT re-serialize
+    # JSON bodies) was investigated and NOT built: the register's own notes call it
+    # "Intermediary-bound MUST NOT; not observable via the two protocol parties" and
+    # testability:"manual" — it entered agent_rows() only via the merchant exemptions.json
+    # "client-bound" heuristic (agent_matrix._client_bound_ids()), which is a known
+    # denominator-accuracy hazard class (agent_matrix.py's own docstring: "'not-merchant' !=
+    # 'agent'") the 2026-07-03/2026-08-25 audits already caught nine similar false positives
+    # for (agent_denominator_audit.json). Per the STOP-and-report instruction for denominator
+    # questions, this is flagged, NOT silently added to NOT_AGENT_BOUND (that edit is a
+    # deliberate, separately-reviewed denominator act, out of scope for a check-adding batch)
+    # — left GAP with this note as the reason. SIG-017 (@query MUST be a signed component
+    # when present) was also investigated and NOT built: no signed request in the reference
+    # agent's current op set ever carries a query string (create_checkout/complete are body-
+    # only POSTs; the only query-string requests — authorize/authorize_gated — are OAuth
+    # redirects, not the checkout API surface _signed_api() grades), so there is no way to
+    # construct a genuine kill (a defect that drops @query from an empty covered-component
+    # set is unkillable — nothing to omit). Needs a signed request with query parameters
+    # added to the reference agent's op set first; tracked, not silently skipped.
+    #
+    # (2) Cart lifecycle (CART-017/024/036) — reference_agent.py gained create_cart() /
+    # update_cart() (POST /carts, PUT /carts/{id}) and sandbox.py gained the matching routes
+    # (a new do_PUT handler) plus httpd.carts state; cart is otherwise unmodeled anywhere in
+    # this lane before this batch. CART-024 (UCP-Agent header on cart requests) is not a new
+    # predicate — it is CART-024 added to agent.sends_ucp_agent's existing req_ids, made
+    # genuine (not vacuous) because run_flow() now unconditionally exercises create_cart/
+    # update_cart, so no_ucp_agent's global header omission actually reaches them too.
+    # CART-030 was attempted and RETRACTED (see the module docstring's fuller account): its
+    # schema anchor governs `cart_id` on the create_checkout/update_checkout "Checkout with
+    # Cart" variant (cart-to-checkout conversion, cart.json $defs.checkout), not the cart
+    # resource's own top-level `id` on Update Cart. Genuinely testing it needs an
+    # update_checkout op (the SAME missing-op gap CHK-023/024 below are blocked on) plus a
+    # cart-to-checkout create_checkout path that actually sets cart_id — left GAP.
+    #
+    # Rows investigated and left BLOCKED this batch (not silently dropped):
+    #   - IDL-067/068/069/070 (identity-linking.md #Identity-Providers, config.providers —
+    #     Accelerated IdP Flow provider filtering/selection/fallback): none of these MUSTs
+    #     has a genuine kill without the Accelerated IdP Flow existing as an ALTERNATE code
+    #     path the reference agent could wrongly take (e.g. IDL-067's "MUST fall back to
+    #     direct OAuth" is unkillable today because direct OAuth is the reference agent's
+    #     ONLY path — there is no chaining behavior to wrongly prefer instead). Building that
+    #     alternate path (a second AS, a JWT-bearer-assertion token exchange) is a
+    #     mechanism-building task of its own scale (comparable to the R11 battery build),
+    #     not a fit for "add checks against an existing flow" — recommended as its own
+    #     follow-up lane, not attempted piecemeal here.
+    #   - IDL-073 (platform MUST NOT present a raw IdP token to a business) and IDL-080 (the
+    #     IdP's OWN token-exchange-processing obligations) both depend on that same
+    #     unbuilt chaining mechanism; IDL-080's subject is arguably the IdP/business, not the
+    #     platform at all (its heuristic match is "authenticate THE PLATFORM", i.e. the
+    #     PLATFORM is the OBJECT being authenticated by the IdP, not the actor with the
+    #     obligation) — a second denominator question, flagged rather than silently built or
+    #     silently reclassified.
+    #   - IDL-085 ("Businesses MUST return iss in every authorization response") — re-read at
+    #     identity-linking.md#L984-989: the row's own extracted `requirement` field names the
+    #     Business as the obligated party ("Businesses MUST return iss..."); "Platforms MUST
+    #     validate the iss parameter" in the same quoted span is IDL-012's own already-
+    #     registered, already-covered row (agent.validates_iss). No platform-bound clause of
+    #     IDL-085's own exists in this row — a third denominator question, flagged (not
+    #     built, not reclassified).
+    #   - IDL-064 (opaque business-owned identifiers; MUST NOT infer raw credentials from a
+    #     display value) — genuinely platform-bound (re-read at identity-linking.md#L96-103,
+    #     confirmed) but has no host today: it grades business-owned RESPONSE state (a saved
+    #     payment instrument's display label vs. its opaque id) that no current op ever
+    #     returns. A faithful kill-proof needs that fixture built first (a new "saved
+    #     instrument" surface), not a guess at its shape; left GAP, needs-fixture.
+    #   - IDL-057 already carried as BLOCKED from agent phase B kickoff (its own in-line
+    #     comment above, unchanged): `providers` is now spec-defined at 08-25, so the
+    #     check's stand-in "unrecognized future field" fixture would cite the wrong
+    #     requirement if ported as-is.
+    #   - CART-020 (Signal values MUST NOT be buyer-asserted claims) — the `signals` object
+    #     (cart/checkout `types/signals`) is entirely unmodeled in this reference agent;
+    #     needs its own fixture (what a "buyer-asserted claim" vs. an agent-observed
+    #     environment signal looks like on the wire) before a kill-proof is possible.
+    #   - CHK-023/024 (Update Checkout full replacement, the same shape as CART-017/036 but
+    #     for checkout) — the reference agent has no update_checkout op at all (only create
+    #     + complete); building one is the same class of work as this batch's cart build and
+    #     is a natural next batch, not squeezed into this one.
+    #   - CHK-062/066/067/068/069/071/072/073/074/077/078 (the `complete_in_progress` async
+    #     checkout lifecycle) — GAP-LEDGER-0825.md's S11a: complete_in_progress is
+    #     "declared but NEVER WIRED in either sample server" (unimplemented in EVERY
+    #     reference implementation), and R5 explicitly names this exact class ("`p_completed`
+    #     (CHK-025 async complete_in_progress branch)") as a DORMANT-over-strict-predicate
+    #     hazard: a check built against a state no real implementation can ever produce is
+    #     unverifiable and risks false-failing the day a runtime exists. Building this
+    #     cluster now would be precisely what R5 warns against; left GAP pending a working
+    #     complete_in_progress implementation somewhere to test against.
+    ACheck("agent.content_digest_sha256", ["SIG-010"], "MUST",
+           p_content_digest_sha256, kill_mutation="sign_wrong_digest_algo",
+           versions=["2026-04-08", "2026-08-25"]),
+    ACheck("agent.content_digest_header_present", ["SIG-012"], "MUST",
+           p_content_digest_header_present, kill_mutation="sig_drop_content_digest_header",
+           versions=["2026-04-08", "2026-08-25"]),
+    ACheck("agent.signature_headers_paired", ["SIG-013"], "MUST",
+           p_signature_headers_paired, kill_mutation="sig_drop_signature_header",
+           versions=["2026-04-08", "2026-08-25"]),
+    ACheck("agent.idempotency_key_entropy", ["SIG-022"], "MUST",
+           p_idempotency_key_entropy, kill_mutation="weak_idempotency_key",
+           versions=["2026-04-08", "2026-08-25"]),
+    ACheck("agent.cart_full_replacement", ["CART-017", "CART-036"], "MUST",
+           p_cart_full_replacement, kill_mutation="cart_partial_update",
+           versions=["2026-04-08", "2026-08-25"]),
 ]
