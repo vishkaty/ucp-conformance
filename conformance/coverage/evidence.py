@@ -49,10 +49,23 @@ Mechanics (no hand labels anywhere):
     (or a predicate closed over inside schema_check.py, where schema_predicate
     builds it) => fixture-schema; the crypto/nested primitive modules =>
     fixture-crypto; neither => self-referenced.
-  * corroboration (wire tier): reach_report.json, keyed "module_stem:check_id",
-    generated ONLY from servers listed in ci/differential_targets.json (the
-    independent-target register). Committed data, so the matrix export stays
-    deterministic; regenerating it is a deliberate act like a re-pin.
+  * corroboration (wire tier): reach_report.json, keyed "version:module_stem:
+    check_id" (the VERSION AXIS — R4/W1a: a check graded against a target that
+    served spec version V is corroboration for THAT version only. A check
+    scoped to several versions but graded against a target serving only one of
+    them earns live-wire at that version alone; the others fail closed to
+    self-referenced until a run actually grades them there too. Without this
+    axis a single 04-08 differential run silently "corroborates" every OTHER
+    version the same check object happens to be attributed to — proven live on
+    2026-08-31: the committed report has only ever graded 2026-04-08, yet
+    before this fix 2026-01-11/2026-01-23 published nonzero live-wire counts,
+    and lifting the 2026-08-25 register-only wall would have handed 26 checks
+    live-wire credit for a version with zero independently-authored
+    implementation.) generated ONLY from servers listed in
+    ci/differential_targets.json (the independent-target register), merged
+    into the committed report per (target, served-version) SLICE — see
+    gen_reach_report.py's module docstring for why a whole-file overwrite
+    would make multi-version corroboration mutually erase itself.
 
 Kill-tested by conformance/selfcheck/validate_evidence_class.py (--selftest): a
 classifier that mislabels any representative check, skips transitive reach, or
@@ -196,8 +209,11 @@ def _fixture_oracle(chk):
     return None
 
 
-def reach_key(module_stem, chk):
-    return f"{module_stem}:{chk.id}"
+def reach_key(version, module_stem, chk):
+    """The reach-report key for one (spec version, check) pair — VERSION FIRST so
+    a key prefix (`f"{version}:"`) cleanly names one whole slice, the same shape
+    gen_reach_report.py's per-(target,version) merge groups by."""
+    return f"{version}:{module_stem}:{chk.id}"
 
 
 def load_reach(path=REACH_FILE):
@@ -217,14 +233,18 @@ def load_reach(path=REACH_FILE):
     return out
 
 
-def classify_check(chk, module_stem, reach=None):
-    """(evidence_class, graded_independent_targets) for one check object."""
+def classify_check(chk, module_stem, version, reach=None):
+    """(evidence_class, graded_independent_targets) for one check object AT one
+    spec version. `version` is load-bearing for the wire tier ONLY: a check
+    graded against a target serving spec V corroborates V, never a sibling
+    version the same check object also happens to be attributed to (R4 — the
+    reach report is keyed per-version precisely so this call can't cross-credit)."""
     reach = {} if reach is None else reach
     acq = acquisition(chk)
     if acq == "schema-tier":
         return "fixture-schema", []
     if acq == "wire":
-        targets = reach.get(reach_key(module_stem, chk), [])
+        targets = reach.get(reach_key(version, module_stem, chk), [])
         return ("live-wire" if targets else "self-referenced"), list(targets)
     oracle = _fixture_oracle(chk)
     if oracle == "schema":
@@ -246,19 +266,25 @@ def evidence_by_id(attribution_rows, reach=None):
     """{version: {req_id: {"evidence": strongest_class, "reach": sorted targets}}}
     from matrix.attribution() rows — the same walk coverage_map() uses, so the
     evidence layer can never disagree with the CHECK bucket. A text-scan fallback
-    row (check object None) contributes self-referenced (fail-closed)."""
+    row (check object None) contributes self-referenced (fail-closed).
+
+    The classification cache is keyed by (id(chk), version) — NOT id(chk) alone —
+    because classify_check()'s wire tier is version-sensitive (R4): the same check
+    object attributed to two versions can legitimately classify differently (e.g.
+    live-wire at the one version a reach-report run actually graded it against,
+    self-referenced at a sibling version no run has graded yet)."""
     if reach is None:
         reach = load_reach()
-    cache = {}          # id(chk) -> (class, targets)
+    cache = {}          # (id(chk), version) -> (class, targets)
     out = {}
     for version, rid, basename, chk in attribution_rows:
         if chk is None:
             cls, targets = "self-referenced", []
         else:
-            key = id(chk)
+            key = (id(chk), version)
             if key not in cache:
                 stem = os.path.splitext(basename)[0]
-                cache[key] = classify_check(chk, stem, reach)
+                cache[key] = classify_check(chk, stem, version, reach)
             cls, targets = cache[key]
         slot = out.setdefault(version, {}).setdefault(
             rid, {"evidence": "self-referenced", "reach": set()})

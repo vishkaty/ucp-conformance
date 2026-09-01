@@ -61,6 +61,41 @@ What lives here, and why each field is DATA rather than a formula:
       checks (26 live-wire!) and 24 exemptions auto-attributed to it the moment its
       register existed, none reviewed.
 
+      GRADUATED 2026-08-31 (the "Check conversion phase" flip, PLAN-0825 §G4): removed
+      from this set once, and only once, EVERY currently-attributing id had actually
+      been reviewed — not once the count merely looked plausible. The review found the
+      51/26/24 auto-attribution above was a real leak with TWO independent root causes,
+      both fixed at the source rather than papered over by leaving this wall up
+      forever (a permanent wall is not a fix, it's a permanent GAP):
+        (1) unreviewed checks with no per-check `versions=` (area_fulfillment.py,
+            area_negotiation.py, area_payment.py, merchant_checks.py) were falling
+            through to "every pinned version" the moment 2026-08-25's register
+            existed — fixed with an explicit per-FILE `VERSIONS` marker naming the
+            versions each file has actually been reviewed at (never a formula
+            excluding "the new one" — that repeats this exact bug at the 5th
+            version); ditto 25 unscoped conformance/coverage/exemptions.json entries,
+            fixed with explicit `"versions"` lists.
+        (2) the evidence-class reach report (coverage/reach_report.json) had NO
+            spec-version axis in its keys, so a check's live-wire corroboration at
+            one version silently applied to every OTHER version the same check
+            object was attributed to — proven live: it would have handed 26 checks
+            live-wire credit for 2026-08-25's zero-independent-implementation
+            reality. Fixed generally (coverage/evidence.py's reach_key/classify_check
+            now take the version being evaluated; gen_reach_report.py's keys carry
+            it) — not special-cased to 08-25, so the fix also correctly demoted the
+            SAME latent leak already affecting 2026-01-11/2026-01-23 (49/53 published
+            live-wire, earned by neither — the committed reach report has only ever
+            graded 2026-04-08). See ops/GAP-LEDGER-0825.md / the flip landing note for
+            the full before/after.
+      After both fixes, lifting this wall attributed EXACTLY the reviewed rows: the
+      17 struct_check_08_25.py + 10 golden_check_08_25.py conversion-phase checks (27
+      CHECK, 0 EXEMPT, 0 live-wire — correctly zero, since 2026-08-25 still has no
+      independently-authored implementation). The MECHANISM stays (this set, not a
+      one-time patch): the next id to gain a check goes through the same per-check
+      `versions=` review before it can attribute, exactly like every version before
+      it, and a 5th spec version starts life back in this set until ITS conversion
+      phase runs.
+
   REPORT_MODE_UNTIL
       {version: ISO flip-by date}. A version in this dict is still having its
       register-completeness census BUILT (rows are landing, but the census-closing
@@ -99,7 +134,10 @@ VERSION_TREE = {
 
 CURRENT_SITE_VERSION = "2026-04-08"
 
-REGISTER_ONLY_VERSIONS = {"2026-08-25"}
+# Empty as of 2026-08-31 — 2026-08-25 graduated the Check-conversion-phase review
+# (see this module's docstring above for the two root causes found + fixed, not
+# suppressed). The set/mechanism stays: a future 5th version starts life IN here.
+REGISTER_ONLY_VERSIONS = set()
 
 REPORT_MODE_UNTIL = {
     # 2026-08-25 graduated 2026-08-31: census closed at 0 unaccounted (922 kw =

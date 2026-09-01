@@ -29,6 +29,14 @@ import re
 from engine import Check, fetch, CLEAN, DEVIATION  # noqa: F401
 import v2026_01_23 as core
 
+# Reviewed applicable versions for checks below that don't declare their own
+# `versions=` — see area_fulfillment.py's identical marker for the full rationale
+# (PLAN-0825 "Check conversion phase" doctrine; hand-curated, never a formula).
+# negotiation.version_unsupported_error (NEG-001) also matches a 2026-08-25 id;
+# its 08-25 shape is not yet reviewed, so it stays off this list until a deliberate
+# per-check review adds 2026-08-25 explicitly.
+VERSIONS = ("2026-01-11", "2026-01-23", "2026-04-08")
+
 # {reverse-domain}.{service}.{capability}: >= 3 dot-separated lowercase labels.
 _RDN = re.compile(r"^[a-z0-9]+(\.[a-z0-9_]+){2,}$")
 

@@ -18,6 +18,23 @@ Requirements covered:
 from engine import Check, fetch, CLEAN, DEVIATION  # noqa: F401
 import v2026_01_23 as core
 
+# Reviewed applicable versions for every check below that doesn't declare its own
+# `versions=` (all of them, today). WITHOUT this marker, matrix.py's attribution()
+# falls back to "every pinned version" (file_targets, since this filename carries no
+# 04_08/01_23/01_11 token) -- meaning the moment a NEW spec version's register lands,
+# these checks silently start counting there too, unreviewed (the exact hazard
+# spec_versions.py's REGISTER_ONLY_VERSIONS docstring names: "51 checks (26 live-wire!)
+# ... auto-attributed the moment its register existed, none reviewed"). Explicit,
+# hand-curated per PLAN-0825's "Check conversion phase" doctrine -- NOT a formula
+# (never `[v for v in VERSIONS if v != new_version]`, or the NEXT new version repeats
+# this exact bug). fulfillment.type_enum (FUL-004) is 2026-01-23-only in the register
+# already handled via its check's own explicit versions=; the rest of this file's
+# checks (FUL-003/007/008/030) also match 2026-08-25 ids, and 08-25's shapes for those
+# ids are NOT yet reviewed here (see golden_check_08_25.py's own oracle-corroborated
+# rows for the reviewed 08-25 versions of FUL-003/007/008/030) -- stays off this list
+# until a deliberate per-check review adds 2026-08-25 explicitly.
+VERSIONS = ("2026-01-11", "2026-01-23", "2026-04-08")
+
 _TYPE_ENUM = {"shipping", "pickup"}
 
 
