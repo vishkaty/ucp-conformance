@@ -96,6 +96,32 @@ What lives here, and why each field is DATA rather than a formula:
       it, and a 5th spec version starts life back in this set until ITS conversion
       phase runs.
 
+  AGENT_REGISTER_ONLY_VERSIONS
+      The SAME mechanism as REGISTER_ONLY_VERSIONS, kept as a SEPARATE set for a
+      SEPARATE lane: the agent/platform axis (conformance/agent/agent_matrix.py's
+      agent_rows()) has its own denominator, its own review discipline
+      (agent_denominator_audit.json / agent_denominator_lock.json), and — critically
+      — graduates on its OWN schedule, not the merchant lane's. Before 2026-08-31
+      both axes short-circuited on the ONE shared REGISTER_ONLY_VERSIONS set; when
+      the merchant lane's 2026-08-25 Check-conversion-phase review finished and that
+      set emptied, agent_matrix.agent_rows() silently un-short-circuited TOO — the
+      agent axis had never been reviewed at all, and instantly gained ~220
+      unreviewed ids into its denominator, correctly caught by agent_governance.py's
+      DENOMINATOR-DRIFT lock (the lock is exactly the credit-worthy citizen here: it
+      refused a silent widening). The fix is this second, independent set — never
+      collapse the two back into one, since a shared set makes it structurally
+      impossible for one lane to graduate without silently dragging the other along
+      for the ride, which is precisely the bug that just happened. A version leaves
+      THIS set only when the agent axis's OWN denominator has been reviewed for it
+      (agent_denominator_audit.json entries + a regenerated agent_denominator_lock.json
+      snapshot) — entirely independent of whether the merchant axis has graduated.
+      Kill-tested in validate_spec_versions.py: identity (agent_matrix holds this
+      exact object), the wall's effect (agent_rows() is empty for a version in this
+      set), and — the regression this incident proved necessary — that REMOVING a
+      version from this set WITHOUT a matching agent_denominator_lock.json
+      regeneration reddens agent_governance's DENOMINATOR-DRIFT check rather than
+      silently widening the denominator.
+
   REPORT_MODE_UNTIL
       {version: ISO flip-by date}. A version in this dict is still having its
       register-completeness census BUILT (rows are landing, but the census-closing
@@ -138,6 +164,14 @@ CURRENT_SITE_VERSION = "2026-04-08"
 # (see this module's docstring above for the two root causes found + fixed, not
 # suppressed). The set/mechanism stays: a future 5th version starts life IN here.
 REGISTER_ONLY_VERSIONS = set()
+
+# The AGENT lane's own wall — SEPARATE from REGISTER_ONLY_VERSIONS above (see this
+# module's docstring). 2026-08-25 graduated the MERCHANT lane 2026-08-31; its agent
+# denominator has not been reviewed at all yet (agent_denominator_audit.json has no
+# 2026-08-25 entries) — that is its own deliberate, owner-visible step, exactly like
+# the merchant flip was, not something that happens as a side effect of the merchant
+# lane's own graduation.
+AGENT_REGISTER_ONLY_VERSIONS = {"2026-08-25"}
 
 REPORT_MODE_UNTIL = {
     # 2026-08-25 graduated 2026-08-31: census closed at 0 unaccounted (922 kw =

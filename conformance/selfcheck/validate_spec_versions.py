@@ -40,6 +40,7 @@ sys.path.insert(0, os.path.join(CONF, "speclint"))    # speclint (+ its sibling 
 from common import spec_versions                             # noqa: E402
 import matrix                                                 # noqa: E402
 import agent_matrix                                            # noqa: E402
+import agent_governance                                        # noqa: E402
 import verify_register                                         # noqa: E402
 import verify_register_completeness as vrc                     # noqa: E402
 import speclint                                                 # noqa: E402
@@ -56,8 +57,9 @@ def _check_identity(fails):
         ("matrix.REGISTER_ONLY_VERSIONS", matrix.REGISTER_ONLY_VERSIONS,
          spec_versions.REGISTER_ONLY_VERSIONS),
         ("agent_matrix.VERSIONS", agent_matrix.VERSIONS, spec_versions.VERSIONS),
-        ("agent_matrix.REGISTER_ONLY_VERSIONS", agent_matrix.REGISTER_ONLY_VERSIONS,
-         spec_versions.REGISTER_ONLY_VERSIONS),
+        ("agent_matrix.AGENT_REGISTER_ONLY_VERSIONS",
+         agent_matrix.AGENT_REGISTER_ONLY_VERSIONS,
+         spec_versions.AGENT_REGISTER_ONLY_VERSIONS),
         ("verify_register.VERSION_TREE", verify_register.VERSION_TREE,
          spec_versions.VERSION_TREE),
         ("verify_register_completeness.VERSION_TREE", vrc.VERSION_TREE,
@@ -153,15 +155,77 @@ def _check_regression_fixed(fails):
         fails.append(f"speclint.VERSION_TREE is missing {newest!r} — the exact "
                      f"regression this ticket fixed")
 
-    if newest in spec_versions.REGISTER_ONLY_VERSIONS:
+    if newest in spec_versions.AGENT_REGISTER_ONLY_VERSIONS:
         rows = agent_matrix.agent_rows(newest)
         ok_wall = rows == set()
         print(f"  {'OK ' if ok_wall else 'XX '} agent_matrix.agent_rows({newest!r}) is "
-              f"empty (register-only wall honored on the agent axis): {ok_wall}")
+              f"empty (agent register-only wall honored): {ok_wall}")
         if not ok_wall:
             fails.append(f"agent_matrix.agent_rows({newest!r}) returned {len(rows)} "
-                         f"row(s) for a REGISTER_ONLY_VERSIONS version — the wall "
-                         f"isn't wired on the agent axis")
+                         f"row(s) for an AGENT_REGISTER_ONLY_VERSIONS version — the "
+                         f"wall isn't wired on the agent axis")
+
+
+def _check_agent_wall_independent_of_merchant_wall(fails):
+    """The incident this split fixed, kill-tested directly (2026-08-31): the two
+    walls (matrix.py's REGISTER_ONLY_VERSIONS, agent_matrix.py's
+    AGENT_REGISTER_ONLY_VERSIONS) must be able to disagree — one lane graduating a
+    version must never silently graduate the other. Proven both directions:
+
+      1. The merchant wall is ALREADY empty (2026-08-25 graduated there) while the
+         agent wall still holds 2026-08-25 — the two sets disagreeing right now,
+         live, is the steady state this split exists to make possible.
+      2. Simulate the agent lane's OWN graduation happening the wrong way — a
+         version REMOVED from AGENT_REGISTER_ONLY_VERSIONS with no matching
+         agent_denominator_lock.json update (i.e. exactly the un-reviewed removal
+         that caused this incident) — and prove agent_governance.py's
+         DENOMINATOR-DRIFT lock reddens for that version. A wall split that can't
+         be shown to still be backstopped by the lock would just be moving the
+         hazard, not closing it.
+
+    Mutates spec_versions.AGENT_REGISTER_ONLY_VERSIONS in place (same object
+    agent_matrix holds — see _check_identity) and restores it in `finally`, exactly
+    like _check_new_version_appears_everywhere's synthetic-version pattern."""
+    merchant_ver = spec_versions.VERSIONS[-1]     # 2026-08-25 today
+    disagree = (merchant_ver not in spec_versions.REGISTER_ONLY_VERSIONS
+                and merchant_ver in spec_versions.AGENT_REGISTER_ONLY_VERSIONS)
+    print(f"  {'OK ' if disagree else 'XX '} the two walls currently DISAGREE on "
+          f"{merchant_ver!r} (merchant graduated, agent has not): {disagree}")
+    if not disagree:
+        fails.append(f"the merchant and agent walls agree on {merchant_ver!r} right "
+                     f"now — this proves nothing about independence; expected the "
+                     f"merchant lane graduated ahead of the agent lane")
+
+    if merchant_ver not in spec_versions.AGENT_REGISTER_ONLY_VERSIONS:
+        print(f"  SKIP simulated-removal check: {merchant_ver!r} is not currently "
+              f"agent-register-only, nothing to remove")
+        return
+
+    fails_before, _ = agent_governance.run()
+    drift_before = [f for f in fails_before if f"DENOMINATOR-DRIFT {merchant_ver}" in f]
+    ok_clean_before = not drift_before
+    print(f"  {'OK ' if ok_clean_before else 'XX '} agent_governance is clean on "
+          f"{merchant_ver!r} BEFORE the simulated removal: {ok_clean_before}")
+    if not ok_clean_before:
+        fails.append(f"agent_governance already shows DENOMINATOR-DRIFT for "
+                     f"{merchant_ver!r} before any mutation — the committed lock "
+                     f"and the wall already disagree")
+
+    spec_versions.AGENT_REGISTER_ONLY_VERSIONS.discard(merchant_ver)
+    try:
+        fails_after, _ = agent_governance.run()
+        drift_after = [f for f in fails_after if f"DENOMINATOR-DRIFT {merchant_ver}" in f]
+        ok_catches = bool(drift_after)
+        print(f"  {'OK ' if ok_catches else 'XX '} agent_governance reddens with "
+              f"DENOMINATOR-DRIFT {merchant_ver!r} AFTER simulating an un-reviewed "
+              f"wall removal (lock still bites): {ok_catches}")
+        if not ok_catches:
+            fails.append(f"removing {merchant_ver!r} from AGENT_REGISTER_ONLY_VERSIONS "
+                         f"without a matching agent_denominator_lock.json regeneration "
+                         f"did NOT redden agent_governance's DENOMINATOR-DRIFT check — "
+                         f"the exact 2026-08-31 incident would recur silently")
+    finally:
+        spec_versions.AGENT_REGISTER_ONLY_VERSIONS.add(merchant_ver)
 
 
 def _check_stale_waiver_fail_noisy(fails):
@@ -207,6 +271,9 @@ def main():
     _check_unknown_version_fails_loud(fails)
     print("\nthe concrete regression this ticket fixed stays fixed:")
     _check_regression_fixed(fails)
+    print("\nthe agent wall is independent of the merchant wall, and the lock still "
+          "bites an un-reviewed removal (2026-08-31 incident kill-test):")
+    _check_agent_wall_independent_of_merchant_wall(fails)
     print("\nstale-waiver fail-noisy rule (PLAN-0825 A.2 kill-test):")
     _check_stale_waiver_fail_noisy(fails)
 
