@@ -166,12 +166,31 @@ CURRENT_SITE_VERSION = "2026-04-08"
 REGISTER_ONLY_VERSIONS = set()
 
 # The AGENT lane's own wall — SEPARATE from REGISTER_ONLY_VERSIONS above (see this
-# module's docstring). 2026-08-25 graduated the MERCHANT lane 2026-08-31; its agent
-# denominator has not been reviewed at all yet (agent_denominator_audit.json has no
-# 2026-08-25 entries) — that is its own deliberate, owner-visible step, exactly like
-# the merchant flip was, not something that happens as a side effect of the merchant
-# lane's own graduation.
-AGENT_REGISTER_ONLY_VERSIONS = {"2026-08-25"}
+# module's docstring). 2026-08-25 graduated the MERCHANT lane 2026-08-31.
+#
+# GRADUATED (agent lane) 2026-09-01: removed from this set once, and only once, the
+# agent axis's OWN denominator had been reviewed end to end — not the merchant lane's
+# review (that graduated this same version on the merchant wall five days earlier and
+# has nothing to say about the agent axis's subject-binding). Simulated the lift
+# (agent_matrix.agent_rows('2026-08-25') with this set emptied) to get the exact
+# candidate list the DENOMINATOR-DRIFT lock would otherwise have widened to silently:
+# 229 ids. Every one was individually read against its verbatim quote in
+# conformance/requirements/2026-08-25/ (agent_denominator_audit.json's
+# "2026-08-25_review" section carries the full per-row adjudication): 220 are
+# genuinely platform/agent-bound (the graduated denominator, snapshotted in
+# agent_denominator_lock.json's new 2026-08-25 entry) and 9 are heuristic false
+# positives whose registered MUST binds ONLY the business/merchant, added to
+# agent_matrix.NOT_AGENT_BOUND (global, like the 11 from the 2026-07-03 audit — none
+# of the 9 were ever candidates at 2026-04-08 either, so the addition cannot regress
+# that already-graduated lane). Coverage is an honest CHECK 0 (no 2026-08-25 agent
+# checks exist yet — Phase B work, not this review) on a now-real, adjudicated 220-row
+# denominator; a handful of the carried IDL ids already covered by
+# agent_exemptions.json's cross-version irreducibility reasoning land as EXEMPT. The
+# mechanism stays exactly as before (this set, not a one-time patch): a future 5th
+# spec version starts life back in here on the agent axis, entirely independent of
+# whatever the merchant lane (REGISTER_ONLY_VERSIONS above) does with that same
+# version.
+AGENT_REGISTER_ONLY_VERSIONS = set()
 
 REPORT_MODE_UNTIL = {
     # 2026-08-25 graduated 2026-08-31: census closed at 0 unaccounted (922 kw =
