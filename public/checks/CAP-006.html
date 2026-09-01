@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIG-007 — Signatures conformance check | spck.dev</title>
-<meta name="description" content="UCP requirement SIG-007: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
+<title>CAP-006 — Capability-Namespace-Authority conformance check | spck.dev</title>
+<meta name="description" content="UCP requirement CAP-006: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -31,19 +31,19 @@
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
 <header class="page-head">
-  <div class="eyebrow"><a href="/checks/">Check register</a> / Signatures</div>
-  <h1>SIG-007</h1>
+  <div class="eyebrow"><a href="/checks/">Check register</a> / Capability-Namespace-Authority</div>
+  <h1>CAP-006</h1>
   <p class="sub">A requirement the spck.dev suite checks on UCP servers. The quoted text is
 the normative requirement; the citation links to the exact line of the pinned spec source
 it was taken from.</p>
 </header>
-<blockquote class="req-quote">Public keys MUST be represented using JSON Web Key (JWK) format as defined in RFC 7517.</blockquote>
+<blockquote class="req-quote">The platform derives `authority_prefix` by normalizing the schema URL&#x27;s hostname (lowercase, strip trailing dot, IDN in A-label/punycode) and reversing its labels</blockquote>
 <dl class="meta-grid">
   <dt>Keyword</dt><dd>MUST</dd>
-  <dt>Area</dt><dd>Signatures</dd>
-  <dt>Versions</dt><dd><span class="chip">2026-04-08</span> <span class="chip">2026-08-25</span></dd>
+  <dt>Area</dt><dd>Capability-Namespace-Authority</dd>
+  <dt>Versions</dt><dd><span class="chip">2026-08-25</span></dd>
   <dt>Testability</dt><dd>testable</dd>
-  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L102" rel="noopener">ucp:docs/specification/signatures.md#L102</a> <span class="chip">2026-04-08</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md#L142-L143" rel="noopener">ucp:docs/specification/signatures.md#L142-L143</a> <span class="chip">2026-08-25</span></dd>
+  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md#L889" rel="noopener">ucp:docs/specification/overview/index.md#L889</a> <span class="chip">2026-08-25</span></dd>
 </dl>
 <h2>How this is graded</h2>
 <p class="sub">A deviation on a MUST fails the run and shows the requirement next to the
