@@ -94,7 +94,18 @@ class _Handler(BaseHTTPRequestHandler):
             # accumulated scope/tokens into each other (IDL-048 incremental accumulation).
             self.server.granted = set()
             self.server.tokens = {}
-            return self._send(200, {"ucp": {
+            return self._send(200, {
+                # R8/R14/S8a (GAP-LEDGER-0825.md): the canonical signing-key location moved
+                # at 08-25 from nested `ucp.signing_keys[]` to a TOP-LEVEL `keys[]` sibling
+                # of `ucp`. Publishing BOTH here is not a shortcut: a document with an EXTRA
+                # field its schema doesn't define is valid under either pinned version (the
+                # oracle only asserts on the fields IT defines), so one sandbox boot
+                # correctly and honestly serves a 04-08-scoped check (reads the nested field)
+                # and an 08-25-scoped check (reads the top-level field) from the SAME
+                # response -- see reference_agent.extract_signing_keys, the consuming-side
+                # fix for the identical bug class.
+                "keys": [crypto.jwk_from_pub(SIG_KID, _SIG_Q)],
+                "ucp": {
                 "version": "2026-04-08", "status": "ok",
                 "signing_keys": [crypto.jwk_from_pub(SIG_KID, _SIG_Q)],
                 # OAuth2 identity-linking metadata (RFC 8414 subset) the agent uses to
