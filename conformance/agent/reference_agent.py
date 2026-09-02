@@ -36,6 +36,19 @@ DEFECTS = {
     "sign_omit_digest": "sign, but omit content-digest/content-type from covered (SIG-015)",
     "sign_omit_idem": "sign, but omit idempotency-key from the covered components (SIG-016)",
     "ucp_agent_not_signed": "sign, but omit ucp-agent from the covered components (SIG-018)",
+    # agent phase B-2 (2026-09-01): more RFC 9421 header-hygiene defects, distinct from the
+    # covered-COMPONENT-list defects above (these corrupt the literal HTTP header itself).
+    "sign_wrong_digest_algo": "sign a body-bearing request, but label Content-Digest with a "
+                              "non-sha-256 algorithm tag (SIG-010)",
+    "sig_drop_signature_header": "sign (Signature-Input present) but omit the literal "
+                                 "Signature header from the request (SIG-013)",
+    "sig_drop_content_digest_header": "sign a body-bearing request but omit the literal "
+                                      "Content-Digest header (distinct from omitting it as a "
+                                      "covered component, SIG-015's own defect) (SIG-012)",
+    "weak_idempotency_key": "send an idempotency-key with well under 128 bits of entropy "
+                            "(e.g. a short literal, not a UUID v4 / 22+ char token) (SIG-022)",
+    "cart_partial_update": "Update Cart sends only the changed line item instead of the "
+                           "entire cart resource (CART-017/CART-036)",
     "wrong_content_type": "send a request body with Content-Type != application/json (OVR-008)",
     "assume_count_is_limit": "stop the search page loop on a short page (len < limit) instead of following has_next_page (CAT-008)",
     "empty_search_request": "send a search request with no query and no filters (CAT-009)",
@@ -167,7 +180,16 @@ class ReferenceAgent:
         if self.defect != "no_ucp_agent":
             h["UCP-Agent"] = f'profile="{self.PROFILE}"'
         h["request-id"] = str(uuid.uuid4())
-        h["idempotency-key"] = idem or str(uuid.uuid4())
+        # SIG-022: Idempotency-Key MUST carry >=128 bits of entropy (spec's own compliant
+        # examples: a UUID v4, or a 22+ char alphanumeric token). A conformant agent's default
+        # generator (uuid4) already satisfies this; the weak_idempotency_key defect swaps in a
+        # short literal that satisfies neither named form.
+        if idem:
+            h["idempotency-key"] = idem
+        elif self.defect == "weak_idempotency_key":
+            h["idempotency-key"] = "abc123"
+        else:
+            h["idempotency-key"] = str(uuid.uuid4())
         return h
 
     def _sign_request(self, h, method, path, data):
@@ -177,16 +199,34 @@ class ReferenceAgent:
         (SIG-018). The sign_* defects model a signing agent that drops a required component or
         emits a signature that does not verify."""
         authority = urllib.parse.urlparse(self.server).netloc
+        # SIG-010: Content-Digest MUST be tagged sha-256. sign_wrong_digest_algo keeps the
+        # real sha-256 bytes (so the mutation is isolated to the algorithm LABEL) but
+        # advertises a non-conforming tag.
+        digest_algo = "sha-512" if self.defect == "sign_wrong_digest_algo" else "sha-256"
         sig = crypto.sign_request_headers(
             method, authority, path, data, _AGENT_D, _AGENT_SIG_KID,
             ucp_agent=h.get("UCP-Agent"), idem=h.get("idempotency-key"),
             omit=_SIGN_OMIT.get(self.defect, ()),
-            content_type=h.get("Content-Type", "application/json"))
+            content_type=h.get("Content-Type", "application/json"),
+            digest_algo=digest_algo)
         if self.defect == "sign_corrupt":                  # SIG-001: signature must verify
             raw = base64.b64decode(sig["Signature"].split(":", 1)[1].rsplit(":", 1)[0])
             raw = bytes([raw[0] ^ 0xFF]) + raw[1:]
             sig["Signature"] = "sig1=:" + base64.b64encode(raw).decode() + ":"
         h.update(sig)
+        # SIG-013: Signature-Input and Signature are a HEADER PAIR (distinct from the
+        # covered-component-list defects above, which corrupt what a header COVERS, not
+        # whether the header itself is present). sig_drop_signature_header models a signer
+        # that computes Signature-Input but never actually attaches Signature.
+        if self.defect == "sig_drop_signature_header":
+            h.pop("Signature", None)
+        # SIG-012: Content-Digest is a REQUIRED HEADER whenever the request has a body — a
+        # distinct obligation from SIG-015 (content-digest as a SIGNED COMPONENT, already
+        # modeled by sign_omit_digest, which drops it from the covered-component list while
+        # still emitting the header "for integrity", per sign_request_headers' own docstring).
+        # sig_drop_content_digest_header instead removes the literal header outright.
+        if self.defect == "sig_drop_content_digest_header":
+            h.pop("Content-Digest", None)
 
     def _send(self, op, method, path, body=None, headers=None):
         url = self.server + path
@@ -524,6 +564,34 @@ class ReferenceAgent:
         self._send("get_product", "POST", "/catalog/product",
                    {"id": product_id, "selected": selected})
 
+    def create_cart(self, product_id="teapot_ceramic"):
+        """Create Cart (shopping/cart/rest.md#create-cart): POST /carts. Cart reuses the same
+        line_item entity shape as Checkout (cart/index.md#Entities)."""
+        body = {"line_items": [{"item": {"id": product_id}, "quantity": 1}]}
+        resp = self._send("create_cart", "POST", "/carts", body)
+        self.last_cart = resp.get("body") or {}
+        return resp
+
+    def update_cart(self, extra_item_id="mug_ceramic"):
+        """Update Cart (cart/rest.md#update-cart): PUT /carts/{id}. CART-017/CART-036
+        (cart/index.md#L213-215): "Performs a full replacement of the cart session. The
+        platform MUST send the entire cart resource; the provided resource replaces the
+        existing cart state on the business side." A conformant agent resends every
+        already-present line item (carrying forward the id the business assigned it) PLUS the
+        newly added one -- never only the delta. cart_partial_update sends ONLY the new item,
+        the exact partial-PATCH mistake the full-replacement rule forbids."""
+        cid = (self.last_cart or {}).get("id")
+        if not cid:
+            return None
+        existing = [{"item": {"id": (li.get("item") or {}).get("id")}, "id": li.get("id"),
+                    "quantity": li.get("quantity")}
+                    for li in (self.last_cart.get("line_items") or []) if isinstance(li, dict)]
+        new_item = {"item": {"id": extra_item_id}, "quantity": 1}
+        items = [new_item] if self.defect == "cart_partial_update" else existing + [new_item]
+        resp = self._send("update_cart", "PUT", f"/carts/{cid}", {"line_items": items})
+        self.last_cart = resp.get("body") or self.last_cart
+        return resp
+
     def create_checkout(self, product_id="teapot_ceramic"):
         # CHK-036/037: a REQUEST body carries only request-authorable fields. The `ucp` envelope
         # (CHK-036) and the response-only fields status/currency/totals/messages/links/
@@ -613,6 +681,11 @@ class ReferenceAgent:
         self.search("teapot")
         # CAT-034: look up the product's options (each selected option name at most once).
         self.get_product()
+        # CART-017/024/030/036: stage a cart before checkout (Create Cart, then Update Cart
+        # as a full replacement — never a partial patch — carrying the platform's own
+        # UCP-Agent header and never a top-level cart `id`).
+        self.create_cart(product_id)
+        self.update_cart()
         # IDL-057: when config carries unrecognized future fields, a conformant platform MUST
         # IGNORE them and proceed with OAuth 2.0 + RFC 8414 discovery. The abort_on_future_config
         # defect instead chokes and stops (forward-incompatible).

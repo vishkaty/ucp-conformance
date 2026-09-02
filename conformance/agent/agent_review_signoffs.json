@@ -2,6 +2,32 @@
  "_about": "Agent-side adversarial-review sign-offs: every agent CHECK id must be reviewed before it counts \u2014 mirrors the merchant review-signoff gate.",
  "signoffs": [
   {
+   "batch": "agent-phaseB2-2026-09-01",
+   "date": "2026-09-01",
+   "reviewer": "author review vs the pinned 08-25 register text (conformance/.vendor/ucp-2026-08-25 @ cd78fb38, signatures.md + cart/index.md + cart/rest.md + source/schemas/shopping/cart.json) and cross-verified against the 2026-04-08 register (same ids, same wording, both GAP before this batch)",
+   "spec_reverified": true,
+   "notes": "Five new ACheck objects, two families. (1) RFC 9421 HEADER hygiene, distinct from the already-covered signed-COMPONENT checks (SIG-014/015/016/018): SIG-010 (signatures.md L413-416, 'Content-Digest ... Implementations MUST use sha-256') -> agent.content_digest_sha256, kill=sign_wrong_digest_algo (relabels the tag, same underlying bytes -- common/crypto.py content_digest()/sign_request_headers() gained an additive digest_algo override, default unchanged, verified byte-identical for every existing caller). SIG-012 (L404,L407, Content-Digest 'Cond. *' / 'Required when request/response has a body') -> agent.content_digest_header_present, kill=sig_drop_content_digest_header (strips the literal header while leaving the covered-component list alone -- distinct defect from sign_omit_digest, which only drops it from the SIGNED set). SIG-013 (L402-403, Signature-Input/Signature both 'Yes') -> agent.signature_headers_paired, kill=sig_drop_signature_header (computes Signature-Input, withholds Signature). SIG-022 (L830, 'Entropy: Minimum 128 bits (e.g., UUID v4, 22+ char alphanumeric)') -> agent.idempotency_key_entropy, kill=weak_idempotency_key -- REVERSES the 2026-07-03 B5 signoff's 'not reverse-harness-testable' note: the row defines compliance by two NAMED FORMS, so grading structurally against those forms (not attempting a statistical entropy estimate, genuinely undecidable from one sample) is sound and non-vacuous. All four found and fixed a real sandbox bug in the process: sandbox._verify_request_sig() hardcoded method='POST' when reconstructing the RFC 9421 signature base, silently 401ing any non-POST signed request (surfaced by Update Cart's PUT) -- fixed to use self.command. (2) Cart lifecycle, entirely unmodeled before this batch: reference_agent.py gained create_cart()/update_cart() (POST /carts, PUT /carts/{id}, cart/rest.md#L87-90) and sandbox.py gained the matching routes + a new do_PUT handler. CART-017/CART-036 (cart/index.md#L213-215, the SAME 'full replacement' sentence registered at two locations -- both bolded MUST, both platform-subject, correct to bundle under one check) -> agent.cart_full_replacement, kill=cart_partial_update (sends only the new line item, dropping the cart's existing ones -- the check asserts every prior line item id, by the id the business assigned it, is carried forward in the update request). CART-024 (cart/rest.md#L478, UCP-Agent required on all cart requests) is not a new predicate -- added to agent.sends_ucp_agent's existing req_ids, made genuine (not vacuous) because run_flow() now unconditionally exercises create_cart/update_cart so the existing no_ucp_agent global-header-omission defect reaches them too (re-verified: the check's own predicate scans every non-discover op, so this is a real, not attribution-smuggled, extension). A sixth id, CART-030, was BUILT then RETRACTED before this signoff: its schema anchor (source/schemas/shopping/cart.json#L15-24, $defs.checkout) turned out, on a second re-read, to govern `cart_id` on the create_checkout/update_checkout 'Checkout with Cart' cart-to-checkout-conversion variant -- NOT the cart resource's own top-level `id` field on Update Cart, which is what the built check (agent.cart_id_omit_on_update, kill=send_cart_id_on_update) actually tested. Caught before landing (this signoff); check + predicate + defect removed; CART-030 left GAP with the corrected blocked-reason recorded in agent_checks.py's phase B-2 block (needs an update_checkout op, the same missing-op gap CHK-023/024 are already blocked on). Diagonal kill-isolation verified live (run_agent.py --json) on the FINAL (post-retraction) registry: all 5 new checks + the extended sends_ucp_agent sound=true, 0 unsound across the full 49-check suite. Denominator untouched (agent_matrix.NOT_AGENT_BOUND/AGENT_EXTRA/agent_denominator_lock.json all zero-diff, including CART-030 which stays exactly where it was: a legitimate GAP member of both denominators, never removed) -- these 6 landed req_ids were already GAP members of the reviewed 04-08 and 08-25 denominators before this batch. Rows investigated and left BLOCKED or flagged as denominator questions (IDL-057/064/067/068/069/070/073/080/085, SIG-011, SIG-017, CART-020, CART-030, CHK-023/024, the complete_in_progress cluster) are documented in-line in agent_checks.py's own phase B-2 block, not in this signoff (no CHECK id to sign for a row that was not built).",
+   "ids": {
+    "2026-04-08": [
+     "SIG-010",
+     "SIG-012",
+     "SIG-013",
+     "SIG-022",
+     "CART-017",
+     "CART-024"
+    ],
+    "2026-08-25": [
+     "SIG-010",
+     "SIG-012",
+     "SIG-013",
+     "SIG-022",
+     "CART-017",
+     "CART-024",
+     "CART-036"
+    ]
+   }
+  },
+  {
    "batch": "agent-P0-B1-2026-07-03",
    "date": "2026-07-03",
    "reviewer": "author review vs pinned discovery spec (presence check; independent-agent review reserved for the substantive signature/OAuth checks in B.2/B.3)",

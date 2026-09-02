@@ -74,9 +74,13 @@ class _Handler(BaseHTTPRequestHandler):
         if not jwks:
             return True
         authority = self.headers.get("Host") or f"127.0.0.1:{self.server.server_address[1]}"
-        # a bodyless POST (empty raw) is signed WITHOUT content-digest — pass None so the
-        # receiver reconstructs the same base (no spurious digest check).
-        ok, _reason = crypto.verify_request("POST", authority, self.path, raw or None,
+        # a bodyless request (empty raw) is signed WITHOUT content-digest — pass None so the
+        # receiver reconstructs the same base (no spurious digest check). self.command is the
+        # actual HTTP method (POST/PUT/...) — hardcoding "POST" here (pre-Update-Cart, when
+        # POST was the only state-changing verb this handler ever verified) silently broke
+        # signature verification for any non-POST caller, since @method is a signed
+        # component (SIG-014) and the reconstructed base must match what was actually signed.
+        ok, _reason = crypto.verify_request(self.command, authority, self.path, raw or None,
                                             dict(self.headers), jwks)
         return ok
 
@@ -337,6 +341,25 @@ class _Handler(BaseHTTPRequestHandler):
                         "config": {}}]}},
                 "id": sid, "status": "incomplete", "currency": "USD",
                 "line_items": body.get("line_items", []), "totals": totals})
+        if self.path == "/carts":
+            # Create Cart (cart/rest.md#create-cart). Cart reuses the checkout line_item
+            # entity shape; the business assigns each line item its own `id` (li_1, li_2, ...)
+            # so a subsequent full-replacement Update Cart request can carry it forward.
+            cid = "cart_" + uuid.uuid4().hex[:10]
+            lis = []
+            for i, li in enumerate(body.get("line_items") or []):
+                iid = (li.get("item") or {}).get("id") or "item"
+                lis.append({"id": f"li_{i + 1}", "item": {"id": iid, "title": "Item", "price": 1000},
+                           "quantity": li.get("quantity", 1),
+                           "totals": [{"type": "subtotal", "amount": 1000},
+                                     {"type": "total", "amount": 1000}]})
+            self.server.carts[cid] = lis
+            return self._send(201, {
+                "ucp": {"version": "2026-04-08", "capabilities": {
+                    "dev.ucp.shopping.checkout": [{}], "dev.ucp.shopping.cart": [{}]}},
+                "id": cid, "line_items": lis, "currency": "USD",
+                "totals": [{"type": "subtotal", "amount": 1000 * len(lis)},
+                          {"type": "total", "amount": 1000 * len(lis)}]})
         if self.path.endswith("/complete") and self.path.startswith("/checkout-sessions/"):
             sid = self.path.split("/")[2]
             if ESCALATE_TOKEN in _payment_tokens(body):
@@ -349,6 +372,39 @@ class _Handler(BaseHTTPRequestHandler):
             oid = "ord_" + uuid.uuid4().hex[:12]
             return self._send(200, {"ucp": {"version": "2026-04-08"}, "id": sid,
                                     "status": "completed", "order": {"id": oid}})
+        return self._send(404, {"error": "not found"})
+
+    def do_PUT(self):
+        raw = self._read_raw()
+        try:
+            body = json.loads(raw or b"{}")
+        except Exception:
+            body = {}
+        self.server.observed.append(("request", self.path, dict(self.headers)))
+        if not self._verify_request_sig(raw):
+            return self._send(401, {"error": "signature_invalid"})
+        if self.path.startswith("/carts/"):
+            # Update Cart (cart/rest.md#update-cart): a full replacement. The sandbox itself
+            # does not enforce full-replacement (that is the PLATFORM's obligation the check
+            # grades on the request body, mirroring how CHK-036/037 grade request shape rather
+            # than server-side enforcement) — it simply stores and echoes whatever line_items
+            # arrived, re-using the assigned `id` when the platform carried one forward.
+            cid = self.path.rsplit("/", 1)[-1]
+            lis = []
+            for i, li in enumerate(body.get("line_items") or []):
+                iid = (li.get("item") or {}).get("id") or "item"
+                lis.append({"id": li.get("id") or f"li_{i + 1}",
+                           "item": {"id": iid, "title": "Item", "price": 1000},
+                           "quantity": li.get("quantity", 1),
+                           "totals": [{"type": "subtotal", "amount": 1000},
+                                     {"type": "total", "amount": 1000}]})
+            self.server.carts[cid] = lis
+            return self._send(200, {
+                "ucp": {"version": "2026-04-08", "capabilities": {
+                    "dev.ucp.shopping.checkout": [{}], "dev.ucp.shopping.cart": [{}]}},
+                "id": cid, "line_items": lis, "currency": "USD",
+                "totals": [{"type": "subtotal", "amount": 1000 * len(lis)},
+                          {"type": "total", "amount": 1000 * len(lis)}]})
         return self._send(404, {"error": "not found"})
 
 
@@ -376,6 +432,7 @@ def serve(scenario="conformant", agent_jwks=None):
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     httpd.observed = []
     httpd.sessions = {}
+    httpd.carts = {}                   # cart id -> line_items (CART-017/024/030/036)
     httpd.tokens = {}                  # issued Bearer access token -> granted scope string
     httpd.granted = set()              # accumulated granted scope set (incremental_scope, IDL-048)
     httpd.scenario = scenario

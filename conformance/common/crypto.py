@@ -255,8 +255,14 @@ def keypair(seed):
     return d, _ec_mul(d, _EC_G)
 
 
-def content_digest(body_bytes):
-    return "sha-256=:" + base64.b64encode(hashlib.sha256(body_bytes).digest()).decode() + ":"
+def content_digest(body_bytes, algo="sha-256"):
+    """RFC 9530 Content-Digest. `algo` is the ADVERTISED tag only (SIG-010: implementations
+    MUST use sha-256) -- every existing caller passes one positional arg and gets the
+    unchanged sha-256 tag/bytes. The optional override lets a caller construct a
+    self-consistent MISLABELED digest (same sha-256 bytes, a non-conforming tag) to model
+    an agent that violates SIG-010's algorithm mandate, without adding a second hash
+    implementation or touching any default-path behavior."""
+    return f"{algo}=:" + base64.b64encode(hashlib.sha256(body_bytes).digest()).decode() + ":"
 
 
 def jwk_from_pub(kid, Q):
@@ -305,7 +311,7 @@ def sign_response_headers(status, body_bytes, d, kid, created=None):
 
 def sign_request_headers(method, authority, path, body_bytes, d, kid,
                          ucp_agent=None, idem=None, omit=(),
-                         content_type="application/json"):
+                         content_type="application/json", digest_algo="sha-256"):
     """RFC 9421 REQUEST-signing headers (signatures.md L193-204). Covered components:
     @method/@authority/@path always (SIG-014); content-digest+content-type when there is a
     body (SIG-015); idempotency-key on state-changing requests (SIG-016); `ucp-agent` when
@@ -318,7 +324,7 @@ def sign_request_headers(method, authority, path, body_bytes, d, kid,
     hdrs = {}
     out = {}
     if body_bytes is not None:
-        digest = content_digest(body_bytes)
+        digest = content_digest(body_bytes, digest_algo)
         out["Content-Digest"] = digest
         hdrs["content-digest"] = digest
         # Sign the ACTUAL Content-Type the request carries (RFC 9421 signs the real
