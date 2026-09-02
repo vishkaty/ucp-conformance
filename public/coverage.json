@@ -10092,21 +10092,21 @@
   "2026-08-25": {
    "state": "live",
    "musts": 785,
-   "check": 44,
+   "check": 70,
    "exempt": 0,
-   "gap": 741,
-   "accounted_pct": 6,
+   "gap": 715,
+   "accounted_pct": 9,
    "evidence_breakdown": {
     "live-wire": 0,
-    "fixture-schema": 20,
+    "fixture-schema": 29,
     "fixture-crypto": 0,
-    "self-referenced": 24
+    "self-referenced": 41
    },
    "gap_by_testability": {
     "manual": 162,
     "needs-oauth": 15,
     "needs-receiver": 173,
-    "testable": 391
+    "testable": 365
    },
    "areas": [
     {
@@ -10146,10 +10146,11 @@
     },
     {
      "area": "catalog",
-     "gap": 41,
+     "check": 17,
+     "gap": 24,
      "gap_manual": 6,
      "gap_needs-receiver": 1,
-     "gap_testable": 34,
+     "gap_testable": 17,
      "musts": 41
     },
     {
@@ -10163,10 +10164,11 @@
     },
     {
      "area": "discounts-consent",
-     "gap": 29,
+     "check": 4,
+     "gap": 25,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 22,
+     "gap_testable": 18,
      "musts": 29
     },
     {
@@ -10335,9 +10337,10 @@
     },
     {
      "area": "totals",
-     "gap": 14,
+     "check": 5,
+     "gap": 9,
      "gap_manual": 5,
-     "gap_testable": 9,
+     "gap_testable": 4,
      "musts": 14
     },
     {
@@ -10825,30 +10828,42 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Pagination response MUST include has_next_page",
      "source": "ucp:source/schemas/common/types/pagination.json#L41",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-002",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When has_next_page is true, cursor MUST be present (if/then schema constraint)",
      "source": "ucp:source/schemas/common/types/pagination.json#L42-L48",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-003",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Cursor to fetch next page MUST be present when has_next_page is true",
      "source": "ucp:source/schemas/common/types/pagination.json#L29",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-005",
@@ -10925,40 +10940,56 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Duplicate identifiers in the request MUST be deduplicated",
      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L56",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-016",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When multiple identifiers resolve to the same product, it MUST be returned once",
      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L58-L59",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-017",
      "area": "catalog",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Variants without an inputs entry MUST NOT appear in lookup responses",
      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L71-L72",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-018",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "lookup response variants MUST include a non-empty inputs array (correlation metadata)",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L14-L19",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-019",
@@ -11045,50 +11076,70 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Lookup ids array is required with minItems 1",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L29-L34",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-029",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "search_response MUST include ucp and products",
      "source": "ucp:source/schemas/shopping/catalog_search.json#L35-L38",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-030",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "lookup_response MUST include ucp and products",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L54-L57",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-031",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "get_product_response MUST include ucp and a singular product object",
      "source": "ucp:source/schemas/shopping/catalog_lookup.json#L167-L170",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-032",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "For Variant ID lookups via get_product, the requested variant MUST be the first element (featured)",
      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L131",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-033",
@@ -11145,50 +11196,70 @@
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "For the unit_price display comparator to be well-defined, the Business MUST use a positive integer for both unit_price.measure.value and unit_price.reference.value.",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L104-L105",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-040",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The Business MUST set unit_price.currency equal to price.currency.",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L106",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-041",
      "area": "catalog",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Within unit_price, the Business MUST use identical values for measure.unit and reference.unit (though MAY use different scale values for those measures), and MUST NOT perform cross-unit or currency conversion as part of the unit-price calculation.",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L107-L110",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-042",
      "area": "catalog",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The Business MUST compute the unit_price comparator from price.amount and the scaled measure/reference values per the defined formula.",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L111-L113",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-043",
      "area": "catalog",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "The Business MUST round the unit_price comparator result once to the currency minor units and return it as unit_price.amount, which is authoritative; the Platform MUST NOT recompute it or substitute its own result.",
      "source": "ucp:docs/specification/shopping/catalog/index.md#L118-L121",
-     "covered_by": []
+     "covered_by": [
+      "struct_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CAT-044",
@@ -12337,20 +12408,28 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount amounts in discounts.applied are positive integers (value of the discount)",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L319-L320",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "DSC-021",
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Discount entries in totals[] are negative (strictly < 0); the sign is schema-enforced",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L320-L321",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "DSC-022",
@@ -12367,10 +12446,14 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "applied_discount MUST include title and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L29-L32",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "DSC-024",
@@ -12397,10 +12480,14 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "allocation MUST include path and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L11-L14",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "DSC-027",
@@ -18277,20 +18364,28 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Exactly one totals entry of type subtotal MUST be present",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1323",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "TOT-006",
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Exactly one totals entry of type total MUST be present",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1324",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "TOT-007",
@@ -18327,20 +18422,28 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Subtractive well-known types (discount, items_discount) MUST have negative amounts",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1355-L1356",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "TOT-015",
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Additive well-known types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1356-L1357",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "TOT-017",
@@ -18367,10 +18470,14 @@
      "area": "totals",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Each top-level totals entry requires both type and amount",
      "source": "ucp:source/schemas/common/types/total.json#L7-L10",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "TOT-021",

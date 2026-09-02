@@ -301,6 +301,69 @@
       "patch": [{"op": "drop", "path": ["fulfillment", "events", 0, "occurred_at"]}],
       "violates": "shopping/types/fulfillment_event.json required: [id, occurred_at, type, line_items] -- ORD-019. apply_patch() is a no-op on a path that fails to resolve (defects.py's own documented permissive-patch behavior), so this mutant only fires against an order whose fulfillment.events[] is non-empty -- the checking row's own fixture calls POST /testing/simulate-shipping/{id} before each GET /orders/{id} to populate events[0] (the same test-only route STATUS.md's R11 section already documents as secret-gated and safe to call regardless of arm state, since its own route never matches an armed mutant here).",
       "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
+    },
+    {
+      "name": "discount-applied-drop-title",
+      "family": "check-conversion-p3-wave4",
+      "surface": "discount",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["discounts"], "value": {"applied": [{"amount": 350}]}}],
+      "violates": "shopping/discount.json $defs.applied_discount required: [title, amount] -- DSC-023. Only checked when validated against the discount extension's combined def (dev.ucp.shopping.checkout), same as discount-negative-amount above. Replaces the WHOLE `discounts` key (same idiom as discount-negative-amount / consent-invalid-source / consent-purpose-missing-granted) rather than dropping a field on a path that only exists when the calling fixture itself submitted a matching discount code -- self-contained, so it fires identically whether the caller is golden_check_08_25.py's own discount-code fixture or the R11 battery's plain create fixture (which never submits a discount code, and would otherwise make a `drop` here a silent no-op -- found live 2026-09-01, same class as R17's fixture-vs-mutant gap).",
+      "oracle": {"kind": "against", "schema": "schemas/shopping/discount.json", "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "discount-allocation-drop-path",
+      "family": "check-conversion-p3-wave4",
+      "surface": "discount",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["discounts"], "value": {"applied": [{"title": "Test Discount", "amount": 350, "allocations": [{"amount": 350}]}]}}],
+      "violates": "shopping/discount.json $defs.allocation required: [path, amount] -- DSC-026. Self-contained whole-key `set`, same reason as discount-applied-drop-title above.",
+      "oracle": {"kind": "against", "schema": "schemas/shopping/discount.json", "def": "dev.ucp.shopping.checkout", "op": "create"}
+    },
+    {
+      "name": "totals-discount-amount-not-negative",
+      "family": "check-conversion-p3-wave4",
+      "surface": "totals",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "total", "amount": 3500}, {"type": "discount", "amount": 50}]}],
+      "violates": "common/types/total.json allOf[0] (type in [discount, items_discount] -> amount exclusiveMaximum 0) -- TOT-014 / DSC-021. Replaces the WHOLE `totals` array with a self-contained, fully-specified array (one subtotal, one total, one discount with a POSITIVE amount) instead of setting an index whose meaning depends on which optional entries (fulfillment, discount) the calling fixture happened to produce -- self-contained per discount-applied-drop-title's own note; isolates exactly the one violation (the required exactly-one-subtotal/exactly-one-total invariants stay satisfied).",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
+    },
+    {
+      "name": "totals-fulfillment-amount-negative",
+      "family": "check-conversion-p3-wave4",
+      "surface": "totals",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "fulfillment", "amount": -999}, {"type": "total", "amount": 2501}]}],
+      "violates": "common/types/total.json allOf[1] (type in [subtotal, fulfillment, tax, fee] -> amount minimum 0) -- TOT-015. Self-contained whole-array `set`, same reason as totals-discount-amount-not-negative above.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
+    },
+    {
+      "name": "totals-missing-subtotal",
+      "family": "check-conversion-p3-wave4",
+      "surface": "totals",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "fulfillment", "amount": 0}, {"type": "total", "amount": 3500}]}],
+      "violates": "common/types/totals.json allOf[0]: contains {type: const subtotal}, minContains 1, maxContains 1 -- TOT-005. Self-contained whole-array `set` with no subtotal entry at all, same reason as totals-discount-amount-not-negative above.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
+    },
+    {
+      "name": "totals-missing-total",
+      "family": "check-conversion-p3-wave4",
+      "surface": "totals",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "fulfillment", "amount": 0}]}],
+      "violates": "common/types/totals.json allOf[1]: contains {type: const total}, minContains 1, maxContains 1 -- TOT-006. Self-contained whole-array `set` with no total entry at all, same reason as totals-discount-amount-not-negative above.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
+    },
+    {
+      "name": "totals-entry-drop-type",
+      "family": "check-conversion-p3-wave4",
+      "surface": "totals",
+      "route": {"method": "POST", "path": "/checkout-sessions"},
+      "patch": [{"op": "set", "path": ["totals"], "value": [{"amount": 999}, {"type": "subtotal", "amount": 3500}, {"type": "total", "amount": 3500}]}],
+      "violates": "common/types/total.json required: [type, amount] -- TOT-020. Self-contained whole-array `set`: an untyped entry proves the required-fields obligation in isolation, with a separate valid subtotal and total entry present so the exactly-one-subtotal/exactly-one-total invariants stay satisfied and only the ONE targeted violation fires.",
+      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
     }
   ],
   "self_referenced_mutants": [

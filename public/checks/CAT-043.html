@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DSC-021 — Discount-Consent-Identity conformance check | spck.dev</title>
-<meta name="description" content="UCP requirement DSC-021: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
+<title>CAT-043 — Catalog conformance check | spck.dev</title>
+<meta name="description" content="UCP requirement CAT-043: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -31,19 +31,19 @@
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
 <header class="page-head">
-  <div class="eyebrow"><a href="/checks/">Check register</a> / Discount-Consent-Identity</div>
-  <h1>DSC-021</h1>
+  <div class="eyebrow"><a href="/checks/">Check register</a> / Catalog</div>
+  <h1>CAT-043</h1>
   <p class="sub">A requirement the spck.dev suite checks on UCP servers. The quoted text is
 the normative requirement; the citation links to the exact line of the pinned spec source
 it was taken from.</p>
 </header>
-<p class="note">2026-01-23:</p><blockquote class="req-quote">The buyer consent object is optional on create and update operations and must be omitted on complete (consent is not required to gate completion).</blockquote><p class="note">2026-04-08:</p><blockquote class="req-quote">Discount entries in totals[] are negative (strictly &lt; 0); the sign is schema-enforced</blockquote><p class="note">2026-08-25:</p><blockquote class="req-quote">Discount entries in totals[] are negative (strictly &lt; 0); the sign is schema-enforced</blockquote>
+<blockquote class="req-quote">The Business MUST round the unit_price comparator result once to the currency minor units and return it as unit_price.amount, which is authoritative; the Platform MUST NOT recompute it or substitute its own result.</blockquote>
 <dl class="meta-grid">
   <dt>Keyword</dt><dd>MUST NOT</dd>
-  <dt>Area</dt><dd>Discount-Consent-Identity</dd>
-  <dt>Versions</dt><dd><span class="chip">2026-01-23</span> <span class="chip">2026-04-08</span> <span class="chip">2026-08-25</span></dd>
+  <dt>Area</dt><dd>Catalog</dd>
+  <dt>Versions</dt><dd><span class="chip">2026-08-25</span></dd>
   <dt>Testability</dt><dd>testable</dd>
-  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/dcf7eac71fc370dcc8768fcdbc5aa737037cca05/source/schemas/shopping/buyer_consent.json#L63" rel="noopener">ucp:source/schemas/shopping/buyer_consent.json#L63</a> <span class="chip">2026-01-23</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/discount.md#L314" rel="noopener">ucp:docs/specification/discount.md#L314</a> <span class="chip">2026-04-08</span></dd><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/extensions/discount.md#L320-L321" rel="noopener">ucp:docs/specification/shopping/extensions/discount.md#L320-L321</a> <span class="chip">2026-08-25</span></dd>
+  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/catalog/index.md#L118-L121" rel="noopener">ucp:docs/specification/shopping/catalog/index.md#L118-L121</a> <span class="chip">2026-08-25</span></dd>
 </dl>
 <h2>How this is graded</h2>
 <p class="sub">A deviation on a MUST fails the run and shows the requirement next to the
