@@ -24,6 +24,23 @@ if lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   [ -n "$STRAY" ] && kill "$STRAY" 2>/dev/null || true
   sleep 1
 fi
+# ESCALATE. A plain SIGTERM is not always enough: on 2026-09-03 the CI teardown
+# reported "stopped node reference (pid 5644)" and twelve seconds later the SAME
+# pid 5644 still held :3000, so the run failed on teardown after a fully green
+# suite. Under tsx the listener can ignore or outlive SIGTERM, so follow up with
+# SIGKILL and wait again before calling it stuck. Escalating is safe here: the
+# port is ours by construction and the process is on its way out either way.
+if lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+  STRAY="$(lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN -t 2>/dev/null | head -1)"
+  if [ -n "$STRAY" ]; then
+    echo "node reference (pid $STRAY) survived SIGTERM; sending SIGKILL" >&2
+    kill -9 "$STRAY" 2>/dev/null || true
+  fi
+  for _ in $(seq 1 20); do
+    lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN >/dev/null 2>&1 || break
+    sleep 0.5
+  done
+fi
 if lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   echo "WARNING: something still listens on :$NODE_PORT after teardown:" >&2
   lsof -nP -iTCP:"$NODE_PORT" -sTCP:LISTEN >&2
