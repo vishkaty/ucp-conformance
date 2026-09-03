@@ -76,4 +76,37 @@ for ver in 2026-01-23 2026-01-11; do
     echo "! ucp-$ver/source missing; ucp-schemas/$ver not materialized" >&2
   fi
 done
+# Hold the vendored samples server to reference_sdk.pypi_pin AT THE SOURCE.
+#
+# The server declares a bare "ucp-sdk" with no bound, and conformance/.vendor is
+# gitignored, so CI materialises it fresh with no uv.lock and every `uv sync` (and
+# every `uv run`, which syncs first) resolves whatever PyPI serves that day. That is
+# how main went red on 2026-08-27 and stayed red for a fortnight while a stale local
+# uv.lock kept the same commands green here.
+#
+# Writing the bound into the vendored pyproject is the only fix that every uv entry
+# point honours; an explicit install or UV_NO_SYNC only holds for the one process that
+# sets it, which is why the suite's own sdk-constraints leg still saw the drift.
+# Re-measured 2026-09-03: the vendored server resolves 31 of 31 ucp_sdk imports under
+# 0.4.6 and breaks 5 under 0.5.0, so the pin is what keeps it bootable.
+# The vendored tree is disposable and gitignored, so editing it changes no upstream
+# file; serve_golden.sh's sdk_pin_guard still verifies the result independently.
+SERVER_PYPROJECT="$VENDOR/samples/rest/python/server/pyproject.toml"
+if [ -f "$SERVER_PYPROJECT" ]; then
+  PIN="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["reference_sdk"].get("pypi_pin",""))' "$LOCK" 2>/dev/null)"
+  if [ -n "$PIN" ]; then
+    python3 - "$SERVER_PYPROJECT" "$PIN" <<'PYPIN'
+import pathlib, re, sys
+path, pin = pathlib.Path(sys.argv[1]), sys.argv[2]
+text = path.read_text()
+new = re.sub(r'"ucp-sdk(?:[=<>!~][^"]*)?"', f'"ucp-sdk=={pin}"', text)
+path.write_text(new)
+print(f"  pinned vendored samples server to ucp-sdk=={pin}" if new != text
+      else f"  vendored samples server already at ucp-sdk=={pin}")
+PYPIN
+  else
+    echo "! no reference_sdk.pypi_pin in SOURCES.lock; vendored server left unpinned" >&2
+  fi
+fi
+
 echo "all sources pinned per SOURCES.lock.json"
