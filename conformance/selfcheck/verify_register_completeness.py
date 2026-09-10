@@ -316,6 +316,7 @@ def main(argv, today=None):
 
     for ver, ucp_dir in VERSION_TREE.items():
         total = covered = waived = scoped = missed = 0
+        waived_by_class = {}      # hits per waiver class (a waived line can carry 2 hits)
         for path in spec_files(ucp_dir):
             rel = str(path.relative_to(VENDOR / ucp_dir))
             rows = rvf.get((ver, rel), [])
@@ -334,6 +335,8 @@ def main(argv, today=None):
                 key = (ver, rel, lineno)
                 if key in waiver_idx:
                     waived += 1
+                    wc = waiver_idx[key].get("class", "?")
+                    waived_by_class[wc] = waived_by_class.get(wc, 0) + 1
                     used_waivers.add(key)
                     continue
                 missed += 1
@@ -344,6 +347,7 @@ def main(argv, today=None):
                 if report_status[ver] != "active":
                     gating_unaccounted.append(row)
         per_version[ver] = dict(total=total, covered=covered, waived=waived,
+                                waived_by_class=dict(sorted(waived_by_class.items())),
                                 scoped=scoped, missed=missed,
                                 report_mode=report_status[ver])
 

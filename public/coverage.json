@@ -21,6 +21,70 @@
    "exempt": 38,
    "gap": 19,
    "accounted_pct": 89,
+   "roles": null,
+   "by_transport": {
+    "rest": {
+     "musts": 175,
+     "check": 121,
+     "exempt": 37,
+     "gap": 17
+    },
+    "mcp": {
+     "musts": 2,
+     "check": 0,
+     "exempt": 1,
+     "gap": 1
+    },
+    "a2a": {
+     "musts": 1,
+     "check": 0,
+     "exempt": 0,
+     "gap": 1
+    },
+    "embedded": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    },
+    "any": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    }
+   },
+   "surface": {
+    "prose": {
+     "pin": "806a5b74",
+     "mandatory_hits": 201,
+     "covered_by_rows": 96,
+     "scope_excluded": 90,
+     "waived": {
+      "duplicate": 6,
+      "non-normative": 9
+     },
+     "missed": 0,
+     "census_mode": "gate"
+    },
+    "schema": {
+     "files": 45,
+     "atoms": null,
+     "atoms_referenced": null,
+     "atoms_ruled": null,
+     "atoms_unaccounted": null,
+     "files_unreferenced": 24,
+     "enforce": false
+    },
+    "should": null
+   },
+   "discovery_live": null,
+   "evidence_classes": [
+    "live-wire",
+    "fixture-schema",
+    "fixture-crypto",
+    "self-referenced"
+   ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 16,
@@ -2430,6 +2494,70 @@
    "exempt": 39,
    "gap": 20,
    "accounted_pct": 89,
+   "roles": null,
+   "by_transport": {
+    "rest": {
+     "musts": 184,
+     "check": 129,
+     "exempt": 38,
+     "gap": 17
+    },
+    "mcp": {
+     "musts": 3,
+     "check": 0,
+     "exempt": 1,
+     "gap": 2
+    },
+    "a2a": {
+     "musts": 1,
+     "check": 0,
+     "exempt": 0,
+     "gap": 1
+    },
+    "embedded": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    },
+    "any": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    }
+   },
+   "surface": {
+    "prose": {
+     "pin": "dcf7eac7",
+     "mandatory_hits": 204,
+     "covered_by_rows": 97,
+     "scope_excluded": 92,
+     "waived": {
+      "duplicate": 7,
+      "non-normative": 8
+     },
+     "missed": 0,
+     "census_mode": "gate"
+    },
+    "schema": {
+     "files": 47,
+     "atoms": null,
+     "atoms_referenced": null,
+     "atoms_ruled": null,
+     "atoms_unaccounted": null,
+     "files_unreferenced": 26,
+     "enforce": false
+    },
+    "should": null
+   },
+   "discovery_live": null,
+   "evidence_classes": [
+    "live-wire",
+    "fixture-schema",
+    "fixture-crypto",
+    "self-referenced"
+   ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 22,
@@ -4985,6 +5113,71 @@
    "exempt": 81,
    "gap": 9,
    "accounted_pct": 98,
+   "roles": null,
+   "by_transport": {
+    "rest": {
+     "musts": 359,
+     "check": 270,
+     "exempt": 80,
+     "gap": 9
+    },
+    "mcp": {
+     "musts": 6,
+     "check": 5,
+     "exempt": 1,
+     "gap": 0
+    },
+    "a2a": {
+     "musts": 1,
+     "check": 1,
+     "exempt": 0,
+     "gap": 0
+    },
+    "embedded": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    },
+    "any": {
+     "musts": 0,
+     "check": 0,
+     "exempt": 0,
+     "gap": 0
+    }
+   },
+   "surface": {
+    "prose": {
+     "pin": "a2d8bf0b",
+     "mandatory_hits": 478,
+     "covered_by_rows": 235,
+     "scope_excluded": 173,
+     "waived": {
+      "duplicate": 41,
+      "non-normative": 28,
+      "schema-enforced": 1
+     },
+     "missed": 0,
+     "census_mode": "gate"
+    },
+    "schema": {
+     "files": 81,
+     "atoms": null,
+     "atoms_referenced": null,
+     "atoms_ruled": null,
+     "atoms_unaccounted": null,
+     "files_unreferenced": 36,
+     "enforce": false
+    },
+    "should": null
+   },
+   "discovery_live": null,
+   "evidence_classes": [
+    "live-wire",
+    "fixture-schema",
+    "fixture-crypto",
+    "self-referenced"
+   ],
    "evidence_breakdown": {
     "live-wire": 48,
     "fixture-schema": 73,
@@ -10135,6 +10328,71 @@
    "exempt": 0,
    "gap": 710,
    "accounted_pct": 9,
+   "roles": null,
+   "by_transport": {
+    "rest": {
+     "musts": 522,
+     "check": 53,
+     "exempt": 0,
+     "gap": 469
+    },
+    "mcp": {
+     "musts": 19,
+     "check": 0,
+     "exempt": 0,
+     "gap": 19
+    },
+    "a2a": {
+     "musts": 1,
+     "check": 0,
+     "exempt": 0,
+     "gap": 1
+    },
+    "embedded": {
+     "musts": 12,
+     "check": 0,
+     "exempt": 0,
+     "gap": 12
+    },
+    "any": {
+     "musts": 226,
+     "check": 17,
+     "exempt": 0,
+     "gap": 209
+    }
+   },
+   "surface": {
+    "prose": {
+     "pin": "cd78fb38",
+     "mandatory_hits": 922,
+     "covered_by_rows": 717,
+     "scope_excluded": 142,
+     "waived": {
+      "duplicate": 27,
+      "non-normative": 35,
+      "schema-enforced": 1
+     },
+     "missed": 0,
+     "census_mode": "gate"
+    },
+    "schema": {
+     "files": 123,
+     "atoms": null,
+     "atoms_referenced": null,
+     "atoms_ruled": null,
+     "atoms_unaccounted": null,
+     "files_unreferenced": 67,
+     "enforce": false
+    },
+    "should": null
+   },
+   "discovery_live": null,
+   "evidence_classes": [
+    "live-wire",
+    "fixture-schema",
+    "fixture-crypto",
+    "self-referenced"
+   ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 29,
