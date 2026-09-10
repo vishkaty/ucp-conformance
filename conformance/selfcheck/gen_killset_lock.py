@@ -71,7 +71,8 @@ def _mutations_entry(chk):
 def _row_entry(row, defects):
     names = row.mutant if isinstance(row.mutant, (list, tuple)) else [row.mutant]
     table = {}
-    for kind in ("mutants", "self_referenced_mutants", "fixture_only"):
+    # D3-01 added `behavior_mutants` (guard-flip rows: no route/patch, a `behavior` key)
+    for kind in ("mutants", "self_referenced_mutants", "fixture_only", "behavior_mutants"):
         for m in (defects or {}).get(kind, []):
             table[m["name"]] = m
     resolved = []
@@ -81,8 +82,11 @@ def _row_entry(row, defects):
         m = table.get(n)
         if m is None:
             raise KeyError(f"golden row {row.id} names mutant {n!r} absent from defects_config.json")
-        resolved.append({"name": n, "route": m.get("route"), "patch": m.get("patch"),
-                         "fixture": m.get("fixture")})
+        entry = {"name": n, "route": m.get("route"), "patch": m.get("patch"),
+                 "fixture": m.get("fixture")}
+        if "behavior" in m:          # only behavior rows carry it: patch-row hashes unchanged
+            entry["behavior"] = m["behavior"]
+        resolved.append(entry)
     return {"n_kills": len(resolved), "hash": _sha(resolved)}
 
 
