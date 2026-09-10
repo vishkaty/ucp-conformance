@@ -41,6 +41,7 @@ sys.path.insert(0, CONF)
 # independent of the merchant matrix's own graduation. See spec_versions.py's
 # docstring for the fuller incident writeup.
 from common.spec_versions import VERSIONS, AGENT_REGISTER_ONLY_VERSIONS  # noqa: E402
+from common.keywords import MANDATORY  # noqa: E402 — D2-01: one mandatory-keyword tuple
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
@@ -48,50 +49,23 @@ AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
 
-# Obligations that bind the platform/agent AS A VERIFIER of business RESPONSES or AS THE
-# SIGNER of its own REQUESTS. The subject heuristic misses these (they read "Verification
-# must…" / "REST request signed components MUST include…" with no platform keyword), but a
-# UCP client that receives signed responses IS the verifier and that signs its API requests
-# IS the request-signer — so they belong on the agent axis too. (They are ALSO merchant
-# obligations — the business verifies inbound request signatures and signs its webhook
-# requests — so these ids are shared across the two axes, graded independently on each.)
-AGENT_EXTRA = {"SIG-001", "SIG-002", "SIG-036",        # response verification (agent verifies)
-               "SIG-014", "SIG-015", "SIG-016", "SIG-018",  # request signing (agent signs)
-               # UNDER-count audit (2026-07-04, agent_denominator_undercount_audit.json): agent
-               # request-AUTHOR / request-SIGNER obligations the subject heuristic misses because
-               # they're passively phrased (no platform/client keyword).
-               "CHK-035", "CHK-038", "CHK-039",       # checkout request-body shape
-               "CART-030", "CAT-009",                 # cart/catalog request shape (need new ops)
-               "DSC-027", "DSC-028", "DSC-034",       # discount/buyer omit-on-request
-               "PAY-019", "PAY-024",                  # agent-authored payment instrument/credential
-               "OVR-008",                             # Content-Type on requests (DUAL)
-               "SIG-010", "SIG-012", "SIG-013", "SIG-017"}  # request-signing (Content-Digest/Sig/@query)
+# NOT_AGENT_BOUND and AGENT_EXTRA used to be literal id sets HERE (with their reasons
+# as comments). They are now DATA in agent_lane_overrides.json (D2-04): each id carries
+# its reason, the versions it applies at, and an expiry clock (`review_by` + `spec_pin`)
+# so the override is re-adjudicated on a horizon and invalidated by a re-pin like every
+# other register entry (validate_expiry_clocks.py). The module attribute names are kept
+# for every consumer (agent_governance, validate_spec_versions, spec_versions doctrine).
+# D2-08 (role field) deletes both sets and this file once role-driven agent_rows lands.
+OVERRIDES = os.path.join(HERE, "agent_lane_overrides.json")
 
-# Denominator-accuracy exclusions: rows the heuristic/client-bound class wrongly pulled in
-# whose MUST binds ONLY the business/server (a business error response, a business-authored
-# order-schema shape, an MCP endpoint the server exposes, an A2A response the business agent
-# returns). They are NOT achievable on the agent axis and must not inflate the denominator.
-# Every id is spec-cited in agent_denominator_audit.json (independent adjudication + verify).
-#
-# 2026-08-25 agent-lane graduation review (agent_denominator_audit.json's
-# "2026-08-25_review" section) added 9 more, all flat/global exactly like the original
-# 11 above (a heuristic match on "platform"/"business"/"consumer" substring text that,
-# on individual read, binds ONLY the Business): CAT-005, LOC-016, LOC-042 (a schema
-# description or adjoining sentence bundles a Business clause and an ALREADY
-# separately-registered Platform clause — CAT-008/LOC-049/LOC-054 own that Platform
-# clause under its own id; this id's own quote is Business-only), CHK-058, CART-035,
-# OVR-070 (the row's only MUST binds Business; an adjacent Platform sentence is SHOULD
-# NOT / MAY, not MUST), OVR-058, OVR-071 (both explicitly headed "Business
-# Requirements" / restate NEG-001's business-only branch), IDL-081 (a business
-# consent-policy consistency guarantee, verified by exercising both identity paths and
-# comparing the BUSINESS's own enforcement — no platform-bound clause exists in the
-# row). None of these 9 were ever candidates at an earlier version (verified: none
-# appear in agent_rows("2026-04-08") today, so this addition cannot regress the
-# already-graduated 04-08 denominator/lock).
-NOT_AGENT_BOUND = {"A2A-001", "MCP-001", "NEG-001", "NEG-002", "NEG-003", "NEG-004",
-                   "OVR-011", "OVR-012", "PAY-038", "ORD-018", "ORD-019",
-                   "CAT-005", "LOC-016", "LOC-042", "CHK-058", "CART-035",
-                   "OVR-070", "OVR-058", "OVR-071", "IDL-081"}
+
+def _load_overrides(path=OVERRIDES):
+    d = json.load(open(path))
+    return (frozenset(e["id"] for e in d.get("agent_extra", [])),
+            frozenset(e["id"] for e in d.get("not_agent_bound", [])))
+
+
+AGENT_EXTRA, NOT_AGENT_BOUND = _load_overrides()
 
 
 def _client_bound_ids():
@@ -126,7 +100,7 @@ def agent_rows(ver):
         for r in json.load(open(f)).get("rows", []):
             if ver not in (r.get("versions") or [ver]):
                 continue
-            if r.get("keyword") not in ("MUST", "MUST NOT"):
+            if r.get("keyword") not in MANDATORY:
                 continue
             if r["id"] in NOT_AGENT_BOUND:         # business-only (denominator-accuracy audit)
                 continue

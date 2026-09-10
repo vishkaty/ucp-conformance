@@ -40,6 +40,10 @@ import evidence  # noqa: E402 — the evidence-class layer (sibling module)
 # see that module's docstring for what each field means and why it isn't a formula.
 from common.spec_versions import (  # noqa: E402
     VERSIONS, CURRENT_SITE_VERSION, REGISTER_ONLY_VERSIONS)
+# The accounting denominator is the MANDATORY keyword class (MUST, MUST NOT, SHALL,
+# SHALL NOT, REQUIRED) — one tuple shared with coverage_gate / agent_matrix / the two
+# census scripts (D2-01), never a local pair that can drift from the census regex.
+from common.keywords import MANDATORY  # noqa: E402
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
@@ -292,28 +296,39 @@ def _pinned_spec_versions():
     return set(_spec_pins().keys())
 
 
-def _version_state(n_check, n_exempt, has_register):
+# GAP tiers that keep a version out of `live` (rule R-a, PLAN-v3 §2.18 / decision 25):
+# a MUST the suite COULD grade — directly, or with the webhook receiver / OAuth harness
+# the program is building — but has not yet. `manual` / `untestable` GAPs are the
+# exemption program's business (A10) and never block `live`.
+CONVERTING_TIERS = ("testable", "needs-receiver", "needs-oauth")
+
+
+def _version_state(n_check, n_exempt, has_register, testable_gap):
     """The per-version publication `state` (PLAN-0825 §E's no-overclaim state
-    machine), computed ENTIRELY from data — never hand-set:
+    machine, refined to rule R-a by decision 25), computed ENTIRELY from data —
+    never hand-set. `testable_gap` is the version's gap_by_testability dict.
 
       unregistered — no register tree exists for this version at all (pinned in
                      SOURCES.lock but nothing under conformance/requirements/<ver>/
                      yet). Renderable only as a roadmap line.
       building     — register rows exist but zero CHECK and zero EXEMPT. This is
                      exactly the filter site_gates.py's _real_manifest() already uses
-                     to decide what "backs site copy" (check or exempt > 0) — the two
-                     must never disagree, which is why both derive from the same two
-                     numbers and neither hand-labels.
-      live         — at least one CHECK or EXEMPT row.
+                     to decide what "backs site copy" (check or exempt > 0).
+      converting   — CHECK+EXEMPT > 0 AND at least one GAP in a CONVERTING_TIERS
+                     tier: checks are still landing; the version must not render as
+                     supported (D5-03 mirrors this rule from the export's own fields —
+                     check, exempt, gap_by_testability — never from this module).
+      live         — CHECK+EXEMPT > 0 and no GAP in any CONVERTING_TIERS tier.
 
-    Pure and independently testable (no I/O): the `unregistered` branch is exercised
-    by a direct unit call even on days (like today) when every pinned version has a
-    register, so the code path is proven rather than merely aspirational."""
+    Consequence at today's data (decision 25, accepted by the owner): 2026-04-08 is
+    live; 2026-08-25 and BOTH 01-era versions (17 / 18 needs-receiver GAPs) read
+    converting. Pure and independently testable (no I/O)."""
     if not has_register:
         return "unregistered"
-    if n_check or n_exempt:
-        return "live"
-    return "building"
+    if not (n_check or n_exempt):
+        return "building"
+    blocking = sum((testable_gap or {}).get(t, 0) for t in CONVERTING_TIERS)
+    return "converting" if blocking else "live"
 
 
 def _completeness_report():
@@ -333,6 +348,62 @@ def _completeness_report():
         return json.loads(r.stdout)
     except Exception:
         return None
+
+
+def _schema_census_report():
+    """Runs verify_schema_census.py --json ONCE (report-only mode) for the file-level
+    schema surface; None if unreachable. Same subprocess discipline as
+    _completeness_report()."""
+    script = os.path.join(CONF, "selfcheck", "verify_schema_census.py")
+    try:
+        r = subprocess.run([sys.executable, script, "--json"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=120)
+        return json.loads(r.stdout)
+    except Exception:
+        return None
+
+
+TRANSPORTS = ("rest", "mcp", "a2a", "embedded", "any")
+
+
+def _row_transport(r):
+    """A row's transport bucket: `transport` is exactly one of rest|mcp|a2a|embedded
+    or ["any"] (row v2); a row without the field counts as `any` so the transport
+    sum always partitions the MUSTs."""
+    t = r.get("transport")
+    if isinstance(t, list):
+        t = t[0] if t else None
+    return t if t in TRANSPORTS else "any"
+
+
+def _surface_for(ver, completeness, schema_census, pins):
+    """The published SURFACE (export v2, PLAN-v3 §2.4 / D2-07): what the accounting
+    denominator is measured against, by layer.
+      prose  — the completeness census: every mandatory-keyword hit in the pinned
+               spec prose is covered by a register row, scope-excluded, waived (by
+               class, in HITS) or missed; `census_mode` gate|report.
+      schema — file-level counts from the schema census; atom-level fields are null
+               until the atom census (D2-14) lands.
+      should — null until the SHOULD census (D2-10)."""
+    prose = None
+    pv = ((completeness or {}).get("per_version") or {}).get(ver)
+    if pv is not None:
+        prose = {"pin": (pins.get(ver) or "")[:8],
+                 "mandatory_hits": pv.get("total", 0),
+                 "covered_by_rows": pv.get("covered", 0),
+                 "scope_excluded": pv.get("scoped", 0),
+                 "waived": pv.get("waived_by_class", {}),
+                 "missed": pv.get("missed", 0),
+                 "census_mode": "report" if pv.get("report_mode") == "active" else "gate"}
+    schema = None
+    sv = ((schema_census or {}).get("per_version") or {}).get(ver)
+    if sv is not None:
+        schema = {"files": sv.get("file_count"),
+                  "atoms": None, "atoms_referenced": None, "atoms_ruled": None,
+                  "atoms_unaccounted": None,
+                  "files_unreferenced": len(sv.get("unreferenced") or []),
+                  "enforce": bool((schema_census or {}).get("enforce"))}
+    return {"prose": prose, "schema": schema, "should": None}
 
 
 def _census_for(ver, completeness):
@@ -360,10 +431,10 @@ def export_json():
     pins = _spec_pins()
     pinned_versions = _pinned_spec_versions()
     unregistered_versions = sorted(pinned_versions - set(VERSIONS))
-    # census (§E `building` status) is only ever needed when a `building` version
-    # exists; computed lazily below so a quiet subprocess call isn't paid for
-    # nothing once every version has gone `live`.
+    # census (§E): the completeness report is fetched once (subprocess) and its
+    # per-version mode/unaccounted count is emitted for every state (D2-06).
     completeness = None
+    schema_census = None
     out = {"_about": "spck.dev UCP conformance coverage — every normative MUST accounted "
                      "as CHECK (kill-rate-validated), EXEMPT (documented), or GAP. "
                      "Generated by conformance/coverage/matrix.py --json; the `coverage` "
@@ -389,7 +460,7 @@ def export_json():
            "versions": {}}
     for ver in VERSIONS:
         rows = [r for r in load_rows_with_area(ver)
-                if r.get("keyword") in ("MUST", "MUST NOT")]
+                if r.get("keyword") in MANDATORY]
         areas = {}
         jrows = []
         n_check = n_exempt = 0
@@ -421,6 +492,11 @@ def export_json():
         n = len(rows)
         check_ids = [r.get("id") for r in rows
                      if r.get("id") in covmap[ver]]
+        by_transport = {t: {"musts": 0, "check": 0, "exempt": 0, "gap": 0} for t in TRANSPORTS}
+        for r, jr in zip(sorted(rows, key=lambda x: x.get("id", "")), jrows):
+            bt = by_transport[_row_transport(r)]
+            bt["musts"] += 1
+            bt[jr["status"]] += 1
         # publication state (PLAN-0825 §E) — data-driven off the counts just computed,
         # never hand-set. has_register is the register TREE existing at all (a version
         # can only be VERSIONS-listed once its register lands, so this is True for
@@ -428,7 +504,7 @@ def export_json():
         # assumed, so a future refactor of VERSIONS's own sourcing can't silently
         # break it).
         has_register = os.path.isdir(os.path.join(REQ, ver))
-        state = _version_state(n_check, n_exempt, has_register)
+        state = _version_state(n_check, n_exempt, has_register, dict(gap_by_test))
         entry = {
             "state": state,
             "musts": n, "check": n_check, "exempt": n_exempt,
@@ -436,18 +512,32 @@ def export_json():
             "accounted_pct": round(100 * (n_check + n_exempt) / n) if n else 0,
             # the honest split of the CHECK bucket by evidence class — the CHECK
             # count itself is unchanged; this names what kind of evidence backs it
+            # export v2 (D2-07): the surface the denominator is measured against, the
+            # transport split, and the scaffolds later tasks fill (null until then).
+            # D5 renders exactly these names (RV1 C2).
+            "roles": None,                          # D2-08
+            "by_transport": by_transport,
+            "surface": None,                        # filled below (subprocess census)
+            "discovery_live": None,                 # D4-08 writes {stores, as_of}
+            "evidence_classes": list(evidence.CLASSES),
             "evidence_breakdown": evidence.breakdown(evmap, ver, check_ids),
             "gap_by_testability": dict(sorted(gap_by_test.items())),
             "areas": [{"area": k, **dict(sorted(v.items()))}
                       for k, v in sorted(areas.items())],
             "rows": jrows,
         }
-        if state == "building":
-            if completeness is None:
-                completeness = _completeness_report() or {}
-            census = _census_for(ver, completeness)
-            if census is not None:
-                entry["census"] = census
+        # census (§E) for EVERY state (D2-06): the completeness mode/unaccounted count
+        # is a fact about the register whatever the publication state — it used to be
+        # emitted only for `building`, which hid the census the moment a version had
+        # one CHECK row.
+        if completeness is None:
+            completeness = _completeness_report() or {}
+        if schema_census is None:
+            schema_census = _schema_census_report() or {}
+        census = _census_for(ver, completeness)
+        if census is not None:
+            entry["census"] = census
+        entry["surface"] = _surface_for(ver, completeness, schema_census, pins)
         out["versions"][ver] = entry
 
     # `unregistered` (§E): pinned in SOURCES.lock but no register tree at all yet.
@@ -461,6 +551,11 @@ def export_json():
         out["versions"][ver] = {
             "state": "unregistered",
             "musts": 0, "check": 0, "exempt": 0, "gap": 0, "accounted_pct": 0,
+            "roles": None,
+            "by_transport": {t: {"musts": 0, "check": 0, "exempt": 0, "gap": 0} for t in TRANSPORTS},
+            "surface": {"prose": None, "schema": None, "should": None},
+            "discovery_live": None,
+            "evidence_classes": list(evidence.CLASSES),
             "evidence_breakdown": {c: 0 for c in evidence.CLASSES},
             "gap_by_testability": {},
             "areas": [],
@@ -527,7 +622,7 @@ def exempt_reason_at(exempt, rid, ver):
 
 def account(ver, cov, exempt):
     rows = load_rows(ver)
-    musts = [r for r in rows if r.get("keyword") in ("MUST", "MUST NOT")]
+    musts = [r for r in rows if r.get("keyword") in MANDATORY]
     buckets = {"CHECK": [], "EXEMPT": [], "GAP": []}
     gap_by_test = defaultdict(list)
     cov_ver = cov.get(ver, set())
@@ -631,36 +726,89 @@ def selftest():
     _pinned_spec_versions() vs VERSIONS) — so without this, "the code path must
     exist and be tested" would be aspirational, not proven. Pure/hermetic: no I/O
     beyond the one real `export_json()` sanity call at the end, no repo mutation."""
+    # Rule R-a (PLAN-v3 §2.18, decision 25; D2-06). `testable_gap` is the version's
+    # gap_by_testability dict; a GAP in the testable / needs-receiver / needs-oauth
+    # tiers means checks are still landing -> `converting`, never `live`.
     cases = [
-        ((0, 0, False), "unregistered"),
-        ((3, 0, False), "unregistered"),   # register-tree absence wins regardless of counts
-        ((0, 5, False), "unregistered"),
-        ((0, 0, True), "building"),
-        ((1, 0, True), "live"),
-        ((0, 1, True), "live"),
-        ((4, 2, True), "live"),
+        ((0, 0, False, {}), "unregistered"),
+        ((3, 0, False, {}), "unregistered"),   # register-tree absence wins regardless of counts
+        ((0, 5, False, {"testable": 1}), "unregistered"),
+        ((0, 0, True, {}), "building"),
+        ((0, 0, True, {"manual": 4}), "building"),
+        ((1, 0, True, {}), "live"),
+        ((0, 1, True, {}), "live"),
+        ((4, 2, True, {"manual": 7}), "live"),          # manual/untestable GAP never blocks live
+        ((1, 0, True, {"testable": 3}), "converting"),
+        ((4, 2, True, {"needs-receiver": 17}), "converting"),
+        ((4, 2, True, {"needs-oauth": 1, "manual": 9}), "converting"),
+        ((1, 0, True, {"testable": 0}), "live"),        # a zero-count tier is no GAP
     ]
     bad = 0
-    for (n_check, n_exempt, has_register), want in cases:
-        got = _version_state(n_check, n_exempt, has_register)
+    for (n_check, n_exempt, has_register, testable_gap), want in cases:
+        try:
+            got = _version_state(n_check, n_exempt, has_register, testable_gap)
+        except TypeError as e:
+            got = f"TypeError: {e}"
         ok = got == want
         print(f"  {'✓' if ok else '✗'} state(check={n_check}, exempt={n_exempt}, "
-              f"has_register={has_register}) = {got!r}"
+              f"has_register={has_register}, gap={testable_gap}) = {got!r}"
               + ("" if ok else f"  <-- expected {want!r}"))
         bad += 0 if ok else 1
+
+    bad += test_mandatory_filter()
 
     # production sanity: today every pinned+registered version must classify
     # building/live (never unregistered) — proves the real export wires the same
     # function this selftest exercises, not a parallel copy that could drift.
     fresh = export_json()
     prod_states = {v: e["state"] for v, e in fresh["versions"].items()}
-    wired_ok = bool(prod_states) and all(s in ("building", "live") for s in prod_states.values())
+    wired_ok = bool(prod_states) and all(s in ("building", "live", "converting")
+                                         for s in prod_states.values())
+    # R-a on the real export: a version is `live` iff it has no GAP in the
+    # testable / needs-receiver / needs-oauth tiers, and `converting` iff it has one.
+    for v, e in fresh["versions"].items():
+        blocking = sum(e.get("gap_by_testability", {}).get(t, 0) for t in CONVERTING_TIERS)
+        if e["state"] == "live" and blocking:
+            wired_ok = False
+            print(f"  ✗ {v}: state=live with {blocking} blocking GAP(s) {e['gap_by_testability']}")
+        if e["state"] == "converting" and not blocking:
+            wired_ok = False
+            print(f"  ✗ {v}: state=converting with no blocking GAP")
     print(f"  {'✓' if wired_ok else '✗'} production export states: {prod_states}"
-          + ("" if wired_ok else "  <-- unexpected unregistered version today"))
+          + ("" if wired_ok else "  <-- R-a violated (see above)"))
     bad += 0 if wired_ok else 1
 
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
+
+
+def test_mandatory_filter():
+    """D2-01 (PLAN-v3 §2.4 / A1): the accounting denominator is the MANDATORY
+    keyword class — MUST, MUST NOT, SHALL, SHALL NOT, REQUIRED (RFC 2119 §1-§3) —
+    not just MUST/MUST NOT. A synthetic register with one row per keyword plus a
+    SHOULD row must count exactly 4 mandatory rows through the SAME `account()`
+    the report path uses. Hermetic: `load_rows` is swapped for the duration."""
+    global load_rows
+    synthetic = [
+        {"id": "ZZZ-001", "keyword": "MUST", "testability": "testable"},
+        {"id": "ZZZ-002", "keyword": "MUST NOT", "testability": "testable"},
+        {"id": "ZZZ-003", "keyword": "REQUIRED", "testability": "testable"},
+        {"id": "ZZZ-004", "keyword": "SHALL", "testability": "testable"},
+        {"id": "ZZZ-005", "keyword": "SHOULD", "testability": "testable"},
+    ]
+    real = load_rows
+    load_rows = lambda ver: list(synthetic)      # noqa: E731 — scoped swap
+    try:
+        musts, buckets, _gap = account("2026-08-25", {"2026-08-25": set()}, {})
+    finally:
+        load_rows = real
+    got = sorted(r["id"] for r in musts)
+    want = ["ZZZ-001", "ZZZ-002", "ZZZ-003", "ZZZ-004"]
+    ok = got == want and len(buckets["GAP"]) == 4
+    print(f"  {'✓' if ok else '✗'} test_mandatory_filter: account() counts {len(musts)} "
+          f"mandatory of 5 synthetic rows (MUST/MUST NOT/REQUIRED/SHALL/SHOULD)"
+          + ("" if ok else f"  <-- expected 4 {want}, got {got}"))
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

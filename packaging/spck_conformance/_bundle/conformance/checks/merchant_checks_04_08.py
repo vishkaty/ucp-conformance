@@ -205,13 +205,13 @@ def p_automatic_flag(r, ctx):
                         and "code" not in x for x in ap) else DEVIATION
 
 CHECKS_04_08 = [
-    MCheck("discount.codes_replacement", ["DSC-003"], "MUST", f_replacement, p_replacement,
+    MCheck("discount.codes_replacement_0408", ["DSC-003"], "MUST", f_replacement, p_replacement,
            ["status:500",
             "set:discounts={\"codes\":[$DVALID,$DSECOND],\"applied\":[{\"code\":$DVALID,\"amount\":100},{\"code\":$DSECOND,\"amount\":100}]}",
             "drop:discounts", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.second_valid_code",), transport="rest", versions=V0408),
-    MCheck("discount.case_insensitive_codes", ["DSC-005"], "MUST", f_lowercase,
+    MCheck("discount.case_insensitive_codes_0408", ["DSC-005"], "MUST", f_lowercase,
            p_lowercase_applied,
            ["status:500", "set:discounts={\"codes\":[],\"applied\":[]}",
             "drop:discounts", "corrupt-json", "empty"],
@@ -229,7 +229,7 @@ CHECKS_04_08 = [
             "set:discounts={\"codes\":[],\"applied\":[]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.item",), transport="rest", versions=V0408),
-    MCheck("discount.items_discount_invariant", ["DSC-019"], "MUST", f_mixed_discounts,
+    MCheck("discount.items_discount_invariant_0408", ["DSC-019"], "MUST", f_mixed_discounts,
            p_items_discount_invariant,
            ["status:500", "set:line_items=[]",
             "set:totals=[{\"type\":\"subtotal\",\"amount\":1000},{\"type\":\"items_discount\",\"amount\":-1},{\"type\":\"total\",\"amount\":999}]",
@@ -259,7 +259,7 @@ CHECKS_04_08 = [
             "drop:discounts", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.item",), transport="rest", versions=V0408),
-    MCheck("discount.automatic_no_code", ["DSC-012"], "MUST", f_automatic,
+    MCheck("discount.automatic_no_code_0408", ["DSC-012"], "MUST", f_automatic,
            p_automatic_flag,
            ["status:500",
             "set:discounts={\"codes\":[],\"applied\":[{\"code\":\"BULK\",\"title\":\"Bulk\",\"amount\":500}]}",

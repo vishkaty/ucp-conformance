@@ -356,10 +356,10 @@
     },
     {
       "id": "CART-017",
-      "requirement": "For Update Cart (full replacement), the platform MUST send the entire cart resource",
+      "requirement": "Update Cart performs a full replacement of the cart session: the platform MUST send the entire cart resource, and the provided resource replaces the existing cart state on the business side",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/shopping/cart/index.md#L214",
-      "quote": "the entire cart resource. The provided resource replaces the existing cart",
+      "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
+      "quote": "Performs a full replacement of the cart session. The platform **MUST** send\nthe entire cart resource. The provided resource replaces the existing cart\nstate on the business side.",
       "versions": [
         "2026-08-25"
       ],
@@ -370,7 +370,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause — 'the provided resource replaces the existing cart state on the business side' — IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog).",
+      "notes": "Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause — 'the provided resource replaces the existing cart state on the business side' — IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog). [2026-09-10 D2-02/A2] CART-036 (the same L213-L215 sentence registered a second time as a 'new row' in completeness-2026-08-31-w4) merged here; source widened from L214 to L213-L215 so the MUST keyword line is owned by this row.",
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
@@ -763,25 +763,6 @@
         "2026-08-25"
       ],
       "notes": "New row, 2026-08-25 census closure wave (Actions, cart has-no-status-lifecycle guard).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
-    },
-    {
-      "id": "CART-036",
-      "keyword": "MUST",
-      "requirement": "Update Cart performs a full replacement of the cart session. The platform MUST send the entire cart resource; the provided resource replaces the existing cart state on the business side.",
-      "quote": "Performs a full replacement of the cart session. The platform **MUST** send\nthe entire cart resource. The provided resource replaces the existing cart\nstate on the business side.",
-      "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
-      "testability": "testable",
-      "transport": [
-        "rest"
-      ],
-      "schema_enforced": false,
-      "official_oracle": false,
-      "browser_capable": true,
-      "versions": [
-        "2026-08-25"
-      ],
-      "notes": "New row (Update Cart, full-replacement duty -- the cart analogue of checkout's CHK-023).",
       "_completeness_batch": "completeness-2026-08-31-w4"
     }
   ]

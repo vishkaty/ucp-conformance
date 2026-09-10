@@ -98,7 +98,7 @@
    "id": "LOC-006",
    "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms — downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
    "keyword": "MUST",
-   "source": "ucp:docs/specification/common/location/index.md#L71",
+   "source": "ucp:docs/specification/common/location/index.md#L69-L71",
    "quote": "A\nLocation ID selects only the physical entity; it does not determine the\ninteraction mode, guarantee availability, or bind operational terms.",
    "versions": [
     "2026-08-25"
@@ -512,7 +512,7 @@
    "id": "LOC-029",
    "requirement": "A Business that cannot honor a supplied `distance.max` MUST reject the request with an actionable error; it MUST NOT silently clamp the radius or substitute its own, and the permission to return fewer results under Pagination never permits reducing `distance.max`",
    "keyword": "MUST NOT",
-   "source": "ucp:docs/specification/common/location/search.md#L147",
+   "source": "ucp:docs/specification/common/location/search.md#L142-L145",
    "quote": "radius cap below the requested value) **MUST** reject the request with an\n    actionable error; it **MUST NOT** silently clamp the radius or substitute\n    its own.",
    "versions": [
     "2026-08-25"
@@ -780,7 +780,7 @@
   },
   {
    "id": "LOC-044",
-   "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request, and when multiple identifiers resolve to the same Location it MUST return that Location only once",
+   "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request",
    "keyword": "MUST",
    "source": "ucp:docs/specification/common/location/lookup.md#L39",
    "quote": "A Business **MUST**\ndedupe duplicate identifiers in the request.",
@@ -794,7 +794,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by submitting duplicate/alias identifiers that resolve to the same Location and confirming a single returned entry with a merged `inputs` array (see LOC-045)."
+   "notes": "Checkable by submitting duplicate/alias identifiers that resolve to the same Location and confirming a single returned entry with a merged `inputs` array (see LOC-045). [2026-09-10 D2-02/A2] the return-once clause (L41-L42) is LOC-055."
   },
   {
    "id": "LOC-045",
@@ -986,8 +986,8 @@
    "id": "LOC-055",
    "keyword": "MUST",
    "requirement": "When a Location lookup by identifier resolves multiple supplied identifiers to the same Location, the Business MUST return it only once (after deduping duplicate identifiers in the request).",
-   "quote": "A Business **MUST** dedupe duplicate identifiers in the request. When an\nidentifier matches multiple Locations, the Business returns the matching\nLocations and **MAY** limit the result set. When multiple identifiers resolve\nto the same Location, the Business **MUST** return it only once.",
-   "source": "ucp:docs/specification/common/location/lookup.md#L39-L42",
+   "quote": "When multiple identifiers resolve\nto the same Location, the Business **MUST** return it only once.",
+   "source": "ucp:docs/specification/common/location/lookup.md#L41-L42",
    "testability": "testable",
    "transport": [
     "rest"
@@ -998,7 +998,7 @@
    "versions": [
     "2026-08-25"
    ],
-   "notes": "New row (Lookup deduplication).",
+   "notes": "New row (Lookup deduplication). [2026-09-10 D2-02/A2] source narrowed to L41-L42; the dedupe duty on L39 is LOC-044.",
    "_completeness_batch": "completeness-2026-08-31-w4"
   },
   {

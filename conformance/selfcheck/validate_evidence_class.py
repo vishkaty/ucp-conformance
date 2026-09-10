@@ -330,6 +330,59 @@ def totals_invariants(export):
     return fails
 
 
+TRANSPORTS = ("rest", "mcp", "a2a", "embedded", "any")
+
+
+def surface_invariants(export):
+    """Family 5 (D2-07, export v2 — PLAN-v3 §2.4): the published SURFACE of each
+    version is whole. For every version:
+      surface.prose:  covered_by_rows + scope_excluded + sum(waived[class]) + missed
+                      == mandatory_hits (the completeness census, by hits, never by
+                      waiver entries — a waived line can carry two keyword hits);
+      by_transport:   sum(by_transport[t].musts) == musts, and check/exempt/gap
+                      partition each transport's musts;
+      discovery_live: key present (null until D4-08 writes {stores, as_of});
+      evidence_classes: exactly evidence.CLASSES, in order (grows with D1-13/D4-08);
+      roles, surface.schema, surface.should: keys present (null scaffolds until
+      D2-08 / D2-14 / D2-10 fill them)."""
+    fails = []
+    for ver, d in export["versions"].items():
+        missing = [k for k in ("surface", "by_transport", "discovery_live", "evidence_classes", "roles") if k not in d]
+        if missing:
+            fails.append(f"{ver}: export key(s) {missing} missing")
+            continue
+        if list(d["evidence_classes"] or []) != list(evidence.CLASSES):
+            fails.append(f"{ver}: evidence_classes {d['evidence_classes']} != {list(evidence.CLASSES)}")
+        surf = d["surface"] or {}
+        for key in ("prose", "schema", "should"):
+            if key not in surf:
+                fails.append(f"{ver}: surface.{key} missing")
+        prose = surf.get("prose")
+        if isinstance(prose, dict):
+            for key in ("pin", "mandatory_hits", "covered_by_rows", "scope_excluded", "waived", "missed", "census_mode"):
+                if key not in prose:
+                    fails.append(f"{ver}: surface.prose.{key} missing")
+            if all(k in prose for k in ("mandatory_hits", "covered_by_rows", "scope_excluded", "waived", "missed")):
+                waived = sum((prose["waived"] or {}).values()) if isinstance(prose["waived"], dict) else -1
+                total = prose["covered_by_rows"] + prose["scope_excluded"] + waived + prose["missed"]
+                if total != prose["mandatory_hits"]:
+                    fails.append(f"{ver}: surface.prose covered {prose['covered_by_rows']} + excluded "
+                                 f"{prose['scope_excluded']} + waived {waived} + missed {prose['missed']} "
+                                 f"= {total} != mandatory_hits {prose['mandatory_hits']}")
+        elif d["state"] != "unregistered":
+            fails.append(f"{ver}: surface.prose is not an object")
+        bt = d["by_transport"] or {}
+        if set(bt) != set(TRANSPORTS):
+            fails.append(f"{ver}: by_transport keys {sorted(bt)} != {sorted(TRANSPORTS)}")
+        else:
+            if sum(bt[t]["musts"] for t in TRANSPORTS) != d["musts"]:
+                fails.append(f"{ver}: sum(by_transport.musts) = {sum(bt[t]['musts'] for t in TRANSPORTS)} != musts {d['musts']}")
+            for t in TRANSPORTS:
+                if bt[t]["check"] + bt[t]["exempt"] + bt[t]["gap"] != bt[t]["musts"]:
+                    fails.append(f"{ver}: by_transport.{t} check+exempt+gap != musts")
+    return fails
+
+
 def published_sync(export):
     """Family 4: the split published in site_claims.json equals a fresh export, and
     the committed reach report is structurally sound."""
@@ -393,6 +446,7 @@ def main():
         fails += f
     export = matrix.export_json()
     for name, fn in [("published-totals invariants", totals_invariants),
+                     ("surface invariants (export v2)", surface_invariants),
                      ("published-split sync", published_sync)]:
         f = fn(export)
         print(f"  {'✓' if not f else '✗'} {name}" + (f" ({len(f)} failure(s))" if f else ""))

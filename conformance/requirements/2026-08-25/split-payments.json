@@ -44,7 +44,7 @@
    "id": "SPL-003",
    "requirement": "Handlers using foreign-currency-denominated instruments or non-currency instruments (e.g. loyalty points) MUST convert each instrument's contribution to the checkout currency",
    "keyword": "MUST",
-   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L53",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L51-L54",
    "quote": "Handlers using foreign-currency-denominated instruments\n(e.g., a CAD gift card in a USD checkout) or non-currency instruments\nlike loyalty points MUST convert each instrument's contribution to the\ncheckout currency.",
    "versions": [
     "2026-08-25"

@@ -34,6 +34,66 @@ def _retired_ids():
     return {(e.get("id"), v) for e in d.get("retirements", []) for v in (e.get("versions") or [])}
 
 
+SEED_PREFIX = "expiry-clock-seed"
+SEED_SAMPLE_FRACTION = 0.10
+
+
+def is_seed_batch(signoff):
+    return str(signoff.get("batch", "")).startswith(SEED_PREFIX)
+
+
+def seed_batch_errors(signoff, today=None):
+    """The A10 sample contract for an expiry-clock seed batch (D2-04, RV2 V3): a seed
+    batch is valid only with a RECORDED sample — `sample.seed` (the RNG seed the
+    selection is reproducible from), `sample.of` (entries stamped), `sample.size` ==
+    len(sample.ids) >= 10% of `of`, and `sample.human_review` {status, by, on, due}.
+    `status: recorded` = a human re-read the sampled entries; `status: pending` is
+    tolerated only until `due` (the owner's action window) — past it, the batch is as
+    invalid as having no sample. Returns a list of problems (empty = valid)."""
+    import math
+    from datetime import date
+    today = today or date.today()
+    errs = []
+    smp = signoff.get("sample")
+    if not isinstance(smp, dict):
+        return ["seed batch has no recorded sample (>=10% human sample is the contract)"]
+    of, size, ids = smp.get("of"), smp.get("size"), smp.get("ids") or []
+    if not isinstance(of, int) or of <= 0:
+        errs.append("sample.of missing")
+    if smp.get("seed") is None:
+        errs.append("sample.seed missing (selection must be reproducible)")
+    if not isinstance(size, int) or size != len(ids):
+        errs.append(f"sample.size {size!r} != len(sample.ids) {len(ids)}")
+    elif isinstance(of, int) and of > 0 and size < math.ceil(SEED_SAMPLE_FRACTION * of):
+        errs.append(f"sample.size {size} < 10% of {of} (need >= {math.ceil(SEED_SAMPLE_FRACTION * of)})")
+    hr = smp.get("human_review") or {}
+    st = hr.get("status")
+    if st == "recorded":
+        if not hr.get("by") or not hr.get("on"):
+            errs.append("human_review recorded without by/on")
+    elif st == "pending":
+        due = hr.get("due", "")
+        try:
+            past = date.fromisoformat(due) < today
+        except Exception:                               # noqa: BLE001 — a bad date is a problem
+            past = True
+        if past:
+            errs.append(f"human_review still pending past due {due!r}")
+    else:
+        errs.append(f"human_review.status {st!r} must be recorded|pending")
+    return errs
+
+
+def seed_batch_status(signoff):
+    """One line for the PASS output: 'expiry-clock-seed-2026-09: sampled 12% · human recorded'."""
+    smp = signoff.get("sample") or {}
+    of, size = smp.get("of") or 0, smp.get("size") or 0
+    pct = round(100 * size / of) if of else 0
+    hr = (smp.get("human_review") or {})
+    human = "human recorded" if hr.get("status") == "recorded" else f"human PENDING (due {hr.get('due')})"
+    return f"{signoff.get('batch')}: sampled {pct}% ({size}/{of}) · {human}"
+
+
 def _signed_ids():
     """{version: set(ids)} from VALID sign-offs; plus a list of validation errors."""
     out, errs = {}, []
@@ -42,6 +102,14 @@ def _signed_ids():
     for s in json.load(open(SIGN)).get("signoffs", []):
         batch = s.get("batch", "?")
         problems = []
+        if is_seed_batch(s):
+            # an expiry-clock seed batch confers no coverage; its contract is the sample
+            problems += seed_batch_errors(s)
+            if not s.get("reviewer") or not s.get("date"):
+                problems.append("no reviewer/date")
+            if problems:
+                errs.append(f"sign-off '{batch}': " + "; ".join(problems))
+            continue
         if not s.get("reviewer"):
             problems.append("no reviewer")
         if not s.get("date"):
@@ -91,6 +159,9 @@ def main():
         return 1
     lock = json.load(open(LOCK))["versions"]
     tot = sum(len(v["check"]) for v in lock.values())
+    for s in json.load(open(SIGN)).get("signoffs", []):
+        if is_seed_batch(s):
+            print(f"  {seed_batch_status(s)}")
     print(f"review-signoff gate: PASS — all {tot} locked CHECK ids across {len(lock)} "
           f"versions carry an adversarial-review sign-off.")
     return 0

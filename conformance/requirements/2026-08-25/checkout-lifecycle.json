@@ -19,7 +19,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged. Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence here. Schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation.",
+      "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged. Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence here. Schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation. [2026-09-10 D2-02/A2] also stated in source/schemas/shopping/checkout.json#L126 description (formerly registered twice more as PAY-018 and CHK-043, both merged here); not encoded as if/then (A7 atom none).",
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
@@ -169,7 +169,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -177,7 +177,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CHK-009",
@@ -785,7 +786,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -793,7 +794,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CHK-037",
@@ -807,7 +809,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -815,7 +817,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CHK-038",
@@ -928,28 +931,6 @@
       }
     },
     {
-      "id": "CHK-043",
-      "requirement": "continue_url MUST be provided when status is requires_escalation (schema field description)",
-      "keyword": "MUST",
-      "source": "ucp:source/schemas/shopping/checkout.json#L126",
-      "quote": "\"description\": \"URL for checkout handoff and session recovery. MUST be provided when status is requires_escalation. See specification for format and availability requirements.\",",
-      "versions": [
-        "2026-08-25"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "needs-receiver",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "[2026-08-25] schema file remains at the same path; only line numbers shifted. Description text byte-identical. Description text only; continue_url is not in required[] and no conditional schema (if/then) encodes this, so a validator won't catch it. Mirrors CHK-001.",
-      "lineage": {
-        "from": "2026-04-08",
-        "disposition": "carried"
-      }
-    },
-    {
       "id": "CHK-044",
       "requirement": "All REST request and response bodies MUST be valid JSON per RFC 8259",
       "keyword": "MUST",
@@ -1005,7 +986,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -1013,7 +994,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CHK-047",
@@ -1192,50 +1174,6 @@
       }
     },
     {
-      "id": "CHK-055",
-      "requirement": "Platforms MUST NOT autonomously complete a checkout with mismatched totals; SHOULD reject or escalate for buyer review via continue_url",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/shopping/checkout/index.md#L1337-L1339",
-      "quote": "However, platforms MUST NOT autonomously complete\na checkout with mismatched totals. Platforms SHOULD reject the checkout or\nescalate and ask for buyer review via `continue_url`.",
-      "versions": [
-        "2026-08-25"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "manual",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged. Constrains autonomous Complete (relevant to ready_for_complete autonomy). Platform-side; lower-case 'must not' in prose, normative.",
-      "lineage": {
-        "from": "2026-04-08",
-        "disposition": "carried"
-      }
-    },
-    {
-      "id": "CHK-056",
-      "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims; accepted claims MUST be resolved before completion",
-      "keyword": "MUST NOT",
-      "source": "ucp:docs/specification/shopping/checkout/index.md#L709-L710",
-      "quote": "Businesses **MUST NOT** complete a transaction with unresolved eligibility\nclaims.",
-      "versions": [
-        "2026-08-25"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "needs-receiver",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged; also restated at L681-682 'but all accepted claims **MUST** be resolved before the transaction can complete.' Completion-gating invariant. Prose-only.",
-      "lineage": {
-        "from": "2026-04-08",
-        "disposition": "carried"
-      }
-    },
-    {
       "id": "CHK-057",
       "requirement": "Get Checkout honors the business-provided TTL via expires_at; after cancel/complete the business decides what to return",
       "keyword": "MAY",
@@ -1351,7 +1289,7 @@
       "id": "CHK-063",
       "requirement": "On authoritative responses the Business MUST include item.unit_price on every cart, checkout, and order line whose pricing basis differs from its sale basis.",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/shopping/checkout/index.md#L293-L296",
+      "source": "ucp:docs/specification/shopping/checkout/index.md#L291-L296",
       "quote": "**Pricing basis.** `item.price` is always denominated against the sale basis,\nbut the Business MAY quote it from a different measurement basis — for\nexample, apples priced per pound and sold per `each`. On authoritative\nresponses the Business **MUST** include `item.unit_price` on every cart,\ncheckout, and order line whose pricing basis differs from its sale basis:",
       "versions": [
         "2026-08-25"

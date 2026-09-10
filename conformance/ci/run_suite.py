@@ -55,6 +55,11 @@ def gates(server):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
+        # D2-02: hermetic kill-tests behind the `register` gate's duplicate-pair and
+        # manual-but-CHECK checks (synthetic rows), and the merchant check set's
+        # unique-id invariant (reach_report / probe-hygiene key by check id).
+        ("register-selftest", _py(SELF / "verify_register.py", "--selftest"),   None, ()),
+        ("merchant-checks-selftest", _py(SELF / "validate_merchant_checks.py", "--selftest"), None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)
@@ -102,6 +107,10 @@ def gates(server):
         ("schema-census-killtest", _py(SELF / "validate_schema_census.py"),       None, ()),
         ("coverage-lock", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py"), None, ()),
         ("review-signoff", _py(ROOT / "conformance" / "coverage" / "verify_review_signoffs.py"), None, ()),
+        # P-2 expiry clocks (D2-04/D2-19): every register entry carries review_by +
+        # spec_pin; expired / pin-drifted / unclocked entries red the build. Hermetic.
+        ("expiry-clocks", _py(SELF / "validate_expiry_clocks.py"),                None, ()),
+        ("expiry-clocks-selftest", _py(SELF / "validate_expiry_clocks.py", "--selftest"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),

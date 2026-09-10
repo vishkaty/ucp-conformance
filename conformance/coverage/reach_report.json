@@ -1,5 +1,5 @@
 {
- "_about": "Differential REACH REPORT \u2014 for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json \u2014 servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) \u2014 the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run \u2014 never a wholesale overwrite (see gen_reach_report.py's module docstring) \u2014 regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh). MIGRATED 2026-08-31 (R4 fix): this file predates the version axis; both committed targets served ONLY 2026-04-08 at original generation (2026-08-11, see targets.*.spec_version), so every pre-existing key is mechanically rewritten with that version prefix \u2014 no grading claim changes, only the key shape. A version this file never actually probed (2026-01-11, 2026-01-23) correctly has ZERO entries here; those versions honest live-wire count is 0 until a target is pinned to actually serve them and gen_reach_report.py is re-run.",
+ "_about": "Differential REACH REPORT — for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json — servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) — the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run — never a wholesale overwrite (see gen_reach_report.py's module docstring) — regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh). MIGRATED 2026-08-31 (R4 fix): this file predates the version axis; both committed targets served ONLY 2026-04-08 at original generation (2026-08-11, see targets.*.spec_version), so every pre-existing key is mechanically rewritten with that version prefix — no grading claim changes, only the key shape. A version this file never actually probed (2026-01-11, 2026-01-23) correctly has ZERO entries here; those versions honest live-wire count is 0 until a target is pinned to actually serve them and gen_reach_report.py is re-run.",
  "generated": "2026-08-11",
  "spec_pins": {
   "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
@@ -1283,8 +1283,8 @@
    },
    "version": "2026-04-08"
   },
-  "2026-04-08:merchant_checks_04_08:discount.automatic_no_code": {
-   "check": "discount.automatic_no_code",
+  "2026-04-08:merchant_checks_04_08:discount.automatic_no_code_0408": {
+   "check": "discount.automatic_no_code_0408",
    "module": "merchant_checks_04_08",
    "targets": {
     "flower-shop-official-sample": "not-tested (needs config: discount.automatic)",
@@ -1292,8 +1292,8 @@
    },
    "version": "2026-04-08"
   },
-  "2026-04-08:merchant_checks_04_08:discount.case_insensitive_codes": {
-   "check": "discount.case_insensitive_codes",
+  "2026-04-08:merchant_checks_04_08:discount.case_insensitive_codes_0408": {
+   "check": "discount.case_insensitive_codes_0408",
    "module": "merchant_checks_04_08",
    "targets": {
     "flower-shop-official-sample": "clean-pass",
@@ -1301,8 +1301,8 @@
    },
    "version": "2026-04-08"
   },
-  "2026-04-08:merchant_checks_04_08:discount.codes_replacement": {
-   "check": "discount.codes_replacement",
+  "2026-04-08:merchant_checks_04_08:discount.codes_replacement_0408": {
+   "check": "discount.codes_replacement_0408",
    "module": "merchant_checks_04_08",
    "targets": {
     "flower-shop-official-sample": "clean-pass",
@@ -1310,8 +1310,8 @@
    },
    "version": "2026-04-08"
   },
-  "2026-04-08:merchant_checks_04_08:discount.items_discount_invariant": {
-   "check": "discount.items_discount_invariant",
+  "2026-04-08:merchant_checks_04_08:discount.items_discount_invariant_0408": {
+   "check": "discount.items_discount_invariant_0408",
    "module": "merchant_checks_04_08",
    "targets": {
     "flower-shop-official-sample": "not-tested (needs config: discount.item)",

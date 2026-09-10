@@ -9,6 +9,9 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | gate | what it proves | anchor (not written by us) |
 |---|---|---|
 | `register` | every register row quotes the pinned spec **verbatim** | official spec text |
+| `register-selftest` | the `register` gate's duplicate-pair (same quote + source + keyword) and manual-but-CHECK detectors hold on synthetic rows (D2-02) | — |
+| `merchant-checks-selftest` | every MCheck id is unique across the whole merchant check set (reach_report / probe-hygiene key by check id) | — |
+| `expiry-clocks` / `expiry-clocks-selftest` | every entry of every clocked register (expiry_registers.json) carries `review_by` (not past) and `spec_pin` (matches the lock); a re-pin invalidates every review made against the old pin (D2-04/D2-19) | SOURCES.lock.json |
 | `verdict` | the no-false-green verdict gate's own unit tests hold | — |
 | `schema` | our schema checks agree with the official validator | official `ucp-schema` binary |
 | `dual-oracle` | every schema check runs the Rust oracle **and** an independent Python jsonschema referee (full `$id` registry over all 78 schemas); verdict divergence alarms. Known oracle bugs (ucp-schema#43) are acknowledged + self-expiring | independent `jsonschema` engine |

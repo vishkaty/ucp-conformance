@@ -124,7 +124,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
@@ -132,7 +132,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "DISC-007",

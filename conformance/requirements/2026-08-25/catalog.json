@@ -147,7 +147,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -155,7 +155,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CAT-009",
@@ -719,7 +720,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -727,7 +728,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "CAT-035",

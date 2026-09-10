@@ -1,5 +1,5 @@
 {
- "_about": "Agent-side coverage lock (add-only): an agent CHECK/EXEMPT id, once here, stays accounted for the life of the pinned spec \u2014 mirrors the merchant coverage-lock. Grows as Phase B agent checks land.",
+ "_about": "Agent-side coverage lock (add-only): an agent CHECK/EXEMPT id, once here, stays accounted for the life of the pinned spec — mirrors the merchant coverage-lock. Grows as Phase B agent checks land.",
  "versions": {
   "2026-01-11": {
    "check": [],
@@ -82,7 +82,6 @@
     "CHK-037",
     "CHK-038",
     "CHK-046",
-    "CHK-055",
     "DISC-006",
     "DSC-027",
     "DSC-028",
@@ -131,5 +130,19 @@
     "IDL-056"
    ]
   }
- }
+ },
+ "_register_exits": [
+  {
+   "id": "CHK-055",
+   "version": "2026-08-25",
+   "on": "2026-09-10",
+   "task": "D2-02",
+   "class": "register-merged",
+   "into": [
+    "TOT-010",
+    "TOT-011"
+   ],
+   "reason": "CHK-055 registered the checkout/index.md#L1337-L1339 sentence pair a second time; TOT-010 owns the MUST NOT half and TOT-011 the SHOULD half. The agent check agent.no_autocomplete_mismatched_totals still grades TOT-010 (locked here), so no agent test vanished — the id stopped being a register row. Recorded as data (the lock is add-only by doctrine); D5-04 suspends the whole 08-25 agent lock under decision 10."
+  }
+ ]
 }

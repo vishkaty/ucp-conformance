@@ -260,12 +260,34 @@ CONTROLLED_CONFIG = {
 
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
 
+def selftest():
+    """Hermetic structural cases (no server). D2-02 `unique_check_ids`: every MCheck
+    id across the whole merchant check set must be unique — the reach report
+    (coverage/reach_report.json) keys corroboration by `version:module:check_id`,
+    and validate_probe_hygiene / known_reference_defects key by check id, so two
+    checks sharing an id silently share (and can mis-attribute) each other's
+    evidence and defect acknowledgements."""
+    from collections import Counter
+    ids = [c.id for c in merchant_checks.all_checks()]
+    dupes = sorted(i for i, n in Counter(ids).items() if n > 1)
+    ok = len(ids) == len(set(ids))
+    print(f"  {'✓' if ok else '✗'} unique_check_ids: {len(ids)} MCheck ids, "
+          f"{len(set(ids))} distinct"
+          + ("" if ok else f"  <-- duplicated: {dupes}"))
+    print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="Reference gate for merchant checks.")
     ap.add_argument("--server", default="http://localhost:8182")
     ap.add_argument("--golden", choices=sorted(GOLDENS), default="flower",
                     help="which golden's config to use (flower=Flower Shop, controlled=our fixture)")
+    ap.add_argument("--selftest", action="store_true",
+                    help="hermetic structural cases only (unique_check_ids); no server")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     profile, _ = discover(args.server)
     ctx = MerchantCtx(args.server, profile, GOLDENS[args.golden])
     results, detail = merchant_checks.run_merchant_checks(ctx)

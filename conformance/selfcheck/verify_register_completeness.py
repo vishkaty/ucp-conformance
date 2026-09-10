@@ -42,15 +42,24 @@ sys.path.insert(0, str(ROOT / "conformance"))
 # conformance/common/spec_versions.py for the full doctrine on both (report-mode's
 # fail-noisy self-expiry included).
 from common.spec_versions import VERSION_TREE, REPORT_MODE_UNTIL  # noqa: E402
+from common.keywords import KW_RE  # noqa: E402 — D2-01: the shared longest-first MANDATORY regex
 
-VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced"}
+# `out-of-scope-transport` (D2-05 / A13, interim until decision 2's extraction in
+# W2): a mandatory-keyword hit whose obligation binds a transport the suite cannot
+# drive today (the cart/embedded.md MessagePort host<->iframe duties). It REQUIRES a
+# `transport` so the surface export can say which transport the waived hits belong
+# to — never a bare "not our problem" class.
+VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced", "out-of-scope-transport"}
+VALID_TRANSPORTS = {"rest", "mcp", "a2a", "embedded"}
 # scope exclusions are file-level and carry an extra reason class: a whole spec file
 # whose obligations are structurally outside what a server-endpoint checker can observe
 # (e.g. browser-embedded MessagePort UI) or are non-normative (narrative/examples/guides).
 VALID_SCOPE_CLASSES = {"out-of-scope", "non-normative-doc"}
 
-# longest-first so "MUST NOT" wins over "MUST"; all-caps only (normative form)
-KW_RE = re.compile(r"\b(MUST NOT|MUST|SHALL NOT|SHALL|REQUIRED)\b")
+# KW_RE (imported above) is the shared MANDATORY-class regex — longest-first so
+# "MUST NOT" wins over "MUST"; all-caps only (normative form). It is derived from the
+# same tuple matrix/coverage_gate/agent_matrix filter register rows by, so the census
+# and the accounting denominator can never disagree about what "mandatory" means.
 
 
 def norm(s: str) -> str:
@@ -201,6 +210,9 @@ def validate_waiver(w):
         errs.append("class 'duplicate' requires 'duplicate_of' (the row id it restates)")
     if w.get("class") == "schema-enforced" and not w.get("row_id"):
         errs.append("class 'schema-enforced' requires 'row_id' (the schema row that enforces it)")
+    if w.get("class") == "out-of-scope-transport" and w.get("transport") not in VALID_TRANSPORTS:
+        errs.append(f"class 'out-of-scope-transport' requires 'transport' in "
+                    f"{sorted(VALID_TRANSPORTS)} (got {w.get('transport')!r})")
     return errs
 
 
@@ -313,6 +325,7 @@ def main(argv, today=None):
 
     for ver, ucp_dir in VERSION_TREE.items():
         total = covered = waived = scoped = missed = 0
+        waived_by_class = {}      # hits per waiver class (a waived line can carry 2 hits)
         for path in spec_files(ucp_dir):
             rel = str(path.relative_to(VENDOR / ucp_dir))
             rows = rvf.get((ver, rel), [])
@@ -331,6 +344,8 @@ def main(argv, today=None):
                 key = (ver, rel, lineno)
                 if key in waiver_idx:
                     waived += 1
+                    wc = waiver_idx[key].get("class", "?")
+                    waived_by_class[wc] = waived_by_class.get(wc, 0) + 1
                     used_waivers.add(key)
                     continue
                 missed += 1
@@ -341,6 +356,7 @@ def main(argv, today=None):
                 if report_status[ver] != "active":
                     gating_unaccounted.append(row)
         per_version[ver] = dict(total=total, covered=covered, waived=waived,
+                                waived_by_class=dict(sorted(waived_by_class.items())),
                                 scoped=scoped, missed=missed,
                                 report_mode=report_status[ver])
 
