@@ -27,6 +27,8 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
+import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -34,6 +36,44 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 GOLDEN_DIR = ROOT / "conformance" / "testbed" / "golden-0825"
 SERVER_DIR = GOLDEN_DIR / "server"
 PLANTED = "zz_planted_failing_test.py"
+
+
+# The smoke suite boots its own golden; its hand-run default (8399) is not a port
+# the CI registry knows. 8194 is golden-0825's own port for lane-local measurement
+# (Wave 0 kickoff; conformance/ci/ports.json once D5-19 lands), so the GATE pins it
+# unless the caller already chose one.
+GATE_SMOKE_PORT = "8194"
+
+
+def run_gate(*, server_dir: pathlib.Path, tests: list[str], quiet: bool = False,
+             path: str | None = None) -> int:
+    """`uv run --group dev pytest -q <tests>` in `server_dir`; 0 pass, 1 fail,
+    2 when `uv` is not on PATH. `path` overrides PATH (the selftest's uv-absent
+    case). pytest's own "no tests collected" (rc 5) and usage/collection errors
+    are FAIL here, never a pass: an empty gate is a red gate."""
+    env = dict(os.environ)
+    if path is not None:
+        env["PATH"] = path
+    env.setdefault("GOLDEN_0825_TEST_PORT", GATE_SMOKE_PORT)
+    uv = shutil.which("uv", path=env["PATH"])
+    if uv is None:
+        print("golden-0825-unit: SKIP -- `uv` is not on PATH (golden-0825's env is uv-managed; "
+              "install uv or run with --require-server to make this a failure)")
+        return 2
+    proc = subprocess.run([uv, "run", "--group", "dev", "pytest", "-q", *tests],
+                          cwd=str(server_dir), env=env, capture_output=True, text=True)
+    lines = [ln for ln in proc.stdout.splitlines() if ln.strip()]
+    summary = lines[-1].strip() if lines else f"(no pytest output; rc={proc.returncode})"
+    if not quiet:
+        for ln in lines:
+            if ln.startswith(("FAILED", "ERROR")):
+                print(ln)
+        if proc.returncode != 0 and proc.stderr.strip():
+            print(proc.stderr.strip().splitlines()[-1])
+    ok = proc.returncode == 0
+    if not quiet:
+        print(f"golden-0825-unit: {'PASS' if ok else 'FAIL'} ({summary})")
+    return 0 if ok else 1
 
 
 def _scratch_server_copy(tmp: pathlib.Path) -> pathlib.Path:

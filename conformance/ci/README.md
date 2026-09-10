@@ -19,6 +19,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `golden-0825-unit` | golden-0825's own unit + smoke tests (`server/*_test.py`, `smoke/`) are **executed** under `uv` on every run, so a red failing-first test can never sit unnoticed in the tree; `uv` absent = honest skip (rc 2), FAIL under `--require-server`. `golden-0825-unit-selftest` plants a failing test in a scratch copy (must be red) and hides `uv` (must be rc 2) | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

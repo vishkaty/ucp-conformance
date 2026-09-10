@@ -96,8 +96,10 @@ class _SigTestBase(IntegrationTest):
     rsa_jwk = {"kid": "rsa-key", "kty": "RSA", "n": "abc", "e": "AQAB"}
 
     version = config.get_server_version()
+    # keys[] is a TOP-LEVEL sibling of `ucp` (profile.json $defs.base; STATUS.md
+    # R14) -- the location ucp_signing._extract_keys resolves.
     good = json.dumps(
-      {"ucp": {"version": version, "keys": [agent_jwk, rsa_jwk]}}
+      {"ucp": {"version": version}, "keys": [agent_jwk, rsa_jwk]}
     ).encode()
     _ProfileHandler.routes = {
       "/profile.json": (200, good),

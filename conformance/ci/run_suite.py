@@ -51,8 +51,10 @@ PROXY = f"http://localhost:{PROXY_PORT}"
 def _py(path, *args):
     return [sys.executable, str(path), *args]
 
-def gates(server):
+def gates(server, require_server=False):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
+    # require_server also turns a missing TOOLCHAIN into a failure for the gates
+    # that name it (golden-0825-unit: `uv`), not just a missing server.
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
@@ -95,6 +97,17 @@ def gates(server):
         # itself enforce — see that file's own $comment and the module docstring
         # here). Deliberately unattributed, same discipline as struct-check-08-25.
         ("golden-check-08-25", _py(CHK / "golden_check_08_25.py"),                None, (2,)),
+        # D3-29: golden-0825's OWN unit + smoke tests (server/*_test.py, smoke/) are
+        # executed here, not merely present -- every D3 task's failing-first test is a
+        # server or smoke test, so an unexecuted suite would let a red one sit in the
+        # tree (RV2 #10). Runs `uv run --group dev pytest -q ../smoke .` in the server
+        # dir (the smoke fixture boots on 8194, golden-0825's own registered port);
+        # rc 2 = `uv` absent -> honest SKIP, FAIL under --require-server. The
+        # selftest row plants a failing test in a scratch copy (must be red) and
+        # hides `uv` (must be rc 2), so the gate itself stays kill-proven.
+        ("golden-0825-unit", _py(SELF / "validate_golden_unit_gate.py"),          None,
+         () if require_server else (2,)),
+        ("golden-0825-unit-selftest", _py(SELF / "validate_golden_unit_gate.py", "--selftest"), None, ()),
         ("schema-census", _py(SELF / "verify_schema_census.py"),                  None, ()),
         # hermetic kill-tests for the census above: proves unreferenced-file
         # detection, stale-ruling (hash-diff self-expiry) detection, and a class
@@ -439,7 +452,7 @@ def main():
 
     results = []
     try:
-      for name, argv, needs, skip_codes in gates(args.server):
+      for name, argv, needs, skip_codes in gates(args.server, args.require_server):
         if name in skip:
             results.append((name, "SKIP", "explicitly skipped")); continue
         if needs and not avail.get(needs):
