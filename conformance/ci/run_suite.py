@@ -189,6 +189,13 @@ def gates(server):
         # site_claims.json must match a fresh export. Hermetic (reach report is
         # committed data).
         ("evidence-class", _py(SELF / "validate_evidence_class.py"),              None, ()),
+        # D4-02 (B3): the CI reach-report drift step (gen_reach_report.py --check, in the
+        # workflow while :8182/:3000 are up) must provably catch a moved graded status:
+        # hermetic planted flip -> 1 drift, unchanged rerun -> 0, reason text is not
+        # evidence, write/read round-trip stable. Labels themselves land only under
+        # decision 6 (owner commit), never here.
+        ("reach-selftest", _py(ROOT / "conformance" / "coverage" / "gen_reach_report.py", "--selftest"),
+         None, ()),
         ("speclint",    _py(SPECLINT / "validate_speclint.py"),                   None, ()),
         ("ap2-crypto",  _py(SELF / "validate_ap2_crypto.py"),                     None, ()),
         ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),

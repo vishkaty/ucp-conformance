@@ -60,11 +60,24 @@ class of claim this fix exists to prevent (a forged/undetectable version tag), s
 that target's prior slice is left exactly as committed and the run reports the
 refusal by name (P-2: a can't-tell must say so loudly, never silently keep stale
 data AND never silently fabricate a version for it).
+
+CI DRIFT STEP (D4-02 / B3, 2026-09-10): `--check` regenerates in memory against the live
+targets and compares the GRADED statuses per (version:check, target) with the committed
+report — `reach report: N drift`, rc 1 when N > 0 — and NEVER writes or commits: a moved
+live-wire label is a public number, published only by an owner commit under decision 6/34
+(never auto-applied, never a bot commit — decision 24). Dates are stable: a target whose
+slice did not change keeps its committed `generated` date, so an unchanged rerun is a
+no-op and drift means exactly "a check's graded status moved on an independent target".
+`--selftest` is the hermetic kill-proof (planted flip in a temp copy -> 1 drift; unchanged
+rerun -> 0 drift; write/read round-trip stable) — run_suite gate `reach-selftest`.
 """
+import argparse
+import copy
 import datetime
 import json
 import os
 import sys
+import tempfile
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -195,49 +208,34 @@ def _load_existing():
         return {}, {}
 
 
-def main():
-    import engine
-    targets = independent_targets()
-    reachable = [t for t in targets if server_up(t["server"])]
-    print(f"independent targets registered: {[t['name'] for t in targets]}")
-    print(f"reachable now: {[t['name'] for t in reachable]}")
-    if not reachable:
-        print("no independent target reachable — refusing to write an empty report "
-              "(the committed report is evidence; absence of a run is not evidence)")
-        return 2
+GRADED = ("clean-pass", "deviation")
 
-    checks, meta = _load_existing()
-    today = datetime.date.today().isoformat()
-    probed_any = False
-    for t in reachable:
-        served = engine.served_version(t["server"])
-        if not served:
-            print(f"\n{t['name']} @ {t['server']}: served spec version UNDETECTABLE — "
-                  "REFUSING to record for this target this run (would otherwise record "
-                  "graded evidence under an unknown/guessed version — P-2). Its "
-                  "previously-committed slice, if any, is left exactly as-is.")
-            continue
-        probed_any = True
-        print(f"\nprobing {t['name']} @ {t['server']} (spec {served}) ...")
-        _strip_stale_slice(checks, t["name"], served)
-        nm = run_merchant_lane(checks, t, served)
-        ne = run_engine_lane(checks, t, served)
-        meta[t["name"]] = {"server": t["server"], "spec_version": served,
-                           "generated": today,
-                           "merchant_checks_run": nm, "engine_wire_checks": ne}
-        graded = sum(1 for e in checks.values()
-                     if e.get("version") == served and e["targets"].get(t["name"])
-                     in ("clean-pass", "deviation"))
-        recorded_this_target = sum(1 for e in checks.values()
-                                    if t["name"] in e.get("targets", {}))
-        print(f"  {t['name']}: {graded} wire checks GRADED "
-              f"(clean-pass/deviation) of {recorded_this_target} recorded @ {served}")
 
-    if not probed_any:
-        print("\nevery reachable target had an undetectable served version — refusing "
-              "to write (no slice was actually probed this run)")
-        return 2
+def _slice(checks, target_name, version):
+    """The (key -> status) view of one target's entries under one version."""
+    return {k: e["targets"][target_name] for k, e in checks.items()
+            if e.get("version") == version and target_name in (e.get("targets") or {})}
 
+
+def drift(old_checks, new_checks):
+    """[(key, target, old_status, new_status)] wherever a GRADED status differs between the
+    committed report and a fresh regeneration — an entry graded on one side and absent or
+    ungraded on the other counts too. Non-graded statuses (version-skip, not-applicable,
+    error text) may change freely: they are reasons, not evidence."""
+    out = []
+    keys = set(old_checks) | set(new_checks)
+    for k in sorted(keys):
+        ot = (old_checks.get(k) or {}).get("targets") or {}
+        nt = (new_checks.get(k) or {}).get("targets") or {}
+        for t in sorted(set(ot) | set(nt)):
+            o, n = ot.get(t), nt.get(t)
+            og, ng = (o in GRADED), (n in GRADED)
+            if (og or ng) and o != n:
+                out.append((k, t, o, n))
+    return out
+
+
+def build_report(checks, meta, today=None):
     pins = {}
     try:
         lock = json.load(open(os.path.join(CONF, "SOURCES.lock.json")))
@@ -245,8 +243,8 @@ def main():
                 lock.get("spec", {}).get("versions", {}).items()}
     except Exception:
         pass
-
-    out = {
+    dates = [m.get("generated") for m in meta.values() if m.get("generated")]
+    return {
         "_about": "Differential REACH REPORT — for each (spec VERSION, WIRE-probing "
                   "check) pair, which independent targets (ci/differential_targets"
                   ".json — servers we did not author) actually GRADED it, at THAT "
@@ -263,14 +261,154 @@ def main():
                   "Committed data, MERGED per (target, served-version) slice on "
                   "each run — never a wholesale overwrite (see this script's module "
                   "docstring) — regenerate with gen_reach_report.py after booting "
-                  "the targets (serve_golden.sh / serve_node_reference.sh).",
-        "generated": today,
+                  "the targets (serve_golden.sh / serve_node_reference.sh); CI runs "
+                  "`--check` and FAILS on graded-status drift (D4-02), the owner "
+                  "commits regenerated labels under decision 6.",
+        "generated": (max(dates) if dates else (today or datetime.date.today().isoformat())),
         "spec_pins": pins,
         "targets": meta,
         "checks": dict(sorted(checks.items())),
     }
-    json.dump(out, open(OUT, "w"), indent=1)
-    open(OUT, "a").write("\n")
+
+
+def write_report(path, report):
+    json.dump(report, open(path, "w"), indent=1)
+    open(path, "a").write("\n")
+
+
+def regenerate(reachable, checks, meta, today=None):
+    """Probe every reachable target and MERGE its slice into (checks, meta) — pure of any
+    file I/O. Returns (checks, meta, probed_any). A target whose new slice equals its
+    committed one keeps its committed `generated` date (stable reruns)."""
+    import engine
+    today = today or datetime.date.today().isoformat()
+    probed_any = False
+    for t in reachable:
+        served = engine.served_version(t["server"])
+        if not served:
+            print(f"\n{t['name']} @ {t['server']}: served spec version UNDETECTABLE — "
+                  "REFUSING to record for this target this run (would otherwise record "
+                  "graded evidence under an unknown/guessed version — P-2). Its "
+                  "previously-committed slice, if any, is left exactly as-is.")
+            continue
+        probed_any = True
+        print(f"\nprobing {t['name']} @ {t['server']} (spec {served}) ...")
+        before = _slice(checks, t["name"], served)
+        prev_meta = dict(meta.get(t["name"]) or {})
+        _strip_stale_slice(checks, t["name"], served)
+        nm = run_merchant_lane(checks, t, served)
+        ne = run_engine_lane(checks, t, served)
+        after = _slice(checks, t["name"], served)
+        unchanged = (before == after and prev_meta.get("spec_version") == served)
+        meta[t["name"]] = {"server": t["server"], "spec_version": served,
+                           "generated": prev_meta.get("generated", today) if unchanged else today,
+                           "merchant_checks_run": nm, "engine_wire_checks": ne}
+        graded = sum(1 for e in checks.values()
+                     if e.get("version") == served and e["targets"].get(t["name"]) in GRADED)
+        recorded_this_target = sum(1 for e in checks.values()
+                                    if t["name"] in e.get("targets", {}))
+        print(f"  {t['name']}: {graded} wire checks GRADED "
+              f"(clean-pass/deviation) of {recorded_this_target} recorded @ {served}"
+              f"{' (slice unchanged)' if unchanged else ''}")
+    return checks, meta, probed_any
+
+
+def _probe_targets():
+    targets = independent_targets()
+    reachable = [t for t in targets if server_up(t["server"])]
+    print(f"independent targets registered: {[t['name'] for t in targets]}")
+    print(f"reachable now: {[t['name'] for t in reachable]}")
+    return reachable
+
+
+def check():
+    """CI drift step: regenerate in memory, compare graded statuses with the committed
+    report, write NOTHING. rc 0 = `reach report: 0 drift`; 1 = drift (owner decision 6);
+    2 = no target reachable / nothing probed (never a false 0)."""
+    reachable = _probe_targets()
+    if not reachable:
+        print("no independent target reachable — cannot check drift (rc 2, not 0)")
+        return 2
+    old_checks, old_meta = _load_existing()
+    checks, meta, probed = regenerate(reachable, copy.deepcopy(old_checks), copy.deepcopy(old_meta))
+    if not probed:
+        print("\nevery reachable target had an undetectable served version — cannot check drift")
+        return 2
+    d = drift(old_checks, checks)
+    for k, t, o, n in d:
+        print(f"  drift  {k} @ {t}: committed {o!r} -> regenerated {n!r}")
+    print(f"reach report: {len(d)} drift")
+    if d:
+        print("::error::reach report drifted — a graded status moved on an independent target; "
+              "regenerate locally and commit under decision 6 (never auto-applied)")
+        return 1
+    return 0
+
+
+def selftest():
+    """Hermetic kill-proof of the drift step: a planted status flip in a TEMP copy of the
+    committed report must produce exactly 1 drift; an unchanged rerun 0; and a
+    write/read round-trip of the unchanged report must also be 0 (so the step can only
+    go red on a real status move). No network, repo untouched."""
+    ok = True
+    old_checks, old_meta = _load_existing()
+    graded = [(k, t) for k, e in old_checks.items() for t, s in e["targets"].items() if s in GRADED]
+    if not graded:
+        print("no graded entry in the committed report — nothing to flip"); print("FAIL"); return 1
+    k, t = graded[0]
+    planted = copy.deepcopy(old_checks)
+    cur = planted[k]["targets"][t]
+    planted[k]["targets"][t] = "deviation" if cur == "clean-pass" else "clean-pass"
+    d1 = drift(old_checks, planted)
+    c1 = (d1 == [(k, t, cur, planted[k]["targets"][t])])
+    print(f"  {'✓' if c1 else '✗'} planted flip {k} @ {t} ({cur} -> {planted[k]['targets'][t]}): "
+          f"{len(d1)} drift {'CAUGHT' if c1 else 'MISSED (step is blind!)'}")
+    ok &= c1
+    d2 = drift(old_checks, copy.deepcopy(old_checks))
+    c2 = (d2 == [])
+    print(f"  {'✓' if c2 else '✗'} unchanged rerun: {len(d2)} drift")
+    ok &= c2
+    # a non-graded reason text changing is NOT drift (reasons are not evidence)
+    reasoned = copy.deepcopy(old_checks)
+    for kk, e in reasoned.items():
+        for tt, ss in e["targets"].items():
+            if ss not in GRADED:
+                e["targets"][tt] = ss + " (rephrased)"; break
+        else:
+            continue
+        break
+    d3 = drift(old_checks, reasoned)
+    c3 = (d3 == [])
+    print(f"  {'✓' if c3 else '✗'} non-graded reason text changed: {len(d3)} drift (reasons are not evidence)")
+    ok &= c3
+    # write/read round-trip of the UNCHANGED report through the writer is drift-free
+    with tempfile.TemporaryDirectory() as td:
+        tmp = os.path.join(td, "reach_report.json")
+        write_report(tmp, build_report(copy.deepcopy(old_checks), copy.deepcopy(old_meta)))
+        rt = json.load(open(tmp))
+        d4 = drift(old_checks, rt.get("checks", {}))
+        c4 = (d4 == [] and rt["generated"] == max(m["generated"] for m in old_meta.values()))
+        print(f"  {'✓' if c4 else '✗'} write/read round-trip of the unchanged report: {len(d4)} drift, "
+              f"generated date kept ({rt['generated']})")
+        ok &= c4
+    print("PASS" if ok else "FAIL")
+    return 0 if ok else 1
+
+
+def main():
+    reachable = _probe_targets()
+    if not reachable:
+        print("no independent target reachable — refusing to write an empty report "
+              "(the committed report is evidence; absence of a run is not evidence)")
+        return 2
+
+    checks, meta = _load_existing()
+    checks, meta, probed_any = regenerate(reachable, checks, meta)
+    if not probed_any:
+        print("\nevery reachable target had an undetectable served version — refusing "
+              "to write (no slice was actually probed this run)")
+        return 2
+    write_report(OUT, build_report(checks, meta))
     print(f"\nreach report written -> {os.path.relpath(OUT, ROOT)} "
           f"({len(checks)} (version,check) entries, {len(reachable)} independent "
           f"target(s) reachable)")
@@ -278,4 +416,9 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    ap = argparse.ArgumentParser(description="differential reach report generator")
+    ap.add_argument("--check", action="store_true",
+                    help="CI drift step: regenerate in memory, compare graded statuses, write nothing")
+    ap.add_argument("--selftest", action="store_true", help="hermetic kill-proof (no network)")
+    a = ap.parse_args()
+    sys.exit(selftest() if a.selftest else check() if a.check else main())

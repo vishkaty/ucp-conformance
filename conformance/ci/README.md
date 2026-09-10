@@ -23,6 +23,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
 | `attribution-hook` | no AI/bot author, co-author or generated-with line on any commit since 2026-09-10 (decision 16, forward-only), and this clone's active commit-msg hook is the tracked `ops/tools/hooks/commit-msg` (install: `bash ops/tools/install_hooks.sh`); `attribution-selftest` plants a trailer, a bot author and a missing hook to prove the gate can go red | git history + the tracked hook |
 | `filing-lint` | the branch-level attribution net `ops/tools/filing_lint.py` (unpushed range of every local branch of every repo in `ops/tools/repos.json`; `ops/filings/` drafts) provably catches planted trailers; SKIP when ops/ is not mounted | scratch repos with planted trailers |
+| `reach-selftest` | the CI reach-report drift step (`gen_reach_report.py --check`) provably catches a planted graded-status flip (1 drift), stays quiet on an unchanged rerun and on reason-text changes, and round-trips the committed report without drift; regenerated labels are published only by an owner commit (decision 6) | committed reach report (data we did not grade this run) |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

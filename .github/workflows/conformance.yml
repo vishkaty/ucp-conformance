@@ -119,6 +119,19 @@ jobs:
         env:
           UCP_NODEJS_URL: http://localhost:3000
 
+      - name: Reach report drift check (B3 — decision 6 gated, never commits)
+        # Regenerates the differential reach report IN MEMORY against the live targets
+        # (:8182 flower, :3000 node) and compares the GRADED statuses per (version:check,
+        # target) with the committed conformance/coverage/reach_report.json. Drift = a
+        # check's graded status moved on an independent target: the run FAILS and the only
+        # fix is an owner commit of the regenerated report (decisions 6/34: live-wire labels
+        # are public numbers, never auto-applied; decision 24: no bot commits). Kill-proof:
+        # run_suite gate `reach-selftest`. rc 2 (no target reachable) is a failure here too:
+        # a drift check that could not run must not read as "0 drift".
+        run: python3 conformance/coverage/gen_reach_report.py --check
+        env:
+          UCP_NODEJS_URL: http://localhost:3000
+
       - name: Tear down the Node.js reference
         if: always()
         run: bash conformance/ci/stop_node_reference.sh
