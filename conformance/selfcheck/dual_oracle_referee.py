@@ -16,7 +16,7 @@ id/handler_id/type validates clean. The bug was FOUND by cross-checking against 
 independent referee; this module makes that cross-check permanent.
 
 DESIGN.
-  * Registry over ALL 78 vendored 04-08 schema files, keyed by their absolute `$id`
+  * Registry over ALL vendored schema files of the version (78 at 04-08, 116 at 08-25), keyed by their absolute `$id`
     (https://ucp.dev/schemas/...). The `referencing` library resolves every relative
     `$ref` (incl. bare `#`) against the CONTAINING resource's own `$id` — which is
     exactly the 2020-12 rule the Rust bundler gets wrong. So `#` inside
@@ -54,6 +54,7 @@ VENDOR = ROOT / "conformance" / ".vendor"
 # the https://ucp.dev/ site root, so a $id https://ucp.dev/schemas/<x> lives at
 # <base>/schemas/<x>.
 SCHEMA_BASE = {
+    "2026-08-25": VENDOR / "ucp-2026-08-25" / "source",   # 116 schemas (D4-01, B5a)
     "2026-04-08": VENDOR / "ucp" / "source",
     "2026-01-23": VENDOR / "ucp-schemas" / "2026-01-23",
     "2026-01-11": VENDOR / "ucp-schemas" / "2026-01-11",

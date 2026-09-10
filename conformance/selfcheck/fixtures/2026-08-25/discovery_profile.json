@@ -1,0 +1,150 @@
+{
+ "keys": [
+  {
+   "alg": "ES256",
+   "crv": "P-256",
+   "kid": "y48dB7dc2n1JTPpuRwI4qL-ikZb3YjDumHVvY7NfzLc",
+   "kty": "EC",
+   "use": "sig",
+   "x": "GF7aAkP06RgltmioJ_aaS4doj2Xd1QkVg4cDZa779AQ",
+   "y": "B4UP7r_02-5nKUlSt0xiakCBWF2T0xACb8-2W-z1F0E"
+  }
+ ],
+ "ucp": {
+  "capabilities": {
+   "dev.ucp.shopping.buyer_consent": [
+    {
+     "extends": "dev.ucp.shopping.checkout",
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/buyer_consent.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/extensions/buyer-consent",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.ucp.shopping.cart": [
+    {
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/cart.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/cart",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.ucp.shopping.checkout": [
+    {
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/checkout.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/checkout",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.ucp.shopping.discount": [
+    {
+     "extends": [
+      "dev.ucp.shopping.checkout",
+      "dev.ucp.shopping.cart"
+     ],
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/discount.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/extensions/discount",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.ucp.shopping.fulfillment": [
+    {
+     "extends": "dev.ucp.shopping.checkout",
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/fulfillment.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/extensions/fulfillment",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.ucp.shopping.order": [
+    {
+     "schema": "https://ucp.dev/2026-08-25/schemas/shopping/order.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/shopping/order",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "payment_handlers": {
+   "com.google.pay": [
+    {
+     "config": {
+      "allowed_payment_methods": [
+       {
+        "parameters": {
+         "allowedAuthMethods": [
+          "PAN_ONLY",
+          "CRYPTOGRAM_3DS"
+         ],
+         "allowedCardNetworks": [
+          "VISA",
+          "MASTERCARD"
+         ]
+        },
+        "tokenization_specification": [
+         {
+          "parameters": [
+           {
+            "gateway": "example",
+            "gatewayMerchantId": "exampleGatewayMerchantId"
+           }
+          ],
+          "type": "PAYMENT_GATEWAY"
+         }
+        ],
+        "type": "CARD"
+       }
+      ],
+      "api_version": 2,
+      "api_version_minor": 0,
+      "merchant_info": {
+       "merchant_id": "TEST",
+       "merchant_name": "Flower Shop",
+       "merchant_origin": "localhost"
+      }
+     },
+     "config_schema": "https://pay.google.com/gp/p/ucp/2026-08-25/schemas/config.json",
+     "id": "google_pay",
+     "instrument_schemas": [
+      "https://pay.google.com/gp/p/ucp/2026-08-25/schemas/card_payment_instrument.json"
+     ],
+     "name": "com.google.pay",
+     "spec": "https://pay.google.com/gp/p/ucp/2026-08-25/",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.mock.payment_handler": [
+    {
+     "config": {},
+     "id": "mock_payment_handler",
+     "name": "mock_payment_handler",
+     "spec": "https://ucp.dev/2026-08-25/schemas/mock_payment_handler/spec",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.shopify.shop_pay": [
+    {
+     "config": {
+      "shop_id": "e2b456b1-6993-410a-a2d4-ef8c71a9b342"
+     },
+     "config_schema": "https://shopify.dev/ucp/shop-pay-handler/2026-08-25/config.json",
+     "id": "shop_pay",
+     "instrument_schemas": [
+      "https://shopify.dev/ucp/shop-pay-handler/2026-08-25/instrument.json"
+     ],
+     "name": "com.shopify.shop_pay",
+     "spec": "https://shopify.dev/docs/agents/checkout/shop-pay-handler",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "services": {
+   "dev.ucp.shopping": [
+    {
+     "endpoint": "http://testserver",
+     "schema": "https://ucp.dev/2026-08-25/services/shopping/rest.openapi.json",
+     "spec": "https://ucp.dev/2026-08-25/specification/overview",
+     "transport": "rest",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "version": "2026-08-25"
+ }
+}

@@ -13,12 +13,17 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `schema` | our schema checks agree with the official validator | official `ucp-schema` binary |
 | `dual-oracle` | every schema check runs the Rust oracle **and** an independent Python jsonschema referee (full `$id` registry over all 78 schemas); verdict divergence alarms. Known oracle bugs (ucp-schema#43) are acknowledged + self-expiring | independent `jsonschema` engine |
 | `dual-oracle-killtest` | the divergence detector provably catches a **planted** divergence + a **stale** acknowledgement; the referee's lifecycle filter matches the official resolver | — |
+| `dual-oracle-0825` | the dual-oracle gate at spec 2026-08-25: 116-schema referee base; corpus = responses captured in-process from the pinned golden-0825 + the #43 boundary rebuilt on the captured completed checkout + the `--def` self-root path where the pinned Rust oracle **aborts** (third verdict state `crash`, acknowledged by `ucp-schema-45-selfroot-def-crash`); every acknowledgement expires on `schema_validator_pin_not` | independent `jsonschema` engine + captured golden responses |
+| `dual-oracle-0825-killtest` | cases 1–4 as at 04-08 plus case 5 (the real pinned oracle: #43 verdict ×3 and the `--def` crash ×1 acknowledged, nothing new) and case 6 (a moved oracle pin flags every acknowledgement `STALE (pin moved)`) | — |
 | `suite-04-08` | 2026-04-08 fixture checks pass, no false green | official schemas |
 | `fixture` | our controlled merchant's profile + responses are schema-valid | official `ucp.json` / catalog schemas |
 | `merchant` | every merchant check is **clean-pass + kill-safe** on the Flower Shop golden | independent golden server |
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `attribution-hook` | no AI/bot author, co-author or generated-with line on any commit since 2026-09-10 (decision 16, forward-only), and this clone's active commit-msg hook is the tracked `ops/tools/hooks/commit-msg` (install: `bash ops/tools/install_hooks.sh`); `attribution-selftest` plants a trailer, a bot author and a missing hook to prove the gate can go red | git history + the tracked hook |
+| `filing-lint` | the branch-level attribution net `ops/tools/filing_lint.py` (unpushed range of every local branch of every repo in `ops/tools/repos.json`; `ops/filings/` drafts) provably catches planted trailers; SKIP when ops/ is not mounted | scratch repos with planted trailers |
+| `reach-selftest` | the CI reach-report drift step (`gen_reach_report.py --check`) provably catches a planted graded-status flip (1 drift), stays quiet on an unchanged rerun and on reason-text changes, and round-trips the committed report without drift; regenerated labels are published only by an owner commit (decision 6) | committed reach report (data we did not grade this run) |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

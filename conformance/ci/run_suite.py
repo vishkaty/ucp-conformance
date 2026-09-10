@@ -120,6 +120,14 @@ def gates(server):
         # acknowledgement (a detector that never caught one proves nothing) + the referee's
         # lifecycle filter must match the official resolver. Hermetic kill-tests.
         ("dual-oracle-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest"), None, (2,)),
+        # D4-01 (B5a): the same gate at 2026-08-25 — 116-schema referee base, corpus captured
+        # in-process from the pinned golden-0825 (selfcheck/fixtures/2026-08-25), the #43
+        # boundary rebuilt on it, plus the `--def` self-root path where the pinned oracle
+        # ABORTS (third verdict state "crash", acknowledged by ucp-schema-45-selfroot-def-crash);
+        # every acknowledgement now also expires on `schema_validator_pin_not`. Hermetic.
+        ("dual-oracle-0825", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25"), None, (2,)),
+        ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
+         None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
@@ -181,6 +189,13 @@ def gates(server):
         # site_claims.json must match a fresh export. Hermetic (reach report is
         # committed data).
         ("evidence-class", _py(SELF / "validate_evidence_class.py"),              None, ()),
+        # D4-02 (B3): the CI reach-report drift step (gen_reach_report.py --check, in the
+        # workflow while :8182/:3000 are up) must provably catch a moved graded status:
+        # hermetic planted flip -> 1 drift, unchanged rerun -> 0, reason text is not
+        # evidence, write/read round-trip stable. Labels themselves land only under
+        # decision 6 (owner commit), never here.
+        ("reach-selftest", _py(ROOT / "conformance" / "coverage" / "gen_reach_report.py", "--selftest"),
+         None, ()),
         ("speclint",    _py(SPECLINT / "validate_speclint.py"),                   None, ()),
         ("ap2-crypto",  _py(SELF / "validate_ap2_crypto.py"),                     None, ()),
         ("jws-interop", _py(SELF / "validate_jws_interop.py"),                    None, (2,)),
@@ -309,6 +324,21 @@ def gates(server):
         # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
         # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
         ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
+        # ATTRIBUTION (decision 16, PNR-0, 2026-09-10; D4-16): no AI/bot author, co-author
+        # or generated-with line on any commit, forward-only. The gate checks (1) every
+        # commit committed on/after 2026-09-10 on HEAD is clean and (2) this clone's active
+        # commit-msg hook IS the tracked ops/tools/hooks/commit-msg (rc 2 = ops/ not
+        # mounted, e.g. CI, after the history half passed). The selftest plants a trailer,
+        # a bot author and a missing/stale hook so the gate provably can go red.
+        ("attribution-hook", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py"), None, (2,)),
+        ("attribution-selftest", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py", "--selftest"),
+         None, ()),
+        # the branch-level attribution net (D4-15): ops/tools/filing_lint.py greps the unpushed
+        # range of every local branch of every repo in ops/tools/repos.json (own repos since
+        # 2026-09-10, upstream-bound forks at any date) and lints ops/filings/. Hermetic
+        # selftest (scratch repos with planted trailers); rc 2 = ops/ not mounted (CI).
+        ("filing-lint", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/filing_lint.py", "--selftest"),
+         None, (2,)),
     ]
 
 def server_up(server, timeout=3):

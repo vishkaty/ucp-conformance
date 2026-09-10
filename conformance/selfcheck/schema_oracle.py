@@ -34,13 +34,21 @@ FIXTURES = ROOT / "conformance" / "selfcheck" / "fixtures"
 class OracleUnavailable(RuntimeError):
     pass
 
+# return code of the most recent oracle invocation: 0 valid, 1 invalid, anything else
+# (rc 2 usage/resolution error, 134 / -6 abort on the `$ref: "#"` self-root blind spot,
+# ucp-schema#45) is a CRASH, not a verdict — validate_dual_oracle.rust_verdict reads it.
+LAST_RC = None
+
 def _run(args):
+    global LAST_RC
     if not BIN.exists():
         # parents[2] may not exist for an unusual BIN path; don't let the message crash.
         hint = str(BIN.parents[2]) if len(BIN.parents) > 2 else str(BIN.parent)
         raise OracleUnavailable(
             f"ucp-schema binary not built at {BIN}. Run: cd {hint} && cargo build --release")
-    return subprocess.run([str(BIN), *args], capture_output=True, text=True)
+    r = subprocess.run([str(BIN), *args], capture_output=True, text=True)
+    LAST_RC = r.returncode
+    return r
 
 def validate(payload_path, op, *, request=False, response=False,
              version="2026-04-08", schema_base=None, strict=False):
