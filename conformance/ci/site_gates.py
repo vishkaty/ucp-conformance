@@ -765,6 +765,38 @@ def _real_manifest():
         "versions": sorted(set(cov) | {f"{v} (agent-only, absent from coverage.json)" for v in agv}),
     }
 
+ADOPTION_FACTS = "state-of-ucp/adoption-facts.json"
+
+
+def _adoption_facts_failures(cov_export):
+    """B2 (W0-review 2026-09-10): public/state-of-ucp/adoption-facts.json republishes the
+    per-version MUST counts (`spec_musts_<YYYY_MM_DD>`) that coverage.json OWNS
+    (matrix.py -> `versions[v].musts`, byte-compared by the coverage gate). A snapshot
+    value that disagrees with the guarded export is a public number changed outside its
+    gate — exactly what happened at 364 vs 366 for 2026-04-08. Every `spec_musts_*` key
+    present must equal coverage.json's `musts` for that version; a missing or unreadable
+    file, or a file with no such key, is a FAIL (fail-closed: nothing to verify is not
+    "verified"). Data-driven off the committed export; stdlib-only."""
+    f = PUB / ADOPTION_FACTS
+    try:
+        facts = json.load(open(f))
+    except Exception as e:                                          # noqa: BLE001
+        return [f"{ADOPTION_FACTS}: unreadable ({e}) — spec_musts_* snapshot cannot be verified"]
+    fails, seen = [], 0
+    for ver, d in sorted(cov_export.items()):
+        key = "spec_musts_" + ver.replace("-", "_")
+        if key not in facts:
+            continue
+        seen += 1
+        if facts[key] != d.get("musts"):
+            fails.append(f"{ADOPTION_FACTS}: {key} = {facts[key]!r} but coverage.json "
+                         f"$.versions['{ver}'].musts = {d.get('musts')!r}")
+    if not seen:
+        fails.append(f"{ADOPTION_FACTS}: no spec_musts_<version> key matches any coverage.json "
+                     f"version — nothing to verify (fail-closed)")
+    return fails
+
+
 def freshness():
     state_fails = _state_failures(_coverage_versions())
     for sf in state_fails:
@@ -777,6 +809,13 @@ def freshness():
     if state_fails:
         print(f"site-freshness: FAIL — {len(state_fails)} version state "
               f"disagree(s) with its own coverage.json artifacts (see above)")
+        return 1
+    facts_fails = _adoption_facts_failures(_coverage_versions())
+    for ff in facts_fails:
+        print(f"  x adoption-facts: {ff}")
+    if facts_fails:
+        print(f"site-freshness: FAIL — {len(facts_fails)} adoption-facts spec_musts "
+              f"snapshot(s) disagree with coverage.json (see above)")
         return 1
     if not manifest:
         print(f"site-freshness: FAIL — claims register missing manifest "
@@ -864,14 +903,21 @@ def selftest():
 
     bad = 0
 
-    def run_variant(name, mutate, want_red, mutate_agc=None, mutate_claims=None):
+    def run_variant(name, mutate, want_red, mutate_agc=None, mutate_claims=None,
+                    mutate_facts=None):
         nonlocal bad
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
-            for fname in ("coverage.json", "agent-coverage.json", "site_claims.json"):
+            for fname in ("coverage.json", "agent-coverage.json", "site_claims.json",
+                          ADOPTION_FACTS):
                 src = PUB / fname
                 if src.exists():
+                    (tmpd / fname).parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy(src, tmpd / fname)
+            if mutate_facts is not None:
+                facts = json.load(open(tmpd / ADOPTION_FACTS))
+                mutate_facts(facts)
+                (tmpd / ADOPTION_FACTS).write_text(json.dumps(facts))
             cov = copy.deepcopy(real_cov)
             mutate(cov["versions"])
             (tmpd / "coverage.json").write_text(json.dumps(cov))
