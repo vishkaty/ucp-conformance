@@ -507,6 +507,11 @@ def export_json():
         state = _version_state(n_check, n_exempt, has_register, dict(gap_by_test))
         entry = {
             "state": state,
+            # D5-03 contract (one landing with D2-06): the legacy "no further work
+            # planned; N webhook-receiver rows ungraded" line is rendered ONLY for a
+            # converting version older than the current site version — emitted
+            # explicitly so the page never guesses it from the GAP mix.
+            "no_further_work": state == "converting" and ver < CURRENT_SITE_VERSION,
             "musts": n, "check": n_check, "exempt": n_exempt,
             "gap": n - n_check - n_exempt,
             "accounted_pct": round(100 * (n_check + n_exempt) / n) if n else 0,

@@ -16,6 +16,7 @@
  "versions": {
   "2026-01-11": {
    "state": "converting",
+   "no_further_work": true,
    "musts": 178,
    "check": 121,
    "exempt": 38,
@@ -2490,6 +2491,7 @@
   },
   "2026-01-23": {
    "state": "converting",
+   "no_further_work": true,
    "musts": 188,
    "check": 129,
    "exempt": 39,
@@ -5110,6 +5112,7 @@
   },
   "2026-04-08": {
    "state": "converting",
+   "no_further_work": false,
    "musts": 366,
    "check": 276,
    "exempt": 81,
@@ -10326,6 +10329,7 @@
   },
   "2026-08-25": {
    "state": "converting",
+   "no_further_work": false,
    "musts": 780,
    "check": 77,
    "exempt": 0,
