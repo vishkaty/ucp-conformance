@@ -649,6 +649,8 @@ def selftest():
               + ("" if ok else f"  <-- expected {want!r}"))
         bad += 0 if ok else 1
 
+    bad += test_mandatory_filter()
+
     # production sanity: today every pinned+registered version must classify
     # building/live (never unregistered) — proves the real export wires the same
     # function this selftest exercises, not a parallel copy that could drift.
@@ -661,6 +663,35 @@ def selftest():
 
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
+
+
+def test_mandatory_filter():
+    """D2-01 (PLAN-v3 §2.4 / A1): the accounting denominator is the MANDATORY
+    keyword class — MUST, MUST NOT, SHALL, SHALL NOT, REQUIRED (RFC 2119 §1-§3) —
+    not just MUST/MUST NOT. A synthetic register with one row per keyword plus a
+    SHOULD row must count exactly 4 mandatory rows through the SAME `account()`
+    the report path uses. Hermetic: `load_rows` is swapped for the duration."""
+    global load_rows
+    synthetic = [
+        {"id": "ZZZ-001", "keyword": "MUST", "testability": "testable"},
+        {"id": "ZZZ-002", "keyword": "MUST NOT", "testability": "testable"},
+        {"id": "ZZZ-003", "keyword": "REQUIRED", "testability": "testable"},
+        {"id": "ZZZ-004", "keyword": "SHALL", "testability": "testable"},
+        {"id": "ZZZ-005", "keyword": "SHOULD", "testability": "testable"},
+    ]
+    real = load_rows
+    load_rows = lambda ver: list(synthetic)      # noqa: E731 — scoped swap
+    try:
+        musts, buckets, _gap = account("2026-08-25", {"2026-08-25": set()}, {})
+    finally:
+        load_rows = real
+    got = sorted(r["id"] for r in musts)
+    want = ["ZZZ-001", "ZZZ-002", "ZZZ-003", "ZZZ-004"]
+    ok = got == want and len(buckets["GAP"]) == 4
+    print(f"  {'✓' if ok else '✗'} test_mandatory_filter: account() counts {len(musts)} "
+          f"mandatory of 5 synthetic rows (MUST/MUST NOT/REQUIRED/SHALL/SHOULD)"
+          + ("" if ok else f"  <-- expected 4 {want}, got {got}"))
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
