@@ -7,6 +7,8 @@
 #
 #   PORT=8283 SIM_SECRET=selfcheck-secret DB_DIR=/tmp/ucp_golden_0825 \
 #       conformance/testbed/golden-0825/serve_golden_0825.sh
+#   REQUIRE_SIGNATURES=1 PORT=8196 DB_DIR=$(mktemp -d) \
+#       conformance/testbed/golden-0825/serve_golden_0825.sh   # signatures REQUIRED
 #
 # Writes the server PID to $DB_DIR/server.pid so stop_golden_0825.sh can kill it.
 # Requires: uv. No conformance/ci/fetch_sources.sh needed for the server itself
@@ -25,6 +27,13 @@ DB_DIR="${DB_DIR:-/tmp/ucp_golden_0825}"
 # passed, so a normal boot is identical to a build with no defects code linked.
 DEFECTS_CONFIG="${DEFECTS_CONFIG:-}"
 DEFECTS_STATE_FILE="${DEFECTS_STATE_FILE:-}"
+# C3 signature enforcement (D3-05): REQUIRE_SIGNATURES=1 passes BOTH
+# --require_signatures (unsigned/invalid requests are 401 signature_missing /
+# signature_invalid, SIG-031) and --allow_insecure_profile_urls (the localhost
+# carve-out: a platform profile at http://localhost:... is the only kind a
+# lane-local proof can host). Unset/0 (the default) boots exactly as before:
+# signatures verified when present, never required.
+REQUIRE_SIGNATURES="${REQUIRE_SIGNATURES:-}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 SERVER="$ROOT/server"
 DATA_DIR="${DATA_DIR:-$ROOT/test_data/flower_shop}"
@@ -82,6 +91,13 @@ fi
 if [ -n "$DEFECTS_STATE_FILE" ]; then
   DEFECTS_STATE_FLAG="--defects_state_file=$DEFECTS_STATE_FILE"
 fi
+SIGNATURE_FLAGS=""
+SIGNATURE_MODE="signatures optional"
+if [ -n "$REQUIRE_SIGNATURES" ] && [ "$REQUIRE_SIGNATURES" != "0" ]; then
+  SIGNATURE_FLAGS="--require_signatures --allow_insecure_profile_urls"
+  SIGNATURE_MODE="signatures REQUIRED"
+  echo "signature enforcement ON: --require_signatures (localhost platform profiles allowed)" >&2
+fi
 
 echo "starting golden-0825 on :$PORT ..." >&2
 # See serve_golden.sh for why this is `( cd ... && exec ... ) & echo $!` with stdio
@@ -92,7 +108,7 @@ echo "starting golden-0825 on :$PORT ..." >&2
     --transactions_db_path="$DB_DIR/transactions.db" \
     --port="$PORT" \
     --simulation_secret="$SIM_SECRET" \
-    $DEFECTS_FLAG $DEFECTS_STATE_FLAG ) >"$DB_DIR/server.log" 2>&1 </dev/null &
+    $DEFECTS_FLAG $DEFECTS_STATE_FLAG $SIGNATURE_FLAGS ) >"$DB_DIR/server.log" 2>&1 </dev/null &
 echo $! >"$DB_DIR/server.pid"
 
 WRAPPER_PID="$(cat "$DB_DIR/server.pid")"
@@ -103,7 +119,7 @@ for i in $(seq 1 40); do
     # port instead of leaving a "stopped" golden still bound to it.
     LISTEN_PID="$(lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | head -1)"
     echo "${LISTEN_PID:-$WRAPPER_PID}" >"$DB_DIR/server.pid"
-    echo "golden-0825 UP on :$PORT (listener ${LISTEN_PID:-unknown}, wrapper $WRAPPER_PID)"; exit 0
+    echo "golden-0825 UP on :$PORT ($SIGNATURE_MODE) [listener ${LISTEN_PID:-unknown}, wrapper $WRAPPER_PID]"; exit 0
   fi
   sleep 0.5
 done

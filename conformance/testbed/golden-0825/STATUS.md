@@ -413,7 +413,15 @@ cd conformance/testbed/golden-0825/server && uv run --group dev pytest defects_t
   from the vendored samples fixture, unchanged)
 - `conformance/testbed/golden-0825/serve_golden_0825.sh` /
   `stop_golden_0825.sh` — boot/teardown, mirroring `conformance/ci/serve_golden.sh`
-  / `stop_golden.sh` (seed → sync → SDK-pin guard → boot → health-poll → pid file)
+  / `stop_golden.sh` (seed → sync → SDK-pin guard → boot → health-poll → pid file).
+  `REQUIRE_SIGNATURES=1` (D3-05) passes `--require_signatures
+  --allow_insecure_profile_urls` through and says so in the UP line
+  (`golden-0825 UP on :8196 (signatures REQUIRED) [...]`); an unsigned request
+  is then 401 `signature_missing` (SIG-031) — proven by
+  `smoke::test_require_signatures_rejects_unsigned` (own port 8196) and, hermetically,
+  by `conformance/ci/golden_boot_guards.py --selftest` case `0825:D` (the switch
+  reaches the server's argv, stays off by default, and the flag-excising mutant is
+  caught) — the `golden-guards` run_suite gate now covers this script too.
 - `conformance/testbed/golden-0825/smoke/test_golden_0825_smoke.py` — the TDD suite
 - `conformance/selfcheck/schema_oracle.py` — extended (not rewritten) with the
   2026-08-25 schema base and the profile.json/ucp.json fallback
