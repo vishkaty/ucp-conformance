@@ -227,7 +227,10 @@ class PermissiveModeTest(_SigTestBase):
     with self.client:
       body = self._checkout_body("perm_no_profile_1")
       headers = self._signed_headers("POST", "/checkout-sessions", body)
-      headers["UCP-Agent"] = "version=2026-01-23"  # no profile=
+      # no profile= (the point of this test); the version is the SERVED one --
+      # an unadvertised version is version_unsupported before any signature
+      # check runs (D3-02), which is not what this test is about.
+      headers["UCP-Agent"] = f"version={config.get_server_version()}"
       response = self.client.post(
         "/checkout-sessions", headers=headers, content=body
       )
@@ -296,7 +299,10 @@ class EnforcedModeTest(_SigTestBase):
     with self.client:
       body = self._checkout_body("no_profile_1")
       headers = self._signed_headers("POST", "/checkout-sessions", body)
-      headers["UCP-Agent"] = "version=2026-01-23"  # no profile=
+      # no profile= (the point of this test); the version is the SERVED one --
+      # an unadvertised version is version_unsupported before any signature
+      # check runs (D3-02), which is not what this test is about.
+      headers["UCP-Agent"] = f"version={config.get_server_version()}"
       response = self.client.post(
         "/checkout-sessions", headers=headers, content=body
       )
