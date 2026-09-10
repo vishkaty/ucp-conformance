@@ -290,6 +290,11 @@ def gates(server):
         # a mutation that cannot reach the field its predicate reads is a kill-test that
         # certifies nothing while reporting kill_safe — green by being unable to fail.
         ("mutation-paths", _py(SELF / "validate_mutation_paths.py", "--selftest"), None, ()),
+        # D1-01: checks/wire_shapes.py is the one place that knows the per-version
+        # request delta (08-25 destinations[].type, CHK-025 async branch, keys[] vs
+        # signing_keys, Purpose objects); fail-closed on an unreviewed version; the three
+        # older versions' bodies are frozen byte-for-byte so the delta cannot leak back.
+        ("wire-shapes",  _py(SELF / "validate_wire_shapes.py", "--selftest"),  None, ()),
         # the golden speaks ONE spec version (2026-04-08 since the 2026-08-03 re-pin);
         # engine checks whose citations are 01-era-scoped are version-skipped by the
         # served-version gate instead of deviating/reported-UNSAFE on a known-good

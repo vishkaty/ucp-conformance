@@ -18,6 +18,7 @@ import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, a2a_call, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
+from wire_shapes import shapes_for, base_headers           # noqa: E402
 
 # Reviewed applicable versions for every check below whose OWN `versions=` kwarg is
 # None (the default) — see area_fulfillment.py's identical marker for the full
@@ -87,23 +88,15 @@ def _cfg_has(config, dotted):
     return bool(cur) and not _fillme(cur)
 
 # ---- request helpers (parameterized by the merchant context) ----------------
+# Thin wrappers over checks/wire_shapes.py (PLAN-v3 §2.1): the per-version request
+# delta lives THERE (fail-closed on an unreviewed version; the three older versions'
+# bodies are frozen byte-for-byte by validate_wire_shapes.py). Kept as names because
+# every merchant_checks_* sibling imports them.
 def _hdr(idem=None):
-    return {"UCP-Agent": 'profile="https://spck.dev/agent"', "request-signature": "test",
-            "idempotency-key": idem or str(uuid.uuid4()), "request-id": str(uuid.uuid4()),
-            "Content-Type": "application/json"}
+    return base_headers(idem)
 
 def _create_payload(ctx, with_fulfillment=False):
-    p = {"id": str(uuid.uuid4()), "currency": ctx.config.get("currency", "USD"),
-         "line_items": [{"id": "li_1", "quantity": 1,
-                         "item": {"id": ctx.product_id, "price": 1000}, "totals": []}],
-         "payment": {"instruments": [], "handlers": ctx.config.get("payment_handlers", [])},
-         "status": "incomplete", "ucp": {"version": ctx.version}, "totals": [], "links": []}
-    if with_fulfillment:
-        p["fulfillment"] = {"methods": [{"id": "m1", "type": "shipping",
-            "destinations": [{"id": "d1", "address_country": "US"}], "line_item_ids": ["li_1"],
-            "selected_destination_id": "d1",
-            "groups": [{"id": "g1", "line_item_ids": ["li_1"], "selected_option_id": "std"}]}]}
-    return p
+    return shapes_for(ctx.version).checkout_create(ctx, with_fulfillment=with_fulfillment)
 
 def profile_resp(ctx):
     return Resp(200, {"Content-Type": "application/json"},
@@ -171,7 +164,7 @@ def update_resp(ctx):
             "line_items": [{"id": li.get("id"),
                             "item": {"id": (li.get("item") or {}).get("id")}, "quantity": 3}],
             "payment": {"instruments": (c.get("payment") or {}).get("instruments", [])}}
-    if ctx.version != "2026-04-08":
+    if shapes_for(ctx.version).update_carries_id:      # 01-era only; omit at 04-08/08-25
         body["id"] = cid
     return fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}", "PUT", body, _hdr())
 
@@ -892,10 +885,15 @@ def p_4xx(r):
 def p_409(r):
     return CLEAN if r.status == 409 else DEVIATION
 
-def p_completed(r):
+def p_completed(r, ctx=None):
+    """CHK-025 via wire_shapes.completion_ok: completed+order at every version; the
+    complete_in_progress/no-order (async accepted) branch only at 2026-08-25. Without
+    a ctx (legacy single-arg callers) the strict synchronous rule applies."""
     if r.status != 200 or not isinstance(r.json, dict):
         return DEVIATION
-    return CLEAN if r.json.get("status") == "completed" and r.json.get("order") else DEVIATION
+    if ctx is None:
+        return CLEAN if r.json.get("status") == "completed" and r.json.get("order") else DEVIATION
+    return CLEAN if shapes_for(ctx.version).completion_ok(r.json) else DEVIATION
 
 def p_402(r):
     return CLEAN if r.status == 402 else DEVIATION
