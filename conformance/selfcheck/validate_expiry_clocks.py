@@ -248,6 +248,40 @@ def selftest():
     case("(f'') seed batch with a recorded >=10% sample -> clean",
          not seed_batch_errors(seed_ok, today), seed_batch_errors(seed_ok, today))
 
+    # ---- D2-19: two-tier horizon (decision 23) + cliff detection
+    regs2 = [{"name": "ki", "file": "k.json", "entries": "$.rows[*]", "scope": "version",
+              "clock": "review_by"}]                                   # no register-level tier
+    docs2 = {"k.json": {"rows": [
+        {"version": "2026-08-25", "review_by": "2026-10-01", "spec_pin": "cd78fb38"},                       # (g) no tier
+        {"version": "2026-08-25", "review_by": "2026-10-11", "spec_pin": "cd78fb38", "clock_tier": "moving"},   # (h) 31 d
+        {"version": "2026-08-25", "review_by": "2026-10-10", "spec_pin": "cd78fb38", "clock_tier": "moving"},   # 30 d ok
+        {"version": "2026-08-25", "review_by": "2026-12-10", "spec_pin": "cd78fb38", "clock_tier": "pin-only"}, # 91 d
+        {"version": "2026-08-25", "review_by": "2026-12-09", "spec_pin": "cd78fb38", "clock_tier": "pin-only"}, # 90 d ok
+        {"version": "2026-08-25", "review_by": "2026-10-01", "spec_pin": "cd78fb38", "clock_tier": "sideways"}]}}  # bad tier
+    f3 = evaluate(regs2, docs2.get, pins, today)
+    by3 = {}
+    for x in f3:
+        by3.setdefault(x["entry"], []).append(x["kind"])
+    case("(g) entry without clock_tier (register has none) -> missing-tier",
+         by3.get("k.json rows[0]") == ["missing-tier"], by3)
+    case("(h) moving entry with review_by 31 d out -> horizon-exceeded",
+         by3.get("k.json rows[1]") == ["horizon-exceeded"], by3)
+    case("(h2) moving entry at exactly 30 d -> clean", "k.json rows[2]" not in by3, by3)
+    case("(h3) pin-only entry 91 d out -> horizon-exceeded",
+         by3.get("k.json rows[3]") == ["horizon-exceeded"], by3)
+    case("(h4) pin-only entry at exactly 90 d -> clean", "k.json rows[4]" not in by3, by3)
+    case("unknown tier -> missing-tier", by3.get("k.json rows[5]") == ["missing-tier"], by3)
+    # (i) cliff: 6 of 10 entries expire on one date -> red; (j) staggered -> pass
+    cliffed = [{"version": "2026-08-25", "review_by": "2026-11-01", "spec_pin": "cd78fb38", "clock_tier": "pin-only"}] * 6 + \
+              [{"version": "2026-08-25", "review_by": f"2026-11-0{i}", "spec_pin": "cd78fb38", "clock_tier": "pin-only"} for i in range(2, 6)]
+    staggered = [{"version": "2026-08-25", "review_by": f"2026-11-{10 + i:02d}", "spec_pin": "cd78fb38", "clock_tier": "pin-only"} for i in range(10)]
+    hist_c = expiry_histogram(regs2, {"k.json": {"rows": cliffed}}.get)
+    hist_s = expiry_histogram(regs2, {"k.json": {"rows": staggered}}.get)
+    case("(i) 60% of entries on one expiry date -> cliff red",
+         cliff_share(hist_c) == 0.6 and cliff_share(hist_c) > CLIFF_MAX_SHARE, cliff_share(hist_c))
+    case("(j) staggered seed (max 10% same-day) -> cliff clean",
+         cliff_share(hist_s) == 0.1 and cliff_share(hist_s) <= CLIFF_MAX_SHARE, cliff_share(hist_s))
+
     print(f"\nexpiry-clocks selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
