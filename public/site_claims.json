@@ -950,6 +950,24 @@
       "evidence": "Snapshots + trends published under /state-of-ucp/history/; tools in ops/tools (refresh/scan/trends/series) are in the public repo; cadence per SOU-019.",
       "added": "2026-08-13",
       "review_by": "2026-09-13"
+    },
+    {
+      "id": "CLAIM-COV-002",
+      "text": "no independently-authored 08-25 implementation has been graded by this suite at write level; evidence for this version is at most fixture-schema",
+      "page": "coverage.html",
+      "class": "REG",
+      "evidence": "Rendered by coverage.html renderSummary() ONLY for 2026-08-25 while $.versions['2026-08-25'].evidence_breakdown['live-wire'] == 0 (public/coverage.json, byte-fresh via the coverage gate); the class word is the first evidence_classes key with a non-zero breakdown count (fixture-schema: 29 of 70 CHECK rows at write time; 0 live-wire). Wording is human-approved (PLAN-v3 \u00a72.18 / D5-02) and pinned verbatim by tests/web/unit/coverage_page.test.mjs (web-unit gate). review_by = the Wave 1 exit, when D5-13 replaces it with the discovery_live-bound form.",
+      "added": "2026-09-10",
+      "review_by": "2026-10-01"
+    },
+    {
+      "id": "CLAIM-COV-003",
+      "text": "measured at commit a2d8bf0b; the v2026-04-08 tag was re-pointed 2026-09-09 (ucp#813)",
+      "page": "coverage.html",
+      "class": "REG",
+      "evidence": "conformance/SOURCES.lock.json spec.versions['2026-04-08'].commit = a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d (rendered from public/coverage.json $.spec_pins, never typed); the upstream tag move to a25a4a24 was observed 2026-09-09 (ucp#813; sources_age.py --check, acknowledged under decision 3 in conformance/ci/known_tag_moves.json by D2-17). Footnote renders on the 2026-04-08 tab only; pinned by tests/web/unit/coverage_page.test.mjs. review_by tracks decision 3's known_tag_moves review_by (re-pin in Wave 1 retires it).",
+      "added": "2026-09-10",
+      "review_by": "2026-12-08"
     }
   ]
 }
