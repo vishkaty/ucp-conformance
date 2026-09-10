@@ -778,6 +778,21 @@ def selftest():
           + ("" if wired_ok else "  <-- R-a violated (see above)"))
     bad += 0 if wired_ok else 1
 
+    # D2-06 × D5-03 one-landing contract: `no_further_work` is EMITTED per version —
+    # true iff the version is `converting` AND older than CURRENT_SITE_VERSION (the
+    # legacy "no further work planned; N webhook-receiver rows ungraded" line), false
+    # otherwise (the current site version and the latest register never carry it, so
+    # the page cannot fall back to a heuristic that misfires on 2026-04-08).
+    nfw_ok = True
+    for v, e in fresh["versions"].items():
+        want = e["state"] == "converting" and v < CURRENT_SITE_VERSION
+        got = e.get("no_further_work")
+        if got is not want:
+            nfw_ok = False
+            print(f"  ✗ {v}: no_further_work={got!r} (state {e['state']}, current site {CURRENT_SITE_VERSION}) <-- expected {want!r}")
+    print(f"  {'✓' if nfw_ok else '✗'} no_further_work emitted per version (converting AND older than {CURRENT_SITE_VERSION})")
+    bad += 0 if nfw_ok else 1
+
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
