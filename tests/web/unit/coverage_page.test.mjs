@@ -61,3 +61,40 @@ test("04-08 tab carries the tag re-point footnote (CLAIM-COV-003) from the pinne
   clickTab(doc, "2026-08-25");
   assert.ok(!doc.getElementById("summary").textContent.includes(c.text), "footnote is 04-08 only");
 });
+
+// ── D5-03 / SITE-R-029: the `converting` state renders honestly ─────────────
+function converting(ver, extra = {}) {
+  const cov = JSON.parse(JSON.stringify(COV));
+  const v = cov.versions[ver];
+  v.state = "converting";
+  v.gap_by_testability = { testable: 5, "needs-receiver": 3, "needs-oauth": 1, manual: 4, ...extra };
+  return cov;
+}
+
+test("converting export renders the converting note with N of M testable-tier MUSTs", async () => { // SITE-R-029
+  const doc = await render(converting("2026-08-25"));
+  clickTab(doc, "2026-08-25");
+  const text = doc.getElementById("summary").textContent;
+  assert.match(text, /checks are landing/);
+  assert.match(text, /9 of \d+ testable-tier MUSTs still open/);     // 5 + 3 + 1 open
+  assert.match(text, /never blended/);
+  const tab = doc.getElementById("tabs").children.find((t) => t.dataset.ver === "2026-08-25");
+  assert.match(tab.textContent, /converting/, "the state word renders on the tab");
+  // a live tab carries neither the note nor the word
+  clickTab(doc, "2026-04-08");
+  assert.doesNotMatch(doc.getElementById("summary").textContent, /checks are landing/);
+});
+
+test("legacy converting versions render the data-driven 'no further work planned' line (CLAIM-COV-005)", async () => { // SITE-R-029
+  const c = claim("CLAIM-COV-005");
+  assert.ok(c && c.text, "CLAIM-COV-005 registered in public/site_claims.json");
+  const cov = converting("2026-01-11", { testable: 0, "needs-oauth": 0, "needs-receiver": 17 });
+  cov.versions["2026-01-11"].no_further_work = true;          // D2-06 export field
+  const doc = await render(cov);
+  clickTab(doc, "2026-01-11");
+  const text = doc.getElementById("summary").textContent;
+  assert.ok(text.includes(c.text), `01-11 summary carries the registered line\n${text}`);
+  assert.match(text, /17 webhook-receiver rows ungraded/);
+  clickTab(doc, "2026-08-25");                                  // current version: never the legacy line
+  assert.ok(!doc.getElementById("summary").textContent.includes(c.text));
+});

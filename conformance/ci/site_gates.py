@@ -729,7 +729,10 @@ def selftest():
     different SPCK_PUBLIC, and it is also the exact same code path a real CI run
     takes."""
     import copy, shutil, tempfile
-    real_cov = json.load(open(ROOT / "public" / "coverage.json"))
+    # sourced from PUB (not ROOT/public) so a reviewer can point SPCK_PUBLIC at a
+    # scratch export — e.g. the D2-06 converting-state export before it merges — and
+    # run the whole battery against it; on the committed tree PUB == public/.
+    real_cov = json.load(open(PUB / "coverage.json"))
     versions = real_cov["versions"]
     if not versions:
         print("site_gates selftest: SKIP — public/coverage.json has no versions "
@@ -766,7 +769,7 @@ def selftest():
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
             for fname in ("coverage.json", "agent-coverage.json", "site_claims.json"):
-                src = ROOT / "public" / fname
+                src = PUB / fname
                 if src.exists():
                     shutil.copy(src, tmpd / fname)
             cov = copy.deepcopy(real_cov)
@@ -804,6 +807,27 @@ def selftest():
         lambda vs: None,
         want_red=True,
         mutate_agc=lambda a: a.__setitem__(synth_ver, {"check": 1, "exempt": 0}))
+    # ── rule R-a (PLAN-v3 §2.18 / decision 25, D5-03): live ⇔ register ∧ CHECK+EXEMPT>0
+    #    ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ … ∧ any such GAP;
+    #    building ⇔ register ∧ 0/0. Each variant CONSTRUCTS its condition in the scratch
+    #    copy (same doctrine as above) so it keeps exercising the code path regardless of
+    #    which real version happens to be converting today.
+    def with_state(ver, state, **fields):
+        return lambda vs: vs.__setitem__(ver, {**vs[ver], **fields, "state": state})
+    run_variant(
+        "state=live planted on 2026-08-25 forced to testable-tier GAP>0 (rule R-a says converting)",
+        with_state("2026-08-25", "live", check=10, exempt=0,
+                   gap_by_testability={"testable": 5, "manual": 2}),
+        want_red=True)
+    run_variant(
+        f"state=converting planted on {live_ver} forced to zero testable-tier GAP (rule R-a says live)",
+        with_state(live_ver, "converting", check=10, exempt=1, gap_by_testability={"manual": 3}),
+        want_red=True)
+    run_variant(
+        f"state=converting planted on {subject_ver} forced to zero CHECK/EXEMPT (rule R-a says building)",
+        with_state(subject_ver, "converting", check=0, exempt=0,
+                   gap_by_testability={"testable": 5}),
+        want_red=True)
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,

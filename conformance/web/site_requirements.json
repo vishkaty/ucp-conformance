@@ -394,6 +394,19 @@
    ],
    "status": "active",
    "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-029",
+   "requirement": "Publication state is rule R-a, mirrored from coverage.json fields only: live ⇔ register ∧ CHECK+EXEMPT>0 ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ register ∧ CHECK+EXEMPT>0 ∧ any such GAP; building ⇔ register ∧ 0/0; unregistered otherwise. site-freshness reds on any state that disagrees with its own export; supported versions (manifest.versions) = live only; the coverage page renders a `converting` note (\"checks are landing; N of M testable-tier MUSTs still open; never blended\"), the state word on each tab, and the data-driven \"converting — no further work planned; N webhook-receiver rows ungraded\" line (CLAIM-COV-005) on legacy versions (PLAN-v3 §2.18, decision 25, D5-03).",
+   "pages": [
+    "coverage.html"
+   ],
+   "tests": [
+    "gate:freshness",
+    "web_unit:coverage-converting"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }
