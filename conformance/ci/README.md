@@ -19,6 +19,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `attribution-hook` | no AI/bot author, co-author or generated-with line on any commit since 2026-09-10 (decision 16, forward-only), and this clone's active commit-msg hook is the tracked `ops/tools/hooks/commit-msg` (install: `bash ops/tools/install_hooks.sh`); `attribution-selftest` plants a trailer, a bot author and a missing hook to prove the gate can go red | git history + the tracked hook |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

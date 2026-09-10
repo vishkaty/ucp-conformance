@@ -309,6 +309,15 @@ def gates(server):
         # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
         # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
         ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
+        # ATTRIBUTION (decision 16, PNR-0, 2026-09-10; D4-16): no AI/bot author, co-author
+        # or generated-with line on any commit, forward-only. The gate checks (1) every
+        # commit committed on/after 2026-09-10 on HEAD is clean and (2) this clone's active
+        # commit-msg hook IS the tracked ops/tools/hooks/commit-msg (rc 2 = ops/ not
+        # mounted, e.g. CI, after the history half passed). The selftest plants a trailer,
+        # a bot author and a missing/stale hook so the gate provably can go red.
+        ("attribution-hook", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py"), None, (2,)),
+        ("attribution-selftest", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py", "--selftest"),
+         None, ()),
     ]
 
 def server_up(server, timeout=3):
