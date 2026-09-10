@@ -3,7 +3,7 @@
  "counts": {
   "ACheck": 44,
   "MCheck": 228,
-  "Row": 37,
+  "Row": 44,
   "engine": 89,
   "schema-tier": 81,
   "struct": 35
@@ -543,6 +543,12 @@
    "n_kills": 1,
    "n_kills_floor": 1
   },
+  "golden_check_08_25:DSC-007": {
+   "hash": "ed965f223e90f85d4f6b8a42158e8f3efb6f431821432f4652c23d128e6f564f",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
   "golden_check_08_25:DSC-020": {
    "hash": "03c389c56275f54287582c700ce68453df6041a9186a81f5f9057bfaf738d593",
    "kind": "Row",
@@ -557,6 +563,24 @@
   },
   "golden_check_08_25:DSC-026": {
    "hash": "0f092b75e2266ed263b4f772a721900e26c1f6e88ddf96be653e25da9b0bc5c8",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:DSC-030": {
+   "hash": "ed965f223e90f85d4f6b8a42158e8f3efb6f431821432f4652c23d128e6f564f",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ERR-028.unknown-route": {
+   "hash": "c13647afed457e9f3e3ca207fa2b716bc5fce82edf28469645a49b0b037d41f7",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ERR-028.validation-422": {
+   "hash": "5105ff105c44e682cd4be57c8958b7ace1c21cdb9e7f60dd231a1e41d53ccef0",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -581,6 +605,12 @@
   },
   "golden_check_08_25:FUL-030": {
    "hash": "ab804541bb3e79eb1692ad36f2bc3a59ae021e7c6850ee8d01bc151b00b18d16",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:FUL-030.omit-type": {
+   "hash": "9ce8221d36635f02fa0391e8c45205381d654ef4efabbd02d0a99402b5b3ecfb",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -623,6 +653,18 @@
   },
   "golden_check_08_25:ORD-020": {
    "hash": "b87a6ab32288d9695b2b14da26b2f945cd18befa85d67d9f493fc23935c0c4e7",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:OVR-009": {
+   "hash": "f73fdb85fca0e71be4a197734c460502672b958a8e83703707e8c345b32b2218",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:OVR-069": {
+   "hash": "0c319949b8cc4099f41b8a3037028f1db826953327d17719a217ad4d38144a59",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -1293,25 +1335,25 @@
    "n_kills": 5,
    "n_kills_floor": 5
   },
-  "merchant_checks_04_08:discount.automatic_no_code": {
+  "merchant_checks_04_08:discount.automatic_no_code_0408": {
    "hash": "6a4e74a09241e08e4652417676bb0c7fdc287faa9716e1c785593eee6f51bf17",
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5
   },
-  "merchant_checks_04_08:discount.case_insensitive_codes": {
+  "merchant_checks_04_08:discount.case_insensitive_codes_0408": {
    "hash": "11cc92e5e097b8d7c20e4b7751c01655a1bdab0233c0784052e185fc1658f81f",
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5
   },
-  "merchant_checks_04_08:discount.codes_replacement": {
+  "merchant_checks_04_08:discount.codes_replacement_0408": {
    "hash": "5a5bff9a228bb7cb0d90b674d63287c2edbd8398ee716d9d5349aeff0fdc550e",
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5
   },
-  "merchant_checks_04_08:discount.items_discount_invariant": {
+  "merchant_checks_04_08:discount.items_discount_invariant_0408": {
    "hash": "8df2f80221a8ffc71c61e01a15198c9c10903f6fe98eba9b857933509b076397",
    "kind": "MCheck",
    "n_kills": 4,

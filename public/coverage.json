@@ -1017,7 +1017,8 @@
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7",
      "covered_by": [
       "area_fulfillment.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "validate_golden_0825_battery.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -3582,7 +3583,8 @@
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7",
      "covered_by": [
       "area_fulfillment.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "validate_golden_0825_battery.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -7260,7 +7262,8 @@
      "covered_by": [
       "area_04_08_fulfillment.py",
       "area_fulfillment.py",
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "validate_golden_0825_battery.py"
      ],
      "evidence": "live-wire",
      "reach": [
@@ -10324,17 +10327,17 @@
   "2026-08-25": {
    "state": "converting",
    "musts": 780,
-   "check": 70,
+   "check": 77,
    "exempt": 0,
-   "gap": 710,
-   "accounted_pct": 9,
+   "gap": 703,
+   "accounted_pct": 10,
    "roles": null,
    "by_transport": {
     "rest": {
      "musts": 522,
-     "check": 53,
+     "check": 60,
      "exempt": 0,
-     "gap": 469
+     "gap": 462
     },
     "mcp": {
      "musts": 19,
@@ -10396,15 +10399,15 @@
    ],
    "evidence_breakdown": {
     "live-wire": 0,
-    "fixture-schema": 29,
+    "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 41
+    "self-referenced": 45
    },
    "gap_by_testability": {
     "manual": 131,
     "needs-oauth": 15,
-    "needs-receiver": 172,
-    "testable": 392
+    "needs-receiver": 170,
+    "testable": 387
    },
    "areas": [
     {
@@ -10462,11 +10465,11 @@
     },
     {
      "area": "discounts-consent",
-     "check": 4,
-     "gap": 24,
+     "check": 6,
+     "gap": 22,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 17,
+     "gap_testable": 15,
      "musts": 28
     },
     {
@@ -10479,9 +10482,10 @@
     },
     {
      "area": "error-envelope",
-     "gap": 25,
+     "check": 3,
+     "gap": 22,
      "gap_manual": 13,
-     "gap_testable": 12,
+     "gap_testable": 9,
      "musts": 25
     },
     {
@@ -10529,10 +10533,11 @@
     },
     {
      "area": "overview",
-     "gap": 76,
+     "check": 2,
+     "gap": 74,
      "gap_manual": 14,
      "gap_needs-oauth": 1,
-     "gap_needs-receiver": 33,
+     "gap_needs-receiver": 31,
      "gap_testable": 28,
      "musts": 76
     },
@@ -12555,10 +12560,14 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Rejected codes are communicated via the messages[] array",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L141",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-008",
@@ -12771,10 +12780,14 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When multiple codes are submitted and one is invalid, only the valid discount is applied (accept-one-reject-one); rejected appears in messages[] not applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L512-L513",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-032",
@@ -13011,30 +13024,42 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response MUST include ucp and messages.",
      "source": "ucp:source/schemas/common/types/error_response.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ERR-029",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response ucp.status MUST be 'error'.",
      "source": "ucp:source/schemas/common/types/error_response.json#L10",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ERR-030",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error response messages array MUST contain at least one message (minItems 1).",
      "source": "ucp:source/schemas/common/types/error_response.json#L14",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "fixture-schema",
+     "reach": []
     },
     {
      "id": "ERR-031",
@@ -13065,7 +13090,8 @@
      "requirement": "A fulfillment_method MUST include id, type, and line_item_ids",
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7-L11",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "validate_golden_0825_battery.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -15463,10 +15489,14 @@
      "area": "overview",
      "keyword": "MUST NOT",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "A version-specific (leaf) profile served from a supported_versions URI MUST NOT contain a supported_versions field",
      "source": "ucp:docs/specification/overview/index.md#L3531-L3533",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "OVR-010",
@@ -16063,10 +16093,14 @@
      "area": "overview",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Initial Service and Capability Discovery, step 3: when the selected protocol version is a key in supported_versions, the Platform MUST verify that the fetched profile's ucp.version equals the supported_versions key it selected; on mismatch the Platform MUST NOT use that profile.",
      "source": "ucp:docs/specification/overview/index.md#L3521-L3523",
-     "covered_by": []
+     "covered_by": [
+      "golden_check_08_25.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "OVR-070",

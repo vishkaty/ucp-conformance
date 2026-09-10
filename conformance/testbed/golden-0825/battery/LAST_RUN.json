@@ -1,11 +1,13 @@
 {
- "ran_at": 1789050294.049108,
- "ran_at_iso": "2026-09-10T14:24:54Z",
+ "ran_at": 1789053410.2810292,
+ "ran_at_iso": "2026-09-10T15:16:50Z",
  "ok": true,
- "killed": 38,
+ "killed": 45,
  "acknowledged_open": 0,
- "total": 38,
+ "total": 45,
  "disabled_mode_byte_identity_ok": true,
+ "behavior_killed": 7,
+ "behavior_total": 7,
  "survivors": [],
  "loader_broken": []
 }
