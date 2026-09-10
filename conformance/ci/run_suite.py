@@ -269,6 +269,10 @@ def gates(server):
         # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
         # literal and a collision) so the gate cannot pass by being unable to fail.
         ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
+        # the single KNOWN ISSUES file (PLAN-v3 §2.13): no refuted/stale/unevidenced row can
+        # publish; ledger cross-ref needs ops/ mounted (rc 2 = honest SKIP in CI). Hermetic
+        # kill-tests (--selftest) run first inside the same invocation.
+        ("known-issues", _py(ROOT / "conformance" / "ci" / "validate_known_issues.py"), None, (2,)),
         # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
         # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
         # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any

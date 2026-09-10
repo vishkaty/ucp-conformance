@@ -1,0 +1,303 @@
+{
+ "_about": "spck.dev KNOWN ISSUES — the single source (PLAN-v3 §2.13, D5-07): every known upstream/program defect we publish, with a reproduction, per-cut status, origin, ledger anchor and clocks. Validated by conformance/ci/validate_known_issues.py (run_suite gate known-issues; ledger cross-ref when ops/ is mounted). Rendered by D5-12's generator in Wave 1; `refuted` rows never exist here (S8d stays in the ledger only). Per-cut status is re-verified by D4-05/D4-06 runs, never hand-edited.",
+ "generated": "2026-09-10",
+ "spec_pin": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+ "issues": [
+  {
+   "id": "KI-001",
+   "artifact": "python-sdk",
+   "component": "generated pydantic models (schema constraints)",
+   "symptom": "ucp-sdk 0.5.0 drops four constraint families the pinned 08-25 schemas carry: JWK conditional rules (5), C62 scale, the maxProperties family, discriminator array-retyping. Every published cut predates the fixes.",
+   "repro": {
+    "command": "python3 conformance/selfcheck/sdk_constraints_probe.py",
+    "expected": "each pinned constraint rejects its negative payload",
+    "observed": "4 families accept the negative payload at 0.5.0"
+   },
+   "status_by_cut": [
+    {
+     "cut": "PyPI ucp-sdk 0.5.0 (tag v2026-08-25, b6f9b91c)",
+     "status": "open"
+    },
+    {
+     "cut": "main 836b0228",
+     "status": "fixed",
+     "evidence": "python-sdk#89 #91 #93 merged (836b0228); ledger G1"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89",
+    "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/91",
+    "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "G1",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-002",
+   "artifact": "js-sdk",
+   "component": "writeCompatibilityDiscoverySchemas / declarations generator",
+   "symptom": "npm @ucp-js/sdk 0.5.1 ships the extends-stub twin of the merged #55 fix (maxProperties / extends / declarations): generated compatibility discovery schemas are incomplete at the published cut.",
+   "repro": {
+    "command": "npm view @ucp-js/sdk version && grep -n extends node_modules/@ucp-js/sdk/dist/schemas/*.d.ts",
+    "expected": "generated declarations carry the extends/maxProperties members",
+    "observed": "0.5.1 lacks them; main has them"
+   },
+   "status_by_cut": [
+    {
+     "cut": "npm 0.5.1",
+     "status": "open"
+    },
+    {
+     "cut": "main 99572ca8",
+     "status": "fixed",
+     "evidence": "js-sdk#63 merged 2026-09-07 (99572ca8); ledger G3"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/js-sdk/pull/55",
+    "https://github.com/Universal-Commerce-Protocol/js-sdk/pull/63"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "G3",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-003",
+   "artifact": "js-sdk",
+   "component": "UcpDiscoveryProfileSchema",
+   "symptom": "UcpDiscoveryProfileSchema models `capabilities` as an ARRAY; the spec (2026-04-08 and 2026-08-25) defines a record keyed by reverse-domain capability name whose values are arrays.",
+   "repro": {
+    "command": "node -e \"const s=require('@ucp-js/sdk');console.log(JSON.stringify(s.UcpDiscoveryProfileSchema.shape.ucp.shape.capabilities._def.typeName))\"",
+    "expected": "ZodRecord (object keyed by capability name)",
+    "observed": "ZodArray at 0.5.1 and at main"
+   },
+   "status_by_cut": [
+    {
+     "cut": "npm 0.5.1",
+     "status": "open"
+    },
+    {
+     "cut": "main 44c448d",
+     "status": "open"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "G5",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-004",
+   "artifact": "ucp-schema",
+   "component": "definition selection (--def) and --schema-local-base",
+   "symptom": "Crate 1.4.1 and the pinned 9b5c3206 crash (exit 134) on 08-25 def-selection patterns (#45/#46 class); the post-#66 head b52518f5 fixes the crash but regresses --schema-local-base (base segment doubled; A/B proven, old Valid / head rc 2).",
+   "repro": {
+    "command": "conformance/.vendor/ucp-schema/target/release/ucp-schema validate --def <08-25 def> <payload>",
+    "expected": "Valid / Invalid verdict",
+    "observed": "exit 134 at 1.4.1 and 9b5c3206; rc 2 (path doubled) at b52518f5"
+   },
+   "status_by_cut": [
+    {
+     "cut": "crate 1.4.1",
+     "status": "open"
+    },
+    {
+     "cut": "9b5c3206 (pinned)",
+     "status": "open"
+    },
+    {
+     "cut": "main b52518f5",
+     "status": "fixed",
+     "evidence": "ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there is open (ledger G6, #72 pending)"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/70"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "G6",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-005",
+   "artifact": "samples-python",
+   "component": "checkout_service / test helpers (bare ShippingDestination)",
+   "symptom": "Fresh-run CI breaks (117/257 at the pinned 00333a80; 2 OrderTest 500s at 01755bcc): a helper builds a bare ShippingDestination and checkout_service.py:532 raises. Our #220 (retargeted to #218) fixes both.",
+   "repro": {
+    "command": "cd conformance/.vendor/samples/rest/python && uv run --group dev pytest -q",
+    "expected": "all tests OK",
+    "observed": "OrderTest cases 500 at services/checkout_service.py:532"
+   },
+   "status_by_cut": [
+    {
+     "cut": "samples 00333a80 (pinned)",
+     "status": "open"
+    },
+    {
+     "cut": "samples 01755bcc",
+     "status": "open"
+    },
+    {
+     "cut": "conformance#96 (helpers)",
+     "status": "fixed",
+     "evidence": "conformance#96 merged (FanouZeng-TT) for the helper half; samples#220 open for the service half; ledger G10"
+    }
+   ],
+   "origin": "shared",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
+    "https://github.com/Universal-Commerce-Protocol/samples/pull/220"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "G10",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-006",
+   "artifact": "samples-node",
+   "component": "production start path (npm start)",
+   "symptom": "`npm start` fails: dist/index.js missing; `node dist/src/index.js` fails ERR_MODULE_NOT_FOUND on 37 extensionless imports. samples#58 was closed 2026-07-22 as 'Fixed by #139' without an import change.",
+   "repro": {
+    "command": "cd conformance/.vendor/samples/rest/nodejs && npm run build && npm start",
+    "expected": "server listens",
+    "observed": "dist/index.js missing; ERR_MODULE_NOT_FOUND"
+   },
+   "status_by_cut": [
+    {
+     "cut": "samples 01755bcc",
+     "status": "open"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/samples/issues/58"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "R21",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-007",
+   "artifact": "official-conformance",
+   "component": "integration_test_utils / DEFAULT_UCP_VERSION",
+   "symptom": "The official conformance suite has zero 2026-08-25 coverage: DEFAULT_UCP_VERSION=\"2026-04-08\" (integration_test_utils.py:59), ucp-sdk==0.4.4 pin, HEAD predates the release.",
+   "repro": {
+    "command": "grep -n DEFAULT_UCP_VERSION conformance/.vendor/conformance/integration_test_utils.py",
+    "expected": "a 2026-08-25 default or matrix",
+    "observed": "\"2026-04-08\" only"
+   },
+   "status_by_cut": [
+    {
+     "cut": "conformance 016ecbc",
+     "status": "open"
+    },
+    {
+     "cut": "conformance fdbdafd (pinned)",
+     "status": "open"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/conformance/pull/104"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "S4",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-008",
+   "artifact": "ucp-spec",
+   "component": "release tag v2026-04-08",
+   "symptom": "The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -> a25a4a24, #813 loyalty backport: +15 MUSTs, +common/loyalty.json). Our lock pins a2d8bf0b; acknowledged under decision 3 (re-pin in W1).",
+   "repro": {
+    "command": "GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check",
+    "expected": "tag v2026-04-08 == a2d8bf0b",
+    "observed": "TAG MOVED v2026-04-08 -> a25a4a24 (acknowledged)"
+   },
+   "status_by_cut": [
+    {
+     "cut": "ucp tag v2026-04-08 @ a25a4a24",
+     "status": "open"
+    }
+   ],
+   "origin": "theirs",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/ucp/pull/813"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "R20",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-009",
+   "artifact": "ucp-spec",
+   "component": "signatures.md REPLAY-002 (payload byte fidelity)",
+   "symptom": "REPLAY-002 requires byte-identical replay detection but the released text leaves canonicalisation vs raw-byte comparison ambiguous; golden-0825 implements the literal reading (seq_invariants I10 enforce; report mode for user-facing runs until F3-f is answered).",
+   "repro": {
+    "command": "python3 conformance/checks/golden_check_08_25.py --only REPLAY-002",
+    "expected": "one unambiguous comparison rule",
+    "observed": "two defensible readings; golden records the literal one"
+   },
+   "status_by_cut": [
+    {
+     "cut": "ucp cd78fb38 (pinned 2026-08-25)",
+     "status": "open"
+    }
+   ],
+   "origin": "shared",
+   "filed": [
+    "https://github.com/Universal-Commerce-Protocol/ucp/pull/782"
+   ],
+   "re_verified": "2026-09-09",
+   "confidence": "medium",
+   "ledger_row": "G13",
+   "review_by": "2026-12-08",
+   "refuted": false
+  },
+  {
+   "id": "KI-010",
+   "artifact": "golden-0825",
+   "component": "unknown-route error envelope",
+   "symptom": "golden-0825 answers an unknown route with FastAPI's `{\"detail\":\"Not Found\"}` 404 instead of the UCP error envelope, and accepts unadvertised versions; fixed by C3 (D3-04) in Wave 0.",
+   "repro": {
+    "command": "PORT=8194 DB_DIR=$(mktemp -d) conformance/testbed/golden-0825/serve_golden_0825.sh && curl -s localhost:8194/nope",
+    "expected": "UCP error envelope 404",
+    "observed": "{\"detail\":\"Not Found\"}"
+   },
+   "status_by_cut": [
+    {
+     "cut": "golden-0825 @ f9cc470",
+     "status": "open"
+    }
+   ],
+   "origin": "ours",
+   "filed": [],
+   "re_verified": "2026-09-09",
+   "confidence": "high",
+   "ledger_row": "R23",
+   "review_by": "2026-12-08",
+   "refuted": false
+  }
+ ]
+}
