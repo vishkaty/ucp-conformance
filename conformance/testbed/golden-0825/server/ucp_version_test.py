@@ -55,3 +55,52 @@ class UcpVersionTest(unittest.TestCase):
 
 if __name__ == "__main__":
   unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# C3 negotiation (D3-02): the served version set is {server_version} ∪
+# supported_versions; anything else is 422 `version_unsupported` (lowercase,
+# decision 20). The inherited check only rejected NEWER versions, so an OLDER,
+# never-advertised version (2026-01-23) was silently accepted.
+# ---------------------------------------------------------------------------
+
+
+def _booted_app():
+  """An IntegrationTest instance booted for its TestClient + payload helpers.
+  Imported inside the function on purpose: a module-level import would make
+  pytest collect the whole IntegrationTest suite a second time here."""
+  from integration_test import IntegrationTest
+
+  t = IntegrationTest()
+  t.setUp()
+  return t
+
+
+def _post_create(t, version: str | None):
+  payload = t._create_checkout_payload("neg_1", [("rose", "Red Rose", 1000, 1)])
+  headers = t._get_headers()
+  agent = 'profile="https://agent.example/profile"'
+  if version is not None:
+    agent += f'; version="{version}"'
+  headers["UCP-Agent"] = agent
+  with t.client:
+    return t.client.post(
+      "/checkout-sessions",
+      headers=headers,
+      json=payload.model_dump(mode="json", exclude_none=True),
+    )
+
+
+def test_unadvertised_version_rejected():
+  t = _booted_app()
+  try:
+    resp = _post_create(t, "2026-01-23")
+    assert resp.status_code == 422, (resp.status_code, resp.text)
+    body = resp.json()
+    assert body["ucp"]["status"] == "error"
+    assert body["messages"][0]["code"] == "version_unsupported"
+
+    resp = _post_create(t, "2026-08-25")
+    assert resp.status_code == 201, (resp.status_code, resp.text)
+  finally:
+    t.tearDown()
