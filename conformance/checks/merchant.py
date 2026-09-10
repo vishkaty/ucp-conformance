@@ -119,6 +119,22 @@ class MerchantCtx:
         # probe shape (D1-04): send destinations without `type` (wire_shapes consults it)
         self.omit_destination_type = False
 
+def _probe_shape(ctx):
+    """What destinations[] shape this run actually BUILT (W0-review V2, probe-shape-0825
+    self-record): derived from the wire builder's OUTPUT for the served version, never
+    from the --omit-destination-type flag — so a builder that ignores the flag records
+    "typed" in omit mode and the gate reds instead of reading two identical modes as
+    two clean ones. "unknown" when the builders refuse the served version (unreviewed:
+    nothing was built)."""
+    from wire_shapes import shapes_for, ShapeUnsupported
+    requested = bool(getattr(ctx, "omit_destination_type", False))
+    try:
+        dests = shapes_for(ctx.version).destinations(ctx)
+    except (ShapeUnsupported, Exception):                       # noqa: BLE001
+        return {"destination_type": "unknown", "omit_destination_type_requested": requested}
+    return {"destination_type": "typed" if dests and all("type" in d for d in dests) else "omitted",
+            "omit_destination_type_requested": requested}
+
 def _wellknown_url(base):
     """Build the discovery URL, PRESERVING any query string — multi-tenant platform
     gateways route the merchant via e.g. ?domain=store.example.com."""
@@ -414,6 +430,7 @@ def main():
                       # actionable evidence: what the server actually returned
                       "observed": d.get("observed")} for c, d in detail]
     out["disclaimer"] = DISCLAIMER
+    out["probe_shape"] = _probe_shape(ctx)      # the destinations[] shape this run built (V2)
     # exit code for CI: 2 if any MUST deviation, else 0 (partial coverage is not a failure)
     rc = 2 if cc["deviations"] else 0
     if args.junit:
