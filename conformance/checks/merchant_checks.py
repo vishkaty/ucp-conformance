@@ -1109,7 +1109,7 @@ CHECKS = [
            ["status:500", "empty", "corrupt-json",
             'set:fulfillment={"methods":[{"id":"m1","type":"shipping",'
             '"line_item_ids":["li_1","li_2"],'
-            '"destinations":[{"id":"d1","address_country":"US"}],'
+            '"destinations":$DESTS,'
             '"selected_destination_id":"d1",'
             '"groups":[{"id":"g1","line_item_ids":["li_1"],"selected_option_id":"std"},'
             '{"id":"g2","line_item_ids":["li_2"],"selected_option_id":"std"}]}]}',
@@ -1418,7 +1418,15 @@ def _expand_mut(m, ctx):
       $PRODUCT  -> the merchant's primary product id (ctx.product_id)
       $PRODUCT2 -> a second distinct product id (config cart.second_product_id,
                    falling back to order.second_product_id)
+      $DESTS / $FUL / $KEYS -> version-keyed wire fragments from
+                   wire_shapes.shapes_for(ctx.version).placeholders(ctx) (D1-02): a
+                   fulfillment destinations[] list, a whole fulfillment block, the
+                   profile key-list field name — expanded FIRST so a mutant never
+                   carries one version's literal shape into another version's server.
     """
+    for k, v in shapes_for(ctx.version).placeholders(ctx).items():
+        if k in m:
+            m = m.replace(k, v)
     if "$PRODUCT2" in m:                     # before $PRODUCT ($PRODUCT is a prefix)
         p2 = (ctx.config.get("cart") or {}).get("second_product_id") \
             or (ctx.config.get("order") or {}).get("second_product_id")

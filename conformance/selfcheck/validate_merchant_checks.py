@@ -258,7 +258,10 @@ CONTROLLED_CONFIG = {
     },
 }
 
-GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
+# golden-0825 (conformance/testbed/golden-0825, our own 2026-08-25 reference) is seeded
+# from the same flower_shop data, so REF_CONFIG grades it as-is; wire_shapes.py supplies
+# the 08-25 request delta (D1-01/D1-02). D1-10 pins its expected-skip population.
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG}
 
 def main():
     ap = argparse.ArgumentParser(description="Reference gate for merchant checks.")
