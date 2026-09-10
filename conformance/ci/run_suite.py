@@ -211,6 +211,10 @@ def gates(server):
         # with its own CHECK/EXEMPT counts must redden freshness(); hermetic
         # (SPCK_PUBLIC scratch copy, repo untouched) — proves the validator can fail.
         ("site-state-selftest", _py(ROOT / "conformance" / "ci" / "site_gates.py", "--selftest"), None, ()),
+        # the site lane's own kill-tests (D5-10/D5-01/D5-05): scratch copies of public/
+        # with one planted defect each must redden the audits — recursive scope, stale
+        # doc counts, registry drift, review-field rewrites. Hermetic (repo untouched).
+        ("site-gates-selftest", _py(ROOT / "conformance" / "ci" / "validate_site_gates.py"), None, ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
                              "--target-name", "flower-shop-official-sample",

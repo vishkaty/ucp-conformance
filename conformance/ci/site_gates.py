@@ -79,9 +79,29 @@ class _Text(html.parser.HTMLParser):
             attrib = any(a for _, _, a in self.stack)
             self.chunks.append((self.getpos()[0], s, live, attrib))
 
+# Generated trees/pages are byte-compared by their own gates (checkdocs; the known-issues
+# generator in D5-12) and are NOT hand-authored copy, so the claims/voice/security audits
+# skip them. Everything else under public/** — including sub-directories such as
+# state-of-ucp/ (the launch page) — is audited (PLAN-v3 §2.18 audit scope, D5-10).
+GENERATED_DIRS = ("checks",)
+GENERATED_PAGES = ("known-issues.html",)
+
 def pages():
-    """All public pages currently present — retired pages drop out on deletion."""
-    return sorted(glob.glob(str(PUB / "*.html")))
+    """Every hand-authored public page currently present, recursively — retired pages
+    drop out on deletion; generated pages/dirs are excluded (see GENERATED_*)."""
+    out = []
+    for f in sorted(PUB.rglob("*.html")):
+        rel = f.relative_to(PUB)
+        if rel.parts[0] in GENERATED_DIRS or rel.name in GENERATED_PAGES:
+            continue
+        out.append(str(f))
+    return out
+
+def page_key(path):
+    """The page's identity in the claims register: its path relative to public/
+    (top-level pages keep their bare basename, e.g. index.html)."""
+    return str(pathlib.Path(path).resolve().relative_to(PUB.resolve())) \
+        if str(path).startswith(str(PUB)) else os.path.basename(path)
 
 def page_chunks(path):
     p = _Text()
@@ -253,7 +273,7 @@ def claims(explain=False):
     fails, out = [], []
 
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
 
         # R-007 sweep — every data-live binding must resolve; a numeric fallback
         # must EQUAL the live value (raw scan catches empty/JS-filled elements too)
@@ -340,7 +360,7 @@ def voice():
     rules = json.load(open(WEB / "voice_rules.json"))
     fails = []
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         lines = page_lines(path)
         full = " ".join(t for _, t, _ in lines)
 
@@ -500,7 +520,7 @@ def redirects():
                              f"/tool,/guide retirement redirects are allowed")
 
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         for i, line in enumerate(open(path, encoding="utf-8").read().splitlines(), 1):
             for m in re.finditer(r'href\s*=\s*["\']([^"\']+)', line):
                 target = m.group(1).split("#")[0].split("?")[0]
@@ -528,7 +548,7 @@ def _css_line(block_start_line, block, m):
 def consistency():
     fails = []
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         raw = open(path, encoding="utf-8").read()
         if not re.search(r'<link[^>]+href\s*=\s*["\']/site\.css["\']', raw):
             fails.append(f"{page}: does not link the shared design system "

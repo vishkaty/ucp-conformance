@@ -369,6 +369,18 @@
    ],
    "status": "active",
    "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-031",
+   "requirement": "Audit scope is every hand-authored page under public/** recursively (sub-directories such as state-of-ucp/ included); only generated trees/pages (checks/, known-issues.html) are excluded because their own byte-compare gates hold them. A planted page under a sub-directory carrying an unregistered claim reds `claims` (kill-tested by conformance/ci/validate_site_gates.py); the launch page's claims are registered LAU-001..007 (PLAN-v3 §2.18, D5-10).",
+   "pages": [
+    "state-of-ucp/launch-2026-08-25.html"
+   ],
+   "tests": [
+    "gate:claims"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }

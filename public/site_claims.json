@@ -968,6 +968,69 @@
       "evidence": "conformance/SOURCES.lock.json spec.versions['2026-04-08'].commit = a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d (rendered from public/coverage.json $.spec_pins, never typed); the upstream tag move to a25a4a24 was observed 2026-09-09 (ucp#813; sources_age.py --check, acknowledged under decision 3 in conformance/ci/known_tag_moves.json by D2-17). Footnote renders on the 2026-04-08 tab only; pinned by tests/web/unit/coverage_page.test.mjs. review_by tracks decision 3's known_tag_moves review_by (re-pin in Wave 1 retires it).",
       "added": "2026-09-10",
       "review_by": "2026-12-08"
+    },
+    {
+      "id": "LAU-001",
+      "text": "#741 ), capability names adopted a dotted namespace, request constraints arrived as a first-class negotiation mechanism (",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "ucp PRs #736/#741 (payments + primitives into common/), #655/#744 (request constraints), all merged before tag v2026-08-25 = cd78fb38 (conformance/SOURCES.lock.json spec pin); dotted capability names visible in the vendored tree conformance/.vendor/ucp-2026-08-25/source/schemas/common/payment_terms.json ($id dev.ucp.common.payment.terms). Schema-tree counts on the same page verified against the vendored pin 2026-09-10: shopping/ 42 files, common/ 64 files.",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "LAU-002",
+      "text": "Every deep link, bookmark, and doc-anchored citation 404s.",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "ucp#723 docs reorg by vertical: at pin cd78fb38 docs/specification/checkout.md does not exist and docs/specification/shopping/checkout/index.md does (verified in conformance/.vendor/ucp-2026-08-25, 2026-09-10); the register's own citations were re-anchored to the new paths (conformance/requirements/2026-08-25/*.json source fields).",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "LAU-003",
+      "text": "Payloads that leaned on loose models: fractional or zero quantities, response-shaped objects passed where a request variant belongs.",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "Generated SDK models at js-sdk 0.4.5+ / ucp-sdk 0.4.5+ enforce integer quantity minimum 1 and split request/update/response classes (python-sdk release 0.4.6, samples#194 quantity-bounds issue -> samples#199); the golden-0825 request-side models re-validate the same shapes (conformance/testbed/golden-0825, R15 in ops/GAP-LEDGER-0825.md).",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "LAU-004",
+      "text": "7 A version-skew window is open.",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "Hazard row 7 of the migration table: at publish (2026-08-27) the reference samples pin 00333a80 (conformance/SOURCES.lock.json reference_sample_server) serves version 2026-04-08 and the published SDK lines are 0.4.x \u2014 ops/GAP-LEDGER-0825.md G8 (version literals) and G12 (no supported_versions negotiation) hold this open; the row's '7' is the table index, not a count.",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "LAU-005",
+      "text": "The python reference now answers rejected requests, validation failures included, with the UCP envelope, JSON carrying code and content ( samples#196 , merged); the node twin is in review ( samples#192 ).",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "Point-in-time statement dated on the page (published 2026-08-27): samples#196 merged (python validation-error envelope, our PR); samples#192 (node twin) was open in review at publish \u2014 the page is a dated edition, statuses are as of that date. Re-verify #192's state at review_by and add a dated note if merged.",
+      "added": "2026-09-10",
+      "review_by": "2026-10-10"
+    },
+    {
+      "id": "LAU-006",
+      "text": "The reference implementations went through a fast hardening cycle in the days around the cut, all in public threads.",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "Every item in the paragraph is a public GitHub thread: samples#193, samples#196, python-sdk#83 (released in ucp-sdk 0.4.6), samples#199, samples#192, conformance#97 \u2014 all linked inline on the page; 'all in public threads' asserts nothing beyond those links.",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "LAU-007",
+      "text": "The live tracker pins every requirement it checks to spec lines and re-verifies against the released artifacts; the v2026-08-25 requirement register is being rebuilt against the released text now, and the next edition will carry the numbers.",
+      "page": "state-of-ucp/launch-2026-08-25.html",
+      "class": "REG",
+      "evidence": "Every register row carries a spec source (path#line at the pinned SHA) verified verbatim by conformance/selfcheck/verify_register.py (run_suite gate register) and cited in public/coverage.json; the 2026-08-25 register is state=converting under rule R-a (D2-06/D5-03) \u2014 'being rebuilt' holds while the version is not live; the 2026-09-01 edition (public/state-of-ucp/history/2026-09-01.json) carried the first numbers.",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
     }
   ]
 }
