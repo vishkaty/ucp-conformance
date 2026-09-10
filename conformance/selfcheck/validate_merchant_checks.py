@@ -292,6 +292,49 @@ def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skip
     pathlib.Path(path).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
 
 
+OVR002_MUTANTS = (
+    # capability entry missing `spec` (schema present) / missing `schema` (spec present)
+    'set:capabilities={"dev.ucp.shopping.checkout":[{"version":"2026-04-08",'
+    '"schema":"https://ucp.dev/schemas/shopping/checkout.json"}]}',
+    'set:capabilities={"dev.ucp.shopping.checkout":[{"version":"2026-04-08",'
+    '"spec":"https://ucp.dev/specification/checkout"}]}',
+)
+
+
+def _ovr002_case():
+    """OVR-002 attributed to profile.spec_url_authority at 2026-04-08 AND the predicate
+    kills a capability entry missing spec or schema (both OVR002_MUTANTS declared on the
+    check and caught); a conformant profile stays CLEAN."""
+    import json as _json
+    from engine import Resp, CLEAN, DEVIATION, mutate
+    chk = next((c for c in merchant_checks.all_checks() if c.id == "profile.spec_url_authority"), None)
+    if chk is None:
+        print("  ✗ ovr002: check profile.spec_url_authority not found"); return False
+    ids = (chk.req_ids_map or {}).get("2026-04-08", list(chk.req_ids))
+    attributed = "OVR-002" in ids and "OVR-003" in ids
+    print(f"  {'✓' if attributed else '✗'} ovr002: profile.spec_url_authority cites OVR-002 + OVR-003 at 2026-04-08 (got {ids})")
+    body = {"version": "2026-04-08",
+            "services": {"dev.ucp.shopping": [{"version": "2026-04-08", "transport": "rest",
+                                               "endpoint": "https://m.example/ucp",
+                                               "spec": "https://ucp.dev/specification/overview",
+                                               "schema": "https://ucp.dev/schemas/shopping/service.json"}]},
+            "capabilities": {"dev.ucp.shopping.checkout": [{"version": "2026-04-08",
+                                                            "spec": "https://ucp.dev/specification/checkout",
+                                                            "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]}}
+    golden = Resp(200, {"Content-Type": "application/json"}, _json.dumps(body).encode())
+    clean = chk.predicate(golden) == CLEAN
+    print(f"  {'✓' if clean else '✗'} ovr002: conformant profile (spec+schema on every capability) -> CLEAN")
+    ok = attributed and clean
+    for m in OVR002_MUTANTS:
+        declared = m in chk.mutations
+        killed = chk.predicate(mutate(golden, m)) == DEVIATION
+        label = "missing spec" if '"schema"' in m and '"spec"' not in m else "missing schema"
+        print(f"  {'✓' if declared and killed else '✗'} ovr002: capability entry {label}: "
+              f"declared on the check={declared}, killed={killed}")
+        ok &= declared and killed
+    return ok
+
+
 def selftest():
     """Hermetic structural cases (no server). D2-02 `unique_check_ids`: every MCheck
     id across the whole merchant check set must be unique — the reach report
@@ -306,6 +349,15 @@ def selftest():
     print(f"  {'✓' if ok else '✗'} unique_check_ids: {len(ids)} MCheck ids, "
           f"{len(set(ids))} distinct"
           + ("" if ok else f"  <-- duplicated: {dupes}"))
+
+    # B3 (owner ruling 2026-09-10; W0-review ruling (a)): OVR-002 — "The `spec` and `schema`
+    # fields are REQUIRED for all capabilities" (overview.md#L82, the REQUIRED half of the
+    # sentence whose MUST half is OVR-003) — is graded by the 04-08 envelope profile check
+    # that already reads those URLs, profile.spec_url_authority. Attribution alone would be
+    # vacuous: the check must also KILL a capability entry that lacks either field.
+    # Hermetic: a conformant synthetic profile as the golden Resp, engine.mutate for the
+    # defects, the check's own predicate + declared mutation list.
+    ok &= _ovr002_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
