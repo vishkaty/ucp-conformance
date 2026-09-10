@@ -615,6 +615,21 @@ def _selftest():
         if not (len(tj) == 1 and tj[0]["key"] == "spec/2026-04-08" and tj[0]["from"] == "a2d8bf0b"
                 and tj[0]["to"] == "a25a4a24" and tj[0]["tag_object"] == "ebac9d15"):
             fails.append(f"J: moved tag must yield one finding with from/to/tag_object, got {tj}")
+        # Case J2 (W0-review V1 — the REAL move shape, 2026-09-10): the lock already records
+        # the CURRENT tag object (ebac9d15, as SOURCES.lock.json does today) together with the
+        # ORIGINAL pinned commit (a2d8bf0b); live, that same tag object dereferences to
+        # a25a4a24. object_moved is False here, so detection rests on commit_moved ALONE —
+        # a `commit_moved = False` mutant must red THIS case (case J's old-object fixture lets
+        # object_moved mask that mutant, which is why J alone was vacuous for the real move).
+        tag_lock_j2 = {"spec": {"repo": "org/ucp", "versions": {
+            "2026-04-08": {"tag": "v2026-04-08", "commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+                           "tag_object_sha": "ebac9d155805aabd1bab37e78cb893c5a2be8a78"}}}}
+        tj2 = evaluate_tag_identity(tag_entries(tag_lock_j2), ident)   # same live identity as J
+        if not (len(tj2) == 1 and tj2[0]["key"] == "spec/2026-04-08" and tj2[0]["from"] == "a2d8bf0b"
+                and tj2[0]["to"] == "a25a4a24" and tj2[0]["tag_object"] == "ebac9d15"
+                and tj2[0]["tag_object_from"] == "ebac9d15"):
+            fails.append(f"J2: same tag object, different dereferenced commit must yield exactly one "
+                         f"finding (commit_moved alone), got {tj2}")
         # Case K: unchanged — live object and commit equal the lock -> no finding.
         ident_same = {"spec/2026-08-25": {"tag_object_sha": "cd78fb38e819de77d9b527d110476eccb876f1bd",
                                           "tag_object_type": "commit",
