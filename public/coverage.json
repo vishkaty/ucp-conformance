@@ -5114,17 +5114,17 @@
    "state": "converting",
    "no_further_work": false,
    "musts": 366,
-   "check": 276,
+   "check": 277,
    "exempt": 81,
-   "gap": 9,
+   "gap": 8,
    "accounted_pct": 98,
    "roles": null,
    "by_transport": {
     "rest": {
      "musts": 359,
-     "check": 270,
+     "check": 271,
      "exempt": 80,
-     "gap": 9
+     "gap": 8
     },
     "mcp": {
      "musts": 6,
@@ -5184,14 +5184,14 @@
     "self-referenced"
    ],
    "evidence_breakdown": {
-    "live-wire": 66,
+    "live-wire": 67,
     "fixture-schema": 68,
     "fixture-crypto": 4,
     "self-referenced": 138
    },
    "gap_by_testability": {
     "manual": 7,
-    "needs-receiver": 2
+    "needs-receiver": 1
    },
    "areas": [
     {
@@ -5258,11 +5258,10 @@
     },
     {
      "area": "overview",
-     "check": 9,
+     "check": 10,
      "exempt": 2,
-     "gap": 3,
+     "gap": 2,
      "gap_manual": 2,
-     "gap_needs-receiver": 1,
      "musts": 14
     },
     {
@@ -8721,10 +8720,17 @@
      "area": "overview",
      "keyword": "REQUIRED",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "Every advertised capability declaration MUST include spec and schema URL fields",
      "source": "ucp:docs/specification/overview.md#L82",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_04_08_envelope.py"
+     ],
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "OVR-003",

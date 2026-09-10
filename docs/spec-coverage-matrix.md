@@ -17,11 +17,11 @@ _CHECK is split by EVIDENCE CLASS — live-wire (kill-tested against an independ
 - GAP/manual: ERR-008, FUL-017
 - GAP/needs-receiver: A2A-001, CHK-015, CHK-039, MCP-002, MCP-003, NEG-009, ORD-011, ORD-017, PAY-018, PAY-022, PAY-024, PAY-025, PAY-028, PAY-030, PAY-031, PAY-032, PAY-033, PAY-034
 
-## 2026-04-08 — 98% accounted (276 check · 81 exempt · 9 gap of 366 MUSTs)
+## 2026-04-08 — 98% accounted (277 check · 81 exempt · 8 gap of 366 MUSTs)
 
-- CHECK by evidence: live-wire 66 · fixture-schema 68 · fixture-crypto 4 · self-referenced 138
+- CHECK by evidence: live-wire 67 · fixture-schema 68 · fixture-crypto 4 · self-referenced 138
 - GAP/manual: CAT-035, ERR-006, ERR-034, FUL-017, IDL-062, OVR-013, OVR-014
-- GAP/needs-receiver: OVR-002, SIG-039
+- GAP/needs-receiver: SIG-039
 
 ## 2026-08-25 — 10% accounted (77 check · 0 exempt · 703 gap of 780 MUSTs)
 

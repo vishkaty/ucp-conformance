@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>spck.dev — Your UCP checkout passes conformance. Does it actually work?</title>
-<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec — and it shows its evidence. Two independent reference servers, the official schema oracle, an enforced kill rate, and a published evidence-class split over every requirement: 66 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 227 kill-rate-validated checks, CLI + CI + web, multi-version support.">
+<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec — and it shows its evidence. Two independent reference servers, the official schema oracle, an enforced kill rate, and a published evidence-class split over every requirement: 67 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 227 kill-rate-validated checks, CLI + CI + web, multi-version support.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://spck.dev/">
 <meta property="og:title" content="spck.dev — a UCP conformance suite you can trust">
@@ -77,12 +77,12 @@ section.alt{background:var(--surface)}
       <a class="btn-secondary" href="/agent">Test your agent →</a>
     </div>
     <div class="stats">
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08'].check">276</span></div><div class="stat-label">Checked requirements (v2026-04-08)</div></div>
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">66</span></div><div class="stat-label">Kill-tested against independent servers</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08'].check">277</span></div><div class="stat-label">Checked requirements (v2026-04-08)</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">67</span></div><div class="stat-label">Kill-tested against independent servers</div></div>
       <div class="stat"><div class="stat-num">0</div><div class="stat-label">False greens</div></div>
     </div>
     <p class="hero-cov">Every normative <strong>MUST</strong> across four spec versions is accounted for — a proven check, a documented exemption, or a tracked gap.
-      And the checks themselves are classed by proof: <strong><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">66</span> live-wire</strong> (kill-tested against an independently-authored server — 24%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-schema']">68</span> graded by the official ucp-schema oracle (25%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-crypto']">4</span> crypto self-tests, and <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['self-referenced']">138</span> (50%) backed so far only by our own fixtures — a split we publish because you should know it before you trust a green.
+      And the checks themselves are classed by proof: <strong><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">67</span> live-wire</strong> (kill-tested against an independently-authored server — 24%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-schema']">68</span> graded by the official ucp-schema oracle (25%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-crypto']">4</span> crypto self-tests, and <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['self-referenced']">138</span> (50%) backed so far only by our own fixtures — a split we publish because you should know it before you trust a green.
       <a href="#coverage-live">See the live coverage ↓</a></p>
   </div>
 </div>

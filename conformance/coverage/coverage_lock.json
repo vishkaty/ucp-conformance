@@ -1,5 +1,5 @@
 {
- "_about": "Coverage lock \u2014 the set of requirement ids that ARE covered (CHECK) or EXEMPT per pinned spec version. A pinned spec version is IMMUTABLE, so a covered requirement must stay accounted for the life of that version. verify_coverage_lock.py FAILS the build if any id here becomes GAP, unless it is listed in retirements.json with a spec-grounded reason. Regenerate ONLY to ADD ids (never to drop them): python3 conformance/coverage/gen_coverage_lock.py",
+ "_about": "Coverage lock — the set of requirement ids that ARE covered (CHECK) or EXEMPT per pinned spec version. A pinned spec version is IMMUTABLE, so a covered requirement must stay accounted for the life of that version. verify_coverage_lock.py FAILS the build if any id here becomes GAP, unless it is listed in retirements.json with a spec-grounded reason. Regenerate ONLY to ADD ids (never to drop them): python3 conformance/coverage/gen_coverage_lock.py",
  "versions": {
   "2026-01-11": {
    "check": [
@@ -531,6 +531,7 @@
     "ORD-030",
     "ORD-031",
     "OVR-001",
+    "OVR-002",
     "OVR-003",
     "OVR-004",
     "OVR-005",

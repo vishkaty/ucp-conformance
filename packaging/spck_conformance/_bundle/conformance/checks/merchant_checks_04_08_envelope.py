@@ -10,7 +10,7 @@ registers row these duties as DISC-*/NEG-* with different text), so every check 
 version-locked (versions=V0408) and the file carries the 04_08 name token.
 
 Receiver surfaces exercised here:
-  * PROFILE duties (OVR-001/003/009/010) — served at /.well-known/ucp; graded on
+  * PROFILE duties (OVR-001/002/003/009/010) — served at /.well-known/ucp; graded on
     the discovered profile document plus live fetches of supported_versions URIs.
   * ENVELOPE duties (OVR-004/005/008) — graded across representative responses of
     every capability the merchant declares (checkout always; cart/catalog when
@@ -68,7 +68,8 @@ def p_reverse_domain_names(r):
             return DEVIATION
     return CLEAN
 
-# ---- OVR-003: spec/schema URL origin matches the namespace authority ------------
+# ---- OVR-002 + OVR-003: spec/schema URLs present on every capability, and their
+#      origin matches the namespace authority -------------------------------------
 def _authority(name):
     """The namespace authority of a reverse-domain name: the first two labels
     reversed (overview.md Spec URL Binding table: dev.ucp.* -> ucp.dev,
@@ -77,11 +78,14 @@ def _authority(name):
     return f"{parts[1]}.{parts[0]}" if len(parts) >= 2 else None
 
 def p_url_authority(r):
-    """OVR-003: for every advertised capability/service entry, the origin of its
-    spec/schema URLs matches the authority derived from the entry's
-    reverse-domain name. Entries without such URLs contribute nothing; the
-    services registry always carries them (spec/schema are REQUIRED there), so
-    the check can never pass vacuously on a conformant profile."""
+    """OVR-002 + OVR-003 (overview.md#L82-83, one sentence, two keywords):
+    OVR-002 — every advertised CAPABILITY entry carries `spec` and `schema` URL fields
+    (REQUIRED for all capabilities; owner ruling 2026-09-10, W0-review ruling (a)):
+    an entry missing either is a DEVIATION. OVR-003 — for every capability/service
+    entry, the origin of its spec/schema URLs matches the authority derived from the
+    entry's reverse-domain name. Service entries without such URLs contribute
+    nothing to OVR-003; the services registry always carries them (spec/schema are
+    REQUIRED there), so the check can never pass vacuously on a conformant profile."""
     if r.status != 200 or not isinstance(r.json, dict):
         return DEVIATION
     ucp = _ucp_of(r.json)
@@ -91,6 +95,7 @@ def p_url_authority(r):
         return DEVIATION
     checked = 0
     for registry in (svcs, caps if isinstance(caps, dict) else {}):
+        is_caps = registry is caps
         for name, entries in registry.items():
             want = _authority(name)
             if not want:
@@ -99,6 +104,8 @@ def p_url_authority(r):
                 for k in ("spec", "schema"):
                     u = (e or {}).get(k)
                     if not isinstance(u, str) or "://" not in u:
+                        if is_caps:
+                            return DEVIATION          # OVR-002: REQUIRED on every capability
                         continue
                     checked += 1
                     p = urlsplit(u)
@@ -322,6 +329,15 @@ _EVIL_SVC = json.dumps({"dev.ucp.shopping": [
      "spec": "https://evil.example/spec",
      "schema": "https://ucp.dev/schema.json"}]})
 
+# OVR-002 mutants: a capability entry that lacks `spec` / lacks `schema` (the other
+# field present and well-formed, so only the REQUIRED-presence branch can catch it).
+_CAP_NO_SPEC = json.dumps({"dev.ucp.shopping.checkout": [
+    {"version": "2026-04-08", "schema": "https://ucp.dev/schemas/shopping/checkout.json"}]},
+    separators=(",", ":"))
+_CAP_NO_SCHEMA = json.dumps({"dev.ucp.shopping.checkout": [
+    {"version": "2026-04-08", "spec": "https://ucp.dev/specification/checkout"}]},
+    separators=(",", ":"))
+
 CHECKS_04_08_ENVELOPE = [
     MCheck("profile.reverse_domain_names", ["OVR-001"], "MUST",
            _profile_resp, p_reverse_domain_names,
@@ -329,9 +345,11 @@ CHECKS_04_08_ENVELOPE = [
             f"set:capabilities={_BAD_NAME_CAPS}",
             f"set:services={_BAD_NAME_SVCS}", "corrupt-json"],
            transport="rest", versions=V0408),
-    MCheck("profile.spec_url_authority", ["OVR-003"], "MUST",
+    MCheck("profile.spec_url_authority", ["OVR-002", "OVR-003"], "MUST",
            _profile_resp, p_url_authority,
-           ["drop:services", f"set:services={_EVIL_SVC}", "corrupt-json"],
+           ["drop:services", f"set:services={_EVIL_SVC}",
+            f"set:capabilities={_CAP_NO_SPEC}", f"set:capabilities={_CAP_NO_SCHEMA}",
+            "corrupt-json"],
            transport="rest", versions=V0408),
     MCheck("profile.version_dated", ["OVR-010"], "MUST NOT",
            _profile_resp, p_version_dated,
