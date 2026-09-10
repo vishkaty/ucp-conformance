@@ -40,6 +40,10 @@ import evidence  # noqa: E402 — the evidence-class layer (sibling module)
 # see that module's docstring for what each field means and why it isn't a formula.
 from common.spec_versions import (  # noqa: E402
     VERSIONS, CURRENT_SITE_VERSION, REGISTER_ONLY_VERSIONS)
+# The accounting denominator is the MANDATORY keyword class (MUST, MUST NOT, SHALL,
+# SHALL NOT, REQUIRED) — one tuple shared with coverage_gate / agent_matrix / the two
+# census scripts (D2-01), never a local pair that can drift from the census regex.
+from common.keywords import MANDATORY  # noqa: E402
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
@@ -389,7 +393,7 @@ def export_json():
            "versions": {}}
     for ver in VERSIONS:
         rows = [r for r in load_rows_with_area(ver)
-                if r.get("keyword") in ("MUST", "MUST NOT")]
+                if r.get("keyword") in MANDATORY]
         areas = {}
         jrows = []
         n_check = n_exempt = 0
@@ -527,7 +531,7 @@ def exempt_reason_at(exempt, rid, ver):
 
 def account(ver, cov, exempt):
     rows = load_rows(ver)
-    musts = [r for r in rows if r.get("keyword") in ("MUST", "MUST NOT")]
+    musts = [r for r in rows if r.get("keyword") in MANDATORY]
     buckets = {"CHECK": [], "EXEMPT": [], "GAP": []}
     gap_by_test = defaultdict(list)
     cov_ver = cov.get(ver, set())

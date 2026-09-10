@@ -42,6 +42,7 @@ sys.path.insert(0, str(ROOT / "conformance"))
 # conformance/common/spec_versions.py for the full doctrine on both (report-mode's
 # fail-noisy self-expiry included).
 from common.spec_versions import VERSION_TREE, REPORT_MODE_UNTIL  # noqa: E402
+from common.keywords import KW_RE  # noqa: E402 — D2-01: the shared longest-first MANDATORY regex
 
 VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced"}
 # scope exclusions are file-level and carry an extra reason class: a whole spec file
@@ -49,8 +50,10 @@ VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced"}
 # (e.g. browser-embedded MessagePort UI) or are non-normative (narrative/examples/guides).
 VALID_SCOPE_CLASSES = {"out-of-scope", "non-normative-doc"}
 
-# longest-first so "MUST NOT" wins over "MUST"; all-caps only (normative form)
-KW_RE = re.compile(r"\b(MUST NOT|MUST|SHALL NOT|SHALL|REQUIRED)\b")
+# KW_RE (imported above) is the shared MANDATORY-class regex — longest-first so
+# "MUST NOT" wins over "MUST"; all-caps only (normative form). It is derived from the
+# same tuple matrix/coverage_gate/agent_matrix filter register rows by, so the census
+# and the accounting denominator can never disagree about what "mandatory" means.
 
 
 def norm(s: str) -> str:

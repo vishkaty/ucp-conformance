@@ -41,6 +41,7 @@ sys.path.insert(0, CONF)
 # independent of the merchant matrix's own graduation. See spec_versions.py's
 # docstring for the fuller incident writeup.
 from common.spec_versions import VERSIONS, AGENT_REGISTER_ONLY_VERSIONS  # noqa: E402
+from common.keywords import MANDATORY  # noqa: E402 — D2-01: one mandatory-keyword tuple
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
@@ -126,7 +127,7 @@ def agent_rows(ver):
         for r in json.load(open(f)).get("rows", []):
             if ver not in (r.get("versions") or [ver]):
                 continue
-            if r.get("keyword") not in ("MUST", "MUST NOT"):
+            if r.get("keyword") not in MANDATORY:
                 continue
             if r["id"] in NOT_AGENT_BOUND:         # business-only (denominator-accuracy audit)
                 continue

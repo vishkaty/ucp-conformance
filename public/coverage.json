@@ -4970,10 +4970,10 @@
   },
   "2026-04-08": {
    "state": "live",
-   "musts": 364,
+   "musts": 366,
    "check": 276,
    "exempt": 81,
-   "gap": 7,
+   "gap": 9,
    "accounted_pct": 98,
    "evidence_breakdown": {
     "live-wire": 48,
@@ -4982,7 +4982,8 @@
     "self-referenced": 151
    },
    "gap_by_testability": {
-    "manual": 7
+    "manual": 7,
+    "needs-receiver": 2
    },
    "areas": [
     {
@@ -5051,9 +5052,10 @@
      "area": "overview",
      "check": 9,
      "exempt": 2,
-     "gap": 2,
+     "gap": 3,
      "gap_manual": 2,
-     "musts": 13
+     "gap_needs-receiver": 1,
+     "musts": 14
     },
     {
      "area": "payment",
@@ -5071,7 +5073,9 @@
      "area": "signatures",
      "check": 31,
      "exempt": 2,
-     "musts": 33
+     "gap": 1,
+     "gap_needs-receiver": 1,
+     "musts": 34
     },
     {
      "area": "totals",
@@ -8484,6 +8488,16 @@
      ]
     },
     {
+     "id": "OVR-002",
+     "area": "overview",
+     "keyword": "REQUIRED",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "Every advertised capability declaration MUST include spec and schema URL fields",
+     "source": "ucp:docs/specification/overview.md#L82",
+     "covered_by": []
+    },
+    {
      "id": "OVR-003",
      "area": "overview",
      "keyword": "MUST",
@@ -9876,6 +9890,16 @@
      "reach": []
     },
     {
+     "id": "SIG-039",
+     "area": "signatures",
+     "keyword": "REQUIRED",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In the RFC 8941 Dictionary of the `UCP-Agent` header, the `profile` key is REQUIRED and must be present when determining the signer's profile URL.",
+     "source": "ucp:docs/specification/signatures.md#L354",
+     "covered_by": []
+    },
+    {
      "id": "SIG-040",
      "area": "signatures",
      "keyword": "MUST",
@@ -10091,10 +10115,10 @@
   },
   "2026-08-25": {
    "state": "live",
-   "musts": 785,
+   "musts": 786,
    "check": 70,
    "exempt": 0,
-   "gap": 715,
+   "gap": 716,
    "accounted_pct": 9,
    "evidence_breakdown": {
     "live-wire": 0,
@@ -10105,7 +10129,7 @@
    "gap_by_testability": {
     "manual": 162,
     "needs-oauth": 15,
-    "needs-receiver": 173,
+    "needs-receiver": 174,
     "testable": 365
    },
    "areas": [
@@ -10313,11 +10337,11 @@
     {
      "area": "signatures",
      "check": 2,
-     "gap": 43,
+     "gap": 44,
      "gap_manual": 3,
-     "gap_needs-receiver": 25,
+     "gap_needs-receiver": 26,
      "gap_testable": 15,
-     "musts": 45
+     "musts": 46
     },
     {
      "area": "split-payments",
@@ -17807,6 +17831,16 @@
      "status": "gap",
      "requirement": "Verification must skip the candidate signature with digest_mismatch when Content-Digest does not match the recomputed sha-256 of the raw body bytes.",
      "source": "ucp:docs/specification/signatures.md#L726-L727",
+     "covered_by": []
+    },
+    {
+     "id": "SIG-039",
+     "area": "signatures",
+     "keyword": "REQUIRED",
+     "testability": "needs-receiver",
+     "status": "gap",
+     "requirement": "In the RFC 8941 Dictionary of the `UCP-Agent` header, the `profile` key is REQUIRED and must be present when determining the signer's profile URL.",
+     "source": "ucp:docs/specification/signatures.md#L618",
      "covered_by": []
     },
     {

@@ -85,6 +85,7 @@ FENCED_RULINGS_FILE = ROOT / "conformance" / "coverage" / "fenced_hit_rulings.js
 sys.path.insert(0, str(ROOT / "conformance"))
 sys.path.insert(0, str(HERE))
 from common.spec_versions import VERSION_TREE          # noqa: E402
+from common.keywords import KW_RE                      # noqa: E402 — D2-01 shared MANDATORY regex
 from verify_register_completeness import parse_source   # noqa: E402
 
 # The 08-27 schema-embedded-constraint census (PLAN-0825 section 2 item 6) counted
@@ -105,7 +106,7 @@ SERVICE_GLOBS = ("source/services/**/*.openapi.json", "source/services/**/*.open
 VALID_RULING_CLASSES = {"out-of-scope", "non-normative"}
 VALID_FENCED_CLASSES = {"non-normative", "duplicate", "promote"}
 
-KW_RE = re.compile(r"\b(MUST NOT|MUST|SHALL NOT|SHALL|REQUIRED)\b")
+# KW_RE is the shared MANDATORY-class regex from common/keywords.py (D2-01).
 
 
 # --- inventory (I/O) --------------------------------------------------------------

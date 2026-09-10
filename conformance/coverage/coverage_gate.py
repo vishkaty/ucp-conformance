@@ -286,7 +286,7 @@ def main():
     # 3. exemptions are honest (incl. optional per-entry `versions` scope)
     exempt = matrix.load_exemptions()
     must_ids = {v: {r.get("id") for r in matrix.load_rows(v)
-                    if r.get("keyword") in ("MUST", "MUST NOT")}
+                    if r.get("keyword") in matrix.MANDATORY}
                 for v in matrix.VERSIONS}
     covered = matrix.covered_ids_by_version()
     failures += validate_exemptions(exempt, must_ids, covered)
