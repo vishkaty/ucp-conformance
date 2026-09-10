@@ -1,0 +1,15 @@
+{
+ "_about": "Claims made in NON-page copy — README, ci/README, packaging README, ROADMAP, and the Pages functions under functions/**/*.js — held to the same evidence bar as public/*.html (site_gates.py docclaims, D5-01/D5-20/D5-21). Each row names the file, a regex the file MUST match (`must_match`) and/or MUST NOT match (`must_not_match`), the evidence, and review_by. Rows with `bind` compare the regex's captured group to a live product value: merchant_checks (MCheck count), agent_checks (len CHECKS), agent_defects, pyproject_base_version (v-prefixed base version of packaging/pyproject.toml).",
+ "claims": [
+  {
+   "id": "DOC-BADGE-001",
+   "file": "functions/api/badge.js",
+   "must_match": "message = `preview \\$\\{passed\\}/\\$\\{total\\}`",
+   "must_not_match": "\"conformant\"",
+   "text": "preview N/M",
+   "evidence": "tests/web/unit/badge.test.mjs 'preview badge message never contains conformant' (web-unit gate) renders an all-clean and a deviating stub profile through functions/api/badge.js and asserts the word never appears; N/M = passed/total of runPreviewChecks (4 structural checks until D5-11's id map)",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  }
+ ]
+}

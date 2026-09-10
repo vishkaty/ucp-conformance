@@ -1,9 +1,9 @@
 {
- "_about": "SITE-R register \u2014 every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
+ "_about": "SITE-R register — every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
  "requirements": [
   {
    "id": "SITE-R-001",
-   "requirement": "Unified nav byte-identical on all 6 pages (spck \u00b7 Merchants /check \u00b7 Agents /agent \u00b7 Coverage /coverage \u00b7 Docs /docs \u00b7 GitHub\u2197); contains no /tool link",
+   "requirement": "Unified nav byte-identical on all 6 pages (spck · Merchants /check · Agents /agent · Coverage /coverage · Docs /docs · GitHub↗); contains no /tool link",
    "pages": [
     "index.html",
     "check.html",
@@ -49,7 +49,7 @@
   },
   {
    "id": "SITE-R-004",
-   "requirement": "/check depth ladder sections in DOM order instant \u2192 cli \u2192 ci (data-ladder-step markers)",
+   "requirement": "/check depth ladder sections in DOM order instant → cli → ci (data-ladder-step markers)",
    "pages": [
     "check.html"
    ],
@@ -126,7 +126,7 @@
   },
   {
    "id": "SITE-R-010",
-   "requirement": "/tool \u2192 /check and /guide \u2192 /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
+   "requirement": "/tool → /check and /guide → /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
    "pages": [
     "_redirects",
     "*"
@@ -240,7 +240,7 @@
   },
   {
    "id": "SITE-R-019",
-   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> \u2014 the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
+   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> — the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
    "pages": [
     "*"
    ],
@@ -322,7 +322,7 @@
   },
   {
    "id": "SITE-R-025",
-   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication \u2014 the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
+   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication — the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
    "pages": [
     "functions/api/[[path]].js"
    ],
@@ -344,6 +344,18 @@
    ],
    "status": "active",
    "added": "2026-07-15"
+  },
+  {
+   "id": "SITE-R-032",
+   "requirement": "Preview badge honesty: GET /api/badge?server=<url> (functions/api/badge.js) renders the discovery + profile-structure PREVIEW as `preview N/M` (N passed of M preview checks) and never the word \"conformant\" for any preview outcome — four structural checks are not a conformance verdict (PLAN-v3 §2.18, D5-20).",
+   "pages": [
+    "functions/api/badge.js"
+   ],
+   "tests": [
+    "web_unit:badge-preview"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }
