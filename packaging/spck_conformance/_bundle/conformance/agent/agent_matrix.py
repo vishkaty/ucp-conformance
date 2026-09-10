@@ -16,7 +16,7 @@ row is accounted as an agent CHECK (covered by an agent check), an agent EXEMPT
   agent_matrix.py                 # report agent coverage
   agent_matrix.py --require all   # gate: fail on any agent GAP (used once we reach 100%)
 """
-import argparse, glob, importlib, json, os, sys
+import argparse, datetime, glob, importlib, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -44,6 +44,43 @@ from common.spec_versions import VERSIONS, AGENT_REGISTER_ONLY_VERSIONS  # noqa:
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
+# RUN EVIDENCE (D5-04 / A12, decision 10): written by run_agent.py on every green run as
+# {check_id: {sandbox_version: {date, spec_pin}}}. A check is attributed at version V ONLY
+# with evidence at V no older than EVIDENCE_WINDOW_DAYS and at V's current spec pin —
+# extending an ACheck's `versions` list attributes nothing by itself (the 2026-09-01
+# incident: 40 checks / 51 req_ids read CHECK at 08-25 with no 08-25 sandbox in existence).
+EVIDENCE = os.path.join(HERE, "agent_run_evidence.json")
+SOURCES_LOCK = os.path.join(ROOT, "conformance", "SOURCES.lock.json")
+EVIDENCE_WINDOW_DAYS = 30
+
+
+def spec_pins():
+    """{version: spec commit} from SOURCES.lock.json — the pin evidence must match."""
+    d = json.load(open(SOURCES_LOCK))
+    return {v: x["commit"] for v, x in d["spec"]["versions"].items()}
+
+
+def load_evidence(path=None):
+    path = path or EVIDENCE
+    if not os.path.exists(path):
+        return {"unrun_versions": {}, "evidence": {}}
+    d = json.load(open(path))
+    return {"unrun_versions": d.get("unrun_versions", {}), "evidence": d.get("evidence", {})}
+
+
+def evidence_problem(entry, today, pin):
+    """None if `entry` ({date, spec_pin}) is fresh evidence at `pin`; else the reason."""
+    if not entry:
+        return "no run evidence"
+    try:
+        age = (today - datetime.date.fromisoformat(entry.get("date", ""))).days
+    except ValueError:
+        return f"malformed date {entry.get('date')!r}"
+    if age < 0 or age > EVIDENCE_WINDOW_DAYS:
+        return f"stale: {age} days old (window {EVIDENCE_WINDOW_DAYS})"
+    if entry.get("spec_pin") != pin:
+        return f"recorded at spec pin {str(entry.get('spec_pin'))[:8]}, current pin {str(pin)[:8]}"
+    return None
 
 AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
                "agents must", "mcp client", "client must", "consumer")
@@ -136,15 +173,31 @@ def agent_rows(ver):
     return ids
 
 
-def agent_check_ids(ver):
-    """req_ids covered by agent checks at `ver`."""
+def agent_check_ids(ver, evidence=None, today=None, pins=None, label_unrun=False, labels=None):
+    """req_ids covered by agent checks at `ver` — ONLY those with fresh run evidence at
+    `ver` (see EVIDENCE). `evidence`/`today`/`pins` default to the committed file, today,
+    and SOURCES.lock; tests inject them. Default = suppress an unrun attribution;
+    `label_unrun` instead counts a check that has fresh evidence at SOME other version and
+    records that version in `labels` ({check_id: sandbox_version}) so the export can say
+    `evidence: {"sandbox-version": …}` rather than imply a run that never happened."""
     sys.path.insert(0, HERE)
     mod = importlib.import_module("agent_checks")
+    evidence = load_evidence()["evidence"] if evidence is None else evidence
+    today = today or datetime.date.today()
+    pins = pins or spec_pins()
     out = set()
     for chk in getattr(mod, "CHECKS", []):
         if chk.versions and ver not in chk.versions:
             continue
-        out.update(chk.req_ids)
+        e = evidence.get(chk.id, {}) or {}
+        if evidence_problem(e.get(ver), today, pins.get(ver)) is None:
+            out.update(chk.req_ids)
+        elif label_unrun:
+            ran = [v for v, x in e.items() if evidence_problem(x, today, pins.get(v)) is None]
+            if ran:
+                out.update(chk.req_ids)
+                if labels is not None:
+                    labels[chk.id] = sorted(ran)[-1]
     return out
 
 
@@ -154,9 +207,9 @@ def agent_exempt_ids():
     return json.load(open(AGENT_EXEMPT))
 
 
-def account(ver):
+def account(ver, label_unrun=False, labels=None):
     rows = agent_rows(ver)
-    checks = agent_check_ids(ver)
+    checks = agent_check_ids(ver, label_unrun=label_unrun, labels=labels)
     ex = agent_exempt_ids()
     check = sorted(r for r in rows if r in checks)
     exempt = sorted(r for r in rows if r not in checks and r in ex)
@@ -168,16 +221,23 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--require", choices=["all"])
     ap.add_argument("--json")
+    ap.add_argument("--label-unrun", action="store_true",
+                    help="count checks that ran only on another sandbox version and LABEL the "
+                         "export with evidence: {sandbox-version} (default: suppress them)")
     args = ap.parse_args()
     failed = False
     summary = {}
     print("AGENT coverage axis (platform/agent obligations) — separate from merchant\n")
     for ver in VERSIONS:
-        rows, check, exempt, gap = account(ver)
+        labels = {}
+        rows, check, exempt, gap = account(ver, label_unrun=args.label_unrun, labels=labels)
         n = len(rows)
         pct = round(100 * (len(check) + len(exempt)) / n) if n else 0
         summary[ver] = {"agent_musts": n, "check": len(check), "exempt": len(exempt),
                         "gap": len(gap), "accounted_pct": pct}
+        if labels:
+            summary[ver]["evidence"] = {"sandbox-version": sorted(set(labels.values()))[-1],
+                                        "labeled_unrun_checks": len(labels)}
         print(f"  {ver}: {n:3} agent MUSTs | CHECK {len(check):3} | EXEMPT {len(exempt):3} "
               f"| GAP {len(gap):3}  -> accounted {pct}%")
         if args.require == "all" and gap:

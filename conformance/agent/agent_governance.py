@@ -11,6 +11,12 @@ Five checks (all pass trivially at zero agent checks; they bite as coverage grow
                   agent check/exemption can't silently vanish (agent tests are permanent).
   4. SIGN-OFF   — every agent CHECK id carries an adversarial-review sign-off in
                   agent_review_signoffs.json (coverage can't grow without review).
+  7. EVIDENCE   — every (check, version) attribution is backed by fresh run evidence at the
+                  current spec pin (agent_run_evidence.json, written by run_agent.py), or the
+                  version is a DECLARED unrun version with a review_by (D5-04 / decision 10:
+                  08-25 is unrun until D3-11's sandbox exists). Kill-tested in
+                  test_attribution_guard.py. The ONLY governance check for attribution
+                  evidence — D3-11 writes evidence, adds no check.
   5. DENOMINATOR-DRIFT — the live agent-denominator MEMBERSHIP matches the reviewed snapshot
                   in agent_denominator_lock.json. Fails if any row silently enters/leaves the
                   denominator (a new spec row, a heuristic change, a mis-classified business
@@ -21,7 +27,7 @@ Five checks (all pass trivially at zero agent checks; they bite as coverage grow
 Run standalone or via run_agent (the agent lane calls it), so the single agent lane
 enforces the whole agent governance loop.
 """
-import glob, json, os, re, sys
+import datetime, glob, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -36,6 +42,34 @@ RATCHET = os.path.join(HERE, "agent_ratchet.json")
 LOCK = os.path.join(HERE, "agent_coverage_lock.json")
 SIGN = os.path.join(HERE, "agent_review_signoffs.json")
 DENOM = os.path.join(HERE, "agent_denominator_lock.json")
+
+
+def evidence_failures(checks, evidence, today, pins, unrun):
+    """Check 7 (EVIDENCE), pure: failure strings for every attribution without fresh
+    evidence at the current pin, unless its version is a declared, unexpired unrun
+    version. Also reds unknown check ids in the evidence file and expired declarations."""
+    fails = []
+    known = {c.id for c in checks}
+    for ver, d in sorted((unrun or {}).items()):
+        if (d or {}).get("review_by", "") < today.isoformat():
+            fails.append(f"agent EVIDENCE: unrun declaration for {ver} expired {d.get('review_by')} — "
+                         f"re-review (has a sandbox for {ver} landed?)")
+    for cid in sorted(evidence or {}):
+        if cid not in known:
+            fails.append(f"agent EVIDENCE: evidence for unknown check {cid} — stale entry")
+    for chk in checks:
+        for ver in (chk.versions or sorted(pins)):
+            entry = (evidence or {}).get(chk.id, {}).get(ver)
+            declared = ver in (unrun or {}) and (unrun[ver] or {}).get("review_by", "") >= today.isoformat()
+            problem = agent_matrix.evidence_problem(entry, today, pins.get(ver))
+            if problem is None:
+                continue
+            if entry is None and declared:
+                continue                          # suppressed by default; honest GAP
+            fails.append(f"agent EVIDENCE {ver} {chk.id}: {problem} — an attribution at {ver} "
+                         f"needs a green run_agent.py run against a {ver} sandbox (or declare "
+                         f"{ver} unrun in agent_run_evidence.json)")
+    return fails
 
 
 def _live_coverage():
@@ -81,10 +115,19 @@ def run():
                 fails.append(f"agent RATCHET {ver}: accounted {acc} < floor {f['accounted']} "
                              f"— coverage regressed")
 
-    # 3. lock (add-only): locked ids must still be accounted
+    # 3. lock (add-only): locked ids must still be accounted — except a version whose
+    #    attribution is SUSPENDED with a reason + review_by (D5-04: the 08-25 ids were locked
+    #    by the versions-list extension, never by a run; they re-lock when evidence exists)
     if os.path.exists(LOCK):
-        lock = json.load(open(LOCK)).get("versions", {})
+        lock_doc = json.load(open(LOCK))
+        lock = lock_doc.get("versions", {})
+        suspended = lock_doc.get("suspensions", {})
+        for ver, s in sorted(suspended.items()):
+            if s.get("review_by", "") < datetime.date.today().isoformat():
+                fails.append(f"agent LOCK {ver}: suspension expired {s.get('review_by')} — re-review")
         for ver, locked in lock.items():
+            if ver in suspended and suspended[ver].get("review_by", "") >= datetime.date.today().isoformat():
+                continue
             _, check, exempt, _ = agent_matrix.account(ver)
             accounted = set(check) | set(exempt)
             for i in locked.get("check", []) + locked.get("exempt", []):
@@ -103,6 +146,11 @@ def run():
             if rid not in signed:
                 fails.append(f"agent SIGN-OFF: check {chk.id} covers {rid} with no recorded "
                              f"adversarial review — add it to agent_review_signoffs.json")
+
+    # 7. evidence: every attribution is backed by a fresh run at the current pin
+    evd = agent_matrix.load_evidence()
+    fails += evidence_failures(agent_checks.CHECKS, evd["evidence"], datetime.date.today(),
+                               agent_matrix.spec_pins(), evd["unrun_versions"])
 
     # 5. denominator-drift: live membership must equal the reviewed snapshot
     if os.path.exists(DENOM):

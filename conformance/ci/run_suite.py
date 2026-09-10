@@ -307,8 +307,14 @@ def gates(server):
         # rule holds even when no golden is reachable and probe-hygiene itself skips.
         ("defect-register", _py(SELF / "validate_probe_hygiene.py", "--selftest"), None, ()),
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
-        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
+        # governance runs AFTER the lane (D5-04 / decision 24 in-run freshness): run_agent.py
+        # records this run's attribution evidence, and governance's EVIDENCE check then
+        # verifies every (check, version) attribution against it — fresh, at the current pin.
+        # Hermetic kill-tests for the guard itself (evidence-less / stale / other-pin → GAP;
+        # governance names the id) run first.
+        ("agent-attribution-guard", _py(ROOT / "conformance" / "agent" / "test_attribution_guard.py"), None, ()),
+        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         # R8/R14/S8a kill-proof (agent phase B, 08-25 kickoff): proves
         # reference_agent.extract_signing_keys reads the 08-25 top-level keys[] location
         # against a REAL frozen golden-0825 capture (not just our own sandbox), and that

@@ -13,9 +13,10 @@ Phase A: with zero checks the lane trivially passes, proving the plumbing (refer
 agent drives a flow; the harness can run/kill-test checks) end-to-end. The `--agent`
 CLI mode and the hosted spck.dev/agent sandbox build on this.
 """
-import argparse, json, os, sys
+import argparse, datetime, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 from reference_agent import ReferenceAgent, DEFECTS   # noqa: E402
 import agent_checks   # noqa: E402
@@ -50,9 +51,55 @@ def reference_gate():
     return results, unsound, ref_ops
 
 
+def write_run_evidence(results, sandbox_version, path=None):
+    """Record this green run as attribution evidence (D5-04): for every SOUND check that
+    declares `sandbox_version`, {date, spec_pin} at that version. Preserves the file's
+    _about/unrun_versions; never writes from the pip bundle (site-packages is not a repo)."""
+    import agent_matrix
+    path = path or agent_matrix.EVIDENCE
+    if "_bundle" in HERE.replace("\\", "/"):
+        return None
+    pin = agent_matrix.spec_pins().get(sandbox_version)
+    if not pin:
+        return None
+    doc = json.load(open(path)) if os.path.exists(path) else {}
+    doc.setdefault("_about", "Agent-lane RUN EVIDENCE (D5-04 / decision 10): {check_id: {sandbox_version: {date, spec_pin}}} "
+                   "written by run_agent.py on every green run; agent_matrix counts a check at a version only with an "
+                   "entry here no older than 30 days at the current spec pin. unrun_versions declares versions with no "
+                   "sandbox yet (agent_governance reds an undeclared unrun attribution).")
+    doc.setdefault("unrun_versions", {})
+    ev = doc.setdefault("evidence", {})
+    by_id = {c.id: c for c in agent_checks.CHECKS}
+    today = datetime.date.today().isoformat()
+    for r in results:
+        chk = by_id.get(r["id"])
+        if not r.get("sound") or chk is None:
+            continue
+        if chk.versions and sandbox_version not in chk.versions:
+            continue
+        ev.setdefault(chk.id, {})[sandbox_version] = {"date": today, "spec_pin": pin}
+    for cid in list(ev):
+        if cid not in by_id:
+            del ev[cid]
+    open(path, "w").write(json.dumps(doc, indent=1, sort_keys=False) + "\n")
+    return path
+
+
+def sandbox_version_of(log):
+    for e in log:
+        if e.get("op") == "discover":
+            body = (e.get("response") or {}).get("body") or {}
+            v = (body.get("ucp") or {}).get("version") or body.get("version")
+            if v:
+                return v
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--no-evidence", action="store_true",
+                    help="do not record this run in agent_run_evidence.json")
     args = ap.parse_args()
 
     # The agent lane is self-contained: it boots its own adversarial sandbox(es) in-process,
@@ -70,6 +117,11 @@ def main():
                      or e["op"] == "prm_discovery" for e in log)
     results, unsound, ref_ops = reference_gate()
     ref_ops = ref_ops or len(log)
+    evidence_path = None
+    if booted and not unsound and not args.no_evidence:
+        sv = sandbox_version_of(log)
+        if sv:
+            evidence_path = write_run_evidence(results, sv)
 
     if args.json:
         print(json.dumps({"agent_checks": len(agent_checks.CHECKS), "reference_flow_ops": len(log),
@@ -86,7 +138,9 @@ def main():
         return 1
     if agent_checks.CHECKS:
         print("agent lane: PASS — every agent check clean-passes the reference agent and "
-              "kills its targeted defect.")
+              "kills its targeted defect."
+              + (f" Run evidence recorded -> {os.path.relpath(evidence_path, ROOT_DIR)}"
+                 if evidence_path else ""))
     else:
         print("agent lane: PASS — foundation green (zero checks; Phase A). Kill-rate loop "
               "ready for Phase B checks.")
