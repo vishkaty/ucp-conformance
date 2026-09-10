@@ -646,6 +646,40 @@ def _selftest():
         fails.append(f"L: GH_BIN=/nonexistent --check must exit 2 with 'FAIL — gh not found', got rc "
                      f"{pl.returncode}: {pl.stdout.strip()[:120]!r}")
 
+    # ---- D2-17: acknowledged tag moves (known_tag_moves.json, self-expiring).
+    from datetime import date as _date
+    today = _date(2026, 9, 10)
+    moved = {"key": "spec/2026-04-08", "version": "2026-04-08", "tag": "v2026-04-08",
+             "from": "a2d8bf0b", "to": "a25a4a24", "tag_object": "ebac9d15",
+             "tag_object_from": "ebac9d15", "tagger_date": "2026-04-13T14:51:29Z"}
+    entry = {"tag": "v2026-04-08", "repo": "Universal-Commerce-Protocol/ucp",
+             "from": "a2d8bf0b", "to": "a25a4a24", "tag_object": "ebac9d15",
+             "decision": 3, "review_by": "2026-10-10", "spec_pin": "a2d8bf0b"}
+    # M: moved tag + matching unexpired entry -> acknowledged (rc 0 path)
+    if not acknowledged_move(moved, [entry], today):
+        fails.append("M: a matching unexpired known_tag_moves entry must acknowledge the move")
+    # N: entry `to` differs (a NEW move past the acknowledged one) -> not acknowledged (rc 1)
+    if acknowledged_move(moved, [{**entry, "to": "0badf00d"}], today):
+        fails.append("N: an entry whose `to` differs must NOT acknowledge (that is a new move)")
+    if acknowledged_move(moved, [{**entry, "tag_object": "0badf00d"}], today):
+        fails.append("N': an entry whose `tag_object` differs must NOT acknowledge")
+    # O: entry expired -> not acknowledged (fail-noisy self-expiry)
+    if acknowledged_move(moved, [{**entry, "review_by": "2026-09-09"}], today):
+        fails.append("O: an expired entry must NOT acknowledge")
+    # P: the REAL file acknowledges the REAL move recorded in the lock (no network:
+    # the finding is rebuilt from SOURCES.lock.json's tag_move_observed).
+    real_lock = json.loads(LOCK.read_text())
+    obs = (real_lock.get("spec", {}).get("versions", {}).get("2026-04-08") or {}).get("tag_move_observed")
+    if obs:
+        real_finding = {"key": "spec/2026-04-08", "version": "2026-04-08", "tag": "v2026-04-08",
+                        "from": obs["from"], "to": obs["to"], "tag_object": obs["tag_object"]}
+        real = acknowledged_move(real_finding, load_known_tag_moves(), _date.today())
+        if not real:
+            fails.append(f"P: known_tag_moves.json does not acknowledge the observed move "
+                         f"{obs} (file absent, mismatched, or expired) — preflight is red")
+        elif real.get("decision") != 3:
+            fails.append(f"P: the acknowledgement must cite decision 3, got {real.get('decision')}")
+
     if fails:
         print("sources-age selftest: FAIL")
         for f in fails:
