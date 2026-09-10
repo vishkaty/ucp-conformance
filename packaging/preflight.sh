@@ -43,6 +43,12 @@ if git diff --quiet -- public/coverage.json docs/spec-coverage-matrix.md packagi
 else
   bad "regenerated artifacts differ from committed — commit these:"; git --no-pager diff --stat -- public/coverage.json docs/spec-coverage-matrix.md packaging/spck_conformance/_bundle 2>/dev/null | sed 's/^/    /'
 fi
+# the claims register's generated blocks (manifest + evidence split) are byte-synced with the engine (D5-05)
+if python3 conformance/web/sync_site_claims.py --check >/tmp/preflight_claims_sync.log 2>&1; then
+  ok "site_claims.json manifest + evidence.per_version in sync with the engine"
+else
+  bad "site_claims.json generated blocks drifted — run: python3 conformance/web/sync_site_claims.py --write"; tail -5 /tmp/preflight_claims_sync.log | sed 's/^/    /'
+fi
 
 # 3. Working tree clean (nothing uncommitted that a push would miss).
 step "Working tree"

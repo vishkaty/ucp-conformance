@@ -211,6 +211,10 @@ def gates(server):
         # the page bar: counts equal the product, registered doc claims hold, ci/README's
         # gate rows exist, Action snippets pinned (D5-01/D5-20/D5-21).
         ("site-docclaims", _py(ROOT / "conformance" / "ci" / "site_gates.py", "docclaims"), None, ()),
+        # the register's generated blocks (manifest, evidence.per_version) equal the engine
+        # byte-for-byte (D5-05) and no REG claim is an orphan (text gone from its page).
+        ("site-claims-sync", _py(ROOT / "conformance" / "web" / "sync_site_claims.py", "--check"), None, ()),
+        ("site-claims-orphans", _py(ROOT / "conformance" / "ci" / "site_gates.py", "claims", "--orphans"), None, ()),
         # PLAN-0825 §E state-consistency kill-tests: a `state` field that disagrees
         # with its own CHECK/EXEMPT counts must redden freshness(); hermetic
         # (SPCK_PUBLIC scratch copy, repo untouched) — proves the validator can fail.

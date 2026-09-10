@@ -276,6 +276,68 @@ def _reg_match(entries, sentence, page):
         return None, f"registered claim {e.get('id')} review_by {e.get('review_by')} expired"
     return None, None
 
+def _retired_keys():
+    f = PUB / "site_claims.json"
+    if not f.exists():
+        return set()
+    return {(e.get("id"), e.get("page")) for e in (json.load(open(f)).get("retired_claims") or [])}
+
+
+def _unit_test_pinned_ids():
+    """Claim ids named in tests/web/unit/*.mjs — a claim rendered by page script (never
+    visible in the HTML) is anchored by the unit test that renders and asserts it."""
+    ids = set()
+    for f in glob.glob(str(ROOT / "tests" / "web" / "unit" / "*.mjs")):
+        ids |= set(re.findall(r"\b((?:CLAIM|SOU|LAU|KI)-[A-Z0-9-]+)\b", open(f, encoding="utf-8").read()))
+    return ids
+
+
+def orphans():
+    """`claims --orphans` (D5-05 hygiene): every REG claim must still be FOUND — its page
+    present and its text on that page (an audit-style _reg_match against a rendered
+    sentence, or the whitespace-normalised text inside the page's visible copy), or the
+    claim is rendered by script and pinned by a web unit test naming its id. Anything
+    else is an orphan: the copy moved (fix the row) or the claim retired (move it to
+    `retired_claims`, keyed by id+page, with a reason). `page: "*"` rows may match any page."""
+    entries = _load_claims() or []
+    retired = _retired_keys()
+    pinned = _unit_test_pinned_ids()
+    sents, joined = {}, {}
+    for path in pages():
+        key = page_key(path)
+        lines = page_lines(path)
+        sents[key] = [s for _, text, _ in lines for s in sentences(text)]
+        joined[key] = re.sub(r"\s+", " ", " ".join(t for _, t, _ in lines))
+    fails, seen = [], {}
+    for e in entries:
+        if e.get("class", "REG") != "REG":
+            continue
+        pg, cid = e.get("page"), e.get("id", "?")
+        if (cid, pg) in retired:
+            continue
+        if cid in seen and seen[cid] != pg:
+            fails.append(f"{cid}: duplicate id across pages ({seen[cid]} and {pg}) — one id, one claim")
+        seen[cid] = pg
+        text = e.get("text")
+        if not text:
+            fails.append(f"{cid}: malformed row (no text) — retire or fix"); continue
+        if cid in pinned:
+            continue                                   # script-rendered, unit-test anchored
+        targets = list(sents) if pg == "*" else [pg]
+        if pg != "*" and pg not in sents:
+            fails.append(f"{cid}: page {pg!r} is not a hand-authored page under public/ — retire the row"); continue
+        norm = re.sub(r"\s+", " ", text)
+        found = any(norm in joined.get(t, "") for t in targets) or any(
+            _reg_match([{**e, "review_by": "9999-12-31"}], sent, t)[0] is not None
+            for t in targets for sent in sents.get(t, []))
+        if not found:
+            fails.append(f"{cid}: text not found on {pg} — {text[:70]!r}")
+    for f in fails:
+        print(f"  x {f}")
+    print(f"site-claims --orphans: {len(fails)} orphan(s)")
+    return 0 if not fails else 1
+
+
 def claims(explain=False):
     entries = _load_claims()
     fails, out = [], []
@@ -1060,6 +1122,8 @@ if __name__ == "__main__":
               "|checkdocs|docclaims [--explain]|--selftest")
         sys.exit(1)
     if mode == "claims":
+        if "--orphans" in sys.argv[2:]:
+            sys.exit(orphans())
         sys.exit(claims(explain="--explain" in sys.argv[2:]))
     sys.exit({"tdd": tdd, "voice": voice, "security": security,
               "redirects": redirects, "consistency": consistency,
