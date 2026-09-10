@@ -26,6 +26,11 @@ Cases (each carries the mutant that would make it red):
                                       04-08 are byte-identical to the pre-wire_shapes output
   test_keys_field_and_consent         keys_field(): signing_keys|keys; consent(): booleans
                                       at 04-08, Purpose objects at 08-25
+  test_omit_destination_type          (W0-review V2) ctx.omit_destination_type=True -> 08-25
+                                      destinations carry NO `type` (the probe-shape-0825 gate's
+                                      second mode); default mode still typed. Mutant: drop the
+                                      getattr clause in Shapes.destinations -> omit mode silently
+                                      sends `type` and the live gate's two modes become one.
   test_expand_mut_dests_08_25         (D1-02) _expand_mut expands $DESTS/$FUL/$KEYS from
                                       shapes_for(ctx.version) BEFORE $PRODUCT…: the FUL-026
                                       mutant carries typed destinations at 08-25, untyped
@@ -205,6 +210,21 @@ def selftest():
     check("test_keys_field_and_consent", all(x not in fails for x in
           ("keys_field 04-08 = signing_keys", "keys_field 08-25 = keys",
            "consent 04-08 booleans", "consent 08-25 purpose objects")))
+
+    # --- test_omit_destination_type (W0-review V2) ---------------------------------
+    octx = Ctx(NEW)
+    octx.omit_destination_type = True
+    d25o = s25.destinations(octx)
+    check("test_omit_destination_type 08-25 omit mode sends no type",
+          bool(d25o) and all("type" not in d for d in d25o), f"got {d25o}")
+    bo = s25.checkout_create(octx, with_fulfillment=True)["fulfillment"]["methods"][0]["destinations"]
+    check("test_omit_destination_type 08-25 create body untyped in omit mode",
+          all("type" not in d for d in bo), f"got {bo}")
+    check("test_omit_destination_type 08-25 default mode still typed",
+          all(d.get("type") == "shipping_address" for d in s25.destinations(Ctx(NEW))))
+    check("test_omit_destination_type omit mode keeps id/address_country",
+          d25o and d25o[0].get("id") == "d1" and d25o[0].get("address_country") == "US", f"got {d25o}")
+    check("test_omit_destination_type", all("test_omit_destination_type" not in x for x in fails))
 
     # --- test_expand_mut_dests_08_25 (D1-02) ---------------------------------------
     probe = 'set:fulfillment={"methods":[{"destinations":$DESTS,"item":$PRODUCT}]}'

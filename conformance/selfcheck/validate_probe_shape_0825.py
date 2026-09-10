@@ -11,7 +11,10 @@ mode, `--omit-destination-type`, sends destinations WITHOUT `type` — the platf
 allowed to (fulfillment_destination.json `ucp_request: optional`) and the golden must
 default it per method (C3b, D3-04; mutant `destination_type_required_on_request`).
 Both modes must show 0 deviations, an aggregate that is not `fail`, and >= MIN_RUN
-checks run (a run that exercised nothing proves nothing — vacuity is red).
+checks run (a run that exercised nothing proves nothing — vacuity is red). Each mode's
+CLI document must also RECORD the destinations[] shape it built (`probe_shape.
+destination_type`: "typed" / "omitted", W0-review V2) — otherwise two modes that
+silently sent the same bytes would both read clean and the omit mode would be vacuous.
 
     python3 conformance/selfcheck/validate_probe_shape_0825.py --server http://localhost:8197
     python3 conformance/selfcheck/validate_probe_shape_0825.py --selftest
@@ -46,6 +49,16 @@ def assess(default_doc, omit_doc):
             fails.append(f"{label} mode: vacuous — only {run} checks run (< {MIN_RUN})")
         if v.get("aggregate") == "fail":
             fails.append(f"{label} mode: aggregate fail")
+        # W0-review V2: the CLI records the destinations[] shape it actually BUILT
+        # (merchant.py `probe_shape.destination_type`, derived from the wire builder's
+        # output, never from the flag). A mode whose document does not record the shape
+        # it claims is vacuous — 0 deviations in both modes proves nothing if both sent
+        # the same bytes.
+        want = "typed" if label == "default" else "omitted"
+        got = (doc.get("probe_shape") or {}).get("destination_type")
+        if got != want:
+            fails.append(f"{label} mode: CLI recorded destination_type={got!r}, expected {want!r} "
+                         f"(the mode did not send the shape it claims)")
         parts.append(f"{dev} deviations · {run} checks run" if label == "default"
                      else f"omit-type {dev} deviations")
     return (1 if fails else 0), ("; ".join(fails) + " · " if fails else "") + " · ".join(parts)
@@ -114,28 +127,43 @@ def selftest():
         print("probe-shape-0825 selftest: FAIL (script absent)")
         return 1
 
-    def doc(deviations, run, aggregate=None):
+    def doc(deviations, run, aggregate=None, shape="typed"):
         agg = aggregate or ("fail" if deviations else "incomplete")
         checks = [{"id": f"c{i}", "status": "deviation" if i < deviations else "clean-pass"} for i in range(run)]
-        return {"verdict": {"aggregate": agg, "deviations": deviations}, "checks": checks,
-                "checks_summary": {"run": run, "deviation": deviations, "clean": run - deviations}}
+        d = {"verdict": {"aggregate": agg, "deviations": deviations}, "checks": checks,
+             "checks_summary": {"run": run, "deviation": deviations, "clean": run - deviations}}
+        if shape is not None:
+            d["probe_shape"] = {"destination_type": shape}
+        return d
 
-    rc, msg = fn(doc(7, 29), doc(0, 29))
+    def omit(deviations=0, run=29, **kw):
+        return doc(deviations, run, shape=kw.pop("shape", "omitted"), **kw)
+
+    rc, msg = fn(doc(7, 29), omit(0, 29))
     check("deviations 7 (default mode) -> rc 1", rc == 1 and "7 deviations" in msg, msg)
-    rc, msg = fn(doc(0, 29), doc(0, 29))
+    rc, msg = fn(doc(0, 29), omit(0, 29))
     check("deviations 0, run 29 (both modes) -> rc 0", rc == 0, msg)
     check("summary names both modes",
           "0 deviations" in msg and "29 checks run" in msg and "omit-type 0 deviations" in msg, msg)
-    rc, msg = fn(doc(0, 0), doc(0, 29))
+    rc, msg = fn(doc(0, 0), omit(0, 29))
     check("run 0 -> rc 1 (vacuity)", rc == 1 and "vacu" in msg.lower(), msg)
-    rc, msg = fn(doc(0, 29), doc(3, 29))
+    rc, msg = fn(doc(0, 29), omit(3, 29))
     check("omit-mode deviations 3 -> rc 1", rc == 1 and "omit-type 3 deviations" in msg, msg)
-    rc, msg = fn(doc(0, 29, aggregate="fail"), doc(0, 29))
+    rc, msg = fn(doc(0, 29, aggregate="fail"), omit(0, 29))
     check("aggregate fail with 0 deviations -> rc 1", rc == 1, msg)
-    rc, msg = fn(doc(0, 28), doc(0, 29))
+    rc, msg = fn(doc(0, 28), omit(0, 29))
     check("run below MIN_RUN -> rc 1", rc == 1, msg)
-    rc, msg = fn(None, doc(0, 29))
+    rc, msg = fn(None, omit(0, 29))
     check("unparseable CLI output -> rc 1", rc == 1, msg)
+    # W0-review V2: self-recorded probe shape (planted-mutant cases, hermetic)
+    rc, msg = fn(doc(0, 29), omit(0, 29, shape="typed"))
+    check("omit-mode doc records destination_type='typed' -> rc 1 (mode sent the default shape)",
+          rc == 1 and "omit-type mode: CLI recorded destination_type='typed'" in msg, msg)
+    rc, msg = fn(doc(0, 29), omit(0, 29, shape=None))
+    check("omit-mode doc records no probe_shape -> rc 1 (unrecorded shape is unproven)",
+          rc == 1 and "destination_type=None" in msg, msg)
+    rc, msg = fn(doc(0, 29, shape="omitted"), omit(0, 29))
+    check("default-mode doc records 'omitted' -> rc 1", rc == 1 and "default mode: CLI recorded" in msg, msg)
 
     _boot_teardown_case(check)
 
