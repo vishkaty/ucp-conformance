@@ -389,3 +389,92 @@ def test_unadvertised_version_rejected(golden_server):
         assert body["messages"][0]["code"] == "version_unsupported", body
     r = _post_create_with_version(golden_server, SPEC_VERSION)
     assert r.status_code == 201, (r.status_code, r.text)
+
+
+# ---------------------------------------------------------------------------
+# C3 supported_versions + the 2026-04-08 leaf profile + version projection
+# (D3-03, decision 18): ONE server, two served versions. The leaf is a plain
+# 04-08 profile (no supported_versions of its own); a request negotiated at
+# 2026-04-08 gets a 04-08-shaped body; and the whole 04-08 conformance
+# population, pointed at the leaf, must grade the projection clean (the leaf
+# differential -- what makes "projection" honest instead of a second server).
+# ---------------------------------------------------------------------------
+
+LEAF_VERSION = "2026-04-08"
+LEAF_PATH = f"/.well-known/ucp/{LEAF_VERSION}"
+# Discovery alias for runners that derive /.well-known/ucp from a base URL
+# (merchant.py): `--server $G/2026-04-08` discovers the SAME leaf document.
+LEAF_BASE = f"/{LEAF_VERSION}"
+DIFFERENTIAL_CONFIG = REPO_ROOT / "conformance" / "ci" / "differential_flower.config.json"
+
+
+def test_leaf_profile_is_leaf(golden_server):
+    """The root profile publishes supported_versions naming the leaf; the leaf
+    is a 04-08 profile validating against the 04-08 profile schema, carries
+    NO supported_versions (top level or under ucp), and the alias serves the
+    identical document."""
+    _require_oracle()
+    r = httpx.get(f"{golden_server}{LEAF_PATH}", timeout=10)
+    assert r.status_code == 200, (r.status_code, r.text[:200])
+    leaf = r.json()
+
+    root = httpx.get(f"{golden_server}/.well-known/ucp", timeout=10).json()
+    supported = root["ucp"].get("supported_versions") or {}
+    assert LEAF_VERSION in supported, root["ucp"].keys()
+    assert supported[LEAF_VERSION].endswith(LEAF_PATH), supported
+    assert leaf["ucp"]["version"] == LEAF_VERSION
+    assert "supported_versions" not in leaf
+    assert "supported_versions" not in leaf["ucp"]
+    ok, detail = so.validate_profile(leaf, version=LEAF_VERSION, role="business")
+    assert ok, detail
+
+    alias = httpx.get(f"{golden_server}{LEAF_BASE}/.well-known/ucp", timeout=10)
+    assert alias.status_code == 200
+    assert alias.json() == leaf
+
+
+def test_0408_request_gets_0408_shape(golden_server):
+    """A create negotiated at 2026-04-08 (04-08 request shape: destinations
+    without `type`) is 201 with a 04-08-shaped body: ucp.version 2026-04-08,
+    no destinations[].type, valid against the 04-08 checkout schema."""
+    _require_oracle()
+    body = _create_body()
+    for m in body["fulfillment"]["methods"]:
+        for d in m["destinations"]:
+            d.pop("type", None)
+    headers = ucp_headers()
+    headers["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{LEAF_VERSION}"'
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=headers, json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    out = r.json()
+    assert out["ucp"]["version"] == LEAF_VERSION
+    dests = [d for m in (out.get("fulfillment") or {}).get("methods", []) for d in (m.get("destinations") or [])]
+    assert dests and all("type" not in d for d in dests), dests
+    ok, detail = so.validate_root(out, "schemas/shopping/checkout.json", op="create",
+                                  version=LEAF_VERSION, direction="response")
+    assert ok, detail
+
+
+def test_leaf_differential(golden_server):
+    """The 04-08 conformance population (merchant.py) pointed at the leaf must
+    grade the projected golden with 0 deviations, and the number of checks it
+    actually ran is pinned so a silently-shrinking population cannot hide a
+    regression behind '0 deviations'."""
+    _require_oracle()
+    cmd = [sys.executable, str(REPO_ROOT / "conformance" / "checks" / "merchant.py"),
+           "--server", f"{golden_server}{LEAF_BASE}",
+           "--config", str(DIFFERENTIAL_CONFIG), "--json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    assert proc.stdout.strip(), f"merchant.py produced no report: rc={proc.returncode}\n{proc.stderr[-800:]}"
+    report = json.loads(proc.stdout)
+    assert report["spec_version"] == LEAF_VERSION, report["spec_version"]
+    deviations = [c["id"] for c in report["checks"] if c["status"] == "deviation"]
+    assert not deviations, deviations
+    ran = [c["id"] for c in report["checks"] if c["status"] == "clean-pass"]
+    assert len(ran) == LEAF_DIFFERENTIAL_RUN_COUNT, (len(ran), sorted(ran))
+
+
+# Pinned after the first green run (see the landing note for the population
+# listing); any change to the 04-08 population or the leaf's advertised
+# capabilities must re-pin it deliberately.
+LEAF_DIFFERENTIAL_RUN_COUNT = -1
