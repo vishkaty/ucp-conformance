@@ -11,6 +11,7 @@
     {"name": "agent_lane_overrides.not_agent_bound", "file": "conformance/agent/agent_lane_overrides.json", "entries": "$.not_agent_bound[*]", "scope": "all", "clock": "review_by", "clock_tier": "pin-only"},
     {"name": "agent_lane_overrides.agent_extra", "file": "conformance/agent/agent_lane_overrides.json", "entries": "$.agent_extra[*]", "scope": "all", "clock": "review_by", "clock_tier": "pin-only"},
     {"name": "site_claims", "file": "public/site_claims.json", "entries": "$.claims[*]", "entry_requires": "text", "scope": "none", "clock": "review_by", "clock_tier": "pin-only", "_note": "review_by already owned and enforced by site_gates.py (D5); listed so one gate sees every clock. scope none: a claim has no spec pin; nothing is stamped here."},
+    {"name": "known_tag_moves", "file": "conformance/ci/known_tag_moves.json", "entries": "$.moves[*]", "scope": "version", "clock": "review_by", "clock_tier": "moving"},
     {"name": "retirements", "file": "conformance/coverage/retirements.json", "entries": "$.retirements[*]", "scope": "versions", "clock": "none"}
   ]
 }
