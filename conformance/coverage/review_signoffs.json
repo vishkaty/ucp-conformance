@@ -642,6 +642,60 @@
      "PAY-012"
     ]
    }
+  },
+  {
+   "batch": "expiry-clock-seed-2026-09",
+   "date": "2026-09-10",
+   "reviewer": "expiry-clock seed (mechanical stamp by add_expiry_clocks.py; the human sample below is the review)",
+   "spec_reverified": true,
+   "notes": "Seed batch of the expiry-clock schema (D2-04/D2-19, decision 23): every entry of every register in expiry_registers.json received review_by (per clock_tier horizon, staggered by register) and spec_pin (lock commit per version). 336 entries stamped. The sample below is a deterministic 34/336 selection (random.Random(20260910).sample over the sorted entry names) that the owner re-reads and records as human_review.status=recorded; until then the batch is PENDING and verify_review_signoffs reds past the due date.",
+   "sample": {
+    "seed": 20260910,
+    "of": 336,
+    "size": 34,
+    "ids": [
+     "agent_lane_overrides.json agent_extra[13]",
+     "agent_lane_overrides.json not_agent_bound[4]",
+     "exemptions.json CART-024",
+     "exemptions.json CAT-008",
+     "exemptions.json CHK-037",
+     "exemptions.json CHK-052",
+     "exemptions.json DISC-009",
+     "exemptions.json ERR-012",
+     "exemptions.json FUL-012",
+     "exemptions.json IDL-002[1]",
+     "exemptions.json IDL-008[1]",
+     "exemptions.json IDL-051",
+     "exemptions.json NEG-001",
+     "exemptions.json PAY-001",
+     "exemptions.json PAY-004",
+     "exemptions.json PAY-005",
+     "exemptions.json PAY-022",
+     "register_completeness_waivers.json scope_exclusions[7]",
+     "register_completeness_waivers.json waivers[100]",
+     "register_completeness_waivers.json waivers[106]",
+     "register_completeness_waivers.json waivers[107]",
+     "register_completeness_waivers.json waivers[121]",
+     "register_completeness_waivers.json waivers[13]",
+     "register_completeness_waivers.json waivers[19]",
+     "register_completeness_waivers.json waivers[21]",
+     "register_completeness_waivers.json waivers[24]",
+     "register_completeness_waivers.json waivers[30]",
+     "register_completeness_waivers.json waivers[35]",
+     "register_completeness_waivers.json waivers[45]",
+     "register_completeness_waivers.json waivers[50]",
+     "register_completeness_waivers.json waivers[59]",
+     "register_completeness_waivers.json waivers[66]",
+     "register_completeness_waivers.json waivers[7]",
+     "register_completeness_waivers.json waivers[87]"
+    ],
+    "human_review": {
+     "status": "pending",
+     "by": null,
+     "on": null,
+     "due": "2026-09-17"
+    }
+   }
   }
  ]
 }

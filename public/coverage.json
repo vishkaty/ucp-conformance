@@ -540,7 +540,7 @@
      "requirement": "Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition",
      "source": "ucp:docs/specification/overview.md#L192",
      "covered_by": [],
-     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business."
+     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-011",
@@ -551,7 +551,7 @@
      "requirement": "Platforms MUST resolve schemas client-side by fetching and composing base schemas with active extension schemas",
      "source": "ucp:docs/specification/overview.md#L195",
      "covered_by": [],
-     "exempt_reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side \u2014 wire traffic from a resolving and a non-resolving client can be byte-identical."
+     "exempt_reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side \u2014 wire traffic from a resolving and a non-resolving client can be byte-identical. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-013",
@@ -1092,7 +1092,7 @@
      "requirement": "Extensions that add new fulfillment method types MUST add an extension schema that adds the method to the fulfillment_method type enum and adds corresponding business config options",
      "source": "ucp:docs/specification/fulfillment.md#L339",
      "covered_by": [],
-     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test."
+     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23', '2026-04-08'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "FUL-030",
@@ -1372,7 +1372,7 @@
      "requirement": "Platforms MUST validate that capability spec URI origins match namespace authorities",
      "source": "ucp:docs/specification/overview.md#L451",
      "covered_by": [],
-     "exempt_reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant."
+     "exempt_reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "NEG-008",
@@ -1383,7 +1383,7 @@
      "requirement": "Platforms MUST fetch and compose schemas for negotiated capabilities before making requests",
      "source": "ucp:docs/specification/overview.md#L453",
      "covered_by": [],
-     "exempt_reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas."
+     "exempt_reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "NEG-009",
@@ -3007,7 +3007,7 @@
      "requirement": "Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition",
      "source": "ucp:docs/specification/overview.md#L199",
      "covered_by": [],
-     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business."
+     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-011",
@@ -3018,7 +3018,7 @@
      "requirement": "Platforms MUST resolve schemas client-side by fetching and composing base schemas with active extension schemas",
      "source": "ucp:docs/specification/overview.md#L202",
      "covered_by": [],
-     "exempt_reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side \u2014 wire traffic from a resolving and a non-resolving client can be byte-identical."
+     "exempt_reason": "Binds the platform (overview.md L196-197): client-side schema resolution (fetch + compose before requests) is unobservable from the business side \u2014 wire traffic from a resolving and a non-resolving client can be byte-identical. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-013",
@@ -3589,7 +3589,7 @@
      "requirement": "Extensions that add new fulfillment method types MUST add an extension schema that adds the method to the fulfillment_method type enum and adds corresponding business config options",
      "source": "ucp:docs/specification/fulfillment.md#L339",
      "covered_by": [],
-     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test."
+     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23', '2026-04-08'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "FUL-030",
@@ -3891,7 +3891,7 @@
      "requirement": "Platforms MUST validate that capability spec URI origins match namespace authorities",
      "source": "ucp:docs/specification/overview.md#L484",
      "covered_by": [],
-     "exempt_reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant."
+     "exempt_reason": "Binds the platform, not the business under test (overview.md Platform Requirements): validating spec-URI origins against namespace authorities is an internal client step that surfaces in no message a conformance run can elicit from the merchant. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "NEG-008",
@@ -3902,7 +3902,7 @@
      "requirement": "Platforms MUST fetch and compose schemas for negotiated capabilities before making requests",
      "source": "ucp:docs/specification/overview.md#L486",
      "covered_by": [],
-     "exempt_reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas."
+     "exempt_reason": "Binds the platform: fetching and composing schemas happens BEFORE requests are made (overview.md Platform Requirements); the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "NEG-009",
@@ -7211,7 +7211,7 @@
      "requirement": "Extensions that add new fulfillment method types MUST add an extension schema that adds the method to the fulfillment_method type enum and adds corresponding business config options",
      "source": "ucp:docs/specification/fulfillment.md#L336",
      "covered_by": [],
-     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test."
+     "exempt_reason": "Binds authors of FUTURE fulfillment extensions (fulfillment.md 'Adding New Methods'): the obligation attaches to a hypothetical extension schema document, not to any behavior of the business or platform under test. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23', '2026-04-08'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "FUL-030",

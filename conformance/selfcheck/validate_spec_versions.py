@@ -262,6 +262,46 @@ def _check_stale_waiver_fail_noisy(fails):
                      f"legitimate waiver/scope exclusion")
 
 
+def _check_agent_overrides_are_data(fails):
+    """D2-04: the agent-lane denominator overrides (AGENT_EXTRA / NOT_AGENT_BOUND) are
+    loaded from agent_lane_overrides.json, never literal sets in agent_matrix.py —
+    so each override carries a reason and an expiry clock the expiry-clocks gate
+    enforces. Proven two ways: the module sets equal the file's ids exactly (mutate the
+    file in a scratch copy and the loader must follow), and the module source carries
+    no literal override id."""
+    import json, os, tempfile
+    path = agent_matrix.OVERRIDES
+    d = json.load(open(path))
+    want_extra = {e["id"] for e in d["agent_extra"]}
+    want_nab = {e["id"] for e in d["not_agent_bound"]}
+    if set(agent_matrix.AGENT_EXTRA) != want_extra or set(agent_matrix.NOT_AGENT_BOUND) != want_nab:
+        fails.append("agent_matrix.AGENT_EXTRA/NOT_AGENT_BOUND differ from agent_lane_overrides.json")
+    else:
+        print("  ✓ module override sets == agent_lane_overrides.json ids "
+              f"({len(want_extra)} extra, {len(want_nab)} not-agent-bound)")
+    scratch = dict(d); scratch["not_agent_bound"] = d["not_agent_bound"] + [{"id": "ZZZ-999", "reason": "mutant"}]
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump(scratch, f); tmp = f.name
+    try:
+        extra2, nab2 = agent_matrix._load_overrides(tmp)
+    finally:
+        os.unlink(tmp)
+    if "ZZZ-999" in nab2 and extra2 == frozenset(want_extra):
+        print("  ✓ mutate the file (+ZZZ-999) -> the loader follows the data")
+    else:
+        fails.append("agent_matrix._load_overrides does not follow the file (overrides not data-driven)")
+    src = open(agent_matrix.__file__).read()
+    literal = [i for i in sorted(want_extra | want_nab) if f'"{i}"' in src]
+    if literal:
+        fails.append(f"agent_matrix.py still carries literal override ids: {literal[:5]}")
+    else:
+        print("  ✓ agent_matrix.py source carries no literal override id")
+    for name, entries in (("agent_extra", d["agent_extra"]), ("not_agent_bound", d["not_agent_bound"])):
+        thin = [e["id"] for e in entries if len((e.get("reason") or "").strip()) < 20]
+        if thin:
+            fails.append(f"agent_lane_overrides.json {name}: entries without a reason: {thin}")
+
+
 def main():
     fails = []
     print("spec-versions single-source identity:")
@@ -277,6 +317,8 @@ def main():
     _check_agent_wall_independent_of_merchant_wall(fails)
     print("\nstale-waiver fail-noisy rule (PLAN-0825 A.2 kill-test):")
     _check_stale_waiver_fail_noisy(fails)
+    print("\nagent-lane overrides are data (agent_lane_overrides.json), never literal sets (D2-04):")
+    _check_agent_overrides_are_data(fails)
 
     print()
     for f in fails:

@@ -35,6 +35,173 @@ LOCK = os.path.join(CONF, "SOURCES.lock.json")
 WARN_DAYS = 14
 
 
+# ----------------------------------------------------------------------------- data
+
+def load_registers(path=REGISTERS):
+    return json.load(open(path))
+
+
+def lock_pins(path=LOCK):
+    """{version: 8-hex commit} from SOURCES.lock.json."""
+    d = json.load(open(path))
+    return {v: (i.get("commit") or "")[:8] for v, i in d.get("spec", {}).get("versions", {}).items()}
+
+
+def iter_entries(reg, doc):
+    """Yield (path, entry) for one register's entry-path over its loaded document.
+    Paths:  `$.*`        every value of an id-keyed dict, `_`-prefixed keys skipped;
+                         a list value yields one entry per element as `<id>[i]`
+            `$.key[*]`   every element of the list under `key`
+    Note-only entries (every key `_`-prefixed, e.g. a scratch `_note` object) are
+    skipped — they are commentary, not clocked claims; so is any entry lacking the
+    register's `entry_requires` key (site_claims: an object without `text` is not a
+    claim, whatever else it carries)."""
+    spec = reg["entries"]
+    need = reg.get("entry_requires")
+
+    def is_note(e):
+        if not isinstance(e, dict):
+            return False
+        if all(k.startswith("_") for k in e):
+            return True
+        return bool(need) and need not in e
+    if spec == "$.*":
+        for k, v in doc.items():
+            if k.startswith("_"):
+                continue
+            if isinstance(v, list):
+                for i, e in enumerate(v):
+                    if not is_note(e):
+                        yield f"{k}[{i}]", e
+            elif not is_note(v):
+                yield k, v
+    elif spec.startswith("$.") and spec.endswith("[*]"):
+        key = spec[2:-3]
+        for i, e in enumerate(doc.get(key) or []):
+            if not is_note(e):
+                yield f"{key}[{i}]", e
+    else:
+        raise ValueError(f"unsupported entries path {spec!r} in register {reg.get('name')}")
+
+
+def entry_versions(reg, entry, versions=VERSIONS):
+    """The spec versions an entry's truth is pinned to, per the register's scope rule."""
+    scope = reg.get("scope", "versions")
+    if scope == "none":
+        return []
+    if scope == "all":
+        return list(versions)
+    if scope == "version":
+        v = entry.get("version")
+        return [v] if v else []
+    if scope == "versions":
+        return list(entry.get("versions") or [])
+    raise ValueError(f"unsupported scope {scope!r} in register {reg.get('name')}")
+
+
+def _parse_date(s):
+    try:
+        return date.fromisoformat(s)
+    except Exception:                                   # noqa: BLE001 — a bad date is a finding
+        return None
+
+
+def evaluate(registers, load, pins, today, versions=VERSIONS):
+    """Pure: registers (list of register dicts), load(file)->doc, pins {version: 8-hex},
+    today (date) -> findings [{kind, register, entry, detail}]. Kinds:
+      expired · pin-drift · missing-clock · expiring-soon (warn only)."""
+    findings = []
+
+    def add(kind, reg, path, detail):
+        findings.append({"kind": kind, "register": reg["name"],
+                         "entry": f"{os.path.basename(reg['file'])} {path}", "detail": detail})
+
+    for reg in registers:
+        if reg.get("clock") == "none":
+            continue
+        doc = load(reg["file"])
+        if doc is None:
+            findings.append({"kind": "missing-clock", "register": reg["name"],
+                             "entry": os.path.basename(reg["file"]), "detail": "register file unreadable"})
+            continue
+        for path, e in iter_entries(reg, doc):
+            if not isinstance(e, dict):
+                add("missing-clock", reg, path, "entry is not an object")
+                continue
+            vers = entry_versions(reg, e, versions)
+            rb = e.get("review_by")
+            pin = e.get("spec_pin")
+            missing = []
+            if not rb:
+                missing.append("review_by")
+            if vers and not pin:
+                missing.append("spec_pin")
+            if missing:
+                add("missing-clock", reg, path, "no " + "/".join(missing))
+                continue
+            d = _parse_date(rb)
+            if d is None:
+                add("missing-clock", reg, path, f"review_by {rb!r} is not an ISO date")
+                continue
+            if d < today:
+                add("expired", reg, path, f"review_by {rb} < today {today.isoformat()}")
+            elif (d - today).days <= WARN_DAYS:
+                add("expiring-soon", reg, path, f"review_by {rb} in {(d - today).days} d")
+            for v in vers:
+                want = pins.get(v)
+                have = pin.get(v) if isinstance(pin, dict) else pin
+                if want is None:
+                    add("pin-drift", reg, path, f"version {v} is not pinned in the lock")
+                elif have != want:
+                    add("pin-drift", reg, path, f"{v}: spec_pin {have} != lock {want}")
+    return findings
+
+
+def _repo_loader(root=ROOT):
+    def load(rel):
+        try:
+            return json.load(open(os.path.join(root, rel)))
+        except Exception:                               # noqa: BLE001 — reported as a finding
+            return None
+    return load
+
+
+def summarize(findings, n_entries, extra=""):
+    c = {}
+    for f in findings:
+        c[f["kind"]] = c.get(f["kind"], 0) + 1
+    return (f"expiry-clocks: {n_entries} entries" + extra +
+            f" · {c.get('expired', 0)} expired · {c.get('pin-drift', 0)} pin-drift"
+            f" · {c.get('missing-clock', 0)} missing-clock")
+
+
+def count_entries(registers, load):
+    n = 0
+    for reg in registers:
+        doc = load(reg["file"])
+        if doc is not None:
+            n += sum(1 for _ in iter_entries(reg, doc))
+    return n
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="expiry-clock gate")
+    ap.add_argument("--today", help="ISO date override (default: today)")
+    ap.add_argument("--lock", default=LOCK, help="alternate SOURCES.lock.json (re-pin proof)")
+    ap.add_argument("--registers", default=REGISTERS)
+    a = ap.parse_args(argv)
+    today = date.fromisoformat(a.today) if a.today else date.today()
+    regs = load_registers(a.registers)["registers"]
+    load = _repo_loader()
+    findings = evaluate(regs, load, lock_pins(a.lock), today)
+    hard = [f for f in findings if f["kind"] != "expiring-soon"]
+    for f in findings:
+        mark = "!" if f["kind"] == "expiring-soon" else "✗"
+        print(f"  {mark} {f['kind']:<14} {f['entry']}: {f['detail']}")
+    print(summarize(findings, count_entries(regs, load)))
+    return 1 if hard else 0
+
+
 def selftest():
     """Kill-tests (hermetic: synthetic registers/docs/lock, no repo I/O)."""
     today = date(2026, 9, 10)
