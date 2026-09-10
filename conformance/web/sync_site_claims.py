@@ -15,7 +15,7 @@ reviews claims; a machine copies numbers.
 Sources (the same techniques the gates use, never a second opinion):
   manifest.merchant_checks   MCheck count over conformance/checks/merchant_checks*.py (coverage_gate)
   manifest.agent_checks/agent_defects   len(agent_checks.CHECKS) / non-None DEFECTS (agent_governance)
-  manifest.versions          versions whose rule-R-a state is `live` (site_gates._expected_state; supported = live only)
+  manifest.versions          versions with a REGISTERED CHECK SET (coverage.json check+exempt > 0 — what the CLI grades), independent of the R-a state word (B3, owner ruling 2026-09-10)
   evidence.per_version       {"check", **evidence_breakdown} per version from a fresh matrix export (validate_evidence_class)
 """
 import argparse, glob, json, os, pathlib, re, subprocess, sys
@@ -49,9 +49,11 @@ def derived_blocks():
     ag = json.loads(r.stdout)
     export = matrix.export_json()
     versions = export["versions"]
-    live = sorted(v for v, d in versions.items() if site_gates._expected_state(d)[0] == "live")
+    # B3: supported = versions the CLI grades (registered check set), never the state
+    # word — the same test site_gates._real_manifest applies, so the two cannot disagree.
+    supported = sorted(v for v, d in versions.items() if d.get("check") or d.get("exempt"))
     manifest = {"merchant_checks": merchant, "agent_checks": ag["agent_checks"],
-                "agent_defects": ag["agent_defects"], "versions": live}
+                "agent_defects": ag["agent_defects"], "versions": supported}
     per_version = {v: {"check": d["check"], **d["evidence_breakdown"]} for v, d in versions.items()}
     return manifest, per_version
 

@@ -728,10 +728,14 @@ def _real_manifest():
     # CHECK/EXEMPT rows, with no code change needed here when that happens.
     # (This is exactly the `backs_site` test _state_failures() uses too — the two
     # can never independently disagree about what counts as supported.)
-    # D5-03 / PLAN-v3 §2.18: SUPPORTED = live only. A converting version has real
-    # CHECK/EXEMPT rows but testable-tier MUSTs still open, so it backs the coverage
-    # page's own numbers yet is NOT a version the site may claim as supported.
-    cov = [v for v, d in cov_export.items() if d.get("state") == "live"]
+    # B3 (owner ruling 2026-09-10 adopting W0-review ruling (a)): SUPPORTED = the
+    # versions with a REGISTERED CHECK SET — real CHECK/EXEMPT rows, i.e. what the CLI
+    # actually grades — independent of the publication-state word. `live` is a
+    # publication state (rule R-a: zero testable-tier GAP) and stays on coverage.json;
+    # deriving "supported" from it published `versions: []` while the CLI graded four
+    # versions with 227 checks — a false public statement. A converting version IS
+    # supported (its checks grade); a building/unregistered one (0/0) is not.
+    cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
     agc = json.load(open(PUB / "agent-coverage.json"))
     # The agent axis can never WIDEN the supported set: a version key that carries
     # agent CHECK/EXEMPT rows but is absent from coverage.json (or not live there) is
@@ -978,14 +982,30 @@ def selftest():
         with_state(subject_ver, "converting", check=0, exempt=0,
                    gap_by_testability={"testable": 5}),
         want_red=True)
+    # B3: a CONVERTING version with real CHECK rows listed as supported is exactly right
+    # (its checks grade) -> GREEN; a version forced to zero CHECK/EXEMPT but still listed
+    # is a false "supported" -> RED; and a version with CHECK rows MISSING from the list
+    # is manifest drift -> RED.
     run_variant(
-        "converting version listed as SUPPORTED in site_claims manifest.versions "
-        "(supported = live only, RV2 T11)",
+        "converting version (real CHECK rows) listed in manifest.versions "
+        "(B3: supported = registered check set, not live)",
         with_state("2026-08-25", "converting", check=10, exempt=0,
                    gap_by_testability={"testable": 5}),
-        want_red=True,
+        want_red=False,
         mutate_claims=lambda sc: sc["manifest"].__setitem__(
             "versions", sorted(set(sc["manifest"]["versions"]) | {"2026-08-25"})))
+    run_variant(
+        f"{subject_ver} forced to zero CHECK/EXEMPT (state building) but still listed in manifest.versions",
+        with_state(subject_ver, "building", check=0, exempt=0, gap_by_testability={}),
+        want_red=True,
+        mutate_claims=lambda sc: sc["manifest"].__setitem__(
+            "versions", sorted(set(sc["manifest"]["versions"]) | {subject_ver})))
+    run_variant(
+        f"{live_ver} (real CHECK rows) removed from manifest.versions",
+        lambda vs: None,
+        want_red=True,
+        mutate_claims=lambda sc: sc["manifest"].__setitem__(
+            "versions", sorted(set(sc["manifest"]["versions"]) - {live_ver})))
     # B3 (owner ruling 2026-09-10 adopting W0-review ruling (a)): manifest.versions = the
     # versions with a REGISTERED CHECK SET (what the CLI grades), independent of the
     # publication-state word. An empty manifest.versions while the export carries
