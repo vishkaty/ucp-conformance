@@ -6,6 +6,5 @@ server/.pytest_cache/
 smoke/.pytest_cache/
 .pytest_cache/
 
-# R11 battery run report -- a generated artifact (validate_golden_0825_battery.py
-# writes it every run for run_suite.py's report-only line), not a source file.
-battery/LAST_RUN.json
+# R11 battery run report (battery/LAST_RUN.json) is TRACKED since D1-09: the owner
+# commits it on the release path (decision 24); CI reads its own in-run battery.

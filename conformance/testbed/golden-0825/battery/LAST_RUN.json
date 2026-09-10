@@ -1,0 +1,11 @@
+{
+ "ran_at": 1789050294.049108,
+ "ran_at_iso": "2026-09-10T14:24:54Z",
+ "ok": true,
+ "killed": 38,
+ "acknowledged_open": 0,
+ "total": 38,
+ "disabled_mode_byte_identity_ok": true,
+ "survivors": [],
+ "loader_broken": []
+}

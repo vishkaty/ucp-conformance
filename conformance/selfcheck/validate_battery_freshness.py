@@ -30,6 +30,40 @@ TRACKED = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_R
 STALE_DAYS = 14
 
 
+def _load(path):
+    try:
+        return json.loads(pathlib.Path(path).read_text()), None
+    except FileNotFoundError:
+        return None, f"missing: {path}"
+    except (OSError, ValueError) as e:
+        return None, f"unreadable: {path} ({e})"
+
+
+def assess(in_run, tracked, now):
+    """(rc, message). The in-run report (this run_suite invocation's battery) wins when
+    it exists; otherwise the tracked file under the STALE_DAYS rule. Never rescues a
+    stale/failed in-run report with the tracked file."""
+    if in_run is not None and pathlib.Path(in_run).exists():
+        source, path = "in-run", pathlib.Path(in_run)
+    else:
+        source, path = "tracked", pathlib.Path(tracked)
+    report, err = _load(path)
+    if err:
+        return 1, f"battery report {err} ({source}) — run conformance/selfcheck/validate_golden_0825_battery.py"
+    ran_at = float(report.get("ran_at", 0) or 0)
+    age_days = (now - ran_at) / 86400
+    ran = time.strftime("%Y-%m-%d", time.gmtime(ran_at)) if ran_at else "never"
+    acked = int(report.get("acknowledged_open", 0) or 0)
+    summary = (f"{report.get('killed')}/{report.get('total')} killed · {acked} acknowledged · "
+               f"ran {ran} ({source})")
+    if not report.get("ok"):
+        return 1, (f"battery ok:false — survivors {report.get('survivors')} loader_broken "
+                   f"{report.get('loader_broken')} · {summary}")
+    if age_days > STALE_DAYS:
+        return 1, f"battery report STALE: {age_days:.1f} days old (> {STALE_DAYS}) · {summary}"
+    return 0, summary
+
+
 def selftest():
     fails = []
 

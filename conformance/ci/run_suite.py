@@ -22,17 +22,16 @@ Gates (each anchored to something we did NOT write, to avoid circularity):
 Server-dependent gates are skipped (not failed) when no golden is reachable, unless
 --require-server. The schema gate skips if the ucp-schema binary isn't built (exit 2).
 
-REPORT-ONLY (printed, never counted toward pass/fail -- matches schema-census's own
-report-mode default): the R11 golden-0825 mutant battery. It boots a second server
-(golden-0825, port 8199) and takes ~15s, too heavy for this per-change gate run; run it
-directly with `python3 conformance/selfcheck/validate_golden_0825_battery.py` and this
-script prints its last recorded result (self-expiring after 14 days -- see
-r11_battery_report_line()).
+R11 golden-0825 mutant battery (D1-09): a COUNTED gate, `battery-freshness`. In CI
+run with --battery so the battery runs inside this invocation (its report is the
+in-run source the gate prefers); locally without --battery the gate reads the tracked
+conformance/testbed/golden-0825/battery/LAST_RUN.json under a 14-day rule (the owner
+commits it on the release path — decision 24: artifacts, no bot commits).
 
 Usage:
     python3 conformance/ci/run_suite.py [--server http://localhost:8182]
                                         [--require-server] [--skip schema,proxy-demo]
-                                        [--only NAME[,NAME...]]
+                                        [--only NAME[,NAME...]] [--battery]
 Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing);
 2 = --only named a gate that is not in the table (never a silent full run or no-op).
 
@@ -161,6 +160,11 @@ def gates(server, require_server=False):
         # without --require-server an empty record set skips honestly (rc 2).
         ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
                             *(["--require-server"] if require_server else [])), None, (2,)),
+        # D1-09: the R11 battery must have run, recently, and passed — counted. --battery
+        # runs it in THIS invocation (report copied to RECORD_DIR, preferred); otherwise
+        # the tracked LAST_RUN.json under the 14-day rule.
+        ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
+                                  "--in-run", str(RECORD_DIR / "battery_LAST_RUN.json")), None, ()),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
         # the CLOSED testable tier can never silently reopen (wave-2 milestone)
         ("require-testable-04-08",
@@ -438,38 +442,22 @@ def run_gate(name, argv, timeout=180):
     return {"rc": p.returncode, "dt": time.monotonic() - t0,
             "tail": tail[-1] if tail else "", "out": p.stdout + p.stderr}
 
-R11_BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
-R11_BATTERY_STALE_DAYS = 14
+BATTERY = SELF / "validate_golden_0825_battery.py"
+BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
 
 
-def r11_battery_report_line():
-    """PLAN-0825 SS C.4 (R11): the golden-0825 mutant battery is a REPORT-ONLY
-    line here, not a gate in gates() above -- it boots a server twice and
-    takes ~15s, too heavy for the default per-change run_suite invocation
-    (same call the schema-census gate makes: report-only by default, a flip
-    to a hard gate is a later, deliberate step). Run it directly:
-        python3 conformance/selfcheck/validate_golden_0825_battery.py
-    This function only reads the JSON report that script writes on its own
-    last run and never re-executes it -- so this line is O(1) and never boots
-    anything itself.
-
-    Self-expiring (P-2): a report older than R11_BATTERY_STALE_DAYS is flagged
-    STALE rather than quietly trusted forever, same doctrine as every other
-    intermediate/report-mode state in this suite."""
-    import json as _json
-    if not R11_BATTERY_REPORT.exists():
-        return "R11 battery      · not yet run — see conformance/selfcheck/validate_golden_0825_battery.py"
-    try:
-        report = _json.loads(R11_BATTERY_REPORT.read_text())
-    except (OSError, ValueError) as e:
-        return f"R11 battery      ✗ LAST_RUN.json unreadable ({e})"
-    age_days = (time.time() - report.get("ran_at", 0)) / 86400
-    stale = " [STALE — re-run]" if age_days > R11_BATTERY_STALE_DAYS else ""
-    mark = "✓" if report.get("ok") else "✗"
-    acked = report.get("acknowledged_open", 0)
-    return (f"R11 battery      {mark} {report.get('killed')}/{report.get('total')} killed"
-            + (f" ({acked} acknowledged-open)" if acked else "")
-            + f", {age_days:.1f}d ago{stale}")
+def run_battery():
+    """--battery: run the R11 golden-0825 mutant battery inside this invocation and copy
+    its report into RECORD_DIR as the in-run source for battery-freshness. Its own port
+    (GOLDEN_0825_BATTERY_PORT, default 8199) and oracle-skip semantics are the battery's."""
+    t0 = time.monotonic()
+    p = subprocess.run([sys.executable, str(BATTERY)], cwd=str(ROOT), capture_output=True, text=True)
+    tail = (p.stdout + p.stderr).strip().splitlines()
+    print(f"battery (--battery): rc={p.returncode} [{time.monotonic() - t0:.1f}s] "
+          f"{tail[-1] if tail else ''}")
+    if p.returncode == 0 and BATTERY_REPORT.exists():
+        RECORD_DIR.mkdir(parents=True, exist_ok=True)
+        (RECORD_DIR / "battery_LAST_RUN.json").write_bytes(BATTERY_REPORT.read_bytes())
 
 
 def main():
@@ -482,9 +470,14 @@ def main():
     ap.add_argument("--only", default="",
                     help="comma-separated gate names to run (exactly those, in table order; "
                          "boots only the fixtures they need; rc 2 on an unknown name)")
+    ap.add_argument("--battery", action="store_true",
+                    help="run the R11 golden-0825 battery in this invocation (CI); "
+                         "battery-freshness then reads that run instead of the tracked file")
     ap.add_argument("-v", "--verbose", action="store_true", help="print full gate output on failure")
     args = ap.parse_args()
     skip = {s.strip() for s in args.skip.split(",") if s.strip()}
+    if args.battery:
+        run_battery()
 
     table = gates(args.server, args.require_server)
     if args.only:
@@ -564,8 +557,6 @@ def main():
             print(f"{mark} {status} {name} {detail}")
         n = len(results)
         print(f"{n} gate{'s' if n != 1 else ''} run (--only {args.only})")
-    else:
-        print(r11_battery_report_line() + "  (report-only, not counted above)")
     if failed:
         print(f"\nRED — gates failed: {', '.join(failed)}")
         return 1
