@@ -5184,10 +5184,10 @@
     "self-referenced"
    ],
    "evidence_breakdown": {
-    "live-wire": 48,
-    "fixture-schema": 73,
+    "live-wire": 66,
+    "fixture-schema": 68,
     "fixture-crypto": 4,
-    "self-referenced": 151
+    "self-referenced": 138
    },
    "gap_by_testability": {
     "manual": 7,
@@ -5396,8 +5396,10 @@
      "covered_by": [
       "merchant_checks_04_08_lifecycle.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "CART-023",
@@ -5450,8 +5452,10 @@
       "area_04_08_cart.py",
       "merchant_checks.py"
      ],
-     "evidence": "fixture-schema",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "CART-030",
@@ -5479,8 +5483,10 @@
       "area_04_08_cart.py",
       "merchant_checks.py"
      ],
-     "evidence": "fixture-schema",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "CART-032",
@@ -6624,8 +6630,10 @@
      "covered_by": [
       "merchant_checks_04_08_receiver.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "DSC-012",
@@ -8581,8 +8589,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "ORD-027",
@@ -8595,8 +8606,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "ORD-028",
@@ -8609,8 +8623,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "ORD-029",
@@ -8654,8 +8671,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "ORD-032",
@@ -9815,8 +9835,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-015",
@@ -9829,8 +9852,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-016",
@@ -9843,8 +9869,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-017",
@@ -9857,8 +9886,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-018",
@@ -9871,8 +9903,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-019",
@@ -9983,8 +10018,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "SIG-031",
@@ -10133,8 +10171,11 @@
      "covered_by": [
       "merchant_checks_04_08_events.py"
      ],
-     "evidence": "self-referenced",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "TOT-001",
@@ -10184,8 +10225,10 @@
       "area_04_08_checkout.py",
       "merchant_checks.py"
      ],
-     "evidence": "fixture-schema",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "TOT-006",
@@ -10199,8 +10242,10 @@
       "area_04_08_checkout.py",
       "merchant_checks.py"
      ],
-     "evidence": "fixture-schema",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "TOT-007",
@@ -10261,8 +10306,10 @@
       "area_04_08_checkout.py",
       "merchant_checks.py"
      ],
-     "evidence": "fixture-schema",
-     "reach": []
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample"
+     ]
     },
     {
      "id": "TOT-017",

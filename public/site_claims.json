@@ -26,10 +26,10 @@
       },
       "2026-04-08": {
         "check": 276,
-        "live-wire": 48,
-        "fixture-schema": 73,
+        "live-wire": 66,
+        "fixture-schema": 68,
         "fixture-crypto": 4,
-        "self-referenced": 151
+        "self-referenced": 138
       },
       "2026-08-25": {
         "check": 77,

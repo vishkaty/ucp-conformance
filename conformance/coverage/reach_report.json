@@ -1,25 +1,26 @@
 {
- "_about": "Differential REACH REPORT — for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json — servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) — the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run — never a wholesale overwrite (see gen_reach_report.py's module docstring) — regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh). MIGRATED 2026-08-31 (R4 fix): this file predates the version axis; both committed targets served ONLY 2026-04-08 at original generation (2026-08-11, see targets.*.spec_version), so every pre-existing key is mechanically rewritten with that version prefix — no grading claim changes, only the key shape. A version this file never actually probed (2026-01-11, 2026-01-23) correctly has ZERO entries here; those versions honest live-wire count is 0 until a target is pinned to actually serve them and gen_reach_report.py is re-run.",
- "generated": "2026-08-11",
+ "_about": "Differential REACH REPORT \u2014 for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json \u2014 servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) \u2014 the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run \u2014 never a wholesale overwrite (see this script's module docstring) \u2014 regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh); CI runs `--check` and FAILS on graded-status drift (D4-02), the owner commits regenerated labels under decision 6.",
+ "generated": "2026-09-10",
  "spec_pins": {
   "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
   "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
-  "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e"
+  "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e",
+  "2026-08-25": "cd78fb38e819de77d9b527d110476eccb876f1bd"
  },
  "targets": {
   "flower-shop-official-sample": {
    "server": "http://localhost:8182",
    "spec_version": "2026-04-08",
+   "generated": "2026-09-10",
    "merchant_checks_run": 228,
-   "engine_wire_checks": 50,
-   "generated": "2026-08-11"
+   "engine_wire_checks": 50
   },
   "nodejs-reference-sample": {
    "server": "http://localhost:3000",
    "spec_version": "2026-04-08",
+   "generated": "2026-09-10",
    "merchant_checks_run": 228,
-   "engine_wire_checks": 50,
-   "generated": "2026-08-11"
+   "engine_wire_checks": 50
   }
  },
  "checks": {
@@ -378,7 +379,7 @@
    "check": "cart.line_item_shape",
    "module": "merchant_checks",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -387,7 +388,7 @@
    "check": "cart.response_shape",
    "module": "merchant_checks",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -846,7 +847,7 @@
    "check": "totals.additive_non_negative",
    "module": "merchant_checks",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -855,7 +856,7 @@
    "check": "totals.subtotal_and_total",
    "module": "merchant_checks",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -1368,7 +1369,7 @@
    "check": "cart.update_full_replacement",
    "module": "merchant_checks_04_08_cartupdate",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (needs config: cart.second_product_id)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -1602,8 +1603,8 @@
    "check": "webhook.idempotency_key_signed",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1620,8 +1621,8 @@
    "check": "webhook.query_component_signed",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1629,8 +1630,8 @@
    "check": "webhook.retry_failed_delivery",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.retries)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.retries)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1638,8 +1639,8 @@
    "check": "webhook.signed_components",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1647,8 +1648,8 @@
    "check": "webhook.signed_rfc9421_verifies",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1656,8 +1657,8 @@
    "check": "webhook.ucp_agent_header",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1665,8 +1666,8 @@
    "check": "webhook.ucp_agent_signed",
    "module": "merchant_checks_04_08_events",
    "targets": {
-    "flower-shop-official-sample": "not-tested (needs config: webhooks.signed)",
-    "nodejs-reference-sample": "not-tested (needs config: webhooks.signed)"
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -1728,7 +1729,7 @@
    "check": "cart.https_tls13_minimum",
    "module": "merchant_checks_04_08_lifecycle",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (oracle unavailable)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -1737,7 +1738,7 @@
    "check": "cart.response_body_valid_json",
    "module": "merchant_checks_04_08_lifecycle",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2070,7 +2071,7 @@
    "check": "cart.cancel_returns_state",
    "module": "merchant_checks_04_08_receiver",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (needs config: cart.second_product_id)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2079,7 +2080,7 @@
    "check": "cart.conversion_carries_codes",
    "module": "merchant_checks_04_08_receiver",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "clean-pass",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2088,7 +2089,7 @@
    "check": "cart.conversion_idempotent",
    "module": "merchant_checks_04_08_receiver",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (needs config: cart.second_product_id)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2097,7 +2098,7 @@
    "check": "cart.conversion_uses_cart_contents",
    "module": "merchant_checks_04_08_receiver",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (needs config: cart.second_product_id)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2106,7 +2107,7 @@
    "check": "cart.idempotency_conflict",
    "module": "merchant_checks_04_08_receiver",
    "targets": {
-    "flower-shop-official-sample": "not-applicable",
+    "flower-shop-official-sample": "not-tested (needs config: cart.second_product_id)",
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
@@ -2161,7 +2162,7 @@
    "module": "merchant_checks_04_08_receiver",
    "targets": {
     "flower-shop-official-sample": "clean-pass",
-    "nodejs-reference-sample": "deviation"
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },
@@ -2179,7 +2180,7 @@
    "module": "merchant_checks_04_08_receiver",
    "targets": {
     "flower-shop-official-sample": "clean-pass",
-    "nodejs-reference-sample": "deviation"
+    "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
   },

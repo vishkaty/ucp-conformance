@@ -19,7 +19,7 @@ _CHECK is split by EVIDENCE CLASS — live-wire (kill-tested against an independ
 
 ## 2026-04-08 — 98% accounted (276 check · 81 exempt · 9 gap of 366 MUSTs)
 
-- CHECK by evidence: live-wire 48 · fixture-schema 73 · fixture-crypto 4 · self-referenced 151
+- CHECK by evidence: live-wire 66 · fixture-schema 68 · fixture-crypto 4 · self-referenced 138
 - GAP/manual: CAT-035, ERR-006, ERR-034, FUL-017, IDL-062, OVR-013, OVR-014
 - GAP/needs-receiver: OVR-002, SIG-039
 
