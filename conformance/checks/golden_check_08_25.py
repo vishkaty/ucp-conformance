@@ -43,6 +43,12 @@ discipline, just judged by this file's predicates instead of validate_golden_082
 battery.py's generic run_oracle() dispatch.
 
 Rows converted (register: conformance/requirements/2026-08-25/):
+  ERR-028/029/030 (x2) Error envelope on an unknown route (404 not_found)  (fixture-schema; D3-04)
+           and on an un-representable request (422 invalid_request, R15)
+  FUL-030  (omit-type) destinations[].type defaulted when the platform       (self-referenced; D3-04)
+           omits it (C3b)
+  DSC-007  Rejected codes communicated via messages[]                        (self-referenced; D3-04)
+  DSC-030  Accept-one-reject-one                                              (self-referenced; D3-04)
   OVR-069  Leaf profile's ucp.version equals its                (self-referenced; D3-03)
            supported_versions key
   OVR-009  Leaf profile MUST NOT contain supported_versions     (self-referenced; D3-03)
@@ -138,11 +144,10 @@ Rows explicitly LEFT BLOCKED this wave (see the module-level BLOCKED list):
   DSC-003/004/005/007 (discount-code replacement/clear/case-match/rejection-
   messaging semantics -- multi-request behavioral proofs, not a single mutant
   arm/disarm; deferred, not attempted, to keep this wave's checks to the
-  proven single-mutant idiom), DSC-006/DSC-008/DSC-012/DSC-029/DSC-030
-  (this golden never applies an AUTOMATIC discount and never REJECTS a
-  submitted code -- only exact-match code lookup exists in
-  services/checkout_service.py, so "automatic:true" / rejected-code-messaging
-  / accept-one-reject-one rows have no organic code path), DSC-018/DSC-019
+  proven single-mutant idiom), DSC-006/DSC-008/DSC-012/DSC-029
+  (this golden never applies an AUTOMATIC discount -- no "automatic:true"
+  code path exists in services/checkout_service.py; rejected-code messaging
+  and accept-one-reject-one, DSC-007/DSC-030, ARE converted since D3-04), DSC-018/DSC-019
   (items_discount classification -- the golden's one allocation always points
   at $.totals[?(@.type=='subtotal')], never at a line item, so it never
   produces an items_discount total; same "not organically produced" doctrine
@@ -389,6 +394,17 @@ def _create_checkout_with_consent(purpose_fields):
     return http("POST", "/checkout-sessions", body)
 
 
+def _create_checkout_with_consent_key(key):
+    """A checkout whose buyer.consent carries one purpose under an arbitrary
+    KEY (D3-04's ERR-028.validation-422 row sends a non-reverse-DNS key)."""
+    body = {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+        "buyer": {"consent": {key: {"granted": True, "source": "platform", "description": "x"}}},
+    }
+    return http("POST", "/checkout-sessions", body)
+
+
 def _create_checkout_with_discount(codes):
     """DSC-020/DSC-023/DSC-026/TOT-014's fixture: a checkout with a real
     fulfillment method AND one matching discount code (10OFF -- 10% off,
@@ -621,7 +637,121 @@ def p_leaf_has_no_supported_versions(status, body):
                        else f"leaf carries supported_versions at {where}")
 
 
+def _oracle_error_envelope(expected_status, expected_code):
+    """A judge for error responses: the expected HTTP status, a UCP error
+    envelope the official oracle accepts (error_response.json), and the
+    expected first message code."""
+    def judge(status, body):
+        if status != expected_status:
+            return False, f"expected HTTP {expected_status}, got {status}: {str(body)[:120]!r}"
+        if not isinstance(body, dict) or "ucp" not in body:
+            return False, f"not a UCP error envelope: {str(body)[:120]!r}"
+        ok, detail = so.validate_root(body, "schemas/common/types/error_response.json",
+                                      op="read", version=VERSION, direction="response")
+        if not ok:
+            return False, f"error_response.json rejects the envelope: {detail[:160]}"
+        code = (body.get("messages") or [{}])[0].get("code")
+        if code != expected_code:
+            return False, f"first message code {code!r}, expected {expected_code!r}"
+        return True, f"HTTP {status} UCP error envelope, code {code}"
+    return judge
+
+
+def _create_checkout_without_destination_type():
+    body = {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+    }
+    for m in body["fulfillment"]["methods"]:
+        for d in m["destinations"]:
+            d.pop("type", None)
+    return http("POST", "/checkout-sessions", body)
+
+
+def p_destination_typed(status, body):
+    """FUL-030 on the RESPONSE after a request that omitted `type`: 201 and every
+    destination carries the const discriminator (the business defaulted it)."""
+    if status != 201 or not isinstance(body, dict):
+        return False, f"create was not 201: {status} {str(body)[:120]!r}"
+    dests = [d for m in (body.get("fulfillment") or {}).get("methods", []) for d in (m.get("destinations") or [])]
+    if not dests:
+        return False, "no destinations in the response"
+    bad = [d for d in dests if d.get("type") != "shipping_address"]
+    return not bad, ("every destination typed shipping_address" if not bad
+                     else f"untyped/mistyped destinations: {bad}")
+
+
+def _rejected_messages(body):
+    return [m for m in (body.get("messages") or []) if m.get("code") == "discount_code_rejected"]
+
+
+def p_rejected_code_surfaced(status, body):
+    """DSC-007: INVALID_CODE -> 201; echoed in discounts.codes, absent from
+    discounts.applied, and one messages[] entry names it with a path."""
+    if status != 201 or not isinstance(body, dict):
+        return False, f"create was not 201: {status} {str(body)[:120]!r}"
+    disc = body.get("discounts") or {}
+    if "INVALID_CODE" not in (disc.get("codes") or []):
+        return False, "rejected code not echoed in discounts.codes"
+    if any(a.get("code") == "INVALID_CODE" for a in (disc.get("applied") or [])):
+        return False, "rejected code appears in discounts.applied"
+    msgs = _rejected_messages(body)
+    if not msgs or "codes" not in str(msgs[0].get("path", "")):
+        return False, f"no discount_code_rejected message with a path: {body.get('messages')!r}"
+    return True, f"rejected code surfaced: {msgs[0]}"
+
+
+def p_accept_one_reject_one(status, body):
+    """DSC-030: 10OFF + INVALID_CODE -> only 10OFF applied; INVALID_CODE in
+    messages[], not in applied."""
+    if status != 201 or not isinstance(body, dict):
+        return False, f"create was not 201: {status} {str(body)[:120]!r}"
+    disc = body.get("discounts") or {}
+    applied = [a.get("code") for a in (disc.get("applied") or [])]
+    if applied != ["10OFF"]:
+        return False, f"applied should be exactly ['10OFF'], got {applied}"
+    msgs = _rejected_messages(body)
+    if len(msgs) != 1 or "INVALID_CODE" not in msgs[0].get("content", ""):
+        return False, f"expected exactly one rejection message for INVALID_CODE: {body.get('messages')!r}"
+    return True, "valid code applied, invalid code rejected via messages[]"
+
+
 CHECKS = [
+    # D3-04 (C3 envelope on every error + R15 + C3b + DSC-007/030). Each row's
+    # mutant is a BEHAVIOR row (defects_config.json behavior_mutants[]): the
+    # golden's guard takes the inherited (violating) branch while armed.
+    Row("ERR-028.unknown-route", ["ERR-028", "ERR-029", "ERR-030"], "fixture-schema",
+        "An unknown route is answered with a UCP error envelope (404 not_found), "
+        "validated by the official oracle against error_response.json -- not a "
+        "framework body.",
+        lambda: http("GET", "/nope"),
+        _oracle_error_envelope(404, "not_found"),
+        "unknown_route_plain_404"),
+    Row("ERR-028.validation-422", ["ERR-028", "ERR-029", "ERR-030"], "fixture-schema",
+        "A request the business's models cannot represent (a non-reverse-DNS "
+        "consent purpose key, buyer_consent.json $defs.consent propertyNames) is a "
+        "422 invalid_request envelope -- ledger R15 closes: no bare 500.",
+        lambda: _create_checkout_with_consent_key("not a reverse dns key"),
+        _oracle_error_envelope(422, "invalid_request"),
+        "consent_bad_key_500"),
+    Row("FUL-030.omit-type", ["FUL-030"], "self-referenced",
+        "C3b: when the platform omits destinations[].type (ucp_request: optional) "
+        "the business defaults it per method and the response carries the const "
+        "discriminator shipping_address.",
+        _create_checkout_without_destination_type,
+        p_destination_typed,
+        "destination_type_required_on_request"),
+    Row("DSC-007", ["DSC-007"], "self-referenced",
+        "Rejected codes are communicated via the messages[] array.",
+        lambda: _create_checkout_with_discount(["INVALID_CODE"]),
+        p_rejected_code_surfaced,
+        "discount_reject_silent"),
+    Row("DSC-030", ["DSC-030"], "self-referenced",
+        "Accept-one-reject-one: with a valid and an invalid code only the valid "
+        "discount is applied; the rejected one appears in messages[], not applied.",
+        lambda: _create_checkout_with_discount(["10OFF", "INVALID_CODE"]),
+        p_accept_one_reject_one,
+        "discount_reject_silent"),
     # D3-03 (C3 supported_versions + the 2026-04-08 leaf, decision 18): the
     # root profile's supported_versions names the leaf; these two rows grade
     # the LEAF document itself. Both self-referenced: the 04-08 profile schema
@@ -1034,14 +1164,14 @@ BLOCKED = [
      "this wave). Left for a follow-up wave with a two-request Row idiom, "
      "not attempted here to keep this wave to the proven single-arm-cycle "
      "pattern every other row in this file uses."),
-    ("DSC-006/DSC-008/DSC-012/DSC-029/DSC-030 (discounts.applied contents / "
-     "automatic-discount flag / accept-one-reject-one)",
+    ("DSC-006/DSC-008/DSC-012/DSC-029 (discounts.applied contents / "
+     "automatic-discount flag)",
      "this golden's discount engine (services/checkout_service.py) only "
-     "implements exact-match code lookup against discounts.csv -- there is "
-     "no automatic-discount code path (AppliedDiscount(...) never sets "
-     "automatic=True) and no code-rejection path (a non-matching code is "
-     "silently skipped, not surfaced in messages[] -- same finding as "
-     "DSC-007 above). DSC-006/DSC-029 are the same quote duplicated under "
+     "implements code lookup against discounts.csv -- there is no "
+     "automatic-discount code path (AppliedDiscount(...) never sets "
+     "automatic=True). (The code-REJECTION path exists since D3-04: DSC-007 "
+     "and DSC-030 are converted above, kill-tested by the discount_reject_silent "
+     "behavior row.) DSC-006/DSC-029 are the same quote duplicated under "
      "two ids (discount.md#L140 appears verbatim in both the Request and "
      "Response subsections) and would only restate DSC-020's/DSC-023's own "
      "positive evidence without a new mutant to kill-test."),

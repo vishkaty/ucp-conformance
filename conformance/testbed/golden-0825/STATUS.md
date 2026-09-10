@@ -343,6 +343,38 @@ bar), so the differential does not red under `projection_leaks_type`; that
 row's kill is the battery predicate, not the oracle — PLAN-v3 §2.14's "FUL-003
 04-08 oracle rejects `type`" does not hold on this oracle.
 
+**UPDATE 2026-09-10 (lane/w0-d3, D3-04): the UCP error envelope on EVERY
+error, R15 closed, C3b `destinations[].type` default, DSC-007/030 rejected-code
+messages.** `server.py` now converts Starlette/FastAPI `HTTPException`s (an
+unknown route's framework `{"detail": "Not Found"}` → 404 `not_found`; the
+signature path's legacy `{"detail": {"errors": [...]}}` → the same envelope
+with its codes, e.g. 401 `signature_missing`) and any pydantic
+`ValidationError` that escapes a handler (ledger R15: a non-reverse-DNS
+consent purpose key was accepted by the request model and crashed the
+RESPONSE model → bare 500) into `error_response.json` envelopes — the latter
+as 422 `invalid_request` with a JSONPath `path` into the request
+(`$.buyer.consent['not a reverse dns key']`); `RequestValidationError` gains
+the same `path`. All error codes are lowercase now (decision 20:
+`not_found`, `idempotency_conflict`, `checkout_not_modifiable`,
+`out_of_stock`, `payment_failed`, `invalid_request`, `internal_error`; the
+inherited tests patched). **C3b**: `type` is `ucp_request: optional` on a
+destination, so the golden's request models default it per method
+(`shipping` → `shipping_address`) in a `model_validator(mode="before")`
+(`services/version_projection.default_destination_types`) — on the parsed
+body, never the request bytes, so request signatures keep verifying; the
+response carries the const discriminator (FUL-030). **DSC-007/030**: a
+rejected discount code is echoed in `discounts.codes`, absent from
+`discounts.applied`, and surfaced as a `messages[]` warning
+(`discount_code_rejected`, `path: $.discounts.codes[i]`); accept-one-reject-one
+holds. Four behavior rows guard the four inherited branches
+(`unknown_route_plain_404`, `consent_bad_key_500`,
+`destination_type_required_on_request`, `discount_reject_silent`), graded by
+new `golden_check_08_25.py` rows (ERR-028.unknown-route,
+ERR-028.validation-422, FUL-030.omit-type, DSC-007, DSC-030) which the
+battery now resolves as `gc:<row>` checks — **45/45 killed · behavior 7/7**;
+GC 44 KILLED. AMB-011 records the "is a non-route 404 an operation?"
+question (served as an envelope regardless).
+
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
 `conformance/coverage/` — this lane adds test machinery, no evidence claims.

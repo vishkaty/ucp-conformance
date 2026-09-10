@@ -461,6 +461,43 @@
       ],
       "violates": "decision 18 / shopping/buyer_consent.json@2026-04-08 ($defs.consent: marketing/analytics/preferences/sale_of_data are BOOLEANS): a response negotiated at 2026-04-08 must not carry 08-25 consent_purpose objects. Armed, services/version_projection.py skips the consent delta (RV2 T1).",
       "guard": "services/version_projection.py project_response (D3-03)"
+    },
+    {
+      "name": "unknown_route_plain_404",
+      "behavior": "errors.unknown_route_plain_404",
+      "checks": [
+        "gc:ERR-028.unknown-route"
+      ],
+      "violates": "error_response.json (ERR-028/029/030): every error response is a UCP envelope -- ucp{version,status:error} + messages[]. Armed, an unknown route answers the framework's plain {\"detail\": \"Not Found\"} (the inherited behavior).",
+      "guard": "server.py http_exception_handler (D3-04)"
+    },
+    {
+      "name": "consent_bad_key_500",
+      "behavior": "errors.validation_error_500",
+      "checks": [
+        "gc:ERR-028.validation-422"
+      ],
+      "violates": "error_response.json (ERR-028/029/030) + ledger R15: a request the models cannot represent (e.g. a non-reverse-DNS consent purpose key, buyer_consent.json $defs.consent propertyNames) is 422 invalid_request with a path, never a bare 500. Armed, the escaped pydantic ValidationError is served as the inherited plain-text 500.",
+      "guard": "server.py model_validation_exception_handler (D3-04)"
+    },
+    {
+      "name": "destination_type_required_on_request",
+      "behavior": "request.destination_type_required",
+      "checks": [
+        "gc:FUL-030.omit-type"
+      ],
+      "violates": "shipping_destination.json / fulfillment_destination.json `type` is ucp_request:optional (C3b): a platform may omit it and the business defaults it per method, the response carrying the const discriminator (FUL-030). Armed, nothing is defaulted and the 08-25 model rejects the request with 422.",
+      "guard": "services/version_projection.py default_destination_types (D3-04)"
+    },
+    {
+      "name": "discount_reject_silent",
+      "behavior": "discount.reject_silent",
+      "checks": [
+        "gc:DSC-007",
+        "gc:DSC-030"
+      ],
+      "violates": "discount.md#L138-L141 (DSC-007) and #L512-L513 (DSC-030): a rejected code is communicated via messages[] (echoed in discounts.codes, absent from discounts.applied). Armed, rejections are dropped silently -- the inherited behavior.",
+      "guard": "services/checkout_service.py _recalculate_totals discount block (D3-04)"
     }
   ],
   "acknowledged_gaps": {},

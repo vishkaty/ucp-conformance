@@ -28,6 +28,8 @@ from fastapi import Request
 from fastapi import Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+import pydantic
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import generated_routes.ucp_routes
 from routes.defect_fixtures import router as defect_fixtures_router
 from routes.discovery import router as discovery_router
@@ -58,10 +60,12 @@ app = FastAPI(
 # is added first, so it sits INNERMOST: the defects middleware below still
 # sees the behavior keys the projection consulted (x-defects-consulted).
 class VersionProjectionMiddleware:
-  """When the platform negotiated 2026-04-08 (UCP-Agent version=), project the
-  request into the 08-25 model shape and the JSON response into the 04-08
-  wire shape (services/version_projection.py). Any other version, or a
-  non-http scope, passes through untouched -- no body read, no parse."""
+  """Publishes the negotiated version to the request models (contextvar) and,
+  when the platform negotiated 2026-04-08 (UCP-Agent version=, or the
+  version-scoped endpoint), projects the JSON response into the 04-08 wire
+  shape (services/version_projection.py). The request bytes are never
+  rewritten. Any other version, or a non-http scope, passes through
+  untouched -- no body read, no parse."""
 
   def __init__(self, app):
     self.app = app
@@ -93,29 +97,14 @@ class VersionProjectionMiddleware:
         scope["headers"] = [(k, v) for k, v in scope["headers"] if k.lower() != b"ucp-agent"]
         scope["headers"].append((b"ucp-agent", f'{headers["ucp-agent"]}; version="{leaf}"'.encode("latin-1")))
     if version != leaf:
+      version_projection.NEGOTIATED_VERSION.set(version)
       await self.app(scope, receive, send)
       return
 
-    if scope.get("method") in ("POST", "PUT", "PATCH"):
-      raw = b""
-      more = True
-      while more:
-        message = await receive()
-        raw += message.get("body", b"")
-        more = message.get("more_body", False)
-      try:
-        parsed = json.loads(raw) if raw else None
-      except (json.JSONDecodeError, UnicodeDecodeError):
-        parsed = None
-      if isinstance(parsed, dict):
-        raw = json.dumps(version_projection.project_request(parsed, version)).encode("utf-8")
-        scope["headers"] = [(k, v) for k, v in scope["headers"] if k.lower() != b"content-length"]
-        scope["headers"].append((b"content-length", str(len(raw)).encode()))
-
-      async def receive_projected():
-        return {"type": "http.request", "body": raw, "more_body": False}
-
-      receive = receive_projected
+    # The request BYTES pass through untouched (signatures verify over them);
+    # the request models normalize the parsed body themselves, reading the
+    # negotiated version from this contextvar (services/version_projection.py).
+    version_projection.NEGOTIATED_VERSION.set(version)
 
     start_message = None
     chunks = []
@@ -233,6 +222,38 @@ def _format_validation_loc(loc: tuple[int | str, ...]) -> str:
   return path
 
 
+def _loc_to_jsonpath(loc: tuple[int | str, ...]) -> str | None:
+  """A pydantic error location -> a JSONPath into the request body
+  (message_error.json `path`, e.g. `$.fulfillment.methods[0].destinations[0].type`,
+  `$.buyer.consent['not a reverse dns key']`). None when the location is not
+  in the body."""
+  parts = list(loc)
+  if parts and parts[0] in ("query", "path", "header"):
+    return None
+  if parts and parts[0] == "body":
+    parts = parts[1:]
+  if parts and parts[-1] == "[key]":   # a propertyNames failure names the key itself
+    parts = parts[:-1]
+  out = "$"
+  for part in parts:
+    if isinstance(part, int):
+      out += f"[{part}]"
+    elif isinstance(part, str) and part.replace("_", "a").isalnum():
+      out += f".{part}"
+    else:
+      out += "['" + str(part).replace("'", "\\'") + "']"
+  return out
+
+
+def _error_envelope(status_code: int, messages: list[UcpMessageError]) -> JSONResponse:
+  body = UcpErrorResponse(
+    ucp={"version": config.get_server_version(), "status": "error"},
+    messages=messages,
+  )
+  return JSONResponse(status_code=status_code,
+                      content=body.model_dump(mode="json", exclude_none=True))
+
+
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(
   request: Request, exc: RequestValidationError
@@ -240,58 +261,123 @@ async def request_validation_exception_handler(
   """Handle validation errors and convert to the UCP error envelope."""
   del request  # Unused.
   error_lines = []
+  first_path = None
   for err in exc.errors():
     path = _format_validation_loc(err.get("loc", ()))
     msg = err.get("msg", "Validation error")
     error_lines.append(f"✖ {msg}\n  → at {path}")
+    if first_path is None:
+      first_path = _loc_to_jsonpath(tuple(err.get("loc", ())))
 
   error_content = (
     "\n".join(error_lines) if error_lines else "Request validation failed."
   )
   logger.warning("Request payload failed validation:\n%s", error_content)
+  return _error_envelope(422, [
+    UcpMessageError(
+      type=MessageType.ERROR,
+      code="invalid_request",
+      content=error_content,
+      severity=ErrorSeverity.UNRECOVERABLE,
+      path=first_path,
+    )
+  ])
 
-  error_response = UcpErrorResponse(
-    ucp={
-      "version": config.get_server_version(),
-      "status": "error",
-    },
-    messages=[
+
+# D3-04 (C3 / R15): EVERY error this server emits is a UCP error envelope
+# (error_response.json: ucp{version,status:error} + messages[]) -- including
+# the two the inherited server left to the framework: an unknown route
+# (Starlette's `{"detail": "Not Found"}`) and a pydantic ValidationError that
+# escaped a handler (a bare 500 -- ledger R15, e.g. a non-reverse-DNS consent
+# purpose key rejected by the RESPONSE model after the request model let it
+# through). Each carries one behavior guard (decision 19) so the battery can
+# prove the handler is load-bearing.
+_HTTP_STATUS_CODES = {
+  400: "invalid_request", 401: "unauthorized", 403: "forbidden",
+  404: "not_found", 405: "method_not_allowed", 409: "conflict",
+  422: "invalid_request",
+}
+_SEVERITIES = {e.value for e in ErrorSeverity}
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+  """Starlette/FastAPI HTTPExceptions (unknown route 404, 405, the test-only
+  routes' 403/404, the signature path's 401/422/424 whose `detail` already
+  carries an errors[] list) -> the UCP error envelope."""
+  del request  # Unused.
+  if exc.status_code == 404 and server_state.defects_engine().behavior_armed(
+      "errors.unknown_route_plain_404"):
+    # behavior row `unknown_route_plain_404`: the inherited framework body.
+    return JSONResponse(status_code=404, content={"detail": exc.detail})
+  detail = exc.detail
+  if isinstance(detail, dict) and isinstance(detail.get("errors"), list) and detail["errors"]:
+    messages = [
       UcpMessageError(
         type=MessageType.ERROR,
-        code="INVALID_REQUEST",
-        content=error_content,
+        code=str(e.get("code", _HTTP_STATUS_CODES.get(exc.status_code, "invalid_request"))),
+        content=str(e.get("message") or e.get("content") or ""),
+        severity=ErrorSeverity(e["severity"]) if e.get("severity") in _SEVERITIES
+                 else ErrorSeverity.UNRECOVERABLE,
+      )
+      for e in detail["errors"]
+    ]
+  else:
+    default = "internal_error" if exc.status_code >= 500 else "invalid_request"
+    messages = [
+      UcpMessageError(
+        type=MessageType.ERROR,
+        code=_HTTP_STATUS_CODES.get(exc.status_code, default),
+        content=detail if isinstance(detail, str) else json.dumps(detail),
         severity=ErrorSeverity.UNRECOVERABLE,
       )
-    ],
-  )
-  return JSONResponse(
-    status_code=422,
-    content=error_response.model_dump(mode="json"),
-  )
+    ]
+  response = _error_envelope(exc.status_code, messages)
+  for key, value in (exc.headers or {}).items():
+    response.headers[key] = value
+  return response
+
+
+@app.exception_handler(pydantic.ValidationError)
+async def model_validation_exception_handler(request: Request, exc: pydantic.ValidationError):
+  """A pydantic ValidationError that escaped a handler (R15). It is raised
+  while building a model from what the platform sent, so it is reported as
+  422 invalid_request naming the offending path -- not a bare 500."""
+  del request  # Unused.
+  if server_state.defects_engine().behavior_armed("errors.validation_error_500"):
+    # behavior row `consent_bad_key_500`: the inherited crash, verbatim.
+    return Response(content="Internal Server Error", status_code=500, media_type="text/plain")
+  errors = exc.errors()
+  first = errors[0] if errors else {}
+  path = _loc_to_jsonpath(tuple(first.get("loc", ())))
+  content = "; ".join(
+    f"{err.get('msg', 'Validation error')} at {_format_validation_loc(err.get('loc', ()))}"
+    for err in errors
+  ) or "Request could not be processed."
+  logger.warning("Model validation failed while handling a request: %s", content)
+  return _error_envelope(422, [
+    UcpMessageError(
+      type=MessageType.ERROR,
+      code="invalid_request",
+      content=content,
+      severity=ErrorSeverity.UNRECOVERABLE,
+      path=path,
+    )
+  ])
 
 
 @app.exception_handler(UcpError)
 async def ucp_exception_handler(request: Request, exc: UcpError):
   """Handle UCP-specific exceptions and converts them to JSON responses."""
   del request  # Unused.
-  error_response = UcpErrorResponse(
-    ucp={
-      "version": config.get_server_version(),
-      "status": "error",
-    },
-    messages=[
-      UcpMessageError(
-        type=MessageType.ERROR,
-        code=exc.code,
-        content=exc.message,
-        severity=exc.severity,
-      )
-    ],
-  )
-  return JSONResponse(
-    status_code=exc.status_code,
-    content=error_response.model_dump(mode="json"),
-  )
+  return _error_envelope(exc.status_code, [
+    UcpMessageError(
+      type=MessageType.ERROR,
+      code=exc.code,
+      content=exc.message,
+      severity=exc.severity,
+    )
+  ])
 
 
 # Apply business logic implementation to generated routes

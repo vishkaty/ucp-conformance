@@ -282,7 +282,12 @@ class EnforcedModeTest(_SigTestBase):
   def _assert_error(self, response, status: int, code: str) -> None:
     """Assert an HTTP status and UCP error code on a response."""
     self.assertEqual(response.status_code, status, response.text)
-    self.assertEqual(response.json()["detail"]["errors"][0]["code"], code)
+    # D3-04: every error is the UCP envelope (ucp + messages[]); the signature
+    # path's legacy {"detail": {"errors": [...]}} shape is converted by
+    # server.py's http_exception_handler.
+    body = response.json()
+    self.assertEqual(body["ucp"]["status"], "error", body)
+    self.assertEqual(body["messages"][0]["code"], code, body)
 
   def test_valid_signature_accepted(self) -> None:
     """A correctly signed request is accepted."""

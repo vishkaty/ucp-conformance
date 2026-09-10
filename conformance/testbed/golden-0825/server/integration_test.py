@@ -877,7 +877,7 @@ class IntegrationTest(absltest.TestCase):
           )
           self.assertEqual(
             conflict_response.json()["messages"][0]["code"],
-            "IDEMPOTENCY_CONFLICT",
+            "idempotency_conflict",
           )
 
           second_checkout = self.client.get(
@@ -1776,7 +1776,7 @@ class IntegrationTest(absltest.TestCase):
       )
       msg = messages[0]
       self.assertEqual(msg.get("type"), "error")
-      self.assertEqual(msg.get("code"), "INVALID_REQUEST")
+      self.assertEqual(msg.get("code"), "invalid_request")
       self.assertEqual(msg.get("severity"), "unrecoverable")
       self.assertIn(
         "line_items",

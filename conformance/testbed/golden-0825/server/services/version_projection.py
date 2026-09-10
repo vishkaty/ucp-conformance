@@ -19,9 +19,13 @@ negotiated at 2026-04-08 (UCP-Agent version=, resolved by dependencies.
 validate_ucp_headers against {ucp.version} ∪ supported_versions) is served by
 the same 08-25 business logic, with the wire shape projected at the edge:
 
-  request  (04-08 -> 08-25 model shape, before validation):
+  request  (04-08 -> 08-25 model shape, before validation; models.py's
+            before-validators call normalize_request() -- the request BYTES
+            are never rewritten, so request signatures keep verifying):
     - fulfillment.methods[].destinations[] gain the `type` discriminator the
-      08-25 shipping_destination requires (04-08 has no such field);
+      08-25 shipping_destination requires (04-08 has no such field) -- this
+      default applies at EVERY version (C3b, D3-04: `type` is
+      ucp_request:optional), guarded by request.destination_type_required;
     - buyer.consent booleans (04-08: marketing/analytics/preferences/
       sale_of_data) become 08-25 consent_purpose objects keyed by the
       well-known reverse-DNS purpose ids (source "platform": the value IS a
@@ -43,10 +47,18 @@ projection clean). The two response deltas carry a behavior guard each
 """
 from __future__ import annotations
 
+import contextvars
 import copy
 from typing import Any
 
 LEAF_VERSION = "2026-04-08"
+
+# The version the request was negotiated at (UCP-Agent version=, or the
+# version-scoped endpoint's version, or None when neither says). Set per
+# request by server.py's VersionProjectionMiddleware; read by the request
+# models' before-validators (models.py) through normalize_request().
+NEGOTIATED_VERSION: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "ucp_negotiated_version", default=None)
 
 # 04-08 consent key -> 08-25 well-known purpose id (buyer_consent.json, both pins).
 CONSENT_0408_TO_0825 = {
@@ -80,19 +92,46 @@ def _consent(body: dict) -> dict | None:
   return consent if isinstance(consent, dict) else None
 
 
-def project_request(body: Any, version: str | None) -> Any:
-  """04-08 request shape -> the shape the 08-25 models validate. Identity for
-  any other version (and for non-object bodies)."""
-  if version != LEAF_VERSION or not isinstance(body, dict):
-    return body
-  out = copy.deepcopy(body)
-  for method in _methods(out):
+def default_destination_types(body: dict, engine) -> None:
+  """C3b (D3-04), every version: `type` is `ucp_request: optional` on a
+  destination (shipping_destination.json / fulfillment_destination.json), so a
+  platform may omit it; the business defaults it from the method's type
+  (shipping -> shipping_address) and the response carries the discriminator
+  (FUL-030). In place. `engine` hosts the ONE guard for behavior key
+  `request.destination_type_required` (row destination_type_required_on_request):
+  armed, nothing is defaulted and the 08-25 model rejects the request (422)."""
+  if engine.behavior_armed("request.destination_type_required"):
+    return
+  for method in _methods(body):
     if not isinstance(method, dict):
       continue
     default_type = DESTINATION_TYPE_BY_METHOD.get(method.get("type"))
     for dest in method.get("destinations") or []:
       if isinstance(dest, dict) and default_type and "type" not in dest:
         dest["type"] = default_type
+
+
+def normalize_request(body: Any, version: str | None, engine) -> Any:
+  """What the request models run BEFORE field validation (models.py): the
+  destination-type default (every version) and, at 2026-04-08, the consent
+  projection. Returns a new dict; identity for non-object bodies. Works on
+  the parsed body only -- the request BYTES are never rewritten, so
+  Content-Digest / request signatures keep verifying."""
+  if not isinstance(body, dict):
+    return body
+  out = copy.deepcopy(body)
+  default_destination_types(out, engine)
+  return project_request(out, version)
+
+
+def project_request(body: Any, version: str | None) -> Any:
+  """04-08 request shape -> the shape the 08-25 models validate: 04-08 boolean
+  consent becomes 08-25 consent_purpose objects. Identity for any other
+  version (and for non-object bodies). Destination `type` is handled for
+  every version by default_destination_types()."""
+  if version != LEAF_VERSION or not isinstance(body, dict):
+    return body
+  out = copy.deepcopy(body)
   consent = _consent(out)
   if consent is not None:
     projected = {}

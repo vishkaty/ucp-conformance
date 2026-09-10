@@ -539,9 +539,26 @@ BATTERY_CHECKS = [
 ]
 
 
+class _GoldenCheckRow:
+    """A golden_check_08_25.py Row adapted to this runner's verdict protocol:
+    id `gc:<row id>`, verdict = CLEAN when the row's own predicate accepts the
+    golden's current response, DEVIATION otherwise. The GC module's HTTP
+    helpers are pointed at THIS runner's golden (port/secret) at import."""
+
+    def __init__(self, row):
+        self.id, self.row = f"gc:{row.id}", row
+
+    def verdict(self):
+        status, body = self.row.make_request()
+        ok, _ = self.row.predicate(status, body)
+        return CLEAN if ok else DEVIATION
+
+
 def check_registry():
-    """check id -> engine.Check, from every conformance/checks/area_*.py CHECKS
-    list plus BATTERY_CHECKS. Built once per run."""
+    """check id -> verdict source, from every conformance/checks/area_*.py CHECKS
+    list (engine.Check), BATTERY_CHECKS, and golden_check_08_25.py's rows as
+    `gc:<row id>` (D3-04: the golden-reading rows grade behavior rows too).
+    Built once per run."""
     import glob
     import importlib
     reg = {c.id: c for c in BATTERY_CHECKS}
@@ -549,12 +566,19 @@ def check_registry():
         mod = importlib.import_module(pathlib.Path(path).stem)
         for c in getattr(mod, "CHECKS", []):
             reg.setdefault(c.id, c)
+    gc = importlib.import_module("golden_check_08_25")
+    gc.PORT, gc.BASE, gc.SIM_SECRET = PORT, BASE, SIM_SECRET   # its http() reads these per call
+    for row in gc.CHECKS:
+        reg.setdefault(f"gc:{row.id}", _GoldenCheckRow(row))
     return reg
 
 
 def _check_verdict(chk):
-    """The check's verdict on the golden's CURRENT response (its clean
-    predicate), via the same engine.run_check merchant.py uses."""
+    """The check's verdict on the golden's CURRENT response: an engine.Check's
+    clean predicate via the same engine.run_check merchant.py uses, or a
+    golden_check_08_25.py row's own predicate."""
+    if isinstance(chk, _GoldenCheckRow):
+        return chk.verdict()
     _, detail = chk_engine.run_check(chk, BASE)
     return detail["clean"]
 

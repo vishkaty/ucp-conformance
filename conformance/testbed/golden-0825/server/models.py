@@ -89,6 +89,19 @@ class UnifiedCheckout(
   cart_id: str | None = None
 
 
+def _normalize_incoming(data: Any) -> Any:
+  """Request-side wire normalization (D3-03/D3-04) BEFORE the 08-25 fields
+  validate: destinations[].type defaulted when omitted (every version) and,
+  for a request negotiated at 2026-04-08, the 04-08 consent shape projected.
+  Imported lazily: server_state constructs the DefectsEngine from flags."""
+  import server_state
+  from services import version_projection
+
+  return version_projection.normalize_request(
+    data, version_projection.NEGOTIATED_VERSION.get(), server_state.defects_engine()
+  )
+
+
 class UnifiedCheckoutCreateRequest(CheckoutCreateRequest):
   """Create request model combining base fields and extensions."""
 
@@ -97,6 +110,12 @@ class UnifiedCheckoutCreateRequest(CheckoutCreateRequest):
   discounts: DiscountsObject | None = None
   buyer_consent: Any | None = None
   cart_id: str | None = None
+
+  @model_validator(mode="before")
+  @classmethod
+  def normalize_wire_shape(cls, data: Any) -> Any:
+    """See _normalize_incoming."""
+    return _normalize_incoming(data)
 
   @model_validator(mode="after")
   def validate_cart_id_or_line_items(self) -> "UnifiedCheckoutCreateRequest":
@@ -108,6 +127,12 @@ class UnifiedCheckoutCreateRequest(CheckoutCreateRequest):
 
 class UnifiedCheckoutUpdateRequest(CheckoutUpdateRequest):
   """Update request model combining base fields and extensions."""
+
+  @model_validator(mode="before")
+  @classmethod
+  def normalize_wire_shape(cls, data: Any) -> Any:
+    """See _normalize_incoming."""
+    return _normalize_incoming(data)
 
   fulfillment: Fulfillment | None = None
   discounts: DiscountsObject | None = None
