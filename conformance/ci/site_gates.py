@@ -986,6 +986,17 @@ def selftest():
         want_red=True,
         mutate_claims=lambda sc: sc["manifest"].__setitem__(
             "versions", sorted(set(sc["manifest"]["versions"]) | {"2026-08-25"})))
+    # B3 (owner ruling 2026-09-10 adopting W0-review ruling (a)): manifest.versions = the
+    # versions with a REGISTERED CHECK SET (what the CLI grades), independent of the
+    # publication-state word. An empty manifest.versions while the export carries
+    # versions with CHECK rows is a false public statement ("no supported version" while
+    # the CLI grades four) and must be RED.
+    run_variant(
+        "manifest.versions planted [] while the export has versions with CHECK rows "
+        "(B3: supported = registered check set, not live)",
+        lambda vs: None,
+        want_red=True,
+        mutate_claims=lambda sc: sc["manifest"].__setitem__("versions", []))
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,
