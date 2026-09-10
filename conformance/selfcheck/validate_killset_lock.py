@@ -105,15 +105,15 @@ def selftest():
 
     def registry():
         return [
-            ("MCheck", "scratch", MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", dummy, dummy,
+            ("MCheck", "scratch", MCheck("idempotency.conflict_409", ["ZZZ-004"], "MUST", dummy, dummy,
                                           ["status:200", "status:201"]), None),
-            ("MCheck", "scratch", MCheck("checkout.cancel", ["CHK-005"], "MUST", dummy, dummy,
+            ("MCheck", "scratch", MCheck("checkout.cancel", ["ZZZ-005"], "MUST", dummy, dummy,
                                           ["status:500", "drop:status"]), None),
             ("schema-tier", "scratch_schema",
-             SchemaCheck("catalog.lookup_request_ids_required", ["CAT-028"], "schemas/x.json", "d",
+             SchemaCheck("catalog.lookup_request_ids_required", ["ZZZ-028"], "schemas/x.json", "d",
                          {"ids": ["a"]}, [{}, {"ids": []}, {"ids": "a"}], "lookup", "request"), None),
             ("struct", "scratch_struct",
-             StructCheck("capability.schema_required", ["CAP-001"], dummy,
+             StructCheck("capability.schema_required", ["ZZZ-001"], dummy,
                          [({"a": 1},)], [({"a": None},), ({},)]), None),
             ("Row", "scratch_golden", Row("SIG-007", ["SIG-007"], "fixture-schema", "doc", dummy, dummy,
                                           "planted-mutant"), defects),
