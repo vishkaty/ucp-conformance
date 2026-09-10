@@ -256,6 +256,11 @@ def gates(server):
         # Hermetic (stub uv, synthetic root); each case carries a mutant so the guards
         # cannot pass by being unable to fail.
         ("golden-guards", _py(ROOT / "conformance" / "ci" / "golden_boot_guards.py", "--selftest"), None, ()),
+        # every literal port the harness binds is registered in conformance/ci/ports.json
+        # (single source: selftest.sh's sweep derives from it) and no two names claim one
+        # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
+        # literal and a collision) so the gate cannot pass by being unable to fail.
+        ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
         # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
         # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
         # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any

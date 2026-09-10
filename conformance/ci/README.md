@@ -19,6 +19,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `ports-registry` | every literal port the harness binds is registered in `conformance/ci/ports.json` (the single source `selftest.sh` sweeps from) and no two names claim one port; hermetic kill-tests plant an unregistered literal + a collision | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the
@@ -53,7 +54,7 @@ conformance/ci/selftest.sh            # add --verbose or any run_suite.py args
 ```
 
 `selftest.sh` is the way to run locally — you never have to hunt down leftover
-servers on ports 8182/8183/8184.
+servers: its pre-clean sweep is derived from `conformance/ci/ports.json` (the ports registry).
 
 <details><summary>Manual steps (what the wrapper does)</summary>
 

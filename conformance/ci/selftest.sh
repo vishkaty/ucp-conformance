@@ -18,7 +18,12 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export PORT="${PORT:-8182}"
 export SIM_SECRET="${SIM_SECRET:-selfcheck-secret}"
 export DB_DIR="${DB_DIR:-/tmp/ucp_test}"
-PORTS=("$PORT" 8183 8184 8185 8186 8187 8188 8189 8190 8191 8193 8443 8444 8445 3000)   # golden, proxy, fixtures, sig-gate trio, static web, webhook harness pair, 01-11 golden, TLS harness, node reference
+# The pre-clean sweep is DERIVED from the ports registry (conformance/ci/ports.json,
+# every row with sweep=true: golden, proxy, fixtures, sig-gate trio, static web, webhook
+# harness pair, 01-11 golden, TLS harness, node reference, the golden-0825 family
+# 8194-8199, and the selfcheck stub ports) — never a hand-maintained list here, which is
+# how 8198/8199 went unswept. The ports-registry gate reds if this derivation is removed.
+PORTS=("$PORT" $(python3 "$ROOT/conformance/ci/validate_ports_registry.py" --sweep))
 
 free_ports() {
   for p in "${PORTS[@]}"; do
