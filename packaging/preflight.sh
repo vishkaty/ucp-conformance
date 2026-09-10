@@ -81,6 +81,11 @@ fi   # GUARDS_ONLY
 step "Release guards${TAG:+ for $TAG}"
 bash packaging/release_guards.sh "$TAG" || FAIL=1
 
+# 4b. The guards must be ABLE to fail: hermetic kill-tests (scratch trees, repo untouched).
+step "Release guard kill-tests"
+bash packaging/test_preflight_guards.sh >/tmp/preflight_guard_tests.log 2>&1 && ok "release guards kill-tests PASS" || { bad "release guards kill-tests RED — see /tmp/preflight_guard_tests.log"; tail -4 /tmp/preflight_guard_tests.log; }
+bash packaging/test_release_guards.sh >/tmp/preflight_tagguard_tests.log 2>&1 && ok "release tag-guard kill-tests PASS" || { bad "release tag-guard kill-tests RED — see /tmp/preflight_tagguard_tests.log"; tail -4 /tmp/preflight_tagguard_tests.log; }
+
 echo
 if [ "$FAIL" -eq 0 ]; then
   printf "\033[1;32mPREFLIGHT PASS — shippable.\033[0m\n"

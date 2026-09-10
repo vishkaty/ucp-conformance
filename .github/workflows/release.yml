@@ -25,14 +25,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Guard — git tag must match pyproject version
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG=$(python3 -c "import tomllib;print(tomllib.load(open('packaging/pyproject.toml','rb'))['project']['version'])")
-          echo "tag=$TAG  pyproject=$PKG"
-          if [ "$TAG" != "$PKG" ]; then
-            echo "::error::tag v$TAG does not match packaging/pyproject.toml version $PKG"; exit 1
-          fi
+      - name: Guards — tag shape (vX.Y.Z or vX.Y.ZrcN), tag == pyproject == __version__, rc before final, CHANGELOG entry, wheel bundles every spec version
+        # packaging/release_guards.sh — the same script preflight runs; kill-tested by
+        # packaging/test_preflight_guards.sh + test_release_guards.sh. Pre-release tags
+        # (PEP 440 rcN) are accepted; a FINAL tag is refused until packaging/CHANGELOG.md
+        # records a green rc acceptance (decision 17: 0.4.0rc1 first, then 0.4.0).
+        run: bash packaging/release_guards.sh "$GITHUB_REF_NAME"
 
       - name: Build sdist + wheel
         run: |

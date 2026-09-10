@@ -28,6 +28,39 @@
    "evidence": "Historical statement under 'State of play (2026-07-03, …)' — true at the 2026-07-03 commit that introduced it (git log -S). Retired with D5-14 (ROADMAP archived).",
    "added": "2026-09-10",
    "review_by": "2026-10-01"
+  },
+  {
+   "id": "DOC-ACTION-001",
+   "file": "README.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  },
+  {
+   "id": "DOC-ACTION-002",
+   "file": "packaging/README.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  },
+  {
+   "id": "DOC-ACTION-003",
+   "file": "docs/merchant-conformance.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
   }
  ]
 }

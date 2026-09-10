@@ -22,7 +22,24 @@ bad(){  printf "  \033[31m✗\033[0m %s\n" "$1"; FAIL=1; }
 
 PKG=$(python3 -c "import tomllib;print(tomllib.load(open('packaging/pyproject.toml','rb'))['project']['version'])")
 if [ -n "$TAG" ]; then
+  # 1a. tag shape: vX.Y.Z or a PEP 440 pre-release vX.Y.ZrcN (D5-21)
+  if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$ ]]; then ok "tag $TAG is vX.Y.Z or vX.Y.ZrcN"; else bad "tag $TAG is not vX.Y.Z / vX.Y.ZrcN"; fi
   [ "${TAG#v}" = "$PKG" ] && ok "pyproject version $PKG matches tag $TAG" || bad "tag $TAG != pyproject version $PKG (bump packaging/pyproject.toml)"
+  # 1b. rc BEFORE final (decision 17): a final tag needs a recorded green rc acceptance in the CHANGELOG
+  if [[ ! "$TAG" =~ rc[0-9]+$ ]]; then
+    BASE="${TAG#v}"
+    if [ -f packaging/CHANGELOG.md ] && awk -v t="$BASE" '
+        /^## / { insec = ($0 ~ ("^## +v?" t "rc[0-9]+")) }
+        insec && /^acceptance: *green/ { found=1 }
+        END { exit found ? 0 : 1 }' packaging/CHANGELOG.md; then
+      ok "final tag $TAG: a green rc acceptance is recorded in packaging/CHANGELOG.md"
+    else
+      bad "final tag $TAG refused: no green rc acceptance recorded under a '## ${BASE}rcN' heading in packaging/CHANGELOG.md (rc first — decision 17)"
+    fi
+  fi
+fi
+if [ "${RELEASE_GUARDS_TAG_ONLY:-0}" = "1" ]; then
+  [ $FAIL -eq 0 ] && { echo "release tag guards: PASS"; exit 0; } || { echo "release tag guards: FAIL"; exit 1; }
 fi
 
 # 2. __version__ guard
