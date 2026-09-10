@@ -22,22 +22,49 @@ from engine import fetch, Resp                    # noqa: E402
 sys.path.insert(0, str(HERE.parents[0] / "selfcheck"))
 from verdict_gate import aggregate                # noqa: E402
 import merchant_checks                            # noqa: E402
+from wire_shapes import SHAPE_VERSIONS            # noqa: E402
 REQ_DIR = HERE.parents[0] / "requirements"
 
-# register area -> the capability a server must declare for that area to be in-scope
-AREA_CAPABILITY = {
-    "fulfillment": "dev.ucp.shopping.fulfillment",
-    "discount-consent-identity": "dev.ucp.shopping.discount",
-    "discounts-consent": "dev.ucp.shopping.discount",
-    "catalog": "dev.ucp.shopping.catalog.search",
-    "cart": "dev.ucp.shopping.cart",
-    "signals-attribution-eligibility": None,   # informational; treat as core
-    "order": "dev.ucp.shopping.order",
-    # identity-linking (04-08 rework): IDL rows apply only to businesses that
-    # declare the capability — never in the denominator for merchants without it
-    "identity-linking": "dev.ucp.common.identity_linking",
-}
 CORE_CAP = "dev.ucp.shopping.checkout"
+
+# Versions this runner can grade end-to-end: a reviewed wire shape (wire_shapes.py)
+# is the W0 criterion; D1-10 narrows it to versions with a pinned skip population.
+# Outside it the CLI still runs (deviations are real) but prints NO coverage number:
+# `verdict.coverage: null`, `verdict.support: "unreviewed-version"`, and a banner.
+SUPPORTED_SERVED_VERSIONS = tuple(SHAPE_VERSIONS)
+# Transports whose register rows THIS runner can grade. REST-scoped today: an
+# MCP-only server is honestly "rest-not-declared" (coverage null), never 0.0.
+GRADEABLE_TRANSPORTS = ("rest",)
+
+
+class AreaMapError(RuntimeError):
+    """The register's area -> capability map is missing or incomplete for this version.
+    Fail CLOSED: an unmapped area must never silently count as core (RV2 D1-03)."""
+
+
+def area_capabilities(version):
+    """{area: capability|None} from requirements/<v>/_area_capabilities.json (D1-03 seeds
+    all four versions; D2-08 validates it as register data). No register directory at
+    all (an unreviewed version) -> {} — the caller reports `unreviewed-version`."""
+    vdir = REQ_DIR / (version or "")
+    if not vdir.is_dir():
+        return {}
+    f = vdir / "_area_capabilities.json"
+    if not f.is_file():
+        raise AreaMapError(f"{f.relative_to(REQ_DIR.parents[0])} missing — no area->capability "
+                           f"map for spec {version}; refusing to build a denominator")
+    return json.loads(f.read_text()).get("areas", {})
+
+
+def register_areas(version):
+    vdir = REQ_DIR / (version or "")
+    out = {}
+    if vdir.is_dir():
+        for f in sorted(glob.glob(str(vdir / "*.json"))):
+            d = json.load(open(f))
+            if isinstance(d, dict) and "rows" in d:
+                out[d.get("_area", "?")] = d
+    return out
 
 class MerchantCtx:
     def __init__(self, base, profile, config):
@@ -134,9 +161,18 @@ def auto_discover_product(ctx):
     return None
 
 def applicable_areas(ctx):
-    """Which register areas are in scope for THIS server, given its declared capabilities."""
+    """Which register areas are in scope for THIS server, given its declared capabilities:
+    area -> bool from this version's _area_capabilities.json (null = core). Every area
+    present in the register must be listed — an unlisted one raises AreaMapError."""
+    caps = area_capabilities(ctx.version)
+    areas = register_areas(ctx.version)
+    unlisted = sorted(a for a in areas if a not in caps)
+    if unlisted:
+        raise AreaMapError(f"register area(s) not in requirements/{ctx.version}/"
+                           f"_area_capabilities.json: {', '.join(unlisted)} — refusing to count "
+                           f"unmapped rows as core")
     out = {}
-    for area, cap in AREA_CAPABILITY.items():
+    for area, cap in caps.items():
         out[area] = (cap is None) or (cap in ctx.capabilities) or (cap == CORE_CAP)
     return out
 
@@ -147,22 +183,68 @@ def report(base, config=None):
     areas = applicable_areas(ctx)
     return ctx, ctype, areas
 
-def applicable_musts(ctx, areas):
-    """Testable MUSTs from the merchant's spec-version register, restricted to areas
-    the server implements (unsupported extensions are excluded from the denominator)."""
+def applicable_musts(ctx, areas=None):
+    """The denominator: testable MUST rows of the served version whose area's capability
+    the server DECLARES (or is core) AND whose transport intersects what the server
+    declares among the transports this runner grades (`any` always counts). A row the
+    server could never be asked to satisfy is excluded; a row nobody could grade here
+    (mcp-only while the runner is REST-scoped) is excluded rather than silently
+    "not-tested" forever."""
+    if areas is None:
+        areas = applicable_areas(ctx)
+    served = {"any"} | {t for t in GRADEABLE_TRANSPORTS if getattr(ctx, f"has_{t}", False)}
     ids = set()
-    vdir = REQ_DIR / (ctx.version or "")
-    if not vdir.is_dir():
-        return ids
-    for f in glob.glob(str(vdir / "*.json")):
-        area = json.load(open(f)).get("_area", "?")
-        if areas.get(area, True) is False:
+    for area, reg in register_areas(ctx.version).items():
+        if areas.get(area) is False:
             continue
-        for r in json.load(open(f)).get("rows", []):
+        for r in reg.get("rows", []):
             if r["keyword"] in ("MUST", "MUST NOT") and r["testability"] == "testable" \
-               and any(t in ("rest", "any") for t in r.get("transport", [])):
+               and served & set(r.get("transport", [])):
                 ids.add(r["id"])
     return ids
+
+
+def support_status(ctx):
+    """(support, banner): why a coverage number is or is not printed for this server."""
+    if ctx.version not in SUPPORTED_SERVED_VERSIONS:
+        return ("unreviewed-version",
+                f"spec version {ctx.version!r} has no reviewed check population here "
+                f"(reviewed: {', '.join(SUPPORTED_SERVED_VERSIONS)}); deviations below are "
+                f"real, but no coverage percentage is claimed.")
+    if not ctx.has_rest:
+        return ("rest-not-declared",
+                "REST transport not declared; this runner grades REST only (MCP grading "
+                "lands with the MCP bridge) — no coverage percentage is claimed.")
+    return ("supported", None)
+
+
+def checks_summary(detail):
+    """Counts of CHECKS (never MUST ids) by what happened to them, from the runner's own
+    status strings: run = clean + deviation + inconclusive; not_tested = data/oracle
+    missing; not_applicable = out of scope for THIS server (version / transport /
+    capability) or for this run (config not supplied)."""
+    out = {"run": 0, "clean": 0, "deviation": 0, "inconclusive": 0, "not_tested": 0,
+           "not_applicable": {"version_scoped": 0, "capability": 0, "transport": 0, "config": 0}}
+    na = out["not_applicable"]
+    for _, d in detail:
+        st = str(d["status"])
+        if st == "clean-pass":
+            out["clean"] += 1; out["run"] += 1
+        elif st == "deviation":
+            out["deviation"] += 1; out["run"] += 1
+        elif st.startswith("not-applicable (spec"):
+            na["version_scoped"] += 1
+        elif st.startswith("not-applicable (no "):
+            na["transport"] += 1
+        elif st.startswith("not-applicable"):
+            na["capability"] += 1
+        elif st.startswith("not-tested (needs config"):
+            na["config"] += 1
+        elif st.startswith("not-tested"):
+            out["not_tested"] += 1
+        else:
+            out["inconclusive"] += 1; out["run"] += 1
+    return out
 
 SCOPE = {"tool": "spck.dev merchant conformance (dev)",
          "methodology": "discovery-driven, capability-adaptive, kill-rate-gated"}
@@ -285,7 +367,11 @@ def main():
             ap.error(f"--config {args.config} is not valid JSON: {e}")
     else:
         config = {}
-    ctx, ctype, areas = report(args.server, config)
+    try:
+        ctx, ctype, areas = report(args.server, config)
+    except AreaMapError as e:
+        print(f"merchant.py: {e}", file=sys.stderr)
+        return 1
     if args.init:
         cfg = scaffold_config(ctx)
         pathlib.Path(args.init).write_text(json.dumps(cfg, indent=2) + "\n")
@@ -308,9 +394,14 @@ def main():
     }
     rep, detail = run_conformance(ctx, areas)
     cc = rep.counts
-    out["verdict"] = {"aggregate": rep.aggregate, "coverage": rep.coverage,
+    support, banner = support_status(ctx)
+    coverage = rep.coverage if support == "supported" else None
+    out["support"] = support
+    out["banner"] = banner
+    out["verdict"] = {"aggregate": rep.aggregate, "coverage": coverage, "support": support,
                       "applicable_musts": cc["inscope_musts"], "musts_passed": cc["musts_clean_pass"],
                       "deviations": cc["deviations"]}
+    out["checks_summary"] = checks_summary(detail)
     out["checks"] = [{"id": c.id, "req_ids": c.req_ids, "capability": c.capability,
                       "status": d["status"], "kill_safe": d["kill_safe"],
                       "requirements": _citations(c.req_ids, meta),
@@ -334,11 +425,15 @@ def main():
     print(f"  spec {ctx.version} · endpoint {ctx.shopping_endpoint}")
     print(f"  capabilities: {', '.join(supported) or '(none declared)'}")
     print(f"  product for lifecycle: {ctx.product_id or '(none)'}\n")
-    print(f"  VERDICT: {rep.aggregate.upper()} — "
-          f"{cc['musts_clean_pass']}/{cc['inscope_musts']} applicable MUST requirements "
-          f"({round(100*rep.coverage)}%), {cc['deviations']} MUST requirement(s) violated")
-    print(f"  [checks: {len(passed)} passed · {len(devs)} deviated · {len(nottest)} not-tested "
-          f"· {len(napp)} not-applicable — one check may cover several requirements]")
+    if banner:
+        print(f"  NOTE: {banner}\n")
+    not_exercised = max(0, cc["inscope_musts"] - cc["musts_clean_pass"] - cc["deviations"])
+    print(f"  VERDICT: {rep.aggregate.upper()}")
+    print(f"  MUST ids: {cc['musts_clean_pass']} passed · {cc['deviations']} violated · "
+          f"{not_exercised} not exercised of {cc['inscope_musts']} applicable"
+          + (f" ({round(100*coverage)}% covered)" if coverage is not None else " (coverage: n/a)"))
+    print(f"  checks:   {len(passed)} passed · {len(devs)} deviated · {len(nottest)} not-tested "
+          f"· {len(napp)} not-applicable — one check may cover several MUST ids")
 
     if devs:
         print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s), {cc['deviations']} MUST "

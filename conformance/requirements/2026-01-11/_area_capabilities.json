@@ -1,0 +1,15 @@
+{
+ "_note": "register area -> capability a server must DECLARE for the area's rows to enter the CLI denominator; null = core (always in scope). Consumed by checks/merchant.py applicable_musts (D1-03, fail-closed: every _area in this version's register must be listed here); validated as register data by D2-08. One capability per area — an area spanning several (location search+lookup) names the one a server declares first.",
+ "_version": "2026-01-11",
+ "areas": {
+  "checkout-lifecycle": null,
+  "discount-consent-identity": "dev.ucp.shopping.discount",
+  "discovery-negotiation": null,
+  "errors-validation-security": null,
+  "fulfillment": "dev.ucp.shopping.fulfillment",
+  "order": "dev.ucp.shopping.order",
+  "overview": null,
+  "payment": null,
+  "transports": null
+ }
+}

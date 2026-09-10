@@ -295,6 +295,11 @@ def gates(server):
         # signing_keys, Purpose objects); fail-closed on an unreviewed version; the three
         # older versions' bodies are frozen byte-for-byte so the delta cannot leak back.
         ("wire-shapes",  _py(SELF / "validate_wire_shapes.py", "--selftest"),  None, ()),
+        # D1-03: the CLI denominator is capability- AND transport-aware from
+        # requirements/<v>/_area_capabilities.json (fail-closed on an unmapped area);
+        # unreviewed version / no REST -> coverage null + banner, never 0.0; checks_summary
+        # counts checks, the headline never mixes MUST ids with checks. Loopback stubs.
+        ("cli-summary",  _py(SELF / "validate_cli_summary.py", "--selftest"),  None, ()),
         # the golden speaks ONE spec version (2026-04-08 since the 2026-08-03 re-pin);
         # engine checks whose citations are 01-era-scoped are version-skipped by the
         # served-version gate instead of deviating/reported-UNSAFE on a known-good
