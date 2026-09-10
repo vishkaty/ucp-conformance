@@ -567,3 +567,49 @@ def test_rejected_code_surfaces_message(golden_server):
     msgs = [m for m in (r.json().get("messages") or []) if m.get("code") == "discount_code_rejected"]
     assert msgs, r.json().get("messages")
     assert "codes" in (msgs[0].get("path") or ""), msgs[0]
+
+
+# ---------------------------------------------------------------------------
+# D3-05: REQUIRE_SIGNATURES=1 boot switch -- the serve script passes
+# --require_signatures (and the localhost carve-out) through, echoes it in
+# the UP line, and an unsigned request is 401 signature_missing (SIG-031).
+# ---------------------------------------------------------------------------
+
+SIGNED_PORT = int(os.environ.get("GOLDEN_0825_SIGNED_TEST_PORT", "8196"))
+
+
+@pytest.fixture(scope="module")
+def signed_golden_server():
+    """A SECOND golden, booted with REQUIRE_SIGNATURES=1 on its own port
+    (8196: the Wave 0 registry's signed-golden proof port), through the same
+    serve/stop scripts."""
+    db_dir = pathlib.Path(f"/tmp/ucp_golden_0825_pytest_signed_{uuid.uuid4().hex[:8]}")
+    env = dict(os.environ)
+    env["PORT"] = str(SIGNED_PORT)
+    env["DB_DIR"] = str(db_dir)
+    env["SIM_SECRET"] = "smoke-test-secret"
+    env["REQUIRE_SIGNATURES"] = "1"
+    serve = GOLDEN_DIR / "serve_golden_0825.sh"
+    stop = GOLDEN_DIR / "stop_golden_0825.sh"
+    result = subprocess.run([str(serve)], env=env, capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        pytest.fail(f"serve_golden_0825.sh (REQUIRE_SIGNATURES=1) failed (exit {result.returncode}):\n"
+                    f"stdout={result.stdout}\nstderr={result.stderr}")
+    try:
+        yield f"http://localhost:{SIGNED_PORT}", result.stdout.strip()
+    finally:
+        subprocess.run([str(stop)], env=env, capture_output=True, text=True, timeout=60)
+
+
+def test_require_signatures_rejects_unsigned(signed_golden_server):
+    """Booted with REQUIRE_SIGNATURES=1 the UP line says so, and an unsigned
+    create is 401 signature_missing in the UCP error envelope."""
+    base, up_line = signed_golden_server
+    headers = ucp_headers()
+    headers.pop("Request-Signature", None)
+    r = httpx.post(f"{base}/checkout-sessions", headers=headers, json=_create_body(), timeout=10)
+    assert r.status_code == 401, (r.status_code, r.text[:300])
+    body = r.json()
+    assert body["ucp"]["status"] == "error"
+    assert body["messages"][0]["code"] == "signature_missing", body
+    assert "signatures REQUIRED" in up_line, up_line
