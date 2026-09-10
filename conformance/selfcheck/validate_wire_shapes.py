@@ -224,6 +224,13 @@ def selftest():
           set(ph) >= {"$DESTS", "$FUL", "$KEYS"} and ph["$KEYS"] == "keys", f"{sorted(ph)}")
     check("placeholder values are JSON", all(json.loads(ph[k]) is not None for k in ("$DESTS", "$FUL")))
     check("test_expand_mut_dests_08_25", all("test_expand_mut_dests_08_25" not in x for x in fails))
+    # an UNREVIEWED served version must not crash expansion (the builders refuse per
+    # check; the CLI reports unreviewed-version) — caught by cli-summary case (e)
+    try:
+        check("expand_mut on an unreviewed version leaves the string untouched",
+              mc._expand_mut("status:500", Ctx("2027-01-01")) == "status:500")
+    except ws.ShapeUnsupported as e:
+        check("expand_mut on an unreviewed version leaves the string untouched", False, f"raised {e}")
 
     print(f"wire-shapes: {'PASS' if not fails else 'FAIL'}"
           + (f" ({len(fails)} failed: {', '.join(fails)})" if fails else ""))

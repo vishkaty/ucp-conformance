@@ -18,7 +18,7 @@ import sys, uuid, json, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from engine import Resp, fetch, mutate, mcp_call, mcp_call_raw, a2a_call, CLEAN, DEVIATION   # noqa: E402
 from verdict_gate import CheckResult, INCONCLUSIVE          # noqa: E402
-from wire_shapes import shapes_for, base_headers           # noqa: E402
+from wire_shapes import shapes_for, base_headers, ShapeUnsupported   # noqa: E402
 
 # Reviewed applicable versions for every check below whose OWN `versions=` kwarg is
 # None (the default) — see area_fulfillment.py's identical marker for the full
@@ -1424,7 +1424,14 @@ def _expand_mut(m, ctx):
                    profile key-list field name — expanded FIRST so a mutant never
                    carries one version's literal shape into another version's server.
     """
-    for k, v in shapes_for(ctx.version).placeholders(ctx).items():
+    try:
+        placeholders = shapes_for(ctx.version).placeholders(ctx)
+    except ShapeUnsupported:
+        # an unreviewed served version: the request builders already refuse (fetch_fn
+        # raises -> the check is INCONCLUSIVE, the CLI reports `unreviewed-version`);
+        # expansion must not crash the whole run on a mutation string it never reaches.
+        placeholders = {}
+    for k, v in placeholders.items():
         if k in m:
             m = m.replace(k, v)
     if "$PRODUCT2" in m:                     # before $PRODUCT ($PRODUCT is a prefix)
