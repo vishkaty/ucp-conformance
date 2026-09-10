@@ -49,7 +49,32 @@ def test_claims_scope_recurses():
         return None
 
 
-TESTS = [test_claims_scope_recurses]
+def run_docclaims(docroot, extra=()):
+    env = dict(os.environ, SPCK_DOCROOT=str(docroot))
+    r = subprocess.run([sys.executable, str(GATES), "docclaims", *extra], cwd=str(ROOT), env=env,
+                       capture_output=True, text=True, timeout=300)
+    return r.returncode, r.stdout + r.stderr
+
+
+def test_docclaims_reds_on_stale_count():
+    """D5-01: copy in NON-page files (functions/**/*.js, README, ci/README, packaging README,
+    ROADMAP) is swept like public/*.html — a scratch functions/x.js advertising
+    '37 kill-rate-validated checks' must red `docclaims` with a line naming the file."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = pathlib.Path(tmp)
+        (root / "functions").mkdir()
+        (root / "functions" / "x.js").write_text(
+            "/** The full 37 kill-rate-validated checks run only in the CLI. */\n")
+        (root / "README.md").write_text("# scratch\n")
+        rc, out = run_docclaims(root)
+        if rc == 0:
+            return "docclaims stayed GREEN with a stale '37 kill-rate-validated checks' planted in functions/x.js (functions/ not scanned)"
+        if "functions/x.js" not in out or "37" not in out:
+            return f"docclaims went red but did not name functions/x.js and the stale count:\n{out[-500:]}"
+        return None
+
+
+TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count]
 
 
 def main():
