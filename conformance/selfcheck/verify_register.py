@@ -90,5 +90,46 @@ def main(argv):
     print(f"\nregister quote-check: {ok}/{total} verified, {warn} line-warnings, {fail} FAILED")
     return 1 if fail else 0
 
+def selftest():
+    """D2-02 kill-tests, hermetic (synthetic rows, no vendored I/O).
+
+    dupes fixture: two mandatory rows quoting the SAME normalized text from the
+    SAME source under the SAME keyword are one duplicate pair — the register must
+    own each MUST sentence once (A2). A third row with the same quote but a
+    different keyword (a SHOULD clause carved from the same sentence) is NOT a
+    duplicate.
+
+    relabel fixture: a row labelled `testability: manual` whose id is graded by
+    a shipped CHECK at that version is mislabelled — "manual" means no check can
+    observe it, so a CHECK on it is a contradiction the `register` gate must red
+    on (decision 32; the 31 agent-CHECK rows at 2026-08-25)."""
+    bad = 0
+    a = {"id": "ZZZ-001", "keyword": "MUST", "testability": "testable",
+         "source": "ucp:docs/specification/x.md#L10-L11",
+         "quote": "The platform **MUST** send\nthe entire resource."}
+    b = {**a, "id": "ZZZ-002",
+         "quote": "The platform MUST send the entire resource."}      # same after norm()
+    c = {**a, "id": "ZZZ-003", "keyword": "SHOULD"}                   # same quote, SHOULD clause
+    pairs = find_dupes([a, b, c])
+    ok = pairs == [("ZZZ-001", "ZZZ-002")]
+    print(f"  {'✓' if ok else '✗'} dupes fixture: {len(pairs)} duplicate pair(s) {pairs}"
+          + ("" if ok else "  <-- expected exactly [('ZZZ-001', 'ZZZ-002')]"))
+    bad += 0 if ok else 1
+
+    rows = [{"id": "ZZZ-010", "keyword": "MUST", "testability": "manual"},
+            {"id": "ZZZ-011", "keyword": "MUST", "testability": "manual"},
+            {"id": "ZZZ-012", "keyword": "MUST", "testability": "testable"}]
+    mis = manual_mislabels(rows, check_ids={"ZZZ-011", "ZZZ-012"})
+    ok = mis == ["ZZZ-011"]
+    print(f"  {'✓' if ok else '✗'} relabel fixture: manual-but-CHECK rows = {mis}"
+          + ("" if ok else "  <-- expected ['ZZZ-011']"))
+    bad += 0 if ok else 1
+
+    print(f"\nverify_register selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
+    return 1 if bad else 0
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv[1:]:
+        sys.exit(selftest())
     sys.exit(main(sys.argv[1:]))
