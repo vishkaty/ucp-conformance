@@ -1,0 +1,38 @@
+{
+ "_about": "dormancy_exemptions.json (D1-07): the merchant-check ids that NO golden in the four-gate union (flower 8182, controlled 04-08/01-23/01-11) exercises. `floor` is the exact expected dormant count \u2014 validate_dormancy.py reds above it (a new dormant check) AND below it (lower the floor deliberately). `exemptions` name the run_suite gate that kill-tests the id by name, with a review_by; `never_kill_tested` is the honest, visible debt until a gate names each id (D3-21 for ap2, tls-check for the tls variants).",
+ "floor": 13,
+ "exemptions": {
+  "transport.https_tls13_minimum": {
+   "gate": "tls-check",
+   "review_by": "2026-12-09",
+   "note": "CHK-051 TLS harness (:8443/:8444) grades the 1.3-only vs 1.2-accepting pair"
+  },
+  "discovery.spec_urls_resolvable": {
+   "gate": "disc014-check",
+   "review_by": "2026-12-09",
+   "note": "validate_disc014_check.py: clean-pass + kill on a loopback golden, every 01-era version"
+  },
+  "identity01.capability_scope_grants_ops": {
+   "gate": "checkout-scope-check",
+   "review_by": "2026-12-09",
+   "note": "validate_checkout_scope_check.py: clean-pass + kill_safe on the checkout_session golden"
+  },
+  "order.data_requires_auth": {
+   "gate": "order-auth-check",
+   "review_by": "2026-12-09",
+   "note": "validate_order_auth_check.py"
+  }
+ },
+ "never_kill_tested": [
+  "payment.ap2_complete_requires_mandate",
+  "payment.ap2_invalid_mandate_rejected",
+  "payment.ap2_signing_key_resolution",
+  "discovery.profile_https",
+  "cart.https_tls13_minimum",
+  "checkout.https_tls13_minimum_04_08",
+  "order.https_tls13_minimum",
+  "transport.https_all_communication",
+  "transport.https_tls12_minimum"
+ ],
+ "never_kill_tested_note": "9 ids with no id-level gate today (D1 N7): 3 ap2 (D3-21), discovery.profile_https, 5 tls variants (tls-check to name them by id). Listed here so the debt is visible; an id that starts running or gains a gate must be removed."
+}

@@ -23,10 +23,18 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant` | every merchant check is **clean-pass + kill-safe** on the Flower Shop golden | independent golden server |
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
-| `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
 | `attribution-hook` | no AI/bot author, co-author or generated-with line on any commit since 2026-09-10 (decision 16, forward-only), and this clone's active commit-msg hook is the tracked `ops/tools/hooks/commit-msg` (install: `bash ops/tools/install_hooks.sh`); `attribution-selftest` plants a trailer, a bot author and a missing hook to prove the gate can go red | git history + the tracked hook |
 | `filing-lint` | the branch-level attribution net `ops/tools/filing_lint.py` (unpushed range of every local branch of every repo in `ops/tools/repos.json`; `ops/filings/` drafts) provably catches planted trailers; SKIP when ops/ is not mounted | scratch repos with planted trailers |
 | `reach-selftest` | the CI reach-report drift step (`gen_reach_report.py --check`) provably catches a planted graded-status flip (1 drift), stays quiet on an unchanged rerun and on reason-text changes, and round-trips the committed report without drift; regenerated labels are published only by an owner commit (decision 6) | committed reach report (data we did not grade this run) |
+| `proxy-demo` | the mutation-proxy demo: injected wire defects are caught (2 real checks + the noop canary); the per-check kill-rate proof is the `merchant*` gates | mutation harness |
+| `run-suite-only` | `--only <gate>` runs exactly the named gates and boots only their fixtures (every acceptance command is runnable as written) | — |
+| `wire-shapes` | version-keyed request shapes: 08-25 delta applied, older versions frozen byte-for-byte, unreviewed version fails closed | official 08-25 schemas |
+| `cli-summary` | the CLI denominator is capability/transport-aware from `_area_capabilities.json` (fail-closed); no coverage number for unreviewed/REST-less servers | — |
+| `killset-lock` / `killset-lock-selftest` | every kill set hashed in `killset_lock.json`; a silent shrink or drift is red, named | — |
+| `dormancy` | every merchant check runs on some golden or is named in `dormancy_exemptions.json` (floor 13; partial union is red) | the four goldens |
+| `battery-freshness` | the R11 golden-0825 mutant battery ran, recently, and passed (in-run in CI) | own golden-0825 |
+| `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
+| `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

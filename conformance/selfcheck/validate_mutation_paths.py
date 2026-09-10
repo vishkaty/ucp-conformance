@@ -116,6 +116,25 @@ def _selftest():
         check(f"proxy-drop-{label}", _services(json.loads(dropped)) is None,
               "proxy drop did not remove the field")
 
+    # --- version-keyed placeholders (D1-02): $DESTS is expanded from wire_shapes BEFORE
+    # the engine sees the mutation, so the SAME mutation string plants a 08-25-shaped
+    # (typed) destination on a 08-25 server and a 04-08-shaped one on a 04-08 server.
+    # A fixed literal would carry one version's shape into the other's server.
+    import merchant_checks                                      # noqa: E402
+
+    class _Ctx:
+        def __init__(self, version):
+            self.version, self.product_id, self.config = version, "p1", {}
+    for version, typed in (("2026-08-25", True), ("2026-04-08", False)):
+        m = merchant_checks._expand_mut("set:fulfillment.methods.0.destinations=$DESTS", _Ctx(version))
+        check(f"dests-placeholder-{version}", "$DESTS" not in m,
+              "placeholder left unexpanded")
+        r = mutate(_resp({"fulfillment": {"methods": [{"destinations": []}]}}), m)
+        got = r.json["fulfillment"]["methods"][0]["destinations"]
+        check(f"dests-shape-{version}",
+              bool(got) and all(("type" in d) == typed for d in got),
+              f"expected typed={typed}, got {got}")
+
     if fails:
         print("mutation-paths: FAIL")
         for f in fails:

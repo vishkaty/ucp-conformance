@@ -15,24 +15,32 @@ Gates (each anchored to something we did NOT write, to avoid circularity):
   merchant    validate_merchant_checks.py — every merchant check is clean-pass + kill_safe on a golden
   suite-01-23 run_01_23.py           — the 2026-01-23 suite vs a live golden (no false green)
   suite-04-08 run_04_08.py           — the 2026-04-08 fixture checks (schema-oracle backed)
-  killrate    mutation_killrate.py   — injected defects are caught (kill-rate)
+  proxy-demo  mutation_proxy_demo.py — the mutation PROXY demo: injected wire defects are
+                                        caught (2 real checks + the noop canary); the
+                                        per-check kill-rate proof is the merchant gates
 
 Server-dependent gates are skipped (not failed) when no golden is reachable, unless
 --require-server. The schema gate skips if the ucp-schema binary isn't built (exit 2).
 
-REPORT-ONLY (printed, never counted toward pass/fail -- matches schema-census's own
-report-mode default): the R11 golden-0825 mutant battery. It boots a second server
-(golden-0825, port 8199) and takes ~15s, too heavy for this per-change gate run; run it
-directly with `python3 conformance/selfcheck/validate_golden_0825_battery.py` and this
-script prints its last recorded result (self-expiring after 14 days -- see
-r11_battery_report_line()).
+R11 golden-0825 mutant battery (D1-09): a COUNTED gate, `battery-freshness`. In CI
+run with --battery so the battery runs inside this invocation (its report is the
+in-run source the gate prefers); locally without --battery the gate reads the tracked
+conformance/testbed/golden-0825/battery/LAST_RUN.json under a 14-day rule (the owner
+commits it on the release path — decision 24: artifacts, no bot commits).
 
 Usage:
     python3 conformance/ci/run_suite.py [--server http://localhost:8182]
-                                        [--require-server] [--skip schema,killrate]
-Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing).
+                                        [--require-server] [--skip schema,proxy-demo]
+                                        [--only NAME[,NAME...]] [--battery]
+Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing);
+2 = --only named a gate that is not in the table (never a silent full run or no-op).
+
+--only runs exactly the named gates, in table order, booting ONLY the fixtures those
+gates need (so every acceptance command written as `run_suite.py --only <gate>` is
+runnable as written, cheaply, and proves the gate it names — pinned by
+conformance/ci/validate_run_suite_only.py, gate `run-suite-only`).
 """
-import sys, subprocess, argparse, pathlib, urllib.request, time
+import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SELF = ROOT / "conformance" / "selfcheck"
@@ -47,12 +55,22 @@ CONTROLLED_0111_PORT = 8193          # 8186-8188 sig gate, 8189 static web, 8190
 CONTROLLED_0111 = f"http://localhost:{CONTROLLED_0111_PORT}"
 PROXY_PORT = 8183
 PROXY = f"http://localhost:{PROXY_PORT}"
+GOLDEN_0825_PORT = 8197                 # conformance/ci/ports.json (D5-19): the gate golden
+GOLDEN_0825 = f"http://localhost:{GOLDEN_0825_PORT}"
+GOLDEN_0825_DIR = ROOT / "conformance" / "testbed" / "golden-0825"
 
 def _py(path, *args):
     return [sys.executable, str(path), *args]
 
-def gates(server):
+# D1-07: run-scoped directory for the merchant gates' run records (validate_merchant_checks
+# --record); validate_dormancy.py unions them AFTER the four merchant gates. Override with
+# RUN_SUITE_RECORD_DIR to keep the records (the dormancy kill-proof replays them).
+RECORD_DIR = pathlib.Path(os.environ.get("RUN_SUITE_RECORD_DIR")
+                          or tempfile.mkdtemp(prefix="run_suite_records_"))
+
+def gates(server, require_server=False):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
+    rec = lambda name: ("--record", str(RECORD_DIR / f"{name}.json"))   # noqa: E731
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         # D2-02: hermetic kill-tests behind the `register` gate's duplicate-pair and
@@ -138,20 +156,42 @@ def gates(server):
         ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
          None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
-        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
+        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
+         "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
         # crashed. Either way the verdict is not about the requirement the check names,
         # so it must not reach a merchant as a deviation.
         ("probe-hygiene", _py(SELF / "validate_probe_hygiene.py", "--server", server),
          "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
-                                 "--server", CONTROLLED, "--golden", "controlled"), "controlled", ()),
+                                 "--server", CONTROLLED, "--golden", "controlled",
+                                 *rec("controlled-04-08")), "controlled", ()),
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
-                                    "--server", CONTROLLED_0123, "--golden", "controlled"),
+                                    "--server", CONTROLLED_0123, "--golden", "controlled",
+                                    *rec("controlled-01-23")),
          "controlled-01-23", ()),
         ("merchant-ctrl-01-11", _py(SELF / "validate_merchant_checks.py",
-                                    "--server", CONTROLLED_0111, "--golden", "controlled"),
+                                    "--server", CONTROLLED_0111, "--golden", "controlled",
+                                    *rec("controlled-01-11")),
          "controlled-01-11", ()),
+        # D1-07: every merchant check runs on SOME golden or is named in
+        # dormancy_exemptions.json (floor 13). Unions the four records above; a missing
+        # record is a partial union (red under --require-server, never a smaller set);
+        # without --require-server an empty record set skips honestly (rc 2).
+        ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
+                            *(["--require-server"] if require_server else [])), None, (2,)),
+        # D1-09: the R11 battery must have run, recently, and passed — counted. --battery
+        # runs it in THIS invocation (report copied to RECORD_DIR, preferred); otherwise
+        # the tracked LAST_RUN.json under the 14-day rule.
+        # D1-04: the merchant CLI vs golden-0825 (booted here on :8197 by boot_golden_0825)
+        # in BOTH probe shapes — default (typed destinations) and --omit-destination-type —
+        # must show 0 deviations and >= 29 checks run. Kill-proof for D1-01's 08-25 delta
+        # (revert it -> red) and, once D3-04 lands, for the C3b default (arm
+        # destination_type_required_on_request -> omit mode red).
+        ("probe-shape-0825", _py(SELF / "validate_probe_shape_0825.py", "--server", GOLDEN_0825),
+         "golden-0825", (2,)),
+        ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
+                                  "--in-run", str(RECORD_DIR / "battery_LAST_RUN.json")), None, ()),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
         # the CLOSED testable tier can never silently reopen (wave-2 milestone)
         ("require-testable-04-08",
@@ -248,7 +288,10 @@ def gates(server):
         # falsely expires an entry for an un-probed target. No network/golden.
         ("differential-selftest", _py(ROOT / "conformance" / "ci" / "differential.py", "--selftest"),
          None, ()),
-        ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
+        # D1-08: the old name overstated this gate. It is the mutation PROXY demo (2 real
+        # checks + the noop canary over :8183); the per-check kill-rate proof every
+        # public claim rests on is the merchant* gates above.
+        ("proxy-demo",  _py(SELF / "mutation_proxy_demo.py"),                   "proxy",   (2,)),
         # SCHEMA-GUIDED FUZZ LANE: enumerate the boundary/constraint points of the pinned
         # 04-08 request schemas and fire one payload per point at the golden, classifying
         # each response (crash vs conformant-4xx vs spec-contradicting-accept). The #156
@@ -307,6 +350,22 @@ def gates(server):
         # a mutation that cannot reach the field its predicate reads is a kill-test that
         # certifies nothing while reporting kill_safe — green by being unable to fail.
         ("mutation-paths", _py(SELF / "validate_mutation_paths.py", "--selftest"), None, ()),
+        # D1-01: checks/wire_shapes.py is the one place that knows the per-version
+        # request delta (08-25 destinations[].type, CHK-025 async branch, keys[] vs
+        # signing_keys, Purpose objects); fail-closed on an unreviewed version; the three
+        # older versions' bodies are frozen byte-for-byte so the delta cannot leak back.
+        ("wire-shapes",  _py(SELF / "validate_wire_shapes.py", "--selftest"),  None, ()),
+        # D1-03: the CLI denominator is capability- AND transport-aware from
+        # requirements/<v>/_area_capabilities.json (fail-closed on an unmapped area);
+        # unreviewed version / no REST -> coverage null + banner, never 0.0; checks_summary
+        # counts checks, the headline never mixes MUST ids with checks. Loopback stubs.
+        ("cli-summary",  _py(SELF / "validate_cli_summary.py", "--selftest"),  None, ()),
+        # D1-06: every kill set (MCheck/engine mutations, schema-tier + struct negatives,
+        # golden-row mutants, agent kill_mutation) is hashed in selfcheck/killset_lock.json;
+        # a silent shrink or drift reds here, named. Regenerate DELIBERATELY with
+        # gen_killset_lock.py in the same commit as a check change (a shrink needs a note).
+        ("killset-lock", _py(SELF / "validate_killset_lock.py"),                None, ()),
+        ("killset-lock-selftest", _py(SELF / "validate_killset_lock.py", "--selftest"), None, ()),
         # the golden speaks ONE spec version (2026-04-08 since the 2026-08-03 re-pin);
         # engine checks whose citations are 01-era-scoped are version-skipped by the
         # served-version gate instead of deviating/reported-UNSAFE on a known-good
@@ -348,7 +407,32 @@ def gates(server):
         # selftest (scratch repos with planted trailers); rc 2 = ops/ not mounted (CI).
         ("filing-lint", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/filing_lint.py", "--selftest"),
          None, (2,)),
+        # D1-05: the bundle must be COMPLETE, not just current — every first-party module
+        # merchant.py transitively imports (ast, from SOURCE) and every data file it reads
+        # must be in the bundle, and it must import + run in an isolated interpreter.
+        ("package-bundle", _py(ROOT / "packaging" / "validate_bundle.py"), None, ()),
+        # D1-22: `--only <gate>` runs exactly the named gates, boots only what they need,
+        # and refuses an unknown name (rc 2) — so every acceptance command written as
+        # `run_suite.py --only X` proves X. In-process against the real table; the
+        # :8198 case observes golden-check-08-25's own boot + teardown via lsof.
+        ("run-suite-only", _py(ROOT / "conformance" / "ci" / "validate_run_suite_only.py", "--selftest"), None, ()),
     ]
+
+class UnknownGate(ValueError):
+    pass
+
+
+def select_gates(table, only):
+    """The subset of `table` named by `only` (a comma list), in TABLE order. Raises
+    UnknownGate naming the first unknown name — a typo must never become a silent
+    no-op (rc 0 with nothing run) or a silent full run."""
+    wanted = [n.strip() for n in only.split(",") if n.strip()]
+    known = {g[0] for g in table}
+    for n in wanted:
+        if n not in known:
+            raise UnknownGate(f"unknown gate: {n}")
+    return [g for g in table if g[0] in set(wanted)]
+
 
 def server_up(server, timeout=3):
     try:
@@ -392,6 +476,37 @@ def boot_tls_proxy():
     return subprocess.Popen([sys.executable, str(FIXTURE / "tls_proxy.py")],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+class _Golden0825:
+    """Handle for a golden-0825 booted by boot_golden_0825: stop() runs the stop script
+    with the same run-scoped DB_DIR (kills wrapper + listener, waits for the port)."""
+    def __init__(self, port, db_dir):
+        self.port, self.db_dir = port, db_dir
+
+    def stop(self):
+        env = dict(os.environ, PORT=str(self.port), DB_DIR=str(self.db_dir))
+        subprocess.run([str(GOLDEN_0825_DIR / "stop_golden_0825.sh")], env=env,
+                       capture_output=True, text=True, timeout=60)
+
+
+def boot_golden_0825(port=GOLDEN_0825_PORT, env=None):
+    """Boot our own 2026-08-25 golden via its serve script (uv sync + seed + health wait)
+    with a run-scoped DB_DIR; shared by probe-shape-0825, merchant-0825 (D1-10) and the
+    battery. Returns a handle with .stop(), or None if something already answers on the
+    port (left alone, like _boot) or the boot failed (the gate reports it DOWN)."""
+    if server_up(f"http://localhost:{port}"):
+        return None
+    db_dir = pathlib.Path(tempfile.mkdtemp(prefix=f"golden_0825_{port}_"))
+    e = dict(os.environ, PORT=str(port), DB_DIR=str(db_dir), SIM_SECRET="run-suite-secret")
+    e.pop("DEFECTS_CONFIG", None); e.pop("DEFECTS_STATE_FILE", None)
+    e.update(env or {})
+    r = subprocess.run([str(GOLDEN_0825_DIR / "serve_golden_0825.sh")], env=e,
+                       capture_output=True, text=True, timeout=180)
+    if r.returncode != 0:
+        print(f"golden-0825 boot failed on :{port}: {(r.stderr or r.stdout).strip().splitlines()[-1:]}")
+        return None
+    return _Golden0825(port, db_dir)
+
+
 def boot_proxy(golden):
     """Start the mutation proxy (wraps the golden) that the kill-rate gate drives."""
     return _boot([sys.executable, str(SELF / "mutation_proxy.py"),
@@ -407,38 +522,22 @@ def run_gate(name, argv, timeout=180):
     return {"rc": p.returncode, "dt": time.monotonic() - t0,
             "tail": tail[-1] if tail else "", "out": p.stdout + p.stderr}
 
-R11_BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
-R11_BATTERY_STALE_DAYS = 14
+BATTERY = SELF / "validate_golden_0825_battery.py"
+BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
 
 
-def r11_battery_report_line():
-    """PLAN-0825 SS C.4 (R11): the golden-0825 mutant battery is a REPORT-ONLY
-    line here, not a gate in gates() above -- it boots a server twice and
-    takes ~15s, too heavy for the default per-change run_suite invocation
-    (same call the schema-census gate makes: report-only by default, a flip
-    to a hard gate is a later, deliberate step). Run it directly:
-        python3 conformance/selfcheck/validate_golden_0825_battery.py
-    This function only reads the JSON report that script writes on its own
-    last run and never re-executes it -- so this line is O(1) and never boots
-    anything itself.
-
-    Self-expiring (P-2): a report older than R11_BATTERY_STALE_DAYS is flagged
-    STALE rather than quietly trusted forever, same doctrine as every other
-    intermediate/report-mode state in this suite."""
-    import json as _json
-    if not R11_BATTERY_REPORT.exists():
-        return "R11 battery      · not yet run — see conformance/selfcheck/validate_golden_0825_battery.py"
-    try:
-        report = _json.loads(R11_BATTERY_REPORT.read_text())
-    except (OSError, ValueError) as e:
-        return f"R11 battery      ✗ LAST_RUN.json unreadable ({e})"
-    age_days = (time.time() - report.get("ran_at", 0)) / 86400
-    stale = " [STALE — re-run]" if age_days > R11_BATTERY_STALE_DAYS else ""
-    mark = "✓" if report.get("ok") else "✗"
-    acked = report.get("acknowledged_open", 0)
-    return (f"R11 battery      {mark} {report.get('killed')}/{report.get('total')} killed"
-            + (f" ({acked} acknowledged-open)" if acked else "")
-            + f", {age_days:.1f}d ago{stale}")
+def run_battery():
+    """--battery: run the R11 golden-0825 mutant battery inside this invocation and copy
+    its report into RECORD_DIR as the in-run source for battery-freshness. Its own port
+    (GOLDEN_0825_BATTERY_PORT, default 8199) and oracle-skip semantics are the battery's."""
+    t0 = time.monotonic()
+    p = subprocess.run([sys.executable, str(BATTERY)], cwd=str(ROOT), capture_output=True, text=True)
+    tail = (p.stdout + p.stderr).strip().splitlines()
+    print(f"battery (--battery): rc={p.returncode} [{time.monotonic() - t0:.1f}s] "
+          f"{tail[-1] if tail else ''}")
+    if p.returncode == 0 and BATTERY_REPORT.exists():
+        RECORD_DIR.mkdir(parents=True, exist_ok=True)
+        (RECORD_DIR / "battery_LAST_RUN.json").write_bytes(BATTERY_REPORT.read_bytes())
 
 
 def main():
@@ -448,33 +547,58 @@ def main():
     ap.add_argument("--require-server", action="store_true",
                     help="fail (not skip) server-dependent gates if the golden is down")
     ap.add_argument("--skip", default="", help="comma-separated gate names to skip")
+    ap.add_argument("--only", default="",
+                    help="comma-separated gate names to run (exactly those, in table order; "
+                         "boots only the fixtures they need; rc 2 on an unknown name)")
+    ap.add_argument("--battery", action="store_true",
+                    help="run the R11 golden-0825 battery in this invocation (CI); "
+                         "battery-freshness then reads that run instead of the tracked file")
     ap.add_argument("-v", "--verbose", action="store_true", help="print full gate output on failure")
     args = ap.parse_args()
     skip = {s.strip() for s in args.skip.split(",") if s.strip()}
+    if args.battery:
+        run_battery()
 
-    up = server_up(args.server)
-    ctrl_proc = boot_controlled()
-    ctrl_up = server_up(CONTROLLED)
-    ctrl0123_proc = boot_controlled_0123()
-    ctrl0111_proc = boot_controlled_0111()
-    ctrl0123_up = server_up(CONTROLLED_0123)
-    ctrl0111_up = server_up(CONTROLLED_0111)
+    table = gates(args.server, args.require_server)
+    if args.only:
+        try:
+            table = select_gates(table, args.only)
+        except UnknownGate as e:
+            known = ", ".join(g[0] for g in gates(args.server))
+            print(f"run_suite: {e}\n  known gates: {known}", file=sys.stderr)
+            return 2
+    # which fixtures to boot: everything (the historical default) unless --only
+    # narrows the table, in which case only what the selected gates declare.
+    needed = {g[2] for g in table if g[2]} if args.only else \
+        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy", "golden-0825"}
+
+    up = server_up(args.server) if needed & {"golden", "proxy"} else False
+    ctrl_proc = boot_controlled() if "controlled" in needed else None
+    ctrl_up = server_up(CONTROLLED) if "controlled" in needed else False
+    ctrl0123_proc = boot_controlled_0123() if "controlled-01-23" in needed else None
+    ctrl0111_proc = boot_controlled_0111() if "controlled-01-11" in needed else None
+    ctrl0123_up = server_up(CONTROLLED_0123) if "controlled-01-23" in needed else False
+    ctrl0111_up = server_up(CONTROLLED_0111) if "controlled-01-11" in needed else False
     tls_proc = boot_tls_proxy() if ctrl_up else None
     if tls_proc: time.sleep(1.0)            # cert mint + listener bind
-    proxy_proc = boot_proxy(args.server) if up else None   # kill-rate gate drives the proxy
-    proxy_up = server_up(PROXY)
+    proxy_proc = boot_proxy(args.server) if (up and "proxy" in needed) else None   # kill-rate gate drives the proxy
+    proxy_up = server_up(PROXY) if "proxy" in needed else False
+    g0825 = boot_golden_0825() if "golden-0825" in needed else None
+    g0825_up = server_up(GOLDEN_0825) if "golden-0825" in needed else False
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
     print(f"controlled fixture (01-11) {CONTROLLED_0111}: {'UP' if ctrl0111_up else 'DOWN'}")
-    print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}\n")
+    print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}")
+    print(f"golden-0825 {GOLDEN_0825}: {'UP' if g0825_up else 'DOWN'}")
+    print(f"run records: {RECORD_DIR}\n")
     avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
              "controlled-01-11": ctrl0111_up,
-             "proxy": proxy_up and up}
+             "proxy": proxy_up and up, "golden-0825": g0825_up}
 
     results = []
     try:
-      for name, argv, needs, skip_codes in gates(args.server):
+      for name, argv, needs, skip_codes in table:
         if name in skip:
             results.append((name, "SKIP", "explicitly skipped")); continue
         if needs and not avail.get(needs):
@@ -497,6 +621,8 @@ def main():
         for proc in (ctrl_proc, ctrl0123_proc, ctrl0111_proc, tls_proc, proxy_proc):
             if proc is not None:
                 proc.terminate()
+        if g0825 is not None:
+            g0825.stop()
 
     print(f"{'gate':14} {'status':6} detail")
     print("-" * 72)
@@ -509,7 +635,13 @@ def main():
     skipped = [n for n, s, _ in results if s == "SKIP"]
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
-    print(r11_battery_report_line() + "  (report-only, not counted above)")
+    if args.only:
+        # the acceptance-line form: one `✓ PASS <gate> <detail>` per selected gate
+        for name, status, detail in results:
+            mark = {"PASS": "✓", "FAIL": "✗", "SKIP": "·"}[status]
+            print(f"{mark} {status} {name} {detail}")
+        n = len(results)
+        print(f"{n} gate{'s' if n != 1 else ''} run (--only {args.only})")
     if failed:
         print(f"\nRED — gates failed: {', '.join(failed)}")
         return 1

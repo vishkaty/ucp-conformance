@@ -258,7 +258,39 @@ CONTROLLED_CONFIG = {
     },
 }
 
-GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG}
+# golden-0825 (conformance/testbed/golden-0825, our own 2026-08-25 reference) is seeded
+# from the same flower_shop data, so REF_CONFIG grades it as-is; wire_shapes.py supplies
+# the 08-25 request delta (D1-01/D1-02). D1-10 pins its expected-skip population.
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG}
+
+def _skip_class(status):
+    """The PLAN-v3 §2.3 skip vocabulary, from the runner's status string."""
+    st = str(status)
+    if st.startswith("not-applicable (spec"):
+        return "version-scoped"
+    if st.startswith("not-applicable (no "):
+        return "transport-not-declared"
+    if st.startswith("not-applicable"):
+        return "capability-not-declared"
+    if st.startswith("not-tested (no product"):
+        return "needs-product"
+    if st.startswith("not-tested (needs config"):
+        return "needs-config"
+    if st.startswith("not-tested (oracle"):
+        return "oracle-unavailable"
+    return "other"
+
+
+def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped):
+    """The run record validate_dormancy.py unions (D1-07): which ids RAN on this golden
+    (sound, broken, weak or reference-defect — all exercised) and why each other id
+    was skipped, in the §2.3 class vocabulary."""
+    ran = sorted(set(ok) | {c for c, _ in broken} | {c for c, _ in weak} | {c for c, _, _ in ref_defects})
+    rec = {"golden": golden, "server": server, "served_version": ctx.version,
+           "ran": ran, "skipped": {cid: _skip_class(st) for cid, st in skipped}}
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
+
 
 def selftest():
     """Hermetic structural cases (no server). D2-02 `unique_check_ids`: every MCheck
@@ -285,6 +317,9 @@ def main():
                     help="which golden's config to use (flower=Flower Shop, controlled=our fixture)")
     ap.add_argument("--selftest", action="store_true",
                     help="hermetic structural cases only (unique_check_ids); no server")
+    ap.add_argument("--record", metavar="FILE",
+                    help="write a run record {golden, served_version, ran, skipped:{id: class}} for "
+                         "validate_dormancy.py (D1-07)")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
@@ -329,6 +364,8 @@ def main():
         print(f"  ! {cid:32} {st} caused by a REPORTED defect in the golden, not by the check")
         print(f"      {d['upstream']} (filed {d['filed']})")
 
+    if args.record:
+        _write_record(args.record, args.golden, args.server, ctx, ok, broken, weak, ref_defects, skipped)
     n_run = len(ok) + len(broken) + len(weak)
     print(f"\n  {len(ok)}/{n_run} run checks sound · {len(skipped)} skipped (n/a on reference)")
     if broken or weak:

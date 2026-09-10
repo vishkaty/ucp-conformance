@@ -111,6 +111,7 @@ jobs:
           python3 conformance/ci/run_suite.py \
             --server http://localhost:8182 \
             --require-server \
+            --battery \
             --verbose
         # With the ucp-schema oracle built above, the schema / fixture / profile_schema
         # gates run for real here (no longer skipped). UCP_NODEJS_URL makes the
@@ -132,6 +133,16 @@ jobs:
         env:
           UCP_NODEJS_URL: http://localhost:3000
 
+      - name: Publish the golden-0825 battery report (R11 in CI — decision 24: an artifact, never a bot commit)
+        # --battery above ran the R11 mutant battery inside this run; the tracked
+        # LAST_RUN.json is refreshed by the owner at release time from this artifact.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-0825-battery-LAST_RUN
+          path: conformance/testbed/golden-0825/battery/LAST_RUN.json
+          if-no-files-found: warn
+
       - name: Tear down the Node.js reference
         if: always()
         run: bash conformance/ci/stop_node_reference.sh
@@ -149,3 +160,9 @@ jobs:
           bash packaging/sync_bundle.sh
           git diff --exit-code packaging/spck_conformance/_bundle \
             || { echo "::error::packaging bundle is stale — run packaging/sync_bundle.sh and commit"; exit 1; }
+
+      - name: Verify the pip bundle is COMPLETE (every module the runner imports is shipped)
+        # The drift diff above proves copied files are current, never that a needed file
+        # is copied (D1-05): this imports the runner from the bundle in an isolated
+        # interpreter and diffs the bundle against merchant.py's transitive imports.
+        run: python3 packaging/validate_bundle.py
