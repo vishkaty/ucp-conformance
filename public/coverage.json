@@ -10115,10 +10115,10 @@
   },
   "2026-08-25": {
    "state": "live",
-   "musts": 786,
+   "musts": 780,
    "check": 70,
    "exempt": 0,
-   "gap": 716,
+   "gap": 710,
    "accounted_pct": 9,
    "evidence_breakdown": {
     "live-wire": 0,
@@ -10127,10 +10127,10 @@
     "self-referenced": 41
    },
    "gap_by_testability": {
-    "manual": 162,
+    "manual": 131,
     "needs-oauth": 15,
-    "needs-receiver": 174,
-    "testable": 365
+    "needs-receiver": 172,
+    "testable": 392
    },
    "areas": [
     {
@@ -10162,46 +10162,45 @@
     {
      "area": "cart",
      "check": 4,
-     "gap": 13,
+     "gap": 12,
      "gap_manual": 2,
      "gap_needs-receiver": 5,
-     "gap_testable": 6,
-     "musts": 17
+     "gap_testable": 5,
+     "musts": 16
     },
     {
      "area": "catalog",
      "check": 17,
      "gap": 24,
-     "gap_manual": 6,
+     "gap_manual": 4,
      "gap_needs-receiver": 1,
-     "gap_testable": 17,
+     "gap_testable": 19,
      "musts": 41
     },
     {
      "area": "checkout-lifecycle",
      "check": 2,
-     "gap": 54,
-     "gap_manual": 8,
-     "gap_needs-receiver": 11,
-     "gap_testable": 35,
-     "musts": 56
+     "gap": 51,
+     "gap_manual": 3,
+     "gap_needs-receiver": 9,
+     "gap_testable": 39,
+     "musts": 53
     },
     {
      "area": "discounts-consent",
      "check": 4,
-     "gap": 25,
+     "gap": 24,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 18,
-     "musts": 29
+     "gap_testable": 17,
+     "musts": 28
     },
     {
      "area": "discovery-and-profile",
      "check": 4,
      "gap": 5,
-     "gap_manual": 1,
      "gap_needs-receiver": 1,
-     "gap_testable": 3,
+     "gap_testable": 4,
      "musts": 9
     },
     {
@@ -10222,9 +10221,9 @@
     {
      "area": "identity-linking",
      "gap": 80,
-     "gap_manual": 30,
+     "gap_manual": 12,
      "gap_needs-oauth": 13,
-     "gap_testable": 37,
+     "gap_testable": 55,
      "musts": 80
     },
     {
@@ -10248,10 +10247,10 @@
      "area": "order",
      "check": 7,
      "gap": 22,
-     "gap_manual": 4,
+     "gap_manual": 3,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 7,
-     "gap_testable": 10,
+     "gap_testable": 11,
      "musts": 29
     },
     {
@@ -10266,11 +10265,11 @@
     {
      "area": "payment",
      "check": 2,
-     "gap": 45,
-     "gap_manual": 13,
+     "gap": 44,
+     "gap_manual": 10,
      "gap_needs-receiver": 17,
-     "gap_testable": 15,
-     "musts": 47
+     "gap_testable": 17,
+     "musts": 46
     },
     {
      "area": "payment-3ds-challenge",
@@ -10363,8 +10362,8 @@
      "area": "totals",
      "check": 5,
      "gap": 9,
-     "gap_manual": 5,
-     "gap_testable": 4,
+     "gap_manual": 4,
+     "gap_testable": 5,
      "musts": 14
     },
     {
@@ -10687,8 +10686,8 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "requirement": "For Update Cart (full replacement), the platform MUST send the entire cart resource",
-     "source": "ucp:docs/specification/shopping/cart/index.md#L214",
+     "requirement": "Update Cart performs a full replacement of the cart session: the platform MUST send the entire cart resource, and the provided resource replaces the existing cart state on the business side",
+     "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
      "covered_by": []
     },
     {
@@ -10838,16 +10837,6 @@
      "covered_by": []
     },
     {
-     "id": "CART-036",
-     "area": "cart",
-     "keyword": "MUST",
-     "testability": "testable",
-     "status": "gap",
-     "requirement": "Update Cart performs a full replacement of the cart session. The platform MUST send the entire cart resource; the provided resource replaces the existing cart state on the business side.",
-     "source": "ucp:docs/specification/shopping/cart/index.md#L213-L215",
-     "covered_by": []
-    },
-    {
      "id": "CAT-001",
      "area": "catalog",
      "keyword": "MUST",
@@ -10903,7 +10892,7 @@
      "id": "CAT-008",
      "area": "catalog",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "A Platform MUST NOT assume the response count equals the requested or default page size",
      "source": "ucp:docs/specification/shopping/catalog/search.md#L77-L78",
@@ -11179,7 +11168,7 @@
      "id": "CAT-034",
      "area": "catalog",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "In get_product selected input, each option name MUST appear at most once",
      "source": "ucp:docs/specification/shopping/catalog/lookup.md#L156",
@@ -11349,7 +11338,7 @@
      "id": "CHK-008",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1012",
@@ -11527,7 +11516,7 @@
      "id": "CHK-036",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "ucp envelope field is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L19-L22",
@@ -11537,7 +11526,7 @@
      "id": "CHK-037",
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "status, currency, totals, messages, links, expires_at, continue_url, order are response-only (ucp_request: omit) and omitted on requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L75-L76",
@@ -11564,16 +11553,6 @@
      "covered_by": []
     },
     {
-     "id": "CHK-043",
-     "area": "checkout-lifecycle",
-     "keyword": "MUST",
-     "testability": "needs-receiver",
-     "status": "gap",
-     "requirement": "continue_url MUST be provided when status is requires_escalation (schema field description)",
-     "source": "ucp:source/schemas/shopping/checkout.json#L126",
-     "covered_by": []
-    },
-    {
      "id": "CHK-044",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
@@ -11597,7 +11576,7 @@
      "id": "CHK-046",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "All requests MUST include the UCP-Agent header containing the platform profile URI (RFC 8941 dictionary syntax)",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1304-L1307",
@@ -11641,26 +11620,6 @@
      "status": "gap",
      "requirement": "On create with all items unavailable, response carries ucp.status:error with messages and no resource body",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L515-L518",
-     "covered_by": []
-    },
-    {
-     "id": "CHK-055",
-     "area": "checkout-lifecycle",
-     "keyword": "MUST NOT",
-     "testability": "manual",
-     "status": "gap",
-     "requirement": "Platforms MUST NOT autonomously complete a checkout with mismatched totals; SHOULD reject or escalate for buyer review via continue_url",
-     "source": "ucp:docs/specification/shopping/checkout/index.md#L1337-L1339",
-     "covered_by": []
-    },
-    {
-     "id": "CHK-056",
-     "area": "checkout-lifecycle",
-     "keyword": "MUST NOT",
-     "testability": "needs-receiver",
-     "status": "gap",
-     "requirement": "Businesses MUST NOT complete a transaction with unresolved eligibility claims; accepted claims MUST be resolved before completion",
-     "source": "ucp:docs/specification/shopping/checkout/index.md#L709-L710",
      "covered_by": []
     },
     {
@@ -11720,7 +11679,7 @@
      "testability": "testable",
      "status": "gap",
      "requirement": "On authoritative responses the Business MUST include item.unit_price on every cart, checkout, and order line whose pricing basis differs from its sale basis.",
-     "source": "ucp:docs/specification/shopping/checkout/index.md#L293-L296",
+     "source": "ucp:docs/specification/shopping/checkout/index.md#L291-L296",
      "covered_by": []
     },
     {
@@ -12233,7 +12192,7 @@
      "id": "DISC-006",
      "area": "discovery-and-profile",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST include their profile URI in every request.",
      "source": "ucp:docs/specification/overview/index.md#L1780-L1781",
@@ -12313,7 +12272,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "requirement": "discounts.applied contains all active discounts (code-based + automatic)",
+     "requirement": "discounts.applied contains all active discounts (code-based + automatic); multiple valid codes are all applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
      "covered_by": []
     },
@@ -12531,16 +12490,6 @@
      "status": "gap",
      "requirement": "On checkout complete, the discounts object MUST be omitted from the request",
      "source": "ucp:source/schemas/shopping/discount.json#L139",
-     "covered_by": []
-    },
-    {
-     "id": "DSC-029",
-     "area": "discounts-consent",
-     "keyword": "MUST",
-     "testability": "testable",
-     "status": "gap",
-     "requirement": "Multiple valid discount codes are both applied (accept-both)",
-     "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
      "covered_by": []
     },
     {
@@ -13083,7 +13032,7 @@
      "id": "IDL-002",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L129-L131",
@@ -13093,7 +13042,7 @@
      "id": "IDL-004",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Public clients MUST use token-endpoint auth method 'none' and rely on PKCE with S256 as proof-of-possession of the authorization code.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L142-L145",
@@ -13103,7 +13052,7 @@
      "id": "IDL-005",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Public clients MUST NOT embed a client_secret.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L147-L148",
@@ -13123,7 +13072,7 @@
      "id": "IDL-007",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST include user identity tokens in the HTTP Authorization header using the Bearer scheme.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L153-L154",
@@ -13133,7 +13082,7 @@
      "id": "IDL-008",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST process WWW-Authenticate: Bearer challenges on 401 and 403 responses to user-authenticated operations.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L156-L158",
@@ -13143,7 +13092,7 @@
      "id": "IDL-009",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST extract the scope parameter (when present) from the WWW-Authenticate challenge to construct subsequent authorization requests.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L159-L160",
@@ -13153,7 +13102,7 @@
      "id": "IDL-010",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L164-L166",
@@ -13163,7 +13112,7 @@
      "id": "IDL-011",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST use PKCE with code_challenge_method=S256 for all authorization code exchanges.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L167-L169",
@@ -13173,7 +13122,7 @@
      "id": "IDL-012",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST validate the iss parameter in the authorization response to prevent Mix-Up Attacks, verifying it matches the AS issuer URI; if it does not match they MUST abort and discard the authorization response.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L170-L176",
@@ -13183,7 +13132,7 @@
      "id": "IDL-014",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L190-L192",
@@ -13343,7 +13292,7 @@
      "id": "IDL-031",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "On RFC 8414 discovery, any non-2xx response other than 404 (network error or timeout) MUST abort and MUST NOT proceed to OIDC fallback.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L308-L309",
@@ -13353,7 +13302,7 @@
      "id": "IDL-032",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST NOT silently fall through on any error other than 404 in RFC 8414 discovery.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L316-L317",
@@ -13373,7 +13322,7 @@
      "id": "IDL-034",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST request only the derived scope set (from config.scopes) and not a superset.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L366",
@@ -13383,7 +13332,7 @@
      "id": "IDL-035",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "On the authorization response, the platform MUST verify state matches the sent value and iss matches the discovered issuer URI; if either fails it MUST discard the response.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L368-L372",
@@ -13413,7 +13362,7 @@
      "id": "IDL-038",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST treat any scope listed in config.scopes (well-known or custom) as gating its operations behind user authentication.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L738-L740",
@@ -13503,7 +13452,7 @@
      "id": "IDL-048",
      "area": "identity-linking",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST NOT retry an insufficient_scope response by re-initiating a fresh account linking flow; they MUST instead request only the missing scope(s) via incremental authorization.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L933-L936",
@@ -13533,7 +13482,7 @@
      "id": "IDL-051",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST process the structured scope and error parameters to drive authorization flow decisions; error_description MUST NOT be used for control-flow decisions.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L994-L997",
@@ -13633,7 +13582,7 @@
      "id": "IDL-062",
      "area": "identity-linking",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "In the OIDC Discovery fallback (Discovery pipeline sub-item 2, reached after the RFC 8414 fetch in sub-item 1 returns 404), if the {issuer}/.well-known/openid-configuration fetch \u2014 where {issuer} is now resolved via the new Step 1 protected-resource-metadata lookup, not necessarily the business domain \u2014 returns any non-2xx response, network error, or timeout, the platform MUST abort.",
      "source": "ucp:docs/specification/common/identity-linking/index.md#L311-L314",
@@ -13926,7 +13875,7 @@
      "testability": "manual",
      "status": "gap",
      "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or bind operational terms \u2014 downstream capabilities authoritatively negotiate and revalidate all terms during transaction processing",
-     "source": "ucp:docs/specification/common/location/index.md#L71",
+     "source": "ucp:docs/specification/common/location/index.md#L69-L71",
      "covered_by": []
     },
     {
@@ -14156,7 +14105,7 @@
      "testability": "testable",
      "status": "gap",
      "requirement": "A Business that cannot honor a supplied `distance.max` MUST reject the request with an actionable error; it MUST NOT silently clamp the radius or substitute its own, and the permission to return fewer results under Pagination never permits reducing `distance.max`",
-     "source": "ucp:docs/specification/common/location/search.md#L147",
+     "source": "ucp:docs/specification/common/location/search.md#L142-L145",
      "covered_by": []
     },
     {
@@ -14305,7 +14254,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request, and when multiple identifiers resolve to the same Location it MUST return that Location only once",
+     "requirement": "A Business MUST dedupe duplicate identifiers in a Lookup request",
      "source": "ucp:docs/specification/common/location/lookup.md#L39",
      "covered_by": []
     },
@@ -14416,7 +14365,7 @@
      "testability": "testable",
      "status": "gap",
      "requirement": "When a Location lookup by identifier resolves multiple supplied identifiers to the same Location, the Business MUST return it only once (after deduping duplicate identifiers in the request).",
-     "source": "ucp:docs/specification/common/location/lookup.md#L39-L42",
+     "source": "ucp:docs/specification/common/location/lookup.md#L41-L42",
      "covered_by": []
     },
     {
@@ -14957,7 +14906,7 @@
      "id": "ORD-015",
      "area": "order",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST include the UCP-Agent header with profile URL on all order requests",
      "source": "ucp:docs/specification/shopping/order/index.md#L662",
@@ -16131,7 +16080,7 @@
      "keyword": "MUST",
      "testability": "manual",
      "status": "gap",
-     "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: parse config.url with a conformant URL parser (absolute, https, no userinfo); keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging or leaking session URLs; and treat completion/diagnostic notifications as advisory.",
+     "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging session URLs or leaking them through referrers; and treat completion/diagnostic notifications as advisory.",
      "source": "ucp:docs/specification/payment/extensions/authentication.md#L343-L353",
      "covered_by": []
     },
@@ -16209,7 +16158,7 @@
      "id": "PAY-009",
      "area": "payment",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "The available_instruments returned in the response_schema is authoritative; platforms MUST treat it as authoritative and MUST NOT use instrument types or constraints that contradict it",
      "source": "ucp:docs/specification/payment/guide.md#L377-L378",
@@ -16219,7 +16168,7 @@
      "id": "PAY-010",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST treat the available_instruments in the checkout response as authoritative for that checkout",
      "source": "ucp:docs/specification/overview/index.md#L2576-L2577",
@@ -16277,20 +16226,10 @@
      "id": "PAY-017",
      "area": "payment",
      "keyword": "MUST",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "On 3DS/SCA soft-decline the business returns status requires_escalation with a continue_url; the platform MUST open continue_url for the buyer to complete the bank check then retry completion",
      "source": "ucp:docs/specification/overview/index.md#L2793-L2794",
-     "covered_by": []
-    },
-    {
-     "id": "PAY-018",
-     "area": "payment",
-     "keyword": "MUST",
-     "testability": "testable",
-     "status": "gap",
-     "requirement": "continue_url MUST be provided when checkout status is requires_escalation",
-     "source": "ucp:source/schemas/shopping/checkout.json#L126",
      "covered_by": []
     },
     {
@@ -18010,7 +17949,7 @@
      "testability": "testable",
      "status": "gap",
      "requirement": "Handlers using foreign-currency-denominated instruments or non-currency instruments (e.g. loyalty points) MUST convert each instrument's contribution to the checkout currency",
-     "source": "ucp:docs/specification/payment/extensions/split-payments.md#L53",
+     "source": "ucp:docs/specification/payment/extensions/split-payments.md#L51-L54",
      "covered_by": []
     },
     {
@@ -18435,7 +18374,7 @@
      "id": "TOT-010",
      "area": "totals",
      "keyword": "MUST NOT",
-     "testability": "manual",
+     "testability": "testable",
      "status": "gap",
      "requirement": "Platforms MUST NOT autonomously complete a checkout with mismatched totals",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1337-L1338",

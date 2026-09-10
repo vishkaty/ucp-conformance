@@ -405,8 +405,8 @@
   {
    "id": "PAUTH-023",
    "keyword": "MUST",
-   "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: parse config.url with a conformant URL parser (absolute, https, no userinfo); keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging or leaking session URLs; and treat completion/diagnostic notifications as advisory.",
-   "quote": "In addition, Platforms **MUST**:\n\n- parse `config.url` with a conformant URL parser; it **MUST** be absolute, use\n  the `https` scheme, and carry no userinfo component;\n- keep the surface within the allowed origins; on the web, a `frame-src`\n  directive naming only them makes a cross-origin redirect fail to load rather\n  than silently widen trust;\n- grant only the frame or webview capabilities required by the handler, which\n  **MUST** document any deviation from the shared sandbox baseline;\n- avoid logging session URLs or leaking them through referrers; and\n- treat all completion and diagnostic notifications as advisory.",
+   "requirement": "In addition to the surface-lifecycle rules, Platforms MUST: keep the surface within the allowed origins; grant only the frame/webview capabilities the handler requires; avoid logging session URLs or leaking them through referrers; and treat completion/diagnostic notifications as advisory.",
+   "quote": "In addition, Platforms **MUST**: ... keep the surface within the allowed origins ... grant only the frame or webview capabilities required by the handler ... avoid logging session URLs or leaking them through referrers; and ... treat all completion and diagnostic notifications as advisory.",
    "source": "ucp:docs/specification/payment/extensions/authentication.md#L343-L353",
    "testability": "manual",
    "transport": [
@@ -418,7 +418,7 @@
    "versions": [
     "2026-08-25"
    ],
-   "notes": "New row (Platform embedding-security checklist lead-in). Item 1 (config.url parsing) is separately registered as PAUTH-019 (L345); this row is the umbrella statement for the full 5-item checklist, the same pattern as OVR-* Resolution-Flow-style lead-ins where not every item carries its own keyword.",
+   "notes": "New row (Platform embedding-security checklist lead-in). Item 1 (config.url parsing) is separately registered as PAUTH-019 (L345); this row is the umbrella statement for the full 5-item checklist, the same pattern as OVR-* Resolution-Flow-style lead-ins where not every item carries its own keyword. [2026-09-10 D2-02/A2] narrowed to the four non-itemized bullets: the config.url parsing item (L345-L346) is PAUTH-019 and the handler documentation duty (L351) is PAUTH-020; the keyword line L343 stays owned here.",
    "_completeness_batch": "completeness-2026-08-31-w4"
   }
  ]

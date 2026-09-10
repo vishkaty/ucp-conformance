@@ -36,7 +36,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -44,7 +44,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-003",
@@ -80,7 +81,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -88,7 +89,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-005",
@@ -102,7 +104,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -110,7 +112,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-006",
@@ -146,7 +149,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -154,7 +157,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-008",
@@ -168,7 +172,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -176,7 +180,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-009",
@@ -190,7 +195,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -198,7 +203,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-010",
@@ -212,7 +218,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -220,7 +226,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-011",
@@ -234,7 +241,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -242,7 +249,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-012",
@@ -256,7 +264,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -264,7 +272,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-013",
@@ -300,7 +309,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -308,7 +317,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-015",
@@ -674,7 +684,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -682,7 +692,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-032",
@@ -696,7 +707,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -704,7 +715,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-033",
@@ -740,7 +752,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -748,7 +760,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-035",
@@ -762,7 +775,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -770,7 +783,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-036",
@@ -828,7 +842,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -836,7 +850,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-039",
@@ -1048,7 +1063,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -1056,7 +1071,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-049",
@@ -1114,7 +1130,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
@@ -1122,7 +1138,8 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-052",
@@ -1357,7 +1374,7 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
@@ -1366,7 +1383,8 @@
     "from": "2026-04-08",
     "disposition": "reworded"
    },
-   "_completeness_batch": "completeness-2026-07-03"
+   "_completeness_batch": "completeness-2026-07-03",
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "IDL-063",

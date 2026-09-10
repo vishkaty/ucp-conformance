@@ -55,6 +55,11 @@ def gates(server):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
+        # D2-02: hermetic kill-tests behind the `register` gate's duplicate-pair and
+        # manual-but-CHECK checks (synthetic rows), and the merchant check set's
+        # unique-id invariant (reach_report / probe-hygiene key by check id).
+        ("register-selftest", _py(SELF / "verify_register.py", "--selftest"),   None, ()),
+        ("merchant-checks-selftest", _py(SELF / "validate_merchant_checks.py", "--selftest"), None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)

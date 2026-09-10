@@ -168,15 +168,16 @@
    "transport": [
     "rest"
    ],
-   "testability": "manual",
+   "testability": "testable",
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral; depends on the optional sum check.",
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral; depends on the optional sum check. [2026-09-10 D2-02/A2] CHK-055 (the same L1337-L1339 sentence pair registered a second time under checkout-lifecycle) merged here: its MUST NOT half is this row, its SHOULD half is TOT-011. The agent check agent.no_autocomplete_mismatched_totals grades this id.",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
   },
   {
    "id": "TOT-011",
@@ -194,7 +195,7 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral recommendation.",
+   "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Behavioral recommendation. [2026-09-10 D2-02/A2] the SHOULD half of the former CHK-055 is owned here (see TOT-010).",
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"

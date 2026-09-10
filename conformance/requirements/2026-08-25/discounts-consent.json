@@ -114,7 +114,7 @@
     },
     {
       "id": "DSC-006",
-      "requirement": "discounts.applied contains all active discounts (code-based + automatic)",
+      "requirement": "discounts.applied contains all active discounts (code-based + automatic); multiple valid codes are all applied",
       "keyword": "MUST",
       "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
       "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
@@ -128,7 +128,7 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Carried from 2026-04-08 DSC-006; doc reorganized, text unchanged. official_oracle carried forward per business_logic_test.py test_discount_flow (that suite targets spec-2026-01-23, so it remains only a partial/approximate oracle, now further removed in time from 2026-08-25).",
+      "notes": "Carried from 2026-04-08 DSC-006; doc reorganized, text unchanged. official_oracle carried forward per business_logic_test.py test_discount_flow (that suite targets spec-2026-01-23, so it remains only a partial/approximate oracle, now further removed in time from 2026-08-25). [2026-09-10 D2-02/A2] DSC-029 (identical source/quote; 'multiple valid discount codes are both applied') merged here. Oracle carried from DSC-029: business_logic_test.py test_multiple_discounts_accepted (same suite-vintage caveat).",
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
@@ -613,28 +613,6 @@
       "browser_capable": true,
       "schema_enforced": true,
       "notes": "Carried from 2026-04-08 DSC-028; schema unchanged, same line number in the 08-25 pin. Contrast with buyer_consent.json where the equivalent 'complete' directive changed from omit to optional (see DSC-034) — the discount extension's own completion-omit rule is unaffected.",
-      "lineage": {
-        "from": "2026-04-08",
-        "disposition": "carried"
-      }
-    },
-    {
-      "id": "DSC-029",
-      "requirement": "Multiple valid discount codes are both applied (accept-both)",
-      "keyword": "MUST",
-      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
-      "quote": "`discounts.applied` contains all active discounts (code-based + automatic)",
-      "versions": [
-        "2026-08-25"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": true,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "Carried from 2026-04-08 DSC-029; doc reorganized, same underlying clause as DSC-006. Oracle carried forward (business_logic_test.py test_multiple_discounts_accepted; see DSC-006 caveat on suite vintage).",
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"

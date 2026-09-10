@@ -190,7 +190,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -198,7 +198,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "PAY-010",
@@ -212,7 +213,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
@@ -220,7 +221,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "PAY-011",
@@ -366,7 +368,7 @@
       "transport": [
         "rest"
       ],
-      "testability": "manual",
+      "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
@@ -374,29 +376,8 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
-    },
-    {
-      "id": "PAY-018",
-      "requirement": "continue_url MUST be provided when checkout status is requires_escalation",
-      "keyword": "MUST",
-      "source": "ucp:source/schemas/shopping/checkout.json#L126",
-      "quote": "URL for checkout handoff and session recovery. MUST be provided when status is requires_escalation.",
-      "versions": [
-        "2026-08-25"
-      ],
-      "transport": [
-        "rest"
-      ],
-      "testability": "testable",
-      "official_oracle": false,
-      "browser_capable": true,
-      "schema_enforced": false,
-      "notes": "[2026-08-25] checkout.json kept its path; continue_url's description shifted from L113 to L126 (file grew above it). Wording unchanged; still not encoded as a schema if/then (schema_enforced:false). requires_escalation still enumerated at the same L69.",
-      "lineage": {
-        "from": "2026-04-08",
-        "disposition": "carried"
-      }
+      },
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
     },
     {
       "id": "PAY-019",
