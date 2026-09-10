@@ -409,6 +409,58 @@ def _selftest():
     if rd_off:
         fails.append(f"I: missing release-branch data must be skipped, got {rd_off}")
 
+    # ---- D2-03 (PLAN-v3 §2.8): TAG IDENTITY. A spec version is pinned to a release
+    # tag; the tag can be re-pointed upstream (v2026-04-08 was, 2026-09-09, ucp#813)
+    # or re-tagged onto the same commit. evaluate_tag_identity compares the live
+    # dereferenced COMMIT and the TAG OBJECT sha against the lock — never dates.
+    tag_lock = {"spec": {"repo": "org/ucp", "versions": {
+        "2026-04-08": {"tag": "v2026-04-08", "commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+                       "tag_object_sha": "0ld0bj3c70000000000000000000000000000000"},
+        "2026-08-25": {"tag": "v2026-08-25", "commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+                       "tag_object_sha": "cd78fb38e819de77d9b527d110476eccb876f1bd"},
+    }}}
+    try:
+        te = tag_entries(tag_lock)
+        # Case J: moved tag — the live tag object dereferences to a DIFFERENT commit.
+        ident = {"spec/2026-04-08": {"tag_object_sha": "ebac9d155805aabd1bab37e78cb893c5a2be8a78",
+                                     "tag_object_type": "tag",
+                                     "commit": "a25a4a24e738b74c8fa83254448d0666e478f595",
+                                     "tagger_date": "2026-04-13T14:51:29Z"}}
+        tj = evaluate_tag_identity(te, ident)
+        if not (len(tj) == 1 and tj[0]["key"] == "spec/2026-04-08" and tj[0]["from"] == "a2d8bf0b"
+                and tj[0]["to"] == "a25a4a24" and tj[0]["tag_object"] == "ebac9d15"):
+            fails.append(f"J: moved tag must yield one finding with from/to/tag_object, got {tj}")
+        # Case K: unchanged — live object and commit equal the lock -> no finding.
+        ident_same = {"spec/2026-08-25": {"tag_object_sha": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+                                          "tag_object_type": "commit",
+                                          "commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+                                          "tagger_date": None}}
+        tk = evaluate_tag_identity(te, ident_same)
+        if tk:
+            fails.append(f"K: unchanged tag must not flag, got {tk}")
+        # Case K2: SAME commit but a re-tagged (new) tag object -> finding (identity changed).
+        ident_retag = {"spec/2026-08-25": {"tag_object_sha": "n3w0bj3c70000000000000000000000000000000",
+                                           "tag_object_type": "tag",
+                                           "commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+                                           "tagger_date": "2027-01-01T00:00:00Z"}}
+        tk2 = evaluate_tag_identity(te, ident_retag)
+        if not (len(tk2) == 1 and tk2[0]["key"] == "spec/2026-08-25" and tk2[0]["to"] == "cd78fb38"
+                and tk2[0]["tag_object"] == "n3w0bj3c"):
+            fails.append(f"K2: re-tagged object on the same commit must flag, got {tk2}")
+        # Case J' (date-blindness): identical shas with a different tagger date -> NO finding.
+        ident_date = {"spec/2026-08-25": {**ident_same["spec/2026-08-25"], "tagger_date": "2099-01-01T00:00:00Z"}}
+        if evaluate_tag_identity(te, ident_date):
+            fails.append("J': a tagger-date change alone must never flag (identity is shas, not dates)")
+    except NameError as e:
+        fails.append(f"J/K/K2: tag identity functions absent: {e}")
+    # Case L: `--check` with no usable gh binary must FAIL rc 2 ("gh not found"), never SKIP rc 0.
+    env = dict(os.environ, GH_BIN="/nonexistent/gh")
+    pl = subprocess.run([sys.executable, __file__, "--check"], capture_output=True, text=True,
+                        env=env, timeout=60)
+    if not (pl.returncode == 2 and "FAIL" in pl.stdout and "gh not found" in pl.stdout):
+        fails.append(f"L: GH_BIN=/nonexistent --check must exit 2 with 'FAIL — gh not found', got rc "
+                     f"{pl.returncode}: {pl.stdout.strip()[:120]!r}")
+
     if fails:
         print("sources-age selftest: FAIL")
         for f in fails:
