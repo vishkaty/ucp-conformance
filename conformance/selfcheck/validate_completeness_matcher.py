@@ -46,7 +46,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 from verify_register_completeness import (   # noqa: E402
-    covered_lines_for, scan_keywords, norm, parse_source,
+    covered_lines_for, scan_keywords, norm, parse_source, validate_waiver,
 )
 
 VENDOR = ROOT / "conformance" / ".vendor" / "ucp-2026-08-25"
@@ -192,11 +192,35 @@ def check_class_negative():
     return []
 
 
+def check_waiver_class_transport():
+    """D2-05 (A13): waiver class `out-of-scope-transport` — a mandatory-keyword hit
+    whose obligation binds a transport the suite cannot drive (the 26 cart/embedded.md
+    MessagePort duties) — is valid ONLY with a `transport` naming that transport, so
+    the surface export can say which transport the waived hits belong to
+    (surface.prose.waived by class + transport), never a bare 'not our problem'."""
+    failures = []
+    base = {"version": "2026-08-25", "file": "docs/specification/shopping/cart/embedded.md",
+            "line": 137, "reason": "x" * 40}
+    ok = validate_waiver({**base, "class": "out-of-scope-transport", "transport": "embedded"})
+    if ok:
+        failures.append(f"waiver_class_transport: a well-formed out-of-scope-transport waiver "
+                        f"was rejected: {ok}")
+    bare = validate_waiver({**base, "class": "out-of-scope-transport"})
+    if not any("transport" in e for e in bare):
+        failures.append("waiver_class_transport: out-of-scope-transport WITHOUT `transport` "
+                        f"was accepted (errors: {bare}) — the class must require it")
+    bad = validate_waiver({**base, "class": "out-of-scope-transport", "transport": "carrier-pigeon"})
+    if not any("transport" in e for e in bad):
+        failures.append("waiver_class_transport: an unknown transport value was accepted")
+    return failures
+
+
 def main():
     failures = []
     failures += check_known_cases()
     failures += check_synthetic_positive()
     failures += check_class_negative()
+    failures += check_waiver_class_transport()
     if failures:
         print("COMPLETENESS-MATCHER GATE: FAIL")
         for f in failures:
@@ -209,6 +233,7 @@ def main():
     print("  synthetic positive: mid-line-elision shape covered by the fix, missed "
           "by the frozen old algorithm")
     print("  class negative: unrelated line stays uncovered (no over-matching)")
+    print("  waiver_class_transport: out-of-scope-transport requires a known `transport`")
     return 0
 
 
