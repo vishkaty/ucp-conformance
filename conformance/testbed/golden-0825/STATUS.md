@@ -270,6 +270,34 @@ simulate-shipping once before returning — a ROUTE-keyed fixture enrichment
 (makes `/orders/{id}` representative for every order mutant), not a
 per-mutant special case.
 
+**UPDATE 2026-09-10 (lane/w0-d3, D3-01): behavior mutants — the walls
+doctrine for BEHAVIOR, not just bytes (decision 19).** A patch mutant can only
+corrupt a response the golden already serves; it cannot make the golden
+*accept* a request it should reject (an unadvertised version, a bad consent
+key, an unknown route answered without the envelope). Those are behavior
+defects, and the same doctrine applies: the rows stay DATA. `defects_config.
+json` gains `behavior_mutants[] {name, behavior: "<key>", checks[], violates}`
+— no patch, no route. Server code carries exactly ONE guard per key,
+`server_state.defects_engine().behavior_armed("<key>")`, at the single point
+where the violating branch would fork off the conformant one; no per-scenario
+route, no serve-time flag, no second code path. Every consultation is
+recorded and exposed on every response (defects mode on) as
+`x-defects-consulted`, so the battery can grade a behavior row honestly by the
+conformance checks it names (`checks[]`, resolved from `conformance/checks/
+area_*.py` through the same `engine.run_check` merchant.py uses): KILLED when
+every named check flips CLEAN → DEVIATION armed → CLEAN disarmed; SURVIVED
+when a check does not flip; **LOADER-BROKEN when no guard consulted the key
+while armed** — a row nobody wired is data nobody reads, and it fails closed
+exactly like a typo'd patch route. `--selftest` now plants an UNWIRED
+behavior row next to a wired control (the test-only, secret-gated `GET
+/testing/defects/behavior-stub`, the one guard for key `selftest.stub`, 404
+when defects mode is off) and requires `LOADER-BROKEN` / `KILLED`
+respectively, in the same run as the route-typo plant. Defects OFF is still
+byte-identical: `behavior_armed` returns False without touching the state
+file, and the header is never emitted (`server/defects_test.py::
+test_behavior_armed_reads_state` proves identity for a behavior row).
+Report line gains `behavior N/N`.
+
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
 `conformance/coverage/` — this lane adds test machinery, no evidence claims.

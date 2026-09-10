@@ -397,8 +397,12 @@ def r11_battery_report_line():
     stale = " [STALE — re-run]" if age_days > R11_BATTERY_STALE_DAYS else ""
     mark = "✓" if report.get("ok") else "✗"
     acked = report.get("acknowledged_open", 0)
+    # D3-01: behavior rows (decision 19) are reported next to the patch total.
+    b_total = report.get("behavior_total")
+    behavior = f" · behavior {report.get('behavior_killed', 0)}/{b_total}" if b_total is not None else ""
     return (f"R11 battery      {mark} {report.get('killed')}/{report.get('total')} killed"
             + (f" ({acked} acknowledged-open)" if acked else "")
+            + behavior
             + f", {age_days:.1f}d ago{stale}")
 
 

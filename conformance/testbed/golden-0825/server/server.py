@@ -58,20 +58,35 @@ async def defects_middleware(request: Request, call_next):
   body. OFF-BY-DEFAULT short-circuit: when defects mode is disabled this reads
   `engine.enabled` (a bool already computed at construction) and returns
   `call_next`'s response completely untouched -- no body read, no JSON parse,
-  no re-serialization -- so the normal serve path is byte-for-byte identical
-  to a server build with no defects code at all (proven in defects_test.py and
-  by the battery runner's own disabled-mode capture, PLAN-0825 SS C.4 build
-  item 1)."""
+  no re-serialization, no extra header -- so the normal serve path is
+  byte-for-byte identical to a server build with no defects code at all
+  (proven in defects_test.py and by the battery runner's own disabled-mode
+  capture, PLAN-0825 SS C.4 build item 1).
+
+  While defects mode is ON, every response additionally carries
+  `x-defects-consulted`: the behavior keys some guard consulted since the arm
+  state last changed (D3-01, decision 19). The battery reads it after driving
+  a behavior row's checks to tell an UNWIRED key (LOADER-BROKEN: no guard ever
+  asked) apart from a guard that asked and whose checks did not flip."""
   response = await call_next(request)
   engine = server_state.defects_engine()
   if not engine.enabled:
     return response
+  response = await _apply_armed_patch(request, response, engine)
+  consulted = engine.consulted_keys()
+  if consulted:
+    response.headers["x-defects-consulted"] = ",".join(sorted(consulted))
+  return response
+
+
+async def _apply_armed_patch(request: Request, response, engine):
   route = request.scope.get("route")
   route_template = getattr(route, "path", request.url.path)
   # Peek at whether a mutant is even armed for this (method, route) BEFORE
   # paying for body drain + JSON parse -- keeps every unarmed request cheap
   # even while defects mode is globally enabled (battery mid-run, between
-  # mutants).
+  # mutants). A behavior row carries no "route" and is never a patch: it
+  # falls out here untouched, by construction.
   mutant = engine.armed_mutant()
   if mutant is None or "route" not in mutant:
     return response

@@ -26,6 +26,16 @@ mutant:
                  Proves disarm genuinely restores the normal serve path, not just that
                  arming did something.
 
+BEHAVIOR rows (defects_config.json `behavior_mutants[]`, D3-01 / decision 19) carry no
+patch: `{name, behavior: "<key>", checks[], violates}`. Exactly one guard per key in
+server code asks `DefectsEngine.behavior_armed(key)` and takes the violating branch
+while the row is armed. This runner grades such a row by the CONFORMANCE CHECKS it
+names (`checks[]` = check ids from conformance/checks/area_*.py, plus the runner's own
+`battery.*` selftest checks): KILLED when every named check is CLEAN before arming,
+DEVIATION armed, and CLEAN again disarmed; SURVIVED when armed and not all deviate;
+LOADER-BROKEN when the server's `x-defects-consulted` header shows NO guard consulted
+the row's key while it was armed (an unwired key -- the row is data nobody reads).
+
 Disabled-mode byte-identity (R11 build item 1) is proved separately and more precisely
 by conformance/testbed/golden-0825/server/defects_test.py (a hermetic unit test on
 defects.py itself: given DEFECTS OFF, maybe_mutate() returns the exact same object,
@@ -70,6 +80,13 @@ sys.path.insert(0, str(SERVER_DIR))
 import defects  # noqa: E402  (pure stdlib module; see its own docstring on why this
                               # runner imports it directly rather than reimplementing
                               # apply_patch/_get_parent a third time)
+
+CHECKS_DIR = ROOT / "conformance" / "checks"
+sys.path.insert(0, str(CHECKS_DIR))
+import engine as chk_engine  # noqa: E402  (Check / run_check / fetch: the SAME runner
+                             # merchant.py uses, so a behavior row is graded by the
+                             # real check, not by a battery-local reimplementation)
+from verdict_gate import CLEAN, DEVIATION  # noqa: E402
 
 PORT = int(os.environ.get("GOLDEN_0825_BATTERY_PORT", "8199"))
 BASE = f"http://localhost:{PORT}"
@@ -406,6 +423,99 @@ def run_mutant(m, state_file, acknowledged, request_route=None):
     return {"name": name, "verdict": "KILLED", "detail": detail}
 
 
+def consulted_keys_now():
+    """Behavior keys the server reports as consulted since its arm state last
+    changed: the `x-defects-consulted` header (server.py's middleware, defects
+    mode on). Read off a discovery GET, which itself consults nothing."""
+    req = urllib.request.Request(BASE + "/.well-known/ucp", headers=ucp_headers())
+    with urllib.request.urlopen(req, timeout=10) as r:
+        raw = r.headers.get("x-defects-consulted", "")
+    return {k for k in raw.split(",") if k}
+
+
+def _stub_fetch(base):
+    return chk_engine.fetch(base, "/testing/defects/behavior-stub", "GET", None,
+                            {"Simulation-Secret": SIM_SECRET})
+
+
+def _stub_predicate(r):
+    j = r.json if isinstance(r.json, dict) else {}
+    return CLEAN if j.get("stub") == "clean" else DEVIATION
+
+
+# The runner's own checks, resolvable from a behavior row's checks[] like any
+# conformance check id. `battery.behavior_stub` is the observable behind the
+# golden's test-only /testing/defects/behavior-stub route (its guard is the one
+# consultation of key "selftest.stub") -- the --selftest positive control.
+BATTERY_CHECKS = [
+    chk_engine.Check("battery.behavior_stub", ["BATTERY-STUB"], "MUST",
+                     _stub_fetch, _stub_predicate, ['set:stub="violated"']),
+]
+
+
+def check_registry():
+    """check id -> engine.Check, from every conformance/checks/area_*.py CHECKS
+    list plus BATTERY_CHECKS. Built once per run."""
+    import glob
+    import importlib
+    reg = {c.id: c for c in BATTERY_CHECKS}
+    for path in sorted(glob.glob(str(CHECKS_DIR / "area_*.py"))):
+        mod = importlib.import_module(pathlib.Path(path).stem)
+        for c in getattr(mod, "CHECKS", []):
+            reg.setdefault(c.id, c)
+    return reg
+
+
+def _check_verdict(chk):
+    """The check's verdict on the golden's CURRENT response (its clean
+    predicate), via the same engine.run_check merchant.py uses."""
+    _, detail = chk_engine.run_check(chk, BASE)
+    return detail["clean"]
+
+
+def run_behavior(b, state_file, acknowledged, registry):
+    """Runs one `behavior_mutants[]` row: every named check must be CLEAN
+    disarmed, DEVIATION armed, CLEAN again disarmed (FIRED/CAUGHT/RESTORED,
+    judged by the checks the row names); and the server must report the row's
+    key as consulted while armed, else the row is an UNWIRED key -> LOADER-BROKEN."""
+    name, key = b["name"], b["behavior"]
+    unknown = [cid for cid in b["checks"] if cid not in registry]
+    if unknown:
+        return {"name": name, "verdict": "CHECK-UNKNOWN",
+                "detail": f"behavior row names checks this runner cannot resolve: {unknown}"}
+    checks = [registry[cid] for cid in b["checks"]]
+
+    arm(state_file, None)
+    clean = {c.id: _check_verdict(c) for c in checks}
+    not_clean = {k: v for k, v in clean.items() if v != CLEAN}
+    if not_clean:
+        return {"name": name, "verdict": "ERROR",
+                "detail": f"clean baseline is not CLEAN for {not_clean}"}
+
+    arm(state_file, name)
+    armed = {c.id: _check_verdict(c) for c in checks}
+    consulted = consulted_keys_now()
+    arm(state_file, None)
+
+    if key not in consulted:
+        return {"name": name, "verdict": "LOADER-BROKEN",
+                "detail": f"no guard consulted behavior key {key!r} while armed "
+                          f"(consulted: {sorted(consulted)}) -- the row is data nobody reads"}
+    not_flipped = {k: v for k, v in armed.items() if v != DEVIATION}
+    if not_flipped:
+        verdict = "SURVIVED" if name not in acknowledged else "SURVIVED-ACKNOWLEDGED"
+        return {"name": name, "verdict": verdict,
+                "detail": f"armed, but these checks did not deviate: {not_flipped}"}
+
+    restored = {c.id: _check_verdict(c) for c in checks}
+    not_restored = {k: v for k, v in restored.items() if v != CLEAN}
+    if not_restored:
+        return {"name": name, "verdict": "RESTORE-FAILED",
+                "detail": f"disarmed but still red: {not_restored}"}
+    return {"name": name, "verdict": "KILLED",
+            "detail": f"guard consulted {key!r}; {len(checks)} check(s) flipped CLEAN->DEVIATION->CLEAN"}
+
+
 def run_fixture(f):
     name = f["name"]
     route = f["route"]
@@ -495,6 +605,10 @@ def main():
                 results.append(run_mutant(m, state_file, acknowledged))
             for f in config.get("fixture_only", []):
                 results.append(run_fixture(f))
+            registry = check_registry()
+            behavior_names = {b["name"] for b in config.get("behavior_mutants", [])}
+            for b in config.get("behavior_mutants", []):
+                results.append(run_behavior(b, state_file, acknowledged, registry))
 
             arm(state_file, None)
             _, post_body = http("GET", "/.well-known/ucp", expect_json=False)
@@ -514,16 +628,19 @@ def main():
             ok = False
     killed = sum(1 for r in results if r["verdict"] == "KILLED")
     acked = sum(1 for r in results if r["verdict"] == "SURVIVED-ACKNOWLEDGED")
+    b_total = sum(1 for r in results if r["name"] in behavior_names)
+    b_killed = sum(1 for r in results if r["name"] in behavior_names and r["verdict"] == "KILLED")
     print(f"\n{killed}/{len(results)} mutants killed"
           + (f" ({acked} acknowledged-open)" if acked else "")
+          + f" · behavior {b_killed}/{b_total}"
           + f"; disabled-mode byte-identity: {'OK' if phase01_ok else 'FAILED'}")
     print("R11 battery:", "PASS" if ok else "FAIL")
 
-    _write_last_run_report(ok, results, phase01_ok, killed, acked)
+    _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed, b_total)
     return 0 if ok else 1
 
 
-def _write_last_run_report(ok, results, phase01_ok, killed, acked):
+def _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed=0, b_total=0):
     """Standalone gate, report-only line in run_suite.py (this battery boots a
     server twice and takes ~15s -- too heavy to run on every default run_suite
     invocation, matching the schema-census precedent: report-only by default,
@@ -541,6 +658,8 @@ def _write_last_run_report(ok, results, phase01_ok, killed, acked):
         "acknowledged_open": acked,
         "total": len(results),
         "disabled_mode_byte_identity_ok": phase01_ok,
+        "behavior_killed": b_killed,
+        "behavior_total": b_total,
         "survivors": [r["name"] for r in results if r["verdict"] == "SURVIVED"],
         "loader_broken": [r["name"] for r in results if r["verdict"] == "LOADER-BROKEN"],
     }
@@ -579,7 +698,28 @@ def selftest():
     # it still recognizes a real, correctly-firing, correctly-caught mutant.
     real_mutant = copy.deepcopy(by_name["sdkdrop-c62-nonzero-scale"])
 
-    control_config = {"mutants": [broken_mutant, real_mutant], "fixture_only": []}
+    # Behavior rows (D3-01): a planted UNWIRED row -- its key is consulted by no
+    # guard anywhere in the server (the stand-in for "someone added a row and
+    # never wrote its guard") -- next to a wired control whose key the test-only
+    # stub route consults. Both name the SAME check, so the only difference the
+    # runner can see is the server's consulted-keys record: the unwired row must
+    # be LOADER-BROKEN even though nothing about its checks is wrong, and the
+    # control must be KILLED through the identical harness path.
+    unwired_behavior = {
+        "name": "selftest-planted-behavior-unwired",
+        "behavior": "selftest.never_consulted",
+        "checks": ["battery.behavior_stub"],
+        "violates": "selftest: a behavior key no guard consults",
+    }
+    control_behavior = {
+        "name": "selftest-behavior-control",
+        "behavior": "selftest.stub",
+        "checks": ["battery.behavior_stub"],
+        "violates": "selftest: the stub route's guard flips its body while armed",
+    }
+
+    control_config = {"mutants": [broken_mutant, real_mutant], "fixture_only": [],
+                      "behavior_mutants": [unwired_behavior, control_behavior]}
 
     with tempfile.TemporaryDirectory(prefix="ucp_golden_0825_battery_selftest_") as tmp:
         tmp = pathlib.Path(tmp)
@@ -593,15 +733,22 @@ def selftest():
         try:
             broken_result = run_mutant(broken_mutant, state_file, set(), request_route=real_discovery_route)
             real_result = run_mutant(real_mutant, state_file, set())
+            registry = check_registry()
+            unwired_result = run_behavior(unwired_behavior, state_file, set(), registry)
+            control_result = run_behavior(control_behavior, state_file, set(), registry)
         finally:
             g.stop()
 
     print(f"planted non-firing mutant  -> {broken_result['verdict']}: {broken_result['detail']}")
     print(f"positive control (real)    -> {real_result['verdict']}: {real_result['detail']}")
+    print(f"planted unwired behavior   -> {unwired_result['verdict']}: {unwired_result['detail']}")
+    print(f"behavior control (wired)   -> {control_result['verdict']}: {control_result['detail']}")
 
-    ok = broken_result["verdict"] == "LOADER-BROKEN" and real_result["verdict"] == "KILLED"
-    print("battery self-test:", "PASS -- the runner detects a non-firing defect-loader"
-          if ok else "FAIL -- the runner failed to detect the planted non-firing mutant")
+    ok = (broken_result["verdict"] == "LOADER-BROKEN" and real_result["verdict"] == "KILLED"
+          and unwired_result["verdict"] == "LOADER-BROKEN" and control_result["verdict"] == "KILLED")
+    print(f"selftest: planted route-typo {broken_result['verdict']}, control {real_result['verdict']}, "
+          f"planted behavior {unwired_result['verdict']}, behavior control {control_result['verdict']}"
+          f" · {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
 
