@@ -38,19 +38,19 @@ class UcpVersionTest(unittest.TestCase):
     """Test that invalid formats raise UcpVersionError."""
     with self.assertRaises(UcpVersionError) as exc:
       parse_ucp_version("2026/01/23")
-    self.assertEqual(exc.exception.code, "VERSION_INVALID_FORMAT")
+    self.assertEqual(exc.exception.code, "version_invalid_format")
 
   def test_parse_rejects_invalid_calendar_date(self) -> None:
     """Test that invalid calendar dates (e.g. Feb 30) raise UcpVersionError."""
     with self.assertRaises(UcpVersionError) as exc:
       parse_ucp_version("2026-02-30")
-    self.assertEqual(exc.exception.code, "VERSION_INVALID_FORMAT")
+    self.assertEqual(exc.exception.code, "version_invalid_format")
 
   def test_parse_rejects_datetime_format(self) -> None:
     """Test that datetime formats (with time component) are rejected."""
     with self.assertRaises(UcpVersionError) as exc:
       parse_ucp_version("2026-01-23T10:11:12Z")
-    self.assertEqual(exc.exception.code, "VERSION_INVALID_FORMAT")
+    self.assertEqual(exc.exception.code, "version_invalid_format")
 
 
 if __name__ == "__main__":

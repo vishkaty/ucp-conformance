@@ -391,6 +391,18 @@
       "graded_by": "conformance/checks/golden_check_08_25.py: p_no_credential_leak (PAY-011, PAY-012)"
     }
   ],
+  "behavior_mutants_$comment": "D3-01 / decision 19: BEHAVIOR rows. No patch, no route: exactly one `behavior_armed(<behavior>)` guard per key in server code takes the violating branch while the row is armed (the `guard` field names it, for humans). The battery grades a row by the conformance checks it names (`checks[]`: ids from conformance/checks/area_*.py) -- KILLED when each flips CLEAN->DEVIATION->CLEAN across arm/disarm; LOADER-BROKEN when the server's x-defects-consulted record shows no guard read the key.",
+  "behavior_mutants": [
+    {
+      "name": "negotiation_accept_any",
+      "behavior": "negotiation.accept_any",
+      "checks": [
+        "negotiation.version_unsupported_error"
+      ],
+      "violates": "overview/index.md NEG table / OVR-071, NEG-001 -- a version the business does not advertise ({ucp.version} ∪ supported_versions) MUST be rejected with version_unsupported. Armed, dependencies.validate_ucp_headers's guard accepts any well-formed version, so the check's version=\"2099-01-01\" create returns 201 instead of 422.",
+      "guard": "dependencies.validate_ucp_headers (D3-02)"
+    }
+  ],
   "acknowledged_gaps": {},
   "_acknowledged_gaps_history": {
     "sdkdrop-jwk-missing-crv": {

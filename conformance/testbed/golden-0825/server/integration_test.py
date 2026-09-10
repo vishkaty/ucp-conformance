@@ -1345,7 +1345,7 @@ class IntegrationTest(absltest.TestCase):
         messages=[
           UcpMessageError(
             type=MessageType.ERROR,
-            code="VERSION_INVALID_FORMAT",
+            code="version_invalid_format",
             content=("Version 'bad-version' is invalid. Expected YYYY-MM-DD."),
             severity=ErrorSeverity.UNRECOVERABLE,
           )
@@ -1382,7 +1382,7 @@ class IntegrationTest(absltest.TestCase):
         messages=[
           UcpMessageError(
             type=MessageType.ERROR,
-            code="VERSION_UNSUPPORTED",
+            code="version_unsupported",
             content=(
               f"Version {unsupported_version} is not supported. This merchant"
               f" implements version {app.version}."

@@ -28,6 +28,7 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 
 import config
+import server_state
 import db
 from exceptions import UcpError
 from exceptions import UcpVersionError
@@ -177,7 +178,10 @@ async def validate_ucp_headers(ucp_agent: str):
   except UcpVersionError as exc:
     raise UcpError("Server version configuration is invalid") from exc
 
-  # Default to server version if UCP-Agent omits version=.
+  # Absent `version=` (decision 21, AMB-010): the rule is "read the platform
+  # profile's `version`; absent there too, assume ours". The profile fetch is
+  # D3-24's (W2); until it lands the golden assumes its own version and the
+  # ambiguity is recorded in conformance/AMBIGUITIES.md (AMB-010).
   agent_version = server_version
   agent_date = server_date
 
@@ -193,15 +197,30 @@ async def validate_ucp_headers(ucp_agent: str):
     agent_version = (match.group(1) or match.group(2)).strip()
     agent_date = parse_ucp_version(agent_version)
 
-  if agent_date > server_date:
-    raise UcpVersionError(
-      message=(
-        f"Version {agent_version} is not supported. This merchant"
-        f" implements version {server_version}."
-      ),
-      code="VERSION_UNSUPPORTED",
-      status_code=422,
-    )
+  del agent_date  # format validated above; acceptance is by membership, not order
+
+  # C3 negotiation (overview/index.md NEG table, OVR-071 / NEG-001; D3-02): the
+  # business serves exactly {its version} ∪ supported_versions. Anything else --
+  # newer OR older, advertised nowhere -- is `version_unsupported` (422,
+  # lowercase per decision 20). The inherited comparison only rejected NEWER
+  # versions, so a never-advertised older version was silently accepted.
+  accepted = {server_version, *config.get_supported_versions()}
+  if agent_version not in accepted:
+    # D3-01 behavior guard (decision 19): the ONE place the golden can be made
+    # to accept an unadvertised version -- row `negotiation_accept_any` in
+    # defects_config.json. Off (the default) this is a plain `raise`.
+    if not server_state.defects_engine().behavior_armed("negotiation.accept_any"):
+      raise UcpVersionError(
+        message=(
+          f"Version {agent_version} is not supported. This merchant"
+          f" implements version {server_version}"
+          + (f" (also: {', '.join(sorted(accepted - {server_version}))})"
+             if len(accepted) > 1 else "")
+          + "."
+        ),
+        code="version_unsupported",
+        status_code=422,
+      )
 
 
 async def idempotency_header(

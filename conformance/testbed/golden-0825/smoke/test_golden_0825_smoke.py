@@ -357,3 +357,35 @@ def test_validator_kill_check_rejects_broken_payload(golden_server):
     )
     assert not ok, "kill-check FAILED: validator accepted a payload missing a required field"
     assert "id" in detail
+
+
+# ---------------------------------------------------------------------------
+# C3 negotiation (D3-02): the served version set is {ucp.version} ∪
+# supported_versions; anything else is 422 `version_unsupported` (lowercase).
+# ---------------------------------------------------------------------------
+
+
+def _create_body():
+    return {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+    }
+
+
+def _post_create_with_version(base, version):
+    headers = ucp_headers()
+    headers["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{version}"'
+    return httpx.post(f"{base}/checkout-sessions", headers=headers, json=_create_body(), timeout=10)
+
+
+def test_unadvertised_version_rejected(golden_server):
+    """An older, never-advertised version (2026-01-23) and a newer one
+    (2099-01-01) are both `version_unsupported`; the served version is 201."""
+    for version in ("2026-01-23", "2099-01-01"):
+        r = _post_create_with_version(golden_server, version)
+        assert r.status_code == 422, (version, r.status_code, r.text)
+        body = r.json()
+        assert body["ucp"]["status"] == "error"
+        assert body["messages"][0]["code"] == "version_unsupported", body
+    r = _post_create_with_version(golden_server, SPEC_VERSION)
+    assert r.status_code == 201, (r.status_code, r.text)

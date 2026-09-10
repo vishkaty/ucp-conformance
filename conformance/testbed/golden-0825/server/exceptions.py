@@ -142,7 +142,7 @@ class UcpVersionError(UcpError):
   def __init__(
     self,
     message: str,
-    code: str = "VERSION_INVALID_FORMAT",
+    code: str = "version_invalid_format",
     status_code: int = 422,
     severity: ErrorSeverity = ErrorSeverity.UNRECOVERABLE,
   ):

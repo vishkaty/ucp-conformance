@@ -12,7 +12,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""UCP version string parsing (YYYY-MM-DD)."""
+"""UCP version string parsing (YYYY-MM-DD).
+
+Error codes are lowercase (`version_invalid_format`): error_code.json is an open
+string whose examples are all lowercase and the 08-25 NEG table names
+`version_unsupported` in lowercase -- the inherited upper-case codes were a golden
+bug (decision 20, D3-02).
+"""
 
 import datetime
 import re
@@ -40,7 +46,7 @@ def parse_ucp_version(version: str) -> datetime.date:
   if not _UCP_VERSION_RE.fullmatch(version):
     raise UcpVersionError(
       f"Version '{version}' is invalid. Expected YYYY-MM-DD.",
-      code="VERSION_INVALID_FORMAT",
+      code="version_invalid_format",
     )
 
   try:
@@ -48,5 +54,5 @@ def parse_ucp_version(version: str) -> datetime.date:
   except ValueError as exc:
     raise UcpVersionError(
       f"Version '{version}' is invalid. Expected YYYY-MM-DD.",
-      code="VERSION_INVALID_FORMAT",
+      code="version_invalid_format",
     ) from exc
