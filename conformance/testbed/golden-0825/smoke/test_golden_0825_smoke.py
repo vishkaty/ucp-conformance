@@ -422,9 +422,14 @@ def test_leaf_profile_is_leaf(golden_server):
     supported = root["ucp"].get("supported_versions") or {}
     assert LEAF_VERSION in supported, root["ucp"].keys()
     assert supported[LEAF_VERSION].endswith(LEAF_PATH), supported
-    assert leaf["ucp"]["version"] == LEAF_VERSION
+    # 04-08 documents are BARE (ucp.json@2026-04-08 $defs.base requires a
+    # top-level `version`); no `ucp` wrapper, no supported_versions anywhere.
+    assert "ucp" not in leaf and leaf["version"] == LEAF_VERSION, list(leaf)
     assert "supported_versions" not in leaf
-    assert "supported_versions" not in leaf["ucp"]
+    for name, entries in leaf["services"].items():
+        assert all(e["version"] == LEAF_VERSION for e in entries), (name, entries)  # OVR-075
+    for name, entries in leaf["capabilities"].items():
+        assert all(e["version"] == LEAF_VERSION for e in entries), (name, entries)
     ok, detail = so.validate_profile(leaf, version=LEAF_VERSION, role="business")
     assert ok, detail
 
@@ -454,6 +459,21 @@ def test_0408_request_gets_0408_shape(golden_server):
                                   version=LEAF_VERSION, direction="response")
     assert ok, detail
 
+    # The leaf's service endpoint is version-scoped ({{ENDPOINT}}/2026-04-08):
+    # a request there with NO version= negotiates at 2026-04-08 (decision 21's
+    # fallback applied per endpoint), so a 04-08 platform that omits the
+    # parameter -- the 04-08 population does -- is served the 04-08 shape too.
+    leaf = httpx.get(f"{golden_server}{LEAF_PATH}", timeout=10).json()
+    endpoint = leaf["services"]["dev.ucp.shopping"][0]["endpoint"]
+    assert endpoint == f"{golden_server}{LEAF_BASE}", endpoint
+    headers = ucp_headers()
+    headers["UCP-Agent"] = 'profile="http://localhost:9/.well-known/ucp"'
+    r = httpx.post(f"{endpoint}/checkout-sessions", headers=headers, json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    out = r.json()
+    assert out["ucp"]["version"] == LEAF_VERSION
+    assert all("type" not in d for m in out["fulfillment"]["methods"] for d in m["destinations"])
+
 
 def test_leaf_differential(golden_server):
     """The 04-08 conformance population (merchant.py) pointed at the leaf must
@@ -474,7 +494,9 @@ def test_leaf_differential(golden_server):
     assert len(ran) == LEAF_DIFFERENTIAL_RUN_COUNT, (len(ran), sorted(ran))
 
 
-# Pinned after the first green run (see the landing note for the population
-# listing); any change to the 04-08 population or the leaf's advertised
-# capabilities must re-pin it deliberately.
-LEAF_DIFFERENTIAL_RUN_COUNT = -1
+# Pinned from the first green run (2026-09-10, lane/w0-d3, D3-03: 46 clean-pass,
+# 0 deviations, 136 not-applicable, 46 not-tested -- the population listing is
+# in the W0-d3 landing note). Any change to the 04-08 population, to the leaf's
+# advertised capabilities, or to the differential config must re-pin this
+# deliberately; a silently shrinking population is a red test, not a pass.
+LEAF_DIFFERENTIAL_RUN_COUNT = 46

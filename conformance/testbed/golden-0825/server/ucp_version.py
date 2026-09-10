@@ -27,6 +27,24 @@ from exceptions import UcpVersionError
 
 _UCP_VERSION_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
+# `version=` in UCP-Agent, quoted or bare, at the start or after a `;`, any case.
+_AGENT_VERSION_RE = re.compile(
+  r"(?:^|;)\s*version=(?:\"([^\"]+)\"|([^;]+))", re.IGNORECASE
+)
+
+
+def extract_agent_version(ucp_agent: str | None) -> str | None:
+  """The `version=` parameter of a UCP-Agent header value, or None when the
+  header or the parameter is absent. Shared by request-time negotiation
+  (dependencies.validate_ucp_headers) and the version-projection middleware
+  (server.py) so both agree on what the platform asked for."""
+  if not ucp_agent:
+    return None
+  match = _AGENT_VERSION_RE.search(ucp_agent)
+  if not match:
+    return None
+  return (match.group(1) or match.group(2)).strip()
+
 
 def parse_ucp_version(version: str) -> datetime.date:
   """Parse a UCP version string in YYYY-MM-DD format.

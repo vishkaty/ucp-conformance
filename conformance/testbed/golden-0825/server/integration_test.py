@@ -1385,7 +1385,10 @@ class IntegrationTest(absltest.TestCase):
             code="version_unsupported",
             content=(
               f"Version {unsupported_version} is not supported. This merchant"
-              f" implements version {app.version}."
+              f" implements version {app.version}"
+              # D3-03: the served set is {ucp.version} ∪ supported_versions;
+              # the message names the others so a platform can pick one.
+              f" (also: {', '.join(sorted(config.get_supported_versions()))})."
             ),
             severity=ErrorSeverity.UNRECOVERABLE,
           )

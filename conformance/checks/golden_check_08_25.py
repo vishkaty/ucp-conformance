@@ -43,6 +43,9 @@ discipline, just judged by this file's predicates instead of validate_golden_082
 battery.py's generic run_oracle() dispatch.
 
 Rows converted (register: conformance/requirements/2026-08-25/):
+  OVR-069  Leaf profile's ucp.version equals its                (self-referenced; D3-03)
+           supported_versions key
+  OVR-009  Leaf profile MUST NOT contain supported_versions     (self-referenced; D3-03)
   SIG-007  Public keys MUST be RFC 7517 JWK              (fixture-schema)
   SIG-008  Public keys published at the canonical         (self-referenced)
            top-level keys[] location
@@ -593,7 +596,51 @@ def _oracle_root(schema_rel, op):
     return judge
 
 
+LEAF_VERSION = "2026-04-08"
+LEAF_PATH = f"/.well-known/ucp/{LEAF_VERSION}"
+
+
+def p_leaf_version_matches_key(status, body):
+    """OVR-069 (the platform-side verification, played here by this check):
+    the profile fetched from the supported_versions URI for key 2026-04-08
+    carries ucp.version == that key."""
+    if status != 200 or not isinstance(body, dict):
+        return False, f"leaf not served: {status}"
+    got = body.get("version")   # 04-08 documents are bare: top-level `version`
+    return got == LEAF_VERSION, f"leaf version={got!r} (supported_versions key {LEAF_VERSION!r})"
+
+
+def p_leaf_has_no_supported_versions(status, body):
+    """OVR-009: a version-specific (leaf) profile MUST NOT contain a
+    supported_versions field -- at the top level or inside ucp."""
+    if status != 200 or not isinstance(body, dict):
+        return False, f"leaf not served: {status}"
+    where = [loc for loc, obj in (("top-level", body), ("ucp", body.get("ucp") or {}))
+             if isinstance(obj, dict) and "supported_versions" in obj]  # bare doc; `ucp` checked defensively
+    return not where, ("leaf carries no supported_versions" if not where
+                       else f"leaf carries supported_versions at {where}")
+
+
 CHECKS = [
+    # D3-03 (C3 supported_versions + the 2026-04-08 leaf, decision 18): the
+    # root profile's supported_versions names the leaf; these two rows grade
+    # the LEAF document itself. Both self-referenced: the 04-08 profile schema
+    # accepts any dated ucp.version and does not know supported_versions, so no
+    # oracle call can reject either mutant (see defects_config.json's
+    # self_referenced_mutants leaf_* entries).
+    Row("OVR-069", ["OVR-069"], "self-referenced",
+        "A profile fetched from a supported_versions URI MUST carry a version "
+        "(bare 04-08 document: top-level `version`) equal to the "
+        "supported_versions key it was selected under.",
+        lambda: http("GET", LEAF_PATH),
+        p_leaf_version_matches_key,
+        "leaf_wrong_version"),
+    Row("OVR-009", ["OVR-009"], "self-referenced",
+        "A version-specific (leaf) profile served from a supported_versions URI "
+        "MUST NOT contain a supported_versions field.",
+        lambda: http("GET", LEAF_PATH),
+        p_leaf_has_no_supported_versions,
+        "leaf_carries_supported_versions"),
     Row("SIG-007", ["SIG-007"], "fixture-schema",
         "Public keys MUST be represented using JWK (RFC 7517).",
         lambda: http("GET", "/.well-known/ucp"),

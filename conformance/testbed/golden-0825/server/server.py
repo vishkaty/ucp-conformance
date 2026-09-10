@@ -35,6 +35,8 @@ from routes.mcp import router as mcp_router
 from routes.order import router as order_router
 import routes.ucp_implementation
 import server_state
+from services import version_projection
+from ucp_version import extract_agent_version
 import uvicorn
 
 # --- App Setup ---
@@ -48,6 +50,106 @@ app = FastAPI(
   description="Reference implementation of the UCP Shopping Service",
   lifespan=config.lifespan,
 )
+
+
+# C3 version projection (D3-03, decision 18): serve 2026-04-08 from this
+# 08-25 server. Pure ASGI (not BaseHTTPMiddleware) because the REQUEST body
+# must be rewritten BEFORE FastAPI validates it against the 08-25 models. It
+# is added first, so it sits INNERMOST: the defects middleware below still
+# sees the behavior keys the projection consulted (x-defects-consulted).
+class VersionProjectionMiddleware:
+  """When the platform negotiated 2026-04-08 (UCP-Agent version=), project the
+  request into the 08-25 model shape and the JSON response into the 04-08
+  wire shape (services/version_projection.py). Any other version, or a
+  non-http scope, passes through untouched -- no body read, no parse."""
+
+  def __init__(self, app):
+    self.app = app
+
+  async def __call__(self, scope, receive, send):
+    if scope["type"] != "http":
+      await self.app(scope, receive, send)
+      return
+    headers = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
+    version = extract_agent_version(headers.get("ucp-agent"))
+    leaf = version_projection.LEAF_VERSION
+    prefix = f"/{leaf}/"
+    path = scope.get("path", "")
+    if path.startswith(prefix) and path != f"/{leaf}/.well-known/ucp":
+      # The leaf profile's service endpoint is {{ENDPOINT}}/2026-04-08: a
+      # version-specific profile points at a version-specific endpoint, so a
+      # request there IS a 2026-04-08 request. Route it to the same handlers
+      # (strip the prefix) and, when UCP-Agent carries no version=, negotiate
+      # at the endpoint's version -- at this endpoint "ours" is 2026-04-08
+      # (decision 21's fallback, applied per endpoint). An explicit version=
+      # still wins and is validated as usual (an unadvertised one is 422).
+      scope["path"] = path[len(prefix) - 1:]
+      if "raw_path" in scope and scope["raw_path"]:
+        raw = scope["raw_path"]
+        if raw.startswith(prefix.encode()):
+          scope["raw_path"] = raw[len(prefix) - 1:]
+      if version is None and "ucp-agent" in headers:
+        version = leaf
+        scope["headers"] = [(k, v) for k, v in scope["headers"] if k.lower() != b"ucp-agent"]
+        scope["headers"].append((b"ucp-agent", f'{headers["ucp-agent"]}; version="{leaf}"'.encode("latin-1")))
+    if version != leaf:
+      await self.app(scope, receive, send)
+      return
+
+    if scope.get("method") in ("POST", "PUT", "PATCH"):
+      raw = b""
+      more = True
+      while more:
+        message = await receive()
+        raw += message.get("body", b"")
+        more = message.get("more_body", False)
+      try:
+        parsed = json.loads(raw) if raw else None
+      except (json.JSONDecodeError, UnicodeDecodeError):
+        parsed = None
+      if isinstance(parsed, dict):
+        raw = json.dumps(version_projection.project_request(parsed, version)).encode("utf-8")
+        scope["headers"] = [(k, v) for k, v in scope["headers"] if k.lower() != b"content-length"]
+        scope["headers"].append((b"content-length", str(len(raw)).encode()))
+
+      async def receive_projected():
+        return {"type": "http.request", "body": raw, "more_body": False}
+
+      receive = receive_projected
+
+    start_message = None
+    chunks = []
+
+    async def send_projected(message):
+      nonlocal start_message
+      if message["type"] == "http.response.start":
+        start_message = message
+        return
+      if message["type"] == "http.response.body":
+        chunks.append(message.get("body", b""))
+        if message.get("more_body", False):
+          return
+        body = b"".join(chunks)
+        try:
+          parsed = json.loads(body) if body else None
+        except (json.JSONDecodeError, UnicodeDecodeError):
+          parsed = None
+        if isinstance(parsed, dict):
+          projected = version_projection.project_response(
+              parsed, version, server_state.defects_engine())
+          body = json.dumps(projected).encode("utf-8")
+        headers = [(k, v) for k, v in start_message["headers"] if k.lower() != b"content-length"]
+        headers.append((b"content-length", str(len(body)).encode()))
+        await send({"type": "http.response.start", "status": start_message["status"],
+                    "headers": headers})
+        await send({"type": "http.response.body", "body": body, "more_body": False})
+        return
+      await send(message)
+
+    await self.app(scope, receive, send_projected)
+
+
+app.add_middleware(VersionProjectionMiddleware)
 
 
 # R11 (PLAN-0825 SS C.4): the ONE choke point for defect injection. The engine

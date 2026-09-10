@@ -298,6 +298,51 @@ file, and the header is never emitted (`server/defects_test.py::
 test_behavior_armed_reads_state` proves identity for a behavior row).
 Report line gains `behavior N/N`.
 
+**UPDATE 2026-09-10 (lane/w0-d3, D3-02/D3-03): C3 negotiation, `supported_versions`,
+the 2026-04-08 leaf and version projection (decisions 18, 20, 21).**
+`dependencies.validate_ucp_headers` now accepts exactly `{ucp.version} ∪
+supported_versions` and rejects anything else — older OR newer — with 422
+`version_unsupported` (the inherited comparison only rejected newer versions,
+so a never-advertised 2026-01-23 was silently served). Error codes are
+lowercase (`version_unsupported`, `version_invalid_format`; decision 20 — a
+golden bug fix, the inherited upper-case tests patched). Absent `version=`
+assumes the served version until D3-24 reads the platform profile (decision
+21, AMB-010). The root profile publishes
+`ucp.supported_versions: {"2026-04-08": <ENDPOINT>/.well-known/ucp/2026-04-08}`;
+the leaf (`routes/discovery_profile_2026-04-08.json`) is a **bare** 04-08
+document — `ucp.json@2026-04-08 $defs.base` requires a top-level `version`,
+and the captured 04-08 golden served exactly that shape — advertising
+checkout + order at 2026-04-08 on every entry (OVR-075), `signing_keys[]` at
+the 04-08 location, and no `supported_versions` of its own (OVR-009). Its
+service endpoint is **version-scoped**: `<ENDPOINT>/2026-04-08`. ONE server
+(decision 18): `server.py`'s pure-ASGI `VersionProjectionMiddleware` routes
+`/2026-04-08/*` to the same handlers, negotiates 2026-04-08 there when the
+request carries no `version=` (decision 21's fallback applied per endpoint —
+at that endpoint "ours" is 04-08; an explicit `version=` still wins and is
+validated), rewrites the REQUEST into the 08-25 model shape before validation
+(`destinations[].type` filled per method; 04-08 boolean consent → 08-25
+consent_purpose objects keyed by the well-known purpose ids) and the RESPONSE
+into the 04-08 wire shape (`ucp.version` and every entry version → 2026-04-08;
+`destinations[].type` dropped; consent purposes → booleans) —
+`services/version_projection.py`. The two response deltas carry behavior
+guards (`projection.leak_destination_type`, `projection.consent_objects`; rows
+`projection_leaks_type`, `projection_consent_objects_on_0408`, killed by the
+battery's `battery.projection_0408_shape` / `battery.projection_0408_consent`
+checks: 04-08 oracle + direct shape predicates). The leaf itself is graded by
+`golden_check_08_25.py` rows OVR-069 / OVR-009 against the self-referenced
+mutants `leaf_wrong_version` / `leaf_carries_supported_versions` (the 04-08
+profile schema accepts either, so no oracle can). **Leaf differential**
+(`smoke::test_leaf_differential`): `merchant.py --server $G/2026-04-08 --config
+conformance/ci/differential_flower.config.json --json` — the whole 04-08
+population, discovering the leaf through the base-URL alias
+`/2026-04-08/.well-known/ucp` — grades the projection **46 clean-pass, 0
+deviations** (136 not-applicable, 46 not-tested for want of config), the run
+count pinned. Recorded honestly: the pinned 04-08 oracle ACCEPTS a leaked
+`destinations[].type` (04-08 shipping_destination has no additionalProperties
+bar), so the differential does not red under `projection_leaks_type`; that
+row's kill is the battery predicate, not the oracle — PLAN-v3 §2.14's "FUL-003
+04-08 oracle rejects `type`" does not hold on this oracle.
+
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
 `conformance/coverage/` — this lane adds test machinery, no evidence claims.

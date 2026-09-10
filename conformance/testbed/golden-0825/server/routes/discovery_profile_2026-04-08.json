@@ -1,0 +1,41 @@
+{
+  "version": "2026-04-08",
+  "services": {
+    "dev.ucp.shopping": [
+      {
+        "version": "2026-04-08",
+        "spec": "https://ucp.dev/2026-04-08/specification/shopping",
+        "transport": "rest",
+        "endpoint": "{{ENDPOINT}}/2026-04-08",
+        "schema": "https://ucp.dev/2026-04-08/services/shopping/openapi.json"
+      }
+    ]
+  },
+  "capabilities": {
+    "dev.ucp.shopping.checkout": [
+      {
+        "version": "2026-04-08",
+        "spec": "https://ucp.dev/2026-04-08/specification/shopping/checkout",
+        "schema": "https://ucp.dev/2026-04-08/schemas/shopping/checkout.json"
+      }
+    ],
+    "dev.ucp.shopping.order": [
+      {
+        "version": "2026-04-08",
+        "spec": "https://ucp.dev/2026-04-08/specification/shopping/order",
+        "schema": "https://ucp.dev/2026-04-08/schemas/shopping/order.json"
+      }
+    ]
+  },
+  "payment_handlers": {
+    "dev.mock.payment_handler": [
+      {
+        "id": "mock_payment_handler",
+        "name": "mock_payment_handler",
+        "version": "2026-04-08",
+        "spec": "https://ucp.dev/2026-04-08/schemas/mock_payment_handler/spec",
+        "config": {}
+      }
+    ]
+  }
+}

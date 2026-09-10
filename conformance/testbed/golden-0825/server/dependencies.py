@@ -42,7 +42,7 @@ from services.checkout_service import CheckoutService
 from services.fulfillment_service import FulfillmentService
 from sqlalchemy.ext.asyncio import AsyncSession
 import ucp_signing
-from ucp_version import parse_ucp_version
+from ucp_version import extract_agent_version, parse_ucp_version
 
 logger = logging.getLogger(__name__)
 
@@ -185,16 +185,9 @@ async def validate_ucp_headers(ucp_agent: str):
   agent_version = server_version
   agent_date = server_date
 
-  # Use regex to extract version more robustly.
-  # We look for 'version=' either at the start or after a semicolon,
-  # allowing for whitespace.
-  # Matches: version="2026-01-23" or version=2026-01-23
-  match = re.search(
-    r"(?:^|;)\s*version=(?:\"([^\"]+)\"|([^;]+))", ucp_agent, re.IGNORECASE
-  )
-  if match:
-    # Group 1 is quoted value, Group 2 is unquoted value
-    agent_version = (match.group(1) or match.group(2)).strip()
+  requested = extract_agent_version(ucp_agent)
+  if requested is not None:
+    agent_version = requested
     agent_date = parse_ucp_version(agent_version)
 
   del agent_date  # format validated above; acceptance is by membership, not order

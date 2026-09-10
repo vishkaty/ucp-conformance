@@ -1,6 +1,9 @@
 {
   "ucp": {
     "version": "2026-08-25",
+    "supported_versions": {
+      "2026-04-08": "{{ENDPOINT}}/.well-known/ucp/2026-04-08"
+    },
     "services": {
       "dev.ucp.shopping": [
         {

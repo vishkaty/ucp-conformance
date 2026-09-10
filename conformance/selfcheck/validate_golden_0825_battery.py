@@ -243,8 +243,8 @@ def perform(route):
     """Issue the exact request a mutant's route names, using a freshly-created
     resource where the op needs one to exist."""
     method, path = route["method"], route["path"]
-    if path == "/.well-known/ucp":
-        return http("GET", path, expect_json=True)
+    if path == "/.well-known/ucp" or path.startswith("/.well-known/ucp/"):
+        return http("GET", path, expect_json=True)   # root profile or a version leaf
     if path == "/checkout-sessions":
         return http("POST", path, {
             "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
@@ -443,13 +443,99 @@ def _stub_predicate(r):
     return CLEAN if j.get("stub") == "clean" else DEVIATION
 
 
+LEAF_VERSION = "2026-04-08"
+
+
+def _headers_0408():
+    h = ucp_headers()
+    h["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{LEAF_VERSION}"'
+    return h
+
+
+def _create_body_0408(consent=None):
+    """A 2026-04-08-shaped create: destinations WITHOUT `type` (04-08
+    shipping_destination is postal_address + id), optional 04-08 boolean
+    consent under buyer.consent."""
+    body = {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": {"methods": [{
+            "id": "method_1", "type": "shipping", "line_item_ids": [],
+            "destinations": [{"id": "dest_1", "address_country": "US"}],
+            "selected_destination_id": "dest_1",
+            "groups": [{"id": "group_1", "line_item_ids": [], "selected_option_id": "std-ship"}],
+        }]},
+    }
+    if consent is not None:
+        body["buyer"] = {"consent": consent}
+    return body
+
+
+def _fetch_0408_shape(base):
+    return chk_engine.fetch(base, "/checkout-sessions", "POST", _create_body_0408(), _headers_0408())
+
+
+def _fetch_0408_consent(base):
+    return chk_engine.fetch(base, "/checkout-sessions", "POST",
+                            _create_body_0408(consent={"marketing": True, "analytics": False}),
+                            _headers_0408())
+
+
+def _pred_0408_shape(r):
+    """201; ucp.version is the leaf version; no destinations[].type anywhere;
+    and the 04-08 fulfillment oracle (fulfillment.json dev.ucp.shopping.checkout
+    at 2026-04-08) accepts the body.
+
+    The `type` absence is judged by the predicate itself, on purpose: verified
+    2026-09-10 (lane/w0-d3, D3-03 kill-proof) that the pinned 04-08 oracle
+    ACCEPTS a leaked destinations[].type -- 04-08 shipping_destination.json is
+    postal_address + id with no additionalProperties bar -- so the oracle call
+    here corroborates the rest of the shape but cannot by itself kill
+    `projection_leaks_type`. The leaf differential (smoke::test_leaf_differential)
+    stays green under that row for the same reason (and because the 04-08 leaf
+    advertises no fulfillment capability, so the population's FUL checks are
+    not-applicable there)."""
+    j = r.json if isinstance(r.json, dict) else {}
+    if r.status != 201 or (j.get("ucp") or {}).get("version") != LEAF_VERSION:
+        return DEVIATION
+    dests = [d for m in (j.get("fulfillment") or {}).get("methods", []) for d in (m.get("destinations") or [])]
+    if not dests or any("type" in d for d in dests):
+        return DEVIATION
+    ok, _ = so.validate_against(j, "schemas/shopping/fulfillment.json", "dev.ucp.shopping.checkout",
+                                op="create", version=LEAF_VERSION, direction="response")
+    return CLEAN if ok else DEVIATION
+
+
+def _pred_0408_consent(r):
+    """201; every buyer.consent value is a 04-08 boolean (never an 08-25
+    consent_purpose object); the 04-08 buyer-consent oracle accepts the body."""
+    j = r.json if isinstance(r.json, dict) else {}
+    consent = ((j.get("buyer") or {}).get("consent"))
+    if r.status != 201 or not isinstance(consent, dict) or not consent:
+        return DEVIATION
+    if not all(isinstance(v, bool) for v in consent.values()):
+        return DEVIATION
+    ok, _ = so.validate_against(j, "schemas/shopping/buyer_consent.json", "dev.ucp.shopping.checkout",
+                                op="create", version=LEAF_VERSION, direction="response")
+    return CLEAN if ok else DEVIATION
+
+
 # The runner's own checks, resolvable from a behavior row's checks[] like any
 # conformance check id. `battery.behavior_stub` is the observable behind the
 # golden's test-only /testing/defects/behavior-stub route (its guard is the one
 # consultation of key "selftest.stub") -- the --selftest positive control.
+# `battery.projection_0408_*` are the observables behind the version-projection
+# behavior rows (D3-03): a create negotiated at 2026-04-08 must come back in the
+# 04-08 wire shape, judged by the 04-08 oracle plus a direct shape predicate.
 BATTERY_CHECKS = [
     chk_engine.Check("battery.behavior_stub", ["BATTERY-STUB"], "MUST",
                      _stub_fetch, _stub_predicate, ['set:stub="violated"']),
+    chk_engine.Check("battery.projection_0408_shape", ["FUL-003@2026-04-08"], "MUST",
+                     _fetch_0408_shape, _pred_0408_shape,
+                     ['set:ucp.version="2026-08-25"',
+                      'set:fulfillment.methods.0.destinations.0.type="shipping_address"']),
+    chk_engine.Check("battery.projection_0408_consent", ["CNST@2026-04-08"], "MUST",
+                     _fetch_0408_consent, _pred_0408_consent,
+                     ['set:buyer.consent.marketing={"granted":true,"source":"platform","description":"x"}']),
 ]
 
 
