@@ -15,7 +15,7 @@
  },
  "versions": {
   "2026-01-11": {
-   "state": "live",
+   "state": "converting",
    "musts": 178,
    "check": 121,
    "exempt": 38,
@@ -2416,10 +2416,15 @@
      "evidence": "self-referenced",
      "reach": []
     }
-   ]
+   ],
+   "census": {
+    "mode": "gate",
+    "unaccounted": 0,
+    "gate_from": ""
+   }
   },
   "2026-01-23": {
-   "state": "live",
+   "state": "converting",
    "musts": 188,
    "check": 129,
    "exempt": 39,
@@ -4966,10 +4971,15 @@
      "evidence": "self-referenced",
      "reach": []
     }
-   ]
+   ],
+   "census": {
+    "mode": "gate",
+    "unaccounted": 0,
+    "gate_from": ""
+   }
   },
   "2026-04-08": {
-   "state": "live",
+   "state": "converting",
    "musts": 366,
    "check": 276,
    "exempt": 81,
@@ -10111,10 +10121,15 @@
      "evidence": "fixture-schema",
      "reach": []
     }
-   ]
+   ],
+   "census": {
+    "mode": "gate",
+    "unaccounted": 0,
+    "gate_from": ""
+   }
   },
   "2026-08-25": {
-   "state": "live",
+   "state": "converting",
    "musts": 780,
    "check": 70,
    "exempt": 0,
@@ -18462,7 +18477,12 @@
      "source": "ucp:source/schemas/common/types/price.json#L7-L10",
      "covered_by": []
     }
-   ]
+   ],
+   "census": {
+    "mode": "gate",
+    "unaccounted": 0,
+    "gate_from": ""
+   }
   }
  }
 }

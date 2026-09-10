@@ -296,28 +296,39 @@ def _pinned_spec_versions():
     return set(_spec_pins().keys())
 
 
-def _version_state(n_check, n_exempt, has_register):
+# GAP tiers that keep a version out of `live` (rule R-a, PLAN-v3 §2.18 / decision 25):
+# a MUST the suite COULD grade — directly, or with the webhook receiver / OAuth harness
+# the program is building — but has not yet. `manual` / `untestable` GAPs are the
+# exemption program's business (A10) and never block `live`.
+CONVERTING_TIERS = ("testable", "needs-receiver", "needs-oauth")
+
+
+def _version_state(n_check, n_exempt, has_register, testable_gap):
     """The per-version publication `state` (PLAN-0825 §E's no-overclaim state
-    machine), computed ENTIRELY from data — never hand-set:
+    machine, refined to rule R-a by decision 25), computed ENTIRELY from data —
+    never hand-set. `testable_gap` is the version's gap_by_testability dict.
 
       unregistered — no register tree exists for this version at all (pinned in
                      SOURCES.lock but nothing under conformance/requirements/<ver>/
                      yet). Renderable only as a roadmap line.
       building     — register rows exist but zero CHECK and zero EXEMPT. This is
                      exactly the filter site_gates.py's _real_manifest() already uses
-                     to decide what "backs site copy" (check or exempt > 0) — the two
-                     must never disagree, which is why both derive from the same two
-                     numbers and neither hand-labels.
-      live         — at least one CHECK or EXEMPT row.
+                     to decide what "backs site copy" (check or exempt > 0).
+      converting   — CHECK+EXEMPT > 0 AND at least one GAP in a CONVERTING_TIERS
+                     tier: checks are still landing; the version must not render as
+                     supported (D5-03 mirrors this rule from the export's own fields —
+                     check, exempt, gap_by_testability — never from this module).
+      live         — CHECK+EXEMPT > 0 and no GAP in any CONVERTING_TIERS tier.
 
-    Pure and independently testable (no I/O): the `unregistered` branch is exercised
-    by a direct unit call even on days (like today) when every pinned version has a
-    register, so the code path is proven rather than merely aspirational."""
+    Consequence at today's data (decision 25, accepted by the owner): 2026-04-08 is
+    live; 2026-08-25 and BOTH 01-era versions (17 / 18 needs-receiver GAPs) read
+    converting. Pure and independently testable (no I/O)."""
     if not has_register:
         return "unregistered"
-    if n_check or n_exempt:
-        return "live"
-    return "building"
+    if not (n_check or n_exempt):
+        return "building"
+    blocking = sum((testable_gap or {}).get(t, 0) for t in CONVERTING_TIERS)
+    return "converting" if blocking else "live"
 
 
 def _completeness_report():
@@ -364,9 +375,8 @@ def export_json():
     pins = _spec_pins()
     pinned_versions = _pinned_spec_versions()
     unregistered_versions = sorted(pinned_versions - set(VERSIONS))
-    # census (§E `building` status) is only ever needed when a `building` version
-    # exists; computed lazily below so a quiet subprocess call isn't paid for
-    # nothing once every version has gone `live`.
+    # census (§E): the completeness report is fetched once (subprocess) and its
+    # per-version mode/unaccounted count is emitted for every state (D2-06).
     completeness = None
     out = {"_about": "spck.dev UCP conformance coverage — every normative MUST accounted "
                      "as CHECK (kill-rate-validated), EXEMPT (documented), or GAP. "
@@ -432,7 +442,7 @@ def export_json():
         # assumed, so a future refactor of VERSIONS's own sourcing can't silently
         # break it).
         has_register = os.path.isdir(os.path.join(REQ, ver))
-        state = _version_state(n_check, n_exempt, has_register)
+        state = _version_state(n_check, n_exempt, has_register, dict(gap_by_test))
         entry = {
             "state": state,
             "musts": n, "check": n_check, "exempt": n_exempt,
@@ -446,12 +456,15 @@ def export_json():
                       for k, v in sorted(areas.items())],
             "rows": jrows,
         }
-        if state == "building":
-            if completeness is None:
-                completeness = _completeness_report() or {}
-            census = _census_for(ver, completeness)
-            if census is not None:
-                entry["census"] = census
+        # census (§E) for EVERY state (D2-06): the completeness mode/unaccounted count
+        # is a fact about the register whatever the publication state — it used to be
+        # emitted only for `building`, which hid the census the moment a version had
+        # one CHECK row.
+        if completeness is None:
+            completeness = _completeness_report() or {}
+        census = _census_for(ver, completeness)
+        if census is not None:
+            entry["census"] = census
         out["versions"][ver] = entry
 
     # `unregistered` (§E): pinned in SOURCES.lock but no register tree at all yet.
