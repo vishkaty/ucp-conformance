@@ -15,7 +15,9 @@ Gates (each anchored to something we did NOT write, to avoid circularity):
   merchant    validate_merchant_checks.py — every merchant check is clean-pass + kill_safe on a golden
   suite-01-23 run_01_23.py           — the 2026-01-23 suite vs a live golden (no false green)
   suite-04-08 run_04_08.py           — the 2026-04-08 fixture checks (schema-oracle backed)
-  killrate    mutation_killrate.py   — injected defects are caught (kill-rate)
+  proxy-demo  mutation_proxy_demo.py — the mutation PROXY demo: injected wire defects are
+                                        caught (2 real checks + the noop canary); the
+                                        per-check kill-rate proof is the merchant gates
 
 Server-dependent gates are skipped (not failed) when no golden is reachable, unless
 --require-server. The schema gate skips if the ucp-schema binary isn't built (exit 2).
@@ -29,7 +31,7 @@ r11_battery_report_line()).
 
 Usage:
     python3 conformance/ci/run_suite.py [--server http://localhost:8182]
-                                        [--require-server] [--skip schema,killrate]
+                                        [--require-server] [--skip schema,proxy-demo]
                                         [--only NAME[,NAME...]]
 Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing);
 2 = --only named a gate that is not in the table (never a silent full run or no-op).
@@ -231,7 +233,10 @@ def gates(server):
         # falsely expires an entry for an un-probed target. No network/golden.
         ("differential-selftest", _py(ROOT / "conformance" / "ci" / "differential.py", "--selftest"),
          None, ()),
-        ("killrate",    _py(SELF / "mutation_killrate.py"),                     "proxy",   (2,)),
+        # D1-08: the old name overstated this gate. It is the mutation PROXY demo (2 real
+        # checks + the noop canary over :8183); the per-check kill-rate proof every
+        # public claim rests on is the merchant* gates above.
+        ("proxy-demo",  _py(SELF / "mutation_proxy_demo.py"),                   "proxy",   (2,)),
         # SCHEMA-GUIDED FUZZ LANE: enumerate the boundary/constraint points of the pinned
         # 04-08 request schemas and fire one payload per point at the golden, classifying
         # each response (crash vs conformant-4xx vs spec-contradicting-accept). The #156

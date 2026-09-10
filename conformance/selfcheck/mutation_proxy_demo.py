@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-mutation_killrate.py — proves each conformance check actually DETECTS defects.
+mutation_proxy_demo.py (was mutation_kill-rate; D1-08) — the mutation-PROXY demo: proves
+the wire-level harness catches injected defects (2 real checks + the noop canary). The
+per-check kill-rate proof every public claim rests on is validate_merchant_checks.py.
 
 Red-team blocker #1: a check that does nothing passes against a compliant server,
 so "it passed" is meaningless until we show it FAILS when the server is broken.

@@ -248,9 +248,41 @@ def _reg_match(entries, sentence, page):
         return None, f"registered claim {e.get('id')} review_by {e.get('review_by')} expired"
     return None, None
 
+# D1-08: an evidence string that cites a run_suite gate must cite one that EXISTS.
+# Only strings that mention run_suite are parsed (informal "the claims gate" prose
+# is not a table reference); a cited name is a quoted token, `run_suite <name> gate`,
+# or a `(a/b/c gates)` list. Filenames (with a dot) are never gate names.
+_EV_QUOTED = re.compile(r"'([a-z0-9][a-z0-9-]*)'")
+_EV_BARE = re.compile(r"run_suite\s+([a-z0-9][a-z0-9-]*)\s+gate")
+_EV_LIST = re.compile(r"\(([a-z0-9-]+(?:/[a-z0-9-]+)+)\s+gates?\)")
+
+
+def _evidence_gate_names(evidence):
+    if "run_suite" not in (evidence or ""):
+        return []
+    names = set(_EV_QUOTED.findall(evidence)) | set(_EV_BARE.findall(evidence))
+    for lst in _EV_LIST.findall(evidence):
+        names.update(lst.split("/"))
+    return sorted(n for n in names if "." not in n)
+
+
+def _run_suite_gate_names():
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    import run_suite
+    return {g[0] for g in run_suite.gates("http://localhost:0")}
+
+
 def claims(explain=False):
     entries = _load_claims()
     fails, out = [], []
+
+    if entries:
+        table = _run_suite_gate_names()
+        for e in entries:
+            for name in _evidence_gate_names(e.get("evidence", "")):
+                if name not in table:
+                    fails.append(f"site_claims.json {e.get('id')}: evidence cites run_suite gate "
+                                 f"'{name}' which is not in run_suite's gate table")
 
     for path in pages():
         page = os.path.basename(path)
@@ -806,7 +838,7 @@ def selftest():
 
     run_claims_variant(
         "evidence names run_suite gate 'killrate' (not in the table) → RED",
-        "conformance/selfcheck/mutation_killrate.py + run_suite 'killrate' gate", want_red=True)
+        "conformance/selfcheck/mutation_proxy_demo.py + run_suite 'killrate' gate", want_red=True)
     run_claims_variant(
         "evidence names run_suite gate 'verdict' (in the table) → GREEN",
         "run_suite 'verdict' gate proves it", want_red=False)

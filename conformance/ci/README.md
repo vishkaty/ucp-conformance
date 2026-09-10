@@ -18,7 +18,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant` | every merchant check is **clean-pass + kill-safe** on the Flower Shop golden | independent golden server |
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
-| `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `proxy-demo` | the mutation-proxy demo: injected wire defects are caught (2 real checks + the noop canary); the per-check kill-rate proof is the `merchant*` gates | mutation harness |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the
