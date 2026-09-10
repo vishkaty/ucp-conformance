@@ -5,12 +5,9 @@
     "agent_checks": 44,
     "agent_defects": 45,
     "versions": [
-      "2026-01-11",
-      "2026-01-23",
-      "2026-04-08",
-      "2026-08-25"
+      "2026-04-08"
     ],
-    "reviewed": "2026-08-31"
+    "reviewed": "2026-09-10"
   },
   "evidence": {
     "_about": "Honest EVIDENCE-CLASS split of the coverage matrix's CHECK bucket - the accounting totals above conflate a check kill-tested live against an independently-authored server with one that only validates our own fixture. This block names the split so the public claim cannot imply everything is wire-tested. Derived MECHANICALLY (never hand-labeled) by conformance/coverage/evidence.py from how each check actually runs, plus the recorded run in conformance/coverage/reach_report.json (which independent targets each wire check actually graded on). Classes: live-wire = graded on an independent server (flower golden / node reference); fixture-schema = our fixture validated through the OFFICIAL ucp-schema oracle; fixture-crypto = self-signed crypto primitive self-test; self-referenced = only our own fixture, no independent oracle or target (the fixture-circularity class we flag upstream as conformance#79, present in our own suite and counted here). Kill-tested + drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class): if these numbers drift from a fresh matrix export, CI goes red.",
@@ -1029,6 +1026,15 @@
       "page": "state-of-ucp/launch-2026-08-25.html",
       "class": "REG",
       "evidence": "Every register row carries a spec source (path#line at the pinned SHA) verified verbatim by conformance/selfcheck/verify_register.py (run_suite gate register) and cited in public/coverage.json; the 2026-08-25 register is state=converting under rule R-a (D2-06/D5-03) \u2014 'being rebuilt' holds while the version is not live; the 2026-09-01 edition (public/state-of-ucp/history/2026-09-01.json) carried the first numbers.",
+      "added": "2026-09-10",
+      "review_by": "2026-12-09"
+    },
+    {
+      "id": "CLAIM-COV-005",
+      "text": "converting \u2014 no further work planned",
+      "page": "coverage.html",
+      "class": "REG",
+      "evidence": "Decision 25 (PLAN-v3 \u00a74, CLOSED 2026-09-10): the legacy versions 2026-01-11 (17 needs-receiver GAPs) and 2026-01-23 (18) read `converting` under rule R-a with a data-driven line; the receiver count renders from public/coverage.json $.versions[v].gap_by_testability['needs-receiver'] and the line shows only where the export marks no_further_work (D2-06) \u2014 fallback: only webhook-receiver rows remain open. Pinned by tests/web/unit/coverage_page.test.mjs. review_by = decision 25 re-review at the Wave 1 exit.",
       "added": "2026-09-10",
       "review_by": "2026-12-09"
     }

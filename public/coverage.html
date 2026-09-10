@@ -172,6 +172,34 @@
       row.appendChild(s);
     });
     card.appendChild(row);
+    if (v.state === "converting") {
+      // rule R-a (decision 25, D5-03): checks are landing but testable-tier MUSTs
+      // (testable / needs-receiver / needs-oauth) are still open. N and M come from
+      // the export: M = MUSTs outside the manual residue, N = the open testable-tier GAP.
+      var g = v.gap_by_testability || {};
+      var open = (g.testable || 0) + (g["needs-receiver"] || 0) + (g["needs-oauth"] || 0);
+      var tier = v.musts - (g.manual || 0) - (g["?"] || 0);
+      var cn = el("div", "note",
+        "Converting: checks are landing; " + open + " of " + tier + " testable-tier MUSTs still open " +
+        "(testable " + (g.testable || 0) + " · needs-receiver " + (g["needs-receiver"] || 0) +
+        " · needs-oauth " + (g["needs-oauth"] || 0) + "). This figure is never blended into " +
+        "another version's percentage.");
+      cn.style.margin = "2px 0 10px";
+      card.appendChild(cn);
+      // legacy versions (D2-06 exports no_further_work: true for 2026-01-11/01-23; until
+      // that field lands, the data-driven fallback is "only webhook-receiver rows remain"):
+      // the registered CLAIM-COV-005 line with the receiver count from the export.
+      var legacy = v.no_further_work === true ||
+        (v.no_further_work === undefined && open > 0 && open === (g["needs-receiver"] || 0));
+      if (legacy) {
+        var ln = el("div", "note",
+          "converting — no further work planned; " + (g["needs-receiver"] || 0) +
+          " webhook-receiver rows ungraded");
+        ln.style.margin = "2px 0 10px";
+        ln.style.fontStyle = "italic";
+        card.appendChild(ln);
+      }
+    }
     if (v.state === "building") {
       var census = v.census;
       var msg = "Register in progress: rows are extracted and spec-cited, but checks have not started yet.";
@@ -334,7 +362,10 @@
     VER = vers[vers.length - 1];
     var tabs = document.getElementById("tabs");
     vers.forEach(function (ver) {
-      var t = el("button", "tab", ver);
+      // the state word on every tab (D5-03): "2026-08-25 · converting" — never a
+      // bare version label that reads as supported
+      var st = d.versions[ver].state;
+      var t = el("button", "tab", st && st !== "live" ? ver + " · " + st : ver);
       t.dataset.ver = ver;
       t.addEventListener("click", function () { VER = ver; renderAll(); });
       tabs.appendChild(t);

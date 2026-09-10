@@ -579,45 +579,46 @@ def _coverage_versions():
     return json.load(open(PUB / "coverage.json"))["versions"]
 
 
+TESTABLE_TIER = ("testable", "needs-receiver", "needs-oauth")
+STATES = ("unregistered", "building", "converting", "live")
+
+
+def _expected_state(d):
+    """Rule R-a (PLAN-v3 §2.18, decision 25) from coverage.json fields ONLY — no
+    matrix import, so this mirror and matrix._version_state can be compared but can
+    never share a bug:
+      unregistered — no register rows (musts == 0)
+      building     — register ∧ CHECK+EXEMPT == 0
+      converting   — register ∧ CHECK+EXEMPT > 0 ∧ any testable/needs-receiver/needs-oauth GAP
+      live         — register ∧ CHECK+EXEMPT > 0 ∧ zero such GAP
+    Returns (expected_state, testable_gap)."""
+    musts = d.get("musts", 0)
+    accounted = (d.get("check", 0) or 0) + (d.get("exempt", 0) or 0)
+    g = d.get("gap_by_testability") or {}
+    testable_gap = sum(int(g.get(k, 0) or 0) for k in TESTABLE_TIER)
+    if not musts:
+        return "unregistered", testable_gap
+    if not accounted:
+        return "building", testable_gap
+    return ("converting" if testable_gap else "live"), testable_gap
+
+
 def _state_failures(cov_export):
-    """PLAN-0825 §E — the state field can never disagree with the artifacts it
-    describes. Data-driven, stdlib-only, same style as _real_manifest() (reads only
-    the committed export; no cross-module import of matrix.py):
-
-      state="live"          requires CHECK>0 or EXEMPT>0
-      state="building"      requires CHECK==0 AND EXEMPT==0 (a real register, though
-                             — musts>0 — since matrix.py never emits "building" for
-                             a version with no register rows at all)
-      state="unregistered"  requires zero MUSTs (no register rows at all)
-      any version that BACKS SITE COPY (CHECK>0 or EXEMPT>0 — the exact filter
-      _real_manifest() already uses to decide what counts as a supported version)
-      must be state="live" — the site can never claim a version as supported while
-      its own coverage export calls it anything else.
-
-    Returns the list of failure strings (empty = the state field is honest)."""
+    """The state field can never disagree with the artifacts it describes (PLAN-0825
+    §E, extended to four states by rule R-a in D5-03). Data-driven, stdlib-only,
+    reads only the committed export. Returns the list of failure strings (empty = the
+    state field is honest)."""
     fails = []
     for ver, d in sorted(cov_export.items()):
         state = d.get("state")
-        check, exempt = d.get("check", 0), d.get("exempt", 0)
-        musts = d.get("musts", 0)
-        backs_site = bool(check or exempt)
-        if state not in ("unregistered", "building", "live"):
-            fails.append(f"{ver}: state {state!r} is not one of "
-                         f"unregistered/building/live")
+        if state not in STATES:
+            fails.append(f"{ver}: state {state!r} is not one of {'/'.join(STATES)}")
             continue
-        if state == "live" and not backs_site:
-            fails.append(f"{ver}: state=live but CHECK={check} and EXEMPT={exempt} "
-                         f"(zero of both — this version does not back site copy)")
-        elif state == "building" and backs_site:
-            fails.append(f"{ver}: state=building but has CHECK={check}/EXEMPT={exempt} "
-                         f"— a version with real coverage must be state=live")
-        elif state == "unregistered" and musts:
-            fails.append(f"{ver}: state=unregistered but the register has "
-                         f"{musts} MUST row(s) — a version with a register tree "
-                         f"must be building or live, never unregistered")
-        elif backs_site and state != "live":
-            fails.append(f"{ver}: backs site copy (CHECK={check}/EXEMPT={exempt}>0) "
-                         f"but state={state!r}, not live")
+        want, tg = _expected_state(d)
+        if state != want:
+            fails.append(f"{ver}: state={state!r} but rule R-a says {want!r} "
+                         f"(musts={d.get('musts', 0)}, CHECK={d.get('check', 0)}, "
+                         f"EXEMPT={d.get('exempt', 0)}, testable-tier GAP={tg})")
     return fails
 
 
@@ -633,15 +634,18 @@ def _real_manifest():
     # CHECK/EXEMPT rows, with no code change needed here when that happens.
     # (This is exactly the `backs_site` test _state_failures() uses too — the two
     # can never independently disagree about what counts as supported.)
-    cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
+    # D5-03 / PLAN-v3 §2.18: SUPPORTED = live only. A converting version has real
+    # CHECK/EXEMPT rows but testable-tier MUSTs still open, so it backs the coverage
+    # page's own numbers yet is NOT a version the site may claim as supported.
+    cov = [v for v, d in cov_export.items() if d.get("state") == "live"]
     agc = json.load(open(PUB / "agent-coverage.json"))
-    # The SAME backs-site filter applies to the agent lane: a version key whose
-    # agent row is all zeros (register-only, or no agent register at all) backs
-    # no site copy and must not leak into the supported-versions claim through
-    # this union. Symmetric with cov above, so an honest-zero row added for a
-    # new version never widens the public claim on its own.
+    # The agent axis can never WIDEN the supported set: a version key that carries
+    # agent CHECK/EXEMPT rows but is absent from coverage.json (or not live there) is
+    # a manifest failure, raised as drift below via a synthetic marker — an honest-zero
+    # agent row for a new version never widens the public claim on its own.
     agv = [v for v, d in agc.items()
-           if isinstance(d, dict) and (d.get("check") or d.get("exempt"))]
+           if isinstance(d, dict) and (d.get("check") or d.get("exempt"))
+           and v not in cov_export]
     # agent registry counts via subprocess import — same source of truth as the
     # agent_governance copy gate (len(CHECKS); non-None DEFECTS)
     r = subprocess.run([sys.executable, "-c",
@@ -662,7 +666,9 @@ def _real_manifest():
         "merchant_checks": merchant,
         "agent_checks": ag["agent_checks"],
         "agent_defects": ag["agent_defects"],
-        "versions": sorted(set(cov) | set(agv)),
+        # agv is non-empty only when the agent export names a version coverage.json
+        # lacks — surfaced here so freshness reports it as manifest drift
+        "versions": sorted(set(cov) | {f"{v} (agent-only, absent from coverage.json)" for v in agv}),
     }
 
 def freshness():
@@ -764,7 +770,7 @@ def selftest():
 
     bad = 0
 
-    def run_variant(name, mutate, want_red, mutate_agc=None):
+    def run_variant(name, mutate, want_red, mutate_agc=None, mutate_claims=None):
         nonlocal bad
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
@@ -779,6 +785,10 @@ def selftest():
                 agc = json.load(open(tmpd / "agent-coverage.json"))
                 mutate_agc(agc)
                 (tmpd / "agent-coverage.json").write_text(json.dumps(agc))
+            if mutate_claims is not None:
+                sc = json.load(open(tmpd / "site_claims.json"))
+                mutate_claims(sc)
+                (tmpd / "site_claims.json").write_text(json.dumps(sc))
             env = dict(os.environ, SPCK_PUBLIC=str(tmpd))
             r = subprocess.run(
                 [sys.executable, str(ROOT / "conformance" / "ci" / "site_gates.py"),
@@ -828,6 +838,14 @@ def selftest():
         with_state(subject_ver, "converting", check=0, exempt=0,
                    gap_by_testability={"testable": 5}),
         want_red=True)
+    run_variant(
+        "converting version listed as SUPPORTED in site_claims manifest.versions "
+        "(supported = live only, RV2 T11)",
+        with_state("2026-08-25", "converting", check=10, exempt=0,
+                   gap_by_testability={"testable": 5}),
+        want_red=True,
+        mutate_claims=lambda sc: sc["manifest"].__setitem__(
+            "versions", sorted(set(sc["manifest"]["versions"]) | {"2026-08-25"})))
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,
