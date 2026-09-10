@@ -72,7 +72,12 @@ function converting(ver, extra = {}) {
 }
 
 test("converting export renders the converting note with N of M testable-tier MUSTs", async () => { // SITE-R-029
-  const doc = await render(converting("2026-08-25"));
+  const cov = converting("2026-08-25");
+  // the control tab is PLANTED live: the committed 2026-04-08 state is the owner's open
+  // ruling (rule R-a reads it `converting` on SIG-039/OVR-002, needs-receiver) — the
+  // control must not depend on that ruling (W0-integration 2026-09-10).
+  cov.versions["2026-04-08"].state = "live";
+  const doc = await render(cov);
   clickTab(doc, "2026-08-25");
   const text = doc.getElementById("summary").textContent;
   assert.match(text, /checks are landing/);

@@ -4,9 +4,7 @@
     "merchant_checks": 227,
     "agent_checks": 44,
     "agent_defects": 45,
-    "versions": [
-      "2026-04-08"
-    ],
+    "versions": [],
     "reviewed": "2026-09-10"
   },
   "evidence": {
@@ -34,11 +32,11 @@
         "self-referenced": 151
       },
       "2026-08-25": {
-        "check": 70,
+        "check": 77,
         "live-wire": 0,
-        "fixture-schema": 29,
+        "fixture-schema": 32,
         "fixture-crypto": 0,
-        "self-referenced": 41
+        "self-referenced": 45
       }
     },
     "reviewed": "2026-09-01"
@@ -58,7 +56,7 @@
       "text": "0",
       "page": "index.html",
       "class": "REG",
-      "evidence": "'False greens' hero stat \u2014 kill-rate mechanics: a check that survives its targeted defect is flagged UNSAFE and blocks release (mutation_killrate.py; validate_merchant_checks.py; run_agent.py reference gate)",
+      "evidence": "'False greens' hero stat \u2014 kill-rate mechanics: a check that survives its targeted defect is flagged UNSAFE and blocks release (mutation_proxy_demo.py; validate_merchant_checks.py; run_agent.py reference gate)",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -121,7 +119,7 @@
       "text": "every check is kill-rate tested \u2014 we inject the exact defect it should catch, and if it still passes, it's blocked from release",
       "page": "index.html",
       "class": "REG",
-      "evidence": "conformance/selfcheck/mutation_killrate.py (incl. the deliberate noop-check canary proving the harness works)",
+      "evidence": "conformance/selfcheck/mutation_proxy_demo.py (incl. the deliberate noop-check canary proving the harness works)",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -130,7 +128,7 @@
       "text": "the whole suite self-validates in CI and goes red if any check loses its ability to catch defects",
       "page": "index.html",
       "class": "REG",
-      "evidence": "conformance/ci/run_suite.py (killrate/merchant/demo-drift gates) + .github/workflows self-testing CI",
+      "evidence": "conformance/ci/run_suite.py (proxy-demo/merchant/agent-demo gates) + .github/workflows self-testing CI",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -148,7 +146,7 @@
       "text": "6",
       "page": "agent.html",
       "class": "REG",
-      "evidence": "'You can watch live' stat \u2014 public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite demo-drift gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length",
+      "evidence": "'You can watch live' stat \u2014 public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite agent-demo gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -211,7 +209,7 @@
       "text": "Real recorded runs \u2014 not a mock-up. Each flaw is proven to be caught.",
       "page": "sandbox.html",
       "class": "REG",
-      "evidence": "build_demo_data.py + run_suite demo-drift gate: every demo case's catching check must still kill its defect on each CI run",
+      "evidence": "build_demo_data.py + run_suite agent-demo gate: every demo case's catching check must still kill its defect on each CI run",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -274,7 +272,7 @@
       "text": "Every check is proven to catch the defect it\u2019s for \u2014 the suite injects that exact bug, and a check that misses it blocks release.",
       "page": "check.html",
       "class": "REG",
-      "evidence": "conformance/selfcheck/mutation_killrate.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite 'killrate' and 'merchant' gates fail the build when any check survives its injected defect",
+      "evidence": "conformance/selfcheck/mutation_proxy_demo.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite 'proxy-demo' and 'merchant' gates fail the build when any check survives its injected defect",
       "added": "2026-07-09",
       "review_by": "2026-10-09"
     },
@@ -839,7 +837,7 @@
       "text": "Every check is proven to catch its own bug (kill-rate validated).",
       "page": "index.html",
       "class": "REG",
-      "evidence": "conformance/selfcheck/mutation_killrate.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite gates 'merchant' and 'killrate' block release if any check fails to kill its injected defect",
+      "evidence": "conformance/selfcheck/mutation_proxy_demo.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite gates 'merchant' and 'proxy-demo' block release if any check fails to kill its injected defect",
       "added": "2026-07-09",
       "review_by": "2026-10-09",
       "retired": "2026-09-10",
@@ -971,7 +969,7 @@
       "text": "Unofficial, open, kill-rate validated.",
       "page": "check.html",
       "class": "REG",
-      "evidence": "conformance/selfcheck/mutation_killrate.py + run_suite killrate gate",
+      "evidence": "conformance/selfcheck/mutation_proxy_demo.py + run_suite proxy-demo gate",
       "added": "2026-07-09",
       "review_by": "2026-10-09",
       "retired": "2026-09-10",
@@ -1048,7 +1046,7 @@
       "text": "each check is proven to catch the defect it's for (kill-rate testing)",
       "page": "guide.html",
       "class": "REG",
-      "evidence": "mutation_killrate.py + conformance/.vendor/ucp-schema oracle anchoring + per-check register citations. PAGE RETIRING \u2192 carry to docs.html",
+      "evidence": "mutation_proxy_demo.py + conformance/.vendor/ucp-schema oracle anchoring + per-check register citations. PAGE RETIRING \u2192 carry to docs.html",
       "added": "2026-07-09",
       "review_by": "2026-10-09",
       "retired": "2026-09-10",
