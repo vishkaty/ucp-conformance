@@ -136,3 +136,9 @@ jobs:
           bash packaging/sync_bundle.sh
           git diff --exit-code packaging/spck_conformance/_bundle \
             || { echo "::error::packaging bundle is stale — run packaging/sync_bundle.sh and commit"; exit 1; }
+
+      - name: Verify the pip bundle is COMPLETE (every module the runner imports is shipped)
+        # The drift diff above proves copied files are current, never that a needed file
+        # is copied (D1-05): this imports the runner from the bundle in an isolated
+        # interpreter and diffs the bundle against merchant.py's transitive imports.
+        run: python3 packaging/validate_bundle.py

@@ -326,6 +326,10 @@ def gates(server):
         # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
         # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
         ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
+        # D1-05: the bundle must be COMPLETE, not just current — every first-party module
+        # merchant.py transitively imports (ast, from SOURCE) and every data file it reads
+        # must be in the bundle, and it must import + run in an isolated interpreter.
+        ("package-bundle", _py(ROOT / "packaging" / "validate_bundle.py"), None, ()),
         # D1-22: `--only <gate>` runs exactly the named gates, boots only what they need,
         # and refuses an unknown name (rc 2) — so every acceptance command written as
         # `run_suite.py --only X` proves X. In-process against the real table; the
