@@ -10369,7 +10369,8 @@
      "scope_excluded": 142,
      "waived": {
       "duplicate": 27,
-      "non-normative": 35,
+      "non-normative": 8,
+      "out-of-scope-transport": 27,
       "schema-enforced": 1
      },
      "missed": 0,
