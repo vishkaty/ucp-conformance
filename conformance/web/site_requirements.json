@@ -356,6 +356,19 @@
    ],
    "status": "active",
    "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-028",
+   "requirement": "Coverage-page honesty sentences are registered claims rendered verbatim: the 2026-08-25 evidence-ceiling sentence is CLAIM-COV-002 (data-driven — renders only while the version's live-wire count is 0) and the 2026-04-08 tab carries the CLAIM-COV-003 footnote naming the measured commit (a2d8bf0b) and the 2026-09-09 tag re-point (ucp#813); the retired sentence \"no independently-authored 08-25 implementation exists\" never renders (PLAN-v3 §2.18, D5-02).",
+   "pages": [
+    "coverage.html"
+   ],
+   "tests": [
+    "gate:claims",
+    "web_unit:coverage-ceiling"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }
