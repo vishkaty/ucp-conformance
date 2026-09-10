@@ -123,11 +123,27 @@ spck-conformance --server https://store.example.com --config merchant.json</code
 
   <h2>Spec versions</h2>
   <p class="lead">Tests run against the pinned UCP spec versions:</p>
-  <ul>
+  <ul id="spec-versions">
+    <li>2026-08-25</li>
     <li>2026-04-08</li>
     <li>2026-01-23</li>
     <li>2026-01-11</li>
   </ul>
+  <p class="note">Each version's publication state (live / converting / building) is on <a href="/coverage">the coverage page</a>; the list above is rendered from the same export.</p>
+  <script>
+  /* D5-15: the version list is DATA-DRIVEN from /coverage.json spec_pins (+ state word) — the
+     static list is the no-JS fallback and must name the same four pins (site-claims audit). */
+  (function () {
+    fetch("/coverage.json").then(function (r) { return r.json(); }).then(function (d) {
+      var ul = document.getElementById("spec-versions"); if (!ul || !d.spec_pins) return;
+      ul.textContent = "";
+      Object.keys(d.spec_pins).sort().reverse().forEach(function (v) {
+        var li = document.createElement("li"); var st = d.versions && d.versions[v] && d.versions[v].state;
+        li.textContent = v + (st && st !== "live" ? " \u00b7 " + st : ""); ul.appendChild(li);
+      });
+    }).catch(function () {});
+  })();
+  </script>
 
 </div>
 

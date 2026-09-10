@@ -38,6 +38,24 @@ if [ -n "$TAG" ]; then
     fi
   fi
 fi
+# 1c. provenance (D5-15): the tagged commit is an ancestor of origin/main, and its `selftest`
+#     check-run is success. The CI half is REQUIRED in release.yml (RELEASE_GUARDS_REQUIRE_CI=1)
+#     and best-effort locally (gh may be absent/offline → warning, never a silent pass in CI).
+if [ -n "$TAG" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  [ "${DEPLOY_NO_FETCH:-0}" = "1" ] || git fetch -q origin main >/dev/null 2>&1 || true
+  SHA="$(git rev-parse HEAD)"
+  if git rev-parse --verify -q refs/remotes/origin/main >/dev/null; then
+    if git merge-base --is-ancestor "$SHA" refs/remotes/origin/main; then ok "HEAD ${SHA:0:7} is an ancestor of origin/main"
+    else bad "HEAD ${SHA:0:7} is NOT an ancestor of origin/main — tags are cut from merged, CI-verified main only"; fi
+  else
+    bad "no refs/remotes/origin/main to check ancestry against (fetch first; release.yml checks out with fetch-depth 0)"
+  fi
+  GH="${GH_BIN:-gh}"
+  CONCL="$($GH api "repos/${RELEASE_REPO:-vishkaty/ucp-conformance}/commits/$SHA/check-runs" --jq '[.check_runs[]|select(.name=="selftest")]|.[0].conclusion' 2>/dev/null | tr -d '"' | tail -1)"
+  if [ "$CONCL" = "success" ]; then ok "selftest check-run for ${SHA:0:7}: success"
+  elif [ "${RELEASE_GUARDS_REQUIRE_CI:-0}" = "1" ]; then bad "selftest check-run for ${SHA:0:7} is '${CONCL:-absent}', not success — no release on a red or unverified commit"
+  else printf "  \033[33m!\033[0m selftest check-run for %s could not be confirmed locally ('%s') — release.yml enforces it\n" "${SHA:0:7}" "${CONCL:-absent}"; fi
+fi
 if [ "${RELEASE_GUARDS_TAG_ONLY:-0}" = "1" ]; then
   [ $FAIL -eq 0 ] && { echo "release tag guards: PASS"; exit 0; } || { echo "release tag guards: FAIL"; exit 1; }
 fi

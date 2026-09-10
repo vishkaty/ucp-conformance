@@ -74,6 +74,14 @@ OUT="$(cd "$D" && RELEASE_GUARDS_TAG_ONLY=1 DEPLOY_NO_FETCH=1 GH_BIN=/bin/true b
 if [ $RC -eq 0 ]; then ok "tag on origin/main -> ancestry guard passes"; else bad "ancestry guard rejects origin/main itself (rc=$RC):"; echo "$OUT" | tail -4; fi
 rm -rf "$D"
 
+# selftest check-run failure with the CI half REQUIRED (release.yml) → refused
+D="$(scratch)"; printf '# Changelog\n\n## 0.4.0 — unreleased\n\n## 0.4.0rc1 — unreleased\n- rc\nacceptance: pending\n' > "$D/packaging/CHANGELOG.md"
+sed -i.bak 's/^version = .*/version = "0.4.0rc1"/' "$D/packaging/pyproject.toml"; echo '__version__ = "0.4.0rc1"' > "$D/packaging/spck_conformance/__init__.py"; rm -f "$D"/packaging/*.bak
+gitrepo "$D"; mkdir -p "$D/bin"; printf '#!/usr/bin/env bash\necho failure\n' > "$D/bin/gh"; chmod +x "$D/bin/gh"
+OUT="$(cd "$D" && RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "check-run"; then ok "selftest check-run 'failure' with RELEASE_GUARDS_REQUIRE_CI=1 -> guard exit 1"; else bad "failed check-run not refused under REQUIRE_CI (rc=$RC):"; echo "$OUT" | tail -4; fi
+rm -rf "$D"
+
 # missing CHANGELOG entry: a bump without an entry is refused
 D="$(scratch)"; printf '# Changelog\n\n## 0.3.1 — old\n' > "$D/packaging/CHANGELOG.md"
 OUT="$(cd "$D" && RELEASE_GUARDS_TAG_ONLY=1 bash packaging/release_guards.sh v0.4.0 2>&1)"; RC=$?

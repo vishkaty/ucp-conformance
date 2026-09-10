@@ -20,6 +20,8 @@ jobs:
       id-token: write        # required for PyPI Trusted Publishing (OIDC)
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0          # the ancestor-of-main guard needs history (D5-15)
 
       - uses: actions/setup-python@v6
         with:
@@ -31,6 +33,9 @@ jobs:
         # (PEP 440 rcN) are accepted; a FINAL tag is refused until packaging/CHANGELOG.md
         # records a green rc acceptance (decision 17: 0.4.0rc1 first, then 0.4.0).
         run: bash packaging/release_guards.sh "$GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_GUARDS_REQUIRE_CI: "1"   # the tagged SHA's `selftest` check-run must be success (D5-15)
 
       - name: Build sdist + wheel
         run: |
