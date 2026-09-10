@@ -305,6 +305,12 @@ def gates(server):
         # unreviewed version / no REST -> coverage null + banner, never 0.0; checks_summary
         # counts checks, the headline never mixes MUST ids with checks. Loopback stubs.
         ("cli-summary",  _py(SELF / "validate_cli_summary.py", "--selftest"),  None, ()),
+        # D1-06: every kill set (MCheck/engine mutations, schema-tier + struct negatives,
+        # golden-row mutants, agent kill_mutation) is hashed in selfcheck/killset_lock.json;
+        # a silent shrink or drift reds here, named. Regenerate DELIBERATELY with
+        # gen_killset_lock.py in the same commit as a check change (a shrink needs a note).
+        ("killset-lock", _py(SELF / "validate_killset_lock.py"),                None, ()),
+        ("killset-lock-selftest", _py(SELF / "validate_killset_lock.py", "--selftest"), None, ()),
         # the golden speaks ONE spec version (2026-04-08 since the 2026-08-03 re-pin);
         # engine checks whose citations are 01-era-scoped are version-skipped by the
         # served-version gate instead of deviating/reported-UNSAFE on a known-good

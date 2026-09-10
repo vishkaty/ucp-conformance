@@ -1,0 +1,3111 @@
+{
+ "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
+ "counts": {
+  "ACheck": 44,
+  "MCheck": 228,
+  "Row": 37,
+  "engine": 89,
+  "schema-tier": 81,
+  "struct": 35
+ },
+ "entries": {
+  "agent_checks:agent.aborts_on_discovery_error": {
+   "hash": "3c02fabbb7fe6c32a9958f4323dd9b90501da3b836b8c822467c1705b0533b2d",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.aborts_on_oidc_fallback_error": {
+   "hash": "b57d9c04930c6280c8141b6aa6c9da63964082fae13ad503c54daa6e3d310279",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.ap2_provides_mandates_on_complete": {
+   "hash": "aa3cbd8a6ea32a290035a5a540bc6a7510567b5845a457c859671b23556edc33",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.ap2_two_distinct_mandates": {
+   "hash": "c36f8a16956772849806cb589d35196afeb2ec30c2fe945760434f6c744f5815",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.credential_has_type": {
+   "hash": "6e022de399f381c2bb9ab5e9ceceabfe894b676006720f33e6bd64041896b0c0",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.extracts_challenge_scope": {
+   "hash": "274438830a39ebe2dd68a3edd0dcce2cbdbfe4b94a8a231e0cbdbb09444aa577",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.follows_escalation": {
+   "hash": "6d64952315b18b9b7598754f60936cf562fa59c7557532ccb977b96fa898db41",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.honors_available_instruments": {
+   "hash": "5de19ff902436141f3f338daf3ceb5557baee2207a14ced0c56cfecc333c4327",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.ignores_error_description": {
+   "hash": "9c14e4922d800de56d1e486651992dc83c04974c510973eec8400cae2521bba6",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.ignores_future_config": {
+   "hash": "7a9d36740cada0e554ed1b9bf5bcea33a3334f4024830f77f9e8fd1f5d736e99",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.incremental_scope_only": {
+   "hash": "1fc9347b044dc5b1677700da374f639419ddb5ec1871bad27fd84d0f8327bec9",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.instrument_has_ids": {
+   "hash": "d275e140b27fecd5d2bf299b0a9053aa9ad3ca7ca134876979d149d051100ba5",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.line_items_create_not_complete": {
+   "hash": "9a106d01567ebef3045189c8e29d3fd6edd625edc91ab06eb792d32df29f00bf",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.no_autocomplete_mismatched_totals": {
+   "hash": "bd22861eb2409123ac6cd41eeec4ad99694d2fb8a1ee793c36160239d75680a0",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.no_client_secret": {
+   "hash": "da333ae5ac0340e924b25130897d0366b8112407f7071e4cdb2a9440d767069a",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.no_iss_normalization": {
+   "hash": "45a1a55eb1d0e727bf86b4202ab43136c6d106064bb6a696ed643eebcd833509",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.omits_buyer_on_complete": {
+   "hash": "17be7b20377d992a467e3b78e5f619395ae4dcd96426b4eca04dac4ba74c3a26",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.omits_checkout_id": {
+   "hash": "b8476289f5943d7a65f84e53d15f32ef2bc4c9169b956e40b7f5830cc63348a1",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.omits_discounts_on_request": {
+   "hash": "212d9b4b7ee0741d4d1e2627f6c8c9edaa7173f2f6c7b6dbeef0f6182a3b2685",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.omits_response_only_fields": {
+   "hash": "22cd52a5cb2a685c04ded088b80dedad69ea695a9a9fc4d7844c7c485ebec050",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.omits_ucp_on_request": {
+   "hash": "7b178472ae1a56edd7db55a41b367253128f9d5a019ca1180e1885ede2d66315",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.owns_authz_request": {
+   "hash": "5e3459c8e077d91b87dc4a221d658b8a86895ce61dfbc688ad1dded599d06bae",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.paginates_by_has_next_page": {
+   "hash": "9c919de608455442e0d7395689273c6ed0a7e70baa9f83621aa2a6eef5903351",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.processes_auth_challenge": {
+   "hash": "1276e3466c95a421fb04fd5e09583c2841c28e834af253626516f93a30153ff1",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.public_client_pkce_proof": {
+   "hash": "4b8a01235a2b344eb3712f4a3da0eb83da9aeb829360489a737d7f3e4f41b8fd",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.request_signature_verifies": {
+   "hash": "f7586292d2efab13d397a1ba5298f445cb6c9df9306346ef1b56d13c77d836d9",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.requests_only_derived_scopes": {
+   "hash": "7cbc8159f970b5028fa6fd65b7bfd76a2f60a7c99791f04d5cd28a02450ac866",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.revokes_token_on_unlink": {
+   "hash": "4eedc4ababb0341e8d9c7279fb6e479dc1ae492487b387f01cc2da7f2088d6ad",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.selected_option_names_unique": {
+   "hash": "8322d1acb20306aaf3faf957aa26c58722e01939ec2a7ee99f65c09ef57002b8",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.sends_bearer_token": {
+   "hash": "9d57af38fc75ea595a2faef22b3af6692809e3b5617c25562779fffa821f864d",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.sends_ucp_agent": {
+   "hash": "eb40fd84f8233b7e243a93f608b55007736fba0e778cb1b85f7a5fa0e46fe5d5",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.sends_valid_search_input": {
+   "hash": "39b2ec9cccaf2a0cd502a71acc87d5130a644dcf7869370140b19afd5f70fb15",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.signs_body_components": {
+   "hash": "da4099aadee4a129832dd00c850dd0b0cb1740541fc5430521b5432a43d44bf3",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.signs_core_components": {
+   "hash": "7d30e78a3a550c885050bd3c0f3925e53fcb8d491855f780db06f864cda0588e",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.signs_idempotency_key": {
+   "hash": "66fad2313010f3eb73d799b59b95788e1de582ab813ca22de19a5cba81952443",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.signs_ucp_agent_component": {
+   "hash": "b47079ba7c78b1911433167335be00e4c6348af233ff6c30eb2f6cf70e0644a0",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.uses_advertised_auth_method": {
+   "hash": "73d67a86bfc7cfd461958a0ac0363d3b68104c7bc47f101a9837a61878ea0600",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.uses_authorization_code_flow": {
+   "hash": "abda21f2960e8192ea66724b04c00565a571b3a01d4195b956fe4f05ac70087a",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.uses_json_content_type": {
+   "hash": "9a09bcceead24b26b0ea723423ac320d90401646ca72d1089b2c79b379df69bb",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.uses_pkce": {
+   "hash": "e03e633129d5dc675edd3815c60f8fe84cf8b102bdeb5b1ef3d3752ef1fae4a7",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.validates_iss": {
+   "hash": "1a033e5f01fa7e92431b009a4e73a5b7b9ab3d9fe1e503663965b116342cbbae",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.validates_issuer_match": {
+   "hash": "e8f43a065125fb358915ee6720a347cf4aec072c373fef3d2c4a99bebcabadb2",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.validates_oauth_state": {
+   "hash": "8f21718b3c8929e86c7e47102f833d1d8cba56323163a1bd0759e382b7d44cf9",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "agent_checks:agent.verifies_business_signature": {
+   "hash": "09874917a0a71af450d06351e133e0ae577fee75fe8cd679b17b14548d5893b8",
+   "kind": "ACheck",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "area_04_08_ap2:payment.ap2_authorization_authentic": {
+   "hash": "536656919f6c16d693a341017c431958a10435e1f67a57e0877703f43ee01a26",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_04_08_ap2:payment.ap2_authorization_present": {
+   "hash": "7f5aa957743d747dac6c999175a0db68409fe876c0560e41f7d1bae42b86d45e",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_04_08_ap2:payment.ap2_mandate_nested_binding": {
+   "hash": "d55e802da3bc5d9fab39b5b7261fbcd8bbbbefc17cf3505b7183111062d84fd4",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_discount:discount.accept_one_reject_one": {
+   "hash": "614421ad4c7bd28d2e9f2f346f249242422fa422b622edcb7003e2236e308412",
+   "kind": "engine",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "area_discount:discount.fixed_amount": {
+   "hash": "800ed72920145fbc967f2fccecea7d9929ec65d380b4b78374b1492650843c58",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "area_discount:discount.multiple_accept_both": {
+   "hash": "1ed9fb12ceb5be75a4c92e245df1e321f171213cf943bd50608ae78de3fe2e99",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "area_discount:discount.single_applied": {
+   "hash": "73419218cea2646fe27b0c948d9c9cc8f7e5e0dd6dacba95f97ef506a7edff63",
+   "kind": "engine",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "area_discount:discount.unknown_code_rejected": {
+   "hash": "373307993e56b5bc3c36024af73fa86c69f82280ac05ad4754e36a3aa6d9f573",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "area_lifecycle2:checkout.canceled_not_cancelable": {
+   "hash": "6259c6c4981f1c4ab5bfa25968eb9a8785d65db8200ce9c7f8e488a909ba369f",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_lifecycle2:checkout.completed_immutable_update": {
+   "hash": "6259c6c4981f1c4ab5bfa25968eb9a8785d65db8200ce9c7f8e488a909ba369f",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_lifecycle2:checkout.update_full_replace": {
+   "hash": "2bbb32b5553e27d3a3fa4aff30ba4b96a805986064de8e73e6e6f7c272ba55bf",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "area_lifecycle2:idempotency.replay_cancel": {
+   "hash": "ff7d2b8b47a971377641fc68d0387526af0fdbd996de346f92f54ece9249e9c6",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_lifecycle2:idempotency.replay_create": {
+   "hash": "d362f248bbdec9aacbc11451160d8dd9bb34433a5f5d924069a1834a6d631b10",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_negotiation:negotiation.version_unsupported_error": {
+   "hash": "3d6a43c35cc4d5ce795cc653428cfcce0e43f2589e887763f5f779d577c10065",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_order:order.currency_not_required": {
+   "hash": "2a4e407f90b8cab6d7eabe1bb2b6dc03d2bad0072e8a6c2ba94c4487368eb94b",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "area_order:order.expectation_fields": {
+   "hash": "1fd932650a5842e4872e82bc6e8b87a7f55594474652961e5c9547c0fcc65950",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "area_order:order.line_item_fields": {
+   "hash": "5ce78b3024793dc9ac17e404d951bd223a9a06c9cdf22ab875d9d1dacf043096",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "area_order:order.line_item_quantity": {
+   "hash": "c66b285f7db991d6c8aee2623c6a3b4668aa65731b8579f0c9443619cff1503f",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_order:order.snapshot": {
+   "hash": "d79ecd1c292c6855d2484582ac3e8b04c1bc280ebd00bc359e69f857ea689a7c",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "area_order:order.top_fields": {
+   "hash": "6993f3092a7bc3b7cb41cc7d709b0bc7d5f14d0fe6e3e0beb4feffcf4003c98c",
+   "kind": "engine",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "area_payment:payment.credential_non_echo": {
+   "hash": "9705bde9acd5ca5d634cb40a42029d1b812dc6672a45c17e5ca31da6158f780b",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_validation:security.sim_correct_secret_200": {
+   "hash": "a79fd914d6bba28bf86b959417ac7eea2783be710963d6f5968f906f68e59545",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "area_validation:security.sim_missing_secret_403": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "area_validation:security.sim_wrong_secret_403": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "area_validation:validation.complete_no_fulfillment": {
+   "hash": "e7b5c3c840ab017fa17167aed02332add6a363c0e778bda53f1a473ca0d5ce0b",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_validation:validation.error_detail_400": {
+   "hash": "9d2c48c0da540d2c5f33d38211ef3876905d6ebce976c9e2ebe41d3c8e94d79f",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_validation:validation.invalid_adjustment_status": {
+   "hash": "0e947d833263e81bbcc14a81a7e68aee23bce530668f611a767b0cea4175e0b6",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_validation:validation.malformed_adjustments": {
+   "hash": "0e947d833263e81bbcc14a81a7e68aee23bce530668f611a767b0cea4175e0b6",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "area_validation:validation.unknown_discount_code": {
+   "hash": "06bce5e3e6e72708abacc3a6ae030065fea4f4ecd39aa31f1cf8c9866581f65f",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "area_webhook:webhook.event_stream": {
+   "hash": "884db2f6f8818893f08d1d7ba1b5580762dc7b1a8474b33c5f14f14a564c19cb",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "area_webhook:webhook.order_placed": {
+   "hash": "884db2f6f8818893f08d1d7ba1b5580762dc7b1a8474b33c5f14f14a564c19cb",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "golden_check_08_25:CART-029.cancel": {
+   "hash": "254cdc8ef76a03505b29ad05e575230e28ae9961c6e29564b4cc8b6f7caae99a",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-029.create": {
+   "hash": "4b3b04130898d59144d10837b04e0a5953e6aa3a73fb0b55d66d13f246a76815",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-029.read": {
+   "hash": "28b83e23a8179bd00b0dbe295c3fea42522ca7ab3643636fc3c99ed06866b36e",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-029.update": {
+   "hash": "958e265746abdfcef1e1a6069e2a92cd1b7330c9f290d77800353c996e8e61dd",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-031": {
+   "hash": "57cd93b8414435a26354b0b8ddcaaffd8335a41598fbcbd22c5be6cc7e7ba04d",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-032": {
+   "hash": "5efb9152e2f69ddeb0561ebd53763a46e6482aa2aea04bb6601fa3bb820c3e83",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CART-033": {
+   "hash": "693534d8f51b9b9e56f624fe9c6c34d4d5f6f5f1bb111636187dc0642d6eb4cf",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CHK-033": {
+   "hash": "6092a1f6718387bce1058455d8bea182ece517d416c7532e6e6f791e519fbb40",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CHK-034.cancel": {
+   "hash": "16432fbcbeb9eec93272f176c67a3fb12938ea30f18ed235f0806e0cc45963bc",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CHK-034.create": {
+   "hash": "dda2cc46f53c5255cfb32732a8d27457e33fbdb28be8825a6c2b4f290294763e",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CHK-034.read": {
+   "hash": "179653f439eed549bdc786fa7974a55b65a5745e78fabc9b541594bc4977df71",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CHK-034.update": {
+   "hash": "cc4a8f4b4c7195846eea4a38e79a820e219dd950f508843e640f13cd6966c46b",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CNST-001": {
+   "hash": "69cd966f7ccf8d8cb9fd08cf72ddf7c27142104dd40fc15524f44559c877afc7",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:CNST-003": {
+   "hash": "21e777621f3b46f84606ce58824d2cdc7149efe130af0c8f6504c501b1abae7f",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:DSC-020": {
+   "hash": "03c389c56275f54287582c700ce68453df6041a9186a81f5f9057bfaf738d593",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:DSC-023": {
+   "hash": "2e9af861d0b124b9c5607f97d472c1d0655b92d18db646ec18cff4700b811ba1",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:DSC-026": {
+   "hash": "0f092b75e2266ed263b4f772a721900e26c1f6e88ddf96be653e25da9b0bc5c8",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:FUL-003": {
+   "hash": "3943d80ef2a7570f9eb58a8ada915c302215b377239026d42373fb0e39f20189",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:FUL-007": {
+   "hash": "6eb1431b17d4a26e9a0f2ea55fe52e856d94e76d296e84ed17a3bbcc6ca2c85b",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:FUL-008": {
+   "hash": "b69f9782a153f50745d5a5484ec43c9af1840b99347fe4b9f9d0a252b7345921",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:FUL-030": {
+   "hash": "ab804541bb3e79eb1692ad36f2bc3a59ae021e7c6850ee8d01bc151b00b18d16",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-003": {
+   "hash": "652be1111f8fac969beac7bbf3976e0b8bf080cd6d70184026374201dd3a92e7",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-004": {
+   "hash": "a844ba4c5b57db970f515a186d7eff28e8002b8ce3d0dd8b9ef4f21e486fef2e",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-005": {
+   "hash": "083f4cb247f9123853910be701853621609344ed88b3c7071312ab09e339635b",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-006": {
+   "hash": "018968a56dd5d5989fee083afb557eba4afab9b513e058c8864aeee5eda3a950",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-018": {
+   "hash": "a6badcacb5c54bc2a5ac16baeee774db64ecf4dd98bbe0c77aa0ac1729605589",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-019": {
+   "hash": "9e686792135d9b6d22ed6463d9967b95ef3e268724ab9bd53e1bbe0d6d8d0184",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:ORD-020": {
+   "hash": "b87a6ab32288d9695b2b14da26b2f945cd18befa85d67d9f493fc23935c0c4e7",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:PAY-011": {
+   "hash": "d45017b1b32b850ebc2c92e8698f21bc045e3ebc0f55e0e7d4fc93e0479e39ee",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:PAY-012": {
+   "hash": "d45017b1b32b850ebc2c92e8698f21bc045e3ebc0f55e0e7d4fc93e0479e39ee",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:SIG-007": {
+   "hash": "7cd477ded1bcb40d25bc89db0029bd10d63e82e3639bdb642efa0d5f09a14b44",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:SIG-008": {
+   "hash": "0cfdab089a0b4be05f8e55cc7db0efd730a17c33fad4c4966b72b234341dbd0d",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:TOT-005": {
+   "hash": "0480f6e356d1de5b0c813da1e52bc3bf939fae286d5817c9dd257f8cc3bb724f",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:TOT-006": {
+   "hash": "07047d93fd92e119afa1ab874f0afa8f855696a6495974f1066bb299c8768ac8",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:TOT-014": {
+   "hash": "a3a93eaf3ca7714ac85dd1ccb4d8960d4fe60477bfebd623638bf044c71ccde3",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:TOT-015": {
+   "hash": "e5220ec4fe23f3e824525b7986b5dc7b73b580af8c8e8139d2ab862bef72c1d2",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "golden_check_08_25:TOT-020": {
+   "hash": "a3fd5b69f21e8e53d345cdbdf2d255c5b6719756b586c644bffcddc26eae9db6",
+   "kind": "Row",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "merchant_checks:a2a.checkout_in_datapart": {
+   "hash": "c4e6da84e76b50239e8cd3363b4e9d2c9b762c3749c0344d57ad7a10fe273e9f",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:cart.line_item_shape": {
+   "hash": "104a9820ceea9e95b0c5f62587e3e2f695ffb009331886acbc840c0f7c3b6d8e",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:cart.response_shape": {
+   "hash": "f280207d46bef564cf388d6d1acaab09130ebbf82fe27fb722a76825ba003709",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:catalog.empty_search": {
+   "hash": "0c5f099fdf07b1c04cf9deda906bccb0f404f2c76b4af453f82c0305a8b81436",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:catalog.endpoints_available": {
+   "hash": "a863ef5b07a05872496a31217744fc4e6ed77e813eab61e2203d4dd836724589",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:catalog.getproduct_both_id_kinds": {
+   "hash": "ea4d3357ac4bcf4760b4d1bfd313125005f825c80222373d7c96f336c36f9cb0",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:catalog.getproduct_not_found": {
+   "hash": "a606e226464bc5bd1f094d8f1805b4c4cd53369da75532a193d4eccbf188f14f",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:catalog.getproduct_selected": {
+   "hash": "d9d79b53377cb9906e003edcbe4d01ecba521e3ac724efc08d1d662792c079d2",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:catalog.getproduct_variant_first": {
+   "hash": "63112a9f7add55966303c1c7ba39e6775c2fd866910aa36a2afd985c6358519f",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:catalog.lookup_batch_too_large": {
+   "hash": "1f6930a365a03dce7e62ede356e3ea2fbc6cd2a385c31d426873d83317340cea",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:catalog.lookup_by_variant": {
+   "hash": "1615156b89c37ae8b1390e33614abf42f360738514343ef290d11eb58897a8f3",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:catalog.lookup_dedup": {
+   "hash": "4b5f6ef32a457c31b33ab05619938423d345cf5151438c56cebe1277105b948a",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:catalog.lookup_inputs": {
+   "hash": "3b6906b6555835f2dc827a50738c93d56c4d3c3eae2c759f6555a72a88f109d5",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:catalog.lookup_unknown_partial": {
+   "hash": "9c564687e84d1166174678934d8a34f98d0dbf600970b9284afc341ef38f0b9c",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:catalog.pagination_cursor_walk": {
+   "hash": "6d6c451bc51a1951544e5e2022cbc0f735e63c1a665cc5a4c52dc7a6db1124cb",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:catalog.pagination_default_limit": {
+   "hash": "9e7a149c55ee613347062cd293ee04a0ca4aa493dc88dcff0b448b9f6a12acce",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:catalog.search_requires_input": {
+   "hash": "8e4412eca0d50b00155de88f8b82b12736dc319fa9751a1efce29acc412aa078",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:catalog.search_shape": {
+   "hash": "5cf49bbbb91c2c71e85b595d7a309474955000e34779b0d45a585d3a1d066ff0",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:checkout.cancel": {
+   "hash": "82715e07baf1048a07b073caa9446c1cc3fc404338da03e21de550c54485df58",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:checkout.complete_order": {
+   "hash": "95a05b2f2499314053b388ef04092fac4460e6cb21236502ff353c5fdf4aeceb",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:checkout.completed_immutable": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks:checkout.create_requires_line_items": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks:checkout.create_valid": {
+   "hash": "8ca6275b32744f96b4947b78d0d6c477aea5ed810e6cb5f10dd4794992194a5c",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:checkout.response_fields": {
+   "hash": "b17ce9aa91946776c28eab481ad88aef7e3c698804607949a64b72bfe8f7505e",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:checkout.retrieve": {
+   "hash": "522a8f8b372ee86a4c0bd80ca1bc138686dd97050202e2a77bbdbcf6c31d725c",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:checkout.update": {
+   "hash": "ac101dfdc3ca9a7b5bbe2a83f3601b5a0e3e49bc652bb9af22b4e82e2586521f",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:checkout.update_requires_id": {
+   "hash": "23d965de3a47471692bed502626de9c13ded6eb4bda6118c3851cd510652d4f7",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:discount.accept_one_reject_one": {
+   "hash": "5b6fe78e0befdb8878c722ea7966cbfaa85d9f75fe75a7c64a93ae798f74319d",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:discount.applied_fields": {
+   "hash": "888c20c75dae8333c6f924e88ca00412d2ed55988b1352bf594767bb3843cf3c",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:discount.empty_clears": {
+   "hash": "26da857952459d6fdf4fa0093cf122a4293b1bcf9710ae45ead5e78e1f57b6ab",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:discount.multiple_accept_both": {
+   "hash": "652d82751fff86e3f0326a54237da10ca8482169105e70f6511fe054f6450f65",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:discount.rejected_via_messages": {
+   "hash": "f0901689ae8065160248cf7763ff4da975895a48def91d1fdabba4c6b7f55058",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:discount.single_applied": {
+   "hash": "73419218cea2646fe27b0c948d9c9cc8f7e5e0dd6dacba95f97ef506a7edff63",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks:discount.unknown_code_rejected": {
+   "hash": "fbd29b715341535b0e2f5e1ccc2c4caadfd9cdd81e6bf04621eb133cbcd6deaf",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:discovery.profile_schema": {
+   "hash": "f0de5a27b3c98445dde1b2bd88de099d36c09ba873b932538346013bbdf39759",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:discovery.rest_endpoint": {
+   "hash": "1ec76c694aaa6ae0870aa410de79b99d508bdf5a817358fe5ec4ca1d85db7751",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:discovery.reverse_domain_names": {
+   "hash": "2474db05ca38bca2ec243210dc44fe0cb9cfba41daaa1fdf349529af19e3d83e",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:discovery.version": {
+   "hash": "2888b444026b9fba468abb9963c5166ed3bf5e4ae1fd56b2dc599dc8ad5bc566",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:fulfillment.method_shape": {
+   "hash": "9686c6372d15b4d4539d62a4a7732d56d264169b6a72db1554f5d7049ec25596",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:fulfillment.option_shape": {
+   "hash": "ad8a7b97f0a20109ac9b818fdc83360cc2645c53cf488fee733dfe0d4456b8ba",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:fulfillment.single_group_default": {
+   "hash": "9451bf96f71a0ab09ebceffcbf7dd2e0cd8b536573235b0d12ec54abd0fc3056",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:idempotency.conflict_409": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks:mcp.catalog_lookup": {
+   "hash": "3b6906b6555835f2dc827a50738c93d56c4d3c3eae2c759f6555a72a88f109d5",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:mcp.catalog_search": {
+   "hash": "5cf49bbbb91c2c71e85b595d7a309474955000e34779b0d45a585d3a1d066ff0",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:mcp.catalog_via_tools_call": {
+   "hash": "49cd1d631d544fd916d2c9421d47f6b4aac224012ede315138ffce8517365bd1",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:mcp.checkout_via_tools_call": {
+   "hash": "2ac448bbb357a45a8fa5e405c4d82a34a30cbd23bcde088a30bc989106b77abb",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks:mcp.error_conformance": {
+   "hash": "7562e1563fe387fa81baa30545eafafba87b98b5110b76e1331d996affc875c9",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:mcp.get_order_tool": {
+   "hash": "49cd1d631d544fd916d2c9421d47f6b4aac224012ede315138ffce8517365bd1",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:mcp.get_product_tool": {
+   "hash": "49cd1d631d544fd916d2c9421d47f6b4aac224012ede315138ffce8517365bd1",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks:negotiation.compatible_version_processed": {
+   "hash": "b0f6bcebd23b818d14f08c77cbdb6a1c95e6e937dc22ffed84a79f364e949ba6",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:order.entity_shape": {
+   "hash": "a0107db25bc20c1a3c223c1b441cd07a7b750731accceced7d79af4e6610c63f",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:order.line_item_shape": {
+   "hash": "12e15ea236536601c43405d89b22b37ed73c61a2252005cf4beadc12f1b1dcd8",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:payment.no_credential_echo": {
+   "hash": "5b2d6675290ccc40680b37face352bbd13b72ab32302ff6797b1f9ca42f234ce",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:totals.additive_non_negative": {
+   "hash": "68778f1af9afbe64b2e462eb434bcdfa21844c96bc7a9ef4f6a2cfb0d7a9dfb0",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks:totals.subtotal_and_total": {
+   "hash": "007583bffa103470204b150a1572ffb49fb698b53633addd673d2efe0d591514",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:validation.error_body": {
+   "hash": "408be5e1cecf8bed4b3b403546f255069cbcc95ff0ee187d09549fdacdcf1a5f",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks:validation.nonexistent_product": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks:validation.out_of_stock": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks:validation.overstock_update_400": {
+   "hash": "39a7291a4b4b133b4babf74e1a0df810b54c6a084c98a0830b674e1c09895652",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks:validation.payment_failure": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_01_11_01_23:checkout.body_valid_json_01era": {
+   "hash": "93f08940c73423d100d24cba8437e589402e273e4f03e84acbc3de42834e8ad7",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_01_11_01_23:checkout.idem_conflict_409_01era": {
+   "hash": "0e947d833263e81bbcc14a81a7e68aee23bce530668f611a767b0cea4175e0b6",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23:consent.boolean_states_persisted": {
+   "hash": "c6d0eafaf5cd4fde679e259a55ee76cfe0ce7ba839daa08047cb17326ef7b989",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23:discount.allocations_sum_matches": {
+   "hash": "f9441e18bd347f6a5f02f303d8748cd99425f262a3ff509334bbea569efbeed4",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23:discount.amounts_positive_integers": {
+   "hash": "ba43cf6315d546ceaee8e19cfe3cfd58842bbeb1d70685072df8f05a3a78641e",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23:discount.codes_replacement": {
+   "hash": "e967aedeb774c931ee3339d86524ecdd5a3d043ab1ce4e85c0a4ab1de620d5c5",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_origin_binding_01_11": {
+   "hash": "aea61d3bb47c577fecd6394c3a25a674888191e14b4a2c9847a48bca1b241a67",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_origin_binding_01_23": {
+   "hash": "37ef82c77ae9997f7b1cdb71eb961d0ed9765a5892de59605fa4c9a175938e59",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_spec_schema_01_11": {
+   "hash": "c58fab21b6df97aeed529e0db013650e41693349283a7bd9a233eaebdcc4128e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_11_01_23:discovery.capability_spec_schema_01_23": {
+   "hash": "5c37cfdc65f91d2463e2a52a30522cf4e760d76b202693792fa055e11c6a68f7",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23:errors.requires_severity_escalates": {
+   "hash": "c84ce399eb1e62edb394e602ac3fe6f4cddda6bb7168165b4e219e46c1bfe3ed",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_11_01_23:http.standard_error_status": {
+   "hash": "65424e80e01b45c3dfa2d6fe5cb42ee0b7ebf5bca3303df3a5d7183401e318c4",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23:http.standard_verbs": {
+   "hash": "fd61723cb6e8e8ebcbf39db330ab1a0bc40dcfdb150401f321eb3607cd39d18e",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23:negotiation.failure_error_envelope": {
+   "hash": "ca38ab2c900ed1b53796758986baeafdb0a46db60b5912f29b4c0448438c4542",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23:order.adjustment_log_fields_01era": {
+   "hash": "742c972eb57aa2c1e0483b27b075e448cc25ac06dba4faab4b2595c6c6439b42",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23:order.fulfillment_event_fields": {
+   "hash": "f0206bbca113bc501bdc39d766a3cc40f3a8e03437591a46be109a03de1f1ab2",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23:order.line_items_retained_01era": {
+   "hash": "1e4a5957da4b9d23223986d24704791e83c8958ed5002ab9df2ded45ae86e4f0",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_11_01_23:transport.https_all_communication": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "merchant_checks_01_11_01_23_disc:discovery.spec_urls_resolvable": {
+   "hash": "aada7a0b88b74c00a01f3e0eb8f0f8988e3ad91e3d74aa28f101ef6c210b443b",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23_events:webhook.retry_failed_delivery_01": {
+   "hash": "c755f49f0766ddedbac9b76e789b3017f49e516a83e096bba8c78aaed560dad7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_01_11_01_23_events:webhook.signed_detached_jws": {
+   "hash": "329d6471e435a07c7dd6de736302e3bf6bb5b323434c2eefc05ae1d59cb8b428",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23_neg:negotiation.intersection_disjoint_01era": {
+   "hash": "d74e47ca76d068cbf44e9b678f3f74891ef7cc2fb395e37c11bebd74c0bf8bd2",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23_neg:negotiation.orphan_extension_excluded_01era": {
+   "hash": "d74e47ca76d068cbf44e9b678f3f74891ef7cc2fb395e37c11bebd74c0bf8bd2",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.capability_scope_grants_ops": {
+   "hash": "1d49672b5faaafe9cc1250f53336fdd7d0bce1addfbd35efe2761dfcb731c738",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.metadata_published": {
+   "hash": "33244d8e08a818c6226bc36daa793badc76749272b9d62d1c996c2a7a0a263dc",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.oauth_code_flow": {
+   "hash": "4bba0d3d166c5d99f776c3ed95024f14144ed6005968679844ad62e9528cec9b",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.revocation": {
+   "hash": "233672585c92063f736bee79487fe3096e41afc53cd7ee78b53fd0155eecbe7a",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_01_11_01_23_oauth:identity01.token_client_auth": {
+   "hash": "34f5d8a4fdfb698c0421925e55e1352c9eb08c2fd431f3a6f7a6ae19440b688d",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.deterministic_logic_01era": {
+   "hash": "d0a3a673dad991e2c3bd80dc38244751ea30e74538273c97f24e1c84cd80d377",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.escalation_continue_url_01era": {
+   "hash": "d052d31bbadbaa1e2172793b4be0d532c134281751e8dd677a2227b5d0322117",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.escalation_continue_url_https_01era": {
+   "hash": "335057c29af29fe794b65aaf1050861d359c47705c083b328a36f7e977802617",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_11_01_23_receiver:checkout.idempotency_conflict_01era": {
+   "hash": "a44252fca62ce1496c79c62f81bbf498cb90c47d6e22ef2b8ab103610c8a3665",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.ap2_approved_algorithm": {
+   "hash": "9a4e48dbd915da8e268a190da78a5ffa8bbf911a94ad2fee47d4892dbd602b40",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.ap2_merchant_authorization_embedded": {
+   "hash": "48d8cc63a5b32981badc45f0660ea0b3a135409b4db7ff3d86dd3b3e205c58c6",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.handlers_context_filtered_0111": {
+   "hash": "c8d47df3a6e1797487bfb7b2043b552bf018115460498c63dfa8a22c04bdac25",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_11_01_23_receiver:payment.handlers_context_filtered_0123": {
+   "hash": "8691b8da99ad8283797fe5e26742bc7ce4fb0ca9d8ab233f58fbe9cbe4fce047",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_01_23:discount.automatic_no_code": {
+   "hash": "74acedd111379b8466a808d3f1a954bcb8e0a3641609e7f041a5d966ec28f3c1",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_01_23:discount.case_insensitive_codes": {
+   "hash": "3c7f16809bfe30f4b029ebbe2ad84e1b94d5fd5a1d30c849b88eaf548f2c967c",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_01_23:discount.items_discount_invariant": {
+   "hash": "3825f5335131b9bc34948a14eb177a486bae3c5e0a56b0537813c75511d3addb",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_01_23:payment.merchant_auth_jws_header": {
+   "hash": "023ddff0a9448e96ed0a06bd6338b7049084157f2e8e4ea7036fc3dc10755204",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08:discount.allocation_sum_invariant": {
+   "hash": "0c33e7e0955ccb69f14d1ad80bd0f5d6fe9a51e3352e813573a80539eaa3f30b",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08:discount.amounts_positive": {
+   "hash": "123889696877c17698734501fd8adc8007ee078395239d323f29fa23bbee2d93",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08:discount.automatic_no_code": {
+   "hash": "6a4e74a09241e08e4652417676bb0c7fdc287faa9716e1c785593eee6f51bf17",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08:discount.case_insensitive_codes": {
+   "hash": "11cc92e5e097b8d7c20e4b7751c01655a1bdab0233c0784052e185fc1658f81f",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08:discount.codes_replacement": {
+   "hash": "5a5bff9a228bb7cb0d90b674d63287c2edbd8398ee716d9d5349aeff0fdc550e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08:discount.items_discount_invariant": {
+   "hash": "8df2f80221a8ffc71c61e01a15198c9c10903f6fe98eba9b857933509b076397",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08:discount.reflected_in_totals": {
+   "hash": "d1afef99d30256c145c10d204c5ae01f93c4d6dba5f9bf977916bac29311fbbc",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08:discount.total_type_selection": {
+   "hash": "c63e0389696b8b558a122c4b2b1f15e78950d2b62165529ca3d0771057fe75e1",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_complete_requires_mandate": {
+   "hash": "ffecd68dc9a00a548a6619d52cfe00b096661a4c8faaf22fcbf8e685a8911ece",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_invalid_mandate_rejected": {
+   "hash": "ffecd68dc9a00a548a6619d52cfe00b096661a4c8faaf22fcbf8e685a8911ece",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_ap2:payment.ap2_signing_key_resolution": {
+   "hash": "ffecd68dc9a00a548a6619d52cfe00b096661a4c8faaf22fcbf8e685a8911ece",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_cartupdate:cart.update_full_replacement": {
+   "hash": "b91feb2c587f0857efea6400427df91cdc191ac53781c7f5495f41fbd6f38c11",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_discovery:discovery.endpoints_https": {
+   "hash": "aadf820c4aabef3ce8afea3e1de2b442452ed7832a16c26688b2c16301d1880c",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_cache_control": {
+   "hash": "af2a3e690c5ebd462e897f5d1719e067452423ab43d773387412d9d3defec943",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_https": {
+   "hash": "aa3a845bdaa678c908f7ce6dc689f5e4780f39227ae37773c0a771764b204b77",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_discovery:discovery.profile_no_redirect": {
+   "hash": "ac107ce82de00d101981cc863690ee8bdcb9f249d5f3750f4c38c30b28d0f756",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_discovery:discovery.reject_http_profile_url": {
+   "hash": "6b2473dedc29fc28f13b916cc12f9e8788535af094c42715c1e1923f647d79a8",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_discovery:negotiation.capabilities_incompatible_200": {
+   "hash": "524823ab4f980a869c680ef04dee1efcba75e5f34986c49dacfb3314ffc984da",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_discovery:negotiation.missing_profile_url_400": {
+   "hash": "b20dd9e675d689b9996e32d9276b0ca6e4405d3c069defb0e4f688ecb50841d7",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_discovery:negotiation.profile_malformed_422": {
+   "hash": "e0439d18a9109b34dedbbbfb15269de5770fd1bd055f25e550ead621327c50f9",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_discovery:negotiation.profile_unreachable_424": {
+   "hash": "014a71e612f1a37c09dad59adf6004a3990d34983aa3e57a2fb379a2a23cf1c8",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_discovery:negotiation.version_unsupported_422": {
+   "hash": "4eb1450a03583a6a8657c95697c00a6dd898cf164b39c37ce1aa28fc06f51091",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_envelope:negotiation.intersection_capabilities": {
+   "hash": "6cc42306dfdce981605cac1f0ba697034cb0ea07f5b84360f5a6a15b4c420efd",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_envelope:negotiation.orphan_extension_excluded": {
+   "hash": "d1ba3dc1c2a67ab1adda0ee0fe1ad71946f1e9fb45528ee66b8b559528b4b80c",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_envelope:profile.leaf_no_supported_versions": {
+   "hash": "7016a23ddfd8e7a87a91e62ba646b04a9671677d35d006336fa9df64b838b68d",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_envelope:profile.reverse_domain_names": {
+   "hash": "7e93f790bb06b5a54ee723e0d7a5db9664bdb0fc8828f678291f50f2e3f67945",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_envelope:profile.spec_url_authority": {
+   "hash": "8343fa963768e11db8d10322416fa8292ac8530f6a49df878398b97699c39d4a",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_envelope:profile.version_dated": {
+   "hash": "df6d206d42e086a9eb4682f9db44fd38b7590d1941b6666d83c5689f93ddb854",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_envelope:response.capabilities_relevant": {
+   "hash": "328456cff481a11efed70238751249a04ca929b80c259879dd8a33e88a984e71",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_envelope:response.content_type_json": {
+   "hash": "0621b6d0e99288c71c108d828c4ce90f799611e9cd5a8621a0ee38f64f5664af",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_envelope:response.envelope_every_response": {
+   "hash": "9196580687f074f058588a1b9f26df4d90ae8533c556e856bf1d55f46f117447",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:signature.err_digest_mismatch": {
+   "hash": "46a3d05b882ccaeca4987b720e9c768d2a929385a62b8356c73495da5619615a",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_events:signature.err_key_not_found": {
+   "hash": "f79a39e83ec1a1a0b7b8e4061ecc893d129485b215c2c17b2f3d785c21955657",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_events:signature.err_signature_invalid": {
+   "hash": "0db54f0ecbdaf5fca21a361ad0f69eacfbe0346117c10211f87266debd01488f",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_events:signature.err_signature_missing": {
+   "hash": "f79a39e83ec1a1a0b7b8e4061ecc893d129485b215c2c17b2f3d785c21955657",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_events:signature.idempotency_replay_cached": {
+   "hash": "fd100d75f790df0c035fc298a273d902db37ee47011bfe1b040eadd09f95c1d3",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:signature.response_body_components": {
+   "hash": "76062f0ba852e166a6328eb7f9c7577f1ee2a8e6070b70126dd598bb65989107",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_events:webhook.idempotency_key_signed": {
+   "hash": "2759cf894efccf2a44758a95d939732aab025246dfeba31d5476df5de66e1f32",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:webhook.order_created_full_entity": {
+   "hash": "8909406c3c891eb53e237055afc184b9d02c5007b3ee18b8707ca19f9e5fc17a",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_events:webhook.query_component_signed": {
+   "hash": "0f405f5605faaccd173075cb49b26498f1fee761270d1de9230eba3d00090ed9",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_events:webhook.retry_failed_delivery": {
+   "hash": "c755f49f0766ddedbac9b76e789b3017f49e516a83e096bba8c78aaed560dad7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_events:webhook.signed_components": {
+   "hash": "d85f4d3aebaab5b6acc3b61c93797cb0780c22eaa5ffb81c1117dae25282456c",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:webhook.signed_rfc9421_verifies": {
+   "hash": "66cf9f418bda773bb3c00d72fb401f052f63c0ac1e1edbeba1f88fd2e86e5d00",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_events:webhook.ucp_agent_header": {
+   "hash": "25859b1c63c3a04fc92712a88d307f39c9f0296a8c1b42af4dfdf08cfa9ce254",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:webhook.ucp_agent_signed": {
+   "hash": "e4bead124cef430d3d85fcd29b6e8765ffda5900a847b171c418a005d3b074e7",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_events:webhook.update_full_entity": {
+   "hash": "247f8c9e3443134cab6ef88fe355a2cace38bc51000b0830a4c90b4e484b012e",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_identity:identity.capability_config_schema": {
+   "hash": "69d5c625fbfb9da9f836976653d761d7b9a38b89a7f5ff33fbd62046eb9c0d0c",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_auth_methods": {
+   "hash": "a889c92a479a6ba4f519e7f1f14b71359e5bc903ff7f5b5f9419c014d83e0fb4",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_pkce_iss": {
+   "hash": "875faf68b026611252788b4f4662e686f8112d2a379854a616793d408ceebf80",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_published": {
+   "hash": "12d5d52f7706e92bf58f924c0efbfafaf7f8a22e540b23b32045253b9b93691c",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_identity:identity.oauth_metadata_scopes_supported": {
+   "hash": "f424ed5bdf2d5b142b53d53de6fdce3efc0b9b696c7e2412d5f250649cdb41b4",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_lifecycle:cart.https_tls13_minimum": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "merchant_checks_04_08_lifecycle:cart.response_body_valid_json": {
+   "hash": "93f08940c73423d100d24cba8437e589402e273e4f03e84acbc3de42834e8ad7",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_04_08_lifecycle:checkout.error_body_valid_json": {
+   "hash": "93f08940c73423d100d24cba8437e589402e273e4f03e84acbc3de42834e8ad7",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_04_08_lifecycle:checkout.https_tls13_minimum_04_08": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "merchant_checks_04_08_lifecycle:checkout.response_body_valid_json": {
+   "hash": "93f08940c73423d100d24cba8437e589402e273e4f03e84acbc3de42834e8ad7",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_04_08_lifecycle:totals.sublines_sum_invariant": {
+   "hash": "0ca3b3f1586e0270671511f2bbc8e6b11d5f53e3304ca1c233737747acdd804e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.authz_response_iss": {
+   "hash": "e1b5e637a7500c3a3031827229981b0e8aca9cf9367288c2af1b355e27ce7555",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.challenge_resource_metadata": {
+   "hash": "6f181005d293259cebd1b6c6e7c783eb86f6f5c3b40cb5fab499bb20896e93d3",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_oauth:identity.client_auth_enforced": {
+   "hash": "34f5d8a4fdfb698c0421925e55e1352c9eb08c2fd431f3a6f7a6ae19440b688d",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.continue_url_not_prebaked": {
+   "hash": "6cb943e7da089aa524168abb68813ff05f7e167c5690905c81ec074f09d017f9",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_oauth:identity.expired_token_rejected": {
+   "hash": "6ab33ed03e662aa954ed3d100dccd3ff9fda9d08a24b804d040443e85433a233",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.foreign_client_token_rejected": {
+   "hash": "6ab33ed03e662aa954ed3d100dccd3ff9fda9d08a24b804d040443e85433a233",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.identity_required_challenge": {
+   "hash": "54cc34d749b83627a053b2123b614daafc0e738a700fc945ca2a7841e2494d4e",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_oauth:identity.insufficient_scope_challenge": {
+   "hash": "e9fec606776ad972188613fbb69c957dc6e08ad2d9e919d623f8afc595897623",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_oauth:identity.invalid_token_challenge": {
+   "hash": "6ab33ed03e662aa954ed3d100dccd3ff9fda9d08a24b804d040443e85433a233",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.issuer_iss_byte_identical": {
+   "hash": "e1b5e637a7500c3a3031827229981b0e8aca9cf9367288c2af1b355e27ce7555",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.loopback_port_ignored": {
+   "hash": "c0a26b16f7a2e94deb4d5ce9334503a7f2056e955085608f140f2dc4e83b71c6",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.metadata_issuer_exact": {
+   "hash": "aa741a00a8cd13eec3dca2e37d09652fd3284b64c33aebd9f9042fe3a1dd329c",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.none_requires_pkce": {
+   "hash": "7b0e2beccd66cbd7a576fadfc03b9416dc033bcbadf37b8206407430ccef6f76",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_oauth:identity.oauth_code_flow": {
+   "hash": "eb796cfe8bbfdb2031fa7233c95a3dd185fd91de6be2baf58bf45d304b8cee11",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.pkce_plain_rejected": {
+   "hash": "7b0e2beccd66cbd7a576fadfc03b9416dc033bcbadf37b8206407430ccef6f76",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_oauth:identity.profile_conflict_rejected": {
+   "hash": "b1467c639234f7be92bda657db9a439e21aecbb341b6bbd46548111291d6d793",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.public_client_method_offered": {
+   "hash": "f4ffe3ac392e8273621334d83ce008261718cf62256bac5017745a1f442e9d7c",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.redirect_uri_exact": {
+   "hash": "2f8e89315d683058a743a914d82a6feefd7b7a033d859851db41a78ff928e6a8",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.revocation_invalidates": {
+   "hash": "8bf63de42dbb43af5e1fac85de98021ea0099709f45162ca28805a8609e47e22",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_oauth:identity.revoked_token_rejected": {
+   "hash": "6ab33ed03e662aa954ed3d100dccd3ff9fda9d08a24b804d040443e85433a233",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:identity.scope_grants_access": {
+   "hash": "1d49672b5faaafe9cc1250f53336fdd7d0bce1addfbd35efe2761dfcb731c738",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_oauth:identity.token_pkce_enforced": {
+   "hash": "734835435f4ba859c9a0a85d4ef038501b99e7d2d0736bf7101b078c5abc2927",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_oauth:order.responses_signed": {
+   "hash": "760a5a3bd0b58e30c6d2d71d397be3f71b7f166a4e9090c664f983eff7fa09e1",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_order:order.adjustment_quantities_signed": {
+   "hash": "938dfbe5883e802962815b84e74a5f5d62d0c925d94db904dfacb7c376c2cfe2",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_order:order.adjustment_totals_signed": {
+   "hash": "9ccc9fcf376b233535b986ad04a58170ccc90b3c85c5e1c17ee816da1c2ffcd7",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_order:order.data_requires_auth": {
+   "hash": "c28537ad57f268c06a47f773a7ce86fca7da03d06b6aa69e12e6675990a63e7c",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_04_08_order:order.https_tls13_minimum": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "merchant_checks_04_08_order:order.line_items_ever_existed": {
+   "hash": "8391281f35ab8b3986dd299dc3290d118aed8e27b95a633c020d86dfc30e4d14",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_order:order.response_valid_json": {
+   "hash": "542fd50b564cccb6291e3a27c1d9a26efc8eb8183a5a2bcf8aaa2924c6b97bf5",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_payment:payment.escalation_continue_url": {
+   "hash": "1cfe08060446f715ea732003ee6e23c2f17a049fb440a7034bd48e352dd749ca",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_payment:payment.profile_handlers_registry": {
+   "hash": "209ce0bf8e38a04315970ad8e64945b8eb2f67e5c7b2d6f59d6cc976bf48594a",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_payment:payment.response_handlers_echo": {
+   "hash": "841b13a6e6141b265dea9163ebcb2718b3473e8559fac8b0a805a8ef0217c515",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_receiver:cart.cancel_returns_state": {
+   "hash": "2505d3b4cee611adf4fea0974e0862280c2375a9b8814d7a0cccd76069660983",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_carries_codes": {
+   "hash": "c6cb96f270127d9a7d3b021d319aa4813c8fb33b32b1ba4831be4ecafc020e8b",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_idempotent": {
+   "hash": "82c55e1b37322b6f921007ab40bc7ddc8ed60e3d61da623127deb6c8211d2274",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:cart.conversion_uses_cart_contents": {
+   "hash": "27ea7f8efcf4bc1fd7695aebd36e7cf8d9e92ee7c8f05a0223c1ef6b3d5e1c4c",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:cart.idempotency_conflict": {
+   "hash": "6eb92e506d7ee6438ec0442f2747f8b23609f76f96fb45f56bbb016976d8ebd7",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_receiver:checkout.deterministic_logic": {
+   "hash": "6c8ef6ec24905ab66a52558fd756e1e5939eea733ae186fc25775c4a83316874",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_buyer_message": {
+   "hash": "70bfdfdc3293d57d61e7c2716b00a6b963f0ba10473909960e46eb5443363f8c",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_continue_url": {
+   "hash": "d052d31bbadbaa1e2172793b4be0d532c134281751e8dd677a2227b5d0322117",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_receiver:checkout.escalation_continue_url_https": {
+   "hash": "335057c29af29fe794b65aaf1050861d359c47705c083b328a36f7e977802617",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_receiver:checkout.idempotency_conflict": {
+   "hash": "a44252fca62ce1496c79c62f81bbf498cb90c47d6e22ef2b8ab103610c8a3665",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_receiver:checkout.protocol_error_shape": {
+   "hash": "d579e177e093991e37d4ffff24631f45c69b92046007b4cfbad3bebc29103902",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:checkout.requires_star_implies_escalation": {
+   "hash": "9aa1dc3212f2bf5e8fbce898eb717f56a02d2bfaf536814b776ccf391078ce2a",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_receiver:checkout.unavailable_all_error_envelope": {
+   "hash": "6c357ff8d3360be0c44799a5fb297013d403ca6ae58a40dd1dd6be9aa2300bb6",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_receiver:checkout.unavailable_business_outcome": {
+   "hash": "ab249d83376343e785163523ded30156fd1acd7e7533136ccf2e07894c5e5853",
+   "kind": "MCheck",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_receiver:discount.automatic_not_removable": {
+   "hash": "d6308546985b6f90a25992457ab5d602af13e09b7a8485f7d95901822f4df979",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:eligibility.completion_blocked": {
+   "hash": "2a0af4c45545d74c9a1e4ac84f7589a74e816e2088bf8afa2827c7982425dc5d",
+   "kind": "MCheck",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "merchant_checks_04_08_receiver:eligibility.invalid_message": {
+   "hash": "b24806d73c4f9f8abc8d16822ed1436f4aa9f2f0284bfd6f2da27b5eed23b12a",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_receiver:eligibility.provisional_discount": {
+   "hash": "a6f8ab8aab61c1b93617612ba0346454cc223c5d0d6d211a98f900b1df05a2c6",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:eligibility.provisional_resolved": {
+   "hash": "e1a598618fc9ed5ed5a22df3bf901226c11f129da5c141af084476e3ad9d2730",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_receiver:eligibility.unrecognized_ignored": {
+   "hash": "1e49631b3b8d58ec9ceaa36353edc1759c08d6cd2f30496a6eb6bdda7ae802aa",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_receiver:eligibility.unrecognized_not_blocking": {
+   "hash": "eaed1c52d8585b22fb35a50c7a83c6f2e783003d9b9fae869bd6c270e5e547dd",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:payment.handler_id_validated": {
+   "hash": "d1d5713f71925b808e19ba9108aaea8090941b3d8a7efc386bb262d774f28053",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:payment.handlers_context_filtered": {
+   "hash": "2ba53f5c94bcf444597013e3176f9525adfc88fb20731f3df15e816942598bc6",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_receiver:signals.attribution_no_effect": {
+   "hash": "eae7ec9bf9e23fd235cda6ff497fceae947705d56ee84c1af700b21aa2ab989f",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_signatures:idempotency.storage_fail_closed": {
+   "hash": "25f59405f09c6cae8784cc42a2a92def999342ad9dbc994eaf9233363be0221d",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_signatures:idempotency.storage_min_24h": {
+   "hash": "fd100d75f790df0c035fc298a273d902db37ee47011bfe1b040eadd09f95c1d3",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_signatures:signature.algorithm_unsupported_400": {
+   "hash": "77ed91b7a41333ef92282d495fb431f750d760d93c04406f7d7720e1061efc0d",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_signatures:signature.keyid_published": {
+   "hash": "15256c59c65d76686a8226a398fdd0158a2c4ce9357615c016c3e380e2a759f9",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_signatures:signature.no_alg_parameter": {
+   "hash": "f32a2786abf8f9209b0bc40b58b5c8262dceb3222190e59bf14ebdecd86c03fc",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_signatures:signature.raw_rs_encoding": {
+   "hash": "e86d5d51284da826f0bfc13b4897987a493fbacd2581133f1d323d86531077b2",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_signatures:signature.response_content_digest": {
+   "hash": "392bec004c8b01c870ae1065340ad22ea0538c2cd5c97d3041a129fd84bb30eb",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_signatures:signature.response_headers_present": {
+   "hash": "412512e2cbc7243fbe4685481120e4760957ee9dc734ec376a9ff95a1a109ec5",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_04_08_signatures:signature.response_status_component": {
+   "hash": "f50f83a345df793ab61685f971cf6db09f164085c8e7ceff0f1c56765370c8fe",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_04_08_signatures:signature.rfc9421_response_verifies": {
+   "hash": "d738c689a0515167c5fe7b0ae70da34e5a1c9a1eee40a88ac7f21ec9e29cb73a",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_signatures:signature.rotation_grace_period": {
+   "hash": "0c6857ad6fc9c2f282001d77df4c3cd302fed169d521fc908d15314a52e01c5e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_signatures:signature.signing_keys_jwk": {
+   "hash": "5b963c053133b7a98cdfa6684b16b98ac3a3ea656ad949903b9a6e8d19a4a26d",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_04_08_signatures:signature.verifies_es256_requests": {
+   "hash": "0c6857ad6fc9c2f282001d77df4c3cd302fed169d521fc908d15314a52e01c5e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_04_08_tls:transport.https_tls12_minimum": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "schema_check:cart.currency_required": {
+   "hash": "f07cf85c359c9dfbb63fa33e111dc2e6f19f652477309708530740b1ea8fd1b8",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:cart.entity_required_fields": {
+   "hash": "ea73bb445ad9edf9d1783a3aa352fee5630de01f8e88bdcd8ab0778afa4228f3",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "schema_check:cart.item_required_fields": {
+   "hash": "4721d281a8fadfe6c8ad5ac0ec0ac79bba10a9f7a2529e9c2255216f7e6ea837",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check:cart.line_item_quantity_min": {
+   "hash": "1e4191593aa89df976e6a65892f038b54608a5ce40598a2ce7662315857825bc",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:cart.line_item_required_fields": {
+   "hash": "d54e259219cd36650c6a010001dc102039bbad2ee564c69772e9353fbb755ab8",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "schema_check:catalog.getproduct_response_required_fields": {
+   "hash": "619c6b52fd69f73c2614b1e98620377bfba8c0459ec4ed78df8cbbf2db18f1a5",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:catalog.lookup_response_required_fields": {
+   "hash": "576aa6561572e315204c83fe343777c2af0ba778b79a1309b8962f6139037cca",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:catalog.lookup_variant_requires_inputs": {
+   "hash": "9977f1ba37b401ea0463235e1b46183770aab2d787a7d23a3b289d777671fad9",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check:catalog.pagination_next_page_requires_cursor": {
+   "hash": "34f5ece7f26c18ea8b2f27251a161b8b549141b5d706ad43269064912000eaa3",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:catalog.search_response_schema": {
+   "hash": "54c7f3d9aca921baaccef69a6f62bfbfd65bb3145d10c2c867bc709600844eb8",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:checkout.response_required_fields": {
+   "hash": "6f7f48eb98c44cdb8ad90f032d12c1f098a4cc8450f59ffbd09d2b89e4ec3225",
+   "kind": "engine",
+   "n_kills": 9,
+   "n_kills_floor": 9
+  },
+  "schema_check:checkout.status_enum": {
+   "hash": "ccbb55551136b67d868f5d00b5925d96ff59bca50d572fadc5d67593aea81f08",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:consent.fields_boolean": {
+   "hash": "c14f3f1f54770afe89ee9d86cd6b7a821b762250c6a7f3fa36b252a7f2a6628d",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "schema_check:discount.allocation_required_fields": {
+   "hash": "a08341a9dac85a900b1f6582d0e4310d68863304be7b86d6719b26f2e2625ad3",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:discount.applied_required_fields": {
+   "hash": "3e92c0cac04e6d12b846eda8f89098ea8272644912986ddcd8edf95f517b9372",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:discount.method_enum": {
+   "hash": "b2b740ee005ccf57228212f6f695dc9d126026798809a9ab9065cce2303f2e0a",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:discount.priority_minimum": {
+   "hash": "b886cb514ec0680ffdcf9cfc2845be49019eb8205a64536d213d92ee9c3437fe",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:discount.totals_sign_negative": {
+   "hash": "81e91d71d6d90fdd5753c6f987c3e209f432b24db127f5469f422c0f1ff1ae9a",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:error.message_required_fields": {
+   "hash": "056e1ff6e15659a1a2412d5f56661548b812761fa48a38de4134274d4b79350d",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:error.messages_non_empty": {
+   "hash": "f462defdd05bb4cd40726d06489837984d595f2f28552c7373b26c8f9d5be825",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check:error.response_envelope_schema": {
+   "hash": "30e2bcfdfbcee801e425b2f71238453b671dcd79ee4b6279c0b2ba084a305ba6",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:fulfillment.destination_required_id": {
+   "hash": "d940b8cf368c6acf87879e21c3a6719031a21b577066749bf36b50c6a40c9296",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:fulfillment.group_required_fields": {
+   "hash": "783917d5f5bcf985d3b24e70ba4c83dc3ab5bbea87de3eaa313708926877cc90",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check:fulfillment.method_required_fields": {
+   "hash": "c7a01d549b168ab3004de63e2bd1290bde12f7254ca6f2047f4c1bf3da18cf23",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check:fulfillment.method_type_enum": {
+   "hash": "fd33c59aa48c022548ea75b3ffd2be66a5ff07c3a5fb03a23a4f26a0df69438b",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:fulfillment.option_required_fields": {
+   "hash": "bbd45665238c2e573a5c2a5a7f07f3e67ab3c8432cf975e3484346540e77415d",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check:order.currency_required_delta": {
+   "hash": "f07cf85c359c9dfbb63fa33e111dc2e6f19f652477309708530740b1ea8fd1b8",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:order.entity_required_fields": {
+   "hash": "9f154cf552cf9eb3884213c0fcf27984c35d8012d712239f1786f9809468689b",
+   "kind": "engine",
+   "n_kills": 10,
+   "n_kills_floor": 10
+  },
+  "schema_check:order.line_item_required_fields": {
+   "hash": "0d8a4c6c95066508fd3cc0dceaba2f9b34e856e92529f8a769bed67860d15264",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "schema_check:order.permalink_url_required": {
+   "hash": "fd3e5238cee8de11cad6b7c704412769bcca6f01cb775cc3b6e162ac0486f524",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:totals.additive_sign_nonnegative": {
+   "hash": "d88ced538477aac35a6579081f63d08202e45ae281ac55d3e5fc653ee878ecc2",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:totals.discount_sign_negative": {
+   "hash": "ee0bbe98a5c44815b2d1c1814d3bda1ec1c39c6d6ce8c9ee246464e1649c0734",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check:totals.exactly_one_subtotal": {
+   "hash": "d8712ce5e645b85886ebafbb655465e58c0bced3f9199d95f6e609da0e1c9bc5",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check:totals.exactly_one_total": {
+   "hash": "031af1d8c34fa4d15f4f39cadbd8ba0ad64de05fbc1aee7e16a7631bd50fc0d8",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "schema_check_01_11_01_23:buyer_consent.boolean_states_01_11": {
+   "hash": "63dfb4d5db04199cc6403fc6ec4e4f780bd69e62c5d213e51ca9c5e4fb0c4a4a",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:checkout.continue_url_response_only": {
+   "hash": "60fe8254e2686e5c4096ddd11a1a83a581263b60ff42e9441792710a0df492d3",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.currency_response_only_01_23": {
+   "hash": "a81e64f74c34b64713f41d598e8a30e1472ac57ff178c700f676203b6fd1b798",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.expires_at_response_only": {
+   "hash": "fbf9754efbc3de14641a10b05fabf4c47896988788b0e6d6ca8a3a0d898afc79",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.links_response_only": {
+   "hash": "2aa3d2083da0376df72e1e04a491874fa3b80ec02a4178493646b377a8b051e9",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.messages_response_only": {
+   "hash": "45013ee0e0924ecc21ff94be31d9289c5bb6a722589340267f7af9e72bb4bd89",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.order_response_only": {
+   "hash": "f6e19679c500fbc76583336dd26ec0cc3de8cf161a75a3246ff8befa106e2969",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.payment_required_on_complete_01_23": {
+   "hash": "f975658fc2b47bf459bd31bd6f6713a57d2840fc6065b666c7aa0587d37c6f95",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.status_response_only": {
+   "hash": "1eb04ccac17fe7f3c472835d52f2af66bd14ebfc5cda95ba8347ecc2454e72f4",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.totals_response_only": {
+   "hash": "c4319fb35fb57d0dd031093dea1fc13129dc0a9d7027d9ee23377ae76c496147",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:checkout.ucp_omitted_on_requests": {
+   "hash": "f0cd97d25489246b6a0a1d59971d94ef3dfc0ed024972f3969e7097710234a8a",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:consent.buyer_omitted_on_complete_01_23": {
+   "hash": "1c91f7a308bbe54b12024b1709f545ccc48eb5f0ad20f1409e9e86d186dedd17",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:discount.allocation_shape_01_11": {
+   "hash": "1253acadd552f64c9d61df3646401fe1390ddcd9caa8465b73414a763ad7e5bb",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:discount.applied_method_enum_01_11": {
+   "hash": "574aa2c45a9e38e69bafd554a0868f234d61d9608654b171d40d2bf3afc1d431",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_11_01_23:discount.omitted_on_complete_01_23": {
+   "hash": "fb0f2d731a15ca6142ac8301cac76e2a29db81201ba56feb8380c37f9425bd8a",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_01_11_01_23:error.code_is_open_string_01_11": {
+   "hash": "e4a1cc4dcad4a9284eeb5b61efd630100e063aab671aea7d2e929f83aebc2129",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:error.required_fields": {
+   "hash": "b4027c3188a2ef9b85177e433158f3817cdb01cf551d761679e4cfede4ca5c31",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:error.severity_enum_3_01_11": {
+   "hash": "8ecd14c42e6dfd2975b0568dfba4d9689a2b2cb5f827358c38b64d1b4b0bfe2a",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:error.type_const_error_01_11": {
+   "hash": "acf704ceeb8c6529e1100e50d110eecff02bda37e63e7272643244c9fb81b8ab",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:fulfillment.option_title_required": {
+   "hash": "610baacae14d6395888b6fd47b7cdaefa6f9af534639b11370a6f357d7535ac2",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_01_11_01_23:payment.ap2_two_mandates": {
+   "hash": "20cebb202287af0b7479fd600bd9e6f43516eab68ebc06c0f1220420ac036707",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_11_01_23:payment.ap2_two_mandates_01_11": {
+   "hash": "a73c28bee4dee12fd20e8895e47d1607ff4f65a9386fa8a0cd4395fc5bf235a2",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_01_11_01_23:payment.binding_requires_checkout_id": {
+   "hash": "ad2b59fcf20964681a62d3ea30f30b88310c1f365d96f04f43f5e5fbc77b7b40",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_01_11_01_23:payment.card_credential_shape": {
+   "hash": "bc47c0e1ee088099bcaad3b5e32290a4e9966a10c0a846bf956732b389fcc299",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_11_01_23:payment.handler_platform_spec_schema": {
+   "hash": "8c580edcec032643b5fa0935ee736ec12774fcbbefb91e65618331a6cac5a29e",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_11_01_23:payment.instrument_required_fields": {
+   "hash": "4999a607af0ab18fff6b21b76f5bd5db357c4924523ef55375e0aa4b4b702614",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_11_01_23:payment.instrument_required_fields_01_11": {
+   "hash": "31e55d1cbd8e0f2521079c0405e463c27563f7600e192133f7336b0ae155440a",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_11_01_23:payment.token_credential_shape": {
+   "hash": "0416b33adfbe5492d52a82846c1b53f041efee941449edadb8f7caf227e67d99",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_23:buyer_consent.boolean_states": {
+   "hash": "f8fca50c85ed94439a97e0c19b202aa27340a894c61c883aa59fe88cfb804406",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_23:discount.allocation_shape": {
+   "hash": "90ad6cb8df4fdd8c0069719e2c128de86816ab8f55912599e24a3569586a5edc",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_23:discount.applied_method_enum": {
+   "hash": "0a21dfbe61959c5576376956aef36a0a5b458cd2441731f19626019693fb3187",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_01_23:error.code_is_open_string": {
+   "hash": "92608092cf7bc0dc69569e9ed60ca86a10816d2b9afd8b1d3bf0a452adb5e85a",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_23:error.severity_enum_3": {
+   "hash": "3bd482f19b011dab1ba3e06675cf2842bf675700a44efc755e6d2c7c7b646933",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_23:error.type_const_error": {
+   "hash": "cee21c550803078b389bc3233f5e7ba08097b806a3070f6cf121cf5de39e29ed",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_01_23:payment.ap2_mandate_on_complete": {
+   "hash": "5c04c86e01dfc4af3df4eebd6c02c10d6d34dbf422181794a59ac0def636567c",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08:cart.cart_id_omitted_on_update": {
+   "hash": "753190d6e5b5f85a82054f276b13b9da1bc7c2ca79cce47349c243d6c5c2f63a",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08:catalog.lookup_request_ids_required": {
+   "hash": "aa999379aadec70261e19e22bad7ca3f78953d9a42b2c7790a570cabdd843978",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08:catalog.pagination_limit_minimum": {
+   "hash": "1710c511c462f7ed95dc6ed367cf8fb450adb28ed325c1fab1800f9cbd8d58f4",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08:consent.buyer_omitted_on_complete": {
+   "hash": "d2eee4b8ee682f97e2d816dda0a16e3cc47e6413e2766ab83b2d80076084cc84",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08:discount.applied_response_only": {
+   "hash": "e7995a45dbd8cb2f2c285e57c33d76ca57a1d8973319980506bc6af3a08ee0bb",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08:discount.omitted_on_complete": {
+   "hash": "c7e68d137643a6763a5647fbc4daf1a309dade34d5f8581d134f0ccadafc370b",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_discovery:error.content_type_enum": {
+   "hash": "02e713f35767d3a59d6d6bd41cf564796052b5dd14305d0e767609a452d8e49e",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_discovery:error.message_type_const": {
+   "hash": "1f78f5d09835d5f9f32c610a513be3bf27dc032ca8dbc4ce0d7f00ebc4fa73d9",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_discovery:info.message_type_const": {
+   "hash": "0d1965f1eb1166b363ef9617478505d695cf792188357be8fbae2f0f755bee84",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_discovery:info.required_fields": {
+   "hash": "cb0d9c32edf32a4b28712c9234567cf3efe5f830842d6d07c4a43236486e9928",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_discovery:message.oneof_discriminated": {
+   "hash": "0890d8154f667f2166463df79e079b5b66fb09fcf92da8af98bea1e91322e0ba",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_discovery:warning.message_type_const": {
+   "hash": "51b774e5c12029af6700d8bf8e0cf14d6aa1a30c6bb008694b05edcda724f087",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_discovery:warning.required_fields": {
+   "hash": "dd57634246e7f524183c66440d486049b51736ae379d8d85cd9ffeb113ee8364",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_identity:attribution.values_string_encoded": {
+   "hash": "20b30ef3eefdae296f8036d615e2b62c613bc0170e16703804f922919ce9f62a",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_identity:context.eligibility_reverse_domain": {
+   "hash": "ea21c211aa25b189ff5b6546375206e54a41fc5e224a1702f2b7a56a7f180997",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_identity:identity.business_config_scopes_required": {
+   "hash": "64b9ae9929abb6c603a3fb8c78c8176673814dc836a0e6f1fbd96082ffe5d2fc",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_identity:identity.config_scopes_scope_token": {
+   "hash": "8ded86dd690841191e00abe64cee060b01a56ecabf3f2962a663e2b1f3b52d27",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_identity:identity.scope_name_pattern": {
+   "hash": "fa3d88fee65b6c823239281409dfbd6e4a3170abef6895fd14055ded0eb3dc20",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_identity:signals.reverse_domain_keys": {
+   "hash": "cd97fc169eda0f62268e0f29585305d050410d05658713b28ce49b810aa38c24",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_lifecycle:checkout.id_omitted_all_request_ops": {
+   "hash": "805bc0e0f563a17db755fe133c27e11e85801fedf75d8c52cfaeea8c1cb519c4",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_lifecycle:checkout.payment_required_on_complete": {
+   "hash": "5de76ea8204fbf1b1cf59f89c88218f0e0cf5e40444a6a025dbf88805b3a3d7c",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_lifecycle:checkout.request_id_omitted": {
+   "hash": "542520cf631d71ec2cb44613e378ec1e57e7a60bfba6e884f79416111b2ecdad",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_lifecycle:price.amount_and_currency": {
+   "hash": "5c8840bb2ee57ef6f23c9933e7ae72af3484d68e9b7a92c0256b403b70d346e6",
+   "kind": "schema-tier",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "schema_check_04_08_lifecycle:totals.entry_required_fields": {
+   "hash": "3df83b8941133e6eb7bbde49255427675b10fd16950649daa354e548b5c07f4e",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_lifecycle:totals.subline_required_fields": {
+   "hash": "ee9a6e73bcc53f5ad889058eb72c16a692bc57dada1c8ca47d1d270c9f3219bc",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_lifecycle:totals.unknown_type_requires_display_text": {
+   "hash": "394898fdea4cbdf7db716b054f04fb1f9751a97360c02ccef01ed2cea950a16b",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_order:order.adjustment_required_fields": {
+   "hash": "1773922a488c6a94bc0c11ccba410f7793d88ba67e2d2a7f743891855d0860f9",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_order:order.confirmation_required_fields": {
+   "hash": "84bf7f1d85b9952018062dafbe182d89e915498a81c80a6392878e64742750f2",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_order:order.expectation_required_fields": {
+   "hash": "4a51f67b46637c778b9c13027d09c03eecab7a3d5aca603627b810aa81334aa2",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_order:order.fulfillment_event_required_fields": {
+   "hash": "650233e9d4216622ed8564bff3e23605a2b0d5855beb1b46237590fc3ac974d5",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_order:order.line_item_quantity_shape": {
+   "hash": "a4d6705df8d27b567674cceea675118fcb20a2f2e723bc4456554087ada49620",
+   "kind": "schema-tier",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "schema_check_04_08_payment:payment.ap2_two_mandates": {
+   "hash": "5dba3ec69d3edac3d664f5e84d9dea0491691c0faac69771ed76ac26f633dd84",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_payment:payment.available_instrument_requires_type": {
+   "hash": "274010a37644af36db179895df5e0cfcd97c966f4428a3e8c0b474a4a5f1cf9e",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_payment:payment.available_instruments_min_one": {
+   "hash": "193fa2b73a2e680676c86a2fb69664796a5f4f530ae2a114c3f36f41cb81b02c",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_payment:payment.binding_requires_checkout_id": {
+   "hash": "31575085247ddb20ae628713db3b8e41c7d75a445ab10d0fbc0db80730acf518",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_payment:payment.card_credential_required_fields": {
+   "hash": "f45bf03a6276846f1736d5c8c91b751d1e7c500c0e6d2b975453baa578532cd0",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_payment:payment.card_instrument_type_const": {
+   "hash": "b58ef05b4de5b37a6ad9188b14f955b6404718ac76b31a0f405e375ace70be79",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_payment:payment.credential_requires_type": {
+   "hash": "dd2de74c1ad5242e71118ab974f32523c954e30d291bed1700789c87b8467434",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_payment:payment.handler_declaration_requires_id": {
+   "hash": "8912d65773d9a3e4468818ba12d8547a8e212588cfc1d065b2fc6068d4425352",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "schema_check_04_08_payment:payment.identity_requires_access_token": {
+   "hash": "f0f2c13b7cab84fa6dd0a248ec4c01be83642795f65219d76ada94945b5831d3",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_payment:payment.instrument_required_fields": {
+   "hash": "8ba04d16b63d071fcd06a68b68c7e1b1f9fbfa02f62812743f204a97ae346c9c",
+   "kind": "schema-tier",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "schema_check_04_08_payment:payment.platform_handler_requires_spec_schema": {
+   "hash": "622f41f48b6b13c46a4fbcb491a77e6b4bd58d55a87026a9ee96462f670f34f9",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_payment:payment.profile_requires_handlers_registry": {
+   "hash": "4009d1b5063018ca7b4d980e08c5e0124b50d934083784040a131acfda23e7b0",
+   "kind": "schema-tier",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "schema_check_04_08_payment:payment.response_envelope_requires_handlers": {
+   "hash": "0d438979a30a720eeb2d62ceb7e44cb576c74835627e5fa79a2145eda8556da9",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_payment:payment.token_credential_required_fields": {
+   "hash": "22b973b991e981b19d5b9670cd996a81d26f74bd552d9d0f36bc7cb551da7ffa",
+   "kind": "schema-tier",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "schema_check_04_08_payment:payment.token_omitted_on_response": {
+   "hash": "0fdedb583043a6439432f9b344ca8e9df3721785477690094b792280c6a996a5",
+   "kind": "schema-tier",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "struct_check_08_25:capability.authority_prefix_derivation": {
+   "hash": "16cb3e00657d0c41c77d99f7e6aa544d55b2c6105afd5f753e070c9a3fcf05e7",
+   "kind": "struct",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "struct_check_08_25:capability.business_schema_requires_schema": {
+   "hash": "ed93d76944af5922d3383b0bfeafe52759d9783933f2f8ebcbd8005a474166df",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:capability.name_binds_exact_or_label_aligned_prefix": {
+   "hash": "3fc300cf1d47dd3acf7888bfb4eed5543a8d174ec96b77bd97a972fd909081e0",
+   "kind": "struct",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "struct_check_08_25:capability.schema_host_registered_domain_min_two_labels": {
+   "hash": "59d72cd86f7f9f3540e5d703806fc62a4d2420da02117387a7a103269ec6c451",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:capability.schema_url_parses_https_no_userinfo": {
+   "hash": "7960ba4d9d24a2c9df3739ae1f8663c54bd39773538e3c0a93a2de3e9ee61f33",
+   "kind": "struct",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "struct_check_08_25:capability.spec_url_https_only_any_host": {
+   "hash": "1ae6d15a0c983be2abb2b7e0333721d75c873284a176daf070ee7a2ca269d5d1",
+   "kind": "struct",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "struct_check_08_25:catalog.get_product_response_requires_ucp_and_product": {
+   "hash": "0e2ee341ad0f829a59be91edc5fce97ad49b51805de27bc6d79020784ac0ebf1",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.lookup_merge_by_product": {
+   "hash": "c7f2ce9e1bc22eeba4071f713daadb40fb878a4a7784840d3e82a5dfcca1e37a",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.lookup_request_ids_deduplicated": {
+   "hash": "e1a51e8ff61086aed975f9f5cbc86b7b88ec88f4078adf4ee408461bc1f41ad4",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:catalog.lookup_request_requires_ids_min_one": {
+   "hash": "f9d6d55d245f2604346d26a0e551e562dc5258890dd7197f0ddaab72c513c7f9",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:catalog.lookup_response_requires_ucp_and_products": {
+   "hash": "0a6dc43e3ee5f98149d825e56ed0695237fc008f7b5a1aab4571b858ccea69f2",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.lookup_variants_require_nonempty_inputs": {
+   "hash": "0b1ab4d9fff546a06b0318b1bde6b7e329a4fee55de3d73b12c5091211757934",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.pagination_cursor_required_when_has_next_page": {
+   "hash": "abdbfa3df56c9a7e51fecb90ff2147b0285502124bf8817ecbd6593d95c92b61",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:catalog.pagination_response_requires_has_next_page": {
+   "hash": "047e152cf238b4acfdd46bc697e15a6c3e205588392ea1355d50bbe1f0123aab",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:catalog.search_response_requires_ucp_and_products": {
+   "hash": "ce907ad8bdc8d64d9348b611a14cbc4d3eccfac7ed7a4404231bb59cf04ef7ab",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.unit_price_comparator_formula": {
+   "hash": "83b4815eb970005bec499e25801b681c0d7d0443d7da2d2f0d683506c9cba94d",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.unit_price_currency_matches_price_currency": {
+   "hash": "6eac0b08a3750b3fcde5c1e2413efbd16b74db991e91a3a17a02f7d339e0efe7",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.unit_price_measure_and_reference_same_unit": {
+   "hash": "842a4001d2346c68b46594a4c40b2a83102f2e78f374611d4570c9f9c278a73f",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:catalog.unit_price_measure_reference_values_positive": {
+   "hash": "eb39f139b973aa1a26cee66542aa2dff7aed818661ac3c8c35ef64e4da329d56",
+   "kind": "struct",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "struct_check_08_25:catalog.variant_id_lookup_requested_variant_first": {
+   "hash": "e5f9a82001c0e20dfd8bf945300be985e28508573d50769a5613ec55db362dee",
+   "kind": "struct",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "struct_check_08_25:discovery.dereference_no_redirect_follow": {
+   "hash": "2a238bdbbda725697119da943e882d25b9ca0c4d75b5b384bdde9f0d6a78eaf2",
+   "kind": "struct",
+   "n_kills": 8,
+   "n_kills_floor": 8
+  },
+  "struct_check_08_25:discovery.dereference_target_not_special_use": {
+   "hash": "5c842f27e5d124b26768c0992af3ac4e2d34a5a189b302c53d083366cfcfec7f",
+   "kind": "struct",
+   "n_kills": 11,
+   "n_kills_floor": 11
+  },
+  "struct_check_08_25:discovery.dereference_url_https_only": {
+   "hash": "6e1ac0017465704af389ec9769cf5ecc8de1945f5e9dda066da53c502ba935da",
+   "kind": "struct",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "struct_check_08_25:namespace.action_type_keys_reverse_domain": {
+   "hash": "47b918414d7713a76832c64c3dcd7056b7946973103b16cc2cb18d61bbb6c7c6",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:namespace.loyalty_independent_programs_sibling_keys": {
+   "hash": "fadb58029f425c49f50346d90a40ff47432821d0dafe8a3b4e4fc08354dcd92a",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:namespace.loyalty_keys_reverse_domain": {
+   "hash": "82f694ef98d3826a7babf7c05021b5883a8b3dc3acc5d62430da68cbfbb1a527",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:namespace.reverse_domain_pattern_from_vendored_schema": {
+   "hash": "7ab5461addfc340c259712f8221da33e077f349332d244e2a0aeccc3dff5e80e",
+   "kind": "struct",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "struct_check_08_25:namespace.signal_keys_reverse_domain": {
+   "hash": "b9bf708911a5ac6194d51a295ed509e264acd84753fbdecd19101d7329d68893",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:permalink.continue_to_fallback_no_reflection": {
+   "hash": "0c72cd79b57e702bbf9e48f3e3b42e06507990434b8af9c1eb79a04e5d4aba12",
+   "kind": "struct",
+   "n_kills": 1,
+   "n_kills_floor": 1
+  },
+  "struct_check_08_25:permalink.continue_to_static_rejection_rules": {
+   "hash": "bd5a599313cde57af171443e6e1fb21f16d102b47dd9230f920fec5185e948d2",
+   "kind": "struct",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "struct_check_08_25:permalink.item_id_raw_and_tilde_forms_agree": {
+   "hash": "7e4ae0131c74c6fed607ec7bd79462100b11b5b21adfaafda969414526d3ac57",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:permalink.item_id_raw_token_passthrough": {
+   "hash": "751baf577a51e1635dcb2b71df02b5e05be8a30a90b16b2608431904794f8936",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:permalink.item_id_tilde_base64url_encoding": {
+   "hash": "5e856ab0a0d9bb387d572f219eb8a47131cbd9f2865e6163b039dc5019df9d72",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "struct_check_08_25:permalink.item_id_tilde_decode_rejects_malformed": {
+   "hash": "8f13fce999d0b270ad2de628f340af25adbed24df31e3162f3e90daa27e3c88a",
+   "kind": "struct",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "struct_check_08_25:permalink.location_header_no_control_chars": {
+   "hash": "424585d0517d2b9c17d6da1c0992c8930ca2826bb70c477c504e413bc8671a80",
+   "kind": "struct",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "tls_check_01_11_01_23:transport.https_tls13_minimum": {
+   "hash": "4bd2c6f0a6cf86d1ebc95d08d1d0a312e7c05c56e66d8f2607f2edce3b7e3a40",
+   "kind": "MCheck",
+   "n_kills": 0,
+   "n_kills_floor": 0
+  },
+  "v2026_01_23:checkout.cancel": {
+   "hash": "82715e07baf1048a07b073caa9446c1cc3fc404338da03e21de550c54485df58",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "v2026_01_23:checkout.complete": {
+   "hash": "95a05b2f2499314053b388ef04092fac4460e6cb21236502ff353c5fdf4aeceb",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "v2026_01_23:checkout.completed_immutable": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "v2026_01_23:checkout.create": {
+   "hash": "aac9e35b02a55851883b3bf3afc8db541ed632c8f114f2f5268b849b6f4144e3",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:checkout.get": {
+   "hash": "522a8f8b372ee86a4c0bd80ca1bc138686dd97050202e2a77bbdbcf6c31d725c",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:checkout.status_enum": {
+   "hash": "1e69f7c5d9b77393860242689bb4676b20e7c57e9170c3cde2cb390bb46808d9",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:disc.profile_200": {
+   "hash": "d214e031040901f1c63fc344565e352f91513fb526412c8ee801f7a57ab8c26f",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:disc.rest_endpoint": {
+   "hash": "1077096aaa97b3df496cf0a29ef1d214b2076b116820da9b7a7942e9a5c6fc98",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "v2026_01_23:fulfillment.group_shape": {
+   "hash": "163226b8f318d3e2523d5af6fb1fd0dc49ef9aba271b4fbc9623af28f2fad3a9",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "v2026_01_23:fulfillment.method_shape": {
+   "hash": "794b338602cc9f6b76f690cc29183bdb9c9500dc59aeca6321cc295628f81f62",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "v2026_01_23:fulfillment.method_type_enum": {
+   "hash": "9f614927b500759c1a5ba0d41db5a3752af0fd9841bcae5392cbcd7d12d8d8f7",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "v2026_01_23:fulfillment.option_required_fields": {
+   "hash": "b9eb0f01ca765e6d0182a5421dfae5dd94fbc7f6a452190cb98cc21c1f292fe3",
+   "kind": "engine",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "v2026_01_23:fulfillment.option_shape": {
+   "hash": "ad8a7b97f0a20109ac9b818fdc83360cc2645c53cf488fee733dfe0d4456b8ba",
+   "kind": "engine",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "v2026_01_23:fulfillment.shipping_destination_id": {
+   "hash": "8a8476ce0c1ee845b14d4a7c3a0a6914fc3ec3d230dc25eb622a0e32da6b4522",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:idempotency.conflict_409": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "v2026_01_23:negotiation.content_type_json_create": {
+   "hash": "948fd7314e4d6759ae985bb4ee1364f245e93952f3820127367626980dbf73b3",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "v2026_01_23:negotiation.content_type_json_discovery": {
+   "hash": "948fd7314e4d6759ae985bb4ee1364f245e93952f3820127367626980dbf73b3",
+   "kind": "engine",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "v2026_01_23:negotiation.processing_version": {
+   "hash": "245c59ed9c013a632d15215c5dccef1c45de11ac2cc9835e90febe5af94c1bbf",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:negotiation.reverse_domain_names": {
+   "hash": "387da3441dd7fe49dc84b626d1059475690bf6f242416fc2082211cc4812dcf8",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "v2026_01_23:negotiation.ucp_envelope": {
+   "hash": "5cbd8b3ad1a63ca70eeb0aaf8d82e6b9a184a7c6c15d44370157ea705e503bbf",
+   "kind": "engine",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "v2026_01_23:payment.handler_ids_advertised": {
+   "hash": "06d60a99959e269a95eeff2b78775565b7ec721bc06a6338c1f19e41c9c130bb",
+   "kind": "engine",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "v2026_01_23:validation.nonexistent_product": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "v2026_01_23:validation.out_of_stock": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  },
+  "v2026_01_23:validation.payment_failure": {
+   "hash": "0b94bbaf911a3fa1a52d1e07c50897c28b3e8df7a90e1a1693576112cf677731",
+   "kind": "engine",
+   "n_kills": 2,
+   "n_kills_floor": 2
+  }
+ },
+ "generated": "2026-09-10",
+ "pins": {
+  "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
+  "reference_sample_server": "00333a80ebca3efd442d515b261a36e57de815d3",
+  "reference_sdk": "f54858e0cf1e8933cc0e9d89b380e2cd4a0b3f00",
+  "schema_validator": "9b5c32066f0fe5f50918ec612ba43ad70e2547e3",
+  "spec": {
+   "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e",
+   "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
+   "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+   "2026-08-25": "cd78fb38e819de77d9b527d110476eccb876f1bd"
+  }
+ },
+ "shrink_notes": {}
+}
