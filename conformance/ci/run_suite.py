@@ -273,6 +273,10 @@ def gates(server):
         # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
         # literal and a collision) so the gate cannot pass by being unable to fail.
         ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
+        # the deploy path itself is guarded (D5-08): on a synthetic repo with stub gh/wrangler,
+        # deploy.sh must refuse a dirty tree / HEAD≠origin/main / a failed selftest check-run /
+        # a stale export / a red gate, and must deploy preview-<sha7> BEFORE main. Hermetic.
+        ("deploy-guards", ["bash", str(ROOT / "packaging" / "deploy.sh"), "--selftest"], None, ()),
         # the single KNOWN ISSUES file (PLAN-v3 §2.13): no refuted/stale/unevidenced row can
         # publish; ledger cross-ref needs ops/ mounted (rc 2 = honest SKIP in CI). Hermetic
         # kill-tests (--selftest) run first inside the same invocation.

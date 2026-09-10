@@ -1,3 +1,5 @@
+# RETIRED (pending owner confirmation, D5-08 / 2026-09-10): not deployed. The site and its API
+# are Pages (public/ + functions/api/) deployed ONLY via packaging/deploy.sh. Do not `wrangler deploy` this.
 name = "ucp-conformance-tool"
 main = "worker.js"
 compatibility_date = "2024-01-01"

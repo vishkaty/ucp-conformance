@@ -13,8 +13,8 @@ set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 DEPLOY="$HERE/deploy.sh"
 FAIL=0; REFUSED=0
-ok(){  printf "  \033[32m✓\033[0m %s\n" "$1"; }
-bad(){ printf "  \033[31m✗\033[0m %s\n" "$1"; FAIL=1; }
+ok(){  printf "  \033[32m✓\033[0m %s\n" "$1" >&2; }
+bad(){ printf "  \033[31m✗\033[0m %s\n" "$1" >&2; FAIL=1; }
 
 mkroot() {   # $1 = coverage content the STUB matrix regenerates; $2 = committed coverage content
   local d; d="$(mktemp -d)"
@@ -37,12 +37,13 @@ import sys
 a = sys.argv; out = a[a.index("--json")+1] if "--json" in a else None
 open(out, "w").write('{"a":1}') if out else None
 PY
-  for s in conformance/web/sync_site_claims.py conformance/agent/build_demo_data.py \
-           conformance/coverage/coverage_gate.py conformance/selfcheck/validate_evidence_class.py \
-           conformance/agent/agent_governance.py conformance/ci/validate_known_issues.py; do
-    printf 'import os,sys\nsys.exit(1 if os.environ.get("GATE_STUB_FAIL") else 0)\n' > "$d/$s"
+  for s in conformance/web/sync_site_claims.py conformance/agent/build_demo_data.py conformance/ci/site_gates.py \
+           conformance/selfcheck/validate_evidence_class.py conformance/agent/agent_governance.py \
+           conformance/ci/validate_known_issues.py; do
+    printf 'import sys\nsys.exit(0)\n' > "$d/$s"
   done
-  printf 'import os,sys\nsys.exit(1 if os.environ.get("GATE_STUB_FAIL") else 0)\n' > "$d/conformance/ci/site_gates.py"
+  # the step-3 coverage gate is the one stub that can be told to go red (GATE_STUB_FAIL=1)
+  printf 'import os,sys\nsys.exit(1 if os.environ.get("GATE_STUB_FAIL") else 0)\n' > "$d/conformance/coverage/coverage_gate.py"
   # stub tools
   cat > "$d/bin/gh" <<'SH'
 #!/usr/bin/env bash
@@ -68,12 +69,12 @@ run_deploy() {   # $1 root, rest = args; env: GH_STUB_MODE, GATE_STUB_FAIL
       bash packaging/deploy.sh "${@:2}" 2>&1 )
 }
 
-expect_refusal() {   # name, root, [env assignments…]
+LAST_OUT="$(mktemp)"
+expect_refusal() {   # name, root, [env assignments…]; the run's output lands in $LAST_OUT
   local name="$1" root="$2"; shift 2
-  local out rc
-  out="$(env "$@" bash -c "$(declare -f run_deploy); run_deploy '$root'")"; rc=$?
-  if [ $rc -eq 3 ]; then ok "$name -> exit 3"; REFUSED=$((REFUSED+1)); else bad "$name -> exit $rc (want 3)"; echo "$out" | tail -5 | sed 's/^/      /'; fi
-  echo "$out"
+  local rc
+  env "$@" bash -c "$(declare -f run_deploy); run_deploy '$root'" >"$LAST_OUT" 2>&1; rc=$?
+  if [ $rc -eq 3 ]; then ok "$name -> exit 3"; REFUSED=$((REFUSED+1)); else bad "$name -> exit $rc (want 3)"; tail -5 "$LAST_OUT" | sed 's/^/      /' >&2; fi
 }
 
 echo "deploy.sh kill-tests"
@@ -81,25 +82,25 @@ echo "deploy.sh kill-tests"
 
 # 1. dirty tree
 D="$(mkroot '{"v":1}' '{"v":1}')"; echo dirty > "$D/public/extra.html"
-expect_refusal "dirty working tree" "$D" >/dev/null; rm -rf "$D"
+expect_refusal "dirty working tree" "$D"; rm -rf "$D"
 
 # 2. HEAD != origin/main
 D="$(mkroot '{"v":1}' '{"v":1}')"; ( cd "$D" && echo x > note.txt && git add note.txt && git -c user.name=t -c user.email=t@t commit -q -m ahead )
-expect_refusal "HEAD is not origin/main" "$D" >/dev/null; rm -rf "$D"
+expect_refusal "HEAD is not origin/main" "$D"; rm -rf "$D"
 
 # 3. gh reports the selftest check-run failed
 D="$(mkroot '{"v":1}' '{"v":1}')"
-expect_refusal "selftest check-run = failure (stub gh)" "$D" GH_STUB_MODE=failure >/dev/null; rm -rf "$D"
+expect_refusal "selftest check-run = failure (stub gh)" "$D" GH_STUB_MODE=failure; rm -rf "$D"
 
 # 4. one-byte-stale coverage.json -> refused AT STEP 2
 D="$(mkroot '{"v":1}' '{"v":2}')"
-OUT="$(expect_refusal "one-byte-stale public/coverage.json" "$D")"
-echo "$OUT" | grep -q "step 2" && ok "…refused at step 2 (site exports)" || bad "stale export not attributed to step 2"; rm -rf "$D"
+expect_refusal "one-byte-stale public/coverage.json" "$D"
+grep -q "step 2" "$LAST_OUT" && ok "…refused at step 2 (site exports)" || bad "stale export not attributed to step 2"; rm -rf "$D"
 
 # 5. a red gate -> refused at step 3
 D="$(mkroot '{"v":1}' '{"v":1}')"
-OUT="$(expect_refusal "red gate (stub coverage gate exits 1)" "$D" GATE_STUB_FAIL=1)"
-echo "$OUT" | grep -q "step 3" && ok "…refused at step 3 (gates)" || bad "red gate not attributed to step 3"; rm -rf "$D"
+expect_refusal "red gate (stub coverage gate exits 1)" "$D" GATE_STUB_FAIL=1
+grep -q "step 3" "$LAST_OUT" && ok "…refused at step 3 (gates)" || bad "red gate not attributed to step 3"; rm -rf "$D"
 
 # 6. green run: preview BEFORE main, log appended
 D="$(mkroot '{"v":1}' '{"v":1}')"
@@ -115,6 +116,7 @@ fi
 grep -q "$SHA7" "$D/ops/DEPLOY_LOG.md" 2>/dev/null && ok "ops/DEPLOY_LOG.md records $SHA7" || bad "deploy log not written"
 rm -rf "$D"
 
+rm -f "$LAST_OUT"
 echo
 if [ $FAIL -eq 0 ]; then
   echo "deploy guards: $REFUSED/5 refuse correctly · order preview→main asserted · PASS"; exit 0

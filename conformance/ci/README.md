@@ -21,6 +21,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
 | `site-docclaims` | non-page copy (README, this file, packaging README, docs, `functions/**/*.js`) advertises only live counts; registered doc claims hold; every gate row in this table names a real `run_suite.py` gate | — |
 | `known-issues` | `conformance/ci/known_issues.json` (the single KNOWN ISSUES source) has no refuted, stale (`re_verified` > 30 d), unevidenced-`fixed` or unanchored row; ledger cross-ref when `ops/` is mounted (else honest SKIP) | ledger + upstream threads |
+| `deploy-guards` | `packaging/deploy.sh --selftest`: the only deploy path refuses a dirty tree, HEAD≠origin/main, a failed `selftest` check-run, a stale site export or a red gate (exit 3), and deploys `preview-<sha7>` before `main` — synthetic repo + stub gh/wrangler | — |
 | `ports-registry` | every literal port the harness binds is registered in `conformance/ci/ports.json` (the single source `selftest.sh` sweeps from) and no two names claim one port; hermetic kill-tests plant an unregistered literal + a collision | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free

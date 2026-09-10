@@ -98,8 +98,7 @@ if [ "$FAIL" -eq 0 ]; then
   if [ -n "$TAG" ]; then
     echo "Release: git tag $TAG && git push origin $TAG   (release.yml publishes via OIDC)"
   else
-    echo "Deploy site: CLOUDFLARE_API_TOKEN=\$(…katyal-secret get cloudflare.api-token) \\"
-    echo "  npx wrangler pages deploy public --project-name=ucp-conformance --branch=main"
+    echo "Deploy site: bash packaging/deploy.sh   (the ONLY sanctioned path — six guarded steps, preview before main; --dry-run first)"
   fi
   exit 0
 else
