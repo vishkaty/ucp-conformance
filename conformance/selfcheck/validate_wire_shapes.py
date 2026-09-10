@@ -26,6 +26,11 @@ Cases (each carries the mutant that would make it red):
                                       04-08 are byte-identical to the pre-wire_shapes output
   test_keys_field_and_consent         keys_field(): signing_keys|keys; consent(): booleans
                                       at 04-08, Purpose objects at 08-25
+  test_expand_mut_dests_08_25         (D1-02) _expand_mut expands $DESTS/$FUL/$KEYS from
+                                      shapes_for(ctx.version) BEFORE $PRODUCT…: the FUL-026
+                                      mutant carries typed destinations at 08-25, untyped
+                                      at 04-08 (a 04-08-shaped mutant would 422 at 08-25 and
+                                      "kill" vacuously)
 
     --selftest   hermetic, no server. Exit 0 pass, 1 fail.
 """
@@ -200,6 +205,25 @@ def selftest():
     check("test_keys_field_and_consent", all(x not in fails for x in
           ("keys_field 04-08 = signing_keys", "keys_field 08-25 = keys",
            "consent 04-08 booleans", "consent 08-25 purpose objects")))
+
+    # --- test_expand_mut_dests_08_25 (D1-02) ---------------------------------------
+    probe = 'set:fulfillment={"methods":[{"destinations":$DESTS,"item":$PRODUCT}]}'
+    exp25 = mc._expand_mut(probe, Ctx(NEW))
+    exp08 = mc._expand_mut(probe, Ctx("2026-04-08"))
+    check("test_expand_mut_dests_08_25 $DESTS expanded (typed) at 08-25",
+          "$DESTS" not in exp25 and '"type": "shipping_address"' in exp25, exp25[:200])
+    check("test_expand_mut_dests_08_25 $DESTS expanded (untyped) at 04-08",
+          "$DESTS" not in exp08 and "shipping_address" not in exp08, exp08[:200])
+    check("test_expand_mut_dests_08_25 $PRODUCT still expanded after", '"prod_1"' in exp25, exp25[:200])
+    ful026 = next(c for c in mc.CHECKS if c.id == "fulfillment.single_group_default")
+    mut = next(m for m in ful026.mutations if m.startswith("set:fulfillment="))
+    check("test_expand_mut_dests_08_25 FUL-026 mutant uses $DESTS (no 04-08 literal)",
+          "$DESTS" in mut and '"address_country":"US"' not in mut, mut[:160])
+    ph = s25.placeholders(Ctx(NEW))
+    check("placeholders carry $DESTS/$FUL/$KEYS",
+          set(ph) >= {"$DESTS", "$FUL", "$KEYS"} and ph["$KEYS"] == "keys", f"{sorted(ph)}")
+    check("placeholder values are JSON", all(json.loads(ph[k]) is not None for k in ("$DESTS", "$FUL")))
+    check("test_expand_mut_dests_08_25", all("test_expand_mut_dests_08_25" not in x for x in fails))
 
     print(f"wire-shapes: {'PASS' if not fails else 'FAIL'}"
           + (f" ({len(fails)} failed: {', '.join(fails)})" if fails else ""))
