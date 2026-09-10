@@ -1,7 +1,8 @@
 /**
- * /api/badge?server=<url> — an embeddable SVG conformance badge (shields-style).
+ * /api/badge?server=<url> — an embeddable SVG preview badge (shields-style).
  *
- * Reflects the discovery + profile-structure preview (same logic as /api/conformance).
+ * Reflects the discovery + profile-structure PREVIEW (same logic as /api/conformance):
+ * the message is `preview N/M`, never a conformance verdict.
  * Heavily cached so a popular README doesn't hammer the merchant's server. Links to the
  * shareable report at /check?server=<url>. This is the growth loop: every merchant who
  * passes embeds the badge, which points back here.
@@ -69,9 +70,17 @@ export async function onRequestGet(context) {
   context.waitUntil(bumpStat(context.env, "badgeHits", out.server));
   let message, color;
   if (out.error) { message = "unreachable"; color = "#9f9f9f"; }
-  else if ((out.summary?.deviations || 0) > 0) {
-    message = `${out.summary.deviations} deviation${out.summary.deviations === 1 ? "" : "s"}`;
-    color = "#e05d44";
-  } else { message = "conformant"; color = "#3fb950"; }
+  else {
+    // PREVIEW, never a verdict (D5-20, PLAN-v3 §2.18): the four structural discovery
+    // checks are a preview of the CLI/Action suite, so the badge reads `preview N/M`
+    // (N passed of M preview checks) and NEVER the word "conformant" — a registered
+    // wording (conformance/web/doc_claims.json DOC-BADGE-001) pinned by the web-unit
+    // badge test. M comes from the preview id map once D5-11 lands (N/4 today).
+    const s = out.summary || {};
+    const passed = Number.isFinite(s.passed) ? s.passed : 0;
+    const total = Number.isFinite(s.total) ? s.total : 0;
+    message = `preview ${passed}/${total}`;
+    color = total > 0 && passed === total ? "#3fb950" : "#e05d44";
+  }
   return badgeResponse(svg(message, color));
 }

@@ -9,6 +9,7 @@
   "accounted": 56
  },
  "2026-08-25": {
-  "accounted": 52
+  "accounted": 3,
+  "_note": "lowered 52 -> 3 on 2026-09-10 (D5-04 / decision 10): the 51 CHECK ids at 2026-08-25 were attributed by a versions-list extension with no 08-25 sandbox run; attribution now requires run evidence (agent_run_evidence.json), so the honest floor is the 3 EXEMPT rows. Raise again only when D3-11's 08-25 sandbox writes evidence."
  }
 }

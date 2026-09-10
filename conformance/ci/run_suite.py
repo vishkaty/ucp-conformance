@@ -284,10 +284,22 @@ def gates(server, require_server=False):
         ("site-redirects", _py(ROOT / "conformance" / "ci" / "site_gates.py", "redirects"), None, ()),
         ("site-consistency", _py(ROOT / "conformance" / "ci" / "site_gates.py", "consistency"), None, ()),
         ("site-freshness", _py(ROOT / "conformance" / "ci" / "site_gates.py", "freshness"), None, ()),
+        # non-page copy (README, ci/README, packaging README, docs, functions/**/*.js) held to
+        # the page bar: counts equal the product, registered doc claims hold, ci/README's
+        # gate rows exist, Action snippets pinned (D5-01/D5-20/D5-21).
+        ("site-docclaims", _py(ROOT / "conformance" / "ci" / "site_gates.py", "docclaims"), None, ()),
+        # the register's generated blocks (manifest, evidence.per_version) equal the engine
+        # byte-for-byte (D5-05) and no REG claim is an orphan (text gone from its page).
+        ("site-claims-sync", _py(ROOT / "conformance" / "web" / "sync_site_claims.py", "--check"), None, ()),
+        ("site-claims-orphans", _py(ROOT / "conformance" / "ci" / "site_gates.py", "claims", "--orphans"), None, ()),
         # PLAN-0825 §E state-consistency kill-tests: a `state` field that disagrees
         # with its own CHECK/EXEMPT counts must redden freshness(); hermetic
         # (SPCK_PUBLIC scratch copy, repo untouched) — proves the validator can fail.
         ("site-state-selftest", _py(ROOT / "conformance" / "ci" / "site_gates.py", "--selftest"), None, ()),
+        # the site lane's own kill-tests (D5-10/D5-01/D5-05): scratch copies of public/
+        # with one planted defect each must redden the audits — recursive scope, stale
+        # doc counts, registry drift, review-field rewrites. Hermetic (repo untouched).
+        ("site-gates-selftest", _py(ROOT / "conformance" / "ci" / "validate_site_gates.py"), None, ()),
         ("suite-01-23", _py(CHK / "run_01_23.py", server),                      "golden",  ()),
         ("differential", _py(ROOT / "conformance" / "ci" / "differential.py", "--server", server,
                              "--target-name", "flower-shop-official-sample",
@@ -336,6 +348,19 @@ def gates(server, require_server=False):
         # Hermetic (stub uv, synthetic root); each case carries a mutant so the guards
         # cannot pass by being unable to fail.
         ("golden-guards", _py(ROOT / "conformance" / "ci" / "golden_boot_guards.py", "--selftest"), None, ()),
+        # every literal port the harness binds is registered in conformance/ci/ports.json
+        # (single source: selftest.sh's sweep derives from it) and no two names claim one
+        # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
+        # literal and a collision) so the gate cannot pass by being unable to fail.
+        ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
+        # the deploy path itself is guarded (D5-08): on a synthetic repo with stub gh/wrangler,
+        # deploy.sh must refuse a dirty tree / HEAD≠origin/main / a failed selftest check-run /
+        # a stale export / a red gate, and must deploy preview-<sha7> BEFORE main. Hermetic.
+        ("deploy-guards", ["bash", str(ROOT / "packaging" / "deploy.sh"), "--selftest"], None, ()),
+        # the single KNOWN ISSUES file (PLAN-v3 §2.13): no refuted/stale/unevidenced row can
+        # publish; ledger cross-ref needs ops/ mounted (rc 2 = honest SKIP in CI). Hermetic
+        # kill-tests (--selftest) run first inside the same invocation.
+        ("known-issues", _py(ROOT / "conformance" / "ci" / "validate_known_issues.py"), None, (2,)),
         # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
         # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
         # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any
@@ -390,8 +415,14 @@ def gates(server, require_server=False):
         # rule holds even when no golden is reachable and probe-hygiene itself skips.
         ("defect-register", _py(SELF / "validate_probe_hygiene.py", "--selftest"), None, ()),
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
-        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
+        # governance runs AFTER the lane (D5-04 / decision 24 in-run freshness): run_agent.py
+        # records this run's attribution evidence, and governance's EVIDENCE check then
+        # verifies every (check, version) attribution against it — fresh, at the current pin.
+        # Hermetic kill-tests for the guard itself (evidence-less / stale / other-pin → GAP;
+        # governance names the id) run first.
+        ("agent-attribution-guard", _py(ROOT / "conformance" / "agent" / "test_attribution_guard.py"), None, ()),
+        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
         # R8/R14/S8a kill-proof (agent phase B, 08-25 kickoff): proves
         # reference_agent.extract_signing_keys reads the 08-25 top-level keys[] location
         # against a REAL frozen golden-0825 capture (not just our own sandbox), and that
@@ -429,6 +460,11 @@ def gates(server, require_server=False):
         # `run_suite.py --only X` proves X. In-process against the real table; the
         # :8198 case observes golden-check-08-25's own boot + teardown via lsof.
         ("run-suite-only", _py(ROOT / "conformance" / "ci" / "validate_run_suite_only.py", "--selftest"), None, ()),
+        # …and the bundled MERCHANT runner must grade the controlled fixture clean from the
+        # bundle (D5-06): the Action installs this package from its own checkout, so the
+        # wheel's engine/register must work outside the repo tree, not just in it.
+        ("package-merchant", _py(ROOT / "packaging" / "spck_conformance" / "cli.py",
+                                 "--server", CONTROLLED), "controlled", ()),
     ]
 
 class UnknownGate(ValueError):

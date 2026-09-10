@@ -49,7 +49,7 @@ jobs:
   conformance:
     runs-on: ubuntu-latest
     steps:
-      - uses: vishkaty/ucp-conformance@main
+      - uses: vishkaty/ucp-conformance@v0.4.0
         with:
           server: https://api.example.com
           config: merchant.json        # optional
@@ -70,8 +70,9 @@ your CI can display as a test run.
 
 ## What it checks
 
-Across **REST and MCP** transports and spec versions **2026-04-08 / 2026-01-23 /
-2026-01-11**: discovery + profile structure, checkout lifecycle (incl. escalation /
+Across **REST and MCP** transports and the four bundled spec versions **2026-08-25 /
+2026-04-08 / 2026-01-23 / 2026-01-11** (2026-08-25 is `converting`: its register ships and
+its landed checks run, while testable-tier MUSTs are still open — see spck.dev/coverage): discovery + profile structure, checkout lifecycle (incl. escalation /
 `continue_url`), order retrieval + adjustments, idempotency, validation/errors,
 payment (handlers, credentials, AP2 mandates), discounts + consent, catalog
 (search / lookup / get_product / pagination), cart + cart-to-checkout conversion,

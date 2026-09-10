@@ -24,6 +24,10 @@ inputs:
     description: "Fail the job if any MUST deviates (default true). Set false to report-only."
     required: false
     default: "true"
+  source:
+    description: "Where the runner comes from: `checkout` (default — the engine at the ref you `uses:`, so @vX.Y.Z and @main track this repo) or `pypi` (the published spck-conformance release)."
+    required: false
+    default: "checkout"
 
 runs:
   using: "composite"
@@ -33,7 +37,16 @@ runs:
         python-version: "${{ inputs.python-version }}"
     - name: Install spck-conformance
       shell: bash
-      run: pip install spck-conformance
+      # source=checkout installs the package from THIS action's checkout (decision 28/17):
+      # `uses: vishkaty/ucp-conformance@v0.4.0` runs exactly the engine tagged v0.4.0, and
+      # @main tracks main — never a PyPI release that lags the register. source=pypi keeps
+      # the published wheel (report-only in our own CI until pyproject >= 0.4.0, D5-06).
+      run: |
+        if [ "${{ inputs.source }}" = "pypi" ]; then
+          pip install spck-conformance
+        else
+          pip install "${{ github.action_path }}/packaging"
+        fi
     - name: Run UCP conformance
       shell: bash
       run: |

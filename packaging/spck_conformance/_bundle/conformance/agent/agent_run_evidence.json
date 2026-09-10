@@ -1,0 +1,276 @@
+{
+ "_about": "Agent-lane RUN EVIDENCE (D5-04 / decision 10): {check_id: {sandbox_version: {date, spec_pin}}} written by run_agent.py on every green run; agent_matrix counts a check at a version only with an entry here no older than 30 days at the current spec pin. unrun_versions declares versions with no sandbox yet (agent_governance reds an undeclared unrun attribution).",
+ "unrun_versions": {
+  "2026-08-25": {
+   "reason": "no 2026-08-25 sandbox exists (sandbox.py serves 2026-04-08); the 40 checks whose versions list 2026-08-25 are suppressed to GAP until D3-11 lands the 08-25 sandbox and a green run writes evidence here (decision 10, CLOSED 2026-09-10)",
+   "converts_when": "D3-11",
+   "review_by": "2026-12-09"
+  }
+ },
+ "evidence": {
+  "agent.ap2_provides_mandates_on_complete": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.ap2_two_distinct_mandates": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.processes_auth_challenge": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.sends_bearer_token": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.extracts_challenge_scope": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.public_client_pkce_proof": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.no_client_secret": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.uses_advertised_auth_method": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.revokes_token_on_unlink": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.validates_iss": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.validates_issuer_match": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.verifies_business_signature": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.validates_oauth_state": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.sends_ucp_agent": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.follows_escalation": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.uses_pkce": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.request_signature_verifies": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.signs_core_components": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.signs_body_components": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.signs_idempotency_key": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.signs_ucp_agent_component": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.honors_available_instruments": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.uses_authorization_code_flow": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.requests_only_derived_scopes": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.omits_ucp_on_request": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.omits_response_only_fields": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.omits_checkout_id": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.uses_json_content_type": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.paginates_by_has_next_page": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.sends_valid_search_input": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.selected_option_names_unique": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.line_items_create_not_complete": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.omits_discounts_on_request": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.omits_buyer_on_complete": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.instrument_has_ids": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.credential_has_type": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.aborts_on_discovery_error": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.ignores_future_config": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.incremental_scope_only": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.no_iss_normalization": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.ignores_error_description": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.no_autocomplete_mismatched_totals": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.aborts_on_oidc_fallback_error": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  },
+  "agent.owns_authz_request": {
+   "2026-04-08": {
+    "date": "2026-09-10",
+    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+   }
+  }
+ }
+}

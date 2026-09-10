@@ -1,0 +1,66 @@
+{
+ "_about": "Claims made in NON-page copy — README, ci/README, packaging README, ROADMAP, and the Pages functions under functions/**/*.js — held to the same evidence bar as public/*.html (site_gates.py docclaims, D5-01/D5-20/D5-21). Each row names the file, a regex the file MUST match (`must_match`) and/or MUST NOT match (`must_not_match`), the evidence, and review_by. Rows with `bind` compare the regex's captured group to a live product value: merchant_checks (MCheck count), agent_checks (len CHECKS), agent_defects, pyproject_base_version (v-prefixed base version of packaging/pyproject.toml). `kind: dated` rows register a historical count under an explicitly dated heading (the exact phrase must still be present; the row expires at review_by).",
+ "claims": [
+  {
+   "id": "DOC-BADGE-001",
+   "file": "functions/api/badge.js",
+   "must_match": "message = `preview \\$\\{passed\\}/\\$\\{total\\}`",
+   "must_not_match": "message = \"conformant\"",
+   "text": "preview N/M",
+   "evidence": "tests/web/unit/badge.test.mjs 'preview badge message never contains conformant' (web-unit gate) renders an all-clean and a deviating stub profile through functions/api/badge.js and asserts the word never appears; N/M = passed/total of runPreviewChecks (4 structural checks until D5-11's id map)",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  },
+  {
+   "id": "DOC-ROADMAP-001",
+   "kind": "dated",
+   "file": "docs/ROADMAP.md",
+   "text": "58 kill-rate-validated merchant checks",
+   "evidence": "Historical statement under the heading 'Where we are (2026-07-02, post catalog grind)' — true at the 2026-07-02 commit that introduced it (git log -S); the live count is gated elsewhere. ROADMAP is archived under G2 in Wave 1 (D5-14), which retires this row.",
+   "added": "2026-09-10",
+   "review_by": "2026-10-01"
+  },
+  {
+   "id": "DOC-ROADMAP-002",
+   "kind": "dated",
+   "file": "docs/ROADMAP.md",
+   "text": "193 kill-rate-validated\nchecks across 3 controlled goldens + Flower Shop",
+   "evidence": "Historical statement under 'State of play (2026-07-03, …)' — true at the 2026-07-03 commit that introduced it (git log -S). Retired with D5-14 (ROADMAP archived).",
+   "added": "2026-09-10",
+   "review_by": "2026-10-01"
+  },
+  {
+   "id": "DOC-ACTION-001",
+   "file": "README.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  },
+  {
+   "id": "DOC-ACTION-002",
+   "file": "packaging/README.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  },
+  {
+   "id": "DOC-ACTION-003",
+   "file": "docs/merchant-conformance.md",
+   "must_match": "uses: vishkaty/ucp-conformance@(v[0-9]+\\.[0-9]+\\.[0-9]+)",
+   "must_not_match": "ucp-conformance@main",
+   "bind": "pyproject_base_version",
+   "text": "uses: vishkaty/ucp-conformance@v<release>",
+   "evidence": "Decision 17/28 (CLOSED 2026-09-10): the Action installs from its own checkout, so the snippet must name the release tag the engine ships as — v + the PEP 440 base of packaging/pyproject.toml's version (0.4.0rc1 and 0.4.0 both pin @v0.4.0). Kill-tested: restoring @main reds docclaims.",
+   "added": "2026-09-10",
+   "review_by": "2026-12-09"
+  }
+ ]
+}

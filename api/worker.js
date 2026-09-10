@@ -1,4 +1,10 @@
 /**
+ * RETIRED (pending owner confirmation, D5-08 / 2026-09-10): this standalone Worker is NOT deployed.
+ * The live backend is the Cloudflare Pages Functions under functions/api/ (deployed with public/
+ * by packaging/deploy.sh, the only sanctioned deploy path). Kept only until the owner confirms
+ * deletion; do not edit or deploy.
+ */
+/**
  * UCP Conformance Tool — Cloudflare Worker Backend
  *
  * Handles:

@@ -1,9 +1,9 @@
 {
- "_about": "SITE-R register \u2014 every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
+ "_about": "SITE-R register — every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
  "requirements": [
   {
    "id": "SITE-R-001",
-   "requirement": "Unified nav byte-identical on all 6 pages (spck \u00b7 Merchants /check \u00b7 Agents /agent \u00b7 Coverage /coverage \u00b7 Docs /docs \u00b7 GitHub\u2197); contains no /tool link",
+   "requirement": "Unified nav byte-identical on all 6 pages (spck · Merchants /check · Agents /agent · Coverage /coverage · Docs /docs · GitHub↗); contains no /tool link",
    "pages": [
     "index.html",
     "check.html",
@@ -49,7 +49,7 @@
   },
   {
    "id": "SITE-R-004",
-   "requirement": "/check depth ladder sections in DOM order instant \u2192 cli \u2192 ci (data-ladder-step markers)",
+   "requirement": "/check depth ladder sections in DOM order instant → cli → ci (data-ladder-step markers)",
    "pages": [
     "check.html"
    ],
@@ -126,7 +126,7 @@
   },
   {
    "id": "SITE-R-010",
-   "requirement": "/tool \u2192 /check and /guide \u2192 /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
+   "requirement": "/tool → /check and /guide → /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
    "pages": [
     "_redirects",
     "*"
@@ -240,7 +240,7 @@
   },
   {
    "id": "SITE-R-019",
-   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> \u2014 the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
+   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> — the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
    "pages": [
     "*"
    ],
@@ -322,7 +322,7 @@
   },
   {
    "id": "SITE-R-025",
-   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication \u2014 the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
+   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication — the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
    "pages": [
     "functions/api/[[path]].js"
    ],
@@ -344,6 +344,82 @@
    ],
    "status": "active",
    "added": "2026-07-15"
+  },
+  {
+   "id": "SITE-R-032",
+   "requirement": "Preview badge honesty: GET /api/badge?server=<url> (functions/api/badge.js) renders the discovery + profile-structure PREVIEW as `preview N/M` (N passed of M preview checks) and never the word \"conformant\" for any preview outcome — four structural checks are not a conformance verdict (PLAN-v3 §2.18, D5-20).",
+   "pages": [
+    "functions/api/badge.js"
+   ],
+   "tests": [
+    "web_unit:badge-preview"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-028",
+   "requirement": "Coverage-page honesty sentences are registered claims rendered verbatim: the 2026-08-25 evidence-ceiling sentence is CLAIM-COV-002 (data-driven — renders only while the version's live-wire count is 0) and the 2026-04-08 tab carries the CLAIM-COV-003 footnote naming the measured commit (a2d8bf0b) and the 2026-09-09 tag re-point (ucp#813); the retired sentence \"no independently-authored 08-25 implementation exists\" never renders (PLAN-v3 §2.18, D5-02).",
+   "pages": [
+    "coverage.html"
+   ],
+   "tests": [
+    "gate:claims",
+    "web_unit:coverage-ceiling"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-031",
+   "requirement": "Audit scope is every hand-authored page under public/** recursively (sub-directories such as state-of-ucp/ included); only generated trees/pages (checks/, known-issues.html) are excluded because their own byte-compare gates hold them. A planted page under a sub-directory carrying an unregistered claim reds `claims` (kill-tested by conformance/ci/validate_site_gates.py); the launch page's claims are registered LAU-001..007 (PLAN-v3 §2.18, D5-10).",
+   "pages": [
+    "state-of-ucp/launch-2026-08-25.html"
+   ],
+   "tests": [
+    "gate:claims"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-027",
+   "requirement": "Non-page copy is held to the page bar: every advertised count in README.md, conformance/ci/README.md, packaging/README.md, hand-authored docs/*.md and functions/**/*.js equals the live product value (MCheck count, agent checks/defects, live-wire) or is a registered dated row in conformance/web/doc_claims.json; registered doc claims (must_match / must_not_match / bind) still hold; every gate row in ci/README names a gate in run_suite.py; the coverage gate's copy-freshness scope includes functions/**/*.js and ci/README (PLAN-v3 §2.18, D5-01).",
+   "pages": [
+    "functions/api/conformance.js",
+    "functions/api/badge.js"
+   ],
+   "tests": [
+    "gate:docclaims"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-029",
+   "requirement": "Publication state is rule R-a, mirrored from coverage.json fields only: live ⇔ register ∧ CHECK+EXEMPT>0 ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ register ∧ CHECK+EXEMPT>0 ∧ any such GAP; building ⇔ register ∧ 0/0; unregistered otherwise. site-freshness reds on any state that disagrees with its own export; supported versions (manifest.versions) = live only; the coverage page renders a `converting` note (\"checks are landing; N of M testable-tier MUSTs still open; never blended\"), the state word on each tab, and the data-driven \"converting — no further work planned; N webhook-receiver rows ungraded\" line (CLAIM-COV-005) on legacy versions (PLAN-v3 §2.18, decision 25, D5-03).",
+   "pages": [
+    "coverage.html"
+   ],
+   "tests": [
+    "gate:freshness",
+    "web_unit:coverage-converting"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-030",
+   "requirement": "The claims register's product-derived blocks (manifest: merchant/agent counts + supported versions; evidence.per_version: the evidence-class split) are GENERATED by conformance/web/sync_site_claims.py from the engine and byte-compared by `--check` (run_suite gate site-claims-sync, preflight, deploy.sh step 2); the writer never rewrites `reviewed`, `review_by`, claim text or evidence prose (kill-tested in validate_site_gates.py). Registry hygiene: every REG claim is found on its page (`claims --orphans` → 0) or sits in `retired_claims` with a reason (PLAN-v3 §2.18, D5-05).",
+   "pages": [
+    "*"
+   ],
+   "tests": [
+    "gate:freshness",
+    "gate:claims"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }

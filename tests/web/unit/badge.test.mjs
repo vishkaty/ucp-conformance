@@ -99,3 +99,36 @@ test("a malformed id (not a uuid) is refused without a KV lookup", async () => {
   assert.match(r.text, /unknown/i);
   assert.equal(looked, false);
 });
+
+// ── /api/badge?server=<url> — the PREVIEW badge (functions/api/badge.js) ──────
+// D5-20 / PLAN-v3 §2.18: four structural discovery checks are a preview, not a
+// conformance verdict. The badge must NEVER render the word "conformant" for any
+// preview outcome; it renders `preview N/M` (N passed of M preview checks).
+const { onRequestGet: previewBadge } =
+  await import(pathToFileURL(path.join(ROOT, "functions/api/badge.js")).href);
+const { stubFetch, jsonResp } = await import("./helpers.mjs");
+
+const CLEAN_PROFILE = { ucp: {
+  version: "2026-04-08",
+  capabilities: { "dev.ucp.shopping.checkout": [{}] },
+  services: { "dev.ucp.shopping": [{ transport: "rest", endpoint: "https://m.example.com" }] } } };
+
+async function previewBadgeText(env, profile) {
+  stubFetch([["/.well-known/ucp", () => jsonResp(profile)]]);
+  const resp = await previewBadge(ctx(get(`${B}/api/badge?server=https://m.example.com`), env));
+  assert.equal(resp.status, 200);
+  assert.equal(resp.headers.get("Content-Type"), "image/svg+xml; charset=utf-8");
+  return await resp.text();
+}
+
+test("preview badge message never contains 'conformant' — renders preview N/4", async () => { // SITE-R-032
+  const env = mockEnv();
+  const clean = await previewBadgeText(env, CLEAN_PROFILE);
+  assert.doesNotMatch(clean, /\bconformant\b/i, "an all-clean preview must not claim conformance");
+  assert.match(clean, /preview 4\/4/);
+  const bad = await previewBadgeText(env, { ucp: { version: "nope", capabilities: ["a"],
+    services: { "dev.ucp.shopping": { rest: {} } } } });
+  assert.doesNotMatch(bad, /\bconformant\b/i);
+  assert.match(bad, /preview 1\/4/);            // only the content-type check passes
+  assert.doesNotMatch(bad, /undefined|NaN/);
+});

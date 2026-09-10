@@ -28,6 +28,13 @@ Modes (run_suite gates):
   freshness  product manifest (coverage JSONs + agent registries) vs the manifest
              block reviewed into public/site_claims.json — product drift with a
              stale review date is RED.
+  docclaims  NON-page copy — README.md, conformance/ci/README.md, packaging/README.md,
+             docs/*.md (hand-authored) and functions/**/*.js — held to the page bar:
+             every advertised count equals the live product value (or is a registered
+             `dated` row in conformance/web/doc_claims.json), every registered doc claim
+             still holds (must_match / must_not_match / bind), every gate named in
+             ci/README's table exists in run_suite.py, and Action snippets are pinned
+             to the release tag (D5-21). SPCK_DOCROOT scopes the scan (tests).
 
 Pages audited = every public/*.html PRESENT (tool.html/guide.html drop out of the
 audit automatically once retired). Exit 0 pass · 1 fail · 2 honest skip.
@@ -39,7 +46,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 # SPCK_PUBLIC lets oversight/tests point the gates at a scratch copy of the site
 PUB = pathlib.Path(os.environ.get("SPCK_PUBLIC", ROOT / "public"))
 WEB = ROOT / "conformance" / "web"
-MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness", "checkdocs")
+MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness", "checkdocs",
+         "docclaims")
 TODAY = datetime.date.today().isoformat()
 
 # ── shared text extraction ────────────────────────────────────────────────────
@@ -79,9 +87,29 @@ class _Text(html.parser.HTMLParser):
             attrib = any(a for _, _, a in self.stack)
             self.chunks.append((self.getpos()[0], s, live, attrib))
 
+# Generated trees/pages are byte-compared by their own gates (checkdocs; the known-issues
+# generator in D5-12) and are NOT hand-authored copy, so the claims/voice/security audits
+# skip them. Everything else under public/** — including sub-directories such as
+# state-of-ucp/ (the launch page) — is audited (PLAN-v3 §2.18 audit scope, D5-10).
+GENERATED_DIRS = ("checks",)
+GENERATED_PAGES = ("known-issues.html",)
+
 def pages():
-    """All public pages currently present — retired pages drop out on deletion."""
-    return sorted(glob.glob(str(PUB / "*.html")))
+    """Every hand-authored public page currently present, recursively — retired pages
+    drop out on deletion; generated pages/dirs are excluded (see GENERATED_*)."""
+    out = []
+    for f in sorted(PUB.rglob("*.html")):
+        rel = f.relative_to(PUB)
+        if rel.parts[0] in GENERATED_DIRS or rel.name in GENERATED_PAGES:
+            continue
+        out.append(str(f))
+    return out
+
+def page_key(path):
+    """The page's identity in the claims register: its path relative to public/
+    (top-level pages keep their bare basename, e.g. index.html)."""
+    return str(pathlib.Path(path).resolve().relative_to(PUB.resolve())) \
+        if str(path).startswith(str(PUB)) else os.path.basename(path)
 
 def page_chunks(path):
     p = _Text()
@@ -272,6 +300,68 @@ def _run_suite_gate_names():
     return {g[0] for g in run_suite.gates("http://localhost:0")}
 
 
+def _retired_keys():
+    f = PUB / "site_claims.json"
+    if not f.exists():
+        return set()
+    return {(e.get("id"), e.get("page")) for e in (json.load(open(f)).get("retired_claims") or [])}
+
+
+def _unit_test_pinned_ids():
+    """Claim ids named in tests/web/unit/*.mjs — a claim rendered by page script (never
+    visible in the HTML) is anchored by the unit test that renders and asserts it."""
+    ids = set()
+    for f in glob.glob(str(ROOT / "tests" / "web" / "unit" / "*.mjs")):
+        ids |= set(re.findall(r"\b((?:CLAIM|SOU|LAU|KI)-[A-Z0-9-]+)\b", open(f, encoding="utf-8").read()))
+    return ids
+
+
+def orphans():
+    """`claims --orphans` (D5-05 hygiene): every REG claim must still be FOUND — its page
+    present and its text on that page (an audit-style _reg_match against a rendered
+    sentence, or the whitespace-normalised text inside the page's visible copy), or the
+    claim is rendered by script and pinned by a web unit test naming its id. Anything
+    else is an orphan: the copy moved (fix the row) or the claim retired (move it to
+    `retired_claims`, keyed by id+page, with a reason). `page: "*"` rows may match any page."""
+    entries = _load_claims() or []
+    retired = _retired_keys()
+    pinned = _unit_test_pinned_ids()
+    sents, joined = {}, {}
+    for path in pages():
+        key = page_key(path)
+        lines = page_lines(path)
+        sents[key] = [s for _, text, _ in lines for s in sentences(text)]
+        joined[key] = re.sub(r"\s+", " ", " ".join(t for _, t, _ in lines))
+    fails, seen = [], {}
+    for e in entries:
+        if e.get("class", "REG") != "REG":
+            continue
+        pg, cid = e.get("page"), e.get("id", "?")
+        if (cid, pg) in retired:
+            continue
+        if cid in seen and seen[cid] != pg:
+            fails.append(f"{cid}: duplicate id across pages ({seen[cid]} and {pg}) — one id, one claim")
+        seen[cid] = pg
+        text = e.get("text")
+        if not text:
+            fails.append(f"{cid}: malformed row (no text) — retire or fix"); continue
+        if cid in pinned:
+            continue                                   # script-rendered, unit-test anchored
+        targets = list(sents) if pg == "*" else [pg]
+        if pg != "*" and pg not in sents:
+            fails.append(f"{cid}: page {pg!r} is not a hand-authored page under public/ — retire the row"); continue
+        norm = re.sub(r"\s+", " ", text)
+        found = any(norm in joined.get(t, "") for t in targets) or any(
+            _reg_match([{**e, "review_by": "9999-12-31"}], sent, t)[0] is not None
+            for t in targets for sent in sents.get(t, []))
+        if not found:
+            fails.append(f"{cid}: text not found on {pg} — {text[:70]!r}")
+    for f in fails:
+        print(f"  x {f}")
+    print(f"site-claims --orphans: {len(fails)} orphan(s)")
+    return 0 if not fails else 1
+
+
 def claims(explain=False):
     entries = _load_claims()
     fails, out = [], []
@@ -285,7 +375,7 @@ def claims(explain=False):
                                  f"'{name}' which is not in run_suite's gate table")
 
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
 
         # R-007 sweep — every data-live binding must resolve; a numeric fallback
         # must EQUAL the live value (raw scan catches empty/JS-filled elements too)
@@ -372,7 +462,7 @@ def voice():
     rules = json.load(open(WEB / "voice_rules.json"))
     fails = []
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         lines = page_lines(path)
         full = " ".join(t for _, t, _ in lines)
 
@@ -532,7 +622,7 @@ def redirects():
                              f"/tool,/guide retirement redirects are allowed")
 
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         for i, line in enumerate(open(path, encoding="utf-8").read().splitlines(), 1):
             for m in re.finditer(r'href\s*=\s*["\']([^"\']+)', line):
                 target = m.group(1).split("#")[0].split("?")[0]
@@ -560,7 +650,7 @@ def _css_line(block_start_line, block, m):
 def consistency():
     fails = []
     for path in pages():
-        page = os.path.basename(path)
+        page = page_key(path)
         raw = open(path, encoding="utf-8").read()
         if not re.search(r'<link[^>]+href\s*=\s*["\']/site\.css["\']', raw):
             fails.append(f"{page}: does not link the shared design system "
@@ -583,45 +673,46 @@ def _coverage_versions():
     return json.load(open(PUB / "coverage.json"))["versions"]
 
 
+TESTABLE_TIER = ("testable", "needs-receiver", "needs-oauth")
+STATES = ("unregistered", "building", "converting", "live")
+
+
+def _expected_state(d):
+    """Rule R-a (PLAN-v3 §2.18, decision 25) from coverage.json fields ONLY — no
+    matrix import, so this mirror and matrix._version_state can be compared but can
+    never share a bug:
+      unregistered — no register rows (musts == 0)
+      building     — register ∧ CHECK+EXEMPT == 0
+      converting   — register ∧ CHECK+EXEMPT > 0 ∧ any testable/needs-receiver/needs-oauth GAP
+      live         — register ∧ CHECK+EXEMPT > 0 ∧ zero such GAP
+    Returns (expected_state, testable_gap)."""
+    musts = d.get("musts", 0)
+    accounted = (d.get("check", 0) or 0) + (d.get("exempt", 0) or 0)
+    g = d.get("gap_by_testability") or {}
+    testable_gap = sum(int(g.get(k, 0) or 0) for k in TESTABLE_TIER)
+    if not musts:
+        return "unregistered", testable_gap
+    if not accounted:
+        return "building", testable_gap
+    return ("converting" if testable_gap else "live"), testable_gap
+
+
 def _state_failures(cov_export):
-    """PLAN-0825 §E — the state field can never disagree with the artifacts it
-    describes. Data-driven, stdlib-only, same style as _real_manifest() (reads only
-    the committed export; no cross-module import of matrix.py):
-
-      state="live"          requires CHECK>0 or EXEMPT>0
-      state="building"      requires CHECK==0 AND EXEMPT==0 (a real register, though
-                             — musts>0 — since matrix.py never emits "building" for
-                             a version with no register rows at all)
-      state="unregistered"  requires zero MUSTs (no register rows at all)
-      any version that BACKS SITE COPY (CHECK>0 or EXEMPT>0 — the exact filter
-      _real_manifest() already uses to decide what counts as a supported version)
-      must be state="live" — the site can never claim a version as supported while
-      its own coverage export calls it anything else.
-
-    Returns the list of failure strings (empty = the state field is honest)."""
+    """The state field can never disagree with the artifacts it describes (PLAN-0825
+    §E, extended to four states by rule R-a in D5-03). Data-driven, stdlib-only,
+    reads only the committed export. Returns the list of failure strings (empty = the
+    state field is honest)."""
     fails = []
     for ver, d in sorted(cov_export.items()):
         state = d.get("state")
-        check, exempt = d.get("check", 0), d.get("exempt", 0)
-        musts = d.get("musts", 0)
-        backs_site = bool(check or exempt)
-        if state not in ("unregistered", "building", "live"):
-            fails.append(f"{ver}: state {state!r} is not one of "
-                         f"unregistered/building/live")
+        if state not in STATES:
+            fails.append(f"{ver}: state {state!r} is not one of {'/'.join(STATES)}")
             continue
-        if state == "live" and not backs_site:
-            fails.append(f"{ver}: state=live but CHECK={check} and EXEMPT={exempt} "
-                         f"(zero of both — this version does not back site copy)")
-        elif state == "building" and backs_site:
-            fails.append(f"{ver}: state=building but has CHECK={check}/EXEMPT={exempt} "
-                         f"— a version with real coverage must be state=live")
-        elif state == "unregistered" and musts:
-            fails.append(f"{ver}: state=unregistered but the register has "
-                         f"{musts} MUST row(s) — a version with a register tree "
-                         f"must be building or live, never unregistered")
-        elif backs_site and state != "live":
-            fails.append(f"{ver}: backs site copy (CHECK={check}/EXEMPT={exempt}>0) "
-                         f"but state={state!r}, not live")
+        want, tg = _expected_state(d)
+        if state != want:
+            fails.append(f"{ver}: state={state!r} but rule R-a says {want!r} "
+                         f"(musts={d.get('musts', 0)}, CHECK={d.get('check', 0)}, "
+                         f"EXEMPT={d.get('exempt', 0)}, testable-tier GAP={tg})")
     return fails
 
 
@@ -637,15 +728,18 @@ def _real_manifest():
     # CHECK/EXEMPT rows, with no code change needed here when that happens.
     # (This is exactly the `backs_site` test _state_failures() uses too — the two
     # can never independently disagree about what counts as supported.)
-    cov = [v for v, d in cov_export.items() if d.get("check") or d.get("exempt")]
+    # D5-03 / PLAN-v3 §2.18: SUPPORTED = live only. A converting version has real
+    # CHECK/EXEMPT rows but testable-tier MUSTs still open, so it backs the coverage
+    # page's own numbers yet is NOT a version the site may claim as supported.
+    cov = [v for v, d in cov_export.items() if d.get("state") == "live"]
     agc = json.load(open(PUB / "agent-coverage.json"))
-    # The SAME backs-site filter applies to the agent lane: a version key whose
-    # agent row is all zeros (register-only, or no agent register at all) backs
-    # no site copy and must not leak into the supported-versions claim through
-    # this union. Symmetric with cov above, so an honest-zero row added for a
-    # new version never widens the public claim on its own.
+    # The agent axis can never WIDEN the supported set: a version key that carries
+    # agent CHECK/EXEMPT rows but is absent from coverage.json (or not live there) is
+    # a manifest failure, raised as drift below via a synthetic marker — an honest-zero
+    # agent row for a new version never widens the public claim on its own.
     agv = [v for v, d in agc.items()
-           if isinstance(d, dict) and (d.get("check") or d.get("exempt"))]
+           if isinstance(d, dict) and (d.get("check") or d.get("exempt"))
+           and v not in cov_export]
     # agent registry counts via subprocess import — same source of truth as the
     # agent_governance copy gate (len(CHECKS); non-None DEFECTS)
     r = subprocess.run([sys.executable, "-c",
@@ -666,7 +760,9 @@ def _real_manifest():
         "merchant_checks": merchant,
         "agent_checks": ag["agent_checks"],
         "agent_defects": ag["agent_defects"],
-        "versions": sorted(set(cov) | set(agv)),
+        # agv is non-empty only when the agent export names a version coverage.json
+        # lacks — surfaced here so freshness reports it as manifest drift
+        "versions": sorted(set(cov) | {f"{v} (agent-only, absent from coverage.json)" for v in agv}),
     }
 
 def freshness():
@@ -733,7 +829,10 @@ def selftest():
     different SPCK_PUBLIC, and it is also the exact same code path a real CI run
     takes."""
     import copy, shutil, tempfile
-    real_cov = json.load(open(ROOT / "public" / "coverage.json"))
+    # sourced from PUB (not ROOT/public) so a reviewer can point SPCK_PUBLIC at a
+    # scratch export — e.g. the D2-06 converting-state export before it merges — and
+    # run the whole battery against it; on the committed tree PUB == public/.
+    real_cov = json.load(open(PUB / "coverage.json"))
     versions = real_cov["versions"]
     if not versions:
         print("site_gates selftest: SKIP — public/coverage.json has no versions "
@@ -765,12 +864,12 @@ def selftest():
 
     bad = 0
 
-    def run_variant(name, mutate, want_red, mutate_agc=None):
+    def run_variant(name, mutate, want_red, mutate_agc=None, mutate_claims=None):
         nonlocal bad
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
             for fname in ("coverage.json", "agent-coverage.json", "site_claims.json"):
-                src = ROOT / "public" / fname
+                src = PUB / fname
                 if src.exists():
                     shutil.copy(src, tmpd / fname)
             cov = copy.deepcopy(real_cov)
@@ -780,6 +879,10 @@ def selftest():
                 agc = json.load(open(tmpd / "agent-coverage.json"))
                 mutate_agc(agc)
                 (tmpd / "agent-coverage.json").write_text(json.dumps(agc))
+            if mutate_claims is not None:
+                sc = json.load(open(tmpd / "site_claims.json"))
+                mutate_claims(sc)
+                (tmpd / "site_claims.json").write_text(json.dumps(sc))
             env = dict(os.environ, SPCK_PUBLIC=str(tmpd))
             r = subprocess.run(
                 [sys.executable, str(ROOT / "conformance" / "ci" / "site_gates.py"),
@@ -808,6 +911,35 @@ def selftest():
         lambda vs: None,
         want_red=True,
         mutate_agc=lambda a: a.__setitem__(synth_ver, {"check": 1, "exempt": 0}))
+    # ── rule R-a (PLAN-v3 §2.18 / decision 25, D5-03): live ⇔ register ∧ CHECK+EXEMPT>0
+    #    ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ … ∧ any such GAP;
+    #    building ⇔ register ∧ 0/0. Each variant CONSTRUCTS its condition in the scratch
+    #    copy (same doctrine as above) so it keeps exercising the code path regardless of
+    #    which real version happens to be converting today.
+    def with_state(ver, state, **fields):
+        return lambda vs: vs.__setitem__(ver, {**vs[ver], **fields, "state": state})
+    run_variant(
+        "state=live planted on 2026-08-25 forced to testable-tier GAP>0 (rule R-a says converting)",
+        with_state("2026-08-25", "live", check=10, exempt=0,
+                   gap_by_testability={"testable": 5, "manual": 2}),
+        want_red=True)
+    run_variant(
+        f"state=converting planted on {live_ver} forced to zero testable-tier GAP (rule R-a says live)",
+        with_state(live_ver, "converting", check=10, exempt=1, gap_by_testability={"manual": 3}),
+        want_red=True)
+    run_variant(
+        f"state=converting planted on {subject_ver} forced to zero CHECK/EXEMPT (rule R-a says building)",
+        with_state(subject_ver, "converting", check=0, exempt=0,
+                   gap_by_testability={"testable": 5}),
+        want_red=True)
+    run_variant(
+        "converting version listed as SUPPORTED in site_claims manifest.versions "
+        "(supported = live only, RV2 T11)",
+        with_state("2026-08-25", "converting", check=10, exempt=0,
+                   gap_by_testability={"testable": 5}),
+        want_red=True,
+        mutate_claims=lambda sc: sc["manifest"].__setitem__(
+            "versions", sorted(set(sc["manifest"]["versions"]) | {"2026-08-25"})))
     run_variant(
         "correct states (unmodified export)",
         lambda vs: None,
@@ -848,6 +980,156 @@ def selftest():
 
     print(f"\nsite_gates selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
+
+
+# ═══ docclaims ════════════════════════════════════════════════════════════════
+DOCROOT = pathlib.Path(os.environ.get("SPCK_DOCROOT", ROOT))
+DOC_CLAIMS = WEB / "doc_claims.json"
+# hand-authored non-page copy in scope (generated docs/spec-coverage-matrix.md is
+# byte-compared by the coverage gate and excluded here)
+DOC_FILES = ("README.md", "conformance/ci/README.md", "packaging/README.md",
+             "docs/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
+             "docs/merchant-conformance.md", "docs/ap2-vectors.md")
+DOC_GLOBS = ("functions/**/*.js",)
+# (regex, live-value key, label) — every captured count MUST equal the live value
+# unless the exact phrase is a registered `dated` row for that file
+DOC_COUNT_RES = [
+    (re.compile(r"(\d+)\+?\s+kill-rate-validated\s+(?:merchant\s+)?checks?"), "merchant_checks", "'N kill-rate-validated checks' prose"),
+    (re.compile(r"(\d+)\+?\s+checks\s+across"), "merchant_checks", "'N checks across' prose"),
+    (re.compile(r"(\d+)\+?\s+checks,\s+from the browser"), "merchant_checks", "'N checks, from the browser' prose"),
+    (re.compile(r"(\d+)\+?\s+checks?\s+kill-tested against independent servers?"), "live_wire", "'N checks kill-tested against independent servers' prose"),
+    (re.compile(r"(\d+)\+?\s+agent[- ]side checks?"), "agent_checks", "'N agent-side checks' prose"),
+    (re.compile(r"(\d+)\+?\s+agent checks?\b"), "agent_checks", "'N agent checks' prose"),
+    (re.compile(r"(\d+)\+?\s+checks?\s+\(\d+\s+defects modeled\)"), "agent_checks", "'N checks (M defects modeled)' prose"),
+    (re.compile(r"\d+\+?\s+checks?\s+\((\d+)\s+defects modeled\)"), "agent_defects", "'N checks (M defects modeled)' prose"),
+    (re.compile(r"(\d+)\+?\s+(?:client )?defects? modeled"), "agent_defects", "'N defects modeled' prose"),
+    (re.compile(r"(\d+)\+?\s+failure modes"), "agent_defects", "'N failure modes' prose"),
+]
+
+
+def _pyproject_version():
+    m = re.search(r'^version\s*=\s*"([^"]+)"', (ROOT / "packaging" / "pyproject.toml").read_text(), re.M)
+    return m.group(1) if m else None
+
+
+def _base_version(v):
+    """PEP 440 base of a version: '0.4.0rc1' -> '0.4.0' (pre-release tags share the
+    final release's Action pin)."""
+    m = re.match(r"(\d+(?:\.\d+)*)", v or "")
+    return m.group(1) if m else None
+
+
+def doc_live_values():
+    """Live product values the doc counts are pinned to — the SAME counting technique
+    the coverage gate / agent_governance / freshness use (never a second opinion)."""
+    merchant = 0
+    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
+        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    r = subprocess.run([sys.executable, "-c",
+                        "import sys,json;sys.path.insert(0,'conformance/agent');"
+                        "import agent_checks,reference_agent;"
+                        "print(json.dumps({'agent_checks':len(agent_checks.CHECKS),"
+                        "'agent_defects':len([k for k in reference_agent.DEFECTS if k])}))"],
+                       cwd=str(ROOT), capture_output=True, text=True, timeout=60)
+    ag = json.loads(r.stdout) if r.returncode == 0 else {}
+    live_wire = None
+    sc = PUB / "site_claims.json"
+    if sc.exists():
+        ev = (json.load(open(sc)).get("evidence") or {}).get("per_version") or {}
+        newest = sorted(k for k in ev if ev[k].get("live-wire") is not None)
+        live_wire = ev[newest[-1]].get("live-wire") if newest else None
+    pv = _pyproject_version()
+    return {"merchant_checks": merchant, "agent_checks": ag.get("agent_checks"),
+            "agent_defects": ag.get("agent_defects"), "live_wire": live_wire,
+            "pyproject_version": pv, "pyproject_base_version": f"v{_base_version(pv)}" if pv else None}
+
+
+def _doc_files(root):
+    out = [root / f for f in DOC_FILES if (root / f).exists()]
+    for g in DOC_GLOBS:
+        out += [pathlib.Path(f) for f in sorted(glob.glob(str(root / g), recursive=True))]
+    return out
+
+
+def _run_suite_gate_names():
+    """Gate names in run_suite.py's table (the ci/README rows must name real gates)."""
+    r = subprocess.run([sys.executable, "-c",
+                        "import sys;sys.path.insert(0,'conformance/ci');import run_suite;"
+                        "print('\\n'.join(g[0] for g in run_suite.gates('http://localhost:0')))"],
+                       cwd=str(ROOT), capture_output=True, text=True, timeout=60)
+    return set(r.stdout.split()) if r.returncode == 0 else None
+
+
+def docclaims():
+    root = DOCROOT
+    fails = []
+    reg = json.load(open(DOC_CLAIMS)) if DOC_CLAIMS.exists() else {"claims": []}
+    rows = reg.get("claims", [])
+    live = doc_live_values()
+
+    def dated_ok(rel, phrase):
+        """A stale count is fine ONLY as a registered, unexpired `dated` row whose text
+        contains the exact phrase for this file (a dated 'where we were' statement)."""
+        for e in rows:
+            if e.get("kind") == "dated" and e.get("file") == rel and phrase in e.get("text", ""):
+                return e if e.get("review_by", "") >= TODAY else None
+        return None
+
+    # 1. count sweep over every in-scope file
+    for f in _doc_files(root):
+        rel = str(f.relative_to(root))
+        txt = f.read_text(encoding="utf-8", errors="replace")
+        for cre, key, what in DOC_COUNT_RES:
+            for m in cre.finditer(txt):
+                want = live.get(key)
+                if want is None:
+                    fails.append(f"{rel}: {what} '{m.group(0)}' but the live value for {key} is unavailable")
+                elif int(m.group(1)) != want:
+                    if dated_ok(rel, m.group(0)):
+                        continue
+                    fails.append(f"{rel}: {what} claims {m.group(1)} but the product says {want} "
+                                 f"({key}) — update the copy or register a dated row")
+
+    # 2. registered rows still hold
+    for e in rows:
+        cid, rel = e.get("id", "?"), e.get("file", "")
+        f = root / rel
+        if not f.exists():
+            fails.append(f"{cid}: file {rel} missing"); continue
+        if e.get("review_by", "") < TODAY:
+            fails.append(f"{cid}: review_by {e.get('review_by')} expired")
+        txt = f.read_text(encoding="utf-8", errors="replace")
+        if e.get("kind") == "dated":
+            if e.get("text", "") not in txt:
+                fails.append(f"{cid}: dated text no longer present in {rel} — retire the row")
+            continue
+        mm = re.search(e["must_match"], txt) if e.get("must_match") else None
+        if e.get("must_match") and not mm:
+            fails.append(f"{cid}: {rel} does not match /{e['must_match']}/")
+        if e.get("must_not_match") and re.search(e["must_not_match"], txt):
+            fails.append(f"{cid}: {rel} matches forbidden /{e['must_not_match']}/")
+        if e.get("bind") and mm:
+            want = live.get(e["bind"])
+            got = mm.group(1) if mm.groups() else mm.group(0)
+            if str(got) != str(want):
+                fails.append(f"{cid}: {rel} says {got!r} but the product says {want!r} ({e['bind']})")
+
+    # 3. ci/README's gate table names real run_suite gates (D1-08 rename lands here)
+    ci_readme = root / "conformance" / "ci" / "README.md"
+    if ci_readme.exists():
+        names = _run_suite_gate_names()
+        if names is None:
+            fails.append("could not import run_suite.gates() to verify ci/README's gate table")
+        else:
+            for m in re.finditer(r"^\| `([a-z0-9-]+)` \|", ci_readme.read_text(), re.M):
+                if m.group(1) not in names:
+                    fails.append(f"conformance/ci/README.md: gate row `{m.group(1)}` names no gate in "
+                                 f"run_suite.py's table (renamed/removed?)")
+
+    for f2 in fails:
+        print(f"  x {f2}")
+    print(f"docclaims: {'PASS' if not fails else 'FAIL'} ({len(fails)} unverified claim(s))")
+    return 0 if not fails else 1
 
 
 # ═══ checkdocs ════════════════════════════════════════════════════════════════
@@ -901,11 +1183,13 @@ if __name__ == "__main__":
         sys.exit(selftest())
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode not in MODES:
-        print("usage: site_gates.py tdd|claims|voice|security|redirects|freshness [--explain]"
-              "|--selftest")
+        print("usage: site_gates.py tdd|claims|voice|security|redirects|consistency|freshness"
+              "|checkdocs|docclaims [--explain]|--selftest")
         sys.exit(1)
     if mode == "claims":
+        if "--orphans" in sys.argv[2:]:
+            sys.exit(orphans())
         sys.exit(claims(explain="--explain" in sys.argv[2:]))
     sys.exit({"tdd": tdd, "voice": voice, "security": security,
               "redirects": redirects, "consistency": consistency,
-              "freshness": freshness, "checkdocs": checkdocs}[mode]())
+              "freshness": freshness, "checkdocs": checkdocs, "docclaims": docclaims}[mode]())

@@ -1,0 +1,335 @@
+{
+ "_about": "Single source of truth for every TCP port the harness binds (PLAN-v3 \u00a72.18, D5-19). {name: {port, owner_task, used_by[], sweep}}. selftest.sh derives its pre-clean sweep from every entry with sweep=true (validate_ports_registry.py --sweep); validate_ports_registry.py (run_suite gate ports-registry) reds on any literal port in run_suite/selftest/CI/selfcheck boot helpers that is absent here, and on two names claiming one port. Assign a new port by adding a row FIRST; never by convention. Ephemeral loopback stubs bind port 0 and are not listed.",
+ "golden-flower": {
+  "port": 8182,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/serve_golden.sh",
+   "conformance/ci/run_suite.py",
+   "conformance/ci/selftest.sh",
+   ".github/workflows/conformance.yml",
+   "conformance/ci/fuzz_gate.py",
+   "conformance/selfcheck/mutation_killrate.py",
+   "conformance/selfcheck/validate_merchant_checks.py",
+   "conformance/selfcheck/validate_probe_hygiene.py"
+  ],
+  "sweep": true
+ },
+ "mutation-proxy": {
+  "port": 8183,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py",
+   "conformance/selfcheck/mutation_proxy.py",
+   "conformance/selfcheck/mutation_killrate.py"
+  ],
+  "sweep": true,
+  "note": "run_suite gate killrate (proxy-demo after D1-08)"
+ },
+ "controlled-fixture": {
+  "port": 8184,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py",
+   "conformance/ci/merchant_stability.py",
+   "conformance/ci/web_gates.py",
+   "conformance/selfcheck/test_wrapper.py",
+   "conformance/selfcheck/validate_tls_check.py"
+  ],
+  "sweep": true
+ },
+ "controlled-01-23": {
+  "port": 8185,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py"
+  ],
+  "sweep": true
+ },
+ "sig-gate-enforcing": {
+  "port": 8186,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_sig_check.py"
+  ],
+  "sweep": true
+ },
+ "sig-gate-permissive": {
+  "port": 8187,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_sig_check.py"
+  ],
+  "sweep": true
+ },
+ "sig-gate-profile": {
+  "port": 8188,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_sig_check.py"
+  ],
+  "sweep": true
+ },
+ "static-web": {
+  "port": 8189,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/web_gates.py"
+  ],
+  "sweep": true
+ },
+ "webhook-harness-a": {
+  "port": 8190,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/checks/webhook_harness.py"
+  ],
+  "sweep": true
+ },
+ "webhook-harness-b": {
+  "port": 8191,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/checks/webhook_harness.py"
+  ],
+  "sweep": true
+ },
+ "reserved-8192": {
+  "port": 8192,
+  "owner_task": "unassigned",
+  "used_by": [],
+  "sweep": true,
+  "note": "kept free between the harness pair and the 01-11 controlled fixture"
+ },
+ "controlled-01-11": {
+  "port": 8193,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py"
+  ],
+  "sweep": true
+ },
+ "emission-golden": {
+  "port": 8194,
+  "owner_task": "D3-26a/D3-28 (W2)",
+  "used_by": [],
+  "sweep": true,
+  "note": "golden-0825 emission/D10 instance; also D3's own measurement golden in W0"
+ },
+ "mcp-golden": {
+  "port": 8195,
+  "owner_task": "D3-06..10 (W1)",
+  "used_by": [],
+  "sweep": true,
+  "note": "MCP bridge golden"
+ },
+ "signed-golden": {
+  "port": 8196,
+  "owner_task": "D3-05",
+  "used_by": [],
+  "sweep": true,
+  "note": "golden-0825 booted with REQUIRE_SIGNATURES=1"
+ },
+ "gate-golden-0825": {
+  "port": 8197,
+  "owner_task": "D1-04",
+  "used_by": [],
+  "sweep": true,
+  "note": "probe-shape-0825 / merchant-0825 gate golden via boot_golden_0825; D5-15 post-publish acceptance"
+ },
+ "golden-check-0825": {
+  "port": 8198,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/checks/golden_check_08_25.py"
+  ],
+  "sweep": true
+ },
+ "battery-golden-0825": {
+  "port": 8199,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_golden_0825_battery.py"
+  ],
+  "sweep": true
+ },
+ "golden-0825-default": {
+  "port": 8283,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/testbed/golden-0825/serve_golden_0825.sh",
+   "conformance/testbed/golden-0825/stop_golden_0825.sh"
+  ],
+  "sweep": true,
+  "note": "serve_golden_0825.sh's PORT default"
+ },
+ "nightly-golden-a": {
+  "port": 8382,
+  "owner_task": "D4-10 (W1)",
+  "used_by": [],
+  "sweep": false,
+  "note": "nightly.yml golden"
+ },
+ "nightly-golden-b": {
+  "port": 8398,
+  "owner_task": "D4-10 (W1)",
+  "used_by": [],
+  "sweep": false,
+  "note": "nightly.yml golden-0825"
+ },
+ "golden-0825-smoke": {
+  "port": 8399,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/testbed/golden-0825/smoke/test_golden_0825_smoke.py"
+  ],
+  "sweep": true,
+  "note": "GOLDEN_0825_TEST_PORT default"
+ },
+ "tls-golden-13": {
+  "port": 8443,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py",
+   "conformance/selfcheck/validate_tls_check.py",
+   "conformance/checks/merchant_checks_04_08_tls.py"
+  ],
+  "sweep": true
+ },
+ "tls-negative-12": {
+  "port": 8444,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/run_suite.py",
+   "conformance/selfcheck/validate_tls_check.py"
+  ],
+  "sweep": true
+ },
+ "tls-plain": {
+  "port": 8445,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_tls_check.py",
+   "conformance/checks/merchant_checks_04_08_tls.py"
+  ],
+  "sweep": true
+ },
+ "tls-front": {
+  "port": 8446,
+  "owner_task": "D3 (W2)",
+  "used_by": [],
+  "sweep": false,
+  "note": "TLS front for the emission golden"
+ },
+ "official-mock-a": {
+  "port": 8484,
+  "owner_task": "D4-06 (W1)",
+  "used_by": [],
+  "sweep": false,
+  "note": "official-suite cross-checker mock"
+ },
+ "official-mock-b": {
+  "port": 8485,
+  "owner_task": "D4-06 (W1)",
+  "used_by": [],
+  "sweep": false
+ },
+ "node-reference": {
+  "port": 3000,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/ci/serve_node_reference.sh",
+   "conformance/ci/stop_node_reference.sh",
+   "conformance/ci/selftest.sh",
+   ".github/workflows/conformance.yml"
+  ],
+  "sweep": true
+ },
+ "oauth-fixture": {
+  "port": 9322,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_oauth_checks.py"
+  ],
+  "sweep": true
+ },
+ "selfcheck-stub-9398": {
+  "port": 9398,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_disc014_check.py",
+   "conformance/selfcheck/validate_order_auth_check.py"
+  ],
+  "sweep": true,
+  "note": "shared by sequentially-booted hermetic stubs"
+ },
+ "selfcheck-stub-9399": {
+  "port": 9399,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_checkout_scope_check.py",
+   "conformance/selfcheck/validate_ap2_enforce.py"
+  ],
+  "sweep": true,
+  "note": "shared by sequentially-booted hermetic stubs"
+ },
+ "ap2-profile-stub": {
+  "port": 9402,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_ap2_enforce.py"
+  ],
+  "sweep": true
+ },
+ "sig002-reference": {
+  "port": 9412,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_sig002_reference.py"
+  ],
+  "sweep": true
+ },
+ "sig002-profile": {
+  "port": 9413,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_sig002_reference.py"
+  ],
+  "sweep": true
+ },
+ "webhook-reference": {
+  "port": 9414,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_webhook_reference.py"
+  ],
+  "sweep": true
+ },
+ "tokenizer": {
+  "port": 9420,
+  "owner_task": "D3 (W2)",
+  "used_by": [],
+  "sweep": false
+ },
+ "mock-idp": {
+  "port": 9421,
+  "owner_task": "D3-26b (W2)",
+  "used_by": [],
+  "sweep": false
+ },
+ "action-surface": {
+  "port": 9422,
+  "owner_task": "D3 (W3)",
+  "used_by": [],
+  "sweep": false
+ },
+ "loopback-redirect-fixture": {
+  "port": 7777,
+  "owner_task": "existing",
+  "used_by": [
+   "conformance/selfcheck/validate_merchant_checks.py"
+  ],
+  "sweep": false,
+  "note": "NEVER bound: the registered loopback redirect_uri in the OAuth fixture config (IDL-021 ignores the port at match time); listed so nobody binds it"
+ }
+}

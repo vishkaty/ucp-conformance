@@ -304,10 +304,14 @@ def main():
                  # two-sided reframe (2026-07): the merchant-side hero stat + the "which side" band
                  re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Merchant-side checks'),
                  re.compile(r"(\d+)\+? checks, from the browser")]
+    #    D5-01: the Pages functions (functions/**/*.js — the /api/conformance docstring
+    #    advertised a stale "37") and conformance/ci/README.md are copy too.
     copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
         os.path.join(ROOT, "README.md"),
         os.path.join(ROOT, "docs", "ROADMAP.md"),
-        os.path.join(ROOT, "packaging", "README.md")]
+        os.path.join(ROOT, "packaging", "README.md"),
+        os.path.join(ROOT, "conformance", "ci", "README.md")] + \
+        glob.glob(os.path.join(ROOT, "functions", "**", "*.js"), recursive=True)
     for page in copy_files:
         if not os.path.exists(page):
             continue

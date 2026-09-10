@@ -144,5 +144,13 @@
    ],
    "reason": "CHK-055 registered the checkout/index.md#L1337-L1339 sentence pair a second time; TOT-010 owns the MUST NOT half and TOT-011 the SHOULD half. The agent check agent.no_autocomplete_mismatched_totals still grades TOT-010 (locked here), so no agent test vanished — the id stopped being a register row. Recorded as data (the lock is add-only by doctrine); D5-04 suspends the whole 08-25 agent lock under decision 10."
   }
- ]
+ ],
+ "suspensions": {
+  "2026-08-25": {
+   "reason": "attribution suspended pending D3-11 (decision 10): the 51 locked 2026-08-25 ids were locked by extending ACheck.versions on 2026-09-01, never by a run \u2014 agent_run_evidence.json declares 2026-08-25 unrun, so these ids read GAP until an 08-25 sandbox run writes evidence; the lock rows stay (add-only) and re-arm when the suspension is lifted",
+   "since": "2026-09-10",
+   "converts_when": "D3-11",
+   "review_by": "2026-12-09"
+  }
+ }
 }

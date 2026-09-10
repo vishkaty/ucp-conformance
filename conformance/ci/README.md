@@ -36,6 +36,10 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
 | `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
 | `golden-0825-unit` | golden-0825's own unit + smoke tests (`server/*_test.py`, `smoke/`) are **executed** under `uv` on every run, so a red failing-first test can never sit unnoticed in the tree; `uv` absent = honest skip (rc 2), FAIL under `--require-server`. `golden-0825-unit-selftest` plants a failing test in a scratch copy (must be red) and hides `uv` (must be rc 2) | — |
+| `site-docclaims` | non-page copy (README, this file, packaging README, docs, `functions/**/*.js`) advertises only live counts; registered doc claims hold; every gate row in this table names a real `run_suite.py` gate | — |
+| `known-issues` | `conformance/ci/known_issues.json` (the single KNOWN ISSUES source) has no refuted, stale (`re_verified` > 30 d), unevidenced-`fixed` or unanchored row; ledger cross-ref when `ops/` is mounted (else honest SKIP) | ledger + upstream threads |
+| `deploy-guards` | `packaging/deploy.sh --selftest`: the only deploy path refuses a dirty tree, HEAD≠origin/main, a failed `selftest` check-run, a stale site export or a red gate (exit 3), and deploys `preview-<sha7>` before `main` — synthetic repo + stub gh/wrangler | — |
+| `ports-registry` | every literal port the harness binds is registered in `conformance/ci/ports.json` (the single source `selftest.sh` sweeps from) and no two names claim one port; hermetic kill-tests plant an unregistered literal + a collision | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the
@@ -70,7 +74,7 @@ conformance/ci/selftest.sh            # add --verbose or any run_suite.py args
 ```
 
 `selftest.sh` is the way to run locally — you never have to hunt down leftover
-servers on ports 8182/8183/8184.
+servers: its pre-clean sweep is derived from `conformance/ci/ports.json` (the ports registry).
 
 <details><summary>Manual steps (what the wrapper does)</summary>
 
