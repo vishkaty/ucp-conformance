@@ -74,7 +74,57 @@ def test_docclaims_reds_on_stale_count():
         return None
 
 
-TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count]
+SYNC = ROOT / "conformance" / "web" / "sync_site_claims.py"
+
+
+def run_sync(args, cwd=None):
+    r = subprocess.run([sys.executable, str(SYNC), *args], cwd=str(cwd or ROOT),
+                       capture_output=True, text=True, timeout=600)
+    return r.returncode, r.stdout + r.stderr
+
+
+def test_sync_site_claims_check_reds_on_drift():
+    """D5-05: `sync_site_claims.py --check` byte-compares the generated manifest +
+    evidence.per_version blocks with the registry — a scratch registry whose
+    manifest.merchant_checks reads 1 must exit 1 NAMING the field."""
+    with tempfile.TemporaryDirectory() as tmp:
+        reg = pathlib.Path(tmp) / "site_claims.json"
+        doc = json.loads((ROOT / "public" / "site_claims.json").read_text())
+        doc["manifest"]["merchant_checks"] = 1
+        reg.write_text(json.dumps(doc, indent=2) + "\n")
+        rc, out = run_sync(["--check", "--file", str(reg)])
+        if rc == 0:
+            return "--check stayed GREEN with manifest.merchant_checks planted as 1"
+        if "merchant_checks" not in out:
+            return f"--check went red but did not name merchant_checks:\n{out[-400:]}"
+        return None
+
+
+def test_sync_never_rewrites_review_fields():
+    """D5-05 (RV2 T9): the writer regenerates ONLY manifest + evidence.per_version; every
+    claim's text/evidence/review_by and both `reviewed` stamps come back byte-identical."""
+    with tempfile.TemporaryDirectory() as tmp:
+        reg = pathlib.Path(tmp) / "site_claims.json"
+        before = json.loads((ROOT / "public" / "site_claims.json").read_text())
+        before["manifest"]["merchant_checks"] = 1            # force a rewrite of the manifest
+        before["evidence"]["per_version"] = {}
+        reg.write_text(json.dumps(before, indent=2) + "\n")
+        rc, out = run_sync(["--write", "--file", str(reg)])
+        if rc != 0:
+            return f"writer failed rc={rc}:\n{out[-400:]}"
+        after = json.loads(reg.read_text())
+        if after["manifest"]["merchant_checks"] == 1 or not after["evidence"]["per_version"]:
+            return "writer did not regenerate manifest/evidence"
+        frozen = lambda d: (d["manifest"].get("reviewed"), d["evidence"].get("reviewed"), d["evidence"].get("_about"),
+                            [(c.get("id"), c.get("text"), c.get("evidence"), c.get("review_by"), c.get("page"), c.get("added"))
+                             for c in d["claims"]], d.get("retired_claims"), d.get("_about"))
+        if frozen(before) != frozen(after):
+            return "writer touched reviewed/review_by/claim text/evidence — forbidden"
+        return None
+
+
+TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count,
+         test_sync_site_claims_check_reds_on_drift, test_sync_never_rewrites_review_fields]
 
 
 def main():
