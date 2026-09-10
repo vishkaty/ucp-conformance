@@ -500,3 +500,70 @@ def test_leaf_differential(golden_server):
 # advertised capabilities, or to the differential config must re-pin this
 # deliberately; a silently shrinking population is a red test, not a pass.
 LEAF_DIFFERENTIAL_RUN_COUNT = 46
+
+
+# ---------------------------------------------------------------------------
+# D3-04: the UCP error envelope on EVERY error (unknown routes included), R15's
+# request-side 500s become 422 envelopes with a path, C3b's destinations[].type
+# default when the platform omits it, and DSC-007/030's rejected-code messages.
+# ---------------------------------------------------------------------------
+
+
+def _assert_error_envelope(body, code):
+    assert body["ucp"]["version"] == SPEC_VERSION and body["ucp"]["status"] == "error", body
+    msgs = body["messages"]
+    assert msgs and msgs[0]["type"] == "error" and msgs[0]["code"] == code, msgs
+    ok, detail = so.validate_root(body, "schemas/common/types/error_response.json",
+                                  op="read", version=SPEC_VERSION, direction="response")
+    assert ok, detail
+
+
+def test_unknown_route_envelope(golden_server):
+    """A request for a route this server does not serve is a UCP error
+    envelope (404, code not_found), not a framework `{"detail": ...}` body."""
+    _require_oracle()
+    r = httpx.get(f"{golden_server}/nope", headers=ucp_headers(), timeout=10)
+    assert r.status_code == 404, (r.status_code, r.text)
+    _assert_error_envelope(r.json(), "not_found")
+
+
+def test_bad_consent_key_422(golden_server):
+    """A consent purpose key that is not a reverse-DNS name (CNST-004) is a
+    422 invalid_request envelope naming the offending path -- R15: the
+    inherited server crashed with a bare 500 here."""
+    _require_oracle()
+    body = _create_body()
+    body["buyer"] = {"consent": {"not a reverse dns key": {
+        "granted": True, "source": "platform", "description": "x"}}}
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 422, (r.status_code, r.text[:300])
+    out = r.json()
+    _assert_error_envelope(out, "invalid_request")
+    assert "consent" in (out["messages"][0].get("path") or ""), out["messages"][0]
+
+
+def test_omitted_destination_type_defaults(golden_server):
+    """C3b: `type` is `ucp_request: optional` on a destination; when the
+    platform omits it the business defaults it per method (shipping ->
+    shipping_address) and the response carries the discriminator."""
+    body = _create_body()
+    for m in body["fulfillment"]["methods"]:
+        for d in m["destinations"]:
+            d.pop("type", None)
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    dests = [d for m in r.json()["fulfillment"]["methods"] for d in m["destinations"]]
+    assert dests and all(d.get("type") == "shipping_address" for d in dests), dests
+
+
+def test_rejected_code_surfaces_message(golden_server):
+    """DSC-007/030: a discount code the business rejects is still a 201, and
+    the rejection is surfaced in messages[] (code discount_code_rejected) with
+    a path to the rejected entry -- never silently dropped."""
+    body = _create_body()
+    body["discounts"] = {"codes": ["INVALID_CODE"]}
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    msgs = [m for m in (r.json().get("messages") or []) if m.get("code") == "discount_code_rejected"]
+    assert msgs, r.json().get("messages")
+    assert "codes" in (msgs[0].get("path") or ""), msgs[0]
