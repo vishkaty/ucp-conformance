@@ -389,6 +389,115 @@
       ],
       "violates": "overview/index.md L2511 (PAY-011): 'Credentials flow Platform -> Business only. Businesses MUST NOT echo credentials back in responses.' + common/types/token_credential.json#L21 (PAY-012): the token field's `\"ucp_response\": \"omit\"` annotation. Empirically confirmed (2026-08-31, lane/p3-wave2) that the official oracle does NOT enforce either rule: injecting this exact credential.token into a real, otherwise-valid complete_checkout response still validates_root() clean (`ucp_response: omit` is a codegen/docs directive, not a JSON-Schema keyword any of these schemas turn into additionalProperties:false or a forbidden-field constraint) -- self-referenced by construction, not a defects-mode bug and not an oracle bug either; there is nothing for schema_oracle to catch here. This golden's clean design (checkout-complete and order-GET responses never carry a `payment` field at all) is a compliant, if maximally conservative, way to satisfy both rows; this mutant proves the check would catch a regression that reintroduced the leaked-credential class.",
       "graded_by": "conformance/checks/golden_check_08_25.py: p_no_credential_leak (PAY-011, PAY-012)"
+    },
+    {
+      "name": "leaf_wrong_version",
+      "family": "c3-leaf-profile",
+      "surface": "discovery",
+      "route": {
+        "method": "GET",
+        "path": "/.well-known/ucp/2026-04-08"
+      },
+      "patch": [
+        {
+          "op": "set",
+          "path": [
+            "version"
+          ],
+          "value": "2026-08-25"
+        }
+      ],
+      "violates": "overview/index.md#L3521-L3523 (OVR-069): a profile fetched from a supported_versions URI MUST carry a top-level version (bare 04-08 document) equal to the key it was selected under. The 04-08 profile schema accepts any dated version string, so no oracle call can reject this -- graded by golden_check_08_25.py's own predicate (self-referenced).",
+      "graded_by": "conformance/checks/golden_check_08_25.py OVR-069"
+    },
+    {
+      "name": "leaf_carries_supported_versions",
+      "family": "c3-leaf-profile",
+      "surface": "discovery",
+      "route": {
+        "method": "GET",
+        "path": "/.well-known/ucp/2026-04-08"
+      },
+      "patch": [
+        {
+          "op": "set",
+          "path": [
+            "supported_versions"
+          ],
+          "value": {
+            "2026-01-23": "https://example.com/.well-known/ucp/2026-01-23"
+          }
+        }
+      ],
+      "violates": "overview/index.md#L3531-L3533 (OVR-009): a version-specific (leaf) profile MUST NOT contain a supported_versions field. supported_versions is an optional property at 08-25 and unknown (additionalProperties) at 04-08, so no oracle rejects it -- self-referenced.",
+      "graded_by": "conformance/checks/golden_check_08_25.py OVR-009"
+    }
+  ],
+  "behavior_mutants_$comment": "D3-01 / decision 19: BEHAVIOR rows. No patch, no route: exactly one `behavior_armed(<behavior>)` guard per key in server code takes the violating branch while the row is armed (the `guard` field names it, for humans). The battery grades a row by the conformance checks it names (`checks[]`: ids from conformance/checks/area_*.py) -- KILLED when each flips CLEAN->DEVIATION->CLEAN across arm/disarm; LOADER-BROKEN when the server's x-defects-consulted record shows no guard read the key.",
+  "behavior_mutants": [
+    {
+      "name": "negotiation_accept_any",
+      "behavior": "negotiation.accept_any",
+      "checks": [
+        "negotiation.version_unsupported_error"
+      ],
+      "violates": "overview/index.md NEG table / OVR-071, NEG-001 -- a version the business does not advertise ({ucp.version} ∪ supported_versions) MUST be rejected with version_unsupported. Armed, dependencies.validate_ucp_headers's guard accepts any well-formed version, so the check's version=\"2099-01-01\" create returns 201 instead of 422.",
+      "guard": "dependencies.validate_ucp_headers (D3-02)"
+    },
+    {
+      "name": "projection_leaks_type",
+      "behavior": "projection.leak_destination_type",
+      "checks": [
+        "battery.projection_0408_shape"
+      ],
+      "violates": "decision 18 / shopping/types/shipping_destination.json@2026-04-08 (postal_address + id, no `type`; FUL-003 at 04-08): a response negotiated at 2026-04-08 must not carry the 08-25 destinations[].type discriminator. Armed, services/version_projection.py skips the destinations delta. Killed by battery.projection_0408_shape's direct shape predicate: the pinned 04-08 oracle accepts a leaked `type` (no additionalProperties bar at 04-08; verified 2026-09-10), so neither the oracle nor the leaf differential is the judge for this row.",
+      "guard": "services/version_projection.py project_response (D3-03)"
+    },
+    {
+      "name": "projection_consent_objects_on_0408",
+      "behavior": "projection.consent_objects",
+      "checks": [
+        "battery.projection_0408_consent"
+      ],
+      "violates": "decision 18 / shopping/buyer_consent.json@2026-04-08 ($defs.consent: marketing/analytics/preferences/sale_of_data are BOOLEANS): a response negotiated at 2026-04-08 must not carry 08-25 consent_purpose objects. Armed, services/version_projection.py skips the consent delta (RV2 T1).",
+      "guard": "services/version_projection.py project_response (D3-03)"
+    },
+    {
+      "name": "unknown_route_plain_404",
+      "behavior": "errors.unknown_route_plain_404",
+      "checks": [
+        "gc:ERR-028.unknown-route"
+      ],
+      "violates": "error_response.json (ERR-028/029/030): every error response is a UCP envelope -- ucp{version,status:error} + messages[]. Armed, an unknown route answers the framework's plain {\"detail\": \"Not Found\"} (the inherited behavior).",
+      "guard": "server.py http_exception_handler (D3-04)"
+    },
+    {
+      "name": "consent_bad_key_500",
+      "behavior": "errors.validation_error_500",
+      "checks": [
+        "gc:ERR-028.validation-422"
+      ],
+      "violates": "error_response.json (ERR-028/029/030) + ledger R15: a request the models cannot represent (e.g. a non-reverse-DNS consent purpose key, buyer_consent.json $defs.consent propertyNames) is 422 invalid_request with a path, never a bare 500. Armed, the escaped pydantic ValidationError is served as the inherited plain-text 500.",
+      "guard": "server.py model_validation_exception_handler (D3-04)"
+    },
+    {
+      "name": "destination_type_required_on_request",
+      "behavior": "request.destination_type_required",
+      "checks": [
+        "gc:FUL-030.omit-type"
+      ],
+      "violates": "shipping_destination.json / fulfillment_destination.json `type` is ucp_request:optional (C3b): a platform may omit it and the business defaults it per method, the response carrying the const discriminator (FUL-030). Armed, nothing is defaulted and the 08-25 model rejects the request with 422.",
+      "guard": "services/version_projection.py default_destination_types (D3-04)"
+    },
+    {
+      "name": "discount_reject_silent",
+      "behavior": "discount.reject_silent",
+      "checks": [
+        "gc:DSC-007",
+        "gc:DSC-030"
+      ],
+      "violates": "discount.md#L138-L141 (DSC-007) and #L512-L513 (DSC-030): a rejected code is communicated via messages[] (echoed in discounts.codes, absent from discounts.applied). Armed, rejections are dropped silently -- the inherited behavior.",
+      "guard": "services/checkout_service.py _recalculate_totals discount block (D3-04)"
     }
   ],
   "acknowledged_gaps": {},

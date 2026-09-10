@@ -70,6 +70,8 @@ RECORD_DIR = pathlib.Path(os.environ.get("RUN_SUITE_RECORD_DIR")
 
 def gates(server, require_server=False):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
+    # require_server also turns a missing TOOLCHAIN into a failure for the gates
+    # that name it (golden-0825-unit: `uv`), not just a missing server.
     rec = lambda name: ("--record", str(RECORD_DIR / f"{name}.json"))   # noqa: E731
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
@@ -118,6 +120,17 @@ def gates(server, require_server=False):
         # itself enforce — see that file's own $comment and the module docstring
         # here). Deliberately unattributed, same discipline as struct-check-08-25.
         ("golden-check-08-25", _py(CHK / "golden_check_08_25.py"),                None, (2,)),
+        # D3-29: golden-0825's OWN unit + smoke tests (server/*_test.py, smoke/) are
+        # executed here, not merely present -- every D3 task's failing-first test is a
+        # server or smoke test, so an unexecuted suite would let a red one sit in the
+        # tree (RV2 #10). Runs `uv run --group dev pytest -q ../smoke .` in the server
+        # dir (the smoke fixture boots on 8194, golden-0825's own registered port);
+        # rc 2 = `uv` absent -> honest SKIP, FAIL under --require-server. The
+        # selftest row plants a failing test in a scratch copy (must be red) and
+        # hides `uv` (must be rc 2), so the gate itself stays kill-proven.
+        ("golden-0825-unit", _py(SELF / "validate_golden_unit_gate.py"),          None,
+         () if require_server else (2,)),
+        ("golden-0825-unit-selftest", _py(SELF / "validate_golden_unit_gate.py", "--selftest"), None, ()),
         ("schema-census", _py(SELF / "verify_schema_census.py"),                  None, ()),
         # hermetic kill-tests for the census above: proves unreferenced-file
         # detection, stale-ruling (hash-diff self-expiry) detection, and a class
@@ -539,6 +552,43 @@ def run_battery():
         RECORD_DIR.mkdir(parents=True, exist_ok=True)
         (RECORD_DIR / "battery_LAST_RUN.json").write_bytes(BATTERY_REPORT.read_bytes())
 
+R11_BATTERY_REPORT = BATTERY_REPORT     # D3-01's report line (behavior N/N) reads the same tracked file
+R11_BATTERY_STALE_DAYS = 14
+
+
+def r11_battery_report_line():
+    """PLAN-0825 SS C.4 (R11): the golden-0825 mutant battery is a REPORT-ONLY
+    line here, not a gate in gates() above -- it boots a server twice and
+    takes ~15s, too heavy for the default per-change run_suite invocation
+    (same call the schema-census gate makes: report-only by default, a flip
+    to a hard gate is a later, deliberate step). Run it directly:
+        python3 conformance/selfcheck/validate_golden_0825_battery.py
+    This function only reads the JSON report that script writes on its own
+    last run and never re-executes it -- so this line is O(1) and never boots
+    anything itself.
+
+    Self-expiring (P-2): a report older than R11_BATTERY_STALE_DAYS is flagged
+    STALE rather than quietly trusted forever, same doctrine as every other
+    intermediate/report-mode state in this suite."""
+    import json as _json
+    if not R11_BATTERY_REPORT.exists():
+        return "R11 battery      · not yet run — see conformance/selfcheck/validate_golden_0825_battery.py"
+    try:
+        report = _json.loads(R11_BATTERY_REPORT.read_text())
+    except (OSError, ValueError) as e:
+        return f"R11 battery      ✗ LAST_RUN.json unreadable ({e})"
+    age_days = (time.time() - report.get("ran_at", 0)) / 86400
+    stale = " [STALE — re-run]" if age_days > R11_BATTERY_STALE_DAYS else ""
+    mark = "✓" if report.get("ok") else "✗"
+    acked = report.get("acknowledged_open", 0)
+    # D3-01: behavior rows (decision 19) are reported next to the patch total.
+    b_total = report.get("behavior_total")
+    behavior = f" · behavior {report.get('behavior_killed', 0)}/{b_total}" if b_total is not None else ""
+    return (f"R11 battery      {mark} {report.get('killed')}/{report.get('total')} killed"
+            + (f" ({acked} acknowledged-open)" if acked else "")
+            + behavior
+            + f", {age_days:.1f}d ago{stale}")
+
 
 def main():
     ap = argparse.ArgumentParser(description="TDD/CI gate runner for the UCP conformance suite.")
@@ -635,6 +685,7 @@ def main():
     skipped = [n for n, s, _ in results if s == "SKIP"]
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
+    print(r11_battery_report_line() + "  (report-only, not counted above; the counted gate is battery-freshness)")
     if args.only:
         # the acceptance-line form: one `✓ PASS <gate> <detail>` per selected gate
         for name, status, detail in results:

@@ -26,6 +26,16 @@ mutant:
                  Proves disarm genuinely restores the normal serve path, not just that
                  arming did something.
 
+BEHAVIOR rows (defects_config.json `behavior_mutants[]`, D3-01 / decision 19) carry no
+patch: `{name, behavior: "<key>", checks[], violates}`. Exactly one guard per key in
+server code asks `DefectsEngine.behavior_armed(key)` and takes the violating branch
+while the row is armed. This runner grades such a row by the CONFORMANCE CHECKS it
+names (`checks[]` = check ids from conformance/checks/area_*.py, plus the runner's own
+`battery.*` selftest checks): KILLED when every named check is CLEAN before arming,
+DEVIATION armed, and CLEAN again disarmed; SURVIVED when armed and not all deviate;
+LOADER-BROKEN when the server's `x-defects-consulted` header shows NO guard consulted
+the row's key while it was armed (an unwired key -- the row is data nobody reads).
+
 Disabled-mode byte-identity (R11 build item 1) is proved separately and more precisely
 by conformance/testbed/golden-0825/server/defects_test.py (a hermetic unit test on
 defects.py itself: given DEFECTS OFF, maybe_mutate() returns the exact same object,
@@ -70,6 +80,13 @@ sys.path.insert(0, str(SERVER_DIR))
 import defects  # noqa: E402  (pure stdlib module; see its own docstring on why this
                               # runner imports it directly rather than reimplementing
                               # apply_patch/_get_parent a third time)
+
+CHECKS_DIR = ROOT / "conformance" / "checks"
+sys.path.insert(0, str(CHECKS_DIR))
+import engine as chk_engine  # noqa: E402  (Check / run_check / fetch: the SAME runner
+                             # merchant.py uses, so a behavior row is graded by the
+                             # real check, not by a battery-local reimplementation)
+from verdict_gate import CLEAN, DEVIATION  # noqa: E402
 
 PORT = int(os.environ.get("GOLDEN_0825_BATTERY_PORT", "8199"))
 BASE = f"http://localhost:{PORT}"
@@ -226,8 +243,8 @@ def perform(route):
     """Issue the exact request a mutant's route names, using a freshly-created
     resource where the op needs one to exist."""
     method, path = route["method"], route["path"]
-    if path == "/.well-known/ucp":
-        return http("GET", path, expect_json=True)
+    if path == "/.well-known/ucp" or path.startswith("/.well-known/ucp/"):
+        return http("GET", path, expect_json=True)   # root profile or a version leaf
     if path == "/checkout-sessions":
         return http("POST", path, {
             "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
@@ -406,6 +423,209 @@ def run_mutant(m, state_file, acknowledged, request_route=None):
     return {"name": name, "verdict": "KILLED", "detail": detail}
 
 
+def consulted_keys_now():
+    """Behavior keys the server reports as consulted since its arm state last
+    changed: the `x-defects-consulted` header (server.py's middleware, defects
+    mode on). Read off a discovery GET, which itself consults nothing."""
+    req = urllib.request.Request(BASE + "/.well-known/ucp", headers=ucp_headers())
+    with urllib.request.urlopen(req, timeout=10) as r:
+        raw = r.headers.get("x-defects-consulted", "")
+    return {k for k in raw.split(",") if k}
+
+
+def _stub_fetch(base):
+    return chk_engine.fetch(base, "/testing/defects/behavior-stub", "GET", None,
+                            {"Simulation-Secret": SIM_SECRET})
+
+
+def _stub_predicate(r):
+    j = r.json if isinstance(r.json, dict) else {}
+    return CLEAN if j.get("stub") == "clean" else DEVIATION
+
+
+LEAF_VERSION = "2026-04-08"
+
+
+def _headers_0408():
+    h = ucp_headers()
+    h["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{LEAF_VERSION}"'
+    return h
+
+
+def _create_body_0408(consent=None):
+    """A 2026-04-08-shaped create: destinations WITHOUT `type` (04-08
+    shipping_destination is postal_address + id), optional 04-08 boolean
+    consent under buyer.consent."""
+    body = {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": {"methods": [{
+            "id": "method_1", "type": "shipping", "line_item_ids": [],
+            "destinations": [{"id": "dest_1", "address_country": "US"}],
+            "selected_destination_id": "dest_1",
+            "groups": [{"id": "group_1", "line_item_ids": [], "selected_option_id": "std-ship"}],
+        }]},
+    }
+    if consent is not None:
+        body["buyer"] = {"consent": consent}
+    return body
+
+
+def _fetch_0408_shape(base):
+    return chk_engine.fetch(base, "/checkout-sessions", "POST", _create_body_0408(), _headers_0408())
+
+
+def _fetch_0408_consent(base):
+    return chk_engine.fetch(base, "/checkout-sessions", "POST",
+                            _create_body_0408(consent={"marketing": True, "analytics": False}),
+                            _headers_0408())
+
+
+def _pred_0408_shape(r):
+    """201; ucp.version is the leaf version; no destinations[].type anywhere;
+    and the 04-08 fulfillment oracle (fulfillment.json dev.ucp.shopping.checkout
+    at 2026-04-08) accepts the body.
+
+    The `type` absence is judged by the predicate itself, on purpose: verified
+    2026-09-10 (lane/w0-d3, D3-03 kill-proof) that the pinned 04-08 oracle
+    ACCEPTS a leaked destinations[].type -- 04-08 shipping_destination.json is
+    postal_address + id with no additionalProperties bar -- so the oracle call
+    here corroborates the rest of the shape but cannot by itself kill
+    `projection_leaks_type`. The leaf differential (smoke::test_leaf_differential)
+    stays green under that row for the same reason (and because the 04-08 leaf
+    advertises no fulfillment capability, so the population's FUL checks are
+    not-applicable there)."""
+    j = r.json if isinstance(r.json, dict) else {}
+    if r.status != 201 or (j.get("ucp") or {}).get("version") != LEAF_VERSION:
+        return DEVIATION
+    dests = [d for m in (j.get("fulfillment") or {}).get("methods", []) for d in (m.get("destinations") or [])]
+    if not dests or any("type" in d for d in dests):
+        return DEVIATION
+    ok, _ = so.validate_against(j, "schemas/shopping/fulfillment.json", "dev.ucp.shopping.checkout",
+                                op="create", version=LEAF_VERSION, direction="response")
+    return CLEAN if ok else DEVIATION
+
+
+def _pred_0408_consent(r):
+    """201; every buyer.consent value is a 04-08 boolean (never an 08-25
+    consent_purpose object); the 04-08 buyer-consent oracle accepts the body."""
+    j = r.json if isinstance(r.json, dict) else {}
+    consent = ((j.get("buyer") or {}).get("consent"))
+    if r.status != 201 or not isinstance(consent, dict) or not consent:
+        return DEVIATION
+    if not all(isinstance(v, bool) for v in consent.values()):
+        return DEVIATION
+    ok, _ = so.validate_against(j, "schemas/shopping/buyer_consent.json", "dev.ucp.shopping.checkout",
+                                op="create", version=LEAF_VERSION, direction="response")
+    return CLEAN if ok else DEVIATION
+
+
+# The runner's own checks, resolvable from a behavior row's checks[] like any
+# conformance check id. `battery.behavior_stub` is the observable behind the
+# golden's test-only /testing/defects/behavior-stub route (its guard is the one
+# consultation of key "selftest.stub") -- the --selftest positive control.
+# `battery.projection_0408_*` are the observables behind the version-projection
+# behavior rows (D3-03): a create negotiated at 2026-04-08 must come back in the
+# 04-08 wire shape, judged by the 04-08 oracle plus a direct shape predicate.
+BATTERY_CHECKS = [
+    chk_engine.Check("battery.behavior_stub", ["BATTERY-STUB"], "MUST",
+                     _stub_fetch, _stub_predicate, ['set:stub="violated"']),
+    chk_engine.Check("battery.projection_0408_shape", ["FUL-003@2026-04-08"], "MUST",
+                     _fetch_0408_shape, _pred_0408_shape,
+                     ['set:ucp.version="2026-08-25"',
+                      'set:fulfillment.methods.0.destinations.0.type="shipping_address"']),
+    chk_engine.Check("battery.projection_0408_consent", ["CNST@2026-04-08"], "MUST",
+                     _fetch_0408_consent, _pred_0408_consent,
+                     ['set:buyer.consent.marketing={"granted":true,"source":"platform","description":"x"}']),
+]
+
+
+class _GoldenCheckRow:
+    """A golden_check_08_25.py Row adapted to this runner's verdict protocol:
+    id `gc:<row id>`, verdict = CLEAN when the row's own predicate accepts the
+    golden's current response, DEVIATION otherwise. The GC module's HTTP
+    helpers are pointed at THIS runner's golden (port/secret) at import."""
+
+    def __init__(self, row):
+        self.id, self.row = f"gc:{row.id}", row
+
+    def verdict(self):
+        status, body = self.row.make_request()
+        ok, _ = self.row.predicate(status, body)
+        return CLEAN if ok else DEVIATION
+
+
+def check_registry():
+    """check id -> verdict source, from every conformance/checks/area_*.py CHECKS
+    list (engine.Check), BATTERY_CHECKS, and golden_check_08_25.py's rows as
+    `gc:<row id>` (D3-04: the golden-reading rows grade behavior rows too).
+    Built once per run."""
+    import glob
+    import importlib
+    reg = {c.id: c for c in BATTERY_CHECKS}
+    for path in sorted(glob.glob(str(CHECKS_DIR / "area_*.py"))):
+        mod = importlib.import_module(pathlib.Path(path).stem)
+        for c in getattr(mod, "CHECKS", []):
+            reg.setdefault(c.id, c)
+    gc = importlib.import_module("golden_check_08_25")
+    gc.PORT, gc.BASE, gc.SIM_SECRET = PORT, BASE, SIM_SECRET   # its http() reads these per call
+    for row in gc.CHECKS:
+        reg.setdefault(f"gc:{row.id}", _GoldenCheckRow(row))
+    return reg
+
+
+def _check_verdict(chk):
+    """The check's verdict on the golden's CURRENT response: an engine.Check's
+    clean predicate via the same engine.run_check merchant.py uses, or a
+    golden_check_08_25.py row's own predicate."""
+    if isinstance(chk, _GoldenCheckRow):
+        return chk.verdict()
+    _, detail = chk_engine.run_check(chk, BASE)
+    return detail["clean"]
+
+
+def run_behavior(b, state_file, acknowledged, registry):
+    """Runs one `behavior_mutants[]` row: every named check must be CLEAN
+    disarmed, DEVIATION armed, CLEAN again disarmed (FIRED/CAUGHT/RESTORED,
+    judged by the checks the row names); and the server must report the row's
+    key as consulted while armed, else the row is an UNWIRED key -> LOADER-BROKEN."""
+    name, key = b["name"], b["behavior"]
+    unknown = [cid for cid in b["checks"] if cid not in registry]
+    if unknown:
+        return {"name": name, "verdict": "CHECK-UNKNOWN",
+                "detail": f"behavior row names checks this runner cannot resolve: {unknown}"}
+    checks = [registry[cid] for cid in b["checks"]]
+
+    arm(state_file, None)
+    clean = {c.id: _check_verdict(c) for c in checks}
+    not_clean = {k: v for k, v in clean.items() if v != CLEAN}
+    if not_clean:
+        return {"name": name, "verdict": "ERROR",
+                "detail": f"clean baseline is not CLEAN for {not_clean}"}
+
+    arm(state_file, name)
+    armed = {c.id: _check_verdict(c) for c in checks}
+    consulted = consulted_keys_now()
+    arm(state_file, None)
+
+    if key not in consulted:
+        return {"name": name, "verdict": "LOADER-BROKEN",
+                "detail": f"no guard consulted behavior key {key!r} while armed "
+                          f"(consulted: {sorted(consulted)}) -- the row is data nobody reads"}
+    not_flipped = {k: v for k, v in armed.items() if v != DEVIATION}
+    if not_flipped:
+        verdict = "SURVIVED" if name not in acknowledged else "SURVIVED-ACKNOWLEDGED"
+        return {"name": name, "verdict": verdict,
+                "detail": f"armed, but these checks did not deviate: {not_flipped}"}
+
+    restored = {c.id: _check_verdict(c) for c in checks}
+    not_restored = {k: v for k, v in restored.items() if v != CLEAN}
+    if not_restored:
+        return {"name": name, "verdict": "RESTORE-FAILED",
+                "detail": f"disarmed but still red: {not_restored}"}
+    return {"name": name, "verdict": "KILLED",
+            "detail": f"guard consulted {key!r}; {len(checks)} check(s) flipped CLEAN->DEVIATION->CLEAN"}
+
+
 def run_fixture(f):
     name = f["name"]
     route = f["route"]
@@ -495,6 +715,10 @@ def main():
                 results.append(run_mutant(m, state_file, acknowledged))
             for f in config.get("fixture_only", []):
                 results.append(run_fixture(f))
+            registry = check_registry()
+            behavior_names = {b["name"] for b in config.get("behavior_mutants", [])}
+            for b in config.get("behavior_mutants", []):
+                results.append(run_behavior(b, state_file, acknowledged, registry))
 
             arm(state_file, None)
             _, post_body = http("GET", "/.well-known/ucp", expect_json=False)
@@ -514,16 +738,19 @@ def main():
             ok = False
     killed = sum(1 for r in results if r["verdict"] == "KILLED")
     acked = sum(1 for r in results if r["verdict"] == "SURVIVED-ACKNOWLEDGED")
+    b_total = sum(1 for r in results if r["name"] in behavior_names)
+    b_killed = sum(1 for r in results if r["name"] in behavior_names and r["verdict"] == "KILLED")
     print(f"\n{killed}/{len(results)} mutants killed"
           + (f" ({acked} acknowledged-open)" if acked else "")
+          + f" · behavior {b_killed}/{b_total}"
           + f"; disabled-mode byte-identity: {'OK' if phase01_ok else 'FAILED'}")
     print("R11 battery:", "PASS" if ok else "FAIL")
 
-    _write_last_run_report(ok, results, phase01_ok, killed, acked)
+    _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed, b_total)
     return 0 if ok else 1
 
 
-def _write_last_run_report(ok, results, phase01_ok, killed, acked):
+def _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed=0, b_total=0):
     """Standalone gate, report-only line in run_suite.py (this battery boots a
     server twice and takes ~15s -- too heavy to run on every default run_suite
     invocation, matching the schema-census precedent: report-only by default,
@@ -541,6 +768,8 @@ def _write_last_run_report(ok, results, phase01_ok, killed, acked):
         "acknowledged_open": acked,
         "total": len(results),
         "disabled_mode_byte_identity_ok": phase01_ok,
+        "behavior_killed": b_killed,
+        "behavior_total": b_total,
         "survivors": [r["name"] for r in results if r["verdict"] == "SURVIVED"],
         "loader_broken": [r["name"] for r in results if r["verdict"] == "LOADER-BROKEN"],
     }
@@ -579,7 +808,28 @@ def selftest():
     # it still recognizes a real, correctly-firing, correctly-caught mutant.
     real_mutant = copy.deepcopy(by_name["sdkdrop-c62-nonzero-scale"])
 
-    control_config = {"mutants": [broken_mutant, real_mutant], "fixture_only": []}
+    # Behavior rows (D3-01): a planted UNWIRED row -- its key is consulted by no
+    # guard anywhere in the server (the stand-in for "someone added a row and
+    # never wrote its guard") -- next to a wired control whose key the test-only
+    # stub route consults. Both name the SAME check, so the only difference the
+    # runner can see is the server's consulted-keys record: the unwired row must
+    # be LOADER-BROKEN even though nothing about its checks is wrong, and the
+    # control must be KILLED through the identical harness path.
+    unwired_behavior = {
+        "name": "selftest-planted-behavior-unwired",
+        "behavior": "selftest.never_consulted",
+        "checks": ["battery.behavior_stub"],
+        "violates": "selftest: a behavior key no guard consults",
+    }
+    control_behavior = {
+        "name": "selftest-behavior-control",
+        "behavior": "selftest.stub",
+        "checks": ["battery.behavior_stub"],
+        "violates": "selftest: the stub route's guard flips its body while armed",
+    }
+
+    control_config = {"mutants": [broken_mutant, real_mutant], "fixture_only": [],
+                      "behavior_mutants": [unwired_behavior, control_behavior]}
 
     with tempfile.TemporaryDirectory(prefix="ucp_golden_0825_battery_selftest_") as tmp:
         tmp = pathlib.Path(tmp)
@@ -593,15 +843,22 @@ def selftest():
         try:
             broken_result = run_mutant(broken_mutant, state_file, set(), request_route=real_discovery_route)
             real_result = run_mutant(real_mutant, state_file, set())
+            registry = check_registry()
+            unwired_result = run_behavior(unwired_behavior, state_file, set(), registry)
+            control_result = run_behavior(control_behavior, state_file, set(), registry)
         finally:
             g.stop()
 
     print(f"planted non-firing mutant  -> {broken_result['verdict']}: {broken_result['detail']}")
     print(f"positive control (real)    -> {real_result['verdict']}: {real_result['detail']}")
+    print(f"planted unwired behavior   -> {unwired_result['verdict']}: {unwired_result['detail']}")
+    print(f"behavior control (wired)   -> {control_result['verdict']}: {control_result['detail']}")
 
-    ok = broken_result["verdict"] == "LOADER-BROKEN" and real_result["verdict"] == "KILLED"
-    print("battery self-test:", "PASS -- the runner detects a non-firing defect-loader"
-          if ok else "FAIL -- the runner failed to detect the planted non-firing mutant")
+    ok = (broken_result["verdict"] == "LOADER-BROKEN" and real_result["verdict"] == "KILLED"
+          and unwired_result["verdict"] == "LOADER-BROKEN" and control_result["verdict"] == "KILLED")
+    print(f"selftest: planted route-typo {broken_result['verdict']}, control {real_result['verdict']}, "
+          f"planted behavior {unwired_result['verdict']}, behavior control {control_result['verdict']}"
+          f" · {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
 

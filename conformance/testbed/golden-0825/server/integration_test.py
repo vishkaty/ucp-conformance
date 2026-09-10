@@ -252,8 +252,11 @@ class IntegrationTest(absltest.TestCase):
     payment = payment_create_req.PaymentCreateRequest(instruments=[])
 
     # Hierarchical Fulfillment Construction
+    # 08-25: shipping_destination.json requires the `type` discriminator
+    # (const "shipping_address"); the inherited 04-08 fixture omitted it and
+    # every test through this payload failed at model construction (D3-29).
     destination = shipping_destination_req.ShippingDestination(
-      id="dest_1", address_country="US"
+      id="dest_1", type="shipping_address", address_country="US"
     )
     group = fulfillment_group_create_req.FulfillmentGroupCreateRequest(
       id="group_1",
@@ -874,7 +877,7 @@ class IntegrationTest(absltest.TestCase):
           )
           self.assertEqual(
             conflict_response.json()["messages"][0]["code"],
-            "IDEMPOTENCY_CONFLICT",
+            "idempotency_conflict",
           )
 
           second_checkout = self.client.get(
@@ -1116,7 +1119,7 @@ class IntegrationTest(absltest.TestCase):
 
     order.md, Verification (Platform): Content-Digest matches the SHA-256 of
     the raw body, and the signature verifies against the key the business
-    publishes in its profile's signing_keys with the declared kid. This test
+    publishes in its profile's top-level keys[] with the declared kid. This test
     IS that platform: it discovers the profile from the server and runs the
     server's own verify path over the captured delivery.
     """
@@ -1136,8 +1139,8 @@ class IntegrationTest(absltest.TestCase):
 
     with self.client:
       profile = self.client.get("/.well-known/ucp").json()
-    keys = profile.get("signing_keys")
-    self.assertTrue(keys, "profile must publish signing_keys for verifiers")
+    keys = profile.get("keys")
+    self.assertTrue(keys, "profile must publish top-level keys[] for verifiers")
 
     split = urlsplit(delivered["url"])
     keyid = ucp_signing.verify_request(
@@ -1302,16 +1305,20 @@ class IntegrationTest(absltest.TestCase):
   def test_profile_publishes_the_webhook_signing_key(self) -> None:
     """The served profile publishes the webhook public key for verifiers.
 
-    signatures.md, Key Discovery: public keys live in the profile's
-    signing_keys[] (a top-level sibling of `ucp` per the discovery profile
-    schema). It is also mirrored into ucp.keys[], the JWK Set this server's
-    own verifier resolves.
+    profile.json $defs.base places `keys[]` at the TOP LEVEL of the served
+    document, a sibling of `ucp` (overview/index.md#L1262-1265: "MUST appear
+    in the top-level keys[] array"). Neither the retired `signing_keys[]`
+    (removed at 08-25, ucp#566) nor a nested `ucp.keys[]` (unvalidated
+    additionalProperties noise) is the canonical location -- STATUS.md R14
+    fixed the server and its verifier; this test asserts the fixed shape and
+    that the retired locations stay empty (the R14 regression direction).
     """
     with self.client:
       profile = self.client.get("/.well-known/ucp").json()
     jwk = webhook_signer.public_jwk()
-    self.assertIn(jwk, profile.get("signing_keys", []))
-    self.assertIn(jwk, profile.get("ucp", {}).get("keys", []))
+    self.assertIn(jwk, profile.get("keys", []))
+    self.assertNotIn("signing_keys", profile)
+    self.assertNotIn("keys", profile.get("ucp", {}))
 
   def test_version_invalid_format(self) -> None:
     """Tests that UCP-Agent with invalid version format is rejected."""
@@ -1338,7 +1345,7 @@ class IntegrationTest(absltest.TestCase):
         messages=[
           UcpMessageError(
             type=MessageType.ERROR,
-            code="VERSION_INVALID_FORMAT",
+            code="version_invalid_format",
             content=("Version 'bad-version' is invalid. Expected YYYY-MM-DD."),
             severity=ErrorSeverity.UNRECOVERABLE,
           )
@@ -1375,10 +1382,13 @@ class IntegrationTest(absltest.TestCase):
         messages=[
           UcpMessageError(
             type=MessageType.ERROR,
-            code="VERSION_UNSUPPORTED",
+            code="version_unsupported",
             content=(
               f"Version {unsupported_version} is not supported. This merchant"
-              f" implements version {app.version}."
+              f" implements version {app.version}"
+              # D3-03: the served set is {ucp.version} ∪ supported_versions;
+              # the message names the others so a platform can pick one.
+              f" (also: {', '.join(sorted(config.get_supported_versions()))})."
             ),
             severity=ErrorSeverity.UNRECOVERABLE,
           )
@@ -1766,7 +1776,7 @@ class IntegrationTest(absltest.TestCase):
       )
       msg = messages[0]
       self.assertEqual(msg.get("type"), "error")
-      self.assertEqual(msg.get("code"), "INVALID_REQUEST")
+      self.assertEqual(msg.get("code"), "invalid_request")
       self.assertEqual(msg.get("severity"), "unrecoverable")
       self.assertIn(
         "line_items",

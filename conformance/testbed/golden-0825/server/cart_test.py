@@ -143,7 +143,7 @@ class CartIntegrationTest(IntegrationTest):
       self.assertEqual(response.status_code, 404, response.text)
       data = response.json()
       self.assertEqual(data["ucp"]["status"], "error")
-      self.assertEqual(data["messages"][0]["code"], "RESOURCE_NOT_FOUND")
+      self.assertEqual(data["messages"][0]["code"], "not_found")
 
   def test_cart_to_checkout_conversion(self) -> None:
     """Test converting a cart to a checkout session."""

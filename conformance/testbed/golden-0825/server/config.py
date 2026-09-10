@@ -58,6 +58,15 @@ def get_server_version() -> str:
   return profile["ucp"]["version"]
 
 
+def get_supported_versions() -> list[str]:
+  """Versions this business ALSO serves besides `ucp.version` -- the keys of
+  the profile's `ucp.supported_versions` map (ucp.json supported_versions;
+  D3-03 publishes it, D3-02 negotiates on it). Empty when not published."""
+  profile = _get_profile()
+  supported = profile["ucp"].get("supported_versions") or {}
+  return [v for v in supported if v != profile["ucp"]["version"]]
+
+
 def get_payment_handlers() -> dict:
   """Read and cache the payment handlers from the discovery profile."""
   profile = _get_profile()

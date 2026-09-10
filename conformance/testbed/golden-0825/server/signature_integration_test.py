@@ -96,8 +96,10 @@ class _SigTestBase(IntegrationTest):
     rsa_jwk = {"kid": "rsa-key", "kty": "RSA", "n": "abc", "e": "AQAB"}
 
     version = config.get_server_version()
+    # keys[] is a TOP-LEVEL sibling of `ucp` (profile.json $defs.base; STATUS.md
+    # R14) -- the location ucp_signing._extract_keys resolves.
     good = json.dumps(
-      {"ucp": {"version": version, "keys": [agent_jwk, rsa_jwk]}}
+      {"ucp": {"version": version}, "keys": [agent_jwk, rsa_jwk]}
     ).encode()
     _ProfileHandler.routes = {
       "/profile.json": (200, good),
@@ -225,7 +227,10 @@ class PermissiveModeTest(_SigTestBase):
     with self.client:
       body = self._checkout_body("perm_no_profile_1")
       headers = self._signed_headers("POST", "/checkout-sessions", body)
-      headers["UCP-Agent"] = "version=2026-01-23"  # no profile=
+      # no profile= (the point of this test); the version is the SERVED one --
+      # an unadvertised version is version_unsupported before any signature
+      # check runs (D3-02), which is not what this test is about.
+      headers["UCP-Agent"] = f"version={config.get_server_version()}"
       response = self.client.post(
         "/checkout-sessions", headers=headers, content=body
       )
@@ -277,7 +282,12 @@ class EnforcedModeTest(_SigTestBase):
   def _assert_error(self, response, status: int, code: str) -> None:
     """Assert an HTTP status and UCP error code on a response."""
     self.assertEqual(response.status_code, status, response.text)
-    self.assertEqual(response.json()["detail"]["errors"][0]["code"], code)
+    # D3-04: every error is the UCP envelope (ucp + messages[]); the signature
+    # path's legacy {"detail": {"errors": [...]}} shape is converted by
+    # server.py's http_exception_handler.
+    body = response.json()
+    self.assertEqual(body["ucp"]["status"], "error", body)
+    self.assertEqual(body["messages"][0]["code"], code, body)
 
   def test_valid_signature_accepted(self) -> None:
     """A correctly signed request is accepted."""
@@ -294,7 +304,10 @@ class EnforcedModeTest(_SigTestBase):
     with self.client:
       body = self._checkout_body("no_profile_1")
       headers = self._signed_headers("POST", "/checkout-sessions", body)
-      headers["UCP-Agent"] = "version=2026-01-23"  # no profile=
+      # no profile= (the point of this test); the version is the SERVED one --
+      # an unadvertised version is version_unsupported before any signature
+      # check runs (D3-02), which is not what this test is about.
+      headers["UCP-Agent"] = f"version={config.get_server_version()}"
       response = self.client.post(
         "/checkout-sessions", headers=headers, content=body
       )

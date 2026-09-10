@@ -270,6 +270,111 @@ simulate-shipping once before returning — a ROUTE-keyed fixture enrichment
 (makes `/orders/{id}` representative for every order mutant), not a
 per-mutant special case.
 
+**UPDATE 2026-09-10 (lane/w0-d3, D3-01): behavior mutants — the walls
+doctrine for BEHAVIOR, not just bytes (decision 19).** A patch mutant can only
+corrupt a response the golden already serves; it cannot make the golden
+*accept* a request it should reject (an unadvertised version, a bad consent
+key, an unknown route answered without the envelope). Those are behavior
+defects, and the same doctrine applies: the rows stay DATA. `defects_config.
+json` gains `behavior_mutants[] {name, behavior: "<key>", checks[], violates}`
+— no patch, no route. Server code carries exactly ONE guard per key,
+`server_state.defects_engine().behavior_armed("<key>")`, at the single point
+where the violating branch would fork off the conformant one; no per-scenario
+route, no serve-time flag, no second code path. Every consultation is
+recorded and exposed on every response (defects mode on) as
+`x-defects-consulted`, so the battery can grade a behavior row honestly by the
+conformance checks it names (`checks[]`, resolved from `conformance/checks/
+area_*.py` through the same `engine.run_check` merchant.py uses): KILLED when
+every named check flips CLEAN → DEVIATION armed → CLEAN disarmed; SURVIVED
+when a check does not flip; **LOADER-BROKEN when no guard consulted the key
+while armed** — a row nobody wired is data nobody reads, and it fails closed
+exactly like a typo'd patch route. `--selftest` now plants an UNWIRED
+behavior row next to a wired control (the test-only, secret-gated `GET
+/testing/defects/behavior-stub`, the one guard for key `selftest.stub`, 404
+when defects mode is off) and requires `LOADER-BROKEN` / `KILLED`
+respectively, in the same run as the route-typo plant. Defects OFF is still
+byte-identical: `behavior_armed` returns False without touching the state
+file, and the header is never emitted (`server/defects_test.py::
+test_behavior_armed_reads_state` proves identity for a behavior row).
+Report line gains `behavior N/N`.
+
+**UPDATE 2026-09-10 (lane/w0-d3, D3-02/D3-03): C3 negotiation, `supported_versions`,
+the 2026-04-08 leaf and version projection (decisions 18, 20, 21).**
+`dependencies.validate_ucp_headers` now accepts exactly `{ucp.version} ∪
+supported_versions` and rejects anything else — older OR newer — with 422
+`version_unsupported` (the inherited comparison only rejected newer versions,
+so a never-advertised 2026-01-23 was silently served). Error codes are
+lowercase (`version_unsupported`, `version_invalid_format`; decision 20 — a
+golden bug fix, the inherited upper-case tests patched). Absent `version=`
+assumes the served version until D3-24 reads the platform profile (decision
+21, AMB-010). The root profile publishes
+`ucp.supported_versions: {"2026-04-08": <ENDPOINT>/.well-known/ucp/2026-04-08}`;
+the leaf (`routes/discovery_profile_2026-04-08.json`) is a **bare** 04-08
+document — `ucp.json@2026-04-08 $defs.base` requires a top-level `version`,
+and the captured 04-08 golden served exactly that shape — advertising
+checkout + order at 2026-04-08 on every entry (OVR-075), `signing_keys[]` at
+the 04-08 location, and no `supported_versions` of its own (OVR-009). Its
+service endpoint is **version-scoped**: `<ENDPOINT>/2026-04-08`. ONE server
+(decision 18): `server.py`'s pure-ASGI `VersionProjectionMiddleware` routes
+`/2026-04-08/*` to the same handlers, negotiates 2026-04-08 there when the
+request carries no `version=` (decision 21's fallback applied per endpoint —
+at that endpoint "ours" is 04-08; an explicit `version=` still wins and is
+validated), rewrites the REQUEST into the 08-25 model shape before validation
+(`destinations[].type` filled per method; 04-08 boolean consent → 08-25
+consent_purpose objects keyed by the well-known purpose ids) and the RESPONSE
+into the 04-08 wire shape (`ucp.version` and every entry version → 2026-04-08;
+`destinations[].type` dropped; consent purposes → booleans) —
+`services/version_projection.py`. The two response deltas carry behavior
+guards (`projection.leak_destination_type`, `projection.consent_objects`; rows
+`projection_leaks_type`, `projection_consent_objects_on_0408`, killed by the
+battery's `battery.projection_0408_shape` / `battery.projection_0408_consent`
+checks: 04-08 oracle + direct shape predicates). The leaf itself is graded by
+`golden_check_08_25.py` rows OVR-069 / OVR-009 against the self-referenced
+mutants `leaf_wrong_version` / `leaf_carries_supported_versions` (the 04-08
+profile schema accepts either, so no oracle can). **Leaf differential**
+(`smoke::test_leaf_differential`): `merchant.py --server $G/2026-04-08 --config
+conformance/ci/differential_flower.config.json --json` — the whole 04-08
+population, discovering the leaf through the base-URL alias
+`/2026-04-08/.well-known/ucp` — grades the projection **46 clean-pass, 0
+deviations** (136 not-applicable, 46 not-tested for want of config), the run
+count pinned. Recorded honestly: the pinned 04-08 oracle ACCEPTS a leaked
+`destinations[].type` (04-08 shipping_destination has no additionalProperties
+bar), so the differential does not red under `projection_leaks_type`; that
+row's kill is the battery predicate, not the oracle — PLAN-v3 §2.14's "FUL-003
+04-08 oracle rejects `type`" does not hold on this oracle.
+
+**UPDATE 2026-09-10 (lane/w0-d3, D3-04): the UCP error envelope on EVERY
+error, R15 closed, C3b `destinations[].type` default, DSC-007/030 rejected-code
+messages.** `server.py` now converts Starlette/FastAPI `HTTPException`s (an
+unknown route's framework `{"detail": "Not Found"}` → 404 `not_found`; the
+signature path's legacy `{"detail": {"errors": [...]}}` → the same envelope
+with its codes, e.g. 401 `signature_missing`) and any pydantic
+`ValidationError` that escapes a handler (ledger R15: a non-reverse-DNS
+consent purpose key was accepted by the request model and crashed the
+RESPONSE model → bare 500) into `error_response.json` envelopes — the latter
+as 422 `invalid_request` with a JSONPath `path` into the request
+(`$.buyer.consent['not a reverse dns key']`); `RequestValidationError` gains
+the same `path`. All error codes are lowercase now (decision 20:
+`not_found`, `idempotency_conflict`, `checkout_not_modifiable`,
+`out_of_stock`, `payment_failed`, `invalid_request`, `internal_error`; the
+inherited tests patched). **C3b**: `type` is `ucp_request: optional` on a
+destination, so the golden's request models default it per method
+(`shipping` → `shipping_address`) in a `model_validator(mode="before")`
+(`services/version_projection.default_destination_types`) — on the parsed
+body, never the request bytes, so request signatures keep verifying; the
+response carries the const discriminator (FUL-030). **DSC-007/030**: a
+rejected discount code is echoed in `discounts.codes`, absent from
+`discounts.applied`, and surfaced as a `messages[]` warning
+(`discount_code_rejected`, `path: $.discounts.codes[i]`); accept-one-reject-one
+holds. Four behavior rows guard the four inherited branches
+(`unknown_route_plain_404`, `consent_bad_key_500`,
+`destination_type_required_on_request`, `discount_reject_silent`), graded by
+new `golden_check_08_25.py` rows (ERR-028.unknown-route,
+ERR-028.validation-422, FUL-030.omit-type, DSC-007, DSC-030) which the
+battery now resolves as `gc:<row>` checks — **45/45 killed · behavior 7/7**;
+GC 44 KILLED. AMB-011 records the "is a non-route 404 an operation?"
+question (served as an envelope regardless).
+
 The barred door (SS C.6) is unaffected by this work: golden-0825 remains
 absent from `conformance/ci/differential_targets.json` and
 `conformance/coverage/` — this lane adds test machinery, no evidence claims.
@@ -308,7 +413,15 @@ cd conformance/testbed/golden-0825/server && uv run --group dev pytest defects_t
   from the vendored samples fixture, unchanged)
 - `conformance/testbed/golden-0825/serve_golden_0825.sh` /
   `stop_golden_0825.sh` — boot/teardown, mirroring `conformance/ci/serve_golden.sh`
-  / `stop_golden.sh` (seed → sync → SDK-pin guard → boot → health-poll → pid file)
+  / `stop_golden.sh` (seed → sync → SDK-pin guard → boot → health-poll → pid file).
+  `REQUIRE_SIGNATURES=1` (D3-05) passes `--require_signatures
+  --allow_insecure_profile_urls` through and says so in the UP line
+  (`golden-0825 UP on :8196 (signatures REQUIRED) [...]`); an unsigned request
+  is then 401 `signature_missing` (SIG-031) — proven by
+  `smoke::test_require_signatures_rejects_unsigned` (own port 8196) and, hermetically,
+  by `conformance/ci/golden_boot_guards.py --selftest` case `0825:D` (the switch
+  reaches the server's argv, stays off by default, and the flag-excising mutant is
+  caught) — the `golden-guards` run_suite gate now covers this script too.
 - `conformance/testbed/golden-0825/smoke/test_golden_0825_smoke.py` — the TDD suite
 - `conformance/selfcheck/schema_oracle.py` — extended (not rewritten) with the
   2026-08-25 schema base and the profile.json/ucp.json fallback

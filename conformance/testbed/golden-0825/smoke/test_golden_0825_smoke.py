@@ -357,3 +357,259 @@ def test_validator_kill_check_rejects_broken_payload(golden_server):
     )
     assert not ok, "kill-check FAILED: validator accepted a payload missing a required field"
     assert "id" in detail
+
+
+# ---------------------------------------------------------------------------
+# C3 negotiation (D3-02): the served version set is {ucp.version} ∪
+# supported_versions; anything else is 422 `version_unsupported` (lowercase).
+# ---------------------------------------------------------------------------
+
+
+def _create_body():
+    return {
+        "line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+        "fulfillment": _fulfillment_block(),
+    }
+
+
+def _post_create_with_version(base, version):
+    headers = ucp_headers()
+    headers["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{version}"'
+    return httpx.post(f"{base}/checkout-sessions", headers=headers, json=_create_body(), timeout=10)
+
+
+def test_unadvertised_version_rejected(golden_server):
+    """An older, never-advertised version (2026-01-23) and a newer one
+    (2099-01-01) are both `version_unsupported`; the served version is 201."""
+    for version in ("2026-01-23", "2099-01-01"):
+        r = _post_create_with_version(golden_server, version)
+        assert r.status_code == 422, (version, r.status_code, r.text)
+        body = r.json()
+        assert body["ucp"]["status"] == "error"
+        assert body["messages"][0]["code"] == "version_unsupported", body
+    r = _post_create_with_version(golden_server, SPEC_VERSION)
+    assert r.status_code == 201, (r.status_code, r.text)
+
+
+# ---------------------------------------------------------------------------
+# C3 supported_versions + the 2026-04-08 leaf profile + version projection
+# (D3-03, decision 18): ONE server, two served versions. The leaf is a plain
+# 04-08 profile (no supported_versions of its own); a request negotiated at
+# 2026-04-08 gets a 04-08-shaped body; and the whole 04-08 conformance
+# population, pointed at the leaf, must grade the projection clean (the leaf
+# differential -- what makes "projection" honest instead of a second server).
+# ---------------------------------------------------------------------------
+
+LEAF_VERSION = "2026-04-08"
+LEAF_PATH = f"/.well-known/ucp/{LEAF_VERSION}"
+# Discovery alias for runners that derive /.well-known/ucp from a base URL
+# (merchant.py): `--server $G/2026-04-08` discovers the SAME leaf document.
+LEAF_BASE = f"/{LEAF_VERSION}"
+DIFFERENTIAL_CONFIG = REPO_ROOT / "conformance" / "ci" / "differential_flower.config.json"
+
+
+def test_leaf_profile_is_leaf(golden_server):
+    """The root profile publishes supported_versions naming the leaf; the leaf
+    is a 04-08 profile validating against the 04-08 profile schema, carries
+    NO supported_versions (top level or under ucp), and the alias serves the
+    identical document."""
+    _require_oracle()
+    r = httpx.get(f"{golden_server}{LEAF_PATH}", timeout=10)
+    assert r.status_code == 200, (r.status_code, r.text[:200])
+    leaf = r.json()
+
+    root = httpx.get(f"{golden_server}/.well-known/ucp", timeout=10).json()
+    supported = root["ucp"].get("supported_versions") or {}
+    assert LEAF_VERSION in supported, root["ucp"].keys()
+    assert supported[LEAF_VERSION].endswith(LEAF_PATH), supported
+    # 04-08 documents are BARE (ucp.json@2026-04-08 $defs.base requires a
+    # top-level `version`); no `ucp` wrapper, no supported_versions anywhere.
+    assert "ucp" not in leaf and leaf["version"] == LEAF_VERSION, list(leaf)
+    assert "supported_versions" not in leaf
+    for name, entries in leaf["services"].items():
+        assert all(e["version"] == LEAF_VERSION for e in entries), (name, entries)  # OVR-075
+    for name, entries in leaf["capabilities"].items():
+        assert all(e["version"] == LEAF_VERSION for e in entries), (name, entries)
+    ok, detail = so.validate_profile(leaf, version=LEAF_VERSION, role="business")
+    assert ok, detail
+
+    alias = httpx.get(f"{golden_server}{LEAF_BASE}/.well-known/ucp", timeout=10)
+    assert alias.status_code == 200
+    assert alias.json() == leaf
+
+
+def test_0408_request_gets_0408_shape(golden_server):
+    """A create negotiated at 2026-04-08 (04-08 request shape: destinations
+    without `type`) is 201 with a 04-08-shaped body: ucp.version 2026-04-08,
+    no destinations[].type, valid against the 04-08 checkout schema."""
+    _require_oracle()
+    body = _create_body()
+    for m in body["fulfillment"]["methods"]:
+        for d in m["destinations"]:
+            d.pop("type", None)
+    headers = ucp_headers()
+    headers["UCP-Agent"] = f'profile="http://localhost:9/.well-known/ucp"; version="{LEAF_VERSION}"'
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=headers, json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    out = r.json()
+    assert out["ucp"]["version"] == LEAF_VERSION
+    dests = [d for m in (out.get("fulfillment") or {}).get("methods", []) for d in (m.get("destinations") or [])]
+    assert dests and all("type" not in d for d in dests), dests
+    ok, detail = so.validate_root(out, "schemas/shopping/checkout.json", op="create",
+                                  version=LEAF_VERSION, direction="response")
+    assert ok, detail
+
+    # The leaf's service endpoint is version-scoped ({{ENDPOINT}}/2026-04-08):
+    # a request there with NO version= negotiates at 2026-04-08 (decision 21's
+    # fallback applied per endpoint), so a 04-08 platform that omits the
+    # parameter -- the 04-08 population does -- is served the 04-08 shape too.
+    leaf = httpx.get(f"{golden_server}{LEAF_PATH}", timeout=10).json()
+    endpoint = leaf["services"]["dev.ucp.shopping"][0]["endpoint"]
+    assert endpoint == f"{golden_server}{LEAF_BASE}", endpoint
+    headers = ucp_headers()
+    headers["UCP-Agent"] = 'profile="http://localhost:9/.well-known/ucp"'
+    r = httpx.post(f"{endpoint}/checkout-sessions", headers=headers, json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    out = r.json()
+    assert out["ucp"]["version"] == LEAF_VERSION
+    assert all("type" not in d for m in out["fulfillment"]["methods"] for d in m["destinations"])
+
+
+def test_leaf_differential(golden_server):
+    """The 04-08 conformance population (merchant.py) pointed at the leaf must
+    grade the projected golden with 0 deviations, and the number of checks it
+    actually ran is pinned so a silently-shrinking population cannot hide a
+    regression behind '0 deviations'."""
+    _require_oracle()
+    cmd = [sys.executable, str(REPO_ROOT / "conformance" / "checks" / "merchant.py"),
+           "--server", f"{golden_server}{LEAF_BASE}",
+           "--config", str(DIFFERENTIAL_CONFIG), "--json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    assert proc.stdout.strip(), f"merchant.py produced no report: rc={proc.returncode}\n{proc.stderr[-800:]}"
+    report = json.loads(proc.stdout)
+    assert report["spec_version"] == LEAF_VERSION, report["spec_version"]
+    deviations = [c["id"] for c in report["checks"] if c["status"] == "deviation"]
+    assert not deviations, deviations
+    ran = [c["id"] for c in report["checks"] if c["status"] == "clean-pass"]
+    assert len(ran) == LEAF_DIFFERENTIAL_RUN_COUNT, (len(ran), sorted(ran))
+
+
+# Pinned from the first green run (2026-09-10, lane/w0-d3, D3-03: 46 clean-pass,
+# 0 deviations, 136 not-applicable, 46 not-tested -- the population listing is
+# in the W0-d3 landing note). Any change to the 04-08 population, to the leaf's
+# advertised capabilities, or to the differential config must re-pin this
+# deliberately; a silently shrinking population is a red test, not a pass.
+LEAF_DIFFERENTIAL_RUN_COUNT = 46
+
+
+# ---------------------------------------------------------------------------
+# D3-04: the UCP error envelope on EVERY error (unknown routes included), R15's
+# request-side 500s become 422 envelopes with a path, C3b's destinations[].type
+# default when the platform omits it, and DSC-007/030's rejected-code messages.
+# ---------------------------------------------------------------------------
+
+
+def _assert_error_envelope(body, code):
+    assert body["ucp"]["version"] == SPEC_VERSION and body["ucp"]["status"] == "error", body
+    msgs = body["messages"]
+    assert msgs and msgs[0]["type"] == "error" and msgs[0]["code"] == code, msgs
+    ok, detail = so.validate_root(body, "schemas/common/types/error_response.json",
+                                  op="read", version=SPEC_VERSION, direction="response")
+    assert ok, detail
+
+
+def test_unknown_route_envelope(golden_server):
+    """A request for a route this server does not serve is a UCP error
+    envelope (404, code not_found), not a framework `{"detail": ...}` body."""
+    _require_oracle()
+    r = httpx.get(f"{golden_server}/nope", headers=ucp_headers(), timeout=10)
+    assert r.status_code == 404, (r.status_code, r.text)
+    _assert_error_envelope(r.json(), "not_found")
+
+
+def test_bad_consent_key_422(golden_server):
+    """A consent purpose key that is not a reverse-DNS name (CNST-004) is a
+    422 invalid_request envelope naming the offending path -- R15: the
+    inherited server crashed with a bare 500 here."""
+    _require_oracle()
+    body = _create_body()
+    body["buyer"] = {"consent": {"not a reverse dns key": {
+        "granted": True, "source": "platform", "description": "x"}}}
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 422, (r.status_code, r.text[:300])
+    out = r.json()
+    _assert_error_envelope(out, "invalid_request")
+    assert "consent" in (out["messages"][0].get("path") or ""), out["messages"][0]
+
+
+def test_omitted_destination_type_defaults(golden_server):
+    """C3b: `type` is `ucp_request: optional` on a destination; when the
+    platform omits it the business defaults it per method (shipping ->
+    shipping_address) and the response carries the discriminator."""
+    body = _create_body()
+    for m in body["fulfillment"]["methods"]:
+        for d in m["destinations"]:
+            d.pop("type", None)
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    dests = [d for m in r.json()["fulfillment"]["methods"] for d in m["destinations"]]
+    assert dests and all(d.get("type") == "shipping_address" for d in dests), dests
+
+
+def test_rejected_code_surfaces_message(golden_server):
+    """DSC-007/030: a discount code the business rejects is still a 201, and
+    the rejection is surfaced in messages[] (code discount_code_rejected) with
+    a path to the rejected entry -- never silently dropped."""
+    body = _create_body()
+    body["discounts"] = {"codes": ["INVALID_CODE"]}
+    r = httpx.post(f"{golden_server}/checkout-sessions", headers=ucp_headers(), json=body, timeout=10)
+    assert r.status_code == 201, (r.status_code, r.text[:300])
+    msgs = [m for m in (r.json().get("messages") or []) if m.get("code") == "discount_code_rejected"]
+    assert msgs, r.json().get("messages")
+    assert "codes" in (msgs[0].get("path") or ""), msgs[0]
+
+
+# ---------------------------------------------------------------------------
+# D3-05: REQUIRE_SIGNATURES=1 boot switch -- the serve script passes
+# --require_signatures (and the localhost carve-out) through, echoes it in
+# the UP line, and an unsigned request is 401 signature_missing (SIG-031).
+# ---------------------------------------------------------------------------
+
+SIGNED_PORT = int(os.environ.get("GOLDEN_0825_SIGNED_TEST_PORT", "8196"))
+
+
+@pytest.fixture(scope="module")
+def signed_golden_server():
+    """A SECOND golden, booted with REQUIRE_SIGNATURES=1 on its own port
+    (8196: the Wave 0 registry's signed-golden proof port), through the same
+    serve/stop scripts."""
+    db_dir = pathlib.Path(f"/tmp/ucp_golden_0825_pytest_signed_{uuid.uuid4().hex[:8]}")
+    env = dict(os.environ)
+    env["PORT"] = str(SIGNED_PORT)
+    env["DB_DIR"] = str(db_dir)
+    env["SIM_SECRET"] = "smoke-test-secret"
+    env["REQUIRE_SIGNATURES"] = "1"
+    serve = GOLDEN_DIR / "serve_golden_0825.sh"
+    stop = GOLDEN_DIR / "stop_golden_0825.sh"
+    result = subprocess.run([str(serve)], env=env, capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        pytest.fail(f"serve_golden_0825.sh (REQUIRE_SIGNATURES=1) failed (exit {result.returncode}):\n"
+                    f"stdout={result.stdout}\nstderr={result.stderr}")
+    try:
+        yield f"http://localhost:{SIGNED_PORT}", result.stdout.strip()
+    finally:
+        subprocess.run([str(stop)], env=env, capture_output=True, text=True, timeout=60)
+
+
+def test_require_signatures_rejects_unsigned(signed_golden_server):
+    """Booted with REQUIRE_SIGNATURES=1 the UP line says so, and an unsigned
+    create is 401 signature_missing in the UCP error envelope."""
+    base, up_line = signed_golden_server
+    headers = ucp_headers()
+    headers.pop("Request-Signature", None)
+    r = httpx.post(f"{base}/checkout-sessions", headers=headers, json=_create_body(), timeout=10)
+    assert r.status_code == 401, (r.status_code, r.text[:300])
+    body = r.json()
+    assert body["ucp"]["status"] == "error"
+    assert body["messages"][0]["code"] == "signature_missing", body
+    assert "signatures REQUIRED" in up_line, up_line

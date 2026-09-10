@@ -68,6 +68,8 @@ from ucp_sdk.models.schemas.shopping.checkout_complete_request import (
 from ucp_sdk.models.schemas.shopping.discount import Allocation
 from ucp_sdk.models.schemas.shopping.discount import AppliedDiscount
 from ucp_sdk.models.schemas.shopping.discount import DiscountsObject
+from ucp_sdk.models.schemas.common.types.message_warning import MessageWarning
+import server_state
 from ucp_sdk.models.schemas.shopping.order import (
   Fulfillment as OrderFulfillment,
 )
@@ -1402,8 +1404,11 @@ class CheckoutService:
       # the applied entry echoes the canonical stored code.
       discount_map = {d.code.upper(): d for d in discounts}
 
-      for code in checkout.discounts.codes:
+      rejected: list[tuple[int, str]] = []
+      for index, code in enumerate(checkout.discounts.codes):
         discount_obj = discount_map.get(code.upper())
+        if not discount_obj:
+          rejected.append((index, code))
         if discount_obj:
           discount_amount = 0
           if discount_obj.type == "percentage":
@@ -1434,6 +1439,30 @@ class CheckoutService:
             checkout.totals.append(
               TotalResponse(type="discount", amount=-discount_amount)
             )
+
+      # DSC-007 / DSC-030 (discount.md#L138-L141, #L512-L513; D3-04): a code
+      # the business cannot apply is still echoed in discounts.codes, never in
+      # discounts.applied, and its rejection is communicated in messages[] --
+      # one warning per rejected entry, path naming the entry. Rebuilt on
+      # every recalculation like `applied`/`totals` above. The ONE guard for
+      # behavior key `discount.reject_silent` (row discount_reject_silent):
+      # armed, rejections are dropped silently -- the inherited behavior.
+      kept = [
+        m for m in (checkout.messages or [])
+        if getattr(m, "code", None) != "discount_code_rejected"
+      ]
+      if rejected and not server_state.defects_engine().behavior_armed(
+          "discount.reject_silent"):
+        kept.extend(
+          MessageWarning(
+            type="warning",
+            code="discount_code_rejected",
+            content=f"Discount code {code!r} could not be applied.",
+            path=f"$.discounts.codes[{index}]",
+          )
+          for index, code in rejected
+        )
+      checkout.messages = kept or None
 
     checkout.totals.append(TotalResponse(type="total", amount=grand_total))
 

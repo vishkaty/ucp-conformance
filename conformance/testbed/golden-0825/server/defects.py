@@ -122,6 +122,16 @@ class DefectsEngine:
     self.state_path = pathlib.Path(state_path) if state_path else None
     self.mutants: dict[str, dict] = {}
     self.fixtures: dict[str, dict] = {}
+    # behavior rows (D3-01, decision 19): {name, behavior: "<key>", checks[],
+    # violates}. They carry NO patch and NO route -- a behavior row never
+    # touches a response body. Instead exactly ONE guard per key in server
+    # code asks `behavior_armed(key)` and takes the violating branch while the
+    # row naming that key is armed. Rows stay data; the guard is the only
+    # code, and an unwired key (no guard ever consults it) is observable
+    # because every consultation is recorded (see consulted_keys()).
+    self.behaviors: dict[str, dict] = {}
+    self._last_armed: str | None = None
+    self._consulted: set[str] = set()
     if self.enabled:
       raw = json.loads(self.config_path.read_text(encoding="utf-8"))
       # "mutants" (oracle-graded, iterated by validate_golden_0825_battery.py's
@@ -137,8 +147,20 @@ class DefectsEngine:
           for m in raw.get("mutants", []) + raw.get("self_referenced_mutants", [])
       }
       self.fixtures = {f["name"]: f for f in raw.get("fixture_only", [])}
+      self.behaviors = {b["name"]: b for b in raw.get("behavior_mutants", [])}
 
   def _armed_name(self) -> str | None:
+    name = self._read_armed_name()
+    if name != self._last_armed:
+      # the arm state changed (arm / disarm / re-arm): start a fresh record
+      # of which behavior keys were consulted under THIS state, so a battery
+      # reading consulted_keys() after driving its checks sees only the
+      # consultations that happened while the row it armed was armed.
+      self._last_armed = name
+      self._consulted = set()
+    return name
+
+  def _read_armed_name(self) -> str | None:
     if not self.enabled or not self.state_path or not self.state_path.exists():
       return None
     try:
@@ -146,6 +168,30 @@ class DefectsEngine:
     except (OSError, json.JSONDecodeError):
       return None
     return state.get("armed")
+
+  def behavior_armed(self, key: str) -> bool:
+    """The ONE question a server-side guard asks (decision 19): is the behavior
+    row naming `key` armed right now? Reads the same hot-reloaded state file
+    as the patch mutants. Always False when defects mode is off (the guard's
+    normal branch is then the only branch, byte-identical to a build with no
+    defects code). Every call is recorded in consulted_keys() -- enabled or
+    not, the record is what lets the battery tell an UNWIRED key (no guard
+    ever asked) apart from a guard that asked and whose checks did not flip."""
+    # observe the arm state FIRST (a change resets the record), THEN record
+    # this consultation under the state it actually happened in.
+    name = self._armed_name() if self.enabled else None
+    self._consulted.add(key)
+    if name is None:
+      return False
+    row = self.behaviors.get(name)
+    return row is not None and row.get("behavior") == key
+
+  def consulted_keys(self) -> set[str]:
+    """Behavior keys some guard consulted since the arm state last changed
+    (a copy). Exposed to the battery on every response as the
+    `x-defects-consulted` header (server.py's middleware) while defects mode
+    is on; never emitted when it is off."""
+    return set(self._consulted)
 
   def armed_mutant(self) -> dict | None:
     """The full config row for the currently-armed mutant, or None. Exposed so

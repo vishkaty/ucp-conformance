@@ -35,6 +35,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `battery-freshness` | the R11 golden-0825 mutant battery ran, recently, and passed (in-run in CI) | own golden-0825 |
 | `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
 | `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
+| `golden-0825-unit` | golden-0825's own unit + smoke tests (`server/*_test.py`, `smoke/`) are **executed** under `uv` on every run, so a red failing-first test can never sit unnoticed in the tree; `uv` absent = honest skip (rc 2), FAIL under `--require-server`. `golden-0825-unit-selftest` plants a failing test in a scratch copy (must be red) and hides `uv` (must be rc 2) | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

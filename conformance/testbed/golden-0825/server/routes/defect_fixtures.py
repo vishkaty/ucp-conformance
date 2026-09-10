@@ -69,3 +69,29 @@ async def get_defect_fixture(
   if entry is None:
     raise HTTPException(status_code=404, detail=f"no defect fixture named {key!r}")
   return entry["body"]
+
+
+# The battery's --selftest positive control for BEHAVIOR rows (D3-01, decision
+# 19). Real behavior rows are guarded inside real business code (one
+# `behavior_armed(key)` per key); the selftest needs a guard whose key and
+# whose observable are fixed by this repo rather than by whichever real rows
+# happen to exist, so it can prove the runner still recognises a wired,
+# correctly-flipping row (KILLED) next to a planted UNWIRED one (LOADER-BROKEN)
+# even on a golden with zero real behavior rows. This route is that one guard
+# for the key "selftest.stub": secret-gated, 404 when defects mode is off,
+# never advertised.
+@router.get(
+  "/testing/defects/behavior-stub",
+  response_model=dict[str, Any],
+  operation_id="get_behavior_stub",
+  dependencies=[Depends(dependencies.verify_simulation_secret)],
+)
+async def get_behavior_stub() -> dict[str, Any]:
+  """`{"stub": "clean"}` normally; `{"stub": "violated"}` while the behavior
+  row naming key "selftest.stub" is armed."""
+  engine = server_state.defects_engine()
+  if not engine.enabled:
+    raise HTTPException(status_code=404, detail="defects mode is not enabled")
+  if engine.behavior_armed("selftest.stub"):
+    return {"stub": "violated"}
+  return {"stub": "clean"}

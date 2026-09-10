@@ -12,7 +12,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Custom exceptions for the UCP Merchant Server."""
+"""Custom exceptions for the UCP Merchant Server.
+
+Error codes are lowercase (decision 20, D3-02/D3-04): error_code.json is an open
+string whose standard examples are all lowercase (`not_found`, `out_of_stock`,
+`payment_failed`, ...); the inherited upper-case codes were a golden bug.
+"""
 
 from pydantic import BaseModel
 
@@ -26,6 +31,9 @@ class UcpMessageError(BaseModel):
   code: str
   content: str
   severity: ErrorSeverity
+  # message_error.json `path`: a JSONPath into the REQUEST naming the offending
+  # field (D3-04; omitted from the wire when unknown).
+  path: str | None = None
 
 
 class UcpErrorResponse(BaseModel):
@@ -41,7 +49,7 @@ class UcpError(Exception):
   def __init__(
     self,
     message: str,
-    code: str = "INTERNAL_ERROR",
+    code: str = "internal_error",
     status_code: int = 500,
     severity: ErrorSeverity = ErrorSeverity.UNRECOVERABLE,
   ):
@@ -60,7 +68,7 @@ class ResourceNotFoundError(UcpError):
     """Initialize ResourceNotFoundError."""
     super().__init__(
       message,
-      code="RESOURCE_NOT_FOUND",
+      code="not_found",
       status_code=404,
       severity=ErrorSeverity.UNRECOVERABLE,
     )
@@ -73,7 +81,7 @@ class IdempotencyConflictError(UcpError):
     """Initialize IdempotencyConflictError."""
     super().__init__(
       message,
-      code="IDEMPOTENCY_CONFLICT",
+      code="idempotency_conflict",
       status_code=409,
       severity=ErrorSeverity.UNRECOVERABLE,
     )
@@ -86,7 +94,7 @@ class CheckoutNotModifiableError(UcpError):
     """Initialize CheckoutNotModifiableError."""
     super().__init__(
       message,
-      code="CHECKOUT_NOT_MODIFIABLE",
+      code="checkout_not_modifiable",
       status_code=409,
       severity=ErrorSeverity.UNRECOVERABLE,
     )
@@ -99,7 +107,7 @@ class OutOfStockError(UcpError):
     """Initialize OutOfStockError."""
     super().__init__(
       message,
-      code="OUT_OF_STOCK",
+      code="out_of_stock",
       status_code=status_code,
       severity=ErrorSeverity.UNRECOVERABLE,
     )
@@ -111,7 +119,7 @@ class PaymentFailedError(UcpError):
   def __init__(
     self,
     message: str,
-    code: str = "PAYMENT_FAILED",
+    code: str = "payment_failed",
     status_code: int = 402,
   ):
     """Initialize PaymentFailedError."""
@@ -130,7 +138,7 @@ class InvalidRequestError(UcpError):
     """Initialize InvalidRequestError."""
     super().__init__(
       message,
-      code="INVALID_REQUEST",
+      code="invalid_request",
       status_code=400,
       severity=ErrorSeverity.UNRECOVERABLE,
     )
@@ -142,7 +150,7 @@ class UcpVersionError(UcpError):
   def __init__(
     self,
     message: str,
-    code: str = "VERSION_INVALID_FORMAT",
+    code: str = "version_invalid_format",
     status_code: int = 422,
     severity: ErrorSeverity = ErrorSeverity.UNRECOVERABLE,
   ):

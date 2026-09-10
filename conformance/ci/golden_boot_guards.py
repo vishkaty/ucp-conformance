@@ -45,6 +45,11 @@ import time
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SERVE = ROOT / "conformance" / "ci" / "serve_golden.sh"
 STOP = ROOT / "conformance" / "ci" / "stop_golden.sh"
+# golden-0825 (OUR 08-25 server): its serve script has the same port/SDK-pin/
+# listener-PID guards plus the REQUIRE_SIGNATURES boot switch (D3-05).
+GOLDEN_0825 = ROOT / "conformance" / "testbed" / "golden-0825"
+SERVE_0825 = GOLDEN_0825 / "serve_golden_0825.sh"
+STOP_0825 = GOLDEN_0825 / "stop_golden_0825.sh"
 
 # Stub `uv`. Handles the three invocations serve_golden.sh makes: `uv sync` (no-op),
 # `uv pip show ucp-sdk` (reports STUB_SDK_VERSION), and `uv run <script>` — where
@@ -62,6 +67,8 @@ case "$1" in
       server.py)
         port=""
         for a in "$@"; do case "$a" in --port=*) port="${a#--port=}" ;; esac; done
+        # 0825:D reads the flags the script ACTUALLY passed, not what it echoed.
+        [ -n "${UV_STUB_ARGV_FILE:-}" ] && printf '%s\n' "$@" > "$UV_STUB_ARGV_FILE"
         # FORK, do not exec. Real `uv run` spawns the interpreter as a CHILD, which is
         # precisely why $! is the wrapper and not the process holding the port. A stub
         # that exec'd would collapse the two into one pid and make the wrapper-pid
@@ -130,12 +137,46 @@ def _mkroot(tmp, *, pypi_pin, path_dep=False, mutate=None):
     return root, ci, bindir
 
 
+def _mkroot_0825(tmp, *, mutate=None):
+    """Synthetic ROOT for serve_golden_0825.sh: it resolves ROOT from its own path
+    and expects ROOT/server/pyproject.toml (exact ucp-sdk pin) and
+    ROOT/test_data/flower_shop/products.csv. Same stub `uv` on PATH."""
+    root = pathlib.Path(tmp)
+    golden = root / "conformance" / "testbed" / "golden-0825"
+    (golden / "server").mkdir(parents=True)
+    (golden / "test_data" / "flower_shop").mkdir(parents=True)
+    (golden / "test_data" / "flower_shop" / "products.csv").write_text("id,name\n1,rose\n")
+    (golden / "server" / "pyproject.toml").write_text(
+        '[project]\nname = "ucp-merchant-server-golden-0825"\ndependencies = ["ucp-sdk==0.5.0"]\n')
+    text = SERVE_0825.read_text()
+    if mutate:
+        text = mutate(text)
+    (golden / "serve_golden_0825.sh").write_text(text)
+    (golden / "stop_golden_0825.sh").write_text(STOP_0825.read_text())
+    for f in ("serve_golden_0825.sh", "stop_golden_0825.sh"):
+        (golden / f).chmod(0o755)
+    bindir = root / "bin"
+    bindir.mkdir()
+    (bindir / "uv").write_text(UV_STUB)
+    (bindir / "uv").chmod(0o755)
+    return root, golden, bindir
+
+
+def _mutant_0825_drop_signature_flags(text):
+    """Excise the REQUIRE_SIGNATURES pass-through from the exec line: the UP line
+    may still SAY signatures are required, but the server never gets the flag."""
+    out = text.replace("$DEFECTS_FLAG $DEFECTS_STATE_FLAG $SIGNATURE_FLAGS",
+                       "$DEFECTS_FLAG $DEFECTS_STATE_FLAG")
+    assert out != text, "0825 signature-flag mutant did not apply -- the exec line changed"
+    return out
+
+
 class _Result:
     def __init__(self, returncode, stdout, stderr):
         self.returncode, self.stdout, self.stderr = returncode, stdout, stderr
 
 
-def _run(script, *, root, bindir, port, db_dir, sdk_version="0.4.3", timeout=60):
+def _run(script, *, root, bindir, port, db_dir, sdk_version="0.4.3", timeout=60, extra_env=None):
     """Run the script with stdio bound to FILES, never pipes.
 
     Capturing via pipes would make this harness hostage to the very defect it guards:
@@ -149,6 +190,7 @@ def _run(script, *, root, bindir, port, db_dir, sdk_version="0.4.3", timeout=60)
     env["PORT"] = str(port)
     env["DB_DIR"] = str(db_dir)
     env["SIM_SECRET"] = "x"
+    env.update(extra_env or {})
     out_p, err_p = pathlib.Path(root) / "_stdout", pathlib.Path(root) / "_stderr"
     with open(out_p, "w") as o, open(err_p, "w") as e:
         p = subprocess.Popen(["bash", str(script)], stdout=o, stderr=e,
@@ -277,13 +319,65 @@ def _selftest():
         check("E", r.returncode == 3 and "cannot verify" in r.stderr,
               f"absent pin must refuse, got rc={r.returncode} err={r.stderr[-200:]}")
 
+    # ---- Case 0825:D: golden-0825's REQUIRE_SIGNATURES boot switch (D3-05) ---------
+    # The switch must reach the SERVER (argv carries --require_signatures and the
+    # localhost profile carve-out), be echoed in the UP line, and stay OFF by default;
+    # the mutant excising the pass-through must be caught by the argv check even
+    # though it still echoes the mode.
+    def _argv_0825(root):
+        f = pathlib.Path(root) / "argv.txt"
+        return f.read_text().split() if f.exists() else []
+
+    def _stop_0825(golden, db, port):
+        subprocess.run(["bash", str(golden / "stop_golden_0825.sh")], capture_output=True,
+                       env={**os.environ, "DB_DIR": str(db), "PORT": str(port)}, timeout=60)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, golden, bindir = _mkroot_0825(tmp)
+        port, db = _free_port(), root / "db"
+        r = _run(golden / "serve_golden_0825.sh", root=root, bindir=bindir, port=port, db_dir=db,
+                 sdk_version="0.5.0",
+                 extra_env={"REQUIRE_SIGNATURES": "1", "UV_STUB_ARGV_FILE": str(root / "argv.txt")})
+        argv = _argv_0825(root)
+        check("0825:D-real",
+              r.returncode == 0 and "--require_signatures" in argv
+              and "--allow_insecure_profile_urls" in argv and "signatures REQUIRED" in r.stdout,
+              f"REQUIRE_SIGNATURES=1 must pass both flags and say so: rc={r.returncode} "
+              f"argv={argv} out={r.stdout.strip()[-120:]!r} err={r.stderr[-160:]!r}")
+        _stop_0825(golden, db, port)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, golden, bindir = _mkroot_0825(tmp)
+        port, db = _free_port(), root / "db"
+        r = _run(golden / "serve_golden_0825.sh", root=root, bindir=bindir, port=port, db_dir=db,
+                 sdk_version="0.5.0", extra_env={"UV_STUB_ARGV_FILE": str(root / "argv.txt")})
+        argv = _argv_0825(root)
+        check("0825:D-off",
+              r.returncode == 0 and "--require_signatures" not in argv
+              and "signatures REQUIRED" not in r.stdout,
+              f"default boot must stay unsigned: rc={r.returncode} argv={argv} out={r.stdout.strip()[-120:]!r}")
+        _stop_0825(golden, db, port)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, golden, bindir = _mkroot_0825(tmp, mutate=_mutant_0825_drop_signature_flags)
+        port, db = _free_port(), root / "db"
+        r = _run(golden / "serve_golden_0825.sh", root=root, bindir=bindir, port=port, db_dir=db,
+                 sdk_version="0.5.0",
+                 extra_env={"REQUIRE_SIGNATURES": "1", "UV_STUB_ARGV_FILE": str(root / "argv.txt")})
+        argv = _argv_0825(root)
+        check("0825:D-mutant", r.returncode == 0 and "--require_signatures" not in argv,
+              f"flag-less mutant must boot WITHOUT the flag (non-vacuity): rc={r.returncode} argv={argv}")
+        _stop_0825(golden, db, port)
+
     if fails:
         print("golden-boot-guards: FAIL")
         for f in fails:
             print("  ✗ " + f)
         return 1
     print("golden-boot-guards: PASS — SDK-pin drift, occupied-port and listener-PID "
-          "guards each block their failure AND each mutant proves the guard is load-bearing.")
+          "guards each block their failure AND each mutant proves the guard is load-bearing; "
+          "0825:D — golden-0825's REQUIRE_SIGNATURES switch reaches the server, stays off by "
+          "default, and its mutant is caught.")
     return 0
 
 

@@ -230,6 +230,17 @@ def test_real_catalog_loads_and_every_mutant_has_a_route_and_patch():
             assert isinstance(instr["path"], list) and instr["path"]
     for f in config.get("fixture_only", []):
         assert "body" in f
+    # behavior rows (D3-01): data only -- a key, the checks that grade it, and
+    # the rule it violates; never a patch or a route (those would make it a
+    # patch mutant wearing the wrong label).
+    behaviors = config.get("behavior_mutants", [])
+    names += [b["name"] for b in behaviors]
+    assert len(names) == len(set(names)), "behavior names must not collide with mutant/fixture names"
+    for b in behaviors:
+        assert isinstance(b["behavior"], str) and b["behavior"], f"{b['name']} has no behavior key"
+        assert isinstance(b["checks"], list) and b["checks"], f"{b['name']} names no checks"
+        assert b["violates"], f"{b['name']} does not say what it violates"
+        assert "patch" not in b and "route" not in b, f"{b['name']} is a behavior row, not a patch"
 
 
 def test_self_referenced_mutants_load_into_the_same_engine_as_mutants(tmp_path):
@@ -245,3 +256,95 @@ def test_self_referenced_mutants_load_into_the_same_engine_as_mutants(tmp_path):
     }))
     engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(tmp_path / "state.json"))
     assert set(engine.mutants.keys()) == {"m1", "m2"}
+
+
+# ---------------------------------------------------------------------------
+# behavior mutants (D3-01, decision 19): rows stay data; a server-side guard
+# consults DefectsEngine.behavior_armed(key) at exactly one place per key.
+# ---------------------------------------------------------------------------
+
+
+def _behavior_config(tmp_path):
+    path = tmp_path / "defects_config.json"
+    path.write_text(json.dumps({
+        "mutants": [],
+        "behavior_mutants": [{
+            "name": "negotiation_accept_any",
+            "behavior": "negotiation.accept_any",
+            "checks": ["negotiation.version_unsupported_error"],
+            "violates": "NEG-001 -- an unadvertised version must be rejected",
+        }],
+    }))
+    return path
+
+
+def test_behavior_armed_reads_state(tmp_path):
+    """behavior_armed(key) is False when nothing is armed, True only while the
+    behavior row naming that key is armed (same hot-reloaded state file as the
+    patch mutants), and a behavior row NEVER touches a response body:
+    maybe_mutate stays byte-identical (object identity) while it is armed."""
+    cfg = _behavior_config(tmp_path)
+    state = tmp_path / "state.json"
+    engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(state))
+
+    assert engine.behavior_armed("negotiation.accept_any") is False
+
+    defects.write_state(str(state), "negotiation_accept_any")
+    assert engine.behavior_armed("negotiation.accept_any") is True
+    assert engine.behavior_armed("some.other.key") is False
+    body, fired = engine.maybe_mutate("POST", "/checkout-sessions", SAMPLE_DOC)
+    assert body is SAMPLE_DOC  # identity: a behavior row is not a patch
+    assert fired is None
+
+    defects.write_state(str(state), None)
+    assert engine.behavior_armed("negotiation.accept_any") is False
+    # every consultation is recorded so the battery can tell "guard never ran"
+    # (LOADER-BROKEN) apart from "guard ran and the checks did not flip".
+    assert "negotiation.accept_any" in engine.consulted_keys()
+
+
+def test_armed_behavior_row_is_identity_on_every_catalogued_route(tmp_path):
+    """The object-identity proof extended to behavior rows (D3-01): while a
+    behavior row is armed, maybe_mutate returns the EXACT input object for
+    every (method, route) the real catalog knows -- a behavior row can only
+    ever act through its guard, never through the patch path."""
+    here = Path(__file__).resolve().parent
+    real = json.loads((here / "defects_config.json").read_text())
+    routes = {(m["route"]["method"], m["route"]["path"]) for m in real["mutants"]}
+    assert routes
+    cfg = _behavior_config(tmp_path)
+    state = tmp_path / "state.json"
+    defects.write_state(str(state), "negotiation_accept_any")
+    engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(state))
+    assert engine.behavior_armed("negotiation.accept_any") is True
+    for method, path in sorted(routes):
+        body, fired = engine.maybe_mutate(method, path, SAMPLE_DOC)
+        assert body is SAMPLE_DOC, (method, path)
+        assert fired is None, (method, path)
+
+
+def test_behavior_armed_is_false_and_untracked_by_state_when_disabled(tmp_path):
+    """Defects OFF (config_path=None, the normal boot): behavior_armed is False
+    without ever reading a state file -- even one that names a behavior row --
+    so a guard's conformant branch is the only branch, byte-identical to a
+    build with no defects code. The consultation is still recorded (cheap,
+    in-memory) but server.py never emits the header when disabled."""
+    state = tmp_path / "state.json"
+    defects.write_state(str(state), "negotiation_accept_any")
+    engine = defects.DefectsEngine(config_path=None, state_path=str(state))
+    assert engine.behavior_armed("negotiation.accept_any") is False
+    assert engine.consulted_keys() == {"negotiation.accept_any"}
+
+
+def test_consulted_keys_reset_when_arm_state_changes(tmp_path):
+    """The battery reads consulted keys AFTER arming a row and driving its
+    checks; a consultation that happened under a PREVIOUS arm state must not
+    make an unwired row look wired. The record restarts on every arm change."""
+    cfg = _behavior_config(tmp_path)
+    state = tmp_path / "state.json"
+    engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(state))
+    engine.behavior_armed("negotiation.accept_any")
+    assert "negotiation.accept_any" in engine.consulted_keys()
+    defects.write_state(str(state), "negotiation_accept_any")
+    engine.behavior_armed("some.other.key")  # first consultation under the new state
+    assert engine.consulted_keys() == {"some.other.key"}
