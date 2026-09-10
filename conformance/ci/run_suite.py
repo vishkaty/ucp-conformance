@@ -30,7 +30,14 @@ r11_battery_report_line()).
 Usage:
     python3 conformance/ci/run_suite.py [--server http://localhost:8182]
                                         [--require-server] [--skip schema,killrate]
-Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing).
+                                        [--only NAME[,NAME...]]
+Exit 0 = all run gates passed; 1 = a gate failed (or a required server was missing);
+2 = --only named a gate that is not in the table (never a silent full run or no-op).
+
+--only runs exactly the named gates, in table order, booting ONLY the fixtures those
+gates need (so every acceptance command written as `run_suite.py --only <gate>` is
+runnable as written, cheaply, and proves the gate it names — pinned by
+conformance/ci/validate_run_suite_only.py, gate `run-suite-only`).
 """
 import sys, subprocess, argparse, pathlib, urllib.request, time
 
@@ -309,7 +316,28 @@ def gates(server):
         # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
         # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
         ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
+        # D1-22: `--only <gate>` runs exactly the named gates, boots only what they need,
+        # and refuses an unknown name (rc 2) — so every acceptance command written as
+        # `run_suite.py --only X` proves X. In-process against the real table; the
+        # :8198 case observes golden-check-08-25's own boot + teardown via lsof.
+        ("run-suite-only", _py(ROOT / "conformance" / "ci" / "validate_run_suite_only.py", "--selftest"), None, ()),
     ]
+
+class UnknownGate(ValueError):
+    pass
+
+
+def select_gates(table, only):
+    """The subset of `table` named by `only` (a comma list), in TABLE order. Raises
+    UnknownGate naming the first unknown name — a typo must never become a silent
+    no-op (rc 0 with nothing run) or a silent full run."""
+    wanted = [n.strip() for n in only.split(",") if n.strip()]
+    known = {g[0] for g in table}
+    for n in wanted:
+        if n not in known:
+            raise UnknownGate(f"unknown gate: {n}")
+    return [g for g in table if g[0] in set(wanted)]
+
 
 def server_up(server, timeout=3):
     try:
@@ -409,21 +437,37 @@ def main():
     ap.add_argument("--require-server", action="store_true",
                     help="fail (not skip) server-dependent gates if the golden is down")
     ap.add_argument("--skip", default="", help="comma-separated gate names to skip")
+    ap.add_argument("--only", default="",
+                    help="comma-separated gate names to run (exactly those, in table order; "
+                         "boots only the fixtures they need; rc 2 on an unknown name)")
     ap.add_argument("-v", "--verbose", action="store_true", help="print full gate output on failure")
     args = ap.parse_args()
     skip = {s.strip() for s in args.skip.split(",") if s.strip()}
 
-    up = server_up(args.server)
-    ctrl_proc = boot_controlled()
-    ctrl_up = server_up(CONTROLLED)
-    ctrl0123_proc = boot_controlled_0123()
-    ctrl0111_proc = boot_controlled_0111()
-    ctrl0123_up = server_up(CONTROLLED_0123)
-    ctrl0111_up = server_up(CONTROLLED_0111)
+    table = gates(args.server)
+    if args.only:
+        try:
+            table = select_gates(table, args.only)
+        except UnknownGate as e:
+            known = ", ".join(g[0] for g in gates(args.server))
+            print(f"run_suite: {e}\n  known gates: {known}", file=sys.stderr)
+            return 2
+    # which fixtures to boot: everything (the historical default) unless --only
+    # narrows the table, in which case only what the selected gates declare.
+    needed = {g[2] for g in table if g[2]} if args.only else \
+        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy"}
+
+    up = server_up(args.server) if needed & {"golden", "proxy"} else False
+    ctrl_proc = boot_controlled() if "controlled" in needed else None
+    ctrl_up = server_up(CONTROLLED) if "controlled" in needed else False
+    ctrl0123_proc = boot_controlled_0123() if "controlled-01-23" in needed else None
+    ctrl0111_proc = boot_controlled_0111() if "controlled-01-11" in needed else None
+    ctrl0123_up = server_up(CONTROLLED_0123) if "controlled-01-23" in needed else False
+    ctrl0111_up = server_up(CONTROLLED_0111) if "controlled-01-11" in needed else False
     tls_proc = boot_tls_proxy() if ctrl_up else None
     if tls_proc: time.sleep(1.0)            # cert mint + listener bind
-    proxy_proc = boot_proxy(args.server) if up else None   # kill-rate gate drives the proxy
-    proxy_up = server_up(PROXY)
+    proxy_proc = boot_proxy(args.server) if (up and "proxy" in needed) else None   # kill-rate gate drives the proxy
+    proxy_up = server_up(PROXY) if "proxy" in needed else False
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
@@ -435,7 +479,7 @@ def main():
 
     results = []
     try:
-      for name, argv, needs, skip_codes in gates(args.server):
+      for name, argv, needs, skip_codes in table:
         if name in skip:
             results.append((name, "SKIP", "explicitly skipped")); continue
         if needs and not avail.get(needs):
@@ -470,7 +514,15 @@ def main():
     skipped = [n for n, s, _ in results if s == "SKIP"]
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
-    print(r11_battery_report_line() + "  (report-only, not counted above)")
+    if args.only:
+        # the acceptance-line form: one `✓ PASS <gate> <detail>` per selected gate
+        for name, status, detail in results:
+            mark = {"PASS": "✓", "FAIL": "✗", "SKIP": "·"}[status]
+            print(f"{mark} {status} {name} {detail}")
+        n = len(results)
+        print(f"{n} gate{'s' if n != 1 else ''} run (--only {args.only})")
+    else:
+        print(r11_battery_report_line() + "  (report-only, not counted above)")
     if failed:
         print(f"\nRED — gates failed: {', '.join(failed)}")
         return 1
