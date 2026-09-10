@@ -245,3 +245,48 @@ def test_self_referenced_mutants_load_into_the_same_engine_as_mutants(tmp_path):
     }))
     engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(tmp_path / "state.json"))
     assert set(engine.mutants.keys()) == {"m1", "m2"}
+
+
+# ---------------------------------------------------------------------------
+# behavior mutants (D3-01, decision 19): rows stay data; a server-side guard
+# consults DefectsEngine.behavior_armed(key) at exactly one place per key.
+# ---------------------------------------------------------------------------
+
+
+def _behavior_config(tmp_path):
+    path = tmp_path / "defects_config.json"
+    path.write_text(json.dumps({
+        "mutants": [],
+        "behavior_mutants": [{
+            "name": "negotiation_accept_any",
+            "behavior": "negotiation.accept_any",
+            "checks": ["negotiation.version_unsupported_error"],
+            "violates": "NEG-001 -- an unadvertised version must be rejected",
+        }],
+    }))
+    return path
+
+
+def test_behavior_armed_reads_state(tmp_path):
+    """behavior_armed(key) is False when nothing is armed, True only while the
+    behavior row naming that key is armed (same hot-reloaded state file as the
+    patch mutants), and a behavior row NEVER touches a response body:
+    maybe_mutate stays byte-identical (object identity) while it is armed."""
+    cfg = _behavior_config(tmp_path)
+    state = tmp_path / "state.json"
+    engine = defects.DefectsEngine(config_path=str(cfg), state_path=str(state))
+
+    assert engine.behavior_armed("negotiation.accept_any") is False
+
+    defects.write_state(str(state), "negotiation_accept_any")
+    assert engine.behavior_armed("negotiation.accept_any") is True
+    assert engine.behavior_armed("some.other.key") is False
+    body, fired = engine.maybe_mutate("POST", "/checkout-sessions", SAMPLE_DOC)
+    assert body is SAMPLE_DOC  # identity: a behavior row is not a patch
+    assert fired is None
+
+    defects.write_state(str(state), None)
+    assert engine.behavior_armed("negotiation.accept_any") is False
+    # every consultation is recorded so the battery can tell "guard never ran"
+    # (LOADER-BROKEN) apart from "guard ran and the checks did not flip".
+    assert "negotiation.accept_any" in engine.consulted_keys()
