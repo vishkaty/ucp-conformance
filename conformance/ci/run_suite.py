@@ -207,6 +207,10 @@ def gates(server):
         ("site-redirects", _py(ROOT / "conformance" / "ci" / "site_gates.py", "redirects"), None, ()),
         ("site-consistency", _py(ROOT / "conformance" / "ci" / "site_gates.py", "consistency"), None, ()),
         ("site-freshness", _py(ROOT / "conformance" / "ci" / "site_gates.py", "freshness"), None, ()),
+        # non-page copy (README, ci/README, packaging README, docs, functions/**/*.js) held to
+        # the page bar: counts equal the product, registered doc claims hold, ci/README's
+        # gate rows exist, Action snippets pinned (D5-01/D5-20/D5-21).
+        ("site-docclaims", _py(ROOT / "conformance" / "ci" / "site_gates.py", "docclaims"), None, ()),
         # PLAN-0825 §E state-consistency kill-tests: a `state` field that disagrees
         # with its own CHECK/EXEMPT counts must redden freshness(); hermetic
         # (SPCK_PUBLIC scratch copy, repo untouched) — proves the validator can fail.

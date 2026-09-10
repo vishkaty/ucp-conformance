@@ -28,6 +28,13 @@ Modes (run_suite gates):
   freshness  product manifest (coverage JSONs + agent registries) vs the manifest
              block reviewed into public/site_claims.json — product drift with a
              stale review date is RED.
+  docclaims  NON-page copy — README.md, conformance/ci/README.md, packaging/README.md,
+             docs/*.md (hand-authored) and functions/**/*.js — held to the page bar:
+             every advertised count equals the live product value (or is a registered
+             `dated` row in conformance/web/doc_claims.json), every registered doc claim
+             still holds (must_match / must_not_match / bind), every gate named in
+             ci/README's table exists in run_suite.py, and Action snippets are pinned
+             to the release tag (D5-21). SPCK_DOCROOT scopes the scan (tests).
 
 Pages audited = every public/*.html PRESENT (tool.html/guide.html drop out of the
 audit automatically once retired). Exit 0 pass · 1 fail · 2 honest skip.
@@ -39,7 +46,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 # SPCK_PUBLIC lets oversight/tests point the gates at a scratch copy of the site
 PUB = pathlib.Path(os.environ.get("SPCK_PUBLIC", ROOT / "public"))
 WEB = ROOT / "conformance" / "web"
-MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness", "checkdocs")
+MODES = ("tdd", "claims", "voice", "security", "redirects", "consistency", "freshness", "checkdocs",
+         "docclaims")
 TODAY = datetime.date.today().isoformat()
 
 # ── shared text extraction ────────────────────────────────────────────────────
@@ -805,6 +813,156 @@ def selftest():
     return 1 if bad else 0
 
 
+# ═══ docclaims ════════════════════════════════════════════════════════════════
+DOCROOT = pathlib.Path(os.environ.get("SPCK_DOCROOT", ROOT))
+DOC_CLAIMS = WEB / "doc_claims.json"
+# hand-authored non-page copy in scope (generated docs/spec-coverage-matrix.md is
+# byte-compared by the coverage gate and excluded here)
+DOC_FILES = ("README.md", "conformance/ci/README.md", "packaging/README.md",
+             "docs/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
+             "docs/merchant-conformance.md", "docs/ap2-vectors.md")
+DOC_GLOBS = ("functions/**/*.js",)
+# (regex, live-value key, label) — every captured count MUST equal the live value
+# unless the exact phrase is a registered `dated` row for that file
+DOC_COUNT_RES = [
+    (re.compile(r"(\d+)\+?\s+kill-rate-validated\s+(?:merchant\s+)?checks?"), "merchant_checks", "'N kill-rate-validated checks' prose"),
+    (re.compile(r"(\d+)\+?\s+checks\s+across"), "merchant_checks", "'N checks across' prose"),
+    (re.compile(r"(\d+)\+?\s+checks,\s+from the browser"), "merchant_checks", "'N checks, from the browser' prose"),
+    (re.compile(r"(\d+)\+?\s+checks?\s+kill-tested against independent servers?"), "live_wire", "'N checks kill-tested against independent servers' prose"),
+    (re.compile(r"(\d+)\+?\s+agent[- ]side checks?"), "agent_checks", "'N agent-side checks' prose"),
+    (re.compile(r"(\d+)\+?\s+agent checks?\b"), "agent_checks", "'N agent checks' prose"),
+    (re.compile(r"(\d+)\+?\s+checks?\s+\(\d+\s+defects modeled\)"), "agent_checks", "'N checks (M defects modeled)' prose"),
+    (re.compile(r"\d+\+?\s+checks?\s+\((\d+)\s+defects modeled\)"), "agent_defects", "'N checks (M defects modeled)' prose"),
+    (re.compile(r"(\d+)\+?\s+(?:client )?defects? modeled"), "agent_defects", "'N defects modeled' prose"),
+    (re.compile(r"(\d+)\+?\s+failure modes"), "agent_defects", "'N failure modes' prose"),
+]
+
+
+def _pyproject_version():
+    m = re.search(r'^version\s*=\s*"([^"]+)"', (ROOT / "packaging" / "pyproject.toml").read_text(), re.M)
+    return m.group(1) if m else None
+
+
+def _base_version(v):
+    """PEP 440 base of a version: '0.4.0rc1' -> '0.4.0' (pre-release tags share the
+    final release's Action pin)."""
+    m = re.match(r"(\d+(?:\.\d+)*)", v or "")
+    return m.group(1) if m else None
+
+
+def doc_live_values():
+    """Live product values the doc counts are pinned to — the SAME counting technique
+    the coverage gate / agent_governance / freshness use (never a second opinion)."""
+    merchant = 0
+    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
+        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    r = subprocess.run([sys.executable, "-c",
+                        "import sys,json;sys.path.insert(0,'conformance/agent');"
+                        "import agent_checks,reference_agent;"
+                        "print(json.dumps({'agent_checks':len(agent_checks.CHECKS),"
+                        "'agent_defects':len([k for k in reference_agent.DEFECTS if k])}))"],
+                       cwd=str(ROOT), capture_output=True, text=True, timeout=60)
+    ag = json.loads(r.stdout) if r.returncode == 0 else {}
+    live_wire = None
+    sc = PUB / "site_claims.json"
+    if sc.exists():
+        ev = (json.load(open(sc)).get("evidence") or {}).get("per_version") or {}
+        newest = sorted(k for k in ev if ev[k].get("live-wire") is not None)
+        live_wire = ev[newest[-1]].get("live-wire") if newest else None
+    pv = _pyproject_version()
+    return {"merchant_checks": merchant, "agent_checks": ag.get("agent_checks"),
+            "agent_defects": ag.get("agent_defects"), "live_wire": live_wire,
+            "pyproject_version": pv, "pyproject_base_version": f"v{_base_version(pv)}" if pv else None}
+
+
+def _doc_files(root):
+    out = [root / f for f in DOC_FILES if (root / f).exists()]
+    for g in DOC_GLOBS:
+        out += [pathlib.Path(f) for f in sorted(glob.glob(str(root / g), recursive=True))]
+    return out
+
+
+def _run_suite_gate_names():
+    """Gate names in run_suite.py's table (the ci/README rows must name real gates)."""
+    r = subprocess.run([sys.executable, "-c",
+                        "import sys;sys.path.insert(0,'conformance/ci');import run_suite;"
+                        "print('\\n'.join(g[0] for g in run_suite.gates('http://localhost:0')))"],
+                       cwd=str(ROOT), capture_output=True, text=True, timeout=60)
+    return set(r.stdout.split()) if r.returncode == 0 else None
+
+
+def docclaims():
+    root = DOCROOT
+    fails = []
+    reg = json.load(open(DOC_CLAIMS)) if DOC_CLAIMS.exists() else {"claims": []}
+    rows = reg.get("claims", [])
+    live = doc_live_values()
+
+    def dated_ok(rel, phrase):
+        """A stale count is fine ONLY as a registered, unexpired `dated` row whose text
+        contains the exact phrase for this file (a dated 'where we were' statement)."""
+        for e in rows:
+            if e.get("kind") == "dated" and e.get("file") == rel and phrase in e.get("text", ""):
+                return e if e.get("review_by", "") >= TODAY else None
+        return None
+
+    # 1. count sweep over every in-scope file
+    for f in _doc_files(root):
+        rel = str(f.relative_to(root))
+        txt = f.read_text(encoding="utf-8", errors="replace")
+        for cre, key, what in DOC_COUNT_RES:
+            for m in cre.finditer(txt):
+                want = live.get(key)
+                if want is None:
+                    fails.append(f"{rel}: {what} '{m.group(0)}' but the live value for {key} is unavailable")
+                elif int(m.group(1)) != want:
+                    if dated_ok(rel, m.group(0)):
+                        continue
+                    fails.append(f"{rel}: {what} claims {m.group(1)} but the product says {want} "
+                                 f"({key}) — update the copy or register a dated row")
+
+    # 2. registered rows still hold
+    for e in rows:
+        cid, rel = e.get("id", "?"), e.get("file", "")
+        f = root / rel
+        if not f.exists():
+            fails.append(f"{cid}: file {rel} missing"); continue
+        if e.get("review_by", "") < TODAY:
+            fails.append(f"{cid}: review_by {e.get('review_by')} expired")
+        txt = f.read_text(encoding="utf-8", errors="replace")
+        if e.get("kind") == "dated":
+            if e.get("text", "") not in txt:
+                fails.append(f"{cid}: dated text no longer present in {rel} — retire the row")
+            continue
+        mm = re.search(e["must_match"], txt) if e.get("must_match") else None
+        if e.get("must_match") and not mm:
+            fails.append(f"{cid}: {rel} does not match /{e['must_match']}/")
+        if e.get("must_not_match") and re.search(e["must_not_match"], txt):
+            fails.append(f"{cid}: {rel} matches forbidden /{e['must_not_match']}/")
+        if e.get("bind") and mm:
+            want = live.get(e["bind"])
+            got = mm.group(1) if mm.groups() else mm.group(0)
+            if str(got) != str(want):
+                fails.append(f"{cid}: {rel} says {got!r} but the product says {want!r} ({e['bind']})")
+
+    # 3. ci/README's gate table names real run_suite gates (D1-08 rename lands here)
+    ci_readme = root / "conformance" / "ci" / "README.md"
+    if ci_readme.exists():
+        names = _run_suite_gate_names()
+        if names is None:
+            fails.append("could not import run_suite.gates() to verify ci/README's gate table")
+        else:
+            for m in re.finditer(r"^\| `([a-z0-9-]+)` \|", ci_readme.read_text(), re.M):
+                if m.group(1) not in names:
+                    fails.append(f"conformance/ci/README.md: gate row `{m.group(1)}` names no gate in "
+                                 f"run_suite.py's table (renamed/removed?)")
+
+    for f2 in fails:
+        print(f"  x {f2}")
+    print(f"docclaims: {'PASS' if not fails else 'FAIL'} ({len(fails)} unverified claim(s))")
+    return 0 if not fails else 1
+
+
 # ═══ checkdocs ════════════════════════════════════════════════════════════════
 def checkdocs():
     """SITE-R-026 — the published check register can never drift from the product.
@@ -856,11 +1014,11 @@ if __name__ == "__main__":
         sys.exit(selftest())
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode not in MODES:
-        print("usage: site_gates.py tdd|claims|voice|security|redirects|freshness [--explain]"
-              "|--selftest")
+        print("usage: site_gates.py tdd|claims|voice|security|redirects|consistency|freshness"
+              "|checkdocs|docclaims [--explain]|--selftest")
         sys.exit(1)
     if mode == "claims":
         sys.exit(claims(explain="--explain" in sys.argv[2:]))
     sys.exit({"tdd": tdd, "voice": voice, "security": security,
               "redirects": redirects, "consistency": consistency,
-              "freshness": freshness, "checkdocs": checkdocs}[mode]())
+              "freshness": freshness, "checkdocs": checkdocs, "docclaims": docclaims}[mode]())

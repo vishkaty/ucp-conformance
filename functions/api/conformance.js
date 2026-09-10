@@ -4,8 +4,8 @@
  * The browser can't fetch an arbitrary merchant's /.well-known/ucp (CORS), so this
  * Cloudflare Pages Function does it server-side and runs the DISCOVERY + PROFILE-
  * STRUCTURE subset of the spck conformance methodology. It is a PREVIEW: the full
- * 37 kill-rate-validated checks (checkout, order, discount, catalog, cart, totals…)
- * run only in the CLI / GitHub Action. Kept intentionally small + stable so it does
+ * kill-rate-validated check suite (checkout, order, discount, catalog, cart, totals…)
+ * runs only in the CLI / GitHub Action — no count is advertised here (site_gates docclaims). Kept intentionally small + stable so it does
  * not drift from the authoritative Python engine.
  *
  * Unofficial. Not affiliated with or endorsed by the UCP project.

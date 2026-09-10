@@ -381,6 +381,19 @@
    ],
    "status": "active",
    "added": "2026-09-10"
+  },
+  {
+   "id": "SITE-R-027",
+   "requirement": "Non-page copy is held to the page bar: every advertised count in README.md, conformance/ci/README.md, packaging/README.md, hand-authored docs/*.md and functions/**/*.js equals the live product value (MCheck count, agent checks/defects, live-wire) or is a registered dated row in conformance/web/doc_claims.json; registered doc claims (must_match / must_not_match / bind) still hold; every gate row in ci/README names a gate in run_suite.py; the coverage gate's copy-freshness scope includes functions/**/*.js and ci/README (PLAN-v3 §2.18, D5-01).",
+   "pages": [
+    "functions/api/conformance.js",
+    "functions/api/badge.js"
+   ],
+   "tests": [
+    "gate:docclaims"
+   ],
+   "status": "active",
+   "added": "2026-09-10"
   }
  ]
 }

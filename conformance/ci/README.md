@@ -19,6 +19,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `killrate` | injected defects are caught (100% kill-rate) | mutation harness |
+| `site-docclaims` | non-page copy (README, this file, packaging README, docs, `functions/**/*.js`) advertises only live counts; registered doc claims hold; every gate row in this table names a real `run_suite.py` gate | — |
 | `ports-registry` | every literal port the harness binds is registered in `conformance/ci/ports.json` (the single source `selftest.sh` sweeps from) and no two names claim one port; hermetic kill-tests plant an unregistered literal + a collision | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free

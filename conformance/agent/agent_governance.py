@@ -136,11 +136,14 @@ def _agent_copy_freshness():
         (re.compile(r"ran \d+ ops[^;<]*;\s*(\d+) checks?"), "agent-lane terminal line"),
         (re.compile(r"(\d+)\+? agent[- ]side checks?"), "'N agent-side checks' prose"),
         (re.compile(r"(\d+)\+? agent checks?\b"), "'N agent checks' prose"),
+        # D5-01: the README's "N checks (M defects modeled)" pair escaped every regex above
+        (re.compile(r"(\d+)\+? checks? \(\d+ defects modeled\)"), "'N checks (M defects modeled)' prose"),
     ]
     defect_res = [
         (re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Failure modes'), "Failure-modes stat"),
         (re.compile(r"(\d+)\+? (?:client )?defects? modeled"), "'N defects modeled' prose"),
         (re.compile(r"(\d+)\+? failure modes"), "'N failure modes' prose"),
+        (re.compile(r"\d+\+? checks? \((\d+) defects modeled\)"), "'N checks (M defects modeled)' prose"),
     ]
     files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
         os.path.join(ROOT, "README.md"), os.path.join(ROOT, "docs", "ROADMAP.md"),
