@@ -990,6 +990,20 @@ def selftest():
         "correct states (unmodified export)",
         lambda vs: None,
         want_red=False)
+    # B2 (W0-review): adoption-facts.json republishes coverage.json's per-version MUST
+    # counts; a stale snapshot (the real 364-vs-366 shape) must redden freshness, and a
+    # snapshot with no spec_musts_* key at all must not read as verified.
+    run_variant(
+        f"adoption-facts spec_musts for {live_ver} planted 2 below coverage.json musts (B2 shape)",
+        lambda vs: None,
+        want_red=True,
+        mutate_facts=lambda f: f.__setitem__("spec_musts_" + live_ver.replace("-", "_"),
+                                             versions[live_ver]["musts"] - 2))
+    run_variant(
+        "adoption-facts with every spec_musts_* key removed (nothing to verify is not verified)",
+        lambda vs: None,
+        want_red=True,
+        mutate_facts=lambda f: [f.pop(k) for k in list(f) if k.startswith("spec_musts_")])
 
     # D1-08: a registered claim's `evidence` that names a run_suite gate must name one
     # that EXISTS in run_suite's gate table (the `killrate` -> `proxy-demo` rename left

@@ -115,9 +115,9 @@ launched with Mastercard, Amex, JCB, UnionPay, Adyen, PayPal, Coinbase and more
 (<a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" rel="noopener">Google Cloud, Sept 2025</a>).</p>
   <p>The spec has moved as fast as the endorsements. Across three tagged releases, the count of MUST-level
 requirements in our register went from
-<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_01_11">178</span> to
-<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_01_23">188</span> to
-<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_04_08">364</span> —
+<span data-live="coverage.json:$.versions['2026-01-11'].musts">178</span> to
+<span data-live="coverage.json:$.versions['2026-01-23'].musts">188</span> to
+<span data-live="coverage.json:$.versions['2026-04-08'].musts">366</span> —
 nearly doubling in the latest release. Every requirement is individually traceable at
 <a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
   <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
@@ -244,7 +244,7 @@ Provisioned ≠ adopted ≠ transacting.</li>
     <li><b>An endorsement is not a deployment.</b> The marquee brands endorse and participate via managed
 surfaces; they do not serve their own endpoints.</li>
     <li><b>"Conformant" is three different questions.</b> Of the
-<span data-live="state-of-ucp/adoption-facts.json:$.spec_musts_2026_04_08">364</span> requirements, as we
+<span data-live="coverage.json:$.versions['2026-04-08'].musts">366</span> requirements, as we
 classify them: <span data-live="state-of-ucp/adoption-facts.json:$.testability_server">185</span> test a business
 server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_agent_bound">90</span> bind the buying
 agent (which almost no tooling measures — our dedicated agent-side register catalogues
