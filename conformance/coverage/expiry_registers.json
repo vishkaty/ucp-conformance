@@ -12,6 +12,7 @@
     {"name": "agent_lane_overrides.agent_extra", "file": "conformance/agent/agent_lane_overrides.json", "entries": "$.agent_extra[*]", "scope": "all", "clock": "review_by", "clock_tier": "pin-only"},
     {"name": "site_claims", "file": "public/site_claims.json", "entries": "$.claims[*]", "entry_requires": "text", "scope": "none", "clock": "review_by", "clock_tier": "pin-only", "_note": "review_by already owned and enforced by site_gates.py (D5); listed so one gate sees every clock. scope none: a claim has no spec pin; nothing is stamped here."},
     {"name": "known_tag_moves", "file": "conformance/ci/known_tag_moves.json", "entries": "$.moves[*]", "scope": "version", "clock": "review_by", "clock_tier": "moving"},
-    {"name": "retirements", "file": "conformance/coverage/retirements.json", "entries": "$.retirements[*]", "scope": "versions", "clock": "none"}
+    {"name": "retirements", "file": "conformance/coverage/retirements.json", "entries": "$.retirements[*]", "scope": "versions", "clock": "none"},
+    {"name": "known_issues", "file": "conformance/ci/known_issues.json", "entries": "$.issues[*]", "scope": "none", "clock": "review_by", "clock_tier": "pin-only", "_note": "D5-07 <- D2-04 (W0 integration 2026-09-10): review_by (<= 90 d) seen by this gate; the re_verified <= 30 d freshness clock is owned by conformance/ci/validate_known_issues.py. scope none: a row is pinned by the file's own spec_pin, nothing is stamped here. conformance/agent/agent_run_evidence.json carries no review_by - its 30-day window is agent_matrix/agent_governance's own clock (D5-04) - so it is deliberately not listed."}
   ]
 }
