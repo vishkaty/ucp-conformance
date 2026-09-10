@@ -86,7 +86,10 @@ class Shapes:
     # ---- bodies ----------------------------------------------------------------
     def destinations(self, ctx):
         d = {"id": "d1", "address_country": "US"}
-        if self._typed_destinations:
+        # 08-25 sends the discriminator (belt-and-braces: fulfillment_destination.json
+        # marks it ucp_request:optional — the business MUST default it, C3b/D3-04). The
+        # probe-shape-0825 gate's omit mode (ctx.omit_destination_type) leaves it out.
+        if self._typed_destinations and not getattr(ctx, "omit_destination_type", False):
             d["type"] = "shipping_address"
         return [d]
 

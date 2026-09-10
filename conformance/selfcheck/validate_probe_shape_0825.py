@@ -31,6 +31,75 @@ sys.path.insert(0, str(HERE.parents[0] / "checks"))
 MIN_RUN = 29
 
 
+def assess(default_doc, omit_doc):
+    """(rc, message) from the two CLI JSON documents (default probe shape, omit-type)."""
+    fails, parts = [], []
+    for label, doc in (("default", default_doc), ("omit-type", omit_doc)):
+        if not isinstance(doc, dict) or "verdict" not in doc:
+            fails.append(f"{label} mode: CLI output unparseable"); continue
+        v = doc["verdict"]
+        dev = int(v.get("deviations", 0) or 0)
+        run = sum(1 for c in doc.get("checks", []) if c.get("status") in ("clean-pass", "deviation"))
+        if dev:
+            fails.append(f"{label} mode: {dev} deviations on the conformant golden")
+        if run < MIN_RUN:
+            fails.append(f"{label} mode: vacuous — only {run} checks run (< {MIN_RUN})")
+        if v.get("aggregate") == "fail":
+            fails.append(f"{label} mode: aggregate fail")
+        parts.append(f"{dev} deviations · {run} checks run" if label == "default"
+                     else f"omit-type {dev} deviations")
+    return (1 if fails else 0), ("; ".join(fails) + " · " if fails else "") + " · ".join(parts)
+
+
+def _cli(server, config_path, extra=()):
+    p = subprocess.run([sys.executable, str(ROOT / "conformance" / "checks" / "merchant.py"),
+                        "--server", server, "--config", str(config_path), "--json", *extra],
+                       capture_output=True, text=True, timeout=600)
+    try:
+        return json.loads(p.stdout[p.stdout.index("{"):]), p
+    except ValueError:
+        return None, p
+
+
+def run(server):
+    from validate_merchant_checks import REF_CONFIG
+    from merchant import discover
+    try:
+        discover(server)
+    except SystemExit as e:
+        print(f"probe-shape-0825: SKIP — golden-0825 not reachable at {server} ({e})")
+        return 2
+    with tempfile.TemporaryDirectory(prefix="probe_shape_") as tmp:
+        cfg = pathlib.Path(tmp) / "ref_config.json"
+        cfg.write_text(json.dumps(REF_CONFIG))
+        default_doc, p1 = _cli(server, cfg)
+        omit_doc, p2 = _cli(server, cfg, ("--omit-destination-type",))
+    rc, msg = assess(default_doc, omit_doc)
+    if default_doc is None or omit_doc is None:
+        print((p1 if default_doc is None else p2).stderr.strip()[-400:])
+    print(f"probe-shape-0825: {'PASS' if rc == 0 else 'FAIL'} — {msg}")
+    return rc
+
+
+def _boot_teardown_case(check):
+    """boot_golden_0825 (run_suite) must bring :8197 up and leave nothing listening."""
+    def listening(port):
+        return bool(subprocess.run(["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+                                   capture_output=True, text=True).stdout.strip())
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    import run_suite
+    if listening(8197):
+        check("boot helper: :8197 free before", False, "already in use — cannot prove boot/teardown")
+        return
+    g = run_suite.boot_golden_0825(port=8197)
+    try:
+        check("boot helper: golden-0825 UP on :8197", g is not None and listening(8197))
+    finally:
+        if g is not None:
+            g.stop()
+    check("boot helper: teardown leaves :8197 free", not listening(8197))
+
+
 def selftest():
     fails = []
 
@@ -67,6 +136,8 @@ def selftest():
     check("run below MIN_RUN -> rc 1", rc == 1, msg)
     rc, msg = fn(None, doc(0, 29))
     check("unparseable CLI output -> rc 1", rc == 1, msg)
+
+    _boot_teardown_case(check)
 
     print(f"probe-shape-0825 selftest: {'PASS' if not fails else 'FAIL'}"
           + (f" ({len(fails)} failed: {', '.join(fails)})" if fails else ""))

@@ -55,6 +55,9 @@ CONTROLLED_0111_PORT = 8193          # 8186-8188 sig gate, 8189 static web, 8190
 CONTROLLED_0111 = f"http://localhost:{CONTROLLED_0111_PORT}"
 PROXY_PORT = 8183
 PROXY = f"http://localhost:{PROXY_PORT}"
+GOLDEN_0825_PORT = 8197                 # conformance/ci/ports.json (D5-19): the gate golden
+GOLDEN_0825 = f"http://localhost:{GOLDEN_0825_PORT}"
+GOLDEN_0825_DIR = ROOT / "conformance" / "testbed" / "golden-0825"
 
 def _py(path, *args):
     return [sys.executable, str(path), *args]
@@ -163,6 +166,13 @@ def gates(server, require_server=False):
         # D1-09: the R11 battery must have run, recently, and passed — counted. --battery
         # runs it in THIS invocation (report copied to RECORD_DIR, preferred); otherwise
         # the tracked LAST_RUN.json under the 14-day rule.
+        # D1-04: the merchant CLI vs golden-0825 (booted here on :8197 by boot_golden_0825)
+        # in BOTH probe shapes — default (typed destinations) and --omit-destination-type —
+        # must show 0 deviations and >= 29 checks run. Kill-proof for D1-01's 08-25 delta
+        # (revert it -> red) and, once D3-04 lands, for the C3b default (arm
+        # destination_type_required_on_request -> omit mode red).
+        ("probe-shape-0825", _py(SELF / "validate_probe_shape_0825.py", "--server", GOLDEN_0825),
+         "golden-0825", (2,)),
         ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
                                   "--in-run", str(RECORD_DIR / "battery_LAST_RUN.json")), None, ()),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
@@ -427,6 +437,37 @@ def boot_tls_proxy():
     return subprocess.Popen([sys.executable, str(FIXTURE / "tls_proxy.py")],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+class _Golden0825:
+    """Handle for a golden-0825 booted by boot_golden_0825: stop() runs the stop script
+    with the same run-scoped DB_DIR (kills wrapper + listener, waits for the port)."""
+    def __init__(self, port, db_dir):
+        self.port, self.db_dir = port, db_dir
+
+    def stop(self):
+        env = dict(os.environ, PORT=str(self.port), DB_DIR=str(self.db_dir))
+        subprocess.run([str(GOLDEN_0825_DIR / "stop_golden_0825.sh")], env=env,
+                       capture_output=True, text=True, timeout=60)
+
+
+def boot_golden_0825(port=GOLDEN_0825_PORT, env=None):
+    """Boot our own 2026-08-25 golden via its serve script (uv sync + seed + health wait)
+    with a run-scoped DB_DIR; shared by probe-shape-0825, merchant-0825 (D1-10) and the
+    battery. Returns a handle with .stop(), or None if something already answers on the
+    port (left alone, like _boot) or the boot failed (the gate reports it DOWN)."""
+    if server_up(f"http://localhost:{port}"):
+        return None
+    db_dir = pathlib.Path(tempfile.mkdtemp(prefix=f"golden_0825_{port}_"))
+    e = dict(os.environ, PORT=str(port), DB_DIR=str(db_dir), SIM_SECRET="run-suite-secret")
+    e.pop("DEFECTS_CONFIG", None); e.pop("DEFECTS_STATE_FILE", None)
+    e.update(env or {})
+    r = subprocess.run([str(GOLDEN_0825_DIR / "serve_golden_0825.sh")], env=e,
+                       capture_output=True, text=True, timeout=180)
+    if r.returncode != 0:
+        print(f"golden-0825 boot failed on :{port}: {(r.stderr or r.stdout).strip().splitlines()[-1:]}")
+        return None
+    return _Golden0825(port, db_dir)
+
+
 def boot_proxy(golden):
     """Start the mutation proxy (wraps the golden) that the kill-rate gate drives."""
     return _boot([sys.executable, str(SELF / "mutation_proxy.py"),
@@ -490,7 +531,7 @@ def main():
     # which fixtures to boot: everything (the historical default) unless --only
     # narrows the table, in which case only what the selected gates declare.
     needed = {g[2] for g in table if g[2]} if args.only else \
-        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy"}
+        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy", "golden-0825"}
 
     up = server_up(args.server) if needed & {"golden", "proxy"} else False
     ctrl_proc = boot_controlled() if "controlled" in needed else None
@@ -503,15 +544,18 @@ def main():
     if tls_proc: time.sleep(1.0)            # cert mint + listener bind
     proxy_proc = boot_proxy(args.server) if (up and "proxy" in needed) else None   # kill-rate gate drives the proxy
     proxy_up = server_up(PROXY) if "proxy" in needed else False
+    g0825 = boot_golden_0825() if "golden-0825" in needed else None
+    g0825_up = server_up(GOLDEN_0825) if "golden-0825" in needed else False
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
     print(f"controlled fixture (01-11) {CONTROLLED_0111}: {'UP' if ctrl0111_up else 'DOWN'}")
     print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}")
+    print(f"golden-0825 {GOLDEN_0825}: {'UP' if g0825_up else 'DOWN'}")
     print(f"run records: {RECORD_DIR}\n")
     avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
              "controlled-01-11": ctrl0111_up,
-             "proxy": proxy_up and up}
+             "proxy": proxy_up and up, "golden-0825": g0825_up}
 
     results = []
     try:
@@ -538,6 +582,8 @@ def main():
         for proc in (ctrl_proc, ctrl0123_proc, ctrl0111_proc, tls_proc, proxy_proc):
             if proc is not None:
                 proc.terminate()
+        if g0825 is not None:
+            g0825.stop()
 
     print(f"{'gate':14} {'status':6} detail")
     print("-" * 72)

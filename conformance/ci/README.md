@@ -19,6 +19,14 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `merchant-catalog` | catalog checks are clean-pass + kill-safe on our controlled fixture | fixture (schema-anchored) |
 | `suite-01-23` | the 2026-01-23 suite vs a live golden, no false green | independent golden server |
 | `proxy-demo` | the mutation-proxy demo: injected wire defects are caught (2 real checks + the noop canary); the per-check kill-rate proof is the `merchant*` gates | mutation harness |
+| `run-suite-only` | `--only <gate>` runs exactly the named gates and boots only their fixtures (every acceptance command is runnable as written) | — |
+| `wire-shapes` | version-keyed request shapes: 08-25 delta applied, older versions frozen byte-for-byte, unreviewed version fails closed | official 08-25 schemas |
+| `cli-summary` | the CLI denominator is capability/transport-aware from `_area_capabilities.json` (fail-closed); no coverage number for unreviewed/REST-less servers | — |
+| `killset-lock` / `killset-lock-selftest` | every kill set hashed in `killset_lock.json`; a silent shrink or drift is red, named | — |
+| `dormancy` | every merchant check runs on some golden or is named in `dormancy_exemptions.json` (floor 13; partial union is red) | the four goldens |
+| `battery-freshness` | the R11 golden-0825 mutant battery ran, recently, and passed (in-run in CI) | own golden-0825 |
+| `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
+| `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
 
 The controlled merchant fixture (`conformance/fixtures/merchant/`) is a dependency-free
 stdlib server that `run_suite.py` auto-boots. It exists to cover capabilities the

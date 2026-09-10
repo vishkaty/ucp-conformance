@@ -116,6 +116,8 @@ class MerchantCtx:
         self.has_a2a = a2a is not None
         self.a2a_endpoint = (a2a or {}).get("endpoint")
         self.product_id = self.config.get("product_id")
+        # probe shape (D1-04): send destinations without `type` (wire_shapes consults it)
+        self.omit_destination_type = False
 
 def _wellknown_url(base):
     """Build the discovery URL, PRESERVING any query string — multi-tenant platform
@@ -354,6 +356,9 @@ def main():
                     help="probe the server and scaffold a starter --config to FILE, then exit")
     ap.add_argument("--insecure", action="store_true",
                     help="skip TLS certificate verification (testing only)")
+    ap.add_argument("--omit-destination-type", action="store_true",
+                    help="probe shape: send fulfillment destinations WITHOUT `type` (a platform "
+                         "may omit it at 2026-08-25; the business defaults it per method — C3b)")
     args = ap.parse_args()
     if args.insecure:
         import engine; engine.set_insecure(True)
@@ -372,6 +377,7 @@ def main():
     except AreaMapError as e:
         print(f"merchant.py: {e}", file=sys.stderr)
         return 1
+    ctx.omit_destination_type = args.omit_destination_type
     if args.init:
         cfg = scaffold_config(ctx)
         pathlib.Path(args.init).write_text(json.dumps(cfg, indent=2) + "\n")
