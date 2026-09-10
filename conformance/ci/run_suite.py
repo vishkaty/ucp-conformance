@@ -41,7 +41,7 @@ gates need (so every acceptance command written as `run_suite.py --only <gate>` 
 runnable as written, cheaply, and proves the gate it names — pinned by
 conformance/ci/validate_run_suite_only.py, gate `run-suite-only`).
 """
-import sys, subprocess, argparse, pathlib, urllib.request, time
+import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SELF = ROOT / "conformance" / "selfcheck"
@@ -60,8 +60,15 @@ PROXY = f"http://localhost:{PROXY_PORT}"
 def _py(path, *args):
     return [sys.executable, str(path), *args]
 
-def gates(server):
+# D1-07: run-scoped directory for the merchant gates' run records (validate_merchant_checks
+# --record); validate_dormancy.py unions them AFTER the four merchant gates. Override with
+# RUN_SUITE_RECORD_DIR to keep the records (the dormancy kill-proof replays them).
+RECORD_DIR = pathlib.Path(os.environ.get("RUN_SUITE_RECORD_DIR")
+                          or tempfile.mkdtemp(prefix="run_suite_records_"))
+
+def gates(server, require_server=False):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
+    rec = lambda name: ("--record", str(RECORD_DIR / f"{name}.json"))   # noqa: E731
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
@@ -130,20 +137,30 @@ def gates(server):
         # lifecycle filter must match the official resolver. Hermetic kill-tests.
         ("dual-oracle-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest"), None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
-        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
+        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
+         "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
         # crashed. Either way the verdict is not about the requirement the check names,
         # so it must not reach a merchant as a deviation.
         ("probe-hygiene", _py(SELF / "validate_probe_hygiene.py", "--server", server),
          "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
-                                 "--server", CONTROLLED, "--golden", "controlled"), "controlled", ()),
+                                 "--server", CONTROLLED, "--golden", "controlled",
+                                 *rec("controlled-04-08")), "controlled", ()),
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
-                                    "--server", CONTROLLED_0123, "--golden", "controlled"),
+                                    "--server", CONTROLLED_0123, "--golden", "controlled",
+                                    *rec("controlled-01-23")),
          "controlled-01-23", ()),
         ("merchant-ctrl-01-11", _py(SELF / "validate_merchant_checks.py",
-                                    "--server", CONTROLLED_0111, "--golden", "controlled"),
+                                    "--server", CONTROLLED_0111, "--golden", "controlled",
+                                    *rec("controlled-01-11")),
          "controlled-01-11", ()),
+        # D1-07: every merchant check runs on SOME golden or is named in
+        # dormancy_exemptions.json (floor 13). Unions the four records above; a missing
+        # record is a partial union (red under --require-server, never a smaller set);
+        # without --require-server an empty record set skips honestly (rc 2).
+        ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
+                            *(["--require-server"] if require_server else [])), None, (2,)),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
         # the CLOSED testable tier can never silently reopen (wave-2 milestone)
         ("require-testable-04-08",
@@ -469,7 +486,7 @@ def main():
     args = ap.parse_args()
     skip = {s.strip() for s in args.skip.split(",") if s.strip()}
 
-    table = gates(args.server)
+    table = gates(args.server, args.require_server)
     if args.only:
         try:
             table = select_gates(table, args.only)
@@ -497,7 +514,8 @@ def main():
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
     print(f"controlled fixture (01-11) {CONTROLLED_0111}: {'UP' if ctrl0111_up else 'DOWN'}")
-    print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}\n")
+    print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}")
+    print(f"run records: {RECORD_DIR}\n")
     avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
              "controlled-01-11": ctrl0111_up,
              "proxy": proxy_up and up}

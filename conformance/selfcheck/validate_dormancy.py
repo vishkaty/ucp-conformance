@@ -41,6 +41,102 @@ EXEMPTIONS = HERE / "dormancy_exemptions.json"
 EXPECTED_RECORDS = ("flower", "controlled-04-08", "controlled-01-23", "controlled-01-11")
 
 
+def all_ids():
+    """Distinct MCheck ids across the whole merchant check set (224 today; 4 ids are
+    shared by two modules and count once — dormancy is a per-id property)."""
+    import merchant_checks
+    return sorted({c.id for c in merchant_checks.all_checks()})
+
+
+def run_suite_gate_names():
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    import run_suite
+    return {g[0] for g in run_suite.gates("http://localhost:0")}
+
+
+def load_records(d):
+    d = pathlib.Path(d)
+    out = {}
+    if d.is_dir():
+        for f in sorted(d.glob("*.json")):
+            out[f.stem] = json.loads(f.read_text())
+    return out
+
+
+def compute(ids, records, exemptions, gates, today, expected=EXPECTED_RECORDS):
+    """(rc, lines): the dormancy verdict for a registry of check ids, the run records
+    (name -> {ran, skipped, …}), the exemptions file content, run_suite's gate names."""
+    fails = []
+    ids = set(ids)
+    missing = [n for n in expected if n not in records]
+    if missing:
+        fails.append(f"partial union: record(s) missing for {', '.join(missing)} — a SKIPPED merchant "
+                     f"gate cannot shrink the union (expected {len(expected)}, got {len(records)})")
+    ran = set()
+    for name, rec in records.items():
+        r = set(rec.get("ran", []))
+        alien = sorted(r - ids)
+        if alien:
+            fails.append(f"record {name} names id(s) absent from the registry: {', '.join(alien)}")
+        ran |= r
+    dormant = sorted(ids - ran)
+    ex = exemptions.get("exemptions", {})
+    never = list(exemptions.get("never_kill_tested", []))
+    floor = int(exemptions.get("floor", 0))
+    for cid, e in ex.items():
+        if e.get("gate") not in gates:
+            fails.append(f"exemption {cid} names gate {e.get('gate')!r} which is not in run_suite's table")
+        if str(e.get("review_by", "")) < today:
+            fails.append(f"exemption {cid} expired (review_by {e.get('review_by')})")
+        if cid not in ids:
+            fails.append(f"exemption {cid} is not a known check id")
+    for cid in never:
+        if cid not in ids:
+            fails.append(f"never_kill_tested {cid} is not a known check id")
+        elif cid in ran:
+            fails.append(f"never_kill_tested {cid} actually RAN — stale entry, remove it")
+    for cid in ex:
+        if cid in ran:
+            fails.append(f"exempt id {cid} actually RAN — stale exemption, remove it")
+    unexplained = [c for c in dormant if c not in ex and c not in never]
+    if unexplained:
+        fails.append(f"UNEXPLAINED dormant check(s) — no golden runs them and no gate names them: "
+                     f"{', '.join(unexplained)}")
+    if not missing:
+        if len(dormant) > floor:
+            fails.append(f"dormant {len(dormant)} > floor {floor}: a check stopped running on every golden")
+        elif len(dormant) < floor:
+            fails.append(f"dormant {len(dormant)} below floor {floor}: lower the floor deliberately in "
+                         f"dormancy_exemptions.json")
+    n_ex = sum(1 for c in dormant if c in ex)
+    n_never = sum(1 for c in dormant if c in never and c not in ex)
+    lines = list(fails)
+    lines.append(f"dormant: {len(dormant)} (floor {floor}) · exempt-by-gate: {n_ex} · "
+                 f"never-kill-tested: {n_never} listed")
+    return (1 if fails else 0), lines
+
+
+def run(records_dir, require_server=False, ids=None, exemptions=None, gates=None, today=None):
+    import time
+    records = load_records(records_dir)
+    if not records:
+        if require_server:
+            print(f"dormancy: FAIL — no run records in {records_dir} (--require-server: the merchant "
+                  f"gates must have run and recorded)")
+            return 1
+        print(f"dormancy: SKIP — no run records in {records_dir} (no merchant golden was up)")
+        return 2
+    ids = ids if ids is not None else all_ids()
+    exemptions = exemptions if exemptions is not None else json.loads(EXEMPTIONS.read_text())
+    gates = gates if gates is not None else run_suite_gate_names()
+    today = today or time.strftime("%Y-%m-%d")
+    rc, lines = compute(ids, records, exemptions, gates, today)
+    for l in lines[:-1]:
+        print(f"  x {l}")
+    print(f"dormancy: {'PASS' if rc == 0 else 'FAIL'} — {lines[-1]}  (records: {', '.join(sorted(records))})")
+    return rc
+
+
 # ---------------------------------------------------------------------------
 # --selftest: canned records + scratch registry; each rule carries its mutant
 # ---------------------------------------------------------------------------
