@@ -120,6 +120,14 @@ def gates(server):
         # acknowledgement (a detector that never caught one proves nothing) + the referee's
         # lifecycle filter must match the official resolver. Hermetic kill-tests.
         ("dual-oracle-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest"), None, (2,)),
+        # D4-01 (B5a): the same gate at 2026-08-25 — 116-schema referee base, corpus captured
+        # in-process from the pinned golden-0825 (selfcheck/fixtures/2026-08-25), the #43
+        # boundary rebuilt on it, plus the `--def` self-root path where the pinned oracle
+        # ABORTS (third verdict state "crash", acknowledged by ucp-schema-45-selfroot-def-crash);
+        # every acknowledgement now also expires on `schema_validator_pin_not`. Hermetic.
+        ("dual-oracle-0825", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25"), None, (2,)),
+        ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
+         None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server), "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference

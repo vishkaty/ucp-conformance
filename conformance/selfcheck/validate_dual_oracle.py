@@ -44,9 +44,21 @@ EXIT CODES (run_suite skip convention): 0 = every check agrees or is acknowledge
 Rust binary isn't built, or jsonschema/referencing/the schema base is absent) -> the
 suite SKIPs, never a false green.
 
+VERSIONS (D4-01, B5a). `--version 2026-04-08` (default; output byte-stable) runs the schema_check
+fixture corpus over the 78-schema base. `--version 2026-08-25` runs the 116-schema base over
+responses CAPTURED in-process from the pinned golden-0825 (selfcheck/fixtures/2026-08-25/, see
+capture_golden_0825.py) plus the #43 boundary fixtures rebuilt on the captured completed
+checkout, plus the `--def selected_payment_instrument` path where the pinned Rust oracle ABORTS
+(stack overflow on the `$ref: "#"` self-root, ucp-schema#45): rust_verdict carries a THIRD state,
+"crash" (any rc not in {0,1}), which is a divergence of its own class, acknowledged by the
+sibling register entry. Register entries carry `versions` (which corpora must reproduce them)
+and `expires_on.schema_validator_pin_not` (the entry FAILS as `STALE ACKNOWLEDGEMENT (pin
+moved)` the moment SOURCES.lock's schema_validator.commit is no longer that pin, independently
+of the reproduction test).
+
 Usage:
-    python3 conformance/selfcheck/validate_dual_oracle.py [--server URL] [-v]
-    python3 conformance/selfcheck/validate_dual_oracle.py --selftest   # kill-tests
+    python3 conformance/selfcheck/validate_dual_oracle.py [--server URL] [-v] [--version V]
+    python3 conformance/selfcheck/validate_dual_oracle.py --selftest [--version V]   # kill-tests
 """
 import sys, os, json, glob, pathlib, importlib, argparse, copy
 
@@ -57,7 +69,17 @@ sys.path.insert(0, str(ROOT / "conformance" / "checks"))
 
 VERSION = "2026-04-08"
 REGISTER = ROOT / "conformance" / "ci" / "known_oracle_divergences.json"
+LOCK = ROOT / "conformance" / "SOURCES.lock.json"
 FIXTURES = HERE / "fixtures" / VERSION
+DEFAULT_VERSION = "2026-04-08"
+
+
+def set_version(version):
+    """Thread one spec version through every engine call (the 04-08 code path stays exactly
+    as before when version == DEFAULT_VERSION)."""
+    global VERSION, FIXTURES
+    VERSION = version
+    FIXTURES = HERE / "fixtures" / VERSION
 
 
 class GateUnavailable(RuntimeError):
@@ -70,8 +92,12 @@ class GateUnavailable(RuntimeError):
 def rust_verdict(payload, schema_rel, def_name, op, direction):
     """The Rust oracle's boolean verdict, dispatched exactly like the schema_check
     modules: def_name None -> validate_root; def_name with '/' -> validate_nested_def
-    (nested role branch); else validate_against. Raises GateUnavailable via
-    OracleUnavailable if the binary/base is absent."""
+    (nested role branch); else validate_against. Returns True (valid), False (invalid) or
+    "crash" — the oracle exited with a code outside {0,1} (rc 2 resolution error, rc 134 /
+    -6 abort on the `$ref: "#"` self-root blind spot, ucp-schema#45): not a verdict, a
+    divergence class of its own. Raises GateUnavailable via OracleUnavailable if the
+    binary/base is absent."""
+    import schema_oracle
     from schema_oracle import (validate_against, validate_root, validate_nested_def,
                                OracleUnavailable)
     try:
@@ -84,6 +110,8 @@ def rust_verdict(payload, schema_rel, def_name, op, direction):
         else:
             ok, _ = validate_against(payload, schema_rel, def_name, op=op,
                                      version=VERSION, direction=direction)
+        if schema_oracle.LAST_RC not in (0, 1):
+            return "crash"
         return ok
     except OracleUnavailable as e:
         raise GateUnavailable(str(e))
@@ -119,10 +147,27 @@ class Item:
         self.fault_prefix = fault_prefix
 
 
+def _captured_corpus():
+    """2026-08-25: responses captured IN-PROCESS from the pinned golden-0825 (fixtures/
+    2026-08-25/manifest.json items; capture_golden_0825.py). Each is validated in the mode
+    the manifest names (root = --schema without --def). All must AGREE (and be valid)."""
+    man = json.loads((FIXTURES / "manifest.json").read_text())
+    items = []
+    for it in man["items"]:
+        payload = json.loads((FIXTURES / it["file"]).read_text())
+        def_name = None if it.get("mode", "root") == "root" else it["def"]
+        items.append(Item(f"captured:{it['file']}", it["schema_rel"], def_name, it["op"],
+                          it["direction"], payload))
+    return items
+
+
 def agreement_corpus():
     """The suite's existing 2026-04-08 schema-check fixtures — every valid fixture,
     every negative (defect) fixture and every control, imported from the schema_check
-    modules so the corpus stays in sync as the checks evolve. All must AGREE."""
+    modules so the corpus stays in sync as the checks evolve. All must AGREE. At other
+    versions: the captured golden responses (see _captured_corpus)."""
+    if VERSION != DEFAULT_VERSION:
+        return _captured_corpus()
     items = []
     for f in sorted(glob.glob(str(ROOT / "conformance" / "checks" / "schema_check_04_08*.py"))):
         mod = importlib.import_module(pathlib.Path(f).stem)
@@ -141,6 +186,9 @@ def agreement_corpus():
 
 
 _ID43 = "ucp-schema-43-selfroot-ref-payment-instrument"
+_ID45 = "ucp-schema-45-selfroot-def-crash"
+_PI_REL = {"2026-04-08": "schemas/shopping/types/payment_instrument.json",
+           "2026-08-25": "schemas/common/types/payment_instrument.json"}
 
 
 def _valid_checkout():
@@ -176,7 +224,21 @@ def divergence_corpus():
              with_instr({"id": "instr_1", "handler_id": "handler_card_1", "type": "card",
                          "instruments": "bogus-string"}),
              expect_divergence=_ID43),
-    ]
+    ] + crash_corpus()
+
+
+def crash_corpus():
+    """The `--def` self-root blind spot (ucp-schema#45/#46, fix #66): on the pinned oracle,
+    `--def selected_payment_instrument` on the 08-25 payment_instrument.json (allOf[0] is
+    {"$ref": "#"}) ABORTS with a stack overflow while the referee validates it — a
+    crash-vs-verdict divergence acknowledged by the #45 sibling entry. Empty at 04-08
+    (the pinned oracle does not abort there; R24 lists the self-root files per version)."""
+    if VERSION != "2026-08-25":
+        return []
+    return [Item("dual45.def_selected_payment_instrument_crash", _PI_REL[VERSION],
+                 "selected_payment_instrument", "complete", "request",
+                 {"id": "instr_1", "handler_id": "handler_card_1", "type": "card",
+                  "selected": True}, expect_divergence=_ID45)]
 
 
 def golden_corpus(server):
@@ -204,15 +266,38 @@ def golden_corpus(server):
 # ---------------------------------------------------------------------------
 # Register
 # ---------------------------------------------------------------------------
-def load_register():
+def load_register(version=None):
+    """Entries that apply at `version` (an entry's `versions` list; absent = every version)."""
+    version = version or VERSION
     data = json.loads(REGISTER.read_text())
-    entries = {e["id"]: e for e in data.get("divergences", [])}
+    entries = {e["id"]: e for e in data.get("divergences", [])
+               if version in (e.get("versions") or [version])}
     for e in entries.values():
         if not e.get("upstream"):
             raise GateUnavailable(
                 f"known_oracle_divergences entry {e.get('id')!r} has no upstream link "
                 f"— an entry without one is suppression, not acknowledgement")
     return entries
+
+
+def oracle_pin(lock=LOCK):
+    try:
+        return json.loads(pathlib.Path(lock).read_text())["schema_validator"]["commit"]
+    except Exception as e:  # noqa: BLE001
+        raise GateUnavailable(f"SOURCES.lock schema_validator.commit unreadable: {e}")
+
+
+def stale_by_pin(register, pin):
+    """[(id, expected_pin, actual_pin)] for entries whose `expires_on.schema_validator_pin_not`
+    no longer equals the pinned oracle commit: the acknowledgement was made against THAT
+    buggy pin and must be re-derived (deleted or re-pinned) the moment the pin moves —
+    independently of whether the corpus still reproduces the divergence."""
+    out = []
+    for eid, e in register.items():
+        want = (e.get("expires_on") or {}).get("schema_validator_pin_not")
+        if want and want != pin:
+            out.append((eid, want, pin))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -230,7 +315,7 @@ def evaluate(items, referee, rust_fn=rust_verdict, known_ids=frozenset()):
         rust_ok = rust_fn(it.payload, it.schema_rel, it.def_name, it.op, it.direction)
         ref_ok, ref_faults = referee_verdict(referee, it.payload, it.schema_rel,
                                              it.def_name, it.op, it.direction)
-        diverged = (rust_ok != ref_ok)
+        diverged = (rust_ok != ref_ok)          # "crash" never equals a bool: always a divergence
         if not diverged:
             results.append((it, rust_ok, ref_ok, ref_faults, "agree"))
             continue
@@ -241,6 +326,9 @@ def evaluate(items, referee, rust_fn=rust_verdict, known_ids=frozenset()):
         prefix_ok = (it.fault_prefix is None
                      or any(p.startswith(it.fault_prefix) for p in ref_faults)
                      or ref_ok)   # false-reject case: referee accepts, no fault path
+        if rust_ok == "crash":
+            # a crash carries no fault path; the class must match the acknowledgement
+            prefix_ok = ack in known_ids and known_ids_class(known_ids, ack) == "oracle-crash"
         if ack and ack in known_ids and prefix_ok:
             reproduced.add(ack)
             results.append((it, rust_ok, ref_ok, ref_faults, "acknowledged"))
@@ -248,6 +336,14 @@ def evaluate(items, referee, rust_fn=rust_verdict, known_ids=frozenset()):
             new_div.append((it, rust_ok, ref_ok, ref_faults))
             results.append((it, rust_ok, ref_ok, ref_faults, "new-divergence"))
     return results, new_div, reproduced
+
+
+def known_ids_class(known_ids, ack):
+    """The `class` of a register entry (default "verdict"); known_ids may be a plain set of
+    ids (class unknown -> "verdict") or a dict id -> entry."""
+    if isinstance(known_ids, dict):
+        return (known_ids.get(ack) or {}).get("class", "verdict")
+    return "verdict"
 
 
 def run(server=None, verbose=False):
@@ -279,8 +375,7 @@ def run(server=None, verbose=False):
             lines.append("golden live checkout ingested for #43 probe")
 
     try:
-        results, new_div, reproduced = evaluate(items, referee,
-                                                known_ids=frozenset(register))
+        results, new_div, reproduced = evaluate(items, referee, known_ids=register)
     except GateUnavailable as e:
         return 2, [f"engine unavailable mid-run: {e}"]
 
@@ -299,7 +394,8 @@ def run(server=None, verbose=False):
 
     # NEW divergences -> FAIL (each a candidate finding)
     for it, rust_ok, ref_ok, f in new_div:
-        who = ("oracle FALSE-ACCEPT (rust=valid, referee=invalid)" if (rust_ok and not ref_ok)
+        who = ("oracle CRASH (rc not in {0,1}; referee=valid:%s)" % ref_ok if rust_ok == "crash"
+               else "oracle FALSE-ACCEPT (rust=valid, referee=invalid)" if (rust_ok and not ref_ok)
                else "oracle FALSE-REJECT (rust=invalid, referee=valid)" if (not rust_ok and ref_ok)
                else "verdict split")
         hint = ("triage: (a) our check wrong? (b) Rust oracle bug -> file upstream? "
@@ -319,7 +415,23 @@ def run(server=None, verbose=False):
                      f"the fix ({e.get('fix', e['upstream'])}). Delete this entry from "
                      f"known_oracle_divergences.json.")
 
-    ok = (not new_div) and (not stale)
+    # pin-expiry: an acknowledgement made against a specific buggy pin dies with that pin
+    try:
+        moved = stale_by_pin(register, oracle_pin())
+    except GateUnavailable as e:
+        return 2, lines + [f"gate unavailable: {e}"]
+    for eid, want, have in moved:
+        lines.append(f"  ✗ STALE ACKNOWLEDGEMENT (pin moved)  {eid}: acknowledged against "
+                     f"schema_validator {want[:12]} but SOURCES.lock now pins {have[:12]} — "
+                     f"re-derive on the new oracle, then delete or re-pin this entry.")
+
+    ok = (not new_div) and (not stale) and (not moved)
+    if VERSION != DEFAULT_VERSION:
+        lines.append(f"referee base {VERSION}: {referee.schema_count} schemas · corpus: "
+                     f"{len(items)} payloads · agreements {agree} · acknowledged divergences: "
+                     f"{len(reproduced)} ({', '.join(sorted(reproduced)) or 'none'}; expire on "
+                     f"oracle re-pin) · NEW divergences: {len(new_div)} · "
+                     f"{'PASS' if ok else 'FAIL'}")
     lines.append("PASS — every schema check agrees across both oracles "
                  "(known divergences acknowledged)" if ok else "FAIL")
     return (0 if ok else 1), lines
@@ -345,7 +457,7 @@ def selftest():
     #     otherwise-agreeing item, by forcing one engine's verdict to flip. The gate
     #     MUST redden (detect it) rather than pass.
     planted = [Item("planted.agree_then_flip",
-                    "schemas/shopping/types/payment_instrument.json", None,
+                    _PI_REL[VERSION], None,
                     "complete", "request",
                     {"id": "i", "handler_id": "h", "type": "card"})]
     def flipped_rust(payload, schema_rel, def_name, op, direction):
@@ -385,6 +497,30 @@ def selftest():
           f"resolver on sampled (schema, op, direction)")
     ok = ok and faithful
 
+    if VERSION != DEFAULT_VERSION:
+        # (5) the versioned base + the real pinned oracle over the boundary fixtures: #43
+        #     is a VERDICT divergence, the --def self-root path is a CRASH, both acknowledged
+        #     by their own entries; nothing NEW.
+        res5, nd5, rep5 = evaluate(divergence_corpus(), referee, known_ids=reg)
+        crash_items = [r for r in res5 if r[1] == "crash"]
+        verdict_acks = [r for r in res5 if r[4] == "acknowledged" and r[1] != "crash"]
+        case5 = (referee.schema_count == 116 and len(nd5) == 0 and len(crash_items) == 1
+                 and crash_items[0][4] == "acknowledged" and _ID45 in rep5 and _ID43 in rep5
+                 and len(verdict_acks) == 3)
+        print(f"  {'✓' if case5 else '✗'} case 5: referee base {VERSION} loads "
+              f"{referee.schema_count} schemas; #43 boundary = verdict divergence ×"
+              f"{len(verdict_acks)} acknowledged ({_ID43}); --def selected_payment_instrument = "
+              f"crash-vs-verdict ×{len(crash_items)} acknowledged ({_ID45}); NEW {len(nd5)}")
+        ok = ok and case5
+        # (6) pin-expiry kill-test: the same register with the pin moved must be STALE
+        moved = stale_by_pin(reg, "0000000000000000000000000000000000000000")
+        pinned = {eid for eid in reg if (reg[eid].get("expires_on") or {}).get("schema_validator_pin_not")}
+        case6 = {m[0] for m in moved} == pinned and pinned == set(reg) and not stale_by_pin(reg, oracle_pin())
+        print(f"  {'✓' if case6 else '✗'} case 6: pin-expiry — every entry carries "
+              f"expires_on.schema_validator_pin_not; a moved pin flags all {len(moved)} as "
+              f"STALE (pin moved); the real pin flags none")
+        ok = ok and case6
+
     print("PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -398,7 +534,8 @@ def _lifecycle_matches_resolver(referee):
     from dual_oracle_referee import _apply_lifecycle
     base = SCHEMA_BASE.get(VERSION)
     targets = ["schemas/shopping/types/fulfillment_method.json",
-               "schemas/shopping/types/token_credential.json"]
+               ("schemas/common/types/token_credential.json" if VERSION == "2026-08-25"
+                else "schemas/shopping/types/token_credential.json")]   # moved at 08-25 (#723)
     for rel in targets:
         raw = json.loads((base / rel).read_text())
         for op in ("create", "update", "complete", "read"):
@@ -435,8 +572,11 @@ def main():
     ap = argparse.ArgumentParser(description="Dual-oracle schema-validation gate.")
     ap.add_argument("--server", default=None, help="optional live golden for a #43 probe")
     ap.add_argument("--selftest", action="store_true", help="run the kill-tests")
+    ap.add_argument("--version", default=DEFAULT_VERSION, choices=["2026-04-08", "2026-08-25"],
+                    help="spec version / schema base to run (default 2026-04-08)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
+    set_version(args.version)
     if args.selftest:
         return selftest()
     code, lines = run(server=args.server, verbose=args.verbose)

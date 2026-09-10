@@ -1,0 +1,40 @@
+{
+ "_about": "2026-08-25 dual-oracle corpus: responses captured IN-PROCESS from the pinned golden-0825 (conformance/testbed/golden-0825/server via its own TestClient harness) by capture_golden_0825.py. Each item is validated by BOTH oracles (Rust ucp-schema + the independent referee) in validate_dual_oracle.py --version 2026-08-25; `expect` is what the golden's response should be under the pinned schemas, `mode` how it is dispatched (root = --schema without --def; profile = discovery profile).",
+ "captured": "2026-09-10",
+ "golden_tree": "05cdb6f7e103",
+ "items": [
+  {
+   "file": "checkout_create_response.json",
+   "schema_rel": "schemas/shopping/checkout.json",
+   "mode": "root",
+   "op": "create",
+   "direction": "response",
+   "expect": "valid",
+   "note": "201 body of POST /checkout-sessions (one rose, shipping method with destination/group)"
+  },
+  {
+   "file": "checkout_response.valid.json",
+   "schema_rel": "schemas/shopping/checkout.json",
+   "mode": "root",
+   "op": "complete",
+   "direction": "response",
+   "expect": "valid",
+   "note": "200 body of POST /checkout-sessions/{id}/complete with a card token instrument; also the base for the #43/#45 boundary fixtures"
+  },
+  {
+   "file": "order_response.valid.json",
+   "schema_rel": "schemas/shopping/order.json",
+   "mode": "root",
+   "op": "read",
+   "direction": "response",
+   "expect": "valid",
+   "note": "200 body of GET /orders/{id} after completion"
+  }
+ ],
+ "reference_only": [
+  {
+   "file": "discovery_profile.json",
+   "note": "GET /.well-known/ucp as captured; validated by the Rust oracle's profile mode elsewhere (smoke test) \u2014 the referee has no profile mode, so it is not a dual-oracle item"
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "checkout_id": "68d88564-6f93-4ea0-99f0-7c4df286285a",
+ "currency": "USD",
+ "fulfillment": {
+  "events": [],
+  "expectations": [
+   {
+    "description": "Standard Shipping",
+    "destination": {
+     "address_country": "US"
+    },
+    "id": "exp_9534b6b1-c10c-4270-ad2f-559884df1de3",
+    "line_items": [
+     {
+      "id": "a1d22072-9d99-4ce8-b5a6-148e5cecf535",
+      "quantity": 1
+     }
+    ],
+    "method_type": "shipping"
+   }
+  ]
+ },
+ "id": "f0c79e33-c280-4f88-bfa8-9f6c87d33cac",
+ "line_items": [
+  {
+   "id": "a1d22072-9d99-4ce8-b5a6-148e5cecf535",
+   "item": {
+    "id": "rose",
+    "price": 1000,
+    "title": "Red Rose"
+   },
+   "quantity": {
+    "fulfilled": 0,
+    "total": 1
+   },
+   "status": "processing",
+   "totals": [
+    {
+     "amount": 1000,
+     "type": "subtotal"
+    },
+    {
+     "amount": 1000,
+     "type": "total"
+    }
+   ]
+  }
+ ],
+ "permalink_url": "http://testserver/orders/f0c79e33-c280-4f88-bfa8-9f6c87d33cac",
+ "totals": [
+  {
+   "amount": 1000,
+   "type": "subtotal"
+  },
+  {
+   "amount": 1000,
+   "type": "total"
+  }
+ ],
+ "ucp": {
+  "capabilities": {
+   "dev.ucp.shopping.checkout": [
+    {
+     "name": "dev.ucp.shopping.checkout",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "status": "success",
+  "version": "2026-08-25"
+ }
+}

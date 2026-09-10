@@ -1,0 +1,155 @@
+{
+ "currency": "USD",
+ "discounts": {},
+ "fulfillment": {
+  "methods": [
+   {
+    "destinations": [
+     {
+      "address_country": "US",
+      "id": "dest_1",
+      "type": "shipping_address"
+     }
+    ],
+    "groups": [
+     {
+      "id": "group_1",
+      "line_item_ids": [
+       "a1d22072-9d99-4ce8-b5a6-148e5cecf535"
+      ],
+      "selected_option_id": "std-ship"
+     }
+    ],
+    "id": "method_1",
+    "line_item_ids": [
+     "a1d22072-9d99-4ce8-b5a6-148e5cecf535"
+    ],
+    "selected_destination_id": "dest_1",
+    "type": "shipping"
+   }
+  ]
+ },
+ "id": "68d88564-6f93-4ea0-99f0-7c4df286285a",
+ "line_items": [
+  {
+   "id": "a1d22072-9d99-4ce8-b5a6-148e5cecf535",
+   "item": {
+    "id": "rose",
+    "price": 1000,
+    "title": "Red Rose"
+   },
+   "quantity": 1,
+   "totals": [
+    {
+     "amount": 1000,
+     "type": "subtotal"
+    },
+    {
+     "amount": 1000,
+     "type": "total"
+    }
+   ]
+  }
+ ],
+ "links": [],
+ "order": {
+  "id": "f0c79e33-c280-4f88-bfa8-9f6c87d33cac",
+  "permalink_url": "http://testserver/orders/f0c79e33-c280-4f88-bfa8-9f6c87d33cac"
+ },
+ "status": "completed",
+ "totals": [
+  {
+   "amount": 1000,
+   "type": "subtotal"
+  },
+  {
+   "amount": 1000,
+   "type": "total"
+  }
+ ],
+ "ucp": {
+  "capabilities": {
+   "dev.ucp.shopping.checkout": [
+    {
+     "name": "dev.ucp.shopping.checkout",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "payment_handlers": {
+   "com.google.pay": [
+    {
+     "config": {
+      "allowed_payment_methods": [
+       {
+        "parameters": {
+         "allowedAuthMethods": [
+          "PAN_ONLY",
+          "CRYPTOGRAM_3DS"
+         ],
+         "allowedCardNetworks": [
+          "VISA",
+          "MASTERCARD"
+         ]
+        },
+        "tokenization_specification": [
+         {
+          "parameters": [
+           {
+            "gateway": "example",
+            "gatewayMerchantId": "exampleGatewayMerchantId"
+           }
+          ],
+          "type": "PAYMENT_GATEWAY"
+         }
+        ],
+        "type": "CARD"
+       }
+      ],
+      "api_version": 2,
+      "api_version_minor": 0,
+      "merchant_info": {
+       "merchant_id": "TEST",
+       "merchant_name": "Flower Shop",
+       "merchant_origin": "localhost"
+      }
+     },
+     "config_schema": "https://pay.google.com/gp/p/ucp/2026-08-25/schemas/config.json",
+     "id": "google_pay",
+     "instrument_schemas": [
+      "https://pay.google.com/gp/p/ucp/2026-08-25/schemas/card_payment_instrument.json"
+     ],
+     "name": "com.google.pay",
+     "spec": "https://pay.google.com/gp/p/ucp/2026-08-25/",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.mock.payment_handler": [
+    {
+     "config": {},
+     "id": "mock_payment_handler",
+     "name": "mock_payment_handler",
+     "spec": "https://ucp.dev/2026-08-25/schemas/mock_payment_handler/spec",
+     "version": "2026-08-25"
+    }
+   ],
+   "dev.shopify.shop_pay": [
+    {
+     "config": {
+      "shop_id": "{{SHOP_ID}}"
+     },
+     "config_schema": "https://shopify.dev/ucp/shop-pay-handler/2026-08-25/config.json",
+     "id": "shop_pay",
+     "instrument_schemas": [
+      "https://shopify.dev/ucp/shop-pay-handler/2026-08-25/instrument.json"
+     ],
+     "name": "com.shopify.shop_pay",
+     "spec": "https://shopify.dev/docs/agents/checkout/shop-pay-handler",
+     "version": "2026-08-25"
+    }
+   ]
+  },
+  "status": "success",
+  "version": "2026-08-25"
+ }
+}
