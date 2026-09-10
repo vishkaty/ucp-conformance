@@ -13,11 +13,27 @@ more than `threshold_days` behind its upstream branch HEAD. It is informational 
 design: updates stay deliberate, but "silently stale" becomes visible.
 
 Two modes:
-  --check     live network check via `gh api` (used by preflight). ALWAYS exit 0;
-              prints a warning block for each stale pin, or an all-fresh line. Degrades
-              gracefully to a skip line when offline / gh unavailable.
-  --selftest  run the embedded deterministic unit tests on the pure staleness logic
-              (used as a run_suite gate). Exit 0 on pass, 1 on failure. No network.
+  --check     live network check via `gh api` (used by preflight). Exit codes (D2-03,
+              PLAN-v3 §2.8 — FAIL-not-SKIP):
+                0  every pinned tag still has its locked identity (or its move is
+                   acknowledged, unexpired, in known_tag_moves.json — D2-17);
+                1  a spec tag MOVED (dereferenced commit or tag object differs from the
+                   lock) and is not acknowledged;
+                2  the check could not run: `gh` not found (GH_BIN -> which gh -> known
+                   paths) or a tag identity could not be fetched (offline).
+              Branch-staleness and release-branch drift stay INFORMATIONAL (printed,
+              never change the exit code): re-pins are deliberate.
+  --selftest  run the embedded deterministic unit tests on the pure logic (used as a
+              run_suite gate). Exit 0 on pass, 1 on failure. Network only for case L's
+              own subprocess (which is told gh is absent).
+
+TAG IDENTITY (D2-03): a spec version is pinned to a release tag whose identity is the
+pair (tag object sha, dereferenced commit). Upstream can re-point a tag (v2026-04-08
+was re-pointed 2026-09-09 to a25a4a24, ucp#813 — the pinned artifact a2d8bf0b is no
+longer what the published tag names) or re-tag the same commit. `--check` fetches
+both live and compares them with the lock's `commit` / `tag_object_sha` — never
+dates, which a re-tag can carry unchanged. Findings print as
+  TAG MOVED v2026-04-08: locked a2d8bf0b -> a25a4a24 (tag object ebac9d15, tagger 2026-04-13)
 
 Sources pinned to a RELEASE TAG (the spec versions, v2026-04-08 etc.) are reported
 separately as an informational "newer release available" note when a newer version
@@ -50,8 +66,31 @@ from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 LOCK = ROOT / "conformance" / "SOURCES.lock.json"
-GH = os.environ.get("GH_BIN") or str(pathlib.Path.home() / "shn" / "tools" / "bin" / "gh")
+KNOWN_TAG_MOVES = ROOT / "conformance" / "ci" / "known_tag_moves.json"
 THRESHOLD_DAYS = 21
+GH_KNOWN_PATHS = (pathlib.Path.home() / "shn" / "tools" / "bin" / "gh",
+                  pathlib.Path("/opt/homebrew/bin/gh"), pathlib.Path("/usr/local/bin/gh"),
+                  pathlib.Path("/usr/bin/gh"))
+
+
+def _resolve_gh():
+    """The gh binary: $GH_BIN (must exist) -> `which gh` -> known install paths -> None.
+    An explicit GH_BIN that does not exist is NOT silently replaced by another gh —
+    the caller asked for that one."""
+    import shutil
+    env = os.environ.get("GH_BIN")
+    if env:
+        return env if os.path.isfile(env) and os.access(env, os.X_OK) else None
+    found = shutil.which("gh")
+    if found:
+        return found
+    for p in GH_KNOWN_PATHS:
+        if p.is_file() and os.access(p, os.X_OK):
+            return str(p)
+    return None
+
+
+GH = _resolve_gh() or ""
 
 
 # ----------------------------------------------------------------------------- pure logic
@@ -172,7 +211,94 @@ def evaluate_release_drift(entries, release_heads):
     return findings
 
 
+def tag_entries(lock):
+    """Every spec version pinned to a tag: {key, repo, tag, commit, tag_object_sha}
+    (the lock's locked identity; `tag_object_sha` absent in a lock that predates
+    D2-03 — then only the commit is compared)."""
+    s = lock.get("sources", lock)
+    spec = s.get("spec", {})
+    repo = spec.get("repo", "")
+    out = []
+    for ver, e in spec.get("versions", {}).items():
+        if isinstance(e, dict) and e.get("tag") and e.get("commit"):
+            out.append({"key": f"spec/{ver}", "version": ver, "repo": repo, "tag": e["tag"],
+                        "commit": e["commit"], "tag_object_sha": e.get("tag_object_sha")})
+    return out
+
+
+def _same_sha(a, b):
+    """Prefix-tolerant sha equality (locks may carry 8-hex, the API 40-hex)."""
+    a, b = (a or "").lower(), (b or "").lower()
+    n = min(len(a), len(b))
+    return n >= 7 and a[:n] == b[:n]
+
+
+def evaluate_tag_identity(entries, identities):
+    """PURE tag-identity logic. `identities` = {key: {tag_object_sha, tag_object_type,
+    commit, tagger_date}} as fetched live. A finding when the dereferenced COMMIT
+    differs from the lock's `commit`, OR the TAG OBJECT sha differs from the lock's
+    `tag_object_sha` (when the lock carries one) — a re-tag of the same commit is an
+    identity change too. Dates are never compared (a re-tag can copy the date).
+    Entries with no live identity are skipped (the caller decides whether that is
+    fatal). A finding: {key, version, tag, from, to, tag_object, tag_object_from,
+    tagger_date}."""
+    findings = []
+    for e in entries:
+        live = identities.get(e["key"])
+        if not live or not live.get("commit"):
+            continue
+        commit_moved = not _same_sha(live["commit"], e["commit"])
+        object_moved = bool(e.get("tag_object_sha")) and \
+            not _same_sha(live.get("tag_object_sha"), e["tag_object_sha"])
+        if commit_moved or object_moved:
+            findings.append({
+                "key": e["key"], "version": e.get("version"), "tag": e["tag"],
+                "from": e["commit"][:8], "to": live["commit"][:8],
+                "tag_object": (live.get("tag_object_sha") or "")[:8],
+                "tag_object_from": (e.get("tag_object_sha") or "")[:8] or None,
+                "tagger_date": live.get("tagger_date"),
+            })
+    return findings
+
+
 # ------------------------------------------------------------------------- live network
+def fetch_tag_identity(repo, tag):
+    """{tag_object_sha, tag_object_type, commit, tagger_date} for repo's `tag` via
+    gh api (refs/tags -> object; an annotated tag is dereferenced through
+    git/tags/<sha>; a lightweight tag IS its commit). None on any failure."""
+    try:
+        p = subprocess.run([GH, "api", f"repos/{repo}/git/ref/tags/{tag}",
+                            "--jq", "{sha: .object.sha, type: .object.type}"],
+                           capture_output=True, text=True, timeout=20)
+        if p.returncode != 0:
+            return None
+        ref = json.loads(p.stdout)
+        obj_sha, obj_type = ref.get("sha", ""), ref.get("type", "")
+        if obj_type == "commit":
+            return {"tag_object_sha": obj_sha, "tag_object_type": "commit",
+                    "commit": obj_sha, "tagger_date": None}
+        q = subprocess.run([GH, "api", f"repos/{repo}/git/tags/{obj_sha}",
+                            "--jq", "{commit: .object.sha, date: .tagger.date}"],
+                           capture_output=True, text=True, timeout=20)
+        if q.returncode != 0:
+            return None
+        t = json.loads(q.stdout)
+        return {"tag_object_sha": obj_sha, "tag_object_type": "tag",
+                "commit": t.get("commit", ""), "tagger_date": t.get("date")}
+    except Exception:
+        return None
+
+
+def fetch_tag_identities(entries):
+    """{key: identity} for every tag entry whose identity could be fetched."""
+    out = {}
+    for e in entries:
+        ident = fetch_tag_identity(e["repo"], e["tag"]) if e.get("repo") else None
+        if ident:
+            out[e["key"]] = ident
+    return out
+
+
 def _gh_head(repo, ref):
     """Return {"sha","date"} for repo@ref via gh api, or None on any failure."""
     try:
@@ -236,26 +362,85 @@ def _now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
-def run_check():
-    """Live, NON-FATAL drift check for preflight. Always returns 0.
+def load_known_tag_moves(path=KNOWN_TAG_MOVES):
+    """Acknowledged tag moves (D2-17): [{tag, repo, from, to, tag_object, decision,
+    reason, review_by, spec_pin, ...}]. Missing file -> []."""
+    try:
+        return json.load(open(path)).get("moves", [])
+    except Exception:
+        return []
 
-    Covers TWO drift classes, both informational (never fatal):
-      - branch-pinned sources aging past upstream HEAD (incl. the AP2 reference pin), and
-      - release-branch-past-tag advances for tag-pinned spec versions."""
+
+def acknowledged_move(finding, moves, today):
+    """The unexpired acknowledgement entry matching this TAG MOVED finding on
+    (tag, from, to, tag_object) — or None. An entry whose review_by is past is as
+    good as absent (fail-noisy self-expiry); a different `to` is a NEW move."""
+    for m in moves:
+        if m.get("tag") != finding["tag"]:
+            continue
+        if not (_same_sha(m.get("from"), finding["from"]) and _same_sha(m.get("to"), finding["to"])
+                and _same_sha(m.get("tag_object"), finding["tag_object"])):
+            continue
+        try:
+            expired = datetime.fromisoformat(m.get("review_by", "")).date() < today
+        except Exception:
+            expired = True
+        if expired:
+            continue
+        return m
+    return None
+
+
+def run_check(today=None):
+    """Live drift check for preflight. Exit 0 / 1 / 2 (see the module docstring).
+
+      FATAL   (rc 1): a pinned spec TAG MOVED — dereferenced commit or tag object differs
+              from the lock — and no unexpired acknowledgement in known_tag_moves.json.
+      FATAL   (rc 2): gh not found, or a tag identity could not be fetched (offline).
+      INFORMATIONAL: branch-pinned sources aging past upstream HEAD (incl. the AP2
+              reference pin) and release-branch-past-tag advances — printed, rc unchanged."""
+    from datetime import date as _date
+    today = today or _date.today()
+    if not GH:
+        print("sources-age: FAIL — gh not found (set GH_BIN, or install gh on PATH / a known "
+              "path); tag identities cannot be verified.")
+        return 2
     lock = json.loads(LOCK.read_text())
+    rc = 0
+
+    # --- TAG IDENTITY (fatal class) ---
+    tags = tag_entries(lock)
+    idents = fetch_tag_identities(tags) if tags else {}
+    missing = [e["key"] for e in tags if e["key"] not in idents]
+    if missing:
+        print(f"sources-age: FAIL — could not fetch the tag identity of {', '.join(missing)} "
+              f"(offline / API error); the pins are unverified this run.")
+        return 2
+    moves = load_known_tag_moves()
+    for f in evaluate_tag_identity(tags, idents):
+        line = (f"TAG MOVED {f['tag']}: locked {f['from']} → {f['to']} "
+                f"(tag object {f['tag_object']}, tagger {(f.get('tagger_date') or 'n/a')[:10]})")
+        ack = acknowledged_move(f, moves, today)
+        if ack:
+            print(f"sources-age: {line} — acknowledged (decision {ack.get('decision')}, "
+                  f"review_by {ack.get('review_by')})")
+        else:
+            print(f"sources-age: FAIL — {line} — the pinned artifact is no longer what the "
+                  f"published tag names; acknowledge it in known_tag_moves.json (decision 3) "
+                  f"or re-pin deliberately.")
+            rc = 1
+    if tags and not any(evaluate_tag_identity(tags, idents)):
+        print(f"sources-age: OK — all {len(tags)} pinned spec tag(s) still carry their locked "
+              f"identity (tag object + dereferenced commit).")
+
     entries = branch_entries(lock)
     rel_entries = tag_release_entries(lock)
     if not entries and not rel_entries:
         print("sources-age: no branch-pinned or release-tracked sources to check.")
-        return 0
+        return rc
 
     upstream = fetch_upstream(entries) if entries else {}
     rel_heads = fetch_release_heads(rel_entries) if rel_entries else {}
-    if entries and not upstream and rel_entries and not rel_heads:
-        print("sources-age: SKIP — could not reach upstream (offline / gh unavailable). "
-              "Pins unchecked this run; not a failure.")
-        return 0
-
     findings = evaluate(entries, upstream, _now_iso()) if upstream else []
     rel_findings = evaluate_release_drift(rel_entries, rel_heads) if rel_heads else []
 
@@ -289,8 +474,8 @@ def run_check():
                       f"review whether the new commits are normative; NOT an auto-re-pin.")
             print("  (informational: the pinned tag remains the artifact; this only surfaces branch drift.)")
     elif rel_entries:
-        print("sources-age: SKIP — release-branch HEADs unreachable this run (not a failure).")
-    return 0
+        print("sources-age: SKIP — release-branch HEADs unreachable this run (informational class).")
+    return rc
 
 
 # ------------------------------------------------------------------------------ selftest

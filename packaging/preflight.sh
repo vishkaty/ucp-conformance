@@ -64,12 +64,17 @@ else
   warn "ops/ is not a git repo — the private baseline is unversioned"
 fi
 
-# 3b. Drift tripwire (INFORMATIONAL, never fails): warn when a source pinned to a moving
-#     branch has silently aged past upstream HEAD. Re-pins stay deliberate; this only
-#     makes staleness visible so a month-long silent drift can't recur. Non-fatal +
-#     skip-clean offline.
-step "Source pin freshness (informational)"
-python3 conformance/ci/sources_age.py --check 2>/dev/null | sed 's/^/  /' || true
+# 3b. Drift tripwire (D2-03): a pinned spec TAG whose live identity (tag object +
+#     dereferenced commit) differs from the lock FAILS preflight (rc 1) unless the move
+#     is acknowledged and unexpired in conformance/ci/known_tag_moves.json (D2-17);
+#     gh missing / offline FAILS too (rc 2) — never a silent skip. Branch staleness and
+#     release-branch drift stay informational lines inside the same output.
+step "Source pin identity + freshness"
+if python3 conformance/ci/sources_age.py --check 2>/dev/null | sed 's/^/  /'; [ "${PIPESTATUS[0]}" -eq 0 ]; then
+  ok "pinned spec tags carry their locked identity (moves acknowledged or none)"
+else
+  bad "sources_age --check failed (tag moved unacknowledged, or gh/offline) — see above"
+fi
 
 # 4. Release-only checks (when a tag is supplied).
 if [ -n "$TAG" ]; then

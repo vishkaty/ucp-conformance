@@ -9,28 +9,46 @@
         "commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
         "commit_date": "2026-05-22T16:07:22Z",
         "release_branch": "release/2026-04-08",
-        "note": "Tag commit is dated 2026-05-22, NOT 2026-04-08 \u2014 release/2026-04-08 received post-date cherry-picks (attribution, identity-linking OAuth rework, selected_options->options, profile-schema fixes). 'What 04-08 contains' = this tagged artifact, not a clean date-cut. release_branch is the live branch the tag was cut from; the sources-age tripwire compares this pinned tag commit against that branch HEAD and WARNS (never re-pins) when the branch advances past the tag, so 'branch moved past the release artifact' stops being invisible."
+        "note": "Tag commit is dated 2026-05-22, NOT 2026-04-08 \u2014 release/2026-04-08 received post-date cherry-picks (attribution, identity-linking OAuth rework, selected_options->options, profile-schema fixes). 'What 04-08 contains' = this tagged artifact, not a clean date-cut. release_branch is the live branch the tag was cut from; the sources-age tripwire compares this pinned tag commit against that branch HEAD and WARNS (never re-pins) when the branch advances past the tag, so 'branch moved past the release artifact' stops being invisible. TAG OBJECT ebac9d15 dated 2026-04-13, re-pointed 2026-09-09 to a25a4a24 (ucp#813, loyalty backport); pinned artifact a2d8bf0b != published tag; decision 3 (acknowledged in ci/known_tag_moves.json in W0, re-pin in W1 via D2-15). Pins in this file are unchanged by that observation.",
+        "tag_object_sha": "ebac9d155805aabd1bab37e78cb893c5a2be8a78",
+        "tag_object_type": "tag",
+        "tagger_date": "2026-04-13T14:51:29Z",
+        "tag_move_observed": {
+          "on": "2026-09-09",
+          "from": "a2d8bf0b",
+          "to": "a25a4a24",
+          "tag_object": "ebac9d15"
+        }
       },
       "2026-01-23": {
         "tag": "v2026-01-23",
         "commit": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
         "commit_date": "2026-01-23T22:46:40Z",
         "release_branch": "release/2026-01-23",
-        "release_branch_note": "The TAG is the normative release artifact we pin; the release branch is live and can receive post-tag cherry-picks. sources_age --check compares the pinned tag commit to this branch HEAD and warns when it advances (as of 2026-08-11 the branch was ~10 commits ahead) \u2014 a review signal, NOT an auto-re-pin."
+        "release_branch_note": "The TAG is the normative release artifact we pin; the release branch is live and can receive post-tag cherry-picks. sources_age --check compares the pinned tag commit to this branch HEAD and warns when it advances (as of 2026-08-11 the branch was ~10 commits ahead) \u2014 a review signal, NOT an auto-re-pin.",
+        "tag_object_sha": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
+        "tag_object_type": "commit",
+        "tagger_date": null
       },
       "2026-01-11": {
         "tag": "v2026-01-11",
         "commit": "806a5b74d3a5a918206844ea980450233b38664e",
         "commit_date": "2026-01-23T17:55:22Z",
         "release_branch": "release/2026-01-11",
-        "release_branch_note": "See 2026-01-23.release_branch_note. As of 2026-08-11 release/2026-01-11 was ~4 commits ahead of the pinned tag \u2014 surfaced by the sources-age tripwire, reviewed, not auto-re-pinned."
+        "release_branch_note": "See 2026-01-23.release_branch_note. As of 2026-08-11 release/2026-01-11 was ~4 commits ahead of the pinned tag \u2014 surfaced by the sources-age tripwire, reviewed, not auto-re-pinned.",
+        "tag_object_sha": "806a5b74d3a5a918206844ea980450233b38664e",
+        "tag_object_type": "commit",
+        "tagger_date": null
       },
       "2026-08-25": {
         "tag": "v2026-08-25",
         "commit": "cd78fb38e819de77d9b527d110476eccb876f1bd",
         "commit_date": "2026-08-25T13:53:03Z",
         "release_branch": "release/2026-08-25",
-        "note": "THE LAUNCH RELEASE, pinned 2026-08-26 the day after the cut. Contains the hierarchy reorg (#723: docs/specification/<vertical>/... paths), the common-primitives and payment refactors (#736/#741), path-targeted request constraints (#744) and response-carried request constraints (#655). The reference implementations still SERVE 2026-04-08 at this pin (samples 00333a80); the 08-25 check lane gets built as the day-1 batch. sources_age watches release/2026-08-25 vs this tag per the standing tripwire."
+        "note": "THE LAUNCH RELEASE, pinned 2026-08-26 the day after the cut. Contains the hierarchy reorg (#723: docs/specification/<vertical>/... paths), the common-primitives and payment refactors (#736/#741), path-targeted request constraints (#744) and response-carried request constraints (#655). The reference implementations still SERVE 2026-04-08 at this pin (samples 00333a80); the 08-25 check lane gets built as the day-1 batch. sources_age watches release/2026-08-25 vs this tag per the standing tripwire.",
+        "tag_object_sha": "cd78fb38e819de77d9b527d110476eccb876f1bd",
+        "tag_object_type": "commit",
+        "tagger_date": null
       }
     }
   },
