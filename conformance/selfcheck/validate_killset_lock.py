@@ -132,6 +132,19 @@ def selftest():
                                 base["scratch_struct:capability.schema_required"]["n_kills"],
                                 base["scratch_golden:SIG-007"]["n_kills"]) == (2, 3, 2, 1),
           f"{ {k: v['n_kills'] for k, v in base.items()} }")
+    # D3-01: defects_config.json also carries `behavior_mutants` (no route/patch; a
+    # `behavior` guard key). A golden Row naming one must resolve, and the behavior key
+    # must be part of the hash (a re-pointed guard is drift, not silence).
+    bmut = {"name": "planted-behavior", "behavior": "errors.x", "checks": ["gc:ZZZ-009"]}
+    brow = Row("ZZZ-009", ["ZZZ-009"], "self-referenced", "doc", dummy, dummy, "planted-behavior")
+    try:
+        b1 = gen.build_entries([("Row", "scratch_golden", brow, {"behavior_mutants": [bmut]})])["scratch_golden:ZZZ-009"]
+        b2 = gen.build_entries([("Row", "scratch_golden", brow,
+                                 {"behavior_mutants": [{**bmut, "behavior": "errors.y"}]})])["scratch_golden:ZZZ-009"]
+        check("behavior mutant resolves (n_kills 1) and its behavior key is hashed",
+              b1["n_kills"] == 1 and b1["hash"] != b2["hash"], f"{b1} vs {b2}")
+    except KeyError as e:
+        check("behavior mutant resolves (n_kills 1) and its behavior key is hashed", False, f"KeyError: {e}")
     lock = gen.generate(base, pins, previous=None, shrink_notes={}, today=today)
     rc, lines = validate(lock, base, pins, today)
     check("fresh lock validates green", rc == 0, "\n".join(lines))
