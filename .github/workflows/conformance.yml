@@ -136,3 +136,59 @@ jobs:
           bash packaging/sync_bundle.sh
           git diff --exit-code packaging/spck_conformance/_bundle \
             || { echo "::error::packaging bundle is stale — run packaging/sync_bundle.sh and commit"; exit 1; }
+
+  # D5-06: the composite Action is exercised from ITS OWN CHECKOUT against the golden in
+  # the same workflow (the only proof that `uses: vishkaty/ucp-conformance@<ref>` works at
+  # <ref>). The `source: pypi` twin is report-only while packaging/pyproject.toml is below
+  # 0.4.0 (PyPI 0.3.1 predates the 08-25 register) — decided mechanically by
+  # packaging/pypi_job_mode.py, so the exemption expires with the 0.4.0 bump, not by hand.
+  # `selftest` stays the single required context (branch protection); this job informs.
+  action-selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: false
+
+      - name: Fetch pinned upstream sources
+        run: bash conformance/ci/fetch_sources.sh
+
+      - name: Bring up the golden server
+        run: bash conformance/ci/serve_golden.sh
+        env:
+          PORT: "8182"
+          SIM_SECRET: selfcheck-secret
+          DB_DIR: /tmp/ucp_action_test
+
+      - name: Decide whether the PyPI twin is counted (mechanical expiry at 0.4.0)
+        id: mode
+        run: python3 packaging/pypi_job_mode.py --github-output >> "$GITHUB_OUTPUT"
+
+      - name: Action from its own checkout (source=checkout) — counted
+        uses: ./
+        with:
+          server: http://localhost:8182
+          source: checkout
+          junit: /tmp/action-checkout.xml
+
+      - name: Action from PyPI (source=pypi) — report-only until pyproject >= 0.4.0
+        uses: ./
+        continue-on-error: ${{ steps.mode.outputs.mode == 'report-only' }}
+        with:
+          server: http://localhost:8182
+          source: pypi
+          junit: /tmp/action-pypi.xml
+
+      - name: Tear down the golden server
+        if: always()
+        run: bash conformance/ci/stop_golden.sh
+        env:
+          DB_DIR: /tmp/ucp_action_test

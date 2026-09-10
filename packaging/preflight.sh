@@ -14,6 +14,8 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 TAG="${1:-}"
+GUARDS_ONLY=0
+if [ "$TAG" = "--guards-only" ]; then GUARDS_ONLY=1; TAG="${2:-}"; fi   # release guards alone (fast; tests/CI)
 FAIL=0
 step(){ printf "\n\033[1m▶ %s\033[0m\n" "$1"; }
 ok(){   printf "  \033[32m✓\033[0m %s\n" "$1"; }
@@ -22,6 +24,7 @@ bad(){  printf "  \033[31m✗\033[0m %s\n" "$1"; FAIL=1; }
 # finding is real but not a property of the artifact being shipped.
 warn(){ printf "  \033[33m!\033[0m %s\n" "$1"; }
 
+if [ $GUARDS_ONLY -eq 0 ]; then
 # 1. The full self-test: all gates (conformance + coverage/copy-freshness + responsive
 #    web + citation soundness + bundle drift). This is the single source of truth.
 step "Full self-test (all gates)"
@@ -70,31 +73,13 @@ fi
 #     skip-clean offline.
 step "Source pin freshness (informational)"
 python3 conformance/ci/sources_age.py --check 2>/dev/null | sed 's/^/  /' || true
+fi   # GUARDS_ONLY
 
-# 4. Release-only checks (when a tag is supplied).
-if [ -n "$TAG" ]; then
-  step "Release: version + wheel bundle currency for $TAG"
-  PKG=$(python3 -c "import tomllib;print(tomllib.load(open('packaging/pyproject.toml','rb'))['project']['version'])")
-  [ "${TAG#v}" = "$PKG" ] && ok "pyproject version $PKG matches tag $TAG" || bad "tag $TAG != pyproject version $PKG (bump packaging/pyproject.toml)"
-  python3 -m pip install --quiet build >/dev/null 2>&1 || true
-  rm -rf /tmp/preflight_dist
-  if python3 -m build --outdir /tmp/preflight_dist packaging >/tmp/preflight_build.log 2>&1; then
-    python3 - <<PY
-import glob, zipfile, sys
-w=sorted(glob.glob('/tmp/preflight_dist/*.whl'))[-1]
-z=zipfile.ZipFile(w)
-vs=sorted(set(n.split('/requirements/')[1].split('/')[0] for n in z.namelist() if '/requirements/' in n and n.count('/')>4))
-mods=len([n for n in z.namelist() if 'merchant_checks' in n and n.endswith('.py')])
-want={'2026-01-11','2026-01-23','2026-04-08'}
-print(f"  \033[32m✓\033[0m wheel {w.split('/')[-1]} bundles versions {vs}, {mods} check modules" if set(vs)>=want and mods>=15
-      else f"  \033[31m✗\033[0m wheel bundle STALE: versions {vs}, {mods} modules (run packaging/sync_bundle.sh)")
-sys.exit(0 if set(vs)>=want and mods>=15 else 1)
-PY
-    [ $? -ne 0 ] && FAIL=1
-  else
-    bad "wheel build failed — see /tmp/preflight_build.log"
-  fi
-fi
+# 4. Release guards (packaging/release_guards.sh — also run by release.yml and kill-tested
+#    by packaging/test_preflight_guards.sh): __version__ == pyproject, the wheel bundles every
+#    spec_versions.VERSIONS entry, CHANGELOG entry; plus version == tag when one is given.
+step "Release guards${TAG:+ for $TAG}"
+bash packaging/release_guards.sh "$TAG" || FAIL=1
 
 echo
 if [ "$FAIL" -eq 0 ]; then

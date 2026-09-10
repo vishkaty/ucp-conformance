@@ -49,7 +49,7 @@ jobs:
   conformance:
     runs-on: ubuntu-latest
     steps:
-      - uses: vishkaty/ucp-conformance@main
+      - uses: vishkaty/ucp-conformance@v0.4.0
         with:
           server: https://api.example.com
           config: merchant.json        # optional

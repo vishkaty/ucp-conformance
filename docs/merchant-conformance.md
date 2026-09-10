@@ -23,7 +23,7 @@ excerpt) — enough to fix it directly.
 any CI can display as a test run (deviation → `<failure>` with evidence,
 not-applicable/not-tested → `<skipped>`). Exit code is **2** if any MUST deviates, else
 **0** (partial coverage is not a failure). A ready-made **GitHub Action**
-(`uses: vishkaty/ucp-conformance@main`) wraps all of this for drop-in CI.
+(`uses: vishkaty/ucp-conformance@v0.4.0`) wraps all of this for drop-in CI.
 
 ## How it decides what to test
 

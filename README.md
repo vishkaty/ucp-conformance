@@ -47,7 +47,7 @@ spck-conformance --server https://api.example.com --config merchant.json
 In CI (fails the build on any MUST deviation, writes a JUnit report):
 
 ```yaml
-- uses: vishkaty/ucp-conformance@main
+- uses: vishkaty/ucp-conformance@v0.4.0
   with:
     server: https://api.example.com
     config: merchant.json   # optional

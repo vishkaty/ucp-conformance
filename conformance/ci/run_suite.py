@@ -332,6 +332,11 @@ def gates(server):
         # the pip package is two-sided: the bundled `--agent` lane must run + pass from the
         # bundle (proves sync_bundle shipped a working agent lane, deps + path-resolution intact).
         ("package-agent", _py(ROOT / "packaging" / "spck_conformance" / "cli.py", "--agent"), None, ()),
+        # …and the bundled MERCHANT runner must grade the controlled fixture clean from the
+        # bundle (D5-06): the Action installs this package from its own checkout, so the
+        # wheel's engine/register must work outside the repo tree, not just in it.
+        ("package-merchant", _py(ROOT / "packaging" / "spck_conformance" / "cli.py",
+                                 "--server", CONTROLLED), "controlled", ()),
     ]
 
 def server_up(server, timeout=3):
