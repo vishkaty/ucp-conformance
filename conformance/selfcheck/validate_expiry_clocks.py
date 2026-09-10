@@ -33,6 +33,17 @@ from common.spec_versions import VERSIONS  # noqa: E402
 REGISTERS = os.path.join(CONF, "coverage", "expiry_registers.json")
 LOCK = os.path.join(CONF, "SOURCES.lock.json")
 WARN_DAYS = 14
+# Two-tier horizon (decision 23, D2-19): `moving` = the entry's truth depends on moving
+# upstream state (pins, goldens, external tools: known_issues, cross-checker allowlist,
+# known_sdk_drops, known_tag_moves, expected_skips_*, external divergences) -> 30 days;
+# `pin-only` = truth depends only on the spec pin (exemptions, waivers/scope, rulings,
+# agent overrides, wave files) -> 90 days. An entry's review_by may not sit further out
+# than its tier's horizon (`horizon-exceeded`); an entry with no tier (its own or its
+# register's) is `missing-tier`.
+HORIZON_DAYS = {"moving": 30, "pin-only": 90}
+# Cliff guard: no single expiry date may hold more than this share of all clocked
+# entries — seed dates are staggered by register and by entry so expiry is a trickle.
+CLIFF_MAX_SHARE = 0.25
 
 
 # ----------------------------------------------------------------------------- data
@@ -99,6 +110,13 @@ def entry_versions(reg, entry, versions=VERSIONS):
     raise ValueError(f"unsupported scope {scope!r} in register {reg.get('name')}")
 
 
+def entry_tier(reg, entry):
+    """The entry's clock tier: its own `clock_tier`, else the register's; None when
+    neither is set or the value is not a known tier."""
+    t = entry.get("clock_tier") or reg.get("clock_tier")
+    return t if t in HORIZON_DAYS else None
+
+
 def _parse_date(s):
     try:
         return date.fromisoformat(s)
@@ -147,6 +165,13 @@ def evaluate(registers, load, pins, today, versions=VERSIONS):
                 add("expired", reg, path, f"review_by {rb} < today {today.isoformat()}")
             elif (d - today).days <= WARN_DAYS:
                 add("expiring-soon", reg, path, f"review_by {rb} in {(d - today).days} d")
+            tier = entry_tier(reg, e)
+            if tier is None:
+                add("missing-tier", reg, path,
+                    f"clock_tier {e.get('clock_tier') or reg.get('clock_tier')!r} is not moving|pin-only")
+            elif (d - today).days > HORIZON_DAYS[tier]:
+                add("horizon-exceeded", reg, path,
+                    f"{tier} horizon is {HORIZON_DAYS[tier]} d, review_by {rb} is {(d - today).days} d out")
             for v in vers:
                 want = pins.get(v)
                 have = pin.get(v) if isinstance(pin, dict) else pin
@@ -155,6 +180,31 @@ def evaluate(registers, load, pins, today, versions=VERSIONS):
                 elif have != want:
                     add("pin-drift", reg, path, f"{v}: spec_pin {have} != lock {want}")
     return findings
+
+
+def expiry_histogram(registers, load):
+    """{review_by: count} over every clocked entry (tiers included in `_tiers`)."""
+    hist, tiers = {}, {}
+    for reg in registers:
+        if reg.get("clock") == "none":
+            continue
+        doc = load(reg["file"])
+        if doc is None:
+            continue
+        for _, e in iter_entries(reg, doc):
+            if not isinstance(e, dict) or not e.get("review_by"):
+                continue
+            hist[e["review_by"]] = hist.get(e["review_by"], 0) + 1
+            t = entry_tier(reg, e) or "?"
+            tiers[t] = tiers.get(t, 0) + 1
+    hist["_tiers"] = tiers
+    return hist
+
+
+def cliff_share(hist):
+    """The largest share of entries expiring on one date (0.0 when empty)."""
+    counts = [v for k, v in hist.items() if not k.startswith("_")]
+    return (max(counts) / sum(counts)) if counts else 0.0
 
 
 def _repo_loader(root=ROOT):
@@ -166,13 +216,20 @@ def _repo_loader(root=ROOT):
     return load
 
 
-def summarize(findings, n_entries, extra=""):
+def summarize(findings, n_entries, extra="", hist=None):
     c = {}
     for f in findings:
         c[f["kind"]] = c.get(f["kind"], 0) + 1
-    return (f"expiry-clocks: {n_entries} entries" + extra +
-            f" · {c.get('expired', 0)} expired · {c.get('pin-drift', 0)} pin-drift"
-            f" · {c.get('missing-clock', 0)} missing-clock")
+    if hist is not None:
+        t = hist.get("_tiers", {})
+        extra += (f" · moving {t.get('moving', 0)} ({HORIZON_DAYS['moving']} d)"
+                  f" · pin-only {t.get('pin-only', 0)} ({HORIZON_DAYS['pin-only']} d)"
+                  f" · max same-day expiry {round(100 * cliff_share(hist))}%")
+    line = (f"expiry-clocks: {n_entries} entries" + extra +
+            f" · {c.get('expired', 0)} expired · {c.get('pin-drift', 0)} pin-drift")
+    if hist is not None:
+        return line + f" · {c.get('missing-tier', 0)} missing-tier"
+    return line + f" · {c.get('missing-clock', 0)} missing-clock"
 
 
 def count_entries(registers, load):
@@ -189,6 +246,8 @@ def main(argv=None):
     ap.add_argument("--today", help="ISO date override (default: today)")
     ap.add_argument("--lock", default=LOCK, help="alternate SOURCES.lock.json (re-pin proof)")
     ap.add_argument("--registers", default=REGISTERS)
+    ap.add_argument("--histogram", action="store_true",
+                    help="tier counts + the largest same-day expiry share; FAIL above 25%%")
     a = ap.parse_args(argv)
     today = date.fromisoformat(a.today) if a.today else date.today()
     regs = load_registers(a.registers)["registers"]
@@ -197,8 +256,16 @@ def main(argv=None):
     hard = [f for f in findings if f["kind"] != "expiring-soon"]
     for f in findings:
         mark = "!" if f["kind"] == "expiring-soon" else "✗"
-        print(f"  {mark} {f['kind']:<14} {f['entry']}: {f['detail']}")
-    print(summarize(findings, count_entries(regs, load)))
+        print(f"  {mark} {f['kind']:<16} {f['entry']}: {f['detail']}")
+    hist = expiry_histogram(regs, load) if a.histogram else None
+    if hist is not None:
+        for d, n in sorted((k, v) for k, v in hist.items() if not k.startswith("_")):
+            print(f"    {d}: {n}")
+        if cliff_share(hist) > CLIFF_MAX_SHARE:
+            print(f"  ✗ cliff: {round(100 * cliff_share(hist))}% of entries expire on one date "
+                  f"(max {round(100 * CLIFF_MAX_SHARE)}%) — re-stamp with a stagger")
+            hard.append({"kind": "cliff"})
+    print(summarize(findings, count_entries(regs, load), hist=hist))
     return 1 if hard else 0
 
 
@@ -207,7 +274,7 @@ def selftest():
     today = date(2026, 9, 10)
     pins = {"2026-04-08": "a2d8bf0b", "2026-08-25": "cd78fb38"}
     regs = [{"name": "waivers", "file": "w.json", "entries": "$.waivers[*]",
-             "scope": "version", "clock": "review_by"},
+             "scope": "version", "clock": "review_by", "clock_tier": "pin-only"},
             {"name": "retirements", "file": "r.json", "entries": "$.retirements[*]",
              "scope": "versions", "clock": "none"}]
     docs = {"w.json": {"waivers": [

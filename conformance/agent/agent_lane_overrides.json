@@ -4,7 +4,7 @@
     {
       "id": "CART-030",
       "reason": "under-count audit 2026-07-04: agent-authored cart/catalog request shape (needs new ops)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -16,7 +16,7 @@
     {
       "id": "CAT-009",
       "reason": "under-count audit 2026-07-04: agent-authored cart/catalog request shape (needs new ops)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -28,7 +28,7 @@
     {
       "id": "CHK-035",
       "reason": "under-count audit 2026-07-04: agent-authored checkout request-body shape (passively phrased)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -40,7 +40,7 @@
     {
       "id": "CHK-038",
       "reason": "under-count audit 2026-07-04: agent-authored checkout request-body shape (passively phrased)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -52,7 +52,7 @@
     {
       "id": "CHK-039",
       "reason": "under-count audit 2026-07-04: agent-authored checkout request-body shape (passively phrased)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -64,7 +64,7 @@
     {
       "id": "DSC-027",
       "reason": "under-count audit 2026-07-04: discount/buyer omit-on-request duty of the requester",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -76,7 +76,7 @@
     {
       "id": "DSC-028",
       "reason": "under-count audit 2026-07-04: discount/buyer omit-on-request duty of the requester",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -88,7 +88,7 @@
     {
       "id": "DSC-034",
       "reason": "under-count audit 2026-07-04: discount/buyer omit-on-request duty of the requester",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -100,7 +100,7 @@
     {
       "id": "OVR-008",
       "reason": "under-count audit 2026-07-04: Content-Type on requests (DUAL: both axes)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -112,7 +112,7 @@
     {
       "id": "PAY-019",
       "reason": "under-count audit 2026-07-04: agent-authored payment instrument/credential",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -124,7 +124,7 @@
     {
       "id": "PAY-024",
       "reason": "under-count audit 2026-07-04: agent-authored payment instrument/credential",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -136,7 +136,7 @@
     {
       "id": "SIG-001",
       "reason": "response verification: the agent is the VERIFIER of signed business responses",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -148,7 +148,7 @@
     {
       "id": "SIG-002",
       "reason": "response verification: the agent is the VERIFIER of signed business responses",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -160,7 +160,7 @@
     {
       "id": "SIG-010",
       "reason": "under-count audit 2026-07-04: request-signing (Content-Digest / Signature / @query)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -172,7 +172,7 @@
     {
       "id": "SIG-012",
       "reason": "under-count audit 2026-07-04: request-signing (Content-Digest / Signature / @query)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -184,7 +184,7 @@
     {
       "id": "SIG-013",
       "reason": "under-count audit 2026-07-04: request-signing (Content-Digest / Signature / @query)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -196,7 +196,7 @@
     {
       "id": "SIG-014",
       "reason": "request signing: the agent SIGNS its own API requests",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -208,7 +208,7 @@
     {
       "id": "SIG-015",
       "reason": "request signing: the agent SIGNS its own API requests",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -220,7 +220,7 @@
     {
       "id": "SIG-016",
       "reason": "request signing: the agent SIGNS its own API requests",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -232,7 +232,7 @@
     {
       "id": "SIG-017",
       "reason": "under-count audit 2026-07-04: request-signing (Content-Digest / Signature / @query)",
-      "review_by": "2026-11-09",
+      "review_by": "2026-11-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -244,7 +244,7 @@
     {
       "id": "SIG-018",
       "reason": "request signing: the agent SIGNS its own API requests",
-      "review_by": "2026-11-09",
+      "review_by": "2026-12-02",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -256,7 +256,7 @@
     {
       "id": "SIG-036",
       "reason": "response verification: the agent is the VERIFIER of signed business responses",
-      "review_by": "2026-11-09",
+      "review_by": "2026-10-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -270,7 +270,7 @@
     {
       "id": "A2A-001",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -282,7 +282,7 @@
     {
       "id": "CART-035",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -294,7 +294,7 @@
     {
       "id": "CAT-005",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -306,7 +306,7 @@
     {
       "id": "CHK-058",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -318,7 +318,7 @@
     {
       "id": "IDL-081",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -330,7 +330,7 @@
     {
       "id": "LOC-016",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -342,7 +342,7 @@
     {
       "id": "LOC-042",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -354,7 +354,7 @@
     {
       "id": "MCP-001",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -366,7 +366,7 @@
     {
       "id": "NEG-001",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -378,7 +378,7 @@
     {
       "id": "NEG-002",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -390,7 +390,7 @@
     {
       "id": "NEG-003",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -402,7 +402,7 @@
     {
       "id": "NEG-004",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -414,7 +414,7 @@
     {
       "id": "ORD-018",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -426,7 +426,7 @@
     {
       "id": "ORD-019",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -438,7 +438,7 @@
     {
       "id": "OVR-011",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -450,7 +450,7 @@
     {
       "id": "OVR-012",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -462,7 +462,7 @@
     {
       "id": "OVR-058",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -474,7 +474,7 @@
     {
       "id": "OVR-070",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-12-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -486,7 +486,7 @@
     {
       "id": "OVR-071",
       "reason": "2026-08-25 agent-lane graduation review (agent_denominator_audit.json '2026-08-25_review'): heuristic substring match on platform/business/consumer text whose only MUST binds the Business; the adjoining Platform clause is registered under its own id or is not a MUST",
-      "review_by": "2026-10-10",
+      "review_by": "2026-10-04",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -498,7 +498,7 @@
     {
       "id": "PAY-038",
       "reason": "denominator-accuracy audit 2026-07-03 (agent_denominator_audit.json): the MUST binds ONLY the business/server (business error response, business-authored order-schema shape, server-exposed MCP endpoint, or business-agent A2A response) \u2014 not achievable on the agent axis",
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-03",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",

@@ -29,8 +29,13 @@ from common.spec_versions import VERSIONS                       # noqa: E402
 import validate_expiry_clocks as vec                            # noqa: E402
 
 SIGN = os.path.join(HERE, "review_signoffs.json")
-HORIZON_DAYS = {"moving": 30, "pin-only": 90}                   # decision 23 (D2-19)
-# stagger offsets per tier, applied round-robin over the registers of that tier
+HORIZON_DAYS = dict(vec.HORIZON_DAYS)                           # decision 23 (D2-19): 30 / 90
+# Stagger (D2-19): within a register the entries round-robin over the tier's three
+# offsets (moving: days 10/20/30; pin-only: 30/60/90 from the seed date), and each
+# register of a tier is shifted back one more day than the previous (slot 0 lands on
+# the offsets themselves, slot 1 a day earlier, ...) so no two registers share a date.
+# Every date stays <= the tier's horizon, and the largest same-day share is about a
+# third of the largest register — well under the 25% cliff guard for this corpus.
 STAGGER = {"moving": (10, 20, 30), "pin-only": (30, 60, 90)}
 HUMAN_REVIEW_WINDOW_DAYS = 7
 
@@ -48,14 +53,17 @@ def dump_like(path, doc):
     open(path, "w").write(json.dumps(doc, indent=2) + "\n")
 
 
-def horizon_for(reg, tier_slot):
-    tier = reg.get("clock_tier", "pin-only")
+def review_by_for(tier, register_slot, index, seed_date):
+    """The staggered review_by for entry `index` of the `register_slot`-th register of
+    `tier`: seed + offsets[index % 3] - register_slot days (never past the horizon)."""
     offs = STAGGER[tier]
-    return offs[tier_slot % len(offs)]
+    days = offs[index % len(offs)] - register_slot
+    return (seed_date + timedelta(days=max(days, 1))).isoformat()
 
 
-def stamp(registers, seed_date, pins, dry_run=False):
-    """Stamp missing hands; returns [(entry_name, register_name)] of stamped entries."""
+def stamp(registers, seed_date, pins, dry_run=False, restamp=False):
+    """Stamp missing hands (or, with `restamp`, recompute every review_by in the
+    stamp-eligible registers — spec_pin untouched); returns [(entry, register)]."""
     stamped = []
     docs = {}
     slots = {"moving": 0, "pin-only": 0}
@@ -63,18 +71,19 @@ def stamp(registers, seed_date, pins, dry_run=False):
         if reg.get("clock") == "none" or reg.get("scope") == "none":
             continue
         tier = reg.get("clock_tier", "pin-only")
-        days = horizon_for(reg, slots[tier]); slots[tier] += 1
-        rb = (seed_date + timedelta(days=days)).isoformat()
+        slot = slots[tier]; slots[tier] += 1
         path = os.path.join(ROOT, reg["file"])
         doc = docs.get(path) or json.load(open(path))
         docs[path] = doc
-        for ename, e in vec.iter_entries(reg, doc):
+        for i, (ename, e) in enumerate(vec.iter_entries(reg, doc)):
             if not isinstance(e, dict):
                 continue
             vers = vec.entry_versions(reg, e, VERSIONS)
             touched = False
-            if not e.get("review_by"):
-                e["review_by"] = rb; touched = True
+            if restamp or not e.get("review_by"):
+                rb = review_by_for(tier, slot, i, seed_date)
+                if e.get("review_by") != rb:
+                    e["review_by"] = rb; touched = True
             if vers and not e.get("spec_pin"):
                 e["spec_pin"] = pins[vers[0]] if len(vers) == 1 else {v: pins[v] for v in vers}
                 touched = True
@@ -121,18 +130,21 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--seed-date")
+    ap.add_argument("--restamp", action="store_true",
+                    help="recompute every review_by with the current stagger (D2-19 migration); "
+                         "spec_pin and the seed-batch sample record are untouched")
     a = ap.parse_args(argv)
     regfile = vec.load_registers()
     seed = regfile["seed"]
     seed_date = date.fromisoformat(a.seed_date or seed["date"])
     pins = vec.lock_pins()
-    stamped = stamp(regfile["registers"], seed_date, pins, a.dry_run)
+    stamped = stamp(regfile["registers"], seed_date, pins, a.dry_run, a.restamp)
     by_reg = {}
     for _, r in stamped:
         by_reg[r] = by_reg.get(r, 0) + 1
     for r, n in sorted(by_reg.items()):
         print(f"  stamped {n:4} · {r}")
-    if stamped:
+    if stamped and not a.restamp:
         entry, added = record_seed_batch(seed, stamped, seed_date, a.dry_run)
         print(f"  seed batch {seed['batch']}: {'recorded' if added else 'already recorded'} — "
               f"sample {entry['sample']['size']}/{entry['sample']['of']} (seed {entry['sample']['seed']}), "

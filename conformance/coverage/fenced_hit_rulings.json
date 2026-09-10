@@ -11,7 +11,7 @@
       "class": "duplicate",
       "duplicate_of": "prose MUST at signatures.md L322 (\"4. MUST set keyid to the JWK SHA-256 Thumbprint of the signing key per RFC 7638\")",
       "reason": "'// keyid MUST equal the matched JWK's RFC 7638 thumbprint' is a Python-style comment inside a fenced verification-pseudocode example, restating the keyid/thumbprint-matching requirement the surrounding prose already states normatively at L322 (and again at L202-203). The fence is illustrating HOW a verifier checks the requirement, not stating a new one.",
-      "review_by": "2026-12-09",
+      "review_by": "2026-10-05",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -22,7 +22,7 @@
       "keyword": "MUST",
       "class": "non-normative",
       "reason": "'// No method/idempotency to bind, but the body still MUST be covered.' is an explanatory comment inside a fenced worked-example script, describing why the example's signature-base construction includes content-digest even though the example operation has no bindable method/idempotency-key. It restates the general Content-Digest body-coverage convention shown throughout the same doc's signature-base tables (e.g. the 'content-digest | Cond.' rows) rather than introducing an independent obligation; no exact single-sentence prose antecedent to cite as duplicate_of, hence non-normative rather than duplicate.",
-      "review_by": "2026-12-09",
+      "review_by": "2026-11-04",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     }
