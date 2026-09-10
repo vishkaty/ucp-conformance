@@ -43,6 +43,13 @@ if git diff --quiet -- public/coverage.json docs/spec-coverage-matrix.md packagi
 else
   bad "regenerated artifacts differ from committed — commit these:"; git --no-pager diff --stat -- public/coverage.json docs/spec-coverage-matrix.md packaging/spck_conformance/_bundle 2>/dev/null | sed 's/^/    /'
 fi
+# the bundle must also be COMPLETE, not just current (D1-05 <- D5-06 pending item): every module
+# merchant.py transitively imports + every data file it reads ships, and it imports in isolation
+if python3 packaging/validate_bundle.py >/tmp/preflight_bundle.log 2>&1; then
+  ok "$(tail -1 /tmp/preflight_bundle.log)"
+else
+  bad "pip bundle INCOMPLETE — see /tmp/preflight_bundle.log"; tail -4 /tmp/preflight_bundle.log | sed 's/^/    /'
+fi
 # the claims register's generated blocks (manifest + evidence split) are byte-synced with the engine (D5-05)
 if python3 conformance/web/sync_site_claims.py --check >/tmp/preflight_claims_sync.log 2>&1; then
   ok "site_claims.json manifest + evidence.per_version in sync with the engine"

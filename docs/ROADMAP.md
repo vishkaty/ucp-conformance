@@ -33,7 +33,7 @@ Nothing counts unless it survives this chain — every link is a CI gate, red on
    (official Flower Shop sample, or our controlled fixture whose every response is
    validated by the official `ucp-schema` Rust oracle) AND be kill-safe (all injected
    mutants caught). Gates: `merchant`, `merchant-catalog`, `merchant-ctrl-01-23`,
-   `killrate`, `fixture`, `schema`.
+   `proxy-demo`, `fixture`, `schema`.
 5. **Coverage accounting is itself gated** — the `coverage` gate enforces: published
    matrix data is fresh (byte-exact), accounted counts never decrease (ratchet),
    exemptions are real+justified+not double-booked, and site copy states the true
