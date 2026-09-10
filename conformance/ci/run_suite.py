@@ -318,6 +318,12 @@ def gates(server):
         ("attribution-hook", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py"), None, (2,)),
         ("attribution-selftest", _py(ROOT / "conformance" / "ci" / "attribution_hook_gate.py", "--selftest"),
          None, ()),
+        # the branch-level attribution net (D4-15): ops/tools/filing_lint.py greps the unpushed
+        # range of every local branch of every repo in ops/tools/repos.json (own repos since
+        # 2026-09-10, upstream-bound forks at any date) and lints ops/filings/. Hermetic
+        # selftest (scratch repos with planted trailers); rc 2 = ops/ not mounted (CI).
+        ("filing-lint", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/filing_lint.py", "--selftest"),
+         None, (2,)),
     ]
 
 def server_up(server, timeout=3):
