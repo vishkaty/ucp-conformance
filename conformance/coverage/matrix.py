@@ -635,21 +635,32 @@ def selftest():
     _pinned_spec_versions() vs VERSIONS) — so without this, "the code path must
     exist and be tested" would be aspirational, not proven. Pure/hermetic: no I/O
     beyond the one real `export_json()` sanity call at the end, no repo mutation."""
+    # Rule R-a (PLAN-v3 §2.18, decision 25; D2-06). `testable_gap` is the version's
+    # gap_by_testability dict; a GAP in the testable / needs-receiver / needs-oauth
+    # tiers means checks are still landing -> `converting`, never `live`.
     cases = [
-        ((0, 0, False), "unregistered"),
-        ((3, 0, False), "unregistered"),   # register-tree absence wins regardless of counts
-        ((0, 5, False), "unregistered"),
-        ((0, 0, True), "building"),
-        ((1, 0, True), "live"),
-        ((0, 1, True), "live"),
-        ((4, 2, True), "live"),
+        ((0, 0, False, {}), "unregistered"),
+        ((3, 0, False, {}), "unregistered"),   # register-tree absence wins regardless of counts
+        ((0, 5, False, {"testable": 1}), "unregistered"),
+        ((0, 0, True, {}), "building"),
+        ((0, 0, True, {"manual": 4}), "building"),
+        ((1, 0, True, {}), "live"),
+        ((0, 1, True, {}), "live"),
+        ((4, 2, True, {"manual": 7}), "live"),          # manual/untestable GAP never blocks live
+        ((1, 0, True, {"testable": 3}), "converting"),
+        ((4, 2, True, {"needs-receiver": 17}), "converting"),
+        ((4, 2, True, {"needs-oauth": 1, "manual": 9}), "converting"),
+        ((1, 0, True, {"testable": 0}), "live"),        # a zero-count tier is no GAP
     ]
     bad = 0
-    for (n_check, n_exempt, has_register), want in cases:
-        got = _version_state(n_check, n_exempt, has_register)
+    for (n_check, n_exempt, has_register, testable_gap), want in cases:
+        try:
+            got = _version_state(n_check, n_exempt, has_register, testable_gap)
+        except TypeError as e:
+            got = f"TypeError: {e}"
         ok = got == want
         print(f"  {'✓' if ok else '✗'} state(check={n_check}, exempt={n_exempt}, "
-              f"has_register={has_register}) = {got!r}"
+              f"has_register={has_register}, gap={testable_gap}) = {got!r}"
               + ("" if ok else f"  <-- expected {want!r}"))
         bad += 0 if ok else 1
 
@@ -660,9 +671,20 @@ def selftest():
     # function this selftest exercises, not a parallel copy that could drift.
     fresh = export_json()
     prod_states = {v: e["state"] for v, e in fresh["versions"].items()}
-    wired_ok = bool(prod_states) and all(s in ("building", "live") for s in prod_states.values())
+    wired_ok = bool(prod_states) and all(s in ("building", "live", "converting")
+                                         for s in prod_states.values())
+    # R-a on the real export: a version is `live` iff it has no GAP in the
+    # testable / needs-receiver / needs-oauth tiers, and `converting` iff it has one.
+    for v, e in fresh["versions"].items():
+        blocking = sum(e.get("gap_by_testability", {}).get(t, 0) for t in CONVERTING_TIERS)
+        if e["state"] == "live" and blocking:
+            wired_ok = False
+            print(f"  ✗ {v}: state=live with {blocking} blocking GAP(s) {e['gap_by_testability']}")
+        if e["state"] == "converting" and not blocking:
+            wired_ok = False
+            print(f"  ✗ {v}: state=converting with no blocking GAP")
     print(f"  {'✓' if wired_ok else '✗'} production export states: {prod_states}"
-          + ("" if wired_ok else "  <-- unexpected unregistered version today"))
+          + ("" if wired_ok else "  <-- R-a violated (see above)"))
     bad += 0 if wired_ok else 1
 
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
