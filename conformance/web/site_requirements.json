@@ -436,6 +436,20 @@
       ],
       "status": "active",
       "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-034",
+      "requirement": "The instant check (/api/conformance, /check) and the badge run PREVIEW checks mapped 1:1 to engine checks by the committed, add-only id map conformance/web/preview_parity.json (js id -> engine ids, requirement ids per version, counted flag, stage): every rendered row carries its engine twin(s) and requirement ids for the profile's version (no hard-coded citations in prose), `summary` and the badge's N/M count only `counted` ids (discovery.content_type is report-only), 01-11 profiles are graded in their own shape, and the parity gate conformance/ci/preview_parity.py grades a FROZEN capture set (goldens, controlled fixtures, synthetic mutants) on both sides against the expected-verdict file, refusing an unmapped id, an expired tolerated divergence or any verdict drift (PLAN-v3 §2.18, D5-11).",
+      "pages": [
+        "check.html",
+        "functions/api/conformance.js",
+        "functions/api/badge.js"
+      ],
+      "tests": [
+        "web_unit:preview-parity"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
     }
   ]
 }

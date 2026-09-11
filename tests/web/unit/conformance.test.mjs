@@ -8,6 +8,13 @@ import { stubFetch, jsonResp } from "./helpers.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const { cleanHeaders, runPreviewChecks, preview } =
   await import(pathToFileURL(path.join(ROOT, "functions/api/conformance.js")).href);
+import fs from "node:fs";
+// SITE-R-034 (D5-11): the committed id map conformance/web/preview_parity.json is the single
+// source of which preview ids are COUNTED, their engine twins and requirement ids per version.
+const ID_MAP = JSON.parse(fs.readFileSync(path.join(ROOT, "conformance/web/preview_parity.json"), "utf8")).preview;
+const countedIds = (stage) => Object.entries(ID_MAP).filter(([, m]) => m.counted && m.stage === stage).map(([id]) => id);
+const SHALLOW = countedIds("discovery").length;          // badge / shallow preview denominator
+const DEEP = SHALLOW + countedIds("catalog").length;     // /api/conformance with catalog probes
 
 // ── cleanHeaders: the sanitizer between users and outbound requests ──────────
 test("cleanHeaders keeps only sane x-* headers", () => {
@@ -41,10 +48,54 @@ const GOOD_PROFILE = {
   },
 };
 
-test("conformant profile passes all four structure checks", () => {
+test("conformant profile passes every counted structure check (denominator from the id map)", () => { // SITE-R-034
   const r = runPreviewChecks(GOOD_PROFILE, "application/json");
-  assert.equal(r.summary.total, 4);
+  assert.equal(r.summary.total, SHALLOW);
+  assert.equal(r.summary.passed, SHALLOW);
   assert.equal(r.summary.deviations, 0);
+});
+
+test("summary counts only counted ids — discovery.content_type (SHOULD) is report-only", () => { // SITE-R-034
+  const r = runPreviewChecks(GOOD_PROFILE, "text/html");
+  const ct = r.checks.find((c) => c.id === "discovery.content_type");
+  assert.ok(ct, "the content-type row still renders");
+  assert.equal(ct.status, "deviation");
+  assert.equal(ct.counted, false);
+  assert.equal(r.summary.total, SHALLOW, "report-only rows never enter the denominator");
+  assert.equal(r.summary.deviations, 0, "a report-only deviation is not counted");
+  assert.equal(ID_MAP["discovery.content_type"].counted, false);
+});
+
+test("every preview row carries its engine twin(s) and requirement ids from the id map, per version", () => { // SITE-R-034
+  const r = runPreviewChecks(GOOD_PROFILE, "application/json");      // 2026-04-08
+  const by = Object.fromEntries(r.checks.map((c) => [c.id, c]));
+  assert.deepEqual(by["discovery.capabilities_object"].req_ids, ["OVR-001"]);   // was mis-cited DISC-001
+  assert.deepEqual(by["discovery.capabilities_object"].engine, ["profile.reverse_domain_names"]);
+  assert.deepEqual(by["discovery.services_array"].req_ids, ["DISC-005"]);       // was mis-cited DISC-007
+  assert.deepEqual(by["discovery.version"].req_ids, ["OVR-010"]);
+  for (const c of r.checks) {
+    assert.deepEqual(c.engine, ID_MAP[c.id].engine["2026-04-08"] || []);
+    assert.deepEqual(c.req_ids, ID_MAP[c.id].req_ids["2026-04-08"] || []);
+    assert.doesNotMatch(c.requirement, /\((DISC|OVR|CAT)-\d{3}[^)]*\)/, "no hard-coded citation in the prose");
+  }
+  const old = runPreviewChecks({ ucp: { ...GOOD_PROFILE.ucp, version: "2026-01-23" } }, "application/json");
+  const byOld = Object.fromEntries(old.checks.map((c) => [c.id, c]));
+  assert.deepEqual(byOld["discovery.capabilities_object"].req_ids, ["DISC-001"]);
+  assert.deepEqual(byOld["discovery.services_array"].req_ids, ["DISC-007"]);
+});
+
+test("2026-01-11 profiles are graded in their own shape (array capabilities with name; service object with rest.endpoint)", () => { // SITE-R-034
+  const p0111 = { ucp: { version: "2026-01-11",
+    capabilities: [{ name: "dev.ucp.shopping.checkout", version: "2026-01-11" }],
+    services: { "dev.ucp.shopping": { rest: { endpoint: "https://m.example.com" } } } } };
+  const r = runPreviewChecks(p0111, "application/json");
+  const by = Object.fromEntries(r.checks.map((c) => [c.id, c.status]));
+  assert.equal(by["discovery.capabilities_object"], "pass");
+  assert.equal(by["discovery.services_array"], "pass");
+  assert.equal(r.summary.deviations, 0);
+  const keyed = runPreviewChecks({ ucp: { ...p0111.ucp, capabilities: { "dev.ucp.shopping.checkout": [{}] } } }, "application/json");
+  assert.equal(keyed.checks.find((c) => c.id === "discovery.capabilities_object").status, "deviation",
+    "the keyed object is the WRONG shape at 2026-01-11 (engine parity)");
 });
 
 test("array capabilities and object services are deviations", () => {
@@ -82,7 +133,7 @@ test("shallow preview (badge path) runs no catalog probes", async () => {
     ...GOOD_PROFILE.ucp,
     capabilities: { "dev.ucp.shopping.catalog.search": [{}] } } })]]);
   const out = await preview("https://m.example.com");
-  assert.equal(out.summary.total, 4);
+  assert.equal(out.summary.total, SHALLOW);
   assert.equal(calls.length, 1);            // only the well-known fetch
 });
 
@@ -104,7 +155,7 @@ test("deep preview runs catalog probes, forwards headers + custom query", async 
   ]);
   const out = await preview("https://m.example.com",
     { deep: true, headers: { "x-tenant-host": "s.example.com" }, query: "sunglasses" });
-  assert.equal(out.summary.total, 7);
+  assert.equal(out.summary.total, DEEP);
   assert.equal(out.summary.deviations, 0);
   assert.deepEqual(out.custom_headers_sent, ["x-tenant-host"]);
   for (const c of calls)                     // header forwarded to EVERY request
