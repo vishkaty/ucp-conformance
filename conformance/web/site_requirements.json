@@ -465,6 +465,22 @@
       ],
       "status": "active",
       "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-036",
+      "requirement": "Number flows (H1, decision 6): the merchant-check count every public surface advertises is len(merchant_checks.all_checks()) — the runtime set — counted by ONE helper (conformance/ci/checkset_count.py) used by the coverage gate's copy freshness, site-freshness's manifest, docclaims and the site_claims writer, and a duplicate check id is refused; the coverage page's evidence line iterates coverage.json evidence_classes (a new class renders without a page edit) and, when the export carries roles.summary, renders the per-role MUST split with a toggle that re-renders the bar for that role; site_claims manifest.merchant_checks and evidence.per_version regenerate from the same sources (PLAN-v3 §2.18, D5-16).",
+      "pages": [
+        "coverage.html",
+        "check.html",
+        "index.html"
+      ],
+      "tests": [
+        "gate:freshness",
+        "gate:docclaims",
+        "web_unit:number-flows"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
     }
   ]
 }

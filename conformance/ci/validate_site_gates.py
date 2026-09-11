@@ -9,6 +9,7 @@ touched), plants one defect, and asserts the gate reddens with the expected line
   D5-01  test_docclaims_reds_on_stale_count — a stale count in functions/**/*.js reds docclaims
   D5-05  test_sync_site_claims_check_reds_on_drift / test_sync_never_rewrites_review_fields
   D5-12  test_checkdocs_known_issues_drift  — a hand-edited cell on the generated known-issues page reds checkdocs + --check
+  D5-16  test_manifest_counts_all_checks_and_reds_on_duplicate — the count is len(all_checks()); a planted duplicate id reds
 
 Run: python3 conformance/ci/validate_site_gates.py   (exit 0 pass · 1 fail). Stdlib only.
 """
@@ -166,9 +167,41 @@ def test_checkdocs_known_issues_drift():
         return None
 
 
+def test_manifest_counts_all_checks_and_reds_on_duplicate():
+    """D5-16 (H1): the product's merchant-check count is len(merchant_checks.all_checks()) — the
+    runtime set, incl. modules the old `^    MCheck(` regex never saw (228, not 227) — counted by
+    ONE helper (conformance/ci/checkset_count.py) that every copy/manifest gate uses, and a
+    duplicate MCheck id planted in a scratch checks dir must red it naming the id."""
+    helper = ROOT / "conformance" / "ci" / "checkset_count.py"
+    if not helper.exists():
+        return "conformance/ci/checkset_count.py absent — counts still come from the `^    MCheck(` regex (227 vs 228 at runtime)"
+    r = subprocess.run([sys.executable, str(helper), "--json"], cwd=str(ROOT), capture_output=True, text=True, timeout=120)
+    if r.returncode != 0:
+        return f"checkset_count.py failed on the real tree:\n{(r.stdout + r.stderr)[-300:]}"
+    got = json.loads(r.stdout)
+    want = subprocess.run([sys.executable, "-c", "import sys;sys.path.insert(0,'conformance/checks');"
+                           "import merchant_checks as m;print(len(m.all_checks()))"], cwd=str(ROOT),
+                          capture_output=True, text=True, timeout=120).stdout.strip()
+    if str(got.get("merchant_checks")) != want:
+        return f"checkset_count says {got.get('merchant_checks')} but len(all_checks()) is {want}"
+    with tempfile.TemporaryDirectory() as tmp:
+        d = pathlib.Path(tmp) / "checks"
+        shutil.copytree(ROOT / "conformance" / "checks", d, ignore=shutil.ignore_patterns("__pycache__"))
+        (d / "merchant_checks_zz_planted_dup.py").write_text(
+            "from merchant_checks import MCheck, profile_resp, p_version\n"
+            "CHECKS_PLANTED = [MCheck('discovery.version', ['DISC-013'], 'MUST', profile_resp, p_version, ['drop:version'])]\n")
+        env = dict(os.environ, SPCK_CHECKS_DIR=str(d))
+        r2 = subprocess.run([sys.executable, str(helper), "--json"], cwd=str(ROOT), env=env, capture_output=True, text=True, timeout=120)
+        if r2.returncode == 0:
+            return "checkset_count stayed GREEN with a duplicate 'discovery.version' planted in a scratch checks dir"
+        if "discovery.version" not in r2.stdout + r2.stderr:
+            return f"duplicate refused but not named:\n{(r2.stdout + r2.stderr)[-300:]}"
+    return None
+
+
 TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count,
          test_sync_site_claims_check_reds_on_drift, test_sync_never_rewrites_review_fields,
-         test_checkdocs_known_issues_drift]
+         test_checkdocs_known_issues_drift, test_manifest_counts_all_checks_and_reds_on_duplicate]
 
 
 def main():

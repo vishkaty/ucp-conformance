@@ -131,3 +131,40 @@ test("08-25 with discovery_live null or stores 0 renders the W0 ceiling sentence
     assert.doesNotMatch(text, /independently-operated stores/);
   }
 });
+
+
+// ── D5-16 / SITE-R-036: the evidence legend and the role split are data-driven ─────────
+test("evidence line iterates coverage.json.evidence_classes — a fifth class renders with its count", async () => { // SITE-R-036
+  const cov = JSON.parse(JSON.stringify(COV));
+  cov.evidence_classes["register-selfcheck"] = "a struct check whose oracle is the register itself";
+  const v = cov.versions["2026-04-08"];
+  v.evidence_classes = Object.keys(cov.evidence_classes);
+  v.evidence_breakdown["register-selfcheck"] = 5;
+  const doc = await render(cov);
+  clickTab(doc, "2026-04-08");
+  const text = doc.getElementById("summary").textContent;
+  assert.match(text, /register-selfcheck 5/, `fifth class rendered from the export\n${text}`);
+  for (const k of Object.keys(cov.evidence_classes)) assert.match(text, new RegExp(k.replace(/[-]/g, "\\-") + " \\d+"));
+});
+
+test("roles.summary renders the per-role MUST split and a role toggle re-renders the bar", async () => { // SITE-R-036
+  const cov = JSON.parse(JSON.stringify(COV));
+  const v = cov.versions["2026-08-25"];
+  v.roles = { summary: { merchant: 500, agent: 220, both: 40, other: 100 },
+              merchant: { musts: 500, check: 60, exempt: 10, gap: 430 },
+              agent: { musts: 220, check: 0, exempt: 3, gap: 217 } };
+  const doc = await render(cov);
+  clickTab(doc, "2026-08-25");
+  const text = doc.getElementById("summary").textContent;
+  assert.match(text, /merchant 500/); assert.match(text, /agent 220/); assert.match(text, /both 40/); assert.match(text, /other 100/);
+  const toggle = doc.getElementById("role-toggle");
+  assert.ok(toggle, "role toggle rendered when roles.summary is present");
+  const btn = toggle.children.find((b) => b.dataset.role === "merchant");
+  assert.ok(btn, "merchant role button"); btn.dispatch("click");
+  const after = doc.getElementById("summary").textContent;
+  assert.match(after, /500/); assert.match(after, /430/);
+  // without roles (the committed export today) nothing role-related renders
+  const doc2 = await render(COV);
+  clickTab(doc2, "2026-08-25");
+  assert.equal(doc2.getElementById("role-toggle"), undefined);
+});
