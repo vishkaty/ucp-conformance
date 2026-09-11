@@ -35,6 +35,176 @@ V = "2026-08-25"
 ITEMS = 12
 
 
+SEVEN_CLASSES = ("live-wire", "fixture-schema", "fixture-crypto", "self-referenced",
+                 "register-selfcheck", "reference-impl", "discovery-live")
+
+
+def _rc_ok(rc, skip_ok=()):
+    return rc == 0 or rc in skip_ok
+
+
+def evaluate(inp):
+    """Pure: inputs dict (see collect()) -> {item: {pass, evidence}} for items 1..12."""
+    out = {}
+    e = ((inp.get("export") or {}).get("versions") or {}).get(V) or {}
+    surf = e.get("surface") or {}
+    prose, schema = surf.get("prose") or {}, surf.get("schema") or {}
+    # 1 census
+    prose_ok = prose.get("census_mode") == "gate" and prose.get("missed") == 0
+    schema_ok = bool(schema.get("enforce")) and schema.get("atoms_unaccounted") == 0
+    out[1] = {"pass": prose_ok and schema_ok and bool(surf),
+              "evidence": f"prose census mode {prose.get('census_mode')} missed {prose.get('missed')} · schema enforce "
+                          f"{schema.get('enforce')} atoms_unaccounted {schema.get('atoms_unaccounted')} · surface published {bool(surf)}"}
+    # 2 per role / per transport
+    roles = e.get("roles") or {}
+    mg = (roles.get("merchant") or {}).get("gap")
+    ax = (inp.get("agent_axis") or {}).get(V) or {}
+    ag = ax.get("gap")
+    bt = e.get("by_transport") or {}
+    tgaps = {t: d.get("gap") for t, d in bt.items() if t != "any"}
+    out[2] = {"pass": mg == 0 and ag == 0 and all(g == 0 for g in tgaps.values()) and bool(bt),
+              "evidence": f"merchant lane GAP {mg} · agent lane GAP {ag} (agent_matrix) · per-transport GAP {tgaps}"}
+    # 3 evidence classes
+    classes = list(e.get("evidence_classes") or [])
+    missing = [c for c in SEVEN_CLASSES if c not in classes]
+    out[3] = {"pass": not missing, "evidence": f"published classes {classes} · missing {missing}"}
+    # 4 kill discipline
+    rk, kl, dm = inp.get("req_kills_rc"), inp.get("killset_rc"), inp.get("dormancy_rc")
+    out[4] = {"pass": rk == 0 and kl == 0 and dm == 0,
+              "evidence": f"validate_req_kills rc {rk} · killset-lock rc {kl} · dormancy rc {dm} (None = not available)"}
+    # 5 independent corroboration
+    do, py = inp.get("dual_oracle_rc"), inp.get("pydantic_rc")
+    out[5] = {"pass": do == 0 and py == 0,
+              "evidence": f"dual-oracle-0825 rc {do} · pydantic referee rc {py} (None = not available / timed out)"}
+    # 6 agent lane evidence at V
+    ev = inp.get("agent_evidence") or {}
+    unrun = V in (ev.get("unrun_versions") or {})
+    pin = inp.get("spec_pin")
+    lacking = [c for c in (inp.get("agent_checks_at_v") or [])
+               if ((ev.get("evidence") or {}).get(c) or {}).get(V, {}).get("spec_pin") != pin]
+    out[6] = {"pass": not unrun and not lacking and bool(inp.get("agent_checks_at_v")),
+              "evidence": f"{V} declared unrun {unrun} · agent checks at {V} without evidence at pin {str(pin)[:8]}: "
+                          f"{len(lacking)}/{len(inp.get('agent_checks_at_v') or [])}"}
+    # 7 ratchet + lock + state
+    r_ok = V in (inp.get("ratchet") or {})
+    ar_ok = V in (inp.get("agent_ratchet") or {})
+    cl = (inp.get("coverage_lock") or {}).get(V)
+    acl_all = inp.get("agent_coverage_lock") or {}
+    acl = acl_all.get(V)
+    susp = V in (inp.get("agent_lock_suspensions") or {})
+    st = e.get("state")
+    out[7] = {"pass": r_ok and ar_ok and bool(cl) and bool(acl) and not susp and st in ("converting", "live"),
+              "evidence": f"ratchet {r_ok} · agent ratchet {ar_ok} · coverage_lock {V} {bool(cl)} · agent lock {bool(acl)}"
+                          f"{' (SUSPENDED)' if susp else ''} · state {st}"}
+    # 8 records
+    findings = [f for f in (inp.get("expiry_findings") or []) if f.get("kind") in ("expired", "pin-drift", "missing-clock")]
+    ki = inp.get("known_issues_rc")
+    out[8] = {"pass": not findings and _rc_ok(ki, (2,)),
+              "evidence": f"expiry clocks: {len(findings)} expired/pin-drift/missing-clock"
+                          + (f" ({findings[0]['entry']}: {findings[0]['detail']})" if findings else "")
+                          + f" · known-issues rc {ki}"}
+    # 9 SHOULD scope
+    sh = (inp.get("should") or {}).get(V) or {}
+    out[9] = {"pass": sh.get("hits") is not None and bool(inp.get("rubric_sentence")),
+              "evidence": f"SHOULD census hits {sh.get('hits')} · site sentence 'airtight = MUST …' present {bool(inp.get('rubric_sentence'))}"}
+    # 10 review
+    pend = [b.get("batch") for b in (inp.get("signoffs") or []) if b.get("kind") == "sample" or str(b.get("batch", "")).startswith("expiry-clock-seed")
+            if ((b.get("sample") or {}).get("human_review") or {}).get("status") != "recorded"]
+    out[10] = {"pass": not pend, "evidence": f"sample batches with human review PENDING: {pend or 'none'}"}
+    # 11 converting state
+    gbt = e.get("gap_by_testability") or {}
+    open_t = sum(gbt.get(t, 0) for t in ("testable", "needs-receiver", "needs-oauth"))
+    out[11] = {"pass": st == "converting", "evidence": f"{V} state {st} · open testable-tier rows {open_t}"}
+    # 12 attribution
+    ah, fl = inp.get("attribution_rc"), inp.get("filing_lint_rc")
+    out[12] = {"pass": _rc_ok(ah, (2,)) and fl == 0,
+               "evidence": f"attribution-hook rc {ah} (2 = ops not mounted) · filing_lint --branches rc {fl}"}
+    return out
+
+
+def _run(argv, timeout=120):
+    try:
+        r = subprocess.run([sys.executable] + [str(a) for a in argv], cwd=ROOT, capture_output=True,
+                           text=True, timeout=timeout)
+        return r.returncode, r.stdout
+    except subprocess.TimeoutExpired:
+        return None, ""
+    except Exception:
+        return None, ""
+
+
+def collect(quick=False):
+    """Gather the inputs from the tree (exports, registers) and the gates' own outputs."""
+    import datetime, importlib, re
+    inp = {"today": datetime.date.today()}
+    def jload(p):
+        try:
+            return json.load(open(p))
+        except Exception:
+            return None
+    inp["export"] = jload(ROOT / "public" / "coverage.json")
+    inp["agent_axis"] = jload(CONF / "agent" / "agent_coverage.json")
+    rk = CONF / "selfcheck" / "validate_req_kills.py"
+    inp["req_kills_rc"] = _run([rk, "--version", V])[0] if rk.exists() else None
+    inp["killset_rc"] = _run([CONF / "selfcheck" / "validate_killset_lock.py"])[0]
+    inp["dormancy_rc"] = _run([CONF / "selfcheck" / "validate_dormancy.py"])[0]
+    if quick:
+        inp["dual_oracle_rc"] = inp["pydantic_rc"] = None
+    else:
+        inp["dual_oracle_rc"] = _run([CONF / "selfcheck" / "validate_dual_oracle.py", "--version", V], timeout=420)[0]
+        inp["pydantic_rc"] = _run([CONF / "selfcheck" / "validate_dual_oracle.py", "--version", V, "--pydantic"], timeout=420)[0]
+    inp["agent_evidence"] = jload(CONF / "agent" / "agent_run_evidence.json") or {}
+    lock = jload(CONF / "SOURCES.lock.json") or {}
+    inp["spec_pin"] = ((lock.get("spec") or {}).get("versions") or {}).get(V, {}).get("commit")
+    try:
+        sys.path.insert(0, str(CONF / "agent"))
+        ac = importlib.import_module("agent_checks")
+        inp["agent_checks_at_v"] = [c.id for c in ac.CHECKS if not c.versions or V in c.versions]
+    except Exception:
+        inp["agent_checks_at_v"] = []
+    inp["ratchet"] = {k: v for k, v in (jload(CONF / "coverage" / "ratchet.json") or {}).items() if not k.startswith("_")}
+    inp["agent_ratchet"] = {k: v for k, v in (jload(CONF / "agent" / "agent_ratchet.json") or {}).items() if not k.startswith("_")}
+    inp["coverage_lock"] = (jload(CONF / "coverage" / "coverage_lock.json") or {}).get("versions", {})
+    acl = jload(CONF / "agent" / "agent_coverage_lock.json") or {}
+    inp["agent_coverage_lock"] = acl.get("versions", {})
+    inp["agent_lock_suspensions"] = acl.get("suspensions", {})
+    rc, out = _run([CONF / "selfcheck" / "validate_expiry_clocks.py"])
+    m = re.search(r"(\d+) expired · (\d+) pin-drift · (\d+) missing-clock", out or "")
+    findings = []
+    if m:
+        for kind, n in zip(("expired", "pin-drift", "missing-clock"), m.groups()):
+            findings += [{"kind": kind, "entry": "see validate_expiry_clocks.py", "detail": f"{n} {kind}"}] * int(n)
+    elif rc != 0:
+        findings.append({"kind": "missing-clock", "entry": "validate_expiry_clocks.py", "detail": f"rc {rc}"})
+    inp["expiry_findings"] = findings
+    inp["known_issues_rc"] = _run([CONF / "ci" / "validate_known_issues.py"])[0]
+    rc, out = _run([CONF / "selfcheck" / "verify_should_census.py", "--json"])
+    try:
+        inp["should"] = json.loads(out).get("per_version", {})
+    except Exception:
+        inp["should"] = {}
+    inp["rubric_sentence"] = any("airtight = MUST" in p.read_text(errors="replace")
+                                 for p in (ROOT / "public").glob("*.html"))
+    inp["signoffs"] = (jload(CONF / "coverage" / "review_signoffs.json") or {}).get("signoffs", [])
+    inp["attribution_rc"] = _run([CONF / "ci" / "attribution_hook_gate.py"])[0]
+    fl = ROOT / "ops" / "tools" / "filing_lint.py"
+    inp["filing_lint_rc"] = _run([fl, "--branches"], timeout=300)[0] if fl.exists() else None
+    return inp
+
+
+def main(argv):
+    quick = "--quick" in argv
+    res = evaluate(collect(quick=quick))
+    if "--json" in argv:
+        print(json.dumps({str(k): v for k, v in sorted(res.items())}, indent=1))
+        return 0
+    for k in sorted(res):
+        print(f"item {k:2}: {'PASS' if res[k]['pass'] else 'FAIL'} — {res[k]['evidence']}")
+    n = sum(1 for v in res.values() if v["pass"])
+    print(f"\nDONE-2 status: {n}/{ITEMS} items hold" + (" [--quick: oracle items not run]" if quick else ""))
+    return 0
+
+
 def selftest():
     """Scratch inputs: an export whose merchant lane has 3 GAPs -> item 2 false; a
     register with an expired review_by -> item 8 false; the same inputs with those two
@@ -52,7 +222,7 @@ def selftest():
             "roles": {"summary": {"merchant": 8, "agent": 4, "both": 2, "other": 0},
                       "merchant": {"musts": 8, "check": 8 - merchant_gap, "exempt": 0, "gap": merchant_gap},
                       "agent": {"musts": 4, "check": 4, "exempt": 0, "gap": 0}},
-            "by_transport": {"rest": {"musts": 10, "check": 7, "exempt": 0, "gap": 3}},
+            "by_transport": {"rest": {"musts": 10, "check": 10 - merchant_gap, "exempt": 0, "gap": merchant_gap}},
             "surface": {"prose": {"missed": 0, "census_mode": "gate"}, "schema": {"enforce": True, "atoms_unaccounted": 0},
                         "should": {"hits": 274, "scope": "report-only"}},
             "evidence_classes": ["live-wire", "fixture-schema", "fixture-crypto", "self-referenced",

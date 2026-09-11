@@ -97,6 +97,10 @@ def gates(server, require_server=False):
         # `evidence-class`). The selftest proves the scan on a fixture.
         ("should-census", _py(SELF / "verify_should_census.py"),                 None, ()),
         ("should-census-selftest", _py(SELF / "verify_should_census.py", "--selftest"), None, ()),
+        # D2-16: the DONE-2 status report (coverage/done2_status.py) is a program-review
+        # artefact, never a gate — but its evaluator must provably go red: scratch inputs
+        # flip items 2 (merchant-lane GAP) and 8 (expired clock). Hermetic.
+        ("done2-selftest", _py(ROOT / "conformance" / "coverage" / "done2_status.py", "--selftest"), None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)
         # must not silently regress to the pre-fix per-physical-line algorithm, which
