@@ -335,6 +335,81 @@ def _ovr002_case():
     return ok
 
 
+def _expected_skips_cases():
+    """D1-10 (C2): the pinned skip population. `--expected-skips FILE` makes every skip on a
+    golden a REVIEWED fact: an unexplained skip (not pinned), a stale pin (a pinned id that
+    RAN), a class mismatch, an expired review_by or a spec_pin drift each red the gate, so
+    skip-inflation can never silently hollow a merchant gate (the 01-23 idiom, generalized
+    to every GOLDENS entry). Hermetic: synthetic populations through the pure evaluator."""
+    from datetime import date
+    ok = True
+
+    def case(label, cond, detail=""):
+        nonlocal ok
+        print(f"  {'✓' if cond else '✗'} {label}" + ("" if cond else f"  <-- {detail}"))
+        ok &= bool(cond)
+
+    today = date(2026, 9, 11)
+    pins = {"2026-08-25": "cd78fb38", "2026-04-08": "a2d8bf0b"}
+    pinned = {"golden": "golden-0825", "version": "2026-08-25", "spec_pin": "cd78fb38",
+              "review_by": "2026-10-11",
+              "expected_skips": {"a.one": "version-scoped", "b.two": "needs-config"}}
+    try:
+        ev = evaluate_expected_skips
+    except NameError as e:
+        for label in ("(a) unpinned skip -> rc 1", "(b) pinned id that ran -> stale", "(c) class mismatch -> rc 1",
+                      "(d) exact match -> rc 0", "(e) review_by past -> rc 1", "(e') spec_pin drift -> rc 1"):
+            case(label, False, f"no --expected-skips evaluator ({e})")
+        ev = None
+    if ev is not None:
+        def run(skipped, ran, exp=pinned, golden="golden-0825", served="2026-08-25", t=today, p=pins):
+            return ev(exp, skipped, ran, golden=golden, served_version=served, today=t, pins=p)
+        rc, lines, n_pinned, n_unexpl = run({"a.one": "version-scoped", "b.two": "needs-config",
+                                             "c.three": "capability-not-declared"}, [])
+        case("(a) unpinned skip -> rc 1", rc == 1 and n_unexpl == 1 and any("c.three" in l for l in lines), lines)
+        rc, lines, _, _ = run({"a.one": "version-scoped"}, ["b.two"])
+        case("(b) pinned id that ran -> stale", rc == 1 and any("stale" in l and "b.two" in l for l in lines), lines)
+        rc, lines, _, _ = run({"a.one": "capability-not-declared", "b.two": "needs-config"}, [])
+        case("(c) class mismatch -> rc 1", rc == 1 and any("class" in l and "a.one" in l for l in lines), lines)
+        rc, lines, n_pinned, n_unexpl = run({"a.one": "version-scoped", "b.two": "needs-config"}, [])
+        case("(d) exact match -> rc 0", rc == 0 and n_pinned == 2 and n_unexpl == 0, lines)
+        rc, lines, _, _ = run({"a.one": "version-scoped", "b.two": "needs-config"}, [],
+                              exp={**pinned, "review_by": "2026-09-01"})
+        case("(e) review_by past -> rc 1", rc == 1 and any("expired" in l for l in lines), lines)
+        rc, lines, _, _ = run({"a.one": "version-scoped", "b.two": "needs-config"}, [],
+                              p={"2026-08-25": "deadbeef"})
+        case("(e') spec_pin drift -> rc 1", rc == 1 and any("spec_pin" in l for l in lines), lines)
+        rc, lines, _, _ = run({"a.one": "version-scoped", "b.two": "needs-config"}, [], golden="flower")
+        case("(e'') file pinned for another golden -> rc 1", rc == 1 and any("golden" in l for l in lines), lines)
+
+    # (f) every pinned population is a clocked register entry (RV2 T15): a skip file absent
+    # from expiry_registers.json would carry a review_by nobody enforces.
+    import glob as _glob
+    reg = json.loads((HERE.parents[0] / "coverage" / "expiry_registers.json").read_text())
+    registered = {r["file"] for r in reg["registers"]}
+    files = sorted(_glob.glob(str(HERE.parents[0] / "checks" / "expected_skips_*.json")))
+    rels = [str(pathlib.Path(f).relative_to(HERE.parents[1])) for f in files]
+    missing = [r for r in rels if r not in registered]
+    case("(f) every checks/expected_skips_*.json is registered in expiry_registers.json",
+         files and not missing, f"files={len(files)} missing={missing}")
+    # (f') every GOLDENS entry has a pinned population (skip-inflation impossible anywhere)
+    gold = {json.loads(pathlib.Path(f).read_text()).get("golden") for f in files}
+    case("(f') every GOLDENS entry carries a pinned skip file", set(GOLDENS) <= gold,
+         f"GOLDENS={sorted(GOLDENS)} pinned={sorted(g for g in gold if g)}")
+    # (g) SUPPORTED_SERVED_VERSIONS = exactly the versions with a pinned skip population
+    import merchant
+    vers = {json.loads(pathlib.Path(f).read_text()).get("version") for f in files}
+    case("(g) merchant.SUPPORTED_SERVED_VERSIONS == versions with a pinned skip population",
+         set(merchant.SUPPORTED_SERVED_VERSIONS) == vers and "2026-08-25" in vers,
+         f"supported={merchant.SUPPORTED_SERVED_VERSIONS} pinned={sorted(v for v in vers if v)}")
+    try:
+        has_flag = "--expected-skips" in build_parser()._option_string_actions
+    except NameError:
+        has_flag = False
+    case("main() accepts --expected-skips FILE", has_flag, "no --expected-skips")
+    return ok
+
+
 def selftest():
     """Hermetic structural cases (no server). D2-02 `unique_check_ids`: every MCheck
     id across the whole merchant check set must be unique — the reach report
@@ -358,6 +433,7 @@ def selftest():
     # Hermetic: a conformant synthetic profile as the golden Resp, engine.mutate for the
     # defects, the check's own predicate + declared mutation list.
     ok &= _ovr002_case()
+    ok &= _expected_skips_cases()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
