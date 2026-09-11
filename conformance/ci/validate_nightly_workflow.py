@@ -108,7 +108,10 @@ def selftest():
     case("real nightly.yml: 0 findings", not base, "; ".join(base)[:300])
     m = copy.deepcopy(doc); m["jobs"]["crosscheck"]["steps"].append({"run": "python3 x.py --port=8182"})
     case("mutant: a job port set to 8182 (push-gate sweep) -> red", any("sweep port" in x for x in check(m, reg, by_port, sweep)))
-    m = copy.deepcopy(doc); m["jobs"]["seqfuzz"]["steps"].append({"run": "python3 x.py --port=9977"})
+    # an unregistered port built at runtime (the ports-registry scanner reads source literals,
+    # and this mutant must never look like a port the harness binds)
+    unregistered = max(reg[k]["port"] for k in reg) + 1000
+    m = copy.deepcopy(doc); m["jobs"]["seqfuzz"]["steps"].append({"run": f"python3 x.py --port={unregistered}"})
     case("mutant: an unregistered port -> red", any("not registered" in x for x in check(m, reg, by_port, sweep)))
     m = copy.deepcopy(doc); m["jobs"]["discovery-live"] = {"runs-on": "ubuntu-latest", "timeout-minutes": 5, "steps": [{"run": "echo"}]}
     case("mutant: a discovery-live job -> red", any("decision 4" in x for x in check(m, reg, by_port, sweep)))
