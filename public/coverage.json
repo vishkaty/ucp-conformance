@@ -4,7 +4,9 @@
   "live-wire": "kill-tested on the wire against at least one independently-authored server (flower golden / node reference \u2014 see `reach` per row)",
   "fixture-schema": "our fixture validated through the OFFICIAL ucp-schema oracle (spec-anchored, not circular)",
   "fixture-crypto": "self-signed crypto primitive self-test (e.g. the AP2 fixture-key checks) \u2014 spec-shaped, not independently corroborated",
-  "self-referenced": "graded only against our own fixture, with no independent oracle or target \u2014 the fixture-circularity class we flag upstream (conformance#79), named here in our own suite"
+  "self-referenced": "graded only against our own fixture, with no independent oracle or target \u2014 the fixture-circularity class we flag upstream (conformance#79), named here in our own suite",
+  "register-selfcheck": "a fact about the PINNED SPEC TEXT itself (a struct check fed the vendored schema document) \u2014 grades the corpus, never an implementation (A3)",
+  "reference-impl": "OUR implementation of an algorithm the prose fixes, proven against our own fixtures \u2014 no target, no independent oracle (A3)"
  },
  "spec_repo": "Universal-Commerce-Protocol/ucp",
  "spec_pins": {
@@ -122,15 +124,26 @@
    "discovery_live": null,
    "evidence_classes": [
     "live-wire",
+    "discovery-live",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
+    "discovery-live": 0,
     "fixture-schema": 16,
     "fixture-crypto": 0,
-    "self-referenced": 105
+    "self-referenced": 105,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 121,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 2,
@@ -2993,15 +3006,26 @@
    "discovery_live": null,
    "evidence_classes": [
     "live-wire",
+    "discovery-live",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
+    "discovery-live": 0,
     "fixture-schema": 22,
     "fixture-crypto": 0,
-    "self-referenced": 107
+    "self-referenced": 107,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 129,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 2,
@@ -6031,15 +6055,26 @@
    "discovery_live": null,
    "evidence_classes": [
     "live-wire",
+    "discovery-live",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 67,
+    "discovery-live": 0,
     "fixture-schema": 68,
     "fixture-crypto": 4,
-    "self-referenced": 138
+    "self-referenced": 138,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 277,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 7,
@@ -12220,10 +12255,10 @@
    "state": "converting",
    "no_further_work": false,
    "musts": 780,
-   "check": 77,
+   "check": 99,
    "exempt": 0,
-   "gap": 703,
-   "accounted_pct": 10,
+   "gap": 681,
+   "accounted_pct": 13,
    "roles": {
     "summary": {
      "merchant": 525,
@@ -12233,14 +12268,14 @@
     },
     "merchant": {
      "musts": 525,
-     "check": 77,
+     "check": 97,
      "exempt": 0,
-     "gap": 448,
+     "gap": 428,
      "gap_by_testability": {
       "manual": 52,
       "needs-oauth": 12,
-      "needs-receiver": 103,
-      "testable": 281
+      "needs-receiver": 102,
+      "testable": 262
      }
     },
     "agent": {
@@ -12259,9 +12294,9 @@
    "by_transport": {
     "rest": {
      "musts": 522,
-     "check": 60,
+     "check": 82,
      "exempt": 0,
-     "gap": 462
+     "gap": 440
     },
     "mcp": {
      "musts": 19,
@@ -12328,21 +12363,32 @@
    "discovery_live": null,
    "evidence_classes": [
     "live-wire",
+    "discovery-live",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
+    "discovery-live": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 45
+    "self-referenced": 29,
+    "register-selfcheck": 13,
+    "reference-impl": 25
+   },
+   "integrity": {
+    "target_facing": 61,
+    "corpus": 13,
+    "algorithm": 25
    },
    "gap_by_testability": {
     "manual": 131,
     "needs-oauth": 15,
-    "needs-receiver": 170,
-    "testable": 387
+    "needs-receiver": 169,
+    "testable": 366
    },
    "areas": [
     {
@@ -12391,44 +12437,44 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 2,
-     "gap": 51,
+     "check": 11,
+     "gap": 42,
      "gap_manual": 3,
-     "gap_needs-receiver": 9,
-     "gap_testable": 39,
+     "gap_needs-receiver": 8,
+     "gap_testable": 31,
      "musts": 53
     },
     {
      "area": "discounts-consent",
-     "check": 6,
-     "gap": 22,
+     "check": 7,
+     "gap": 21,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 15,
+     "gap_testable": 14,
      "musts": 28
     },
     {
      "area": "discovery-and-profile",
-     "check": 4,
-     "gap": 5,
+     "check": 6,
+     "gap": 3,
      "gap_needs-receiver": 1,
-     "gap_testable": 4,
+     "gap_testable": 2,
      "musts": 9
     },
     {
      "area": "error-envelope",
-     "check": 3,
-     "gap": 22,
+     "check": 10,
+     "gap": 15,
      "gap_manual": 13,
-     "gap_testable": 9,
+     "gap_testable": 2,
      "musts": 25
     },
     {
      "area": "fulfillment",
-     "check": 4,
-     "gap": 18,
+     "check": 5,
+     "gap": 17,
      "gap_manual": 7,
-     "gap_testable": 11,
+     "gap_testable": 10,
      "musts": 22
     },
     {
@@ -12458,12 +12504,12 @@
     },
     {
      "area": "order",
-     "check": 7,
-     "gap": 22,
+     "check": 8,
+     "gap": 21,
      "gap_manual": 3,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 7,
-     "gap_testable": 11,
+     "gap_testable": 10,
      "musts": 29
     },
     {
@@ -12590,8 +12636,9 @@
     },
     {
      "area": "version-negotiation-and-protocol-errors",
-     "gap": 5,
-     "gap_testable": 5,
+     "check": 1,
+     "gap": 4,
+     "gap_testable": 4,
      "musts": 5
     }
    ],
@@ -12693,7 +12740,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -12793,7 +12840,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -12809,7 +12856,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12825,7 +12872,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12841,7 +12888,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12857,7 +12904,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12873,7 +12920,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13043,7 +13090,8 @@
      "requirement": "A cart response object MUST include ucp, id, line_items, currency, and totals",
      "source": "ucp:source/schemas/shopping/cart.json#L32-L38",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -13071,7 +13119,8 @@
      "requirement": "Each cart line item MUST include id, item, quantity, and totals",
      "source": "ucp:source/schemas/shopping/types/line_item.json#L7-L12",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -13145,7 +13194,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13161,7 +13210,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13177,7 +13226,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13277,7 +13326,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13293,7 +13342,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13309,7 +13358,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13325,7 +13374,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13437,7 +13486,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13453,7 +13502,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13469,7 +13518,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13485,7 +13534,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -13501,7 +13550,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13577,7 +13626,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13593,7 +13642,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13609,7 +13658,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13625,7 +13674,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13641,7 +13690,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -13793,60 +13842,80 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L83",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-019",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L84",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-020",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L85",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-021",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L86",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-022",
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L87",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-023",
@@ -13877,12 +13946,16 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Complete Checkout response is the checkout object; when completion finishes synchronously status is completed and order is populated with id and permalink_url, when accepted for async processing status is complete_in_progress and order is absent",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1094-L1099",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-033",
@@ -13911,7 +13984,8 @@
      "requirement": "Checkout response MUST include required top-level fields: ucp, id, line_items, status, currency, totals, links",
      "source": "ucp:source/schemas/shopping/checkout.json#L8-L16",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -13957,12 +14031,16 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "platform",
      "normative_basis": "schema",
      "requirement": "line_items is required on create and update requests and omitted on complete requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L34-L38",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-039",
@@ -14017,12 +14095,16 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "When an Idempotency-Key is provided, server MUST store the key+result >=24h, return the cached result for a duplicate key whose request body matches the original, and return 409 if the key is reused with a mismatched body",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1309-L1312",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-050",
@@ -14305,12 +14387,16 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "platform",
      "normative_basis": "sentence",
      "requirement": "When retrying the original Complete Checkout request after Get Checkout still cannot establish whether the Business processed it, the Platform MUST NOT use a new idempotency key for that retry.",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1113-L1115",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-079",
@@ -14693,7 +14779,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -14701,12 +14787,16 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "Published artifact responses MUST send Cache-Control with public and max-age>=60, and MUST NOT use private/no-store/no-cache.",
      "source": "ucp:docs/specification/overview/index.md#L2240-L2242",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-004",
@@ -14721,7 +14811,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -14729,12 +14819,16 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "service endpoint MUST be a valid HTTPS URL.",
      "source": "ucp:docs/specification/overview/index.md#L1035",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-006",
@@ -14761,7 +14855,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -14777,7 +14871,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -14809,12 +14903,16 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "Sending an empty array codes:[] removes all discount codes",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L135",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-005",
@@ -14851,7 +14949,8 @@
      "requirement": "Rejected codes are communicated via the messages[] array",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L141",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -15031,7 +15130,8 @@
      "requirement": "applied_discount MUST include title and amount",
      "source": "ucp:source/schemas/shopping/discount.json#L29-L32",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -15111,7 +15211,8 @@
      "requirement": "When multiple codes are submitted and one is invalid, only the valid discount is applied (accept-one-reject-one); rejected appears in messages[] not applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L512-L513",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -15157,36 +15258,48 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Error message MUST include type, code, content, and severity fields.",
      "source": "ucp:source/schemas/common/types/message_error.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-002",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Error message type discriminator MUST be the constant \"error\".",
      "source": "ucp:source/schemas/common/types/message_error.json#L13",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-003",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Error message severity MUST be one of recoverable, requires_buyer_input, requires_buyer_review, unrecoverable.",
      "source": "ucp:source/schemas/common/types/message_error.json#L40",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-004",
@@ -15205,12 +15318,16 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Error message content_type, when present, MUST be one of plain or markdown (default plain).",
      "source": "ucp:source/schemas/common/types/message_error.json#L25",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-006",
@@ -15229,24 +15346,32 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Warning message MUST include type, code, and content fields.",
      "source": "ucp:source/schemas/common/types/message_warning.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-010",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "Warning message type discriminator MUST be the constant \"warning\".",
      "source": "ucp:source/schemas/common/types/message_warning.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-011",
@@ -15445,12 +15570,16 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "schema",
      "requirement": "A Message MUST be exactly one of error, warning, or info (oneOf discriminated container).",
      "source": "ucp:source/schemas/common/types/message.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-034",
@@ -15476,6 +15605,7 @@
      "source": "ucp:source/schemas/shopping/types/fulfillment_method.json#L7-L11",
      "covered_by": [
       "golden_check_08_25.py",
+      "merchant_checks.py",
       "validate_golden_0825_battery.py"
      ],
      "evidence": "fixture-schema",
@@ -15508,7 +15638,8 @@
      "requirement": "A fulfillment_option MUST include id, title, and totals",
      "source": "ucp:source/schemas/shopping/types/fulfillment_option_base.json#L7",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -15590,12 +15721,16 @@
      "area": "fulfillment",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "When supports_multi_group is false (default), the business MUST consolidate all items into a single group per method",
      "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L786",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "FUL-030",
@@ -17414,7 +17549,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -17442,7 +17577,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -17810,12 +17945,16 @@
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
      "source": "ucp:docs/specification/overview/index.md#L1862,L3553",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-002",
@@ -17870,12 +18009,16 @@
      "area": "order",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "Businesses MUST return the full order entity (current-state snapshot) on every response, not deltas",
      "source": "ucp:docs/specification/shopping/order/index.md#L555",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ORD-002",
@@ -17932,7 +18075,8 @@
      "requirement": "Each order line item requires id, item, quantity, totals, and status",
      "source": "ucp:source/schemas/shopping/types/order_line_item.json#L6",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -19544,7 +19688,8 @@
      "requirement": "Credentials flow Platform -> Business only; businesses MUST NOT echo credentials back in responses",
      "source": "ucp:docs/specification/overview/index.md#L2511",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -20046,7 +20191,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20062,7 +20207,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20078,7 +20223,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20118,7 +20263,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20134,7 +20279,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20150,7 +20295,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -20922,7 +21067,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -20938,7 +21083,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -22124,7 +22269,8 @@
      "requirement": "Exactly one totals entry of type subtotal MUST be present",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1323",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -22140,7 +22286,8 @@
      "requirement": "Exactly one totals entry of type total MUST be present",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1324",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []
@@ -22208,7 +22355,8 @@
      "requirement": "Additive well-known types (subtotal, fulfillment, tax, fee) MUST have non-negative amounts",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1356-L1357",
      "covered_by": [
-      "golden_check_08_25.py"
+      "golden_check_08_25.py",
+      "merchant_checks.py"
      ],
      "evidence": "fixture-schema",
      "reach": []

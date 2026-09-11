@@ -40,7 +40,7 @@ gates need (so every acceptance command written as `run_suite.py --only <gate>` 
 runnable as written, cheaply, and proves the gate it names — pinned by
 conformance/ci/validate_run_suite_only.py, gate `run-suite-only`).
 """
-import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile
+import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile, glob
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SELF = ROOT / "conformance" / "selfcheck"
@@ -73,6 +73,9 @@ def gates(server, require_server=False):
     # require_server also turns a missing TOOLCHAIN into a failure for the gates
     # that name it (golden-0825-unit: `uv`), not just a missing server.
     rec = lambda name: ("--record", str(RECORD_DIR / f"{name}.json"))   # noqa: E731
+    # D1-10: every merchant gate grades against its PINNED skip population (C2): an
+    # unexplained skip, a pinned id that ran, a class change or an expired clock reds it.
+    skips = lambda name: ("--expected-skips", str(CHK / f"expected_skips_{name}.json"))   # noqa: E731
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         # D2-02: hermetic kill-tests behind the `register` gate's duplicate-pair and
@@ -125,7 +128,7 @@ def gates(server, require_server=False):
         # schema_check_04_08.py idiom). Deliberately unattributed: not wired into
         # checkset_manifest/matrix/coverage — the coverage/site flip is a separate,
         # owner-visible step (PLAN-0825 §G conversion-phase discipline).
-        ("struct-check-08-25", _py(CHK / "struct_check_08_25.py"),                None, ()),
+        ("struct-check-08-25", _py(CHK / "struct_check_08_25.py", *rec("struct-0825")), None, ()),
         # P3 wave 2 (2026-08-31, lane/p3-wave2): the golden-reading counterpart to
         # struct-check-08-25 above — rows checkable ONLY against a live golden-0825
         # server, unblocked by the R11 defect-injection battery landing. HERMETIC
@@ -139,7 +142,7 @@ def gates(server, require_server=False):
         # "self_referenced_mutants" array for rows the released schema cannot
         # itself enforce — see that file's own $comment and the module docstring
         # here). Deliberately unattributed, same discipline as struct-check-08-25.
-        ("golden-check-08-25", _py(CHK / "golden_check_08_25.py"),                None, (2,)),
+        ("golden-check-08-25", _py(CHK / "golden_check_08_25.py", *rec("golden-check-0825")), None, (2,)),
         # D3-29: golden-0825's OWN unit + smoke tests (server/*_test.py, smoke/) are
         # executed here, not merely present -- every D3 task's failing-first test is a
         # server or smoke test, so an unexecuted suite would let a red one sit in the
@@ -163,6 +166,14 @@ def gates(server, require_server=False):
         ("expiry-clocks", _py(SELF / "validate_expiry_clocks.py"),                None, ()),
         ("expiry-clocks-selftest", _py(SELF / "validate_expiry_clocks.py", "--selftest"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
+        # D1-14 (PLAN-v3 §2.3): every committed wave target file — the ids a wave COMMITTED
+        # to convert — reads all CHECK at its version; mid-wave an id may be excused only
+        # by a `blocked` entry naming a task id (--allow-blocked here; the wave-close
+        # checkpoint runs WITHOUT it, so `blocked` must be empty then). Hermetic.
+        ("wave-targets", _py(ROOT / "conformance" / "coverage" / "check_targets.py", "--allow-blocked",
+                             *sorted(glob.glob(str(ROOT / "conformance" / "coverage" / "wave*_targets_*.json")))),
+         None, ()),
+        ("wave-targets-selftest", _py(ROOT / "conformance" / "coverage" / "check_targets.py", "--selftest"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),
         ("fixture",     _py(FIXTURE / "selfcheck.py"),                          None, (2,)),
@@ -236,7 +247,8 @@ def gates(server, require_server=False):
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
-        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
+        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower"),
+                            *skips("flower")),
          "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
         # crashed. Either way the verdict is not about the requirement the check names,
@@ -245,21 +257,44 @@ def gates(server, require_server=False):
          "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
                                  "--server", CONTROLLED, "--golden", "controlled",
-                                 *rec("controlled-04-08")), "controlled", ()),
+                                 *rec("controlled-04-08"), *skips("controlled_04_08")), "controlled", ()),
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
                                     "--server", CONTROLLED_0123, "--golden", "controlled",
-                                    *rec("controlled-01-23")),
+                                    *rec("controlled-01-23"), *skips("controlled_01_23")),
          "controlled-01-23", ()),
         ("merchant-ctrl-01-11", _py(SELF / "validate_merchant_checks.py",
                                     "--server", CONTROLLED_0111, "--golden", "controlled",
-                                    *rec("controlled-01-11")),
+                                    *rec("controlled-01-11"), *skips("controlled_01_11")),
          "controlled-01-11", ()),
+        # D1-10 (C2): golden-0825 joins the merchant gate — the 2026-08-25 golden booted on
+        # :8197 by boot_golden_0825 (shared with probe-shape-0825), graded with REF_CONFIG
+        # through the 08-25 wire shapes, against ITS pinned skip population (199 pinned,
+        # 29 run). Writes the fifth dormancy record.
+        ("merchant-0825", _py(SELF / "validate_merchant_checks.py",
+                              "--server", GOLDEN_0825, "--golden", "golden-0825",
+                              *rec("golden-0825"), *skips("golden_0825")),
+         "golden-0825", ()),
+        # D1-11 (C2b): the Shopify-shaped MCP-only 08-25 profile (fixtures/profiles/
+        # mcp_only_0825.py, booted by the gate on an ephemeral loopback port) grades against
+        # its pinned NEAR-EMPTY population (2 run / 226 pinned, every in-scope REST check
+        # transport-not-declared) and the CLI prints coverage null + rest-not-declared.
+        # Hermetic; writes a dormancy-style record too (not in the union: nothing REST runs).
+        ("merchant-mcp-only-0825", _py(SELF / "validate_mcp_only_0825.py"),   None, ()),
         # D1-07: every merchant check runs on SOME golden or is named in
-        # dormancy_exemptions.json (floor 13). Unions the four records above; a missing
+        # dormancy_exemptions.json (floor 13). Unions the five records above; a missing
         # record is a partial union (red under --require-server, never a smaller set);
         # without --require-server an empty record set skips honestly (rc 2).
         ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
                             *(["--require-server"] if require_server else [])), None, (2,)),
+        # D1-12 (B2a): every (check, register id) attribution at 2026-08-25 has >= 1 DEDICATED
+        # kill — a multi-id check must say which mutation/mutant/negative proves which id
+        # (`kills=`), and the run records above (merchant-0825, golden-check-08-25,
+        # struct-check-08-25 --record) must show it killed. `shared` / `unkilled` -> red;
+        # report-only at the older versions until D1-21 backfills them. Hermetic apart
+        # from the records (an unrecorded check is named, never silently passed).
+        ("req-kills-0825", _py(SELF / "validate_req_kills.py", "--version", "2026-08-25",
+                               "--records", str(RECORD_DIR)),                     None, ()),
+        ("req-kills-selftest", _py(SELF / "validate_req_kills.py", "--selftest"), None, ()),
         # D1-09: the R11 battery must have run, recently, and passed — counted. --battery
         # runs it in THIS invocation (report copied to RECORD_DIR, preferred); otherwise
         # the tracked LAST_RUN.json under the 14-day rule.

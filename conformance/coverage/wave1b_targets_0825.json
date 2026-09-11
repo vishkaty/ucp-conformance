@@ -1,0 +1,42 @@
+{
+ "_about": "Wave 1b target list (D1-16a, PLAN-v3 §2.3): error envelope (ERR-*), discovery (DISC-001/003/005), NEG-001 and the idempotency trio (CHK-048/078/079) at 2026-08-25, graded on golden-0825 by merchant-0825. Same gate semantics as wave1_targets_0825.json.",
+ "wave": "1b",
+ "version": "2026-08-25",
+ "spec_pin": "cd78fb38",
+ "review_by": "2026-12-06",
+ "clock_tier": "pin-only",
+ "ids": [
+  "ERR-001",
+  "ERR-002",
+  "ERR-003",
+  "ERR-005",
+  "ERR-009",
+  "ERR-010",
+  "ERR-025",
+  "ERR-026",
+  "ERR-028",
+  "ERR-029",
+  "ERR-030",
+  "ERR-031",
+  "NEG-001",
+  "DISC-001",
+  "DISC-003",
+  "DISC-005",
+  "CHK-048",
+  "CHK-078",
+  "CHK-079"
+ ],
+ "blocked": {
+  "ERR-025": "D3-28: golden-0825 emits no info message on any route (enums.INFO unused) — needs the defects/behavior seam to surface one",
+  "ERR-026": "D3-28: golden-0825 emits no info message on any route (enums.INFO unused) — needs the defects/behavior seam to surface one",
+  "DISC-001": "D1-20: the 08-25 row broadens to every published artifact over HTTPS; the plain-HTTP gate golden cannot exercise a TLS probe (needs the TLS-fronted golden-0825 idiom) — post-host conversion",
+  "CHK-079": "D4-07: the platform's fresh-key duty after ready_for_complete is observable only through the I9 seq_invariants model (seqfuzz) — lands with D4-07 / D1-16b"
+ },
+ "owner_tasks": [
+  "D1-16a",
+  "D1-16b",
+  "D3-28",
+  "D4-07",
+  "D1-20"
+ ]
+}

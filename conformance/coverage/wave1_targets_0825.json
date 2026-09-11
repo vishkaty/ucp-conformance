@@ -1,0 +1,46 @@
+{
+ "_about": "Wave 1 target list (D1-14, PLAN-v3 §2.3): the register ids the wave COMMITS to convert to CHECK at 2026-08-25 — the 47 core MChecks' 08-25 ids (D1-10 spec anchors; DSC-029 dropped: merged away by D2-02; CHK-034 added: mapped by checkout.response_fields). check_targets.py reds any listed id that is not CHECK unless `blocked` names it with a task id AND --allow-blocked is given (mid-wave); at wave close `blocked` must be empty. Clocked + pinned (expiry_registers.json, pin-only tier).",
+ "wave": 1,
+ "version": "2026-08-25",
+ "spec_pin": "cd78fb38",
+ "review_by": "2026-12-05",
+ "clock_tier": "pin-only",
+ "ids": [
+  "CART-029",
+  "CART-031",
+  "CHK-017",
+  "CHK-018",
+  "CHK-019",
+  "CHK-020",
+  "CHK-021",
+  "CHK-022",
+  "CHK-025",
+  "CHK-034",
+  "CHK-038",
+  "CHK-048",
+  "DISC-005",
+  "DSC-004",
+  "DSC-006",
+  "DSC-007",
+  "DSC-023",
+  "DSC-030",
+  "FUL-003",
+  "FUL-008",
+  "FUL-026",
+  "ORD-001",
+  "ORD-005",
+  "PAY-011",
+  "TOT-005",
+  "TOT-006",
+  "TOT-015"
+ ],
+ "blocked": {
+  "CHK-017": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
+  "DSC-006": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill"
+ },
+ "owner_tasks": [
+  "D1-15",
+  "D1-16a",
+  "D2-11a"
+ ]
+}

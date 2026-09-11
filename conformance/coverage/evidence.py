@@ -35,6 +35,18 @@ hand label:
                   cannot positively place in a stronger class lands here (a missing
                   reach report demotes every wire check to self-referenced — the
                   layer can under-claim, never over-claim).
+  register-selfcheck  (A3, D1-13) a STRUCT check (struct_check_08_25: pure `fn` over
+                  `valid`/`negatives` cases, no target at all) whose verdict is a fact
+                  about the PINNED CORPUS itself: its fn, or a case it is fed, reaches
+                  by identity an object in struct_check_08_25.CORPUS_DOCS (the vendored
+                  schema documents and what is extracted from them verbatim) — e.g.
+                  "capability.json requires `schema` on business_schema". Not
+                  target-facing: it grades the spec text, never an implementation.
+  reference-impl  (A3, D1-13) a struct check with NO corpus reach: OUR implementation
+                  of an algorithm the prose fixes (the permalink codec, the unit_price
+                  comparator, authority binding, URL-fetch safety), proven against our
+                  own fixtures. FAIL-CLOSED default for the struct kind — a plain
+                  predicate can never classify register-selfcheck.
 
 Mechanics (no hand labels anywhere):
   * acquisition: an MCheck (duck-typed by its `cfg_needs` attribute) is always
@@ -85,10 +97,18 @@ REACH_FILE = os.path.join(HERE, "reach_report.json")
 # shows >= 3 distinct domains graded within 30 days. Ranked below live-wire and NEVER promoted
 # to it: a discovery capture is one read of one public document, not an independent
 # implementation the differential gate probes (differential_targets.json stays at 2).
-CLASSES = ("live-wire", "discovery-live", "fixture-schema", "fixture-crypto", "self-referenced")
+# W1 integration: the seven classes = D4-08's discovery tier + D1-13's two A3 classes.
+CLASSES = ("live-wire", "discovery-live", "fixture-schema", "fixture-crypto", "self-referenced",
+           "register-selfcheck", "reference-impl")
+# the five TARGET-FACING classes (a live server, a real store's published document, or a
+# fixture instance was graded); the two A3 classes grade the corpus / our own algorithm —
+# matrix.integrity splits on this
+TARGET_FACING = ("live-wire", "discovery-live", "fixture-schema", "fixture-crypto", "self-referenced")
 # strongest-first rank for per-id aggregation (an id covered by several checks gets
-# the strongest evidence any of them provides)
-_RANK = {"live-wire": 4, "discovery-live": 3, "fixture-schema": 2, "fixture-crypto": 1, "self-referenced": 0}
+# the strongest evidence any of them provides): every target-facing class outranks the
+# corpus self-check, which outranks our own algorithm's self-proof.
+_RANK = {"live-wire": 6, "discovery-live": 5, "fixture-schema": 4, "fixture-crypto": 3,
+         "self-referenced": 2, "register-selfcheck": 1, "reference-impl": 0}
 DISCOVERY_REACH_FILE = os.path.join(HERE, "discovery_reach.json")
 _DISCOVERY_MODULES = ("discovery_live",)
 
@@ -201,15 +221,83 @@ def _reaches_file(fn, basenames, _seen=None, _depth=0):
         _seen.add(id(co))
         if co.co_filename.startswith(CONF) and _reaches_file(obj, basenames, _seen, _depth + 1):
             return True
+
+
+def _corpus_docs():
+    """struct_check_08_25.CORPUS_DOCS resolved lazily (identity anchors for the
+    register-selfcheck class); () when the module is absent — fail-closed: every struct
+    check then classifies reference-impl."""
+    import sys
+    chk_dir = os.path.join(CONF, "checks")
+    if chk_dir not in sys.path:
+        sys.path.insert(0, chk_dir)
+    try:
+        import struct_check_08_25
+        return tuple(struct_check_08_25.CORPUS_DOCS)
+    except (ImportError, AttributeError):
+        return ()
+
+
+def _walk_values(obj, _depth=0):
+    """Yield obj and, for tuples/lists/dicts, every nested value (case args can wrap a
+    corpus document in a tuple)."""
+    yield obj
+    if _depth > 4:
+        return
+    if isinstance(obj, (list, tuple)):
+        for x in obj:
+            yield from _walk_values(x, _depth + 1)
+    elif isinstance(obj, dict):
+        for x in obj.values():
+            yield from _walk_values(x, _depth + 1)
+
+
+def corpus_reach(chk, docs=None):
+    """True iff a struct check's verdict reaches the pinned corpus BY IDENTITY: its `fn`
+    (transitively, through our own helpers) references a CORPUS_DOCS object, or one of
+    its `valid` cases feeds one in. Equality is never enough — a copied dict is not the
+    corpus (a plain predicate over plain fixtures stays reference-impl)."""
+    docs = _corpus_docs() if docs is None else tuple(docs)
+    if not docs:
+        return False
+
+    def hits(obj):
+        return any(obj is d for d in docs)
+    for case in (getattr(chk, "valid", None) or ()):
+        if any(hits(v) for v in _walk_values(case)):
+            return True
+    seen = set()
+    stack = [getattr(chk, "fn", None)]
+    depth = 0
+    while stack and depth < 200:
+        depth += 1
+        fn = stack.pop()
+        if not callable(fn):
+            continue
+        co = getattr(fn, "__code__", None)
+        if co is None or id(co) in seen:
+            continue
+        seen.add(id(co))
+        objs, _names = _referenced_objects(fn)
+        for obj in objs:
+            if hits(obj):
+                return True
+            if callable(obj) and getattr(obj, "__code__", None) is not None \
+                    and obj.__code__.co_filename.startswith(CONF):
+                stack.append(obj)
     return False
 
 
 def acquisition(chk):
     """How the check OBTAINS its graded response: 'wire' (live server), 'fixture'
-    (local synthetic target), or 'schema-tier' (namedtuple checks whose runner IS
-    the official schema oracle). Mechanical — see module docstring."""
+    (local synthetic target), 'schema-tier' (namedtuple checks whose runner IS
+    the official schema oracle) or 'struct' (a pure fn over valid/negative cases —
+    no target at all, A3). Mechanical — see module docstring."""
     if hasattr(chk, "schema_rel"):
         return "schema-tier"
+    if hasattr(chk, "negatives") and hasattr(chk, "valid") and hasattr(chk, "fn") \
+            and not hasattr(chk, "predicate"):
+        return "struct"
     if hasattr(chk, "cfg_needs"):
         # MCheck: graded exclusively via run_merchant_checks(MerchantCtx(live server))
         # — even a fetch_fn that only reads ctx.profile reads data fetched from the
@@ -318,6 +406,8 @@ def classify_check(chk, module_stem, version, reach=None, discovery_reach=None):
     acq = acquisition(chk)
     if acq == "schema-tier":
         return "fixture-schema", []
+    if acq == "struct":
+        return ("register-selfcheck" if corpus_reach(chk) else "reference-impl"), []
     if acq == "wire":
         targets = reach.get(reach_key(version, module_stem, chk), [])
         return ("live-wire" if targets else "self-referenced"), list(targets)
@@ -361,9 +451,10 @@ def evidence_by_id(attribution_rows, reach=None):
                 stem = os.path.splitext(basename)[0]
                 cache[key] = classify_check(chk, stem, version, reach)
             cls, targets = cache[key]
-        slot = out.setdefault(version, {}).setdefault(
-            rid, {"evidence": "self-referenced", "reach": set()})
-        slot["evidence"] = strongest([slot["evidence"], cls])
+        # the slot starts EMPTY (D1-13): seeding it with self-referenced would outrank
+        # the two A3 classes and hide every struct check behind the fail-closed label
+        slot = out.setdefault(version, {}).setdefault(rid, {"evidence": None, "reach": set()})
+        slot["evidence"] = strongest([c for c in (slot["evidence"], cls) if c])
         slot["reach"] |= set(targets)
     for m in out.values():
         for slot in m.values():
@@ -379,3 +470,12 @@ def breakdown(evidence_map, version, ids):
                                                                  "self-referenced")
         counts[cls] += 1
     return {c: n for c, n in counts.items()}
+
+
+def integrity(bd):
+    """{target_facing, corpus, algorithm} from a breakdown (D1-13): what KIND of thing
+    each CHECK id's strongest evidence graded — an implementation (target-facing), the
+    pinned spec text (corpus) or our own algorithm (algorithm). Partitions CHECK."""
+    return {"target_facing": sum(bd.get(c, 0) for c in TARGET_FACING),
+            "corpus": bd.get("register-selfcheck", 0),
+            "algorithm": bd.get("reference-impl", 0)}

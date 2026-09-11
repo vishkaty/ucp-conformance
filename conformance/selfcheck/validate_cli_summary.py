@@ -22,7 +22,7 @@ Cases (loopback stubs, hermetic):
   (a) golden-0825-shaped 6-capability REST profile → denominator 248 (pinned on first
       run 2026-09-10; strictly below the 353 that counted undeclared extensions)
   (b) MCP-only 08-25 profile → coverage None, support "rest-not-declared", banner,
-      checks_summary.not_applicable totals 226 (43 transport · 181 version-scoped ·
+      checks_summary.not_applicable totals 236 (53 transport · 181 version-scoped ·
       2 capability under the runner's precedence)
   (c) 2026-01-23 profile → denominator frozen to today's 108; 2026-04-08 → 125
   (d) a register area missing from the file → rc 1 naming the area
@@ -57,7 +57,7 @@ PIN_0825_6CAPS = 255        # pinned 2026-09-10 (D1-03 first run: 248); re-pinne
                             # Was 353 before the capability map.
 PIN_0123 = 108              # today's value for CAPS_0123 over REST — frozen
 PIN_0408 = 125              # today's value for CAPS6 over REST — frozen
-PIN_MCP_ONLY_NA = {"transport": 43, "version_scoped": 181, "capability": 2}
+PIN_MCP_ONLY_NA = {"transport": 53, "version_scoped": 181, "capability": 2}   # transport 43 -> 53 at D1-16a (10 REST-only 08-25 MChecks)
 
 
 def _profile(version, caps, transports, base):
@@ -164,8 +164,8 @@ def selftest():
         check("(b) banner present", "REST transport not declared" in ((doc or {}).get("banner") or ""),
               f"banner={(doc or {}).get('banner')!r}")
         na = ((doc or {}).get("checks_summary") or {}).get("not_applicable") or {}
-        check("(b) not_applicable totals 226 (228 checks − 2 runnable over MCP)",
-              sum(na.values()) == 226 if na else False, f"{na}")
+        check("(b) not_applicable totals 236 (238 checks − 2 runnable over MCP)",
+              sum(na.values()) == 236 if na else False, f"{na}")
         check("(b) not_applicable split pinned",
               {k: na.get(k) for k in PIN_MCP_ONLY_NA} == PIN_MCP_ONLY_NA, f"{na}")
 

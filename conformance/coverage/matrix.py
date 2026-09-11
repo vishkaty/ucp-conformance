@@ -568,7 +568,13 @@ def export_json():
                "self-referenced": "graded only against our own fixture, with no "
                                   "independent oracle or target — the "
                                   "fixture-circularity class we flag upstream "
-                                  "(conformance#79), named here in our own suite"},
+                                  "(conformance#79), named here in our own suite",
+               "register-selfcheck": "a fact about the PINNED SPEC TEXT itself (a struct "
+                                     "check fed the vendored schema document) — grades "
+                                     "the corpus, never an implementation (A3)",
+               "reference-impl": "OUR implementation of an algorithm the prose fixes, "
+                                 "proven against our own fixtures — no target, no "
+                                 "independent oracle (A3)"},
            "spec_repo": "Universal-Commerce-Protocol/ucp",
            "spec_pins": {v: pins.get(v, "") for v in sorted(set(VERSIONS) | pinned_versions)},
            "versions": {}}
@@ -643,6 +649,11 @@ def export_json():
             "discovery_live": _discovery_live_slot(ver),   # D4-08: {stores, as_of} from discovery_reach.json (08-25 only)
             "evidence_classes": list(evidence.CLASSES),
             "evidence_breakdown": evidence.breakdown(evmap, ver, check_ids),
+            # D1-13 (A3): what kind of thing the CHECK ids' evidence graded —
+            # target_facing (an implementation) / corpus (the spec text) / algorithm
+            # (our own code). Partitions CHECK; the headline "checks" number is
+            # target_facing (decision 6/7: the drops are published, not hidden).
+            "integrity": evidence.integrity(evidence.breakdown(evmap, ver, check_ids)),
             "gap_by_testability": dict(sorted(gap_by_test.items())),
             "areas": [{"area": k, **dict(sorted(v.items()))}
                       for k, v in sorted(areas.items())],
@@ -681,6 +692,7 @@ def export_json():
             "discovery_live": None,
             "evidence_classes": list(evidence.CLASSES),
             "evidence_breakdown": {c: 0 for c in evidence.CLASSES},
+            "integrity": {"target_facing": 0, "corpus": 0, "algorithm": 0},
             "gap_by_testability": {},
             "areas": [],
             "rows": [],

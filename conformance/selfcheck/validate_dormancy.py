@@ -38,7 +38,8 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[0] / "checks"))
 
 EXEMPTIONS = HERE / "dormancy_exemptions.json"
-EXPECTED_RECORDS = ("flower", "controlled-04-08", "controlled-01-23", "controlled-01-11")
+EXPECTED_RECORDS = ("flower", "controlled-04-08", "controlled-01-23", "controlled-01-11",
+                    "golden-0825")          # D1-10: the 08-25 merchant gate's record
 
 
 def all_ids():
@@ -160,6 +161,7 @@ def selftest():
         "controlled-04-08": {"golden": "controlled", "served_version": "2026-04-08", "ran": ["a.two"], "skipped": {}},
         "controlled-01-23": {"golden": "controlled", "served_version": "2026-01-23", "ran": ["b.three"], "skipped": {}},
         "controlled-01-11": {"golden": "controlled", "served_version": "2026-01-11", "ran": [], "skipped": {}},
+        "golden-0825": {"golden": "golden-0825", "served_version": "2026-08-25", "ran": ["a.one"], "skipped": {}},
     }
     exemptions = {"floor": 2,
                   "exemptions": {"c.four": {"gate": "tls-check", "review_by": "2099-01-01"}},

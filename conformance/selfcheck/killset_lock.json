@@ -2,7 +2,7 @@
  "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
  "counts": {
   "ACheck": 44,
-  "MCheck": 228,
+  "MCheck": 238,
   "Row": 44,
   "engine": 89,
   "schema-tier": 81,
@@ -574,13 +574,13 @@
    "n_kills_floor": 1
   },
   "golden_check_08_25:ERR-028.unknown-route": {
-   "hash": "c13647afed457e9f3e3ca207fa2b716bc5fce82edf28469645a49b0b037d41f7",
+   "hash": "cdcfa84fc48a4be6358787bae4e7a69273ac81be713d18ba493c9d9a73f65ff4",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
   },
   "golden_check_08_25:ERR-028.validation-422": {
-   "hash": "5105ff105c44e682cd4be57c8958b7ace1c21cdb9e7f60dd231a1e41d53ccef0",
+   "hash": "5f6e10f6b181733dfffefaf665b6fed83f32c5109482513c0151f7c8385d9066",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -706,7 +706,7 @@
    "n_kills_floor": 1
   },
   "golden_check_08_25:TOT-014": {
-   "hash": "a3a93eaf3ca7714ac85dd1ccb4d8960d4fe60477bfebd623638bf044c71ccde3",
+   "hash": "734e560ffa356606dcbb8b6856de772b631ba703a1cecd597e177db815a6e878",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -838,7 +838,7 @@
    "n_kills_floor": 4
   },
   "merchant_checks:checkout.complete_order": {
-   "hash": "95a05b2f2499314053b388ef04092fac4460e6cb21236502ff353c5fdf4aeceb",
+   "hash": "95714d1bd0bda48776fad629ec418f4f98dfa0f2861dfceb6dbd9fd4689dd827",
    "kind": "MCheck",
    "n_kills": 4,
    "n_kills_floor": 4
@@ -1048,7 +1048,7 @@
    "n_kills_floor": 3
   },
   "merchant_checks:totals.subtotal_and_total": {
-   "hash": "007583bffa103470204b150a1572ffb49fb698b53633addd673d2efe0d591514",
+   "hash": "d2e16f3fb8a165f6a82b43e9b10c4c8d8f89b214c788b1e15b6a8b9850283038",
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5
@@ -2085,6 +2085,66 @@
    "n_kills": 0,
    "n_kills_floor": 0
   },
+  "merchant_checks_08_25_envelope:discovery.published_artifacts_cache_control": {
+   "hash": "8832a62b2c634c3840327100d476b0483c4b865edb0fa5b5d62a1a0de3b8c1b2",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_08_25_envelope:envelope.error_content_type_enum": {
+   "hash": "f09cce034bcbe553cba0b77b48516742b7da5ef276a615531515b1e76d831367",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.error_message_fields": {
+   "hash": "e29779e164cba3830d031a2254a51247e8d33f784582ad75abbd6acb4935c85e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_08_25_envelope:envelope.error_severity_enum": {
+   "hash": "f1c5df3f284f9f815f22664e266161e32c0556a310d5780bc310fa3e179fab6c",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.error_type_const": {
+   "hash": "13d008469a3709de4785e981b26b93d9283fb5f77a9becf878286841caa1da7c",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.message_kinds_discriminated": {
+   "hash": "46b2d345dd5067fb3349c463a6b9f64d7e629897000a07cd183b7e27f2a0b94c",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_envelope:envelope.warning_message_fields": {
+   "hash": "c33fa9b050d229fce805292972f7592ece585305ba82f8e1633b8d236e3542b7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_envelope:envelope.warning_type_const": {
+   "hash": "795d26bb1c9e522b775feb5fb6ae7ee03fd60b63e727e9acb8d9517e1ca8cd9d",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:idempotency.replay_cached": {
+   "hash": "327f43f89dd1eb9cd79930cd8ddbbc7e4b4b79625e2a3430716fa1a053c3c6c3",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_08_25_envelope:negotiation.version_unsupported_422_0825": {
+   "hash": "f2284bf4626e67642e3aee8cdd57dad734916645c5643b0d281155cc78c0d6ee",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
   "schema_check:cart.currency_required": {
    "hash": "f07cf85c359c9dfbb63fa33e111dc2e6f19f652477309708530740b1ea8fd1b8",
    "kind": "engine",
@@ -2842,13 +2902,13 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.lookup_variants_require_nonempty_inputs": {
-   "hash": "0b1ab4d9fff546a06b0318b1bde6b7e329a4fee55de3d73b12c5091211757934",
+   "hash": "22a93ecaadf8831047cf3ee2e083ebced7fd19aa08d40b5e56e4f360da097878",
    "kind": "struct",
    "n_kills": 2,
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.pagination_cursor_required_when_has_next_page": {
-   "hash": "abdbfa3df56c9a7e51fecb90ff2147b0285502124bf8817ecbd6593d95c92b61",
+   "hash": "d2f17a441e70e8a4587605c24fdb60c7158f981fc26612058f48dccdb03467e8",
    "kind": "struct",
    "n_kills": 3,
    "n_kills_floor": 3
@@ -2866,10 +2926,10 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.unit_price_comparator_formula": {
-   "hash": "83b4815eb970005bec499e25801b681c0d7d0443d7da2d2f0d683506c9cba94d",
+   "hash": "44ac4bf41b38ec0e8419ac39a9bfc24d18b2180baee8be1e286ef78b6e47e78f",
    "kind": "struct",
-   "n_kills": 2,
-   "n_kills_floor": 2
+   "n_kills": 4,
+   "n_kills_floor": 4
   },
   "struct_check_08_25:catalog.unit_price_currency_matches_price_currency": {
    "hash": "6eac0b08a3750b3fcde5c1e2413efbd16b74db991e91a3a17a02f7d339e0efe7",
@@ -2896,7 +2956,7 @@
    "n_kills_floor": 1
   },
   "struct_check_08_25:discovery.dereference_no_redirect_follow": {
-   "hash": "2a238bdbbda725697119da943e882d25b9ca0c4d75b5b384bdde9f0d6a78eaf2",
+   "hash": "fdc2c960d61538aae11c2d20862b1e67c607b02c8e4a0cf63cded3106d6af280",
    "kind": "struct",
    "n_kills": 8,
    "n_kills_floor": 8
@@ -2944,10 +3004,10 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:permalink.continue_to_fallback_no_reflection": {
-   "hash": "0c72cd79b57e702bbf9e48f3e3b42e06507990434b8af9c1eb79a04e5d4aba12",
+   "hash": "887bb7a2a9ad01f6feae5122c57e265a3929eb0e8c45dacce746877adabe735c",
    "kind": "struct",
-   "n_kills": 1,
-   "n_kills_floor": 1
+   "n_kills": 2,
+   "n_kills_floor": 2
   },
   "struct_check_08_25:permalink.continue_to_static_rejection_rules": {
    "hash": "bd5a599313cde57af171443e6e1fb21f16d102b47dd9230f920fec5185e948d2",

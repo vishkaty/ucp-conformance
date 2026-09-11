@@ -104,6 +104,78 @@
    "clock": "review_by",
    "clock_tier": "pin-only",
    "_note": "D5-07 <- D2-04 (W0 integration 2026-09-10): review_by (<= 90 d) seen by this gate; the re_verified <= 30 d freshness clock is owned by conformance/ci/validate_known_issues.py. scope none: a row is pinned by the file's own spec_pin, nothing is stamped here. conformance/agent/agent_run_evidence.json carries no review_by - its 30-day window is agent_matrix/agent_governance's own clock (D5-04) - so it is deliberately not listed."
+  },
+  {
+   "name": "expected_skips.golden_0825",
+   "file": "conformance/checks/expected_skips_golden_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.flower",
+   "file": "conformance/checks/expected_skips_flower.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.controlled_04_08",
+   "file": "conformance/checks/expected_skips_controlled_04_08.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.controlled_01_23",
+   "file": "conformance/checks/expected_skips_controlled_01_23.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.controlled_01_11",
+   "file": "conformance/checks/expected_skips_controlled_01_11.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.mcp_only_0825",
+   "file": "conformance/checks/expected_skips_mcp_only_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned); D3-10's MCP harness lowers 226 — this clock forces that re-review."
+  },
+  {
+   "name": "wave_targets.wave1_0825",
+   "file": "conformance/coverage/wave1_targets_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "D1-14: a wave's committed target ids (root clock); check_targets.py also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "wave_targets.wave1b_0825",
+   "file": "conformance/coverage/wave1b_targets_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "D1-16a: wave 1b committed target ids (root clock)."
   }
  ]
 }

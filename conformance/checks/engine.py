@@ -171,7 +171,7 @@ def mutate(resp, mut):
 # ---- check spec -------------------------------------------------------------
 class Check:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 versions=None, req_ids_map=None, transport="rest"):
+                 versions=None, req_ids_map=None, transport="rest", kills=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         # transport: the wire this check drives (rest | mcp | a2a | embedded) — engine
@@ -179,6 +179,9 @@ class Check:
         # transport coverage view (matrix.py --transport, D2-08) the same way MCheck's
         # `transport` attribute is.
         self.transport = transport
+        # kills={rid: [mutation…]} (D1-12): per-register-id attribution of the mutations;
+        # required for a multi-id check at 2026-08-25 (validate_req_kills.py).
+        self.kills = {k: list(v) for k, v in dict(kills).items()} if kills else None
         # versions: spec versions this check's CITATIONS apply to (None = every
         # version where the id is a MUST). req_ids_map: {version: [ids]} overriding
         # req_ids at versions whose register renumbered the same requirement (the
@@ -205,8 +208,13 @@ def run_check(chk, base):
     kill_safe = (clean == CLEAN and not survivors)
     status = clean if kill_safe else (clean if clean == DEVIATION else INCONCLUSIVE)
     res = [CheckResult(rid, chk.keyword, status, kill_safe) for rid in chk.req_ids]
+    per_id = {}
+    kmap = getattr(chk, "kills", None) or {}
+    for rid in chk.req_ids:                      # D1-12: per-id kill attribution
+        declared = list(kmap[rid]) if rid in kmap else (list(chk.mutations) if len(chk.req_ids) == 1 else [])
+        per_id[rid] = {"declared": declared, "killed": [m for m in declared if m not in survivors]}
     return res, {"clean": clean, "kills": f"{kills}/{len(chk.mutations)}",
-                 "kill_safe": kill_safe, "survivors": survivors}
+                 "kill_safe": kill_safe, "survivors": survivors, "per_id": per_id}
 
 # ---- served-version gate ----------------------------------------------------
 def served_version(base):
