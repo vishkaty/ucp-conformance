@@ -6,13 +6,35 @@
  * STRUCTURE subset of the spck conformance methodology. It is a PREVIEW: the full
  * kill-rate-validated check suite (checkout, order, discount, catalog, cart, totals…)
  * runs only in the CLI / GitHub Action — no count is advertised here (site_gates docclaims). Kept intentionally small + stable so it does
- * not drift from the authoritative Python engine.
+ * not drift from the authoritative Python engine: every row is mapped 1:1 to engine checks by
+ * conformance/web/preview_parity.json and the parity gate (conformance/ci/preview_parity.py, D5-11)
+ * grades a frozen capture set on both sides.
  *
  * Unofficial. Not affiliated with or endorsed by the UCP project.
  */
 
+import { idsFor } from "./preview_ids.js";   // GENERATED from conformance/web/preview_parity.json (D5-11)
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const REV_DOMAIN_RE = /^[a-z0-9]+(\.[a-z0-9_]+)+$/;
+
+// Every rendered row cites its engine twin(s) and requirement ids for the profile's
+// version from the committed id map — never a hard-coded "(DISC-001)" in prose — and
+// `counted:false` rows (a SHOULD) render but never enter summary / the badge N/M.
+function rowFactory(version) {
+  const map = idsFor(version);
+  return (checks) => (id, requirement, ok, observed, status) => {
+    const m = map[id] || { counted: false, engine: [], req_ids: [] };
+    checks.push({ id, requirement, status: status || (ok ? "pass" : "deviation"), observed,
+                  engine: m.engine, req_ids: m.req_ids, counted: m.counted });
+  };
+}
+function summarize(checks) {
+  const counted = checks.filter((c) => c.counted);
+  return { passed: counted.filter((c) => c.status === "pass").length,
+           deviations: counted.filter((c) => c.status === "deviation").length,
+           total: counted.length };
+}
 
 // Optional caller-supplied headers (e.g. x-tenant-host for multi-tenant staging
 // routing). Strictly sanitized: x-* names only, no proxy-identity headers, ≤3
@@ -71,38 +93,51 @@ export function runPreviewChecks(profile, contentType) {
     : svc && typeof svc === "object" ? ["(non-conformant: object, not array)"] : [];
 
   const checks = [];
-  const add = (id, requirement, ok, observed) =>
-    checks.push({ id, requirement, status: ok ? "pass" : "deviation", observed });
+  const add = rowFactory(version)(checks);
+  const legacy0111 = version === "2026-01-11";   // array capabilities + service OBJECT are canonical there
 
   add("discovery.version", "Profile MUST declare a dated version (YYYY-MM-DD).",
       typeof version === "string" && DATE_RE.test(version), `version = ${JSON.stringify(version)}`);
 
-  add("discovery.content_type", "The profile SHOULD be served as application/json.",
+  add("discovery.content_type", "The profile SHOULD be served as application/json (report-only).",
       /application\/json/i.test(contentType || ""), `Content-Type: ${contentType || "(none)"}`);
 
-  const capsOk = caps && !Array.isArray(caps) && typeof caps === "object" &&
-    Object.keys(caps).length > 0 && Object.keys(caps).every((k) => REV_DOMAIN_RE.test(k));
+  // 2026-01-11: capabilities is an ARRAY of {name} entries (capability.json $defs/discovery);
+  // 01-23 and later: a keyed object of reverse-domain names — the engine's p_reverse_domain.
+  const capsOk = legacy0111
+    ? Array.isArray(caps) && caps.length > 0 &&
+      caps.every((e) => e && typeof e.name === "string" && REV_DOMAIN_RE.test(e.name))
+    : caps && !Array.isArray(caps) && typeof caps === "object" &&
+      Object.keys(caps).length > 0 && Object.keys(caps).every((k) => REV_DOMAIN_RE.test(k));
   add("discovery.capabilities_object",
-      "capabilities MUST be a keyed object of reverse-domain names (DISC-001).",
+      legacy0111 ? "capabilities MUST be an array of reverse-domain-named entries at 2026-01-11."
+                 : "capabilities MUST be a keyed object of reverse-domain names.",
       capsOk,
-      Array.isArray(caps) ? "capabilities is an ARRAY (should be a keyed object)"
-        : caps && typeof caps === "object" ? `keys: ${Object.keys(caps).join(", ")}`
+      Array.isArray(caps) ? (legacy0111 ? `entries: ${caps.map((e) => e && e.name).join(", ")}`
+                                        : "capabilities is an ARRAY (should be a keyed object)")
+        : caps && typeof caps === "object" ? (legacy0111 ? "capabilities is a keyed object (2026-01-11 expects an array)"
+                                                         : `keys: ${Object.keys(caps).join(", ")}`)
         : `capabilities = ${JSON.stringify(caps)}`);
 
+  // 2026-01-11: services.<name> is an OBJECT whose `rest` member carries the endpoint
+  // (service_schema.json); 01-23 and later: an array of {transport, endpoint} entries.
+  const svcOk = legacy0111
+    ? !!(svc && !Array.isArray(svc) && typeof svc === "object" && svc.rest && svc.rest.endpoint)
+    : Array.isArray(svc) && svc.length > 0;
   add("discovery.services_array",
-      "services.<name> MUST be an array of {transport, endpoint} entries (DISC-007).",
-      Array.isArray(svc) && svc.length > 0,
+      legacy0111 ? "services.<name> MUST be an object whose rest member carries the endpoint at 2026-01-11."
+                 : "services.<name> MUST be an array of {transport, endpoint} entries with a REST endpoint.",
+      svcOk,
       Array.isArray(svc) ? `transports: ${transports.join(", ")}`
-        : `dev.ucp.shopping = ${svc ? "object (should be an array)" : "(absent)"}`);
+        : `dev.ucp.shopping = ${svc ? (legacy0111 ? "object" : "object (should be an array)") : "(absent)"}`);
 
-  const passed = checks.filter((c) => c.status === "pass").length;
-  const deviations = checks.filter((c) => c.status === "deviation").length;
   return {
     version: version || null,
-    capabilities: caps && !Array.isArray(caps) ? Object.keys(caps) : caps || [],
-    transports,
+    capabilities: caps && !Array.isArray(caps) ? Object.keys(caps)
+      : Array.isArray(caps) ? caps.map((e) => (e && e.name) || e) : [],
+    transports: legacy0111 && svc && !Array.isArray(svc) ? Object.keys(svc) : transports,
     checks,
-    summary: { passed, deviations, total: checks.length },
+    summary: summarize(checks),
   };
 }
 
@@ -137,8 +172,7 @@ async function catalogChecks(profile, extraHeaders, query) {
       .catch((e) => ({ status: 0, json: null, err: String(e) }));
 
   const checks = [];
-  const add = (id, requirement, ok, observed) =>
-    checks.push({ id, requirement, status: ok ? "pass" : "deviation", observed });
+  const add = rowFactory(ucp.version)(checks);
 
   const q = (typeof query === "string" && query.trim().slice(0, 80)) || "*";
   const s = await post("/catalog/search", { query: q });
@@ -147,26 +181,26 @@ async function catalogChecks(profile, extraHeaders, query) {
   const AUTH_CODES = new Set(["agent_signature_required", "requires_sign_in", "requires_identity_linking"]);
   const authMsg = ((s.json && s.json.messages) || []).find((m) => m && AUTH_CODES.has(m.code));
   if (s.status === 401 || s.status === 403 || authMsg) {
-    checks.push({ id: "catalog.live_probes",
-      requirement: "Read-only catalog probes (search shape, empty search, lookup input correlation).",
-      status: "not-tested",
-      observed: `server requires request authentication (HTTP ${s.status}` +
-        (authMsg ? `, ${authMsg.code}` : "") +
-        `) — anonymous probes can't run; test with a registered agent via the CLI` });
+    add("catalog.live_probes",
+        "Read-only catalog probes (search shape, empty search, lookup input correlation).", false,
+        `server requires request authentication (HTTP ${s.status}` +
+          (authMsg ? `, ${authMsg.code}` : "") +
+          `) — anonymous probes can't run; test with a registered agent via the CLI`,
+        "not-tested");
     return checks;
   }
   const prods = s.json && Array.isArray(s.json.products) ? s.json.products : null;
   const shapeOk = s.status === 200 && prods !== null && prods.every((p) =>
     p && p.id && p.title && Array.isArray(p.variants) && p.variants.length);
   add("catalog.search_shape",
-      "Search returns a products array; each product carries id, title, variants (CAT-012).",
+      "Search returns a products array; each product carries id, title, variants.",
       shapeOk, `HTTP ${s.status}, query ${JSON.stringify(q)}, products: ${prods === null ? "(absent)" : prods.length}`);
 
   const e = await post("/catalog/search", { query: "zzz_no_such_product_zzz" });
   const eOk = e.status === 200 && e.json && Array.isArray(e.json.products) &&
     e.json.products.length === 0 && !(e.json.messages || []).length;
   add("catalog.empty_search",
-      "A no-match search returns products: [] without error messages (CAT-012).",
+      "A no-match search returns products: [] without error messages.",
       eOk, `HTTP ${e.status}, products: ${e.json && e.json.products ? e.json.products.length : "(absent)"}`);
 
   if ("dev.ucp.shopping.catalog.lookup" in caps && prods && prods.length) {
@@ -177,7 +211,7 @@ async function catalogChecks(profile, extraHeaders, query) {
       (p.variants || []).every((v) => Array.isArray(v.inputs) && v.inputs.length &&
         v.inputs.every((i) => i && i.id)));
     add("catalog.lookup_inputs",
-        "Lookup variants carry a non-empty inputs correlation array (CAT-017/018).",
+        "Lookup variants carry a non-empty inputs correlation array.",
         inputsOk, `HTTP ${l.status}, looked up ${JSON.stringify(id)}`);
   }
   return checks;
@@ -218,9 +252,7 @@ export async function preview(serverUrl, opts = {}) {
   if (opts.deep) {                       // /api/conformance runs the live probes;
     const live = await catalogChecks(profile, extra, opts.query);   // the badge stays shallow/fast
     report.checks.push(...live);
-    report.summary.passed += live.filter((c) => c.status === "pass").length;
-    report.summary.deviations += live.filter((c) => c.status === "deviation").length;
-    report.summary.total += live.length;
+    report.summary = summarize(report.checks);   // counted rows only (id map)
   }
   const out = { server: u.host, well_known: wk, ...report, disclaimer: DISCLAIMER };
   if (Object.keys(extra).length) out.custom_headers_sent = Object.keys(extra);

@@ -1,425 +1,486 @@
 {
- "_about": "SITE-R register — every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
- "requirements": [
-  {
-   "id": "SITE-R-001",
-   "requirement": "Unified nav byte-identical on all 6 pages (spck · Merchants /check · Agents /agent · Coverage /coverage · Docs /docs · GitHub↗); contains no /tool link",
-   "pages": [
-    "index.html",
-    "check.html",
-    "agent.html",
-    "sandbox.html",
-    "coverage.html",
-    "docs.html"
-   ],
-   "tests": [
-    "site_smoke:nav-identical"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-002",
-   "requirement": "No 'Launch Tool' text anywhere on the site",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:voice"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-003",
-   "requirement": "Exactly one .btn-primary above the fold per page",
-   "pages": [
-    "index.html",
-    "check.html",
-    "agent.html",
-    "sandbox.html",
-    "coverage.html",
-    "docs.html"
-   ],
-   "tests": [
-    "site_smoke:primary-cta"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-004",
-   "requirement": "/check depth ladder sections in DOM order instant → cli → ci (data-ladder-step markers)",
-   "pages": [
-    "check.html"
-   ],
-   "tests": [
-    "site_smoke:ladder-order"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-005",
-   "requirement": "Unofficial-disclaimer sentence on every page (independent + unofficial + not affiliated + the official suite is authoritative)",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:voice"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-006",
-   "requirement": "OG + Twitter share meta on every page",
-   "pages": [
-    "index.html",
-    "check.html",
-    "agent.html",
-    "sandbox.html",
-    "coverage.html",
-    "docs.html"
-   ],
-   "tests": [
-    "site_smoke:social-meta"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-007",
-   "requirement": "CLASS-AUTO numbers are data-rendered: any number that exists in coverage/agent-coverage JSON carries data-live and its static fallback text equals the live JSON value at gate time",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:claims"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-008",
-   "requirement": "No unregistered factual claims: every claim candidate is LIVE-bound (data-live) or registered in public/site_claims.json with evidence and an unexpired review_by",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:claims"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-009",
-   "requirement": "Voice banned patterns absent (superlatives, achievement framing, 'certified'/'endorsed', unverifiable stats, third-party names outside the data-attribution block)",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:voice"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-010",
-   "requirement": "/tool → /check and /guide → /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
-   "pages": [
-    "_redirects",
-    "*"
-   ],
-   "tests": [
-    "gate:redirects",
-    "site_smoke:redirects"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-011",
-   "requirement": "Security: /* headers include nosniff, X-Frame-Options, Referrer-Policy, CSP default-src 'self'; no un-esc()'d innerHTML/document.write/insertAdjacentHTML sinks; no external script/style/font origins",
-   "pages": [
-    "_headers",
-    "*",
-    "functions/**"
-   ],
-   "tests": [
-    "gate:security"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-012",
-   "requirement": "Sandbox loads >= 6 demo cases",
-   "pages": [
-    "sandbox.html"
-   ],
-   "tests": [
-    "site_smoke:sandbox-cases"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-013",
-   "requirement": "Pages render meaningfully if the coverage JSON fetch fails (graceful degradation, no blank main)",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "site_smoke:graceful-degrade"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-014",
-   "requirement": "Zero console errors on load of every page",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "site_smoke:console-clean"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-015",
-   "requirement": "No horizontal overflow at 320px (and 375px) on every page",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "responsive_smoke"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-016",
-   "requirement": "Analytics beacons: home_view on /, page_view beacons on /check and /docs",
-   "pages": [
-    "index.html",
-    "check.html",
-    "docs.html"
-   ],
-   "tests": [
-    "site_smoke:beacons"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-017",
-   "requirement": "Product-manifest change (merchant/agent check counts, defect count, spec versions) forces a site claims review before the lane goes green",
-   "pages": [
-    "site_claims.json"
-   ],
-   "tests": [
-    "gate:freshness"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-018",
-   "requirement": "Hook-first homepage: badge + H1 hook + exactly two hero CTAs (/check, /agent) above the fold",
-   "pages": [
-    "index.html"
-   ],
-   "tests": [
-    "site_smoke:home-hook"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-019",
-   "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> — the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:consistency"
-   ],
-   "status": "active",
-   "added": "2026-07-09"
-  },
-  {
-   "id": "SITE-R-020",
-   "requirement": "Admin access control: every /api/admin/* route rejects unauthenticated requests (401/403) and authenticated non-admin sessions (403); the admin allowlist is manageable ONLY by a super-admin (POST/DELETE /api/admin/admins); a super-admin can never be removed or demoted via the API; management actions are audit-logged",
-   "pages": [
-    "functions/api/[[path]].js"
-   ],
-   "tests": [
-    "web_unit:admin-access"
-   ],
-   "status": "active",
-   "added": "2026-07-10"
-  },
-  {
-   "id": "SITE-R-021",
-   "requirement": "Admin page (public/admin.html): carries noindex,nofollow; is linked from no nav or public page; uses the standard shell (site.css, byte-identical nav, disclaimer footer); renders every metric from runtime API responses with no static numeric claims in markup",
-   "pages": [
-    "admin.html"
-   ],
-   "tests": [
-    "site_smoke:admin-page",
-    "gate:consistency"
-   ],
-   "status": "active",
-   "added": "2026-07-10"
-  },
-  {
-   "id": "SITE-R-022",
-   "requirement": "Page-view funnel: home/check/docs/coverage view and return beacon events are allow-listed in /api/track (a sent event must not be silently dropped) and each of those pages sends its view/return beacon",
-   "pages": [
-    "functions/api/track.js",
-    "index.html",
-    "check.html",
-    "docs.html",
-    "coverage.html"
-   ],
-   "tests": [
-    "web_unit:funnel-allowlist",
-    "site_smoke:beacons"
-   ],
-   "status": "active",
-   "added": "2026-07-10"
-  },
-  {
-   "id": "SITE-R-023",
-   "requirement": "Save-report flow: a completed instant check offers an email+OTP save; saving requires an authenticated session (401 otherwise); the saved report is retrievable by its owner and walled from other users; each save records the store domain on the user (email-to-domain mapping) and attempts a best-effort report email that never blocks the save; the report_saved conversion beacon is allow-listed",
-   "pages": [
-    "check.html",
-    "functions/api/[[path]].js",
-    "functions/api/track.js"
-   ],
-   "tests": [
-    "web_unit:save-report",
-    "site_smoke:check-save"
-   ],
-   "status": "active",
-   "added": "2026-07-10"
-  },
-  {
-   "id": "SITE-R-024",
-   "requirement": "Admin dashboard reflects the current product: the users listing exposes each user's recorded store domains (the email-to-domain lead mapping) and the funnel pane counts report_saved conversions",
-   "pages": [
-    "admin.html",
-    "functions/api/[[path]].js"
-   ],
-   "tests": [
-    "web_unit:admin-domains"
-   ],
-   "status": "active",
-   "added": "2026-07-10"
-  },
-  {
-   "id": "SITE-R-025",
-   "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication — the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
-   "pages": [
-    "functions/api/[[path]].js"
-   ],
-   "tests": [
-    "web_unit:badge"
-   ],
-   "status": "active",
-   "added": "2026-07-15"
-  },
-  {
-   "id": "SITE-R-026",
-   "requirement": "Published check register: every spec requirement the suite covers (status=check in coverage.json) has a generated page under /checks/<ID> showing the requirement text, RFC-2119 keyword, versions, testability, and a citation deep-linked to the SHA-pinned spec source; /checks/ indexes them all; /rubric explains how verdicts are graded. Pages are generated deterministically from coverage.json (the same source as /coverage) and a gate regenerates and byte-compares so they can never drift from the product.",
-   "pages": [
-    "checks/index.html",
-    "rubric.html"
-   ],
-   "tests": [
-    "gate:checkdocs"
-   ],
-   "status": "active",
-   "added": "2026-07-15"
-  },
-  {
-   "id": "SITE-R-032",
-   "requirement": "Preview badge honesty: GET /api/badge?server=<url> (functions/api/badge.js) renders the discovery + profile-structure PREVIEW as `preview N/M` (N passed of M preview checks) and never the word \"conformant\" for any preview outcome — four structural checks are not a conformance verdict (PLAN-v3 §2.18, D5-20).",
-   "pages": [
-    "functions/api/badge.js"
-   ],
-   "tests": [
-    "web_unit:badge-preview"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  },
-  {
-   "id": "SITE-R-028",
-   "requirement": "Coverage-page honesty sentences are registered claims rendered verbatim: the 2026-08-25 evidence-ceiling sentence is CLAIM-COV-002 (data-driven — renders only while the version's live-wire count is 0) and the 2026-04-08 tab carries the CLAIM-COV-003 footnote naming the measured commit (a2d8bf0b) and the 2026-09-09 tag re-point (ucp#813); the retired sentence \"no independently-authored 08-25 implementation exists\" never renders (PLAN-v3 §2.18, D5-02).",
-   "pages": [
-    "coverage.html"
-   ],
-   "tests": [
-    "gate:claims",
-    "web_unit:coverage-ceiling"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  },
-  {
-   "id": "SITE-R-031",
-   "requirement": "Audit scope is every hand-authored page under public/** recursively (sub-directories such as state-of-ucp/ included); only generated trees/pages (checks/, known-issues.html) are excluded because their own byte-compare gates hold them. A planted page under a sub-directory carrying an unregistered claim reds `claims` (kill-tested by conformance/ci/validate_site_gates.py); the launch page's claims are registered LAU-001..007 (PLAN-v3 §2.18, D5-10).",
-   "pages": [
-    "state-of-ucp/launch-2026-08-25.html"
-   ],
-   "tests": [
-    "gate:claims"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  },
-  {
-   "id": "SITE-R-027",
-   "requirement": "Non-page copy is held to the page bar: every advertised count in README.md, conformance/ci/README.md, packaging/README.md, hand-authored docs/*.md and functions/**/*.js equals the live product value (MCheck count, agent checks/defects, live-wire) or is a registered dated row in conformance/web/doc_claims.json; registered doc claims (must_match / must_not_match / bind) still hold; every gate row in ci/README names a gate in run_suite.py; the coverage gate's copy-freshness scope includes functions/**/*.js and ci/README (PLAN-v3 §2.18, D5-01).",
-   "pages": [
-    "functions/api/conformance.js",
-    "functions/api/badge.js"
-   ],
-   "tests": [
-    "gate:docclaims"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  },
-  {
-   "id": "SITE-R-029",
-   "requirement": "Publication state is rule R-a, mirrored from coverage.json fields only: live ⇔ register ∧ CHECK+EXEMPT>0 ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ register ∧ CHECK+EXEMPT>0 ∧ any such GAP; building ⇔ register ∧ 0/0; unregistered otherwise. site-freshness reds on any state that disagrees with its own export; supported versions (manifest.versions) = live only; the coverage page renders a `converting` note (\"checks are landing; N of M testable-tier MUSTs still open; never blended\"), the state word on each tab, and the data-driven \"converting — no further work planned; N webhook-receiver rows ungraded\" line (CLAIM-COV-005) on legacy versions (PLAN-v3 §2.18, decision 25, D5-03).",
-   "pages": [
-    "coverage.html"
-   ],
-   "tests": [
-    "gate:freshness",
-    "web_unit:coverage-converting"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  },
-  {
-   "id": "SITE-R-030",
-   "requirement": "The claims register's product-derived blocks (manifest: merchant/agent counts + supported versions; evidence.per_version: the evidence-class split) are GENERATED by conformance/web/sync_site_claims.py from the engine and byte-compared by `--check` (run_suite gate site-claims-sync, preflight, deploy.sh step 2); the writer never rewrites `reviewed`, `review_by`, claim text or evidence prose (kill-tested in validate_site_gates.py). Registry hygiene: every REG claim is found on its page (`claims --orphans` → 0) or sits in `retired_claims` with a reason (PLAN-v3 §2.18, D5-05).",
-   "pages": [
-    "*"
-   ],
-   "tests": [
-    "gate:freshness",
-    "gate:claims"
-   ],
-   "status": "active",
-   "added": "2026-09-10"
-  }
- ]
+  "_about": "SITE-R register — every spck.dev site requirement as an enforceable row (design spec docs/superpowers/specs/2026-07-09-website-ia-redesign-design.md). ADD-ONLY: removing or weakening a row requires a reasoned entry in site_requirements_retired.json; enforced by `site_gates.py tdd` against git HEAD. Test id conventions: 'site_smoke:<name>' = a test block tagged `// SITE-R-xxx` in tests/web/browser/site_smoke.mjs; 'gate:<mode>' = a site_gates.py mode; 'responsive_smoke' = the existing tests/web/browser/responsive_smoke.mjs suite. The tdd gate is GREEN only at 100% (every row has >=1 existing test, no orphan test tags).",
+  "requirements": [
+    {
+      "id": "SITE-R-001",
+      "requirement": "Unified nav byte-identical on all 6 pages (spck · Merchants /check · Agents /agent · Coverage /coverage · Docs /docs · GitHub↗); contains no /tool link",
+      "pages": [
+        "index.html",
+        "check.html",
+        "agent.html",
+        "sandbox.html",
+        "coverage.html",
+        "docs.html"
+      ],
+      "tests": [
+        "site_smoke:nav-identical"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-002",
+      "requirement": "No 'Launch Tool' text anywhere on the site",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:voice"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-003",
+      "requirement": "Exactly one .btn-primary above the fold per page",
+      "pages": [
+        "index.html",
+        "check.html",
+        "agent.html",
+        "sandbox.html",
+        "coverage.html",
+        "docs.html"
+      ],
+      "tests": [
+        "site_smoke:primary-cta"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-004",
+      "requirement": "/check depth ladder sections in DOM order instant → cli → ci (data-ladder-step markers)",
+      "pages": [
+        "check.html"
+      ],
+      "tests": [
+        "site_smoke:ladder-order"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-005",
+      "requirement": "Unofficial-disclaimer sentence on every page (independent + unofficial + not affiliated + the official suite is authoritative)",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:voice"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-006",
+      "requirement": "OG + Twitter share meta on every page",
+      "pages": [
+        "index.html",
+        "check.html",
+        "agent.html",
+        "sandbox.html",
+        "coverage.html",
+        "docs.html"
+      ],
+      "tests": [
+        "site_smoke:social-meta"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-007",
+      "requirement": "CLASS-AUTO numbers are data-rendered: any number that exists in coverage/agent-coverage JSON carries data-live and its static fallback text equals the live JSON value at gate time",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:claims"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-008",
+      "requirement": "No unregistered factual claims: every claim candidate is LIVE-bound (data-live) or registered in public/site_claims.json with evidence and an unexpired review_by",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:claims"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-009",
+      "requirement": "Voice banned patterns absent (superlatives, achievement framing, 'certified'/'endorsed', unverifiable stats, third-party names outside the data-attribution block)",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:voice"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-010",
+      "requirement": "/tool → /check and /guide → /docs 301 redirects present in public/_redirects; no page links to /tool or /guide",
+      "pages": [
+        "_redirects",
+        "*"
+      ],
+      "tests": [
+        "gate:redirects",
+        "site_smoke:redirects"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-011",
+      "requirement": "Security: /* headers include nosniff, X-Frame-Options, Referrer-Policy, CSP default-src 'self'; no un-esc()'d innerHTML/document.write/insertAdjacentHTML sinks; no external script/style/font origins",
+      "pages": [
+        "_headers",
+        "*",
+        "functions/**"
+      ],
+      "tests": [
+        "gate:security"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-012",
+      "requirement": "Sandbox loads >= 6 demo cases",
+      "pages": [
+        "sandbox.html"
+      ],
+      "tests": [
+        "site_smoke:sandbox-cases"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-013",
+      "requirement": "Pages render meaningfully if the coverage JSON fetch fails (graceful degradation, no blank main)",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "site_smoke:graceful-degrade"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-014",
+      "requirement": "Zero console errors on load of every page",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "site_smoke:console-clean"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-015",
+      "requirement": "No horizontal overflow at 320px (and 375px) on every page",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "responsive_smoke"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-016",
+      "requirement": "Analytics beacons: home_view on /, page_view beacons on /check and /docs",
+      "pages": [
+        "index.html",
+        "check.html",
+        "docs.html"
+      ],
+      "tests": [
+        "site_smoke:beacons"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-017",
+      "requirement": "Product-manifest change (merchant/agent check counts, defect count, spec versions) forces a site claims review before the lane goes green",
+      "pages": [
+        "site_claims.json"
+      ],
+      "tests": [
+        "gate:freshness"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-018",
+      "requirement": "Hook-first homepage: badge + H1 hook + exactly two hero CTAs (/check, /agent) above the fold",
+      "pages": [
+        "index.html"
+      ],
+      "tests": [
+        "site_smoke:home-hook"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-019",
+      "requirement": "Shared design system: every page links /site.css and never redefines a shared component (.site-nav/.site-footer/.btn-primary/.btn-secondary/.btn-ghost) in inline <style> — the look is single-sourced so the nav/footer/buttons cannot re-theme per page",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:consistency"
+      ],
+      "status": "active",
+      "added": "2026-07-09"
+    },
+    {
+      "id": "SITE-R-020",
+      "requirement": "Admin access control: every /api/admin/* route rejects unauthenticated requests (401/403) and authenticated non-admin sessions (403); the admin allowlist is manageable ONLY by a super-admin (POST/DELETE /api/admin/admins); a super-admin can never be removed or demoted via the API; management actions are audit-logged",
+      "pages": [
+        "functions/api/[[path]].js"
+      ],
+      "tests": [
+        "web_unit:admin-access"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-021",
+      "requirement": "Admin page (public/admin.html): carries noindex,nofollow; is linked from no nav or public page; uses the standard shell (site.css, byte-identical nav, disclaimer footer); renders every metric from runtime API responses with no static numeric claims in markup",
+      "pages": [
+        "admin.html"
+      ],
+      "tests": [
+        "site_smoke:admin-page",
+        "gate:consistency"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-022",
+      "requirement": "Page-view funnel: home/check/docs/coverage view and return beacon events are allow-listed in /api/track (a sent event must not be silently dropped) and each of those pages sends its view/return beacon",
+      "pages": [
+        "functions/api/track.js",
+        "index.html",
+        "check.html",
+        "docs.html",
+        "coverage.html"
+      ],
+      "tests": [
+        "web_unit:funnel-allowlist",
+        "site_smoke:beacons"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-023",
+      "requirement": "Save-report flow: a completed instant check offers an email+OTP save; saving requires an authenticated session (401 otherwise); the saved report is retrievable by its owner and walled from other users; each save records the store domain on the user (email-to-domain mapping) and attempts a best-effort report email that never blocks the save; the report_saved conversion beacon is allow-listed",
+      "pages": [
+        "check.html",
+        "functions/api/[[path]].js",
+        "functions/api/track.js"
+      ],
+      "tests": [
+        "web_unit:save-report",
+        "site_smoke:check-save"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-024",
+      "requirement": "Admin dashboard reflects the current product: the users listing exposes each user's recorded store domains (the email-to-domain lead mapping) and the funnel pane counts report_saved conversions",
+      "pages": [
+        "admin.html",
+        "functions/api/[[path]].js"
+      ],
+      "tests": [
+        "web_unit:admin-domains"
+      ],
+      "status": "active",
+      "added": "2026-07-10"
+    },
+    {
+      "id": "SITE-R-025",
+      "requirement": "Public opt-in conformance badge: GET /api/badge/<reportId>.svg serves an SVG derived from the saved report's summary (grade, pass/total, date) with no authentication — the unguessable report id is shared only by its owner embedding the badge. Missing/expired ids return a 200 'unknown' badge so embedded images never break, every interpolated value is XML-escaped, and responses are publicly cacheable.",
+      "pages": [
+        "functions/api/[[path]].js"
+      ],
+      "tests": [
+        "web_unit:badge"
+      ],
+      "status": "active",
+      "added": "2026-07-15"
+    },
+    {
+      "id": "SITE-R-026",
+      "requirement": "Published check register: every spec requirement the suite covers (status=check in coverage.json) has a generated page under /checks/<ID> showing the requirement text, RFC-2119 keyword, versions, testability, and a citation deep-linked to the SHA-pinned spec source; /checks/ indexes them all; /rubric explains how verdicts are graded. Pages are generated deterministically from coverage.json (the same source as /coverage) and a gate regenerates and byte-compares so they can never drift from the product.",
+      "pages": [
+        "checks/index.html",
+        "rubric.html"
+      ],
+      "tests": [
+        "gate:checkdocs"
+      ],
+      "status": "active",
+      "added": "2026-07-15"
+    },
+    {
+      "id": "SITE-R-032",
+      "requirement": "Preview badge honesty: GET /api/badge?server=<url> (functions/api/badge.js) renders the discovery + profile-structure PREVIEW as `preview N/M` (N passed of M preview checks) and never the word \"conformant\" for any preview outcome — four structural checks are not a conformance verdict (PLAN-v3 §2.18, D5-20).",
+      "pages": [
+        "functions/api/badge.js"
+      ],
+      "tests": [
+        "web_unit:badge-preview"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-028",
+      "requirement": "Coverage-page honesty sentences are registered claims rendered verbatim: the 2026-08-25 evidence-ceiling sentence is CLAIM-COV-002 (data-driven — renders only while the version's live-wire count is 0) and the 2026-04-08 tab carries the CLAIM-COV-003 footnote naming the measured commit (a2d8bf0b) and the 2026-09-09 tag re-point (ucp#813); the retired sentence \"no independently-authored 08-25 implementation exists\" never renders (PLAN-v3 §2.18, D5-02).",
+      "pages": [
+        "coverage.html"
+      ],
+      "tests": [
+        "gate:claims",
+        "web_unit:coverage-ceiling"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-031",
+      "requirement": "Audit scope is every hand-authored page under public/** recursively (sub-directories such as state-of-ucp/ included); only generated trees/pages (checks/, known-issues.html) are excluded because their own byte-compare gates hold them. A planted page under a sub-directory carrying an unregistered claim reds `claims` (kill-tested by conformance/ci/validate_site_gates.py); the launch page's claims are registered LAU-001..007 (PLAN-v3 §2.18, D5-10).",
+      "pages": [
+        "state-of-ucp/launch-2026-08-25.html"
+      ],
+      "tests": [
+        "gate:claims"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-027",
+      "requirement": "Non-page copy is held to the page bar: every advertised count in README.md, conformance/ci/README.md, packaging/README.md, hand-authored docs/*.md and functions/**/*.js equals the live product value (MCheck count, agent checks/defects, live-wire) or is a registered dated row in conformance/web/doc_claims.json; registered doc claims (must_match / must_not_match / bind) still hold; every gate row in ci/README names a gate in run_suite.py; the coverage gate's copy-freshness scope includes functions/**/*.js and ci/README (PLAN-v3 §2.18, D5-01).",
+      "pages": [
+        "functions/api/conformance.js",
+        "functions/api/badge.js"
+      ],
+      "tests": [
+        "gate:docclaims"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-029",
+      "requirement": "Publication state is rule R-a, mirrored from coverage.json fields only: live ⇔ register ∧ CHECK+EXEMPT>0 ∧ zero testable/needs-receiver/needs-oauth GAP; converting ⇔ register ∧ CHECK+EXEMPT>0 ∧ any such GAP; building ⇔ register ∧ 0/0; unregistered otherwise. site-freshness reds on any state that disagrees with its own export; supported versions (manifest.versions) = live only; the coverage page renders a `converting` note (\"checks are landing; N of M testable-tier MUSTs still open; never blended\"), the state word on each tab, and the data-driven \"converting — no further work planned; N webhook-receiver rows ungraded\" line (CLAIM-COV-005) on legacy versions (PLAN-v3 §2.18, decision 25, D5-03).",
+      "pages": [
+        "coverage.html"
+      ],
+      "tests": [
+        "gate:freshness",
+        "web_unit:coverage-converting"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-030",
+      "requirement": "The claims register's product-derived blocks (manifest: merchant/agent counts + supported versions; evidence.per_version: the evidence-class split) are GENERATED by conformance/web/sync_site_claims.py from the engine and byte-compared by `--check` (run_suite gate site-claims-sync, preflight, deploy.sh step 2); the writer never rewrites `reviewed`, `review_by`, claim text or evidence prose (kill-tested in validate_site_gates.py). Registry hygiene: every REG claim is found on its page (`claims --orphans` → 0) or sits in `retired_claims` with a reason (PLAN-v3 §2.18, D5-05).",
+      "pages": [
+        "*"
+      ],
+      "tests": [
+        "gate:freshness",
+        "gate:claims"
+      ],
+      "status": "active",
+      "added": "2026-09-10"
+    },
+    {
+      "id": "SITE-R-033",
+      "requirement": "KNOWN ISSUES is one path: conformance/ci/known_issues.json (validated by validate_known_issues.py) is the only source of public/known-issues.json, public/known-issues.html and the State-of-UCP tracker's known-issues counts. The page and JSON are GENERATED by conformance/web/gen_known_issues.py (deterministic; byte-compared by site_gates.py checkdocs and by `gen_known_issues.py --check`); every row is registered as site claim KI-<id> (text = symptom, review_by = the row's clock) and the claims block is kept in sync by the same generator; a refuted row is refused by the validator before anything renders; the tracker section binds every count with data-live to known-issues.json (a hand-typed count reds site-claims); site-freshness reds when any published row's re_verified is older than 30 days (PLAN-v3 §2.13, D5-12).",
+      "pages": [
+        "known-issues.html",
+        "state-of-ucp.html"
+      ],
+      "tests": [
+        "gate:checkdocs",
+        "gate:claims",
+        "gate:freshness",
+        "web_unit:known-issues-page"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-034",
+      "requirement": "The instant check (/api/conformance, /check) and the badge run PREVIEW checks mapped 1:1 to engine checks by the committed, add-only id map conformance/web/preview_parity.json (js id -> engine ids, requirement ids per version, counted flag, stage): every rendered row carries its engine twin(s) and requirement ids for the profile's version (no hard-coded citations in prose), `summary` and the badge's N/M count only `counted` ids (discovery.content_type is report-only), 01-11 profiles are graded in their own shape, and the parity gate conformance/ci/preview_parity.py grades a FROZEN capture set (goldens, controlled fixtures, synthetic mutants) on both sides against the expected-verdict file, refusing an unmapped id, an expired tolerated divergence or any verdict drift (PLAN-v3 §2.18, D5-11).",
+      "pages": [
+        "check.html",
+        "functions/api/conformance.js",
+        "functions/api/badge.js"
+      ],
+      "tests": [
+        "web_unit:preview-parity"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-035",
+      "requirement": "Discovery-live and the MUST-only scope statement (H5, decisions 4/8): the coverage page's 2026-08-25 evidence sentence is data-driven from coverage.json `versions[v].discovery_live {stores, as_of}` — with stores > 0 it renders the registered CLAIM-COV-007 form naming the store count and date, with stores == 0 or null it falls back to the W0 ceiling sentence (CLAIM-COV-002); the rubric carries CLAIM-RUB-016 (airtight = MUST / MUST NOT / REQUIRED / SHALL at pin cd78fb38; SHOULD-class obligations are censused report-only) with a link to the census; the State-of-UCP tracker renders the shape buckets (rest-keys / mcp-only / embedded-only) and `version_2026_08_25` from scan-summary.json only when the scan carries them; a capture older than 30 days never counts (conformance/ci/discovery_shapes.py, run_suite gate discovery-shapes) (PLAN-v3 §2.11, D5-13).",
+      "pages": [
+        "coverage.html",
+        "rubric.html",
+        "state-of-ucp.html"
+      ],
+      "tests": [
+        "gate:claims",
+        "web_unit:discovery-live"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-036",
+      "requirement": "Number flows (H1, decision 6): the merchant-check count every public surface advertises is len(merchant_checks.all_checks()) — the runtime set — counted by ONE helper (conformance/ci/checkset_count.py) used by the coverage gate's copy freshness, site-freshness's manifest, docclaims and the site_claims writer, and a duplicate check id is refused; the coverage page's evidence line iterates coverage.json evidence_classes (a new class renders without a page edit) and, when the export carries roles.summary, renders the per-role MUST split with a toggle that re-renders the bar for that role; site_claims manifest.merchant_checks and evidence.per_version regenerate from the same sources (PLAN-v3 §2.18, D5-16).",
+      "pages": [
+        "coverage.html",
+        "check.html",
+        "index.html"
+      ],
+      "tests": [
+        "gate:freshness",
+        "gate:docclaims",
+        "web_unit:number-flows"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
+    }
+  ]
 }

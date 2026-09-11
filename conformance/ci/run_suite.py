@@ -395,6 +395,10 @@ def gates(server, require_server=False):
         ("ap2-enforce", _py(SELF / "validate_ap2_enforce.py"),                      None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
+        # D5-11: the JS preview is graded 1:1 against the engine on a frozen capture set
+        # (ephemeral loopback stubs + node; skip 2 without node); its selftest plants 3 divergences
+        ("preview-parity", _py(ROOT / "conformance" / "ci" / "preview_parity.py"), None, (2,)),
+        ("preview-parity-selftest", _py(ROOT / "conformance" / "ci" / "preview_parity.py", "--selftest"), None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         # --- site-governance lane: the website held to the same red/green bar as the
         #     suite (TDD traceability, claims register, voice law, security, redirects,
@@ -476,6 +480,12 @@ def gates(server, require_server=False):
         # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
         # literal and a collision) so the gate cannot pass by being unable to fail.
         ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
+        # D5-14 (G2): the five steward docs exist, each `last-reviewed:` <= 90 days, DECISIONS.md tracks
+        # every PLAN-v3 decision 1-34 + 4b; hermetic
+        ("docs-steward", _py(ROOT / "conformance" / "ci" / "validate_steward_docs.py"), None, ()),
+        # D5-13 (H5): discovery-live shape bucketing + the 30-day capture window (pure; ops' scanner
+        # and D4-08's sampler call the same module); selftest plants a stale capture
+        ("discovery-shapes", _py(ROOT / "conformance" / "ci" / "discovery_shapes.py", "--selftest"), None, ()),
         # the deploy path itself is guarded (D5-08): on a synthetic repo with stub gh/wrangler,
         # deploy.sh must refuse a dirty tree / HEAD≠origin/main / a failed selftest check-run /
         # a stale export / a red gate, and must deploy preview-<sha7> BEFORE main. Hermetic.
@@ -484,6 +494,9 @@ def gates(server, require_server=False):
         # publish; ledger cross-ref needs ops/ mounted (rc 2 = honest SKIP in CI). Hermetic
         # kill-tests (--selftest) run first inside the same invocation.
         ("known-issues", _py(ROOT / "conformance" / "ci" / "validate_known_issues.py"), None, (2,)),
+        # D5-12: public/known-issues.{json,html} + the KI-* claims are byte-fresh projections of
+        # conformance/ci/known_issues.json (also run inside site-checkdocs and deploy.sh step 2)
+        ("known-issues-page", _py(ROOT / "conformance" / "web" / "gen_known_issues.py", "--check"), None, ()),
         # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
         # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
         # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any

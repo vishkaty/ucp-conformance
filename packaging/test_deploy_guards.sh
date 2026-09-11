@@ -7,7 +7,9 @@
 # are never touched. `deploy.sh --selftest` delegates here.
 #
 #   refusals (exit 3): dirty tree · HEAD != origin/main · gh says the selftest check-run
-#   failed · one-byte-stale coverage.json (step 2) · a red gate (step 3)
+#   failed · no completed-success selftest run in the SHA's history · a green run under another
+#   job name · one-byte-stale coverage.json (step 2) · a red gate (step 3)
+#   acceptance: a newer IN-PROGRESS selftest run never masks an older completed-success one
 #   order: on a green run the stub wrangler log shows --branch=preview-<sha7> then --branch=main
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -21,6 +23,7 @@ mkroot() {   # $1 = coverage content the STUB matrix regenerates; $2 = committed
   mkdir -p "$d/public" "$d/ops" "$d/packaging/spck_conformance/_bundle" "$d/conformance/coverage" \
            "$d/conformance/agent" "$d/conformance/web" "$d/conformance/ci" "$d/conformance/selfcheck" "$d/bin"
   cp "$DEPLOY" "$d/packaging/deploy.sh"
+  cp "$HERE/check_run_verdict.py" "$d/packaging/" 2>/dev/null || true   # the shared check-run reading (absent = red test)
   printf 'exit 0\n' > "$d/packaging/sync_bundle.sh"
   : > "$d/packaging/spck_conformance/_bundle/marker"
   printf '%s' "$2" > "$d/public/coverage.json"
@@ -47,8 +50,20 @@ PY
   # stub tools
   cat > "$d/bin/gh" <<'SH'
 #!/usr/bin/env bash
-# stub gh: `api …/check-runs --jq …` -> the selftest conclusion
-if [ "${GH_STUB_MODE:-success}" = "failure" ]; then echo "failure"; else echo "success"; fi
+# stub gh: `api …/check-runs [--jq EXPR]` -> a PLANTED check-run history for the SHA
+# (GH_STUB_MODE), newest first, in GitHub's JSON shape. A `--jq` expression is applied
+# with the real jq, so the stub is faithful to `gh api --jq` whichever way deploy.sh asks.
+case "${GH_STUB_MODE:-success}" in
+  success)                 J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"success"}]}';;
+  failure)                 J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
+  inprogress-then-success) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"success"}]}';;
+  inprogress-then-failure) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
+  other-job-only)          J='{"total_count":2,"check_runs":[{"name":"action-selftest","status":"completed","conclusion":"success"},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
+  *) echo "stub gh: unknown GH_STUB_MODE '$GH_STUB_MODE'" >&2; exit 1;;
+esac
+expr=""; prev=""
+for a in "$@"; do [ "$prev" = "--jq" ] && expr="$a"; prev="$a"; done
+if [ -n "$expr" ]; then echo "$J" | jq -r "$expr"; else echo "$J"; fi
 SH
   cat > "$d/bin/wrangler" <<'SH'
 #!/usr/bin/env bash
@@ -92,6 +107,20 @@ expect_refusal "HEAD is not origin/main" "$D"; rm -rf "$D"
 D="$(mkroot '{"v":1}' '{"v":1}')"
 expect_refusal "selftest check-run = failure (stub gh)" "$D" GH_STUB_MODE=failure; rm -rf "$D"
 
+# 3b. (W1 carry-over, W0-integration §11) a NEWER in-progress selftest run — the push that
+#     races a deploy triggers one — must not mask an older completed-success run on the same SHA
+D="$(mkroot '{"v":1}' '{"v":1}')"
+OUT="$(env GH_STUB_MODE=inprogress-then-success bash -c "$(declare -f run_deploy); run_deploy '$D' --dry-run")"; RC=$?
+if [ $RC -eq 0 ]; then ok "in-progress newest run + older completed-success run -> accepted (exit 0)"
+else bad "in-progress newest run MASKS the green run -> exit $RC (want 0):"; echo "$OUT" | grep -i "check-run" | sed 's/^/      /' >&2; fi
+rm -rf "$D"
+# 3c. a history with NO completed-success run is still refused (in-progress newest + failure)
+D="$(mkroot '{"v":1}' '{"v":1}')"
+expect_refusal "in-progress newest run + older FAILURE only (no green run)" "$D" GH_STUB_MODE=inprogress-then-failure; rm -rf "$D"
+# 3d. a green run under another job name never counts for `selftest`
+D="$(mkroot '{"v":1}' '{"v":1}')"
+expect_refusal "green 'action-selftest' + failed 'selftest' (name filter)" "$D" GH_STUB_MODE=other-job-only; rm -rf "$D"
+
 # 4. one-byte-stale coverage.json -> refused AT STEP 2
 D="$(mkroot '{"v":1}' '{"v":2}')"
 expect_refusal "one-byte-stale public/coverage.json" "$D"
@@ -119,7 +148,7 @@ rm -rf "$D"
 rm -f "$LAST_OUT"
 echo
 if [ $FAIL -eq 0 ]; then
-  echo "deploy guards: $REFUSED/5 refuse correctly · order preview→main asserted · PASS"; exit 0
+  echo "deploy guards: $REFUSED/7 refuse correctly · in-progress never masks green · order preview→main asserted · PASS"; exit 0
 else
-  echo "deploy guards: $REFUSED/5 refuse correctly · FAIL"; exit 1
+  echo "deploy guards: $REFUSED/7 refuse correctly · FAIL"; exit 1
 fi

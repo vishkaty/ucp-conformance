@@ -38,8 +38,8 @@ if [ -n "$TAG" ]; then
     fi
   fi
 fi
-# 1c. provenance (D5-15): the tagged commit is an ancestor of origin/main, and its `selftest`
-#     check-run is success. The CI half is REQUIRED in release.yml (RELEASE_GUARDS_REQUIRE_CI=1)
+# 1c. provenance (D5-15): the tagged commit is an ancestor of origin/main, and SOME completed-
+#     success `selftest` check-run exists for it (W1 carry-over: never newest-only). The CI half is REQUIRED in release.yml (RELEASE_GUARDS_REQUIRE_CI=1)
 #     and best-effort locally (gh may be absent/offline → warning, never a silent pass in CI).
 if [ -n "$TAG" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   [ "${DEPLOY_NO_FETCH:-0}" = "1" ] || git fetch -q origin main >/dev/null 2>&1 || true
@@ -51,9 +51,11 @@ if [ -n "$TAG" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     bad "no refs/remotes/origin/main to check ancestry against (fetch first; release.yml checks out with fetch-depth 0)"
   fi
   GH="${GH_BIN:-gh}"
-  CONCL="$($GH api "repos/${RELEASE_REPO:-vishkaty/ucp-conformance}/commits/$SHA/check-runs" --jq '[.check_runs[]|select(.name=="selftest")]|.[0].conclusion' 2>/dev/null | tr -d '"' | tail -1)"
-  if [ "$CONCL" = "success" ]; then ok "selftest check-run for ${SHA:0:7}: success"
-  elif [ "${RELEASE_GUARDS_REQUIRE_CI:-0}" = "1" ]; then bad "selftest check-run for ${SHA:0:7} is '${CONCL:-absent}', not success — no release on a red or unverified commit"
+  # ANY completed-success `selftest` run for the SHA counts (packaging/check_run_verdict.py): the
+  # tag push races the run it triggers; a newer in-progress run must never mask a green one.
+  CONCL="$($GH api "repos/${RELEASE_REPO:-vishkaty/ucp-conformance}/commits/$SHA/check-runs?per_page=100" 2>/dev/null | python3 packaging/check_run_verdict.py selftest 2>/dev/null | tail -1)"
+  if [ "$CONCL" = "success" ]; then ok "a completed-success selftest check-run exists for ${SHA:0:7}"
+  elif [ "${RELEASE_GUARDS_REQUIRE_CI:-0}" = "1" ]; then bad "no completed-success selftest check-run for ${SHA:0:7} (newest: '${CONCL:-absent}') — no release on a red or unverified commit"
   else printf "  \033[33m!\033[0m selftest check-run for %s could not be confirmed locally ('%s') — release.yml enforces it\n" "${SHA:0:7}" "${CONCL:-absent}"; fi
 fi
 if [ "${RELEASE_GUARDS_TAG_ONLY:-0}" = "1" ]; then

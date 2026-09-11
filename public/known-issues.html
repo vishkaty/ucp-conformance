@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Known issues in the UCP reference stack — reproducible, per cut | spck.dev</title>
+<meta name="description" content="10 reproduced defects in the published UCP SDKs, samples, conformance suite and reference servers, with the command to reproduce each and its status per released cut.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
+<link rel="stylesheet" href="/site.css">
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "3bebef55335e4229a5c7807ce207fa13"}'></script>
+<style>
+  .wrap { max-width:860px; margin:0 auto; padding:40px 24px 8px; }
+  .wrap h1 { font-size:clamp(24px,4vw,32px); font-weight:800; letter-spacing:-.8px; margin:0 0 10px; color:var(--ink); }
+  .wrap .sub { color:var(--muted); margin:0 0 24px; font-size:15px; line-height:1.65; max-width:700px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:8px 0 14px; }
+  .stat { border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .stat .n { font-size:26px; font-weight:800; letter-spacing:-.5px; color:var(--ink); }
+  .stat .l { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .note { font-size:13px; color:var(--muted); line-height:1.6; margin:10px 0 0; }
+  .ki { border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:22px 0; }
+  .ki h2 { font-size:17px; font-weight:800; letter-spacing:-.3px; margin:0 0 8px; color:var(--ink); display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .ki .rid { font-family:ui-monospace,monospace; font-size:14px; }
+  .ki .comp { font-weight:500; color:var(--muted); font-size:14px; }
+  .chip { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; border:1px solid var(--muted); color:var(--muted); }
+  .symptom { font-size:15px; line-height:1.6; margin:0 0 12px; color:var(--ink); }
+  .meta { display:grid; grid-template-columns:120px 1fr; gap:8px 14px; font-size:14px; margin:0; }
+  .meta dt { color:var(--muted); }
+  .meta dd { margin:0; color:var(--ink); min-width:0; }
+  .cmd { display:block; white-space:pre-wrap; word-break:break-word; font-size:12.5px; padding:8px 10px; border-radius:8px; background:var(--card,rgba(5,150,105,.05)); }
+  .eo { font-size:13.5px; margin-top:6px; line-height:1.5; }
+  .eo .k { font-family:ui-monospace,monospace; font-size:12px; color:var(--muted); margin-right:6px; }
+  .cuts, .filed { list-style:none; padding:0; margin:0; }
+  .cuts li { margin:4px 0; line-height:1.5; }
+  .st { display:inline-block; font-size:11.5px; font-weight:700; padding:1px 8px; border-radius:999px; border:1px solid var(--border); margin-right:4px; }
+  .st-open { color:#b45309; border-color:#f59e0b; }
+  .st-fixed { color:var(--primary); border-color:var(--primary); }
+  .cut { font-family:ui-monospace,monospace; font-size:12.5px; }
+  .ev { color:var(--muted); font-size:13px; }
+  @media (max-width:560px) { .meta { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="/known-issues">Known issues</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="wrap">
+<header class="page-head">
+  <div class="eyebrow">Known issues</div>
+  <h1>Defects we have reproduced in the UCP reference stack</h1>
+  <p class="sub">Each row is a defect in a published artifact around the specification — an SDK, a sample,
+the official conformance suite, our own golden server — with a command you can run, what the pinned spec
+text expects, what the artifact does, and the status on each released cut. Rows are re-verified within
+thirty days and carry a review date; a finding that was refuted is removed from this file rather than
+labeled. Source of truth: <code>conformance/ci/known_issues.json</code> in the
+<a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">repository</a>, validated in CI.</p>
+</header>
+<div class="stats">
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">10</div><div class="l">issues tracked</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">10</div><div class="l">open on a published cut</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">4</div><div class="l">fixed on an upstream main</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">6</div><div class="l">no fix anywhere yet</div></div>
+</div>
+<p class="note">By artifact: golden-0825 1 · js-sdk 2 · official-conformance 1 · python-sdk 1 · samples-node 1 · samples-python 1 · ucp-schema 1 · ucp-spec 2. Spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>
+(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-09-09</span>.
+Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
+<article class="ki" id="KI-001">
+<h2><a class="rid" href="#KI-001">KI-001</a> <span class="chip">python-sdk</span> <span class="comp">generated pydantic models (schema constraints)</span></h2>
+<p class="symptom">ucp-sdk 0.5.0 drops four constraint families the pinned 08-25 schemas carry: JWK conditional rules (5), C62 scale, the maxProperties family, discriminator array-retyping. Every published cut predates the fixes.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">python3 conformance/selfcheck/sdk_constraints_probe.py</code><div class="eo"><span class="k">expected</span> each pinned constraint rejects its negative payload</div><div class="eo"><span class="k">observed</span> 4 families accept the negative payload at 0.5.0</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">PyPI ucp-sdk 0.5.0 (tag v2026-08-25, b6f9b91c)</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main 836b0228</span> <span class="ev">— python-sdk#89 #91 #93 merged (836b0228); ledger G1</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89" rel="noopener">Universal-Commerce-Protocol/python-sdk/pull/89</a></li><li><a href="https://github.com/Universal-Commerce-Protocol/python-sdk/pull/91" rel="noopener">Universal-Commerce-Protocol/python-sdk/pull/91</a></li><li><a href="https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93" rel="noopener">Universal-Commerce-Protocol/python-sdk/pull/93</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G1</dd>
+</dl>
+</article>
+<article class="ki" id="KI-002">
+<h2><a class="rid" href="#KI-002">KI-002</a> <span class="chip">js-sdk</span> <span class="comp">writeCompatibilityDiscoverySchemas / declarations generator</span></h2>
+<p class="symptom">npm @ucp-js/sdk 0.5.1 ships the extends-stub twin of the merged #55 fix (maxProperties / extends / declarations): generated compatibility discovery schemas are incomplete at the published cut.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">npm view @ucp-js/sdk version &amp;&amp; grep -n extends node_modules/@ucp-js/sdk/dist/schemas/*.d.ts</code><div class="eo"><span class="k">expected</span> generated declarations carry the extends/maxProperties members</div><div class="eo"><span class="k">observed</span> 0.5.1 lacks them; main has them</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">npm 0.5.1</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main 99572ca8</span> <span class="ev">— js-sdk#63 merged 2026-09-07 (99572ca8); ledger G3</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/js-sdk/pull/55" rel="noopener">Universal-Commerce-Protocol/js-sdk/pull/55</a></li><li><a href="https://github.com/Universal-Commerce-Protocol/js-sdk/pull/63" rel="noopener">Universal-Commerce-Protocol/js-sdk/pull/63</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G3</dd>
+</dl>
+</article>
+<article class="ki" id="KI-003">
+<h2><a class="rid" href="#KI-003">KI-003</a> <span class="chip">js-sdk</span> <span class="comp">UcpDiscoveryProfileSchema</span></h2>
+<p class="symptom">UcpDiscoveryProfileSchema models `capabilities` as an ARRAY; the spec (2026-04-08 and 2026-08-25) defines a record keyed by reverse-domain capability name whose values are arrays.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">node -e &quot;const s=require(&#x27;@ucp-js/sdk&#x27;);console.log(JSON.stringify(s.UcpDiscoveryProfileSchema.shape.ucp.shape.capabilities._def.typeName))&quot;</code><div class="eo"><span class="k">expected</span> ZodRecord (object keyed by capability name)</div><div class="eo"><span class="k">observed</span> ZodArray at 0.5.1 and at main</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">npm 0.5.1</span></li><li><span class="st st-open">open</span> <span class="cut">main 44c448d</span></li></ul></dd>
+<dt>Filed</dt><dd>not yet filed</dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G5</dd>
+</dl>
+</article>
+<article class="ki" id="KI-004">
+<h2><a class="rid" href="#KI-004">KI-004</a> <span class="chip">ucp-schema</span> <span class="comp">definition selection (--def) and --schema-local-base</span></h2>
+<p class="symptom">Crate 1.4.1 and the pinned 9b5c3206 crash (exit 134) on 08-25 def-selection patterns (#45/#46 class); the post-#66 head b52518f5 fixes the crash but regresses --schema-local-base (base segment doubled; A/B proven, old Valid / head rc 2).</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">conformance/.vendor/ucp-schema/target/release/ucp-schema validate --def &lt;08-25 def&gt; &lt;payload&gt;</code><div class="eo"><span class="k">expected</span> Valid / Invalid verdict</div><div class="eo"><span class="k">observed</span> exit 134 at 1.4.1 and 9b5c3206; rc 2 (path doubled) at b52518f5</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">crate 1.4.1</span></li><li><span class="st st-open">open</span> <span class="cut">9b5c3206 (pinned)</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main b52518f5</span> <span class="ev">— ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there is open (ledger G6, #72 pending)</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/70" rel="noopener">Universal-Commerce-Protocol/ucp-schema/issues/70</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G6</dd>
+</dl>
+</article>
+<article class="ki" id="KI-005">
+<h2><a class="rid" href="#KI-005">KI-005</a> <span class="chip">samples-python</span> <span class="comp">checkout_service / test helpers (bare ShippingDestination)</span></h2>
+<p class="symptom">Fresh-run CI breaks (117/257 at the pinned 00333a80; 2 OrderTest 500s at 01755bcc): a helper builds a bare ShippingDestination and checkout_service.py:532 raises. Our #220 (retargeted to #218) fixes both.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">cd conformance/.vendor/samples/rest/python &amp;&amp; uv run --group dev pytest -q</code><div class="eo"><span class="k">expected</span> all tests OK</div><div class="eo"><span class="k">observed</span> OrderTest cases 500 at services/checkout_service.py:532</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">samples 00333a80 (pinned)</span></li><li><span class="st st-open">open</span> <span class="cut">samples 01755bcc</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">conformance#96 (helpers)</span> <span class="ev">— conformance#96 merged (FanouZeng-TT) for the helper half; samples#220 open for the service half; ledger G10</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/samples/issues/218" rel="noopener">Universal-Commerce-Protocol/samples/issues/218</a></li><li><a href="https://github.com/Universal-Commerce-Protocol/samples/pull/220" rel="noopener">Universal-Commerce-Protocol/samples/pull/220</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin shared · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G10</dd>
+</dl>
+</article>
+<article class="ki" id="KI-006">
+<h2><a class="rid" href="#KI-006">KI-006</a> <span class="chip">samples-node</span> <span class="comp">production start path (npm start)</span></h2>
+<p class="symptom">`npm start` fails: dist/index.js missing; `node dist/src/index.js` fails ERR_MODULE_NOT_FOUND on 37 extensionless imports. samples#58 was closed 2026-07-22 as &#x27;Fixed by #139&#x27; without an import change.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">cd conformance/.vendor/samples/rest/nodejs &amp;&amp; npm run build &amp;&amp; npm start</code><div class="eo"><span class="k">expected</span> server listens</div><div class="eo"><span class="k">observed</span> dist/index.js missing; ERR_MODULE_NOT_FOUND</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">samples 01755bcc</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/samples/issues/58" rel="noopener">Universal-Commerce-Protocol/samples/issues/58</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row R21</dd>
+</dl>
+</article>
+<article class="ki" id="KI-007">
+<h2><a class="rid" href="#KI-007">KI-007</a> <span class="chip">official-conformance</span> <span class="comp">integration_test_utils / DEFAULT_UCP_VERSION</span></h2>
+<p class="symptom">The official conformance suite has zero 2026-08-25 coverage: DEFAULT_UCP_VERSION=&quot;2026-04-08&quot; (integration_test_utils.py:59), ucp-sdk==0.4.4 pin, HEAD predates the release.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">grep -n DEFAULT_UCP_VERSION conformance/.vendor/conformance/integration_test_utils.py</code><div class="eo"><span class="k">expected</span> a 2026-08-25 default or matrix</div><div class="eo"><span class="k">observed</span> &quot;2026-04-08&quot; only</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">conformance 016ecbc</span></li><li><span class="st st-open">open</span> <span class="cut">conformance fdbdafd (pinned)</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/conformance/pull/104" rel="noopener">Universal-Commerce-Protocol/conformance/pull/104</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row S4</dd>
+</dl>
+</article>
+<article class="ki" id="KI-008">
+<h2><a class="rid" href="#KI-008">KI-008</a> <span class="chip">ucp-spec</span> <span class="comp">release tag v2026-04-08</span></h2>
+<p class="symptom">The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -&gt; a25a4a24, #813 loyalty backport: +15 MUSTs, +common/loyalty.json). Our lock pins a2d8bf0b; acknowledged under decision 3 (re-pin in W1).</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check</code><div class="eo"><span class="k">expected</span> tag v2026-04-08 == a2d8bf0b</div><div class="eo"><span class="k">observed</span> TAG MOVED v2026-04-08 -&gt; a25a4a24 (acknowledged)</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">ucp tag v2026-04-08 @ a25a4a24</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/813" rel="noopener">Universal-Commerce-Protocol/ucp/pull/813</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row R20</dd>
+</dl>
+</article>
+<article class="ki" id="KI-009">
+<h2><a class="rid" href="#KI-009">KI-009</a> <span class="chip">ucp-spec</span> <span class="comp">signatures.md REPLAY-002 (payload byte fidelity)</span></h2>
+<p class="symptom">REPLAY-002 requires byte-identical replay detection but the released text leaves canonicalisation vs raw-byte comparison ambiguous; golden-0825 implements the literal reading (seq_invariants I10 enforce; report mode for user-facing runs until F3-f is answered).</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">python3 conformance/checks/golden_check_08_25.py --only REPLAY-002</code><div class="eo"><span class="k">expected</span> one unambiguous comparison rule</div><div class="eo"><span class="k">observed</span> two defensible readings; golden records the literal one</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">ucp cd78fb38 (pinned 2026-08-25)</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/782" rel="noopener">Universal-Commerce-Protocol/ucp/pull/782</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin shared · confidence medium · re-verified 2026-09-09 · review by 2026-12-08 · ledger row G13</dd>
+</dl>
+</article>
+<article class="ki" id="KI-010">
+<h2><a class="rid" href="#KI-010">KI-010</a> <span class="chip">golden-0825</span> <span class="comp">unknown-route error envelope</span></h2>
+<p class="symptom">golden-0825 answers an unknown route with FastAPI&#x27;s `{&quot;detail&quot;:&quot;Not Found&quot;}` 404 instead of the UCP error envelope, and accepts unadvertised versions; fixed by C3 (D3-04) in Wave 0.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">PORT=8194 DB_DIR=$(mktemp -d) conformance/testbed/golden-0825/serve_golden_0825.sh &amp;&amp; curl -s localhost:8194/nope</code><div class="eo"><span class="k">expected</span> UCP error envelope 404</div><div class="eo"><span class="k">observed</span> {&quot;detail&quot;:&quot;Not Found&quot;}</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">golden-0825 @ f9cc470</span></li></ul></dd>
+<dt>Filed</dt><dd>not yet filed</dd>
+<dt>Provenance</dt><dd>origin ours · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row R23</dd>
+</dl>
+</article>
+
+<footer class="page-foot"><p class="note">spck.dev is an independent, unofficial project — not affiliated with,
+endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.
+Issue rows describe our reproduction against pinned sources; the upstream projects are the authority on their own fixes.</p></footer>
+</div>
+</body>
+</html>

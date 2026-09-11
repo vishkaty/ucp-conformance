@@ -128,6 +128,13 @@ def page_lines(path):
 def sentences(text):
     return [s for s in re.split(r"(?<=[.!?])\s+", text) if s]
 
+def _merchant_count():
+    """(count, duplicate ids) of the runtime merchant check set — conformance/ci/checkset_count.py
+    (D5-16): one helper for every copy/manifest gate, never a source regex."""
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    from checkset_count import merchant_check_count
+    return merchant_check_count()
+
 # ── tiny jsonpath (dot / ['key'] / [0]) for data-live="file.json:$.a['b'][0]" ──
 def resolve_live(spec):
     """Returns (value, error). spec = '<file-under-public>:<path>'."""
@@ -327,7 +334,10 @@ def orphans():
     retired = _retired_keys()
     pinned = _unit_test_pinned_ids()
     sents, joined = {}, {}
-    for path in pages():
+    # generated pages are not audited for claims (their numbers are byte-compared from their
+    # source) but a claim REGISTERED on one (KI-###, D5-12) must still be found on it
+    generated = [str(PUB / g) for g in GENERATED_PAGES if (PUB / g).exists()]
+    for path in pages() + generated:
         key = page_key(path)
         lines = page_lines(path)
         sents[key] = [s for _, text, _ in lines for s in sentences(text)]
@@ -755,11 +765,11 @@ def _real_manifest():
     if r.returncode != 0:
         raise RuntimeError(f"agent registry import failed: {r.stderr[-200:]}")
     ag = json.loads(r.stdout)
-    # merchant check count = the ENGINE's MCheck registry — same counting technique
-    # as coverage_gate copy-freshness (the advertised "N kill-rate-validated checks")
-    merchant = 0
-    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
-        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    # merchant check count = the ENGINE's runtime check set (checkset_count.py, D5-16) — the
+    # same helper coverage_gate copy-freshness, docclaims and the site_claims writer use
+    merchant, dup_ids = _merchant_count()
+    if dup_ids:
+        raise RuntimeError(f"duplicate merchant check id(s) {dup_ids} — the product count is undefined until fixed")
     return {
         "merchant_checks": merchant,
         "agent_checks": ag["agent_checks"],
@@ -801,6 +811,35 @@ def _adoption_facts_failures(cov_export):
     return fails
 
 
+KNOWN_ISSUES = "known-issues.json"
+KNOWN_ISSUES_MAX_DAYS = 30
+
+
+def _known_issues_failures(today=None):
+    """D5-12 / SITE-R-033: every published known-issue row must have been re-verified within
+    30 days (the tracker and the page bind their counts to public/known-issues.json). A
+    missing/unreadable file is a FAIL (fail-closed), like adoption-facts."""
+    today = today or datetime.date.today()
+    f = PUB / KNOWN_ISSUES
+    try:
+        doc = json.load(open(f))
+    except Exception as e:                                          # noqa: BLE001
+        return [f"{KNOWN_ISSUES}: unreadable ({e}) — run conformance/web/gen_known_issues.py --write"]
+    fails = []
+    for r in doc.get("issues") or []:
+        rid = r.get("id", "?")
+        try:
+            age = (today - datetime.date.fromisoformat(r["re_verified"])).days
+        except (KeyError, ValueError):
+            fails.append(f"{KNOWN_ISSUES}: {rid} re_verified missing/invalid"); continue
+        if age > KNOWN_ISSUES_MAX_DAYS:
+            fails.append(f"{KNOWN_ISSUES}: {rid} re_verified {r['re_verified']} is {age} days old "
+                         f"(max {KNOWN_ISSUES_MAX_DAYS}) — re-verify the row or retire it")
+        if r.get("refuted") is not False:
+            fails.append(f"{KNOWN_ISSUES}: {rid} is refuted — a refuted finding never renders")
+    return fails
+
+
 def freshness():
     state_fails = _state_failures(_coverage_versions())
     for sf in state_fails:
@@ -820,6 +859,12 @@ def freshness():
     if facts_fails:
         print(f"site-freshness: FAIL — {len(facts_fails)} adoption-facts spec_musts "
               f"snapshot(s) disagree with coverage.json (see above)")
+        return 1
+    ki_fails = _known_issues_failures()
+    for kf in ki_fails:
+        print(f"  x known-issues: {kf}")
+    if ki_fails:
+        print(f"site-freshness: FAIL — {len(ki_fails)} published known-issue row(s) stale or refuted (see above)")
         return 1
     if not manifest:
         print(f"site-freshness: FAIL — claims register missing manifest "
@@ -913,7 +958,7 @@ def selftest():
         with tempfile.TemporaryDirectory() as tmp:
             tmpd = pathlib.Path(tmp)
             for fname in ("coverage.json", "agent-coverage.json", "site_claims.json",
-                          ADOPTION_FACTS):
+                          ADOPTION_FACTS, KNOWN_ISSUES):
                 src = PUB / fname
                 if src.exists():
                     (tmpd / fname).parent.mkdir(parents=True, exist_ok=True)
@@ -1079,7 +1124,7 @@ DOC_CLAIMS = WEB / "doc_claims.json"
 # hand-authored non-page copy in scope (generated docs/spec-coverage-matrix.md is
 # byte-compared by the coverage gate and excluded here)
 DOC_FILES = ("README.md", "conformance/ci/README.md", "packaging/README.md",
-             "docs/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
+             "docs/archive/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
              "docs/merchant-conformance.md", "docs/ap2-vectors.md")
 DOC_GLOBS = ("functions/**/*.js",)
 # (regex, live-value key, label) — every captured count MUST equal the live value
@@ -1113,9 +1158,7 @@ def _base_version(v):
 def doc_live_values():
     """Live product values the doc counts are pinned to — the SAME counting technique
     the coverage gate / agent_governance / freshness use (never a second opinion)."""
-    merchant = 0
-    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
-        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    merchant, _dups = _merchant_count()
     r = subprocess.run([sys.executable, "-c",
                         "import sys,json;sys.path.insert(0,'conformance/agent');"
                         "import agent_checks,reference_agent;"
@@ -1262,10 +1305,23 @@ def checkdocs():
     if not (PUB / "rubric.html").exists():
         fails.append("rubric.html missing — the grading rubric must be published")
 
+    # D5-12 / SITE-R-033: the known-issues page, its JSON and the KI-* claims are projections
+    # of conformance/ci/known_issues.json — regenerated in memory and byte-compared.
+    ki_fails = []
+    gki = ROOT / "conformance" / "web" / "gen_known_issues.py"
+    if gki.exists():
+        spec2 = importlib.util.spec_from_file_location("gen_known_issues", gki)
+        gen2 = importlib.util.module_from_spec(spec2); spec2.loader.exec_module(gen2)
+        ki_fails = [f"known-issues: {f}" for f in gen2.check_failures()]
+    else:
+        ki_fails = ["known-issues: conformance/web/gen_known_issues.py missing — the page cannot be verified"]
+    fails += ki_fails
+
     for f in fails[:20]:
         print(f"  x {f}")
     print(f"site-checkdocs: {'PASS' if not fails else 'FAIL'} "
-          f"({len(by_id)} covered requirement page(s); {len(fails)} finding(s))")
+          f"({len(by_id)} covered requirement page(s); {len(fails)} finding(s))"
+          + (" · known-issues page in sync" if not ki_fails else " · known-issues page OUT OF SYNC"))
     return 0 if not fails else 1
 
 # ═══ main ════════════════════════════════════════════════════════════════════

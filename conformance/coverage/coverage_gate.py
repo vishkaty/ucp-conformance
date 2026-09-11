@@ -320,9 +320,13 @@ def main():
     # 4. copy freshness: any advertised check count — on the public site OR in the
     #    tracked docs (README, ROADMAP, packaging README) — must equal the real
     #    MCheck count. This is what stops a doc drifting to a stale "38 checks" claim.
-    actual = 0
-    for f in glob.glob(os.path.join(ROOT, "conformance", "checks", "merchant_checks*.py")):
-        actual += len(re.findall(r"^    MCheck\(", open(f).read(), re.M))
+    #    D5-16: the count is the RUNTIME set (merchant_checks.all_checks(), one helper shared
+    #    with site_gates / sync_site_claims) — the source regex missed the TLS module (227 vs 228).
+    sys.path.insert(0, os.path.join(ROOT, "conformance", "ci"))
+    from checkset_count import merchant_check_count
+    actual, dup_ids = merchant_check_count()
+    for d in dup_ids:
+        failures.append(f"duplicate merchant check id {d!r} in the runtime check set")
     claim_res = [re.compile(r"(\d+)\+? kill-rate-validated checks?"),
                  re.compile(r"(\d+)\+? checks across"),
                  # the landing-page hero stat: <div class="stat-num">47</div>...Kill-rate-validated
@@ -334,7 +338,7 @@ def main():
     #    advertised a stale "37") and conformance/ci/README.md are copy too.
     copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
         os.path.join(ROOT, "README.md"),
-        os.path.join(ROOT, "docs", "ROADMAP.md"),
+        os.path.join(ROOT, "docs", "archive", "ROADMAP.md"),
         os.path.join(ROOT, "packaging", "README.md"),
         os.path.join(ROOT, "conformance", "ci", "README.md")] + \
         glob.glob(os.path.join(ROOT, "functions", "**", "*.js"), recursive=True)

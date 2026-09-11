@@ -103,3 +103,68 @@ test("legacy converting versions render the data-driven 'no further work planned
   clickTab(doc, "2026-08-25");                                  // current version: never the legacy line
   assert.ok(!doc.getElementById("summary").textContent.includes(c.text));
 });
+
+
+// ── D5-13 / SITE-R-035: the 08-25 evidence sentence is bound to discovery_live ──────────
+test("08-25 with discovery_live stores > 0 renders the registered CLAIM-COV-007 form (count + as_of), not the ceiling", async () => { // SITE-R-035
+  const c = claim("CLAIM-COV-007");
+  assert.ok(c && c.text, "CLAIM-COV-007 registered in public/site_claims.json");
+  const cov = JSON.parse(JSON.stringify(COV));
+  cov.versions["2026-08-25"].discovery_live = { stores: 3, as_of: "2026-09-10" };
+  const doc = await render(cov);
+  clickTab(doc, "2026-08-25");
+  const text = doc.getElementById("summary").textContent;
+  assert.ok(text.includes(c.text), `summary carries the registered discovery-live text\n${text}`);
+  assert.match(text, /\b3 independently-operated/);
+  assert.match(text, /as of 2026-09-10/);
+  assert.ok(!text.includes(claim("CLAIM-COV-002").text), "the W0 ceiling sentence retires when stores > 0");
+});
+
+test("08-25 with discovery_live null or stores 0 renders the W0 ceiling sentence (CLAIM-COV-002)", async () => { // SITE-R-035
+  for (const dl of [null, { stores: 0, as_of: null }]) {
+    const cov = JSON.parse(JSON.stringify(COV));
+    cov.versions["2026-08-25"].discovery_live = dl;
+    const doc = await render(cov);
+    clickTab(doc, "2026-08-25");
+    const text = doc.getElementById("summary").textContent;
+    assert.ok(text.includes(claim("CLAIM-COV-002").text), `fallback renders for discovery_live=${JSON.stringify(dl)}`);
+    assert.doesNotMatch(text, /independently-operated stores/);
+  }
+});
+
+
+// ── D5-16 / SITE-R-036: the evidence legend and the role split are data-driven ─────────
+test("evidence line iterates coverage.json.evidence_classes — a fifth class renders with its count", async () => { // SITE-R-036
+  const cov = JSON.parse(JSON.stringify(COV));
+  cov.evidence_classes["register-selfcheck"] = "a struct check whose oracle is the register itself";
+  const v = cov.versions["2026-04-08"];
+  v.evidence_classes = Object.keys(cov.evidence_classes);
+  v.evidence_breakdown["register-selfcheck"] = 5;
+  const doc = await render(cov);
+  clickTab(doc, "2026-04-08");
+  const text = doc.getElementById("summary").textContent;
+  assert.match(text, /register-selfcheck 5/, `fifth class rendered from the export\n${text}`);
+  for (const k of Object.keys(cov.evidence_classes)) assert.match(text, new RegExp(k.replace(/[-]/g, "\\-") + " \\d+"));
+});
+
+test("roles.summary renders the per-role MUST split and a role toggle re-renders the bar", async () => { // SITE-R-036
+  const cov = JSON.parse(JSON.stringify(COV));
+  const v = cov.versions["2026-08-25"];
+  v.roles = { summary: { merchant: 500, agent: 220, both: 40, other: 100 },
+              merchant: { musts: 500, check: 60, exempt: 10, gap: 430 },
+              agent: { musts: 220, check: 0, exempt: 3, gap: 217 } };
+  const doc = await render(cov);
+  clickTab(doc, "2026-08-25");
+  const text = doc.getElementById("summary").textContent;
+  assert.match(text, /merchant 500/); assert.match(text, /agent 220/); assert.match(text, /both 40/); assert.match(text, /other 100/);
+  const toggle = doc.getElementById("role-toggle");
+  assert.ok(toggle, "role toggle rendered when roles.summary is present");
+  const btn = toggle.children.find((b) => b.dataset.role === "merchant");
+  assert.ok(btn, "merchant role button"); btn.dispatch("click");
+  const after = doc.getElementById("summary").textContent;
+  assert.match(after, /500/); assert.match(after, /430/);
+  // without roles (the committed export today) nothing role-related renders
+  const doc2 = await render(COV);
+  clickTab(doc2, "2026-08-25");
+  assert.ok(!doc2.getElementById("role-toggle"), "no role toggle without roles in the export");
+});

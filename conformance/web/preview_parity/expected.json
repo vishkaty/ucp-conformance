@@ -1,0 +1,396 @@
+{
+ "_about": "Expected verdicts of the preview-parity gate (D5-11): per capture, per preview id, the JS preview verdict and the engine twin's verdict, frozen by `preview_parity.py --record` and reviewed like code. `tolerated_divergences` = JS/engine disagreements accepted with a reason and an expiry (never open-ended).",
+ "captures": {
+  "controlled-2026-01-11": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "not-tested"
+   }
+  },
+  "controlled-2026-01-23": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "not-tested"
+   }
+  },
+  "controlled-2026-04-08": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  },
+  "flower-golden": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "not-tested"
+   }
+  },
+  "golden-0825": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "not-tested"
+   }
+  },
+  "synthetic-capabilities-array": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "not-tested"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "not-tested"
+   }
+  },
+  "synthetic-capability-name-not-reverse-domain": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  },
+  "synthetic-catalog-empty-search-messages": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  },
+  "synthetic-catalog-lookup-no-inputs": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "deviation",
+    "engine": "deviation"
+   }
+  },
+  "synthetic-catalog-search-shape": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  },
+  "synthetic-content-type-html": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "deviation",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  },
+  "synthetic-services-object": {
+   "discovery.version": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "catalog.search_shape": {
+    "js": "absent",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "absent",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "absent",
+    "engine": "pass"
+   }
+  },
+  "synthetic-version-undated": {
+   "discovery.version": {
+    "js": "deviation",
+    "engine": "deviation"
+   },
+   "discovery.content_type": {
+    "js": "pass",
+    "engine": "absent"
+   },
+   "discovery.capabilities_object": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "discovery.services_array": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.search_shape": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.empty_search": {
+    "js": "pass",
+    "engine": "pass"
+   },
+   "catalog.lookup_inputs": {
+    "js": "pass",
+    "engine": "pass"
+   }
+  }
+ },
+ "tolerated_divergences": []
+}

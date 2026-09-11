@@ -14,7 +14,8 @@
 #                  known-issues (gen_known_issues --check, once D5-12 lands); `git diff --exit-code public/`
 #   3  gates       coverage, evidence-class, agent-governance, site_gates (every mode incl.
 #                  docclaims + --orphans), known-issues, preview_parity (once D5-11 lands)
-#   4  provenance  HEAD == origin/main AND the `selftest` check-run for this SHA is `success`
+#   4  provenance  HEAD == origin/main AND SOME completed-success `selftest` check-run exists for
+#                  this SHA (a newer in-progress run never masks it — packaging/check_run_verdict.py)
 #                  (this is where "nothing deploys while W0-1 is red" is mechanical:
 #                  probe-shape-0825 is a run_suite gate inside that check)
 #   5  preview     wrangler pages deploy --branch=preview-<sha7>, then a smoke fetch of /coverage.json
@@ -93,9 +94,11 @@ step 4 "provenance (HEAD == origin/main; selftest check-run success)"
 SHA="$(git rev-parse HEAD)"; SHA7="$(git rev-parse --short=7 HEAD)"
 MAIN="$(git rev-parse refs/remotes/origin/main 2>/dev/null || true)"
 [ -n "$MAIN" ] && [ "$SHA" = "$MAIN" ] || refuse 4 "HEAD $SHA7 is not origin/main (${MAIN:0:7}) — deploy only what is merged and CI-verified"
-CONCLUSION="$($GH api "repos/$REPO/commits/$SHA/check-runs" --jq '[.check_runs[]|select(.name=="selftest")]|.[0].conclusion' 2>/dev/null | tr -d '"' | tail -1)"
-[ "$CONCLUSION" = "success" ] || refuse 4 "the \`selftest\` check-run for $SHA7 is '${CONCLUSION:-absent}', not success"
-ok "HEAD $SHA7 == origin/main; selftest check-run: success"
+# ANY completed-success `selftest` run for the SHA counts (packaging/check_run_verdict.py): the
+# push that races a deploy triggers a newer in-progress run, which must never mask a green one.
+CONCLUSION="$($GH api "repos/$REPO/commits/$SHA/check-runs?per_page=100" 2>/dev/null | "$PY" packaging/check_run_verdict.py selftest 2>/dev/null | tail -1)"
+[ "$CONCLUSION" = "success" ] || refuse 4 "no completed-success \`selftest\` check-run for $SHA7 (newest: '${CONCLUSION:-absent}')"
+ok "HEAD $SHA7 == origin/main; a completed-success selftest check-run exists for $SHA7"
 
 # ── 5 preview ──────────────────────────────────────────────────────────────────
 step 5 "preview deploy (--branch=preview-$SHA7) + smoke"

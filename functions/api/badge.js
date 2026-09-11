@@ -75,7 +75,8 @@ export async function onRequestGet(context) {
     // checks are a preview of the CLI/Action suite, so the badge reads `preview N/M`
     // (N passed of M preview checks) and NEVER the word "conformant" — a registered
     // wording (conformance/web/doc_claims.json DOC-BADGE-001) pinned by the web-unit
-    // badge test. M comes from the preview id map once D5-11 lands (N/4 today).
+    // badge test. M = the COUNTED discovery-stage ids of conformance/web/preview_parity.json
+    // (the badge inherits the id map through summary; D5-11).
     const s = out.summary || {};
     const passed = Number.isFinite(s.passed) ? s.passed : 0;
     const total = Number.isFinite(s.total) ? s.total : 0;

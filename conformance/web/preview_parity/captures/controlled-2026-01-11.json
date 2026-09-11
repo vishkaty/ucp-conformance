@@ -1,0 +1,99 @@
+{
+ "schema": "preview-capture/1",
+ "name": "controlled-2026-01-11",
+ "source": "conformance/fixtures/merchant/server.py --spec-version 2026-01-11 (ephemeral port)",
+ "captured_at": "2026-09-11",
+ "spec_version": "2026-01-11",
+ "normalized": {
+  "from": [
+   "http://127.0.0.1:60124",
+   "http://localhost:60124"
+  ],
+  "to": "https://capture.example"
+ },
+ "well_known": {
+  "status": 200,
+  "content_type": "application/json",
+  "body": {
+   "ucp": {
+    "version": "2026-01-11",
+    "services": {
+     "dev.ucp.shopping": {
+      "version": "2026-01-11",
+      "spec": "https://ucp.dev/specification/overview",
+      "rest": {
+       "schema": "https://ucp.dev/services/shopping/rest.openapi.json",
+       "endpoint": "https://capture.example"
+      }
+     }
+    },
+    "capabilities": [
+     {
+      "name": "dev.ucp.shopping.checkout",
+      "version": "2026-01-11",
+      "spec": "https://ucp.dev/specification/checkout",
+      "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+     },
+     {
+      "name": "dev.ucp.shopping.order",
+      "version": "2026-01-11",
+      "spec": "https://ucp.dev/specification/order",
+      "schema": "https://ucp.dev/schemas/shopping/order.json"
+     },
+     {
+      "name": "dev.ucp.shopping.discount",
+      "version": "2026-01-11",
+      "spec": "https://ucp.dev/specification/discount",
+      "schema": "https://ucp.dev/schemas/shopping/discount.json",
+      "extends": "dev.ucp.shopping.checkout"
+     },
+     {
+      "name": "dev.ucp.shopping.buyer_consent",
+      "version": "2026-01-11",
+      "spec": "https://ucp.dev/specification/buyer-consent",
+      "schema": "https://ucp.dev/schemas/shopping/buyer_consent.json",
+      "extends": "dev.ucp.shopping.checkout"
+     }
+    ]
+   },
+   "payment": {
+    "handlers": [
+     {
+      "id": "spck_tokenpay",
+      "name": "dev.spck.tokenpay",
+      "version": "2026-01-11",
+      "spec": "https://spck.dev/fixture/handlers/tokenpay",
+      "config_schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
+      "instrument_schemas": [
+       "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json"
+      ],
+      "config": {}
+     },
+     {
+      "id": "spck_giftpay",
+      "name": "dev.spck.giftpay",
+      "version": "2026-01-11",
+      "spec": "https://spck.dev/fixture/handlers/giftpay",
+      "config_schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+      "instrument_schemas": [
+       "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json"
+      ],
+      "config": {}
+     }
+    ]
+   },
+   "signing_keys": [
+    {
+     "kid": "spck-merchant-sig-2026",
+     "kty": "EC",
+     "crv": "P-256",
+     "x": "wGpBpP1SD5afKQ5C71FzfXCvuVtTyd2X8vPjuWQB3x8",
+     "y": "my0kKuw3z-dwaU81Ib9d2Se7bCT6gMrtCqBtPqTNtRo",
+     "use": "sig",
+     "alg": "ES256"
+    }
+   ]
+  }
+ },
+ "catalog": null
+}

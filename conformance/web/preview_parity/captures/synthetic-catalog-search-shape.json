@@ -1,0 +1,670 @@
+{
+ "schema": "preview-capture/1",
+ "name": "synthetic-catalog-search-shape",
+ "source": "synthetic: controlled-2026-04-08 with search products[0] without variants (CAT-012 shape)",
+ "captured_at": "2026-09-11",
+ "spec_version": "2026-04-08",
+ "normalized": {
+  "from": [
+   "http://127.0.0.1:60075",
+   "http://localhost:60075"
+  ],
+  "to": "https://capture.example"
+ },
+ "well_known": {
+  "status": 200,
+  "content_type": "application/json",
+  "body": {
+   "version": "2026-04-08",
+   "services": {
+    "dev.ucp.shopping": [
+     {
+      "version": "2026-04-08",
+      "transport": "rest",
+      "endpoint": "https://capture.example",
+      "spec": "https://ucp.dev/2026-04-08/specification/shopping",
+      "schema": "https://ucp.dev/2026-04-08/services/shopping/openapi.json"
+     },
+     {
+      "version": "2026-04-08",
+      "transport": "mcp",
+      "endpoint": "https://capture.example/ucp/mcp",
+      "spec": "https://ucp.dev/2026-04-08/specification/shopping",
+      "schema": "https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json"
+     },
+     {
+      "version": "2026-04-08",
+      "transport": "a2a",
+      "endpoint": "https://capture.example/ucp/a2a",
+      "spec": "https://ucp.dev/2026-04-08/specification/shopping"
+     }
+    ]
+   },
+   "capabilities": {
+    "dev.ucp.shopping.checkout": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/checkout",
+      "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+     }
+    ],
+    "dev.ucp.shopping.order": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/order",
+      "schema": "https://ucp.dev/schemas/shopping/order.json"
+     }
+    ],
+    "dev.ucp.shopping.discount": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/discount",
+      "schema": "https://ucp.dev/schemas/shopping/discount.json",
+      "extends": "dev.ucp.shopping.checkout"
+     }
+    ],
+    "dev.ucp.shopping.catalog.search": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/search",
+      "schema": "https://ucp.dev/schemas/shopping/search.json"
+     }
+    ],
+    "dev.ucp.shopping.catalog.lookup": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/lookup",
+      "schema": "https://ucp.dev/schemas/shopping/lookup.json"
+     }
+    ],
+    "dev.ucp.shopping.cart": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/cart",
+      "schema": "https://ucp.dev/schemas/shopping/cart.json"
+     }
+    ],
+    "dev.ucp.common.identity_linking": [
+     {
+      "version": "2026-04-08",
+      "spec": "https://ucp.dev/specification/identity-linking",
+      "schema": "https://ucp.dev/schemas/common/identity_linking.json",
+      "config": {
+       "scopes": {
+        "dev.ucp.shopping.order:read": {},
+        "dev.ucp.shopping.order:manage": {},
+        "dev.ucp.shopping.checkout:manage": {
+         "description": {
+          "text": "Create, update, and complete checkout sessions on the user's behalf."
+         }
+        }
+       }
+      }
+     }
+    ]
+   },
+   "payment_handlers": {
+    "dev.spck.tokenpay": [
+     {
+      "id": "spck_tokenpay",
+      "version": "2026-04-08",
+      "spec": "https://spck.dev/fixture/handlers/tokenpay",
+      "schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
+      "available_instruments": [
+       {
+        "type": "card",
+        "constraints": {
+         "brands": [
+          "visa",
+          "mastercard"
+         ]
+        }
+       }
+      ]
+     }
+    ],
+    "dev.spck.giftpay": [
+     {
+      "id": "spck_giftpay",
+      "version": "2026-04-08",
+      "spec": "https://spck.dev/fixture/handlers/giftpay",
+      "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+      "available_instruments": [
+       {
+        "type": "card",
+        "constraints": {
+         "brands": [
+          "visa"
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "supported_versions": {
+    "2026-01-23": "https://capture.example/.well-known/ucp/2026-01-23",
+    "2026-01-11": "https://capture.example/.well-known/ucp/2026-01-11"
+   },
+   "signing_keys": [
+    {
+     "kid": "spck-merchant-sig-2026",
+     "kty": "EC",
+     "crv": "P-256",
+     "x": "wGpBpP1SD5afKQ5C71FzfXCvuVtTyd2X8vPjuWQB3x8",
+     "y": "my0kKuw3z-dwaU81Ib9d2Se7bCT6gMrtCqBtPqTNtRo",
+     "use": "sig",
+     "alg": "ES256"
+    }
+   ]
+  }
+ },
+ "catalog": {
+  "search": {
+   "status": 200,
+   "content_type": "application/json",
+   "body": {
+    "ucp": {
+     "version": "2026-04-08",
+     "capabilities": {
+      "dev.ucp.shopping.catalog.search": [
+       {
+        "version": "2026-04-08"
+       }
+      ]
+     }
+    },
+    "products": [
+     {
+      "id": "teapot_ceramic",
+      "title": "Ceramic Teapot",
+      "handle": "teapot-ceramic",
+      "description": {
+       "text": "A sturdy stoneware teapot."
+      },
+      "price_range": {
+       "min": {
+        "amount": 2500,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 2500,
+        "currency": "USD"
+       }
+      }
+     },
+     {
+      "id": "mug_enamel",
+      "title": "Enamel Mug",
+      "handle": "mug-enamel",
+      "description": {
+       "text": "A camp-style enamel mug."
+      },
+      "price_range": {
+       "min": {
+        "amount": 1200,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 1200,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "mug_enamel_v1",
+        "title": "Default",
+        "price": {
+         "amount": 1200,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A camp-style enamel mug. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "kettle_copper",
+      "title": "Copper Kettle",
+      "handle": "kettle-copper",
+      "description": {
+       "text": "A polished copper stovetop kettle."
+      },
+      "price_range": {
+       "min": {
+        "amount": 6800,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 6800,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "kettle_copper_v1",
+        "title": "Default",
+        "price": {
+         "amount": 6800,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A polished copper stovetop kettle. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "trivet_cork",
+      "title": "Cork Trivet",
+      "handle": "trivet-cork",
+      "description": {
+       "text": "A cork trivet, currently out of stock."
+      },
+      "price_range": {
+       "min": {
+        "amount": 900,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 900,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "trivet_cork_v1",
+        "title": "Default",
+        "price": {
+         "amount": 900,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A cork trivet, currently out of stock. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "teacup_glaze",
+      "title": "Glazed Teacup",
+      "handle": "teacup-glaze",
+      "description": {
+       "text": "A hand-glazed teacup in two colors and two sizes."
+      },
+      "price_range": {
+       "min": {
+        "amount": 1500,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 1900,
+        "currency": "USD"
+       }
+      },
+      "options": [
+       {
+        "name": "Color",
+        "values": [
+         {
+          "label": "Blue"
+         },
+         {
+          "label": "Red"
+         }
+        ]
+       },
+       {
+        "name": "Size",
+        "values": [
+         {
+          "label": "Small"
+         },
+         {
+          "label": "Large"
+         }
+        ]
+       }
+      ],
+      "variants": [
+       {
+        "id": "teacup_glaze_blue_s",
+        "title": "Blue / Small",
+        "price": {
+         "amount": 1500,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "Glazed teacup \u2014 Blue, Small."
+        },
+        "availability": {
+         "available": true
+        },
+        "options": [
+         {
+          "name": "Color",
+          "label": "Blue"
+         },
+         {
+          "name": "Size",
+          "label": "Small"
+         }
+        ]
+       },
+       {
+        "id": "teacup_glaze_blue_l",
+        "title": "Blue / Large",
+        "price": {
+         "amount": 1900,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "Glazed teacup \u2014 Blue, Large."
+        },
+        "availability": {
+         "available": true
+        },
+        "options": [
+         {
+          "name": "Color",
+          "label": "Blue"
+         },
+         {
+          "name": "Size",
+          "label": "Large"
+         }
+        ]
+       },
+       {
+        "id": "teacup_glaze_red_s",
+        "title": "Red / Small",
+        "price": {
+         "amount": 1500,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "Glazed teacup \u2014 Red, Small."
+        },
+        "availability": {
+         "available": true
+        },
+        "options": [
+         {
+          "name": "Color",
+          "label": "Red"
+         },
+         {
+          "name": "Size",
+          "label": "Small"
+         }
+        ]
+       },
+       {
+        "id": "teacup_glaze_red_l",
+        "title": "Red / Large",
+        "price": {
+         "amount": 1900,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "Glazed teacup \u2014 Red, Large."
+        },
+        "availability": {
+         "available": false
+        },
+        "options": [
+         {
+          "name": "Color",
+          "label": "Red"
+         },
+         {
+          "name": "Size",
+          "label": "Large"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "tin_spice_anise",
+      "title": "Spice Tin No. 1",
+      "handle": "tin-spice-anise",
+      "description": {
+       "text": "A lidded spice tin \u2014 anise."
+      },
+      "price_range": {
+       "min": {
+        "amount": 700,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 700,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "tin_spice_anise_v1",
+        "title": "Default",
+        "price": {
+         "amount": 700,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A lidded spice tin \u2014 anise. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "tin_spice_cardamom",
+      "title": "Spice Tin No. 2",
+      "handle": "tin-spice-cardamom",
+      "description": {
+       "text": "A lidded spice tin \u2014 cardamom."
+      },
+      "price_range": {
+       "min": {
+        "amount": 700,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 700,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "tin_spice_cardamom_v1",
+        "title": "Default",
+        "price": {
+         "amount": 700,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A lidded spice tin \u2014 cardamom. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "tin_spice_clove",
+      "title": "Spice Tin No. 3",
+      "handle": "tin-spice-clove",
+      "description": {
+       "text": "A lidded spice tin \u2014 clove."
+      },
+      "price_range": {
+       "min": {
+        "amount": 700,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 700,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "tin_spice_clove_v1",
+        "title": "Default",
+        "price": {
+         "amount": 700,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A lidded spice tin \u2014 clove. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "tin_spice_cumin",
+      "title": "Spice Tin No. 4",
+      "handle": "tin-spice-cumin",
+      "description": {
+       "text": "A lidded spice tin \u2014 cumin."
+      },
+      "price_range": {
+       "min": {
+        "amount": 700,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 700,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "tin_spice_cumin_v1",
+        "title": "Default",
+        "price": {
+         "amount": 700,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A lidded spice tin \u2014 cumin. (default variant)"
+        }
+       }
+      ]
+     },
+     {
+      "id": "tin_spice_fennel",
+      "title": "Spice Tin No. 5",
+      "handle": "tin-spice-fennel",
+      "description": {
+       "text": "A lidded spice tin \u2014 fennel."
+      },
+      "price_range": {
+       "min": {
+        "amount": 700,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 700,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "tin_spice_fennel_v1",
+        "title": "Default",
+        "price": {
+         "amount": 700,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A lidded spice tin \u2014 fennel. (default variant)"
+        }
+       }
+      ]
+     }
+    ],
+    "pagination": {
+     "has_next_page": true,
+     "total_count": 13,
+     "cursor": "b2Zmc2V0OjEw"
+    }
+   }
+  },
+  "empty_search": {
+   "status": 200,
+   "content_type": "application/json",
+   "body": {
+    "ucp": {
+     "version": "2026-04-08",
+     "capabilities": {
+      "dev.ucp.shopping.catalog.search": [
+       {
+        "version": "2026-04-08"
+       }
+      ]
+     }
+    },
+    "products": [],
+    "pagination": {
+     "has_next_page": false,
+     "total_count": 0
+    }
+   }
+  },
+  "lookup": {
+   "status": 200,
+   "content_type": "application/json",
+   "body": {
+    "ucp": {
+     "version": "2026-04-08",
+     "capabilities": {
+      "dev.ucp.shopping.catalog.lookup": [
+       {
+        "version": "2026-04-08"
+       }
+      ]
+     }
+    },
+    "products": [
+     {
+      "id": "teapot_ceramic",
+      "title": "Ceramic Teapot",
+      "handle": "teapot-ceramic",
+      "description": {
+       "text": "A sturdy stoneware teapot."
+      },
+      "price_range": {
+       "min": {
+        "amount": 2500,
+        "currency": "USD"
+       },
+       "max": {
+        "amount": 2500,
+        "currency": "USD"
+       }
+      },
+      "variants": [
+       {
+        "id": "teapot_ceramic_v1",
+        "title": "Default",
+        "price": {
+         "amount": 2500,
+         "currency": "USD"
+        },
+        "description": {
+         "text": "A sturdy stoneware teapot. (default variant)"
+        },
+        "inputs": [
+         {
+          "id": "teapot_ceramic",
+          "match": "featured"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "mutation": "search products[0] without variants (CAT-012 shape)"
+}

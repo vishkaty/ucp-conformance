@@ -35,9 +35,11 @@ def derived_blocks():
     """(manifest_without_reviewed, per_version) from the engine."""
     import site_gates                       # noqa: E402  (stdlib-only module)
     import matrix                           # noqa: E402
-    merchant = 0
-    for f in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
-        merchant += len(re.findall(r"^    MCheck\(", open(f).read(), re.M))
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    from checkset_count import merchant_check_count   # D5-16: the runtime set, one helper
+    merchant, dup_ids = merchant_check_count()
+    if dup_ids:
+        raise RuntimeError(f"duplicate merchant check id(s) {dup_ids}")
     r = subprocess.run([sys.executable, "-c",
                         "import sys,json;sys.path.insert(0,'conformance/agent');"
                         "import agent_checks,reference_agent;"

@@ -61,7 +61,7 @@
 </head>
 <body>
 <nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
-<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="/known-issues">Known issues</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
   <header class="page-head">
     <div class="eyebrow">Merchant check</div>
@@ -88,7 +88,7 @@
     <div class="step">The full test — CLI</div>
     <div class="card">
       <div class="verdict">Run the full suite</div>
-      <p class="note"><span data-live="site_claims.json:$.manifest.merchant_checks">227</span> checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.</p>
+      <p class="note"><span data-live="site_claims.json:$.manifest.merchant_checks">228</span> checks across checkout, order, discount, catalog, cart, fulfillment, totals — each proven to catch its own defects, each citing a spec clause.</p>
       <p class="note">The full test includes the checkout, cart, and order write-paths the instant check can’t reach. Run it only against your own store, never someone else’s.</p>
       <pre><code>pip install spck-conformance
 spck-conformance --server https://store.example.com --init merchant.json
@@ -118,7 +118,7 @@ spck-conformance --server https://store.example.com --config merchant.json</code
 <div class="foot-col"><h4>Merchants</h4><a href="/check">Check your store</a><a href="/docs#run">CLI &amp; full suite</a><a href="/docs#ci">CI Action</a></div>
 <div class="foot-col"><h4>Agents</h4><a href="/agent">Test a shopping agent</a><a href="/sandbox">Interop sandbox</a></div>
 <div class="foot-col"><h4>Reference</h4><a href="/coverage">Coverage matrix</a><a href="/checks/">Check register</a><a href="/rubric">Grading rubric</a><a href="/docs">Docs &amp; methodology</a></div>
-<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (live tracker)</a></div>
+<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (live tracker)</a><a href="/known-issues">Known issues</a></div>
 <div class="foot-col"><h4>Project</h4><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a><a href="https://ucp.dev" rel="noopener">ucp.dev</a></div>
 </div>
 <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
@@ -163,7 +163,10 @@ async function run() {
       const b = el("span", "badge " + cls, c.status === "pass" ? "✓" : c.status === "deviation" ? "✗" : "·");
       row.appendChild(b);
       const body = el("div");
-      body.appendChild(el("div", "cid", c.id));
+      body.appendChild(el("div", "cid", c.id +
+        ((c.engine || []).length ? " → engine " + c.engine.join(", ") : "") +
+        ((c.req_ids || []).length ? " · " + c.req_ids.join(", ") : "") +
+        (c.counted === false ? " · report-only" : "")));
       body.appendChild(el("div", "req", c.requirement));
       if (c.status !== "pass") body.appendChild(el("div", c.status === "deviation" ? "obs" : "req", "observed: " + c.observed));
       row.appendChild(body);

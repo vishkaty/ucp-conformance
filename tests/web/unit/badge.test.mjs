@@ -121,14 +121,20 @@ async function previewBadgeText(env, profile) {
   return await resp.text();
 }
 
-test("preview badge message never contains 'conformant' — renders preview N/4", async () => { // SITE-R-032
+// M = the COUNTED shallow (discovery-stage) ids of the committed id map (D5-11, SITE-R-034):
+// the badge inherits the map, so a report-only row (discovery.content_type) never enters N/M.
+import fs from "node:fs";
+const ID_MAP = JSON.parse(fs.readFileSync(path.join(ROOT, "conformance/web/preview_parity.json"), "utf8")).preview;
+const M = Object.values(ID_MAP).filter((m) => m.counted && m.stage === "discovery").length;
+
+test("preview badge message never contains 'conformant' — renders preview N/M from the id map", async () => { // SITE-R-032 SITE-R-034
   const env = mockEnv();
   const clean = await previewBadgeText(env, CLEAN_PROFILE);
   assert.doesNotMatch(clean, /\bconformant\b/i, "an all-clean preview must not claim conformance");
-  assert.match(clean, /preview 4\/4/);
+  assert.match(clean, new RegExp(`preview ${M}/${M}`));
   const bad = await previewBadgeText(env, { ucp: { version: "nope", capabilities: ["a"],
     services: { "dev.ucp.shopping": { rest: {} } } } });
   assert.doesNotMatch(bad, /\bconformant\b/i);
-  assert.match(bad, /preview 1\/4/);            // only the content-type check passes
+  assert.match(bad, new RegExp(`preview 0/${M}`));   // content-type passes but is report-only, never counted
   assert.doesNotMatch(bad, /undefined|NaN/);
 });

@@ -1,3 +1,9 @@
+<!-- last-reviewed: 2026-09-11 -->
+> **ARCHIVED 2026-09-11 (D5-14).** Historical roadmap kept for the record; every count below is a
+> dated snapshot of its own heading, not a live number. The live plan is [WORKSTREAMS.md](../../WORKSTREAMS.md);
+> live coverage is https://spck.dev/coverage; the gates that keep the numbers honest are listed in
+> [conformance/ci/README.md](../../conformance/ci/README.md).
+
 # Roadmap — to 100% accounted UCP coverage, kept honest by machine
 
 **Live status: [spck.dev/coverage](https://spck.dev/coverage)** (generated from

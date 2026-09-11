@@ -57,7 +57,7 @@
 </head>
 <body>
 <nav class="site-nav"><a class="brand" href="/"><span class="mk">S</span>spck</a>
-<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
+<div class="links"><a href="/check">Merchants</a><a href="/agent">Agents</a><a href="/coverage">Coverage</a><a href="/docs">Docs</a><a href="/state-of-ucp">State of UCP</a><a href="/known-issues">Known issues</a><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
   <header class="page-head">
     <div class="eyebrow">Spec coverage</div>
@@ -99,7 +99,7 @@
     Exemptions require a written justification and are machine-checked against double-booking.
     The <code>coverage</code> CI gate fails the build if this page's data goes stale or accounted coverage ever decreases (ratchet).
     <b>Evidence classes</b> are derived mechanically from how each check actually runs — never hand-labeled — backed by a recorded run against both independent reference targets, and the published split is drift-gated in CI; the self-referenced class is the fixture-circularity we also flag upstream (conformance#79).
-    <a href="https://github.com/vishkaty/ucp-conformance/blob/main/docs/ROADMAP.md">Roadmap →</a>
+    <a href="https://github.com/vishkaty/ucp-conformance/blob/main/WORKSTREAMS.md">Roadmap →</a>
   </div>
 
   <footer class="site-footer">
@@ -107,7 +107,7 @@
 <div class="foot-col"><h4>Merchants</h4><a href="/check">Check your store</a><a href="/docs#run">CLI &amp; full suite</a><a href="/docs#ci">CI Action</a></div>
 <div class="foot-col"><h4>Agents</h4><a href="/agent">Test a shopping agent</a><a href="/sandbox">Interop sandbox</a></div>
 <div class="foot-col"><h4>Reference</h4><a href="/coverage">Coverage matrix</a><a href="/checks/">Check register</a><a href="/rubric">Grading rubric</a><a href="/docs">Docs &amp; methodology</a></div>
-<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (live tracker)</a></div>
+<div class="foot-col"><h4>Reading</h4><a href="/state-of-ucp">State of UCP (live tracker)</a><a href="/known-issues">Known issues</a></div>
 <div class="foot-col"><h4>Project</h4><a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a><a href="https://pypi.org/project/spck-conformance/" rel="noopener">PyPI</a><a href="https://ucp.dev" rel="noopener">ucp.dev</a></div>
 </div>
 <p class="disclaimer">spck.dev is an independent, unofficial project — not affiliated with, endorsed by, or a substitute for the official UCP conformance suite; the official suite is authoritative.</p>
@@ -159,10 +159,13 @@
     ];
   }
 
+  var ROLE_SEL = "all";
+  function renderSummaryRole(role) { ROLE_SEL = role; renderSummary(); }
   function renderSummary() {
     var v = DATA.versions[VER], box = document.getElementById("summary");
     box.textContent = "";
     var card = el("div", "card");
+    card._role = ROLE_SEL;
     var row = el("div", "statrow");
     [["Accounted", v.accounted_pct + "%"], ["Normative MUSTs", v.musts], ["Checked", v.check],
      ["Exempt", v.exempt], ["Gap", v.gap]].forEach(function (p) {
@@ -215,11 +218,16 @@
     }
     var eb = v.evidence_breakdown;
     if (eb) {
-      var evl = el("div", "note",
-        "Checked, by evidence class: live-wire " + (eb["live-wire"] || 0) +
-        " (kill-tested against an independent server) · official-schema " + (eb["fixture-schema"] || 0) +
-        " · crypto self-test " + (eb["fixture-crypto"] || 0) +
-        " · self-referenced " + (eb["self-referenced"] || 0) + " (our own fixture is the sole voucher)");
+      // D5-16: the class list is the export's (top-level evidence_classes = class -> description;
+      // per-version evidence_classes = the ordered list) — a new class (D1-13's register-selfcheck /
+      // reference-impl, D4-08's discovery-live) renders here with no page edit.
+      var classes = (v.evidence_classes && v.evidence_classes.length) ? v.evidence_classes
+                  : Object.keys(DATA.evidence_classes || eb);
+      var descr = DATA.evidence_classes || {};
+      var evl = el("div", "note", "Checked, by evidence class: " + classes.map(function (k) {
+        var dsc = descr[k] ? String(descr[k]).split(/[—(]/)[0].trim() : "";
+        return k + " " + (eb[k] || 0) + (dsc ? " (" + dsc + ")" : "");
+      }).join(" · "));
       evl.style.margin = "2px 0 8px";
       card.appendChild(evl);
     }
@@ -239,9 +247,22 @@
       if (!order.length) order = ["live-wire", "fixture-schema", "fixture-crypto", "self-referenced"];
       var strongest = null;
       order.forEach(function (k) { if (strongest === null && (eb[k] || 0) > 0) strongest = k; });
-      var ceiling = el("div", "note",
-        "no independently-authored 08-25 implementation has been graded by this suite " +
-        "at write level; evidence for this version is at most " + (strongest || "none"));
+      // D5-13 (H5, decision 4): once the discovery-only sampler has graded real stores'
+      // /.well-known/ucp documents, the export carries discovery_live {stores, as_of} and the
+      // sentence becomes the registered CLAIM-COV-007 form (count + date, both from the
+      // export); with stores 0 / null the W0 ceiling sentence (CLAIM-COV-002) stays.
+      var dl = v.discovery_live;
+      var ceiling;
+      if (dl && (dl.stores || 0) > 0) {
+        ceiling = el("div", "note",
+          "discovery-live evidence: " + dl.stores + " independently-operated stores' /.well-known/ucp " +
+          "documents graded by this suite (as of " + (dl.as_of || "n/a") + ") — read-only discovery, " +
+          "never write paths; evidence for this version is at most " + (strongest || "none"));
+      } else {
+        ceiling = el("div", "note",
+          "no independently-authored 08-25 implementation has been graded by this suite " +
+          "at write level; evidence for this version is at most " + (strongest || "none"));
+      }
       ceiling.style.margin = "2px 0 8px";
       ceiling.style.fontStyle = "italic";
       card.appendChild(ceiling);
@@ -258,7 +279,36 @@
       lock.style.fontStyle = "italic";
       card.appendChild(lock);
     }
-    bar(card, segsFor(v), v.musts);
+    // D5-16 / D2-08: per-role denominators — when the export carries roles.summary the split
+    // renders and a toggle re-renders the bar for one role's own {musts, check, exempt, gap}
+    // (never blended into the all-roles numbers); absent roles (today) render nothing.
+    var roles = v.roles;
+    var ROLE = card._role || "all";
+    if (roles && roles.summary) {
+      var rs = roles.summary;
+      var rl = el("div", "note", "MUST rows by role: " + Object.keys(rs).map(function (k) { return k + " " + rs[k]; }).join(" · "));
+      rl.style.margin = "2px 0 6px";
+      card.appendChild(rl);
+      var tg = el("div", "tabs"); tg.id = "role-toggle";
+      ["all"].concat(Object.keys(roles).filter(function (k) { return k !== "summary" && roles[k] && typeof roles[k].musts === "number"; }))
+        .forEach(function (k) {
+          var b = el("button", "tab" + (k === ROLE ? " active" : ""), k === "all" ? "all roles" : k + " lane");
+          b.dataset.role = k;
+          b.addEventListener("click", function () { renderSummaryRole(k); });
+          tg.appendChild(b);
+        });
+      card.appendChild(tg);
+    }
+    var rv = (ROLE !== "all" && roles && roles[ROLE]) ? roles[ROLE] : null;
+    if (rv) {
+      var rline = el("div", "note", ROLE + " lane: " + rv.musts + " MUSTs · checked " + rv.check +
+        " · exempt " + rv.exempt + " · gap " + rv.gap);
+      rline.style.fontWeight = "600";
+      card.appendChild(rline);
+      bar(card, segsFor({ check: rv.check, exempt: rv.exempt, gap_by_testability: rv.gap_by_testability || { testable: rv.gap } }), rv.musts);
+    } else {
+      bar(card, segsFor(v), v.musts);
+    }
     var lg = el("div", "legend");
     [["seg-check", "Checked (kill-rate-validated)"], ["seg-exempt", "Exempt (documented)"],
      ["seg-testable", "Gap: testable now"], ["seg-harness", "Gap: needs harness"],
