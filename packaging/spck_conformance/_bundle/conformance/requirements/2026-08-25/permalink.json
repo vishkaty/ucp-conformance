@@ -20,7 +20,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Wholly new capability (dev.ucp.shopping.permalink). No 04-08 equivalent existed. permalink.json's endpoint pattern enforces the shape; config requires endpoint."
+   "notes": "Wholly new capability (dev.ucp.shopping.permalink). No 04-08 equivalent existed. permalink.json's endpoint pattern enforces the shape; config requires endpoint.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-002",
@@ -38,7 +40,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Directly checkable: loading a permalink endpoint must never itself trigger a charge, and the HTTP response must be a redirect, not a UCP JSON body."
+   "notes": "Directly checkable: loading a permalink endpoint must never itself trigger a charge, and the HTTP response must be a redirect, not a UCP JSON body.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-003",
@@ -56,7 +60,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Doc-level restatement of PERM-001; checkable against the advertised profile's config.endpoint."
+   "notes": "Doc-level restatement of PERM-001; checkable against the advertised profile's config.endpoint.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-004",
@@ -74,7 +80,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable against the initialized cart/checkout state after resolving a compact item path that used a non-purchasable identifier (e.g. a product ID)."
+   "notes": "Checkable against the initialized cart/checkout state after resolving a compact item path that used a non-purchasable identifier (e.g. a product ID).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-005",
@@ -92,7 +100,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable by round-tripping a non-token-safe item identifier (e.g. containing `/` or `:`) through the compact item path."
+   "notes": "Directly checkable by round-tripping a non-token-safe item identifier (e.g. containing `/` or `:`) through the compact item path.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-006",
@@ -110,7 +120,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable with malformed ~-encoded tokens (non-canonical base64url, invalid UTF-8, embedded control characters)."
+   "notes": "Directly checkable with malformed ~-encoded tokens (non-canonical base64url, invalid UTF-8, embedded control characters).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-007",
@@ -128,7 +140,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable by submitting both forms of the same identifier and confirming identical resolved line_items[].item.id."
+   "notes": "Directly checkable by submitting both forms of the same identifier and confirming identical resolved line_items[].item.id.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-008",
@@ -146,7 +160,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by supplying both `buyer/email` and `/buyer/email` (or duplicate `continue_to`) in one permalink URL."
+   "notes": "Checkable by supplying both `buyer/email` and `/buyer/email` (or duplicate `continue_to`) in one permalink URL.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-009",
@@ -164,7 +180,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Security-relevant; requires knowledge of which submitted fields the business classifies as sensitive."
+   "notes": "Security-relevant; requires knowledge of which submitted fields the business classifies as sensitive.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-010",
@@ -182,7 +200,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "The full 5-step validation algorithm (open-redirect prevention); directly checkable with scheme-relative (`//evil.example`), absolute-URL, and control-character continue_to payloads."
+   "notes": "The full 5-step validation algorithm (open-redirect prevention); directly checkable with scheme-relative (`//evil.example`), absolute-URL, and control-character continue_to payloads.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-011",
@@ -200,7 +220,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable against the redirect response's Location header (HTTP response-splitting / header-injection prevention)."
+   "notes": "Directly checkable against the redirect response's Location header (HTTP response-splitting / header-injection prevention).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-012",
@@ -218,7 +240,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable with an invalid continue_to value."
+   "notes": "Directly checkable with an invalid continue_to value.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-013",
@@ -236,7 +260,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side authoring rule; the Business-side detection/rejection half is PERM-008/PERM-014."
+   "notes": "Platform-side authoring rule; the Business-side detection/rejection half is PERM-008/PERM-014.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "PERM-014",
@@ -254,7 +280,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by submitting two differently-ordered query parameters that normalize to the same pointer with conflicting values."
+   "notes": "Checkable by submitting two differently-ordered query parameters that normalize to the same pointer with conflicting values.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-015",
@@ -272,7 +300,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable: `/buy/sku_123:2?line_items/0/quantity=5` MUST resolve quantity to 2, not 5."
+   "notes": "Directly checkable: `/buy/sku_123:2?line_items/0/quantity=5` MUST resolve quantity to 2, not 5.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-016",
@@ -290,7 +320,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable against the HTTP response status/headers for any handled permalink request."
+   "notes": "Directly checkable against the HTTP response status/headers for any handled permalink request.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-017",
@@ -308,7 +340,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "General restatement/anchor for the continue_to (PERM-010) and item-token (PERM-005/006) validation rules as applied to destination selection."
+   "notes": "General restatement/anchor for the continue_to (PERM-010) and item-token (PERM-005/006) validation rules as applied to destination selection.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-018",
@@ -326,7 +360,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable against the HTTP status code of the redirect response."
+   "notes": "Directly checkable against the HTTP status code of the redirect response.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-019",
@@ -344,7 +380,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable against the Location header/query string of the redirect for leaked buyer PII or secrets (see PERM-020)."
+   "notes": "Checkable against the Location header/query string of the redirect for leaked buyer PII or secrets (see PERM-020).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-020",
@@ -362,7 +400,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable against any permalink URL a Business documents or generates (e.g. in its own marketing/checkout UI)."
+   "notes": "Directly checkable against any permalink URL a Business documents or generates (e.g. in its own marketing/checkout UI).",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-021",
@@ -380,7 +420,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Umbrella security requirement covering PERM-005/006/007 (item tokens), PERM-010/011/012 (continue_to), and the field-path mass-assignment protection (permalink inputs never set server-owned/response-only fields per the Query Processing section)."
+   "notes": "Umbrella security requirement covering PERM-005/006/007 (item tokens), PERM-010/011/012 (continue_to), and the field-path mass-assignment protection (permalink inputs never set server-owned/response-only fields per the Query Processing section).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-022",
@@ -398,7 +440,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable by constructing a permalink URL near the 2,048-octet boundary."
+   "notes": "Directly checkable by constructing a permalink URL near the 2,048-octet boundary.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PERM-023",
@@ -417,7 +461,9 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (compact item-identifier encoding fallback).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "PERM-024",
@@ -436,7 +482,9 @@
     "2026-08-25"
    ],
    "notes": "New row (link-budget privacy guard, redirect-destination forwarding prohibition).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "business",
+   "role_provenance": "subject"
   }
  ]
 }

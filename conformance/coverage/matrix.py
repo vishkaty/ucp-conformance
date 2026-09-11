@@ -44,6 +44,9 @@ from common.spec_versions import (  # noqa: E402
 # SHALL NOT, REQUIRED) — one tuple shared with coverage_gate / agent_matrix / the two
 # census scripts (D2-01), never a local pair that can drift from the census regex.
 from common.keywords import MANDATORY  # noqa: E402
+# D2-08: the role vocabulary and the lane each role enters — one module shared with
+# agent_matrix.agent_rows() and verify_register, so the two lanes partition the MUSTs.
+from common.roles import ROLES, MERCHANT_LANE, AGENT_LANE, OTHER_LANE  # noqa: E402
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
@@ -364,6 +367,84 @@ def _schema_census_report():
 
 
 TRANSPORTS = ("rest", "mcp", "a2a", "embedded", "any")
+LANES = ("merchant", "agent", "other")
+
+
+def _row_role(r):
+    """A row's `role` (D2-08); a row without one reads `unassigned` — never silently
+    bucketed into a lane (the `register` gate reds on any mandatory row without a role)."""
+    role = r.get("role")
+    return role if role in ROLES else "unassigned"
+
+
+def _agent_axis_report():
+    """Runs agent_matrix.py --json ONCE (subprocess — the agent lane lives in its own
+    tree and is never imported by the merchant matrix) and returns
+    {version: {agent_musts, check, exempt, gap}} or None if unreachable."""
+    script = os.path.join(CONF, "agent", "agent_matrix.py")
+    try:
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+            tmp = tf.name
+        r = subprocess.run([sys.executable, script, "--json", tmp], cwd=ROOT,
+                           capture_output=True, text=True, timeout=120)
+        out = json.load(open(tmp)) if r.returncode == 0 and os.path.exists(tmp) else None
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        return out
+    except Exception:
+        return None
+
+
+def roles_block(rows, status_by_id, agent_axis=None):
+    """The per-role denominators (export v2 `roles`, PLAN-v3 §2.4 / D2-08). `rows` are
+    the mandatory rows of one version, `status_by_id` their MERCHANT-axis bucket
+    (check|exempt|gap), `agent_axis` the agent lane's own {agent_musts, check, exempt,
+    gap} for the version (None -> nulls; the agent axis is a separate program).
+
+      summary   {merchant, agent, both, other} — lane sizes; `both`-role rows sit in
+                both lanes, so merchant + agent − both + other == musts (W1-4; asserted
+                by matrix --selftest and validate_evidence_class).
+      merchant  merchant-lane rows (business | both | handler — decision 27) with their
+                merchant-axis buckets and gap_by_testability.
+      agent     agent-lane rows (platform | both | host — decision 27): musts from the
+                role field (== agent_matrix.agent_rows by construction), check/exempt/
+                gap from the agent axis when available.
+      other     spec-author rows (speclint register-selfcheck, D2-18), by_role.
+    """
+    summary = {"merchant": 0, "agent": 0, "both": 0, "other": 0}
+    merchant = {"musts": 0, "check": 0, "exempt": 0, "gap": 0}
+    mgap = Counter()
+    other_by_role = Counter()
+    n_agent = 0
+    for r in rows:
+        role = _row_role(r)
+        st = status_by_id.get(r.get("id"), "gap")
+        if role in MERCHANT_LANE:
+            summary["merchant"] += 1
+            merchant["musts"] += 1
+            merchant[st] += 1
+            if st == "gap":
+                mgap[r.get("testability", "?")] += 1
+        if role in AGENT_LANE:
+            summary["agent"] += 1
+            n_agent += 1
+        if role == "both":
+            summary["both"] += 1
+        if role in OTHER_LANE or role == "unassigned":
+            summary["other"] += 1
+            other_by_role[role] += 1
+    merchant["gap_by_testability"] = dict(sorted(mgap.items()))
+    agent = {"musts": n_agent, "check": None, "exempt": None, "gap": None}
+    if agent_axis:
+        agent.update({"check": agent_axis.get("check"), "exempt": agent_axis.get("exempt"),
+                      "gap": agent_axis.get("gap")})
+        if agent_axis.get("agent_musts") != n_agent:
+            agent["axis_musts_mismatch"] = agent_axis.get("agent_musts")
+    return {"summary": summary, "merchant": merchant, "agent": agent,
+            "other": {"musts": summary["other"], "by_role": dict(sorted(other_by_role.items()))}}
 
 
 def _row_transport(r):
@@ -435,6 +516,7 @@ def export_json():
     # per-version mode/unaccounted count is emitted for every state (D2-06).
     completeness = None
     schema_census = None
+    agent_axis = _agent_axis_report()        # D2-08: roles.agent check/exempt/gap (subprocess)
     out = {"_about": "spck.dev UCP conformance coverage — every normative MUST accounted "
                      "as CHECK (kill-rate-validated), EXEMPT (documented), or GAP. "
                      "Generated by conformance/coverage/matrix.py --json; the `coverage` "
@@ -482,6 +564,7 @@ def export_json():
             ev = evmap.get(ver, {}).get(rid) if status == "check" else None
             jrows.append({"id": rid, "area": r["_area"], "keyword": r.get("keyword"),
                           "testability": r.get("testability", "?"), "status": status,
+                          "role": _row_role(r),
                           "requirement": r.get("requirement", ""),
                           "source": r.get("source", ""),
                           "covered_by": covmap[ver].get(rid, []),
@@ -520,7 +603,8 @@ def export_json():
             # export v2 (D2-07): the surface the denominator is measured against, the
             # transport split, and the scaffolds later tasks fill (null until then).
             # D5 renders exactly these names (RV1 C2).
-            "roles": None,                          # D2-08
+            "roles": roles_block(rows, {jr["id"]: jr["status"] for jr in jrows},
+                                 (agent_axis or {}).get(ver)),          # D2-08
             "by_transport": by_transport,
             "surface": None,                        # filled below (subprocess census)
             "discovery_live": None,                 # D4-08 writes {stores, as_of}
@@ -556,7 +640,7 @@ def export_json():
         out["versions"][ver] = {
             "state": "unregistered",
             "musts": 0, "check": 0, "exempt": 0, "gap": 0, "accounted_pct": 0,
-            "roles": None,
+            "roles": roles_block([], {}, None),
             "by_transport": {t: {"musts": 0, "check": 0, "exempt": 0, "gap": 0} for t in TRANSPORTS},
             "surface": {"prose": None, "schema": None, "should": None},
             "discovery_live": None,
@@ -625,9 +709,21 @@ def exempt_reason_at(exempt, rid, ver):
     return ""
 
 
-def account(ver, cov, exempt):
+def _in_lane(r, lane):
+    role = _row_role(r)
+    return {"merchant": role in MERCHANT_LANE, "agent": role in AGENT_LANE,
+            "other": role in OTHER_LANE or role == "unassigned"}[lane]
+
+
+def account(ver, cov, exempt, role=None, transport=None):
+    """Bucket the mandatory rows at `ver`; `role` (a LANES name) and `transport`
+    (a TRANSPORTS name) narrow the rows — D2-08 per-lane / per-transport views."""
     rows = load_rows(ver)
     musts = [r for r in rows if r.get("keyword") in MANDATORY]
+    if role:
+        musts = [r for r in musts if _in_lane(r, role)]
+    if transport:
+        musts = [r for r in musts if _row_transport(r) == transport]
     buckets = {"CHECK": [], "EXEMPT": [], "GAP": []}
     gap_by_test = defaultdict(list)
     cov_ver = cov.get(ver, set())
@@ -650,7 +746,16 @@ def main():
                                    "covered_by, pinned-spec sources) to FILE")
     ap.add_argument("--require", choices=["testable", "all"], help="hard-fail on remaining gaps of this class")
     ap.add_argument("--version", help="restrict --require to one version")
+    ap.add_argument("--role", choices=LANES,
+                    help="D2-08: restrict --require and the report to one lane's rows — "
+                         "merchant (business|both|handler), agent (platform|both|host; the "
+                         "agent axis grades these, so --require reads agent_matrix), other "
+                         "(spec-author)")
+    ap.add_argument("--transport", choices=TRANSPORTS,
+                    help="D2-08: restrict --require and the report to rows bound to one "
+                         "transport (`any` = rows not bound to a transport)")
     a = ap.parse_args()
+    agent_axis = _agent_axis_report() if a.role == "agent" else None
 
     attr = attribution()                # populates _IMPORT_FAILURES
     cov = {v: set(m.keys()) for v, m in _covmap_from(attr).items()}
@@ -666,13 +771,21 @@ def main():
     failed = False
 
     for ver in VERSIONS:
-        musts, b, gap_by_test = account(ver, cov, exempt)
+        musts, b, gap_by_test = account(ver, cov, exempt, role=a.role, transport=a.transport)
         n = len(musts)
         pct = 100 * (len(b["CHECK"]) + len(b["EXEMPT"])) / n if n else 0
         ebd = evidence.breakdown(evmap, ver, b["CHECK"])
         ebd_line = " · ".join(f"{k} {ebd[k]}" for k in evidence.CLASSES)
-        print(f"\n===== {ver} =====")
+        scope = "".join(f" [{k}={v}]" for k, v in (("role", a.role), ("transport", a.transport)) if v)
+        print(f"\n===== {ver}{scope} =====")
         print(f"  MUSTs: {n} | CHECK: {len(b['CHECK'])} | EXEMPT: {len(b['EXEMPT'])} | GAP: {len(b['GAP'])}  -> accounted {pct:.0f}%")
+        if a.role == "agent":
+            ax = (agent_axis or {}).get(ver)
+            if ax:
+                print(f"  agent axis (agent_matrix): musts {ax.get('agent_musts')} | CHECK {ax.get('check')} "
+                      f"| EXEMPT {ax.get('exempt')} | GAP {ax.get('gap')}")
+            else:
+                print("  agent axis (agent_matrix): unavailable")
         print(f"  CHECK by evidence: {ebd_line}")
         if gap_by_test:
             print("  GAP by testability:", {k: len(v) for k, v in sorted(gap_by_test.items())})
@@ -682,8 +795,16 @@ def main():
             md.append(f"- GAP/{k}: {', '.join(sorted(gap_by_test[k]))}")
 
         if a.require and (not a.version or a.version == ver):
-            if a.require == "all" and b["GAP"]:
-                print(f"  ✗ {ver}: {len(b['GAP'])} MUST(s) unaccounted (require=all)"); failed = True
+            if a.role == "agent":
+                # the agent lane's own gate over the same role field (DONE-2 item 2)
+                ax = (agent_axis or {}).get(ver)
+                agap = ax.get("gap") if ax else None
+                if agap is None:
+                    print(f"  ✗ {ver} [role=agent]: agent axis unavailable — cannot certify"); failed = True
+                elif a.require == "all" and agap:
+                    print(f"  ✗ {ver} [role=agent]: {agap} MUST(s) unaccounted (agent_matrix)"); failed = True
+            elif a.require == "all" and b["GAP"]:
+                print(f"  ✗ {ver}{scope}: {len(b['GAP'])} MUST(s) unaccounted (require=all)"); failed = True
             elif a.require == "testable":
                 tg = gap_by_test.get("testable", [])
                 if tg:

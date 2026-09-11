@@ -39,7 +39,11 @@ SEED_SAMPLE_FRACTION = 0.10
 
 
 def is_seed_batch(signoff):
-    return str(signoff.get("batch", "")).startswith(SEED_PREFIX)
+    """A SAMPLE batch: confers no coverage; its contract is the recorded >=10% human
+    sample (decision 13). Either the expiry-clock seed (batch name prefix, D2-04) or any
+    batch declaring `kind: sample` (D2-08 role adjudications; D2-11a normative-basis
+    adjudications; later A10 exemption batches)."""
+    return str(signoff.get("batch", "")).startswith(SEED_PREFIX) or signoff.get("kind") == "sample"
 
 
 def seed_batch_errors(signoff, today=None):

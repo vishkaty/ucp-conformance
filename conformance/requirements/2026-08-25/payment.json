@@ -22,7 +22,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-002",
@@ -44,7 +46,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-003",
@@ -66,7 +70,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-004",
@@ -88,7 +94,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-005",
@@ -110,7 +118,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-006",
@@ -132,7 +142,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "handler",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-007",
@@ -154,7 +166,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-008",
@@ -176,7 +190,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-009",
@@ -199,7 +215,9 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-010",
@@ -222,7 +240,9 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-011",
@@ -244,7 +264,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-012",
@@ -266,7 +288,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "PAY-013",
@@ -288,7 +312,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "PAY-014",
@@ -310,7 +336,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-015",
@@ -332,7 +360,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-016",
@@ -354,7 +384,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-017",
@@ -377,7 +409,9 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-019",
@@ -399,7 +433,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-020",
@@ -421,7 +457,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-021",
@@ -443,7 +481,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-022",
@@ -465,7 +505,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-023",
@@ -487,7 +529,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-024",
@@ -509,7 +553,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-025",
@@ -531,7 +577,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-026",
@@ -553,7 +601,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "handler",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-027",
@@ -575,7 +625,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "handler",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-028",
@@ -597,7 +649,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-029",
@@ -619,7 +673,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-030",
@@ -641,7 +697,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-031",
@@ -663,7 +721,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-032",
@@ -685,7 +745,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-033",
@@ -707,7 +769,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "renamed"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-034",
@@ -729,7 +793,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-035",
@@ -751,7 +817,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-036",
@@ -773,7 +841,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-037",
@@ -795,7 +865,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-038",
@@ -817,7 +889,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "PAY-039",
@@ -839,7 +913,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-040",
@@ -861,7 +937,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-041",
@@ -883,7 +961,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-042",
@@ -905,7 +985,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "PAY-043",
@@ -927,7 +1009,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-044",
@@ -949,7 +1033,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-045",
@@ -971,7 +1057,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "PAY-046",
@@ -993,7 +1081,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-047",
@@ -1015,7 +1105,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "PAY-048",
@@ -1034,7 +1126,9 @@
         "2026-08-25"
       ],
       "notes": "New row, 2026-08-25 census closure wave (overview/index.md Payment section, Instrument Cardinality, previously unaccounted). The default single-instrument-per-submission constraint and its relaxation condition (split_payments capability active), plus the business-side rejection duty and required error code.",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "PAY-049",
@@ -1053,7 +1147,9 @@
         "2026-08-25"
       ],
       "notes": "New row, 2026-08-25 census closure wave (AP2 Mandates, Step 1 merchant-authorization signature verification).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "PAY-050",
@@ -1072,7 +1168,9 @@
         "2026-08-25"
       ],
       "notes": "New row (AP2 Mandates, Step 2 lead-in).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     }
   ]
 }

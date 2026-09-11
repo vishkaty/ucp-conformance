@@ -18,7 +18,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "DISCREPANCY: official conformance suite protocol_test asserts HTTP 400 for incompatible version; the 04-08 spec maps to 422 and the suite is pinned to spec 2026-01-23. Spec is authoritative. Tester accepts 422; if 400 is seen, emit a FLAG citing the suite-vs-spec conflict, not a silent pass. See ambiguity register AMB-001."
+      "notes": "DISCREPANCY: official conformance suite protocol_test asserts HTTP 400 for incompatible version; the 04-08 spec maps to 422 and the suite is pinned to spec 2026-01-23. Spec is authoritative. Tester accepts 422; if 400 is seen, emit a FLAG citing the suite-vs-spec conflict, not a silent pass. See ambiguity register AMB-001.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-002",
@@ -36,7 +38,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "A tester expecting 4xx for 'incompatible' is WRONG: this is 200-with-error-body. See AMB-006."
+      "notes": "A tester expecting 4xx for 'incompatible' is WRONG: this is 200-with-error-body. See AMB-006.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-003",
@@ -54,7 +58,9 @@
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Tester-side classification of its own profile fetch failures."
+      "notes": "Tester-side classification of its own profile fetch failures.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-004",
@@ -72,7 +78,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema validity is checked via the ucp-schema oracle (profile/ucp.json)."
+      "notes": "Schema validity is checked via the ucp-schema oracle (profile/ucp.json).",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-005",
@@ -90,7 +98,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Added 2026-07-03 (wave-2 adversarial review F4): the Negotiation Errors table binds the BUSINESS to reject a request without a resolvable platform profile URL (the 'missing' case = no/empty UCP-Agent). MUST inferred from the table's normative error-code mapping (CAT-019 precedent for inferred keywords). This is the merchant-observable ENFORCEMENT dual of the requester-bound header rows CHK-046/CART-024 (exempted client-bound) \u2014 those exemption reasons reference this row."
+      "notes": "Added 2026-07-03 (wave-2 adversarial review F4): the Negotiation Errors table binds the BUSINESS to reject a request without a resolvable platform profile URL (the 'missing' case = no/empty UCP-Agent). MUST inferred from the table's normative error-code mapping (CAT-019 precedent for inferred keywords). This is the merchant-observable ENFORCEMENT dual of the requester-bound header rows CHK-046/CART-024 (exempted client-bound) \u2014 those exemption reasons reference this row.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ]
 }

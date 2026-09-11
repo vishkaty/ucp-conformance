@@ -262,44 +262,61 @@ def _check_stale_waiver_fail_noisy(fails):
                      f"legitimate waiver/scope exclusion")
 
 
-def _check_agent_overrides_are_data(fails):
-    """D2-04: the agent-lane denominator overrides (AGENT_EXTRA / NOT_AGENT_BOUND) are
-    loaded from agent_lane_overrides.json, never literal sets in agent_matrix.py —
-    so each override carries a reason and an expiry clock the expiry-clocks gate
-    enforces. Proven two ways: the module sets equal the file's ids exactly (mutate the
-    file in a scratch copy and the loader must follow), and the module source carries
-    no literal override id."""
-    import json, os, tempfile
-    path = agent_matrix.OVERRIDES
-    d = json.load(open(path))
-    want_extra = {e["id"] for e in d["agent_extra"]}
-    want_nab = {e["id"] for e in d["not_agent_bound"]}
-    if set(agent_matrix.AGENT_EXTRA) != want_extra or set(agent_matrix.NOT_AGENT_BOUND) != want_nab:
-        fails.append("agent_matrix.AGENT_EXTRA/NOT_AGENT_BOUND differ from agent_lane_overrides.json")
-    else:
-        print("  ✓ module override sets == agent_lane_overrides.json ids "
-              f"({len(want_extra)} extra, {len(want_nab)} not-agent-bound)")
-    scratch = dict(d); scratch["not_agent_bound"] = d["not_agent_bound"] + [{"id": "ZZZ-999", "reason": "mutant"}]
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
-        json.dump(scratch, f); tmp = f.name
-    try:
-        extra2, nab2 = agent_matrix._load_overrides(tmp)
-    finally:
-        os.unlink(tmp)
-    if "ZZZ-999" in nab2 and extra2 == frozenset(want_extra):
-        print("  ✓ mutate the file (+ZZZ-999) -> the loader follows the data")
-    else:
-        fails.append("agent_matrix._load_overrides does not follow the file (overrides not data-driven)")
+def _check_agent_rows_role_driven(fails):
+    """D2-08 (supersedes D2-04's overrides-as-data check): the agent-lane denominator is
+    the register's `role` field — agent_rows(v) == {mandatory rows at v with role in
+    AGENT_LANE} for every version, and the module carries no substring heuristic or
+    literal override id. Proven by identity on the real registers AND by mutation: in a
+    scratch copy of one version's register, flipping one platform row to `business`
+    removes exactly that id from agent_rows (the loader follows the data)."""
+    import glob, json, os, shutil, tempfile
+    from common.roles import AGENT_LANE
+    for v in agent_matrix.VERSIONS:
+        want = set()
+        for f in glob.glob(os.path.join(agent_matrix.REQ, v, "*.json")):
+            if os.path.basename(f).startswith("_"):
+                continue
+            for r in json.load(open(f)).get("rows", []):
+                if v in (r.get("versions") or [v]) and r.get("keyword") in agent_matrix.MANDATORY \
+                        and r.get("role") in AGENT_LANE:
+                    want.add(r["id"])
+        got = set(agent_matrix.agent_rows(v))
+        if got != want:
+            fails.append(f"agent_rows({v}) != role-driven set (Δ {sorted(got ^ want)[:6]})")
+    if not fails:
+        print("  ✓ agent_rows(v) == {mandatory rows with role in AGENT_LANE} at every version")
     src = open(agent_matrix.__file__).read()
-    literal = [i for i in sorted(want_extra | want_nab) if f'"{i}"' in src]
-    if literal:
-        fails.append(f"agent_matrix.py still carries literal override ids: {literal[:5]}")
-    else:
-        print("  ✓ agent_matrix.py source carries no literal override id")
-    for name, entries in (("agent_extra", d["agent_extra"]), ("not_agent_bound", d["not_agent_bound"])):
-        thin = [e["id"] for e in entries if len((e.get("reason") or "").strip()) < 20]
-        if thin:
-            fails.append(f"agent_lane_overrides.json {name}: entries without a reason: {thin}")
+    for token in ("AGENT_WORDS", "AGENT_EXTRA", "NOT_AGENT_BOUND", "_load_overrides", "_client_bound_ids"):
+        if f"{token} =" in src or f"def {token}" in src:
+            fails.append(f"agent_matrix.py still defines {token} (the heuristic/overrides are retired by D2-08)")
+    # mutation: scratch register with one platform row flipped to business
+    v = agent_matrix.VERSIONS[-1]
+    live = sorted(agent_matrix.agent_rows(v))
+    tmp = tempfile.mkdtemp()
+    try:
+        shutil.copytree(os.path.join(agent_matrix.REQ, v), os.path.join(tmp, v))
+        flipped = None
+        for f in sorted(glob.glob(os.path.join(tmp, v, "*.json"))):
+            if os.path.basename(f).startswith("_"):
+                continue
+            d = json.load(open(f))
+            for r in d.get("rows", []):
+                if r.get("role") == "platform" and r.get("keyword") in agent_matrix.MANDATORY and not flipped:
+                    r["role"] = "business"; flipped = r["id"]
+            if flipped:
+                json.dump(d, open(f, "w")); break
+        real = agent_matrix.REQ
+        agent_matrix.REQ = tmp
+        try:
+            mutated = sorted(agent_matrix.agent_rows(v))
+        finally:
+            agent_matrix.REQ = real
+        if flipped and set(live) - set(mutated) == {flipped} and set(mutated) <= set(live):
+            print(f"  ✓ flipping {flipped} platform->business in a scratch register removes exactly it from agent_rows({v})")
+        else:
+            fails.append(f"agent_rows does not follow the role field (flipped {flipped}; Δ {sorted(set(live) ^ set(mutated))[:6]})")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def main():
@@ -317,8 +334,8 @@ def main():
     _check_agent_wall_independent_of_merchant_wall(fails)
     print("\nstale-waiver fail-noisy rule (PLAN-0825 A.2 kill-test):")
     _check_stale_waiver_fail_noisy(fails)
-    print("\nagent-lane overrides are data (agent_lane_overrides.json), never literal sets (D2-04):")
-    _check_agent_overrides_are_data(fails)
+    print("\nagent-lane denominator is the register's role field (D2-08; overrides retired):")
+    _check_agent_rows_role_driven(fails)
 
     print()
     for f in fails:

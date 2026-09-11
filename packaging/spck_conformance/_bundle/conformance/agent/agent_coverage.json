@@ -1,30 +1,30 @@
 {
  "2026-01-11": {
-  "agent_musts": 46,
-  "check": 0,
-  "exempt": 1,
-  "gap": 45,
-  "accounted_pct": 2
- },
- "2026-01-23": {
   "agent_musts": 47,
   "check": 0,
-  "exempt": 1,
-  "gap": 46,
-  "accounted_pct": 2
+  "exempt": 0,
+  "gap": 47,
+  "accounted_pct": 0
+ },
+ "2026-01-23": {
+  "agent_musts": 53,
+  "check": 0,
+  "exempt": 0,
+  "gap": 53,
+  "accounted_pct": 0
  },
  "2026-04-08": {
-  "agent_musts": 105,
+  "agent_musts": 133,
   "check": 55,
   "exempt": 3,
-  "gap": 47,
-  "accounted_pct": 55
+  "gap": 75,
+  "accounted_pct": 44
  },
  "2026-08-25": {
-  "agent_musts": 218,
+  "agent_musts": 303,
   "check": 0,
   "exempt": 3,
-  "gap": 215,
+  "gap": 300,
   "accounted_pct": 1
  }
 }

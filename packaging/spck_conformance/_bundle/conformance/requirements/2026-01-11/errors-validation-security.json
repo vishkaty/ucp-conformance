@@ -18,7 +18,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Message Error required-field set. Not directly asserted field-by-field by the suite; ValidationTest.test_structured_error_messages checks the server's REST error envelope ('detail') rather than the Message Error object."
+      "notes": "Message Error required-field set. Not directly asserted field-by-field by the suite; ValidationTest.test_structured_error_messages checks the server's REST error envelope ('detail') rather than the Message Error object.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "ERR-002",
@@ -36,7 +38,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "const enforces the discriminator value."
+      "notes": "const enforces the discriminator value.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "ERR-003",
@@ -54,7 +58,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Open vocabulary: schema enforces string type only, not enum membership."
+      "notes": "Open vocabulary: schema enforces string type only, not enum membership.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "ERR-004",
@@ -72,7 +78,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "01-23 DELTA: severity enum has exactly THREE values in 2026-01-23 (recoverable / requires_buyer_input / requires_buyer_review). 'unrecoverable' does NOT exist in this version."
+      "notes": "01-23 DELTA: severity enum has exactly THREE values in 2026-01-23 (recoverable / requires_buyer_input / requires_buyer_review). 'unrecoverable' does NOT exist in this version.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "ERR-005",
@@ -90,7 +98,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Severity-to-status mapping described in the severity field description; restated in checkout.md error handling."
+      "notes": "Severity-to-status mapping described in the severity field description; restated in checkout.md error handling.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "ERR-006",
@@ -108,7 +118,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Basis for the suite's status-code assertions across validation/invalid-input/security tests."
+      "notes": "Basis for the suite's status-code assertions across validation/invalid-input/security tests.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "ERR-007",
@@ -126,7 +138,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Example envelope uses severity requires_buyer_input. RECLASSIFIED manual->testable (2026-07-03): the controlled fixture serves a seeded unsupported-version platform-profile scenario (config negotiation.unsupported_version_profile_url), so the envelope is merchant-observable; check negotiation.failure_error_envelope."
+      "notes": "Example envelope uses severity requires_buyer_input. RECLASSIFIED manual->testable (2026-07-03): the controlled fixture serves a seeded unsupported-version platform-profile scenario (config negotiation.unsupported_version_profile_url), so the envelope is merchant-observable; check negotiation.failure_error_envelope.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "ERR-008",
@@ -144,7 +158,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "NOTE: this guideline text says 'severity: escalation', but the message_error severity enum in 2026-01-23 has no 'escalation' value (only recoverable / requires_buyer_input / requires_buyer_review). Apparent spec inconsistency in 01-23; the requires_* severities are what contribute to requires_escalation. UPSTREAM CONTRADICTION (2026-07-03): checkout.md demands 'severity: escalation' but that value is NOT in the message_error severity enum at any 01-era version (recoverable/requires_buyer_input/requires_buyer_review). Do NOT ship a check for the literal reading; left GAP pending the upstream spec report (coordinator files)."
+      "notes": "NOTE: this guideline text says 'severity: escalation', but the message_error severity enum in 2026-01-23 has no 'escalation' value (only recoverable / requires_buyer_input / requires_buyer_review). Apparent spec inconsistency in 01-23; the requires_* severities are what contribute to requires_escalation. UPSTREAM CONTRADICTION (2026-07-03): checkout.md demands 'severity: escalation' but that value is NOT in the message_error severity enum at any 01-era version (recoverable/requires_buyer_input/requires_buyer_review). Do NOT ship a check for the literal reading; left GAP pending the upstream spec report (coordinator files).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "ERR-009",
@@ -162,7 +178,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business guideline."
+      "notes": "Business guideline.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "VAL-001",
@@ -180,7 +198,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_out_of_stock (assert_response_status 400). Spec basis is the standard-HTTP-status-codes MUST."
+      "notes": "Asserted by ValidationTest.test_out_of_stock (assert_response_status 400). Spec basis is the standard-HTTP-status-codes MUST.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "VAL-002",
@@ -198,7 +218,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_update_inventory_validation (assert_response_status 400)."
+      "notes": "Asserted by ValidationTest.test_update_inventory_validation (assert_response_status 400).",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "VAL-003",
@@ -216,7 +238,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_product_not_found (assert_response_status 400)."
+      "notes": "Asserted by ValidationTest.test_product_not_found (assert_response_status 400).",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "VAL-004",
@@ -234,7 +258,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_payment_failure (assert_response_status 402, instrument_id 'instr_fail')."
+      "notes": "Asserted by ValidationTest.test_payment_failure (assert_response_status 402, instrument_id 'instr_fail').",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "VAL-005",
@@ -252,7 +278,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_complete_without_fulfillment (assert_response_status 400)."
+      "notes": "Asserted by ValidationTest.test_complete_without_fulfillment (assert_response_status 400).",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "VAL-006",
@@ -270,7 +298,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by ValidationTest.test_structured_error_messages (checks response.json()['detail'] populated and contains 'Insufficient stock'). The suite asserts the FastAPI/REST 'detail' envelope, not the UCP Message Error object; mapped here to the Message Error human-readable content field."
+      "notes": "Asserted by ValidationTest.test_structured_error_messages (checks response.json()['detail'] populated and contains 'Insufficient stock'). The suite asserts the FastAPI/REST 'detail' envelope, not the UCP Message Error object; mapped here to the Message Error human-readable content field.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "VAL-007",
@@ -288,7 +318,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Asserted by InvalidInputTest.test_invalid_adjustment_status (assert_response_status 422). 422 is a server/Pydantic validation convention not enumerated in the spec's example status list."
+      "notes": "Asserted by InvalidInputTest.test_invalid_adjustment_status (assert_response_status 422). 422 is a server/Pydantic validation convention not enumerated in the spec's example status list.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "VAL-008",
@@ -306,7 +338,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Asserted by InvalidInputTest.test_malformed_adjustment_payload (assert_response_status 422)."
+      "notes": "Asserted by InvalidInputTest.test_malformed_adjustment_payload (assert_response_status 422).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "VAL-009",
@@ -324,7 +358,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by InvalidInputTest.test_unknown_discount_code (status 200, discount None). Demonstrates unknown-input tolerance vs hard validation failure."
+      "notes": "Asserted by InvalidInputTest.test_unknown_discount_code (status 200, discount None). Demonstrates unknown-input tolerance vs hard validation failure.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "SEC-001",
@@ -342,7 +378,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by SecurityTest.test_simulation_endpoint_missing_header (assert_response_status 403). Simulation endpoint is a test-harness construct, not a normative UCP endpoint; spec basis is standard HTTP status codes."
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_missing_header (assert_response_status 403). Simulation endpoint is a test-harness construct, not a normative UCP endpoint; spec basis is standard HTTP status codes.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "SEC-002",
@@ -360,7 +398,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by SecurityTest.test_simulation_endpoint_incorrect_secret (sets Simulation-Secret 'for-sure-incorrect-secret', asserts 403)."
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_incorrect_secret (sets Simulation-Secret 'for-sure-incorrect-secret', asserts 403).",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "SEC-003",
@@ -378,7 +418,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by SecurityTest.test_simulation_endpoint_correct_secret (uses FLAGS.simulation_secret, asserts 200)."
+      "notes": "Asserted by SecurityTest.test_simulation_endpoint_correct_secret (uses FLAGS.simulation_secret, asserts 200).",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "SEC-004",
@@ -396,7 +438,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Transport security baseline; not asserted by the three cited suite tests (which use a test client). RECLASSIFIED manual->testable (2026-07-03): verifiable at the connection layer in the CHK-051 TLS-harness pattern (probe the declared endpoint's TLS service; kill-proof in selfcheck/validate_tls_check.py); check transport.https_all_communication."
+      "notes": "Transport security baseline; not asserted by the three cited suite tests (which use a test client). RECLASSIFIED manual->testable (2026-07-03): verifiable at the connection layer in the CHK-051 TLS-harness pattern (probe the declared endpoint's TLS service; kill-proof in selfcheck/validate_tls_check.py); check transport.https_all_communication.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ],
   "notes": [

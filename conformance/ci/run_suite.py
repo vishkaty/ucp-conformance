@@ -80,6 +80,11 @@ def gates(server, require_server=False):
         # unique-id invariant (reach_report / probe-hygiene key by check id).
         ("register-selftest", _py(SELF / "verify_register.py", "--selftest"),   None, ()),
         ("merchant-checks-selftest", _py(SELF / "validate_merchant_checks.py", "--selftest"), None, ()),
+        # D2-08: the role seed/heuristic (requirements/tools/assign_roles.py) reproduces its
+        # 7-row fixture — lock/NAB/client-bound/subject/direction/queue — hermetically; the
+        # roles themselves are gated by `register` (field, enum, lock consistency both
+        # ways, empty review queue, agent-side one-lane rule, area map as register data).
+        ("roles-selftest", _py(ROOT / "conformance" / "requirements" / "tools" / "assign_roles.py", "--selftest"), None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)

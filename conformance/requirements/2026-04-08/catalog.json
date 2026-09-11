@@ -19,7 +19,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "response $defs requires has_next_page"
+      "notes": "response $defs requires has_next_page",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-002",
@@ -37,7 +39,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-enforced via if/then; prose at L30 says cursor MUST be present when has_next_page is true"
+      "notes": "Schema-enforced via if/then; prose at L30 says cursor MUST be present when has_next_page is true",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-003",
@@ -55,7 +59,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Prose-in-schema restatement of the if/then constraint"
+      "notes": "Prose-in-schema restatement of the if/then constraint",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-004",
@@ -91,7 +97,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "minimum:1 and default:10 schema-enforced; clamp is MAY"
+      "notes": "minimum:1 and default:10 schema-enforced; clamp is MAY",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "CAT-006",
@@ -145,7 +153,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Client-side constraint; not server-testable"
+      "notes": "Client-side constraint; not server-testable",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CAT-009",
@@ -163,7 +173,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "search_request schema has no anyOf/required enforcing this; prose-only"
+      "notes": "search_request schema has no anyOf/required enforcing this; prose-only",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CAT-010",
@@ -181,7 +193,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-011",
@@ -217,7 +231,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "L200: \"This is not an error - the query was valid but returned no results.\" Phrased as instruction, not RFC keyword"
+      "notes": "L200: \"This is not an error - the query was valid but returned no results.\" Phrased as instruction, not RFC keyword",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-013",
@@ -235,7 +251,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Also restated in catalog_lookup.json#L35 ids description"
+      "notes": "Also restated in catalog_lookup.json#L35 ids description",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-014",
@@ -253,7 +271,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Prose-in-schema; not structurally enforced"
+      "notes": "Prose-in-schema; not structurally enforced",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-015",
@@ -271,7 +291,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Prose only; schema does not enforce uniqueItems on ids"
+      "notes": "Prose only; schema does not enforce uniqueItems on ids",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-016",
@@ -289,7 +311,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Prose only"
+      "notes": "Prose only",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-017",
@@ -307,7 +331,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Partly schema-enforced: lookup_variant requires inputs with minItems:1 (catalog_lookup.json#L13-L20), so any variant present must carry inputs; presence/exclusion logic itself is prose"
+      "notes": "Partly schema-enforced: lookup_variant requires inputs with minItems:1 (catalog_lookup.json#L13-L20), so any variant present must carry inputs; presence/exclusion logic itself is prose",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-018",
@@ -325,7 +351,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "lookup_variant allOf adds required inputs minItems:1"
+      "notes": "lookup_variant allOf adds required inputs minItems:1",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-019",
@@ -343,7 +371,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Stated descriptively; MUST keyword inferred from \"returns HTTP 200\". Conformance L575 reinforces HTTP 200 for lookup"
+      "notes": "Stated descriptively; MUST keyword inferred from \"returns HTTP 200\". Conformance L575 reinforces HTTP 200 for lookup",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-020",
@@ -361,7 +391,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-021",
@@ -397,7 +429,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-023",
@@ -415,7 +449,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-024",
@@ -433,7 +469,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conformance item; default 10 also in pagination.json#L19"
+      "notes": "Conformance item; default 10 also in pagination.json#L19",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-025",
@@ -451,7 +489,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-026",
@@ -469,7 +509,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lookup.md#L77 restates MUST reject; HTTP 400 request_too_large for REST"
+      "notes": "Lookup.md#L77 restates MUST reject; HTTP 400 request_too_large for REST",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-027",
@@ -487,7 +529,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-028",
@@ -505,7 +549,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": ""
+      "notes": "",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-029",
@@ -523,7 +569,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Empty-results case is products:[] (still required, present as empty array)"
+      "notes": "Empty-results case is products:[] (still required, present as empty array)",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-030",
@@ -541,7 +589,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-031",
@@ -559,7 +609,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-032",
@@ -577,7 +629,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-033",
@@ -595,7 +649,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conditional requirement; schema lists selected but not unconditionally required"
+      "notes": "Conditional requirement; schema lists selected but not unconditionally required",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-034",
@@ -613,7 +669,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Reclassified 2026-07-02: the MUST binds the CLIENT'S request `selected` input (lookup.md '#### Input'), not the merchant \u2014 same subject-binding as CAT-008. No merchant-observable obligation exists (the spec does not mandate a rejection of duplicate option names), so a merchant check would grade something the spec never requires of merchants. Response-side product.selected uniqueness is not normatively stated either. Candidate for a documented client-side exemption in Phase 4."
+      "notes": "Reclassified 2026-07-02: the MUST binds the CLIENT'S request `selected` input (lookup.md '#### Input'), not the merchant \u2014 same subject-binding as CAT-008. No merchant-observable obligation exists (the spec does not mandate a rejection of duplicate option names), so a merchant check would grade something the spec never requires of merchants. Response-side product.selected uniqueness is not normatively stated either. Candidate for a documented client-side exemption in Phase 4.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CAT-035",
@@ -631,7 +689,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cross-cuts catalog/checkout; relevant to catalog context handling"
+      "notes": "Cross-cuts catalog/checkout; relevant to catalog context handling",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-036",
@@ -649,7 +709,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CAT-037",
@@ -685,7 +747,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lowercase \"must not\"; rendering contract is in checkout.md (out of scope here)"
+      "notes": "Lowercase \"must not\"; rendering contract is in checkout.md (out of scope here)",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     }
   ],
   "notes": [

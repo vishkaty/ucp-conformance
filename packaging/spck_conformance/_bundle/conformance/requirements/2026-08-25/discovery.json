@@ -22,7 +22,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "DISC-002",
@@ -44,7 +46,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-003",
@@ -66,7 +70,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "DISC-004",
@@ -88,7 +94,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DISC-005",
@@ -110,7 +118,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-006",
@@ -133,7 +143,9 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DISC-007",
@@ -152,7 +164,9 @@
       "browser_capable": false,
       "schema_enforced": false,
       "notes": "New row, 2026-08-25 census closure wave. This is the broadened verifier-side no-redirect rule (rule 2 of the URL fetch-safety list) that DISC-002 already flagged as an unregistered companion: DISC-002 covers the narrower, unchanged \"Profile endpoints MUST NOT use redirects (3xx)\" statement at L2239; this row covers the broadened rule 2 in the fetch-safety list at L2287, which DISC-004 (rule 1, HTTPS-only) already establishes applies to every URL dereferenced during identity resolution, not just the initial profile fetch. CLI-only: browser fetch auto-follows redirects opaquely.",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-008",
@@ -171,7 +185,9 @@
       "browser_capable": false,
       "schema_enforced": false,
       "notes": "New row, 2026-08-25 census closure wave (URL fetch-safety list, rule 7 — the SSRF/special-use-address guard). Server-side (verifier) DNS-resolution behavior; not browser-observable.",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-009",
@@ -190,7 +206,9 @@
       "browser_capable": false,
       "schema_enforced": false,
       "notes": "New row, 2026-08-25 census closure wave (Fetching, closing paragraph — the terminal error-handling duty when platform-profile fetch/validation fails).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject"
     }
   ]
 }

@@ -20,7 +20,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "REPLACES the 04-08 consent model entirely: 04-08 buyer_consent.json's `consent` object was four independent optional booleans (analytics, preferences, marketing, sale_of_data) with no source/description/segment structure. 08-25 introduces a two-level purpose+segment model. Filed separately from the 04-08 DSC-* carry-forward (see file docstring)."
+   "notes": "REPLACES the 04-08 consent model entirely: 04-08 buyer_consent.json's `consent` object was four independent optional booleans (analytics, preferences, marketing, sale_of_data) with no source/description/segment structure. 08-25 introduces a two-level purpose+segment model. Filed separately from the 04-08 DSC-* carry-forward (see file docstring).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-002",
@@ -38,7 +40,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "consent_segment.json $defs has no `segments` property, unlike consent_purpose; nesting is structurally bounded to one level. (Quote picked from the segment description to disambiguate from the identical required-array text shared with consent_purpose at L11.)"
+   "notes": "consent_segment.json $defs has no `segments` property, unlike consent_purpose; nesting is structurally bounded to one level. (Quote picked from the segment description to disambiguate from the identical required-array text shared with consent_purpose at L11.)",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-003",
@@ -56,7 +60,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Enum-constrained on both consent_purpose and consent_segment."
+   "notes": "Enum-constrained on both consent_purpose and consent_segment.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-004",
@@ -74,7 +80,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Structural invariant, also schema_enforced (CNST-002)."
+   "notes": "Structural invariant, also schema_enforced (CNST-002).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-005",
@@ -92,7 +100,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Policy-authorship rule; not mechanically checkable beyond confirming a business-sourced default is present."
+   "notes": "Policy-authorship rule; not mechanically checkable beyond confirming a business-sourced default is present.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "CNST-006",
@@ -110,7 +120,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by comparing an advertise (response) payload's shape against a subsequent confirm (request) payload's shape."
+   "notes": "Checkable by comparing an advertise (response) payload's shape against a subsequent confirm (request) payload's shape.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CNST-007",
@@ -128,7 +140,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable against messages[] (code: missing_consent_data, example at L341-352)."
+   "notes": "Directly checkable against messages[] (code: missing_consent_data, example at L341-352).",
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "CNST-008",
@@ -146,7 +160,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable end-to-end: confirm SMS marketing consent without a phone number and attempt complete_checkout."
+   "notes": "Directly checkable end-to-end: confirm SMS marketing consent without a phone number and attempt complete_checkout.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "CNST-009",
@@ -164,7 +180,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Normative requirement #1 ('Use the advertised settings')."
+   "notes": "Normative requirement #1 ('Use the advertised settings').",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-010",
@@ -182,7 +200,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Continuation of normative requirement #1; namespace-authority-adjacent trust rule for custom purposes/segments."
+   "notes": "Continuation of normative requirement #1; namespace-authority-adjacent trust rule for custom purposes/segments.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CNST-012",
@@ -200,7 +220,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Normative requirement #2, second half. Checkable by comparing a confirm payload's key set against the full advertised set."
+   "notes": "Normative requirement #2, second half. Checkable by comparing a confirm payload's key set against the full advertised set.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CNST-013",
@@ -218,7 +240,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Normative requirement #3 ('Advertised set is authoritative'). Checkable by submitting an un-advertised purpose/segment key and confirming it has no effect."
+   "notes": "Normative requirement #3 ('Advertised set is authoritative'). Checkable by submitting an un-advertised purpose/segment key and confirming it has no effect.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-014",
@@ -236,7 +260,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Normative requirement #4 ('More-specific values win'); directly checkable against the worked example (L162-210, marketing off but marketing.sms on)."
+   "notes": "Normative requirement #4 ('More-specific values win'); directly checkable against the worked example (L162-210, marketing off but marketing.sms on).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-016",
@@ -254,7 +280,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Normative requirement #6 ('Per-business attribution'); a Platform-side cross-business isolation rule, needs a receiver spanning two businesses to test directly."
+   "notes": "Normative requirement #6 ('Per-business attribution'); a Platform-side cross-business isolation rule, needs a receiver spanning two businesses to test directly.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CNST-017",
@@ -272,7 +300,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Normative requirement #7 ('Persistence and reversibility'); Platform-side UX policy."
+   "notes": "Normative requirement #7 ('Persistence and reversibility'); Platform-side UX policy.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "CNST-018",
@@ -290,7 +320,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Replaces the 04-08 flat boolean set (analytics/preferences/marketing/sale_of_data) with reverse-DNS purpose identifiers; `sale_of_data` is renamed `dev.ucp.consent.sale_or_sharing`."
+   "notes": "Replaces the 04-08 flat boolean set (analytics/preferences/marketing/sale_of_data) with reverse-DNS purpose identifiers; `sale_of_data` is renamed `dev.ucp.consent.sale_or_sharing`.",
+   "role": "spec-author",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-019",
@@ -308,7 +340,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Wholly new channel-segment concept; no 04-08 equivalent (04-08 consent had a single flat `marketing` boolean with no channel granularity)."
+   "notes": "Wholly new channel-segment concept; no 04-08 equivalent (04-08 consent had a single flat `marketing` boolean with no channel granularity).",
+   "role": "spec-author",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CNST-020",
@@ -327,7 +361,9 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (unmet-consent-dependency error-surfacing rule, paired with the adjacent completed-transition prohibition already registered nearby).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   }
  ]
 }

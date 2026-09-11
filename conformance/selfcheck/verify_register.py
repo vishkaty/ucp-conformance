@@ -23,6 +23,9 @@ sys.path.insert(0, str(ROOT / "conformance"))
 # the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam) — now the single
 # shared source every consumer imports; see conformance/common/spec_versions.py.
 from common.spec_versions import VERSION_TREE  # noqa: E402
+from common.keywords import MANDATORY  # noqa: E402
+from common.roles import ROLES, AGENT_LANE, valid_provenance  # noqa: E402
+AGENT_LOCK = ROOT / "conformance" / "agent" / "agent_denominator_lock.json"
 
 def norm(s: str) -> str:
     s = s.replace("**", "").replace("`", "").replace("_", "")
@@ -131,6 +134,120 @@ def manual_mislabels(rows, check_ids):
 RELABEL_GATED_VERSIONS = ("2026-08-25",)
 
 
+# ---------------------------------------------------------------- D2-08: roles (A4)
+def _mandatory_at(rows, ver):
+    return [r for r in rows if r.get("keyword") in MANDATORY
+            and ver in (r.get("versions") or [ver])]
+
+
+def role_errors(rows, ver, lock_ids):
+    """Every mandatory row at `ver` carries `role` (ROLES) and `role_provenance` (an
+    enum value or review:<batch>); the agent-denominator lock and the roles agree BOTH
+    ways — a locked id must be an agent-lane role (platform|both|host), and an agent-lane
+    row must be locked (else regenerate the lock deliberately: agent_matrix.py
+    --snapshot-lock). Returns a list of messages (empty = clean)."""
+    errs = []
+    mand = _mandatory_at(rows, ver)
+    ids = {r.get("id") for r in mand}
+    for r in mand:
+        rid, role, prov = r.get("id"), r.get("role"), r.get("role_provenance")
+        if role is None:
+            errs.append(f"{rid}: mandatory row without `role` (run requirements/tools/assign_roles.py --apply, then review the queue)")
+            continue
+        if role not in ROLES:
+            errs.append(f"{rid}: role {role!r} not in {list(ROLES)}")
+            continue
+        if not valid_provenance(prov):
+            errs.append(f"{rid}: role_provenance {prov!r} is neither an enum value nor review:<batch>")
+        if rid in lock_ids and role not in AGENT_LANE:
+            errs.append(f"{rid}: role {role} but the id is in the agent denominator lock at {ver} — "
+                        f"re-adjudicate or regenerate the lock (agent_matrix.py --snapshot-lock)")
+        if rid not in lock_ids and role in AGENT_LANE:
+            errs.append(f"{rid}: role {role} (agent lane) but the id is NOT in the agent denominator lock at {ver} — "
+                        f"regenerate the lock deliberately (agent_matrix.py --snapshot-lock)")
+    for rid in sorted(lock_ids - ids):
+        pass                                # a locked id with no mandatory row: agent_governance's business
+    return errs
+
+
+def queue_errors(queue, ver):
+    """The review queue (requirements/<ver>/role_review_queue.json) must be empty."""
+    if not queue:
+        return []
+    ids = [q.get("id") for q in queue]
+    return [f"{ver}: role_review_queue has {len(ids)} unreviewed row(s): {ids[:12]}{' …' if len(ids) > 12 else ''} — "
+            f"set role + role_provenance review:<batch> on each row and delete its queue entry"]
+
+
+def lane_errors(rows, ver, agent_check_ids):
+    """One-lane rule (agent side): a shipped AGENT check may grade only an agent-lane row
+    (platform|both|host). An agent CHECK on a business-only / handler / spec-author row
+    is a contradiction — either the row's role is wrong (it binds the platform too ->
+    `both`) or the check cites the wrong id. The merchant side of the same rule lives in
+    coverage_gate (merchant CHECK only on a merchant-lane row)."""
+    errs = []
+    for r in _mandatory_at(rows, ver):
+        if r.get("id") in agent_check_ids and r.get("role") not in AGENT_LANE:
+            errs.append(f"{r.get('id')}: role {r.get('role')} (not agent-lane) yet graded by an agent check at {ver} "
+                        f"— re-adjudicate the role (both?) or fix the check's citation")
+    return errs
+
+
+def area_map_errors(area_map, register_areas, spec_capabilities):
+    """requirements/<ver>/_area_capabilities.json as REGISTER DATA (RV1 #15, D2-08):
+    every area present in the register is listed (null = core), and every capability
+    name it maps to exists in the vendored spec at that version's pin (a typo'd name
+    would silently drop a whole area from the CLI denominator — merchant.py
+    applicable_areas fails closed on an unlisted area; this gate makes both failures
+    visible at commit time, not at grading time)."""
+    errs = []
+    for area in sorted(register_areas):
+        if area not in area_map:
+            errs.append(f"register area {area!r} is not listed in _area_capabilities.json")
+    for area, cap in sorted(area_map.items()):
+        if cap is not None and cap not in spec_capabilities:
+            errs.append(f"_area_capabilities.json {area!r} -> {cap!r}: capability name not found in the vendored spec")
+    return errs
+
+
+_CAP_RE = re.compile(r"dev\.ucp\.[a-z_]+(?:\.[a-z_]+)*")
+
+
+def spec_capability_names(ucp_dir):
+    """Every `dev.ucp.*` identifier mentioned in the vendored spec tree (docs/ + source/)."""
+    names = set()
+    for sub in ("docs", "source"):
+        base = VENDOR / ucp_dir / sub
+        if not base.is_dir():
+            continue
+        for f in base.rglob("*"):
+            if f.suffix in (".md", ".json", ".yaml", ".yml") and f.is_file():
+                names.update(_CAP_RE.findall(f.read_text(encoding="utf-8", errors="replace")))
+    return names
+
+
+def _area_map_and_areas(ver):
+    vdir = REQ_DIR / ver
+    amap = None
+    f = vdir / "_area_capabilities.json"
+    if f.exists():
+        amap = json.loads(f.read_text()).get("areas", {})
+    areas = set()
+    for af in sorted(vdir.glob("*.json")):
+        if af.name.startswith("_"):
+            continue
+        d = json.loads(af.read_text())
+        if isinstance(d, dict) and "rows" in d:
+            areas.add(d.get("_area") or af.stem)
+    return amap, areas
+
+
+def _lock_ids(ver):
+    if not AGENT_LOCK.exists():
+        return set()
+    return set(json.loads(AGENT_LOCK.read_text()).get("versions", {}).get(ver, []))
+
+
 def _shipped_check_ids(ver):
     """Ids graded by a shipped CHECK at `ver` on the AGENT axis (agent_checks.CHECKS,
     per-check `versions` scope) — the axis whose rows were mislabelled. The merchant
@@ -150,7 +267,7 @@ def _shipped_check_ids(ver):
 
 def main(argv):
     if argv and argv[0] == "--dupes":
-        versions = argv[1:] or [p.name for p in sorted(REQ_DIR.iterdir()) if p.is_dir()]
+        versions = argv[1:] or [p.name for p in sorted(REQ_DIR.iterdir()) if p.is_dir() and p.name[:2] == "20"]
         n = 0
         for ver in versions:
             pairs = find_dupes(load_version_rows(ver))
@@ -160,9 +277,11 @@ def main(argv):
         print(f"\nregister dupes: {n} duplicate pairs")
         return 1 if n else 0
 
-    versions = argv or [p.name for p in sorted(REQ_DIR.iterdir()) if p.is_dir()]
+    versions = argv or [p.name for p in sorted(REQ_DIR.iterdir())
+                        if p.is_dir() and p.name[:2] == "20"]      # version dirs only (not tools/)
     total = ok = warn = fail = 0
     mislabels = 0
+    role_fails = 0
     for ver in versions:
         vdir = REQ_DIR / ver
         if not vdir.is_dir():
@@ -187,14 +306,31 @@ def main(argv):
         # at the versions decision 32 adjudicated (RELABEL_GATED_VERSIONS); reported
         # (WARN, rc unchanged) elsewhere — see the constant's comment.
         gated = ver in RELABEL_GATED_VERSIONS
-        for rid in manual_mislabels(vrows, _shipped_check_ids(ver)):
+        agent_checks = _shipped_check_ids(ver)
+        for rid in manual_mislabels(vrows, agent_checks):
             mislabels += 1 if gated else 0
             print(f"  {'FAIL' if gated else 'WARN'}  {rid:10} MANUAL_BUT_CHECK: labelled "
                   f"testability=manual yet graded by agent_checks at {ver} — "
                   f"{'relabel `testable` (decision 32)' if gated else 'report-only at this version (D2-08/D2-13 pass)'}")
+        # D2-08 (A4): roles — field + enum + provenance, lock consistency both ways,
+        # empty review queue, agent-side one-lane rule, area map as register data.
+        rerrs = role_errors(vrows, ver, _lock_ids(ver))
+        qf = vdir / "role_review_queue.json"
+        queue = json.loads(qf.read_text()).get("queue", []) if qf.exists() else []
+        rerrs += queue_errors(queue, ver)
+        rerrs += lane_errors(vrows, ver, agent_checks)
+        amap, areas = _area_map_and_areas(ver)
+        if amap is None:
+            rerrs.append(f"{ver}: requirements/{ver}/_area_capabilities.json missing (D1-03 seeds it; D2-08 validates it)")
+        else:
+            rerrs += area_map_errors(amap, areas, spec_capability_names(ucp_dir))
+        for e in rerrs:
+            print(f"  FAIL  ROLE/AREA {ver}: {e}")
+        role_fails += len(rerrs)
     print(f"\nregister quote-check: {ok}/{total} verified, {warn} line-warnings, {fail} FAILED, "
-          f"{mislabels} manual-but-CHECK mislabels (gated at {', '.join(RELABEL_GATED_VERSIONS)})")
-    return 1 if (fail or mislabels) else 0
+          f"{mislabels} manual-but-CHECK mislabels (gated at {', '.join(RELABEL_GATED_VERSIONS)}), "
+          f"{role_fails} role/area failures")
+    return 1 if (fail or mislabels or role_fails) else 0
 
 def selftest():
     """D2-02 kill-tests, hermetic (synthetic rows, no vendored I/O).

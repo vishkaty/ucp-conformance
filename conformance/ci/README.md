@@ -11,6 +11,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `register` | every register row quotes the pinned spec **verbatim** | official spec text |
 | `register-selftest` | the `register` gate's duplicate-pair (same quote + source + keyword) and manual-but-CHECK detectors hold on synthetic rows (D2-02) | — |
 | `merchant-checks-selftest` | every MCheck id is unique across the whole merchant check set (reach_report / probe-hygiene key by check id) | — |
+| `roles-selftest` | the register `role` seed/heuristic (`requirements/tools/assign_roles.py`) reproduces its 7-row fixture: agent-lock / not-agent-bound / client-bound / subject / direction resolve, handler and platform-but-unlocked rows queue (D2-08); the roles themselves — field, enum, agent-lock consistency both ways, empty review queue, one-lane rule, `_area_capabilities.json` as register data — are gated by `register` | — |
 | `expiry-clocks` / `expiry-clocks-selftest` | every entry of every clocked register (expiry_registers.json) carries `review_by` (not past) and `spec_pin` (matches the lock); a re-pin invalidates every review made against the old pin (D2-04/D2-19) | SOURCES.lock.json |
 | `verdict` | the no-false-green verdict gate's own unit tests hold | — |
 | `schema` | our schema checks agree with the official validator | official `ucp-schema` binary |

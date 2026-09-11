@@ -20,7 +20,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "NEW at 08-25: the 04-08 Idempotency Key Requirements table had a single 'On duplicate' row ('Return cached response, do not re-execute') with no mismatched-payload case. 08-25 splits it into matching-payload (unchanged behavior) and mismatched-payload (new: reject) rows."
+   "notes": "NEW at 08-25: the 04-08 Idempotency Key Requirements table had a single 'On duplicate' row ('Return cached response, do not re-execute') with no mismatched-payload case. 08-25 splits it into matching-payload (unchanged behavior) and mismatched-payload (new: reject) rows.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "REPLAY-002",
@@ -38,7 +40,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "New 'Payload Matching' paragraph. For signed requests the value is the Content-Digest header (persisted alongside the idempotency key); for unsigned requests the business computes the same digest from the received body bytes."
+   "notes": "New 'Payload Matching' paragraph. For signed requests the value is the Content-Digest header (persisted alongside the idempotency key); for unsigned requests the business computes the same digest from the received body bytes.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "REPLAY-003",
@@ -56,7 +60,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "NEW explicit platform-side obligation; directly checkable end-to-end by reusing an idempotency key with a changed body and confirming REPLAY-001's rejection (409/-32000) rather than either the original or a silently-updated response."
+   "notes": "NEW explicit platform-side obligation; directly checkable end-to-end by reusing an idempotency key with a changed body and confirming REPLAY-001's rejection (409/-32000) rather than either the original or a silently-updated response.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   }
  ]
 }

@@ -18,7 +18,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Reverse-domain naming. Enforced by ucp.json reverse_domain_name pattern on propertyNames of services/capabilities/payment_handlers (ucp.json#L14-L18, L60/L69/L78). Oracle: ProtocolTest.test_discovery validates handler group names via ReverseDomainName model; service/capability keys via BusinessSchema(**data)."
+      "notes": "Reverse-domain naming. Enforced by ucp.json reverse_domain_name pattern on propertyNames of services/capabilities/payment_handlers (ucp.json#L14-L18, L60/L69/L78). Oracle: ProtocolTest.test_discovery validates handler group names via ReverseDomainName model; service/capability keys via BusinessSchema(**data).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-002",
@@ -36,7 +38,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Enforced for platform-level capabilities by capability.json platform_schema required [spec, schema] (capability.json#L27). NOTE 01-23 vs 04-08 delta: in ucp.json base entity (L23) only `version` is required; spec/schema are NOT required at the entity level, but capability.json platform_schema adds the [spec,schema] requirement. The conformance server is a Business, and business_schema does NOT require spec/schema, so official_oracle=false."
+      "notes": "Enforced for platform-level capabilities by capability.json platform_schema required [spec, schema] (capability.json#L27). NOTE 01-23 vs 04-08 delta: in ucp.json base entity (L23) only `version` is required; spec/schema are NOT required at the entity level, but capability.json platform_schema adds the [spec,schema] requirement. The conformance server is a Business, and business_schema does NOT require spec/schema, so official_oracle=false.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-003",
@@ -54,7 +58,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Origin-vs-authority binding cannot be expressed in JSON-Schema (cross-field URL-origin check). Not asserted by the suite. RECLASSIFIED manual->testable (2026-07-03): the origin-vs-authority binding is not JSON-Schema-expressible but IS a mechanical URL-origin comparison; covered by the coded checks discovery.capability_origin_binding_01_11/_01_23 (merchant_checks_01_11_01_23.py)."
+      "notes": "Origin-vs-authority binding cannot be expressed in JSON-Schema (cross-field URL-origin check). Not asserted by the suite. RECLASSIFIED manual->testable (2026-07-03): the origin-vs-authority binding is not JSON-Schema-expressible but IS a mechanical URL-origin comparison; covered by the coded checks discovery.capability_origin_binding_01_11/_01_23 (merchant_checks_01_11_01_23.py).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-004",
@@ -72,7 +78,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side validation behavior; quote spans L82-L83. Not schema-checkable, not in suite."
+      "notes": "Platform-side validation behavior; quote spans L82-L83. Not schema-checkable, not in suite.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DISC-005",
@@ -90,7 +98,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Governance constraint; the dev.ucp.* namespace is reserved. Authority ownership is not schema-checkable. Quote spans L94-L95."
+      "notes": "Governance constraint; the dev.ucp.* namespace is reserved. Authority ownership is not schema-checkable. Quote spans L94-L95.",
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-006",
@@ -108,7 +118,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Authoring constraint on OpenAPI/OpenRPC transport docs; quote spans L125-L126. Not exercisable at the protocol level."
+      "notes": "Authoring constraint on OpenAPI/OpenRPC transport docs; quote spans L125-L126. Not exercisable at the protocol level.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DISC-007",
@@ -126,7 +138,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "endpoint format:uri enforced in service.json (L20-L24). https scheme specifically is not enforced by format:uri alone. Oracle: ProtocolTest.test_discovery asserts shopping_service endpoint is present."
+      "notes": "endpoint format:uri enforced in service.json (L20-L24). https scheme specifically is not enforced by format:uri alone. Oracle: ProtocolTest.test_discovery asserts shopping_service endpoint is present.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-008",
@@ -162,7 +176,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Authoring constraint on transport definition documents. Not protocol-observable."
+      "notes": "Authoring constraint on transport definition documents. Not protocol-observable.",
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-010",
@@ -180,7 +196,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema-authoring requirement on extension JSON Schemas; quote spans L199-L201."
+      "notes": "Schema-authoring requirement on extension JSON Schemas; quote spans L199-L201.",
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-011",
@@ -198,7 +216,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side schema resolution behavior; quote spans L202-L203."
+      "notes": "Platform-side schema resolution behavior; quote spans L202-L203.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DISC-012",
@@ -234,7 +254,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "The base UCP profile requires `version` (ucp.json entity#L23 and base#L54). business_schema additionally requires services and payment_handlers (ucp.json#L123). Oracle: ProtocolTest.test_discovery asserts GET /.well-known/ucp returns 200, version==2026-01-23, expected capabilities present, payment handler id+version present, shopping service version/transport/endpoint present, and validates with BusinessSchema."
+      "notes": "The base UCP profile requires `version` (ucp.json entity#L23 and base#L54). business_schema additionally requires services and payment_handlers (ucp.json#L123). Oracle: ProtocolTest.test_discovery asserts GET /.well-known/ucp returns 200, version==2026-01-23, expected capabilities present, payment handler id+version present, shopping service version/transport/endpoint present, and validates with BusinessSchema.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DISC-014",
@@ -252,7 +274,9 @@
       "official_oracle": true,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "URL resolvability is a network fetch, not a JSON-Schema construct; spec REQUIRES the fields (L74). Oracle: ProtocolTest.test_discovery_urls fetches every spec/schema/config_schema URL in the profile and asserts 200 + parseable JSON or valid HTML. browser_capable=false: cross-origin fetch of external spec URLs. W3 (2026-07-03): shipped as discovery.spec_urls_resolvable (merchant_checks_01_11_01_23_disc.py), OPT-IN via config.discovery.live_url_checks (deliberately absent from CONTROLLED_CONFIG so NO run_suite/selftest gate performs a network fetch); reference-gated HERMETICALLY by selfcheck/validate_disc014_check.py via the fixture's --local-spec-urls loopback mode (+ --break-spec-url mutant)."
+      "notes": "URL resolvability is a network fetch, not a JSON-Schema construct; spec REQUIRES the fields (L74). Oracle: ProtocolTest.test_discovery_urls fetches every spec/schema/config_schema URL in the profile and asserts 200 + parseable JSON or valid HTML. browser_capable=false: cross-origin fetch of external spec URLs. W3 (2026-07-03): shipped as discovery.spec_urls_resolvable (merchant_checks_01_11_01_23_disc.py), OPT-IN via config.discovery.live_url_checks (deliberately absent from CONTROLLED_CONFIG so NO run_suite/selftest gate performs a network fetch); reference-gated HERMETICALLY by selfcheck/validate_disc014_check.py via the fixture's --local-spec-urls loopback mode (+ --break-spec-url mutant).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-001",
@@ -270,7 +294,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L438-L439. Header-level requirement, not a body-schema constraint. Oracle: ProtocolTest.test_version_negotiation sends the UCP-Agent header on requests. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — the MUST binds the PLATFORM's request authoring, not the business under test (suite-wide policy F2: no merchant-rejection checks for requester header MUSTs; precedent CHK-046/DISC-006@2026-04-08). Exemption candidate."
+      "notes": "Quote spans L438-L439. Header-level requirement, not a body-schema constraint. Oracle: ProtocolTest.test_version_negotiation sends the UCP-Agent header on requests. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — the MUST binds the PLATFORM's request authoring, not the business under test (suite-wide policy F2: no merchant-rejection checks for requester header MUSTs; precedent CHK-046/DISC-006@2026-04-08). Exemption candidate.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-002",
@@ -288,7 +314,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "UCP-Agent header carries profile=\"...\" (and version=\"...\"). Oracle: ProtocolTest.test_version_negotiation sets headers['UCP-Agent'] = 'profile=\"...\"; version=\"2026-01-23\"'. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — RFC 8941 header syntax is authored by the platform; policy F2 (precedent CHK-046@2026-04-08). Exemption candidate."
+      "notes": "UCP-Agent header carries profile=\"...\" (and version=\"...\"). Oracle: ProtocolTest.test_version_negotiation sets headers['UCP-Agent'] = 'profile=\"...\"; version=\"2026-01-23\"'. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — RFC 8941 header syntax is authored by the platform; policy F2 (precedent CHK-046@2026-04-08). Exemption candidate.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-004",
@@ -306,7 +334,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L479-L480. Oracle: ProtocolTest.test_version_negotiation includes UCP-Agent header on every checkout request. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — profile-URI advertisement is the platform's duty; policy F2 (precedent DISC-006@2026-04-08). Exemption candidate."
+      "notes": "Quote spans L479-L480. Oracle: ProtocolTest.test_version_negotiation includes UCP-Agent header on every checkout request. RECLASSIFIED testable->manual (2026-07-03): REQUESTER-BOUND — profile-URI advertisement is the platform's duty; policy F2 (precedent DISC-006@2026-04-08). Exemption candidate.",
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-005",
@@ -324,7 +354,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Optional platform behavior. Quote spans L481-L482."
+      "notes": "Optional platform behavior. Quote spans L481-L482.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-006",
@@ -342,7 +374,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "01-23 vs 04-08 delta: 01-23 only SHOULDs caching per cache-control directives; it does NOT impose the 04-08 HTTPS/no-redirect/explicit-Cache-Control profile-fetch rules. Platform-side caching behavior; not in suite."
+      "notes": "01-23 vs 04-08 delta: 01-23 only SHOULDs caching per cache-control directives; it does NOT impose the 04-08 HTTPS/no-redirect/explicit-Cache-Control profile-fetch rules. Platform-side caching behavior; not in suite.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-007",
@@ -360,7 +394,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L484-L485. Cross-field origin check, not schema-expressible; platform-side."
+      "notes": "Quote spans L484-L485. Cross-field origin check, not schema-expressible; platform-side.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "NEG-008",
@@ -378,7 +414,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L486-L487. Platform-side schema resolution before requests."
+      "notes": "Quote spans L486-L487. Platform-side schema resolution before requests.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "NEG-009",
@@ -396,7 +434,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L491-L493. Business-side receiver behavior; not directly asserted (the suite's profile=\"...\" placeholder is non-resolvable)."
+      "notes": "Quote spans L491-L493. Business-side receiver behavior; not directly asserted (the suite's profile=\"...\" placeholder is non-resolvable).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-010",
@@ -414,7 +454,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L494-L495. Receiver-side negotiation algorithm; not schema-checkable."
+      "notes": "Quote spans L494-L495. Receiver-side negotiation algorithm; not schema-checkable.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-011",
@@ -432,7 +474,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Orphaned-extension pruning step of the intersection algorithm. Receiver-side."
+      "notes": "Orphaned-extension pruning step of the intersection algorithm. Receiver-side.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-012",
@@ -450,7 +494,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L498-L501 (ucp.version + ucp.capabilities). Response-envelope requirement; checkout/order response schemas carry the ucp metadata. Not directly asserted by the discovery/negotiation tests."
+      "notes": "Quote spans L498-L501 (ucp.version + ucp.capabilities). Response-envelope requirement; checkout/order response schemas carry the ucp metadata. Not directly asserted by the discovery/negotiation tests.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-013",
@@ -468,7 +514,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "01-23 vs 04-08 delta: the prose error example uses status \"requires_escalation\" + messages[].code \"version_unsupported\" (severity requires_buyer_input), but the conformance suite asserts the HTTP status is 400. Oracle: ProtocolTest.test_version_negotiation posts an incompatible UCP-Agent version and asserts 400."
+      "notes": "01-23 vs 04-08 delta: the prose error example uses status \"requires_escalation\" + messages[].code \"version_unsupported\" (severity requires_buyer_input), but the conformance suite asserts the HTTP status is 400. Oracle: ProtocolTest.test_version_negotiation posts an incompatible UCP-Agent version and asserts 400.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-014",
@@ -486,7 +534,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: ProtocolTest.test_version_negotiation (compatible version -> 200/201; incompatible -> 400)."
+      "notes": "Oracle: ProtocolTest.test_version_negotiation (compatible version -> 200/201; incompatible -> 400).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-015",
@@ -504,7 +554,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L1155-L1156. Oracle: ProtocolTest.test_version_negotiation asserts compatible version 2026-01-23 -> [200,201]."
+      "notes": "Quote spans L1155-L1156. Oracle: ProtocolTest.test_version_negotiation asserts compatible version 2026-01-23 -> [200,201].",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-016",
@@ -522,7 +574,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L1157-L1158 (`version_unsupported` error). 01-23 vs 04-08 delta: prose maps this to status requires_escalation + code version_unsupported; the suite maps version_unsupported to HTTP 400. Oracle: ProtocolTest.test_version_negotiation posts version 2099-01-01 and asserts 400."
+      "notes": "Quote spans L1157-L1158 (`version_unsupported` error). 01-23 vs 04-08 delta: prose maps this to status requires_escalation + code version_unsupported; the suite maps version_unsupported to HTTP 400. Oracle: ProtocolTest.test_version_negotiation posts version 2099-01-01 and asserts 400.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-017",
@@ -540,7 +594,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Quote spans L1159-L1160. ucp.version is required by ucp.json base (L23/L54) on the response envelope. Not directly asserted by the negotiation test (which checks status codes), so official_oracle=false."
+      "notes": "Quote spans L1159-L1160. ucp.version is required by ucp.json base (L23/L54) on the response envelope. Not directly asserted by the negotiation test (which checks status codes), so official_oracle=false.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "NEG-018",
@@ -558,7 +614,9 @@
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Transport-security requirement, verifiable at the connection layer not via JSON-Schema. The conformance suite runs against a local test client (http) so it does not assert HTTPS."
+      "notes": "Transport-security requirement, verifiable at the connection layer not via JSON-Schema. The conformance suite runs against a local test client (http) so it does not assert HTTPS.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-019",
@@ -576,7 +634,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "HTTP header requirement; not a body-schema construct. Not directly asserted by the negotiation/discovery tests."
+      "notes": "HTTP header requirement; not a body-schema construct. Not directly asserted by the negotiation/discovery tests.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "NEG-020",
@@ -594,7 +654,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L1030-L1031. Oracle: ProtocolTest.test_discovery uses GET /.well-known/ucp; test_version_negotiation uses POST for checkout creation."
+      "notes": "Quote spans L1030-L1031. Oracle: ProtocolTest.test_discovery uses GET /.well-known/ucp; test_version_negotiation uses POST for checkout creation.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "NEG-021",
@@ -612,7 +674,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Quote spans L1032-L1033. Oracle: ProtocolTest.test_discovery asserts 200; test_version_negotiation asserts [200,201] and 400."
+      "notes": "Quote spans L1032-L1033. Oracle: ProtocolTest.test_discovery asserts 200; test_version_negotiation asserts [200,201] and 400.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ],
   "notes": [

@@ -22,7 +22,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-002",
@@ -44,7 +46,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-003",
@@ -66,7 +70,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-004",
@@ -88,7 +94,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound"
     },
     {
       "id": "NEG-005",
@@ -110,7 +118,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ]
 }

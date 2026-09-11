@@ -1278,11 +1278,13 @@
   "clock_tier": "pin-only"
  },
  "OVR-011": {
-  "class": "client-bound",
+  "class": "needs-target-capability",
   "versions": [
    "2026-04-08"
   ],
-  "reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Businesses MUST include only capabilities compatible with the negotiated protocol version in their response; a capability dependin \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement.",
+  "role": "business",
+  "reason": "party: the Business (overview.md L?? 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response'). observable: only against a target that declares a capability whose version is INCOMPATIBLE with the negotiated ucp.version and then serves a response; no golden or reference target declares such a capability, so the row cannot be graded today. why-not-now: re-classed 2026-09-11 (D2-08) from `client-bound` \u2014 that class asserted the row binds the platform, but the text binds the Business (role: business; it was also in the retired NOT_AGENT_BOUND list, so it sat in NEITHER lane); it stays EXEMPT so the 2026-04-08 coverage lock holds, in exactly one lane (merchant).",
+  "converts_when": "D3-03 (version projection golden serving a version-incompatible capability) or a D3-26-class host declaring one",
   "review_by": "2026-10-10",
   "spec_pin": "a2d8bf0b",
   "clock_tier": "pin-only"

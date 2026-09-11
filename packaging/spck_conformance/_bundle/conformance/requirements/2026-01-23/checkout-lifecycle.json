@@ -19,7 +19,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Operation/verb/endpoint binding from the REST operations table; keyword normalized to MUST. Oracle: CheckoutLifecycleTest.test_create_checkout asserts 200/201 with a checkout id."
+      "notes": "Operation/verb/endpoint binding from the REST operations table; keyword normalized to MUST. Oracle: CheckoutLifecycleTest.test_create_checkout asserts 200/201 with a checkout id.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-002",
@@ -37,7 +39,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verb/endpoint binding. Oracle: CheckoutLifecycleTest.test_get_checkout asserts 200 and returns the same id."
+      "notes": "Verb/endpoint binding. Oracle: CheckoutLifecycleTest.test_get_checkout asserts 200 and returns the same id.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-003",
@@ -55,7 +59,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verb=PUT enforces full-replacement semantics. Oracle: CheckoutLifecycleTest.test_update_checkout asserts 200."
+      "notes": "Verb=PUT enforces full-replacement semantics. Oracle: CheckoutLifecycleTest.test_update_checkout asserts 200.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-004",
@@ -73,7 +79,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: CheckoutLifecycleTest.test_complete_checkout asserts 200, status 'completed', and order present."
+      "notes": "Oracle: CheckoutLifecycleTest.test_complete_checkout asserts 200, status 'completed', and order present.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-005",
@@ -91,7 +99,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: CheckoutLifecycleTest.test_cancel_checkout asserts 200 and status 'canceled'."
+      "notes": "Oracle: CheckoutLifecycleTest.test_cancel_checkout asserts 200 and status 'canceled'.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-006",
@@ -109,7 +119,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "REQUIRED normalized to MUST. Full-replacement (PUT) semantics are behavioral on the receiver; a dropped field being lost is only observable against a stateful receiver, not via base schema. Restated in checkout-rest.md L172-173 'Each PUT replaces the entire session'."
+      "notes": "REQUIRED normalized to MUST. Full-replacement (PUT) semantics are behavioral on the receiver; a dropped field being lost is only observable against a stateful receiver, not via base schema. Restated in checkout-rest.md L172-173 'Each PUT replaces the entire session'.",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CHK-007",
@@ -127,7 +139,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lower-case 'must' in prose; normative. Reinforces CHK-006 full-replacement semantics."
+      "notes": "Lower-case 'must' in prose; normative. Reinforces CHK-006 full-replacement semantics.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-008",
@@ -145,7 +159,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Descriptive 'is' normalized to MUST. order is not in base required[]; presence-on-complete is conditional, so schema_enforced=false. Oracle: CheckoutLifecycleTest.test_complete_checkout asserts order, order.id, order.permalink_url present."
+      "notes": "Descriptive 'is' normalized to MUST. order is not in base required[]; presence-on-complete is conditional, so schema_enforced=false. Oracle: CheckoutLifecycleTest.test_complete_checkout asserts order, order.id, order.permalink_url present.",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CHK-009",
@@ -181,7 +197,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: CheckoutLifecycleTest.test_cancel_is_idempotent / test_cannot_cancel_completed_checkout assert non-200 (the suite treats this as MUST-not-200, stricter than the spec's SHOULD)."
+      "notes": "Oracle: CheckoutLifecycleTest.test_cancel_is_idempotent / test_cannot_cancel_completed_checkout assert non-200 (the suite treats this as MUST-not-200, stricter than the spec's SHOULD).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-011",
@@ -217,7 +235,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Stated descriptively (no MUST keyword) but normative; keyword normalized to MUST. State-transition legality is prose-only, not schema-enforced. Oracle: CheckoutLifecycleTest.test_cannot_update_completed_checkout / test_cannot_cancel_completed_checkout / test_complete_is_idempotent assert non-200 on mutating a completed checkout."
+      "notes": "Stated descriptively (no MUST keyword) but normative; keyword normalized to MUST. State-transition legality is prose-only, not schema-enforced. Oracle: CheckoutLifecycleTest.test_cannot_update_completed_checkout / test_cannot_cancel_completed_checkout / test_complete_is_idempotent assert non-200 on mutating a completed checkout.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-013",
@@ -235,7 +255,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema enum enforces status values. Identical six-value enum to 2026-04-08. Terminal states completed/canceled per lifecycle diagram (checkout.md L86-93). Oracle: lifecycle tests assert status 'canceled'/'completed'."
+      "notes": "Schema enum enforces status values. Identical six-value enum to 2026-04-08. Terminal states completed/canceled per lifecycle diagram (checkout.md L86-93). Oracle: lifecycle tests assert status 'canceled'/'completed'.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-014",
@@ -253,7 +275,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema required[] on the response object; identical set to 2026-04-08. These are response-required; on request bodies several are ucp_request:omit (see CHK-016..020). links is mandatory for legal compliance."
+      "notes": "Schema required[] on the response object; identical set to 2026-04-08. These are response-required; on request bodies several are ucp_request:omit (see CHK-016..020). links is mandatory for legal compliance.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CHK-015",
@@ -271,7 +295,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Defines status semantics and authority (business-set). Keyword normalized to MUST from descriptive prose."
+      "notes": "Defines status semantics and authority (business-set). Keyword normalized to MUST from descriptive prose.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-016",
@@ -289,7 +315,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Per-operation request requiredness via the ucp_request annotation on id; NOTE 2026-01-23 differs from 2026-04-08 where top-level id is a flat ucp_request:'omit'. Here id is required on update (id-in-URL plus body). ucp_request is a UCP annotation, not standard JSON-Schema, so a plain validator would not enforce it; schema_enforced=false."
+      "notes": "Per-operation request requiredness via the ucp_request annotation on id; NOTE 2026-01-23 differs from 2026-04-08 where top-level id is a flat ucp_request:'omit'. Here id is required on update (id-in-URL plus body). ucp_request is a UCP annotation, not standard JSON-Schema, so a plain validator would not enforce it; schema_enforced=false.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-017",
@@ -307,7 +335,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): the OFFICIAL resolver arbitrates ucp_request annotations — the ucp property MUST be absent from every request-op resolution and present on the response resolution (RootCheck, schema_check_01_11_01_23.py)."
+      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): the OFFICIAL resolver arbitrates ucp_request annotations — the ucp property MUST be absent from every request-op resolution and present on the response resolution (RootCheck, schema_check_01_11_01_23.py).",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-018",
@@ -325,7 +355,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Per-operation request requiredness via ucp_request; not enforced by a plain validator against base checkout.json (only the response required[] is). Needs a UCP request-profile validator."
+      "notes": "Per-operation request requiredness via ucp_request; not enforced by a plain validator against base checkout.json (only the response required[] is). Needs a UCP request-profile validator.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-019",
@@ -343,7 +375,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "currency is response-required (in required[]) but omitted on all request operations: the merchant determines currency from address/context/geo IP. In 2026-04-08 currency carries a flat ucp_request:'omit'; here it is the explicit per-operation create/update/complete omit form, equivalent effect. ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (currency absent from all request-op resolutions, present on response; RootCheck, schema_check_01_11_01_23.py)."
+      "notes": "currency is response-required (in required[]) but omitted on all request operations: the merchant determines currency from address/context/geo IP. In 2026-04-08 currency carries a flat ucp_request:'omit'; here it is the explicit per-operation create/update/complete omit form, equivalent effect. ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (currency absent from all request-op resolutions, present on response; RootCheck, schema_check_01_11_01_23.py).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-020",
@@ -361,7 +395,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Covers status(L74), totals(L91), messages(L99), links(L107), expires_at(L113), continue_url(L119), order(L132) — all ucp_request:omit. Annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (one RootCheck per response-only property; schema_check_01_11_01_23.py)."
+      "notes": "Covers status(L74), totals(L91), messages(L99), links(L107), expires_at(L113), continue_url(L119), order(L132) — all ucp_request:omit. Annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (one RootCheck per response-only property; schema_check_01_11_01_23.py).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-021",
@@ -379,7 +415,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Payment optional on create (matches prose L42-45) and update; required on complete. Per-operation requiredness via ucp_request, not base-schema-enforced. Oracle (CheckoutLifecycleTest.test_complete_checkout) sends a payment payload on complete but does not assert rejection-on-missing."
+      "notes": "Payment optional on create (matches prose L42-45) and update; required on complete. Per-operation requiredness via ucp_request, not base-schema-enforced. Oracle (CheckoutLifecycleTest.test_complete_checkout) sends a payment payload on complete but does not assert rejection-on-missing.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-022",
@@ -415,7 +453,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Applies to buyer(L48) and context(L56). All buyer fields optional, enabling progressive build (checkout-rest.md L173-175). NOTE: 2026-01-23 base checkout.json has a context field (and NO signals/attribution fields, unlike 2026-04-08)."
+      "notes": "Applies to buyer(L48) and context(L56). All buyer fields optional, enabling progressive build (checkout-rest.md L173-175). NOTE: 2026-01-23 base checkout.json has a context field (and NO signals/attribution fields, unlike 2026-04-08).",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-024",
@@ -433,7 +473,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "context is request-only (optional on create/update; ucp_response:omit). Businesses SHOULD use these provisional hints when authoritative data is absent (checkout.md L369-372). 2026-01-23 has context where 2026-04-08 had signals/attribution."
+      "notes": "context is request-only (optional on create/update; ucp_response:omit). Businesses SHOULD use these provisional hints when authoritative data is absent (checkout.md L369-372). 2026-01-23 has context where 2026-04-08 had signals/attribution.",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-025",
@@ -451,7 +493,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence. The schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation."
+      "notes": "Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence. The schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-026",
@@ -469,7 +513,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "SHOULD; prose-only."
+      "notes": "SHOULD; prose-only.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-027",
@@ -505,7 +551,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema declares continue_url format:uri but does not enforce absolute-HTTPS-only; format:uri also accepts http and relative refs in most validators, so schema_enforced=false. Needs a receiver returning continue_url."
+      "notes": "Schema declares continue_url format:uri but does not enforce absolute-HTTPS-only; format:uri also accepts http and relative refs in most validators, so schema_enforced=false. Needs a receiver returning continue_url.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-029",
@@ -541,7 +589,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Permissive option."
+      "notes": "Permissive option.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-031",
@@ -559,7 +609,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Permalink is a REST-specific construct."
+      "notes": "Permalink is a REST-specific construct.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-032",
@@ -577,7 +629,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-025/CHK-038. Not a business-response wire shape."
+      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-025/CHK-038. Not a business-response wire shape.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CHK-033",
@@ -595,7 +649,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side permissive."
+      "notes": "Platform-side permissive.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-034",
@@ -613,7 +669,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior."
+      "notes": "Platform-side behavior.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-035",
@@ -631,7 +689,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Side effect outside the HTTP response; not observable via the API surface."
+      "notes": "Side effect outside the HTTP response; not observable via the API surface.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-036",
@@ -649,7 +709,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Subjective quality requirement."
+      "notes": "Subjective quality requirement.",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-037",
@@ -667,7 +729,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Determinism across repeated calls is only weakly observable; a partial check would require replaying identical requests. No single-response oracle."
+      "notes": "Determinism across repeated calls is only weakly observable; a partial check would require replaying identical requests. No single-response oracle.",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CHK-038",
@@ -685,7 +749,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Duplicate of CHK-025 under Guidelines; kept for coverage."
+      "notes": "Duplicate of CHK-025 under Guidelines; kept for coverage.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-039",
@@ -703,7 +769,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "VERSION DELTA: 2026-01-23 requires a message with severity 'escalation'; 2026-04-08 instead requires severity of 'requires_buyer_input' or 'requires_buyer_review'. Cross-field conditional (status vs messages[].severity); not expressible in base checkout.json. Needs a receiver that emits requires_escalation."
+      "notes": "VERSION DELTA: 2026-01-23 requires a message with severity 'escalation'; 2026-04-08 instead requires severity of 'requires_buyer_input' or 'requires_buyer_review'. Cross-field conditional (status vs messages[].severity); not expressible in base checkout.json. Needs a receiver that emits requires_escalation.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-040",
@@ -721,7 +789,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "SHOULD; restates CHK-026."
+      "notes": "SHOULD; restates CHK-026.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-041",
@@ -739,7 +809,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; status-value semantics for 'incomplete'."
+      "notes": "Platform-side behavior; status-value semantics for 'incomplete'.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-042",
@@ -757,7 +829,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; status-value semantics."
+      "notes": "Platform-side behavior; status-value semantics.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-043",
@@ -775,7 +849,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Defines the only status from which autonomous Complete is permitted (lifecycle diagram L77-89: Complete edge originates at ready_for_complete). Keyword 'can' normalized to MAY. Permission, not enforceable on a single response."
+      "notes": "Defines the only status from which autonomous Complete is permitted (lifecycle diagram L77-89: Complete edge originates at ready_for_complete). Keyword 'can' normalized to MAY. Permission, not enforceable on a single response.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-044",
@@ -793,7 +869,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Status-value semantics; non-terminal transitional state. Descriptive, no RFC2119 keyword."
+      "notes": "Status-value semantics; non-terminal transitional state. Descriptive, no RFC2119 keyword.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-045",
@@ -829,7 +907,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; defines canceled as terminal (can occur from any state per diagram L91-93)."
+      "notes": "Platform-side behavior; defines canceled as terminal (can occur from any state per diagram L91-93).",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-047",
@@ -847,7 +927,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Two SHOULDs (business + platform) about error-stack ordering."
+      "notes": "Two SHOULDs (business + platform) about error-stack ordering.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-048",
@@ -865,7 +947,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business discretion on post-terminal Get behavior; expires_at default TTL 6h (schema L112)."
+      "notes": "Business discretion on post-terminal Get behavior; expires_at default TTL 6h (schema L112).",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-049",
@@ -883,7 +967,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cross-system consistency recommendation."
+      "notes": "Cross-system consistency recommendation.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-050",
@@ -901,7 +987,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "JSON well-formedness is a parse-level check, upstream of schema validation."
+      "notes": "JSON well-formedness is a parse-level check, upstream of schema validation.",
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CHK-051",
@@ -919,7 +1007,9 @@
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Transport-layer check; not observable in JSON body. browser_capable=false (TLS-version inspection not available from browser fetch)."
+      "notes": "Transport-layer check; not observable in JSON body. browser_capable=false (TLS-version inspection not available from browser fetch).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-052",
@@ -937,7 +1027,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) — the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
+      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) — the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "IDM-001",
@@ -955,7 +1047,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "State-modifying ops (create/update/complete/cancel) should accept Idempotency-Key. Oracle: IdempotencyTest.test_idempotency_create / test_idempotency_update / test_idempotency_complete / test_idempotency_cancel exercise the key across all four mutating operations."
+      "notes": "State-modifying ops (create/update/complete/cancel) should accept Idempotency-Key. Oracle: IdempotencyTest.test_idempotency_create / test_idempotency_update / test_idempotency_complete / test_idempotency_cancel exercise the key across all four mutating operations.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "IDM-002",
@@ -973,7 +1067,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "24-hour retention window is not directly assertable in the test suite (no time-travel); the official tests only validate same-session duplicate behavior. needs-receiver."
+      "notes": "24-hour retention window is not directly assertable in the test suite (no time-travel); the official tests only validate same-session duplicate behavior. needs-receiver.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "IDM-003",
@@ -991,7 +1087,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: IdempotencyTest.test_idempotency_create / test_idempotency_update / test_idempotency_complete / test_idempotency_cancel send the same request twice with the same key and assert response2.status_code == response1.status_code and response2.json() == response1.json() (identical cached body)."
+      "notes": "Oracle: IdempotencyTest.test_idempotency_create / test_idempotency_update / test_idempotency_complete / test_idempotency_cancel send the same request twice with the same key and assert response2.status_code == response1.status_code and response2.json() == response1.json() (identical cached body).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "IDM-004",
@@ -1009,7 +1107,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: IdempotencyTest.test_idempotency_create reuses the key with currency='EUR' and asserts 409; test_idempotency_update reuses with a changed line_items quantity and asserts 409; test_idempotency_complete reuses with a changed credential token and asserts 409. (test_idempotency_cancel has no body, so no conflict case.)"
+      "notes": "Oracle: IdempotencyTest.test_idempotency_create reuses the key with currency='EUR' and asserts 409; test_idempotency_update reuses with a changed line_items quantity and asserts 409; test_idempotency_complete reuses with a changed credential token and asserts 409. (test_idempotency_cancel has no body, so no conflict case.)",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "IDM-005",
@@ -1027,7 +1127,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Defines the 409 status semantics referenced by the Idempotency-Key rules (IDM-004) and by terminal-state conflicts. Keyword normalized to MUST from the status-code table. Oracle: IdempotencyTest 409 assertions; also CheckoutLifecycleTest terminal-state non-200 assertions."
+      "notes": "Defines the 409 status semantics referenced by the Idempotency-Key rules (IDM-004) and by terminal-state conflicts. Keyword normalized to MUST from the status-code table. Oracle: IdempotencyTest 409 assertions; also CheckoutLifecycleTest terminal-state non-200 assertions.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ],
   "notes": [

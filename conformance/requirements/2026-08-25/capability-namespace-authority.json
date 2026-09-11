@@ -20,7 +20,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "NEW at 08-25: capability.json's 04-08 business_schema only required the base entity fields (no schema requirement); 08-25 adds `{\"required\": [\"schema\"]}` so platforms can fetch and compose it during negotiation. platform_schema already required both spec+schema at 04-08 (unchanged)."
+   "notes": "NEW at 08-25: capability.json's 04-08 business_schema only required the base entity fields (no schema requirement); 08-25 adds `{\"required\": [\"schema\"]}` so platforms can fetch and compose it during negotiation. platform_schema already required both spec+schema at 04-08 (unchanged).",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-003",
@@ -38,7 +40,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "New explicit carve-out: at 04-08 both spec and schema origins were required to match the namespace authority; at 08-25 only `schema` is authority-bound."
+   "notes": "New explicit carve-out: at 04-08 both spec and schema origins were required to match the namespace authority; at 08-25 only `schema` is authority-bound.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-004",
@@ -56,7 +60,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Step 1 of the new Derivation algorithm; explicitly rules out substring matching, citing the `https://ucp.dev@evil.example/x.json` bypass."
+   "notes": "Step 1 of the new Derivation algorithm; explicitly rules out substring matching, citing the `https://ucp.dev@evil.example/x.json` bypass.",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CAP-005",
@@ -74,7 +80,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Step 2 of the Derivation algorithm."
+   "notes": "Step 2 of the Derivation algorithm.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-006",
@@ -92,7 +100,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Step 3 of the Derivation algorithm."
+   "notes": "Step 3 of the Derivation algorithm.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-007",
@@ -110,7 +120,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Step 4 of the Derivation algorithm. The label-boundary requirement (a literal `.` immediately after authority_prefix) specifically defeats a textual-prefix bypass like `com.example` matching `com.examplecorp.*` (worked counter-example at overview/index.md's table, 'reject' row for com.examplecorp.pay)."
+   "notes": "Step 4 of the Derivation algorithm. The label-boundary requirement (a literal `.` immediately after authority_prefix) specifically defeats a textual-prefix bypass like `com.example` matching `com.examplecorp.*` (worked counter-example at overview/index.md's table, 'reject' row for com.examplecorp.pay).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-008",
@@ -128,7 +140,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "New explicit warning: the check does NOT consult the Public Suffix List, so co-tenants under a shared suffix (github.io, object storage, app platforms) would otherwise satisfy the same prefix match."
+   "notes": "New explicit warning: the check does NOT consult the Public Suffix List, so co-tenants under a shared suffix (github.io, object storage, app platforms) would otherwise satisfy the same prefix match.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "CAP-009",
@@ -146,7 +160,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Enforcement rule. Platform-side, but the Business-side half (never declaring a mismatched schema URL) is testable directly against a captured profile."
+   "notes": "Enforcement rule. Platform-side, but the Business-side half (never declaring a mismatched schema URL) is testable directly against a captured profile.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CAP-010",
@@ -164,7 +180,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "New explicit no-redirect rule for schema fetches (closes a potential authority-binding bypass via a same-origin-looking URL that 3xx-redirects elsewhere)."
+   "notes": "New explicit no-redirect rule for schema fetches (closes a potential authority-binding bypass via a same-origin-looking URL that 3xx-redirects elsewhere).",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "CAP-011",
@@ -182,7 +200,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Symmetric application of the check on the business side."
+   "notes": "Symmetric application of the check on the business side.",
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "CAP-012",
@@ -200,7 +220,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Security-relevant boundary clarifier tying the new authority-binding algorithm to the (pre-existing) SSRF/DNS-rebinding fetch-safety requirements; prevents conflating 'this hostname is authorized' with 'this address is safe to fetch'."
+   "notes": "Security-relevant boundary clarifier tying the new authority-binding algorithm to the (pre-existing) SSRF/DNS-rebinding fetch-safety requirements; prevents conflating 'this hostname is authorized' with 'this address is safe to fetch'.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   }
  ]
 }

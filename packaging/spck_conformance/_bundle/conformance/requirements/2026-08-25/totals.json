@@ -22,7 +22,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "TOT-002",
@@ -44,7 +46,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "TOT-004",
@@ -66,7 +70,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-005",
@@ -88,7 +94,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-006",
@@ -110,7 +118,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-007",
@@ -132,7 +142,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "TOT-008",
@@ -154,7 +166,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "TOT-010",
@@ -177,7 +191,9 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "TOT-011",
@@ -199,7 +215,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "TOT-012",
@@ -221,7 +239,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "TOT-014",
@@ -243,7 +263,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-015",
@@ -265,7 +287,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-017",
@@ -287,7 +311,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-018",
@@ -309,7 +335,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "TOT-019",
@@ -331,7 +359,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-020",
@@ -353,7 +383,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "TOT-021",
@@ -375,7 +407,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   }
  ]
 }

@@ -171,9 +171,14 @@ def mutate(resp, mut):
 # ---- check spec -------------------------------------------------------------
 class Check:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
-                 versions=None, req_ids_map=None):
+                 versions=None, req_ids_map=None, transport="rest"):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
+        # transport: the wire this check drives (rest | mcp | a2a | embedded) — engine
+        # checks are REST probes unless a module says otherwise; read by the per-
+        # transport coverage view (matrix.py --transport, D2-08) the same way MCheck's
+        # `transport` attribute is.
+        self.transport = transport
         # versions: spec versions this check's CITATIONS apply to (None = every
         # version where the id is a MUST). req_ids_map: {version: [ids]} overriding
         # req_ids at versions whose register renumbered the same requirement (the
