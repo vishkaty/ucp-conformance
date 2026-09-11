@@ -522,10 +522,10 @@ def _discovery_live_slot(version):
     (the sampled profiles are graded against the 2026-08-25 rows)."""
     if version != "2026-08-25":
         return None
-    try:
-        d = json.load(open(os.path.join(HERE, "discovery_reach.json")))
-    except Exception:
+    path = os.path.join(CONF, "coverage", "discovery_reach.json")   # W1 integration: was `HERE` (undefined here)
+    if not os.path.exists(path):
         return None
+    d = json.load(open(path))          # a malformed record is a loud failure, never a silent None
     if not d.get("stores"):
         return None
     return {"stores": d["stores"], "as_of": d.get("as_of")}
@@ -560,6 +560,10 @@ def export_json():
                "live-wire": "kill-tested on the wire against at least one "
                             "independently-authored server (flower golden / node "
                             "reference — see `reach` per row)",
+               "discovery-live": "a real store's published /.well-known/ucp document, sampled READ-ONLY on the owner's "
+                                 "machine under conformance/ci/probe_policy.json and graded offline (D4-08, decision 4); "
+                                 "counts only with >= 3 distinct domains within 30 days — one read of one public document, "
+                                 "never promoted to live-wire",
                "fixture-schema": "our fixture validated through the OFFICIAL "
                                  "ucp-schema oracle (spec-anchored, not circular)",
                "fixture-crypto": "self-signed crypto primitive self-test (e.g. the "
