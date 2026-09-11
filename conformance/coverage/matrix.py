@@ -761,6 +761,7 @@ def selftest():
         bad += 0 if ok else 1
 
     bad += test_mandatory_filter()
+    bad += test_roles_partition()
 
     # production sanity: today every pinned+registered version must classify
     # building/live (never unregistered) — proves the real export wires the same
@@ -829,6 +830,52 @@ def test_mandatory_filter():
           f"mandatory of 5 synthetic rows (MUST/MUST NOT/REQUIRED/SHALL/SHOULD)"
           + ("" if ok else f"  <-- expected 4 {want}, got {got}"))
     return 0 if ok else 1
+
+
+def test_roles_partition():
+    """D2-08 (PLAN-v3 §2.4/§2.5 / A4): the per-role denominators PARTITION the
+    MUSTs — `merchant + agent − both + other == musts` (both-role rows sit in both
+    lanes; handler rows are merchant-lane and host rows agent-lane per decision 27;
+    spec-author rows are `other`) — on a synthetic register through the SAME
+    `roles_block()` the export uses, and on the real export."""
+    synthetic = [
+        {"id": "ZZZ-001", "keyword": "MUST", "role": "business"},
+        {"id": "ZZZ-002", "keyword": "MUST", "role": "platform"},
+        {"id": "ZZZ-003", "keyword": "MUST", "role": "both"},
+        {"id": "ZZZ-004", "keyword": "MUST", "role": "handler"},
+        {"id": "ZZZ-005", "keyword": "MUST", "role": "host"},
+        {"id": "ZZZ-006", "keyword": "MUST", "role": "spec-author"},
+    ]
+    status = {r["id"]: "gap" for r in synthetic}
+    try:
+        rb = roles_block(synthetic, status, agent_axis=None)
+        s = rb["summary"]
+        ok = (s["merchant"], s["agent"], s["both"], s["other"]) == (3, 3, 1, 1) and \
+            s["merchant"] + s["agent"] - s["both"] + s["other"] == 6 and \
+            rb["merchant"]["musts"] == 3 and rb["agent"]["musts"] == 3 and \
+            rb["other"]["by_role"] == {"spec-author": 1}
+        detail = repr(rb)[:200]
+    except NameError as e:
+        ok, detail = False, f"NameError: {e}"
+    print(f"  {'✓' if ok else '✗'} test_roles_partition: synthetic merchant 3 + agent 3 − both 1 "
+          f"+ other 1 == 6 MUSTs" + ("" if ok else f"  <-- {detail}"))
+    bad = 0 if ok else 1
+    fresh = export_json()
+    for v, e in fresh["versions"].items():
+        rb = e.get("roles")
+        if not rb:
+            print(f"  ✗ test_roles_partition: {v} export has no roles block")
+            bad += 1
+            continue
+        s = rb["summary"]
+        tot = s["merchant"] + s["agent"] - s["both"] + s["other"]
+        if tot != e["musts"]:
+            print(f"  ✗ test_roles_partition: {v} merchant {s['merchant']} + agent {s['agent']} − "
+                  f"both {s['both']} + other {s['other']} = {tot} != musts {e['musts']}")
+            bad += 1
+    if not bad:
+        print("  ✓ test_roles_partition: real export roles partition the MUSTs at every version")
+    return bad
 
 
 if __name__ == "__main__":

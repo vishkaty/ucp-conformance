@@ -231,8 +231,104 @@ def selftest():
           + ("" if ok else "  <-- expected ['ZZZ-011']"))
     bad += 0 if ok else 1
 
+    bad += _selftest_roles()
+
     print(f"\nverify_register selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
+
+
+def _selftest_roles():
+    """D2-08 (PLAN-v3 §2.5 / A4) kill-tests, hermetic (synthetic rows, no vendored I/O).
+
+    role fixture: every mandatory row carries `role` (enum) + `role_provenance`
+    (enum or review:<batch>); the agent-denominator lock and the roles agree BOTH
+    ways (a locked id is platform|both|host; a platform|both|host row is locked);
+    the review queue is empty; an agent CHECK grades only an agent-lane row (one-lane
+    rule); every register area is listed in _area_capabilities.json and every
+    capability it names exists in the vendored spec (RV1 #15); assign_roles' 7-row
+    fixture reproduces the expected roles and queues the 7th."""
+    import importlib.util
+    bad = 0
+    V = "2026-08-25"
+    def case(name, ok, detail=""):
+        print(f"  {'✓' if ok else '✗'} roles: {name}" + ("" if ok else f"  <-- {detail}"))
+        return 0 if ok else 1
+    rows = [{"id": "ZZZ-001", "keyword": "MUST", "versions": [V]},                       # no role
+            {"id": "ZZZ-002", "keyword": "MUST", "versions": [V], "role": "business",
+             "role_provenance": "subject"},                                             # business but locked
+            {"id": "ZZZ-003", "keyword": "MUST", "versions": [V], "role": "platform",
+             "role_provenance": "agent-lock"},                                          # platform, unlocked
+            {"id": "ZZZ-004", "keyword": "MUST", "versions": [V], "role": "wizard",
+             "role_provenance": "subject"},                                             # bad enum
+            {"id": "ZZZ-005", "keyword": "MUST", "versions": [V], "role": "both",
+             "role_provenance": "review:roles-2026-09"},                                # fine
+            {"id": "ZZZ-006", "keyword": "SHOULD", "versions": [V]}]                    # SHOULD: role optional
+    try:
+        errs = role_errors(rows, V, lock_ids={"ZZZ-002", "ZZZ-005"})
+    except NameError as e:
+        errs = f"NameError: {e}"
+    ok = isinstance(errs, list) and \
+        any("ZZZ-001" in e for e in errs) and any("ZZZ-002" in e for e in errs) and \
+        any("ZZZ-003" in e for e in errs) and any("ZZZ-004" in e for e in errs) and \
+        not any("ZZZ-005" in e or "ZZZ-006" in e for e in errs)
+    bad += case("row without role / business-but-locked / platform-but-unlocked / bad enum "
+                "each FAIL; a review:* both row and a SHOULD row pass", ok, repr(errs)[:200])
+    try:
+        q = queue_errors([{"id": "ZZZ-009", "heuristic": None}], V)
+        q0 = queue_errors([], V)
+    except NameError as e:
+        q, q0 = f"NameError: {e}", None
+    bad += case("non-empty role_review_queue -> FAIL; empty -> ok",
+                isinstance(q, list) and len(q) == 1 and q0 == [], repr(q)[:200])
+    try:
+        le = lane_errors([{"id": "ZZZ-010", "keyword": "MUST", "versions": [V], "role": "business"},
+                          {"id": "ZZZ-011", "keyword": "MUST", "versions": [V], "role": "platform"},
+                          {"id": "ZZZ-012", "keyword": "MUST", "versions": [V], "role": "both"}],
+                         V, agent_check_ids={"ZZZ-010", "ZZZ-011", "ZZZ-012"})
+    except NameError as e:
+        le = f"NameError: {e}"
+    bad += case("agent CHECK on a business-only row -> FAIL (one-lane rule); platform/both ok",
+                isinstance(le, list) and [e for e in le if "ZZZ-010" in e] and
+                not [e for e in le if "ZZZ-011" in e or "ZZZ-012" in e], repr(le)[:200])
+    try:
+        ae = area_map_errors({"cart": "dev.ucp.shopping.cart", "overview": None,
+                              "orphan": "dev.ucp.shopping.nope"},
+                             register_areas={"cart", "overview", "loyalty"},
+                             spec_capabilities={"dev.ucp.shopping.cart"})
+    except NameError as e:
+        ae = f"NameError: {e}"
+    bad += case("area map: unlisted register area FAILS; capability absent from the vendored "
+                "spec FAILS; null (core) and a known capability pass",
+                isinstance(ae, list) and any("loyalty" in e for e in ae) and
+                any("dev.ucp.shopping.nope" in e for e in ae) and len(ae) == 2, repr(ae)[:200])
+    # assign_roles.py 7-row fixture (heuristic §A4: lock / NAB / client-bound / subject /
+    # direction / conflict-queue), imported from requirements/tools.
+    tool = ROOT / "conformance" / "requirements" / "tools" / "assign_roles.py"
+    if not tool.exists():
+        bad += case("assign_roles.py 7-row fixture", False, f"{tool.relative_to(ROOT)} absent")
+    else:
+        spec = importlib.util.spec_from_file_location("assign_roles", tool)
+        ar = importlib.util.module_from_spec(spec); spec.loader.exec_module(ar)
+        fx = [
+            {"id": "F-001", "keyword": "MUST", "quote": "Businesses MUST return the full resource."},
+            {"id": "F-002", "keyword": "MUST", "quote": "The Platform MUST send the entire object."},
+            {"id": "F-003", "keyword": "MUST", "quote": "Both the Platform and the Business MUST use HTTPS."},
+            {"id": "F-004", "keyword": "MUST", "quote": "Requests MUST carry an Idempotency-Key header."},
+            {"id": "F-005", "keyword": "MUST", "quote": "The response MUST include a `status` field."},
+            {"id": "F-006", "keyword": "MUST", "quote": "The payment handler MUST tokenize the credential."},
+            {"id": "F-007", "keyword": "MUST", "quote": "Platforms MUST cache the profile."},   # conflict: subject platform, not locked
+        ]
+        got = {r["id"]: ar.assign(r, lock_ids={"F-002"}, agent_extra=set(), nab=set(), cb=set())
+               for r in fx}
+        want = {"F-001": ("business", "subject", None), "F-002": ("platform", "agent-lock", None),
+                "F-003": ("both", "subject", None), "F-004": ("platform", "direction", None),
+                "F-005": ("business", "direction", None)}
+        ok = all(got[k][:2] == want[k][:2] and got[k][2] is None for k in want) \
+            and got["F-006"][0] == "handler" and got["F-006"][2] is not None \
+            and got["F-007"][2] is not None
+        bad += case("assign_roles 7-row fixture: 5 resolved as expected, handler + platform-"
+                    "unlocked conflict queued", ok, repr(got)[:300])
+    return bad
 
 
 if __name__ == "__main__":
