@@ -24,7 +24,9 @@ Exit 0 = `mcp: N/N run checks sound · K/K mutants killed · 0 unexplained`; 1 =
 2 = the golden is not reachable.
 """
 import argparse
+import ast
 import datetime
+import importlib
 import json
 import pathlib
 import sys
@@ -172,6 +174,38 @@ def selftest():
                               "mcp_error_http_status_200"} <= names, sorted(names))
     check("mutants: the battery-graded ordering row is NOT in this gate's set",
           "mcp_headers_after_verify" not in names)
+
+    # (g) the deferred-import contract of run(): every name run() pulls from a
+    # sibling module must exist TODAY. run() imports lazily (the gate is import-light
+    # when the golden is unreachable), so a cross-lane rename in merchant_checks /
+    # validate_merchant_checks cannot be caught by importing this module — it only
+    # fires when the gate actually runs against a live server. That is exactly how
+    # D1-10's `_skip_class` -> `merchant_checks.skip_class` move reached the merged
+    # tree red (W1 integration): every hermetic sweep stayed green and the full
+    # selftest failed with ImportError. This case pins the contract hermetically.
+    # The names are read out of run()'s own source, so the case cannot drift away
+    # from what the gate actually imports.
+    src = ast.parse(pathlib.Path(__file__).read_text())
+    run_fn = next(n for n in src.body
+                  if isinstance(n, ast.FunctionDef) and n.name == "run")
+    missing, deferred, unreachable = [], [], []
+    for node in ast.walk(run_fn):
+        mods = ([node.module] if isinstance(node, ast.ImportFrom) and node.module
+                else [a.name for a in node.names] if isinstance(node, ast.Import) else [])
+        for mod in mods:
+            try:
+                m = importlib.import_module(mod)
+            except ModuleNotFoundError:
+                # golden-side modules are not on the hermetic path; the live gate
+                # covers them. Never let that hide a missing engine-side name.
+                unreachable.append(mod)
+                continue
+            names = ([a.name for a in node.names]
+                     if isinstance(node, ast.ImportFrom) else [])
+            deferred += [f"{mod}.{n}" for n in names] or [mod]
+            missing += [f"{mod}.{n}" for n in names if not hasattr(m, n)]
+    check(f"run()'s {len(deferred)} deferred imports all resolve",
+          not missing, "missing: " + ", ".join(missing))
 
     # (f) the pinned file itself is well-formed against the live lock
     doc = json.loads(EXPECTED_SKIPS.read_text())
