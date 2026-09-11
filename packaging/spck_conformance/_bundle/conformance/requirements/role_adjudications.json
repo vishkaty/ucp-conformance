@@ -3058,6 +3058,13 @@
   },
   {
    "version": "2026-08-25",
+   "id": "CHK-038",
+   "role": "both",
+   "reason": "request-side schema constraint the Platform must satisfy (ucp_request: line_items required on create/update) AND the Business's validation enforces — a merchant check grades the rejection (checkout.create_requires_line_items, attributed at 2026-08-25 by D1-15); the D2-08 seed rule lock AND merchant-CHECK -> both applied at W1 integration, same ruling as the identical 2026-04-08 row (both, agent-lock)",
+   "requirement": "line_items is required on create and update requests and omitted on complete requests"
+  },
+  {
+   "version": "2026-08-25",
    "id": "CHK-045",
    "role": "business",
    "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",

@@ -930,8 +930,8 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "role": "platform",
-      "role_provenance": "agent-lock",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
       "normative_basis": "schema"
     },
     {

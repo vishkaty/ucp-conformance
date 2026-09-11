@@ -30,12 +30,14 @@
   "ERR-025": "D3-28: golden-0825 emits no info message on any route (enums.INFO unused) — needs the defects/behavior seam to surface one",
   "ERR-026": "D3-28: golden-0825 emits no info message on any route (enums.INFO unused) — needs the defects/behavior seam to surface one",
   "DISC-001": "D1-20: the 08-25 row broadens to every published artifact over HTTPS; the plain-HTTP gate golden cannot exercise a TLS probe (needs the TLS-fronted golden-0825 idiom) — post-host conversion",
-  "CHK-079": "D1-16b: D4-07 landed (seq_invariants I9 replay_cached / mismatch_409 / terminal_rejected are the single implementation) but the row binds the platform's fresh-key duty after a return to ready_for_complete; the business-side observable (a re-used key after the re-open is answered as the cached replay or 409, never a second order) is the W2 Row D1-16b builds on that I9 model — conversion moves with D1-16b, not D4-07"
+  "CHK-079": "D1-16b: D4-07 landed (seq_invariants I9 replay_cached / mismatch_409 / terminal_rejected are the single implementation) but the row binds the platform's fresh-key duty after a return to ready_for_complete; the business-side observable (a re-used key after the re-open is answered as the cached replay or 409, never a second order) is the W2 Row D1-16b builds on that I9 model — conversion moves with D1-16b, not D4-07",
+  "CHK-078": "D2-08: role platform (agent-lock) at 2026-08-25 — the sentence binds the Platform alone (retry identically, never a new key) and the coverage_gate lane rule forbids a merchant check on it; the business half of the protocol is CHK-048 item 2, graded by idempotency.replay_cached; the platform half converts in the agent lane (W2)"
  },
  "owner_tasks": [
   "D1-16a",
   "D1-16b",
   "D3-28",
-  "D1-20"
+  "D1-20",
+  "D2-08"
  ]
 }

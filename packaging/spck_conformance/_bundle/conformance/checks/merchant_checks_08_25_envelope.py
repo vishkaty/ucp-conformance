@@ -16,7 +16,7 @@ Every id below was re-read against the pinned 08-25 register (SOURCES.lock cd78f
                            `negotiation_accept_any`)
   DISC-003                 overview/index.md#L2240-L2242 — Cache-Control on the business's
                            published artifacts (its profile + any artifact it serves itself)
-  CHK-078                  checkout/index.md#L1113-L1115 — same-key retry of Complete
+  CHK-048 item 2           checkout/rest.md#L1309-L1312 — same-key retry of Complete (CHK-078, the platform half, is agent-lane)
                            returns the cached result (seq_invariants I9 replay_cached, the
                            single implementation)
 CHK-048 is graded by merchant_checks.idempotency.conflict_409 (versions=V_0825).
@@ -220,7 +220,7 @@ def p_published_artifacts_cache_control(r):
     return CLEAN
 
 
-# ---- CHK-078: same-key retry of Complete returns the cached result (I9) ------------
+# ---- CHK-048 item 2: same-key retry of Complete returns the cached result (I9) -----
 def idem_replay_resp(ctx):
     """create -> complete (key K) -> Get -> complete again with K and the SAME body; one
     synthetic Resp {first, get, replay} so the I9 predicate and the mutations see both."""
@@ -281,7 +281,11 @@ CHECKS_08_25_ENVELOPE = [
             'set:artifacts.0.cache_control="public, no-cache, max-age=300"',
             'set:artifacts.0.cache_control="public, max-age=30"', "drop:artifacts.0.cache_control",
             "set:artifacts=[]", "corrupt-json"], transport="rest", versions=V0825),
-    MCheck("idempotency.replay_cached", ["CHK-078"], "MUST NOT", idem_replay_resp, p_replay_cached,
+    # W1 integration (D2-08 lane rule): CHK-078 binds the PLATFORM alone (MAY retry identically,
+    # MUST NOT switch keys) — a merchant check may not cover it; the business's half of the same
+    # protocol is CHK-048 item 2 ("Return the cached result for duplicate keys whose request body
+    # matches the original", rest.md#L1309-L1312), which is what this check grades.
+    MCheck("idempotency.replay_cached", ["CHK-048"], "MUST", idem_replay_resp, p_replay_cached,
            ["set:replay.status=409", "set:replay.status=500", 'set:replay.body.id="other"',
             "drop:replay.body.order", 'set:replay.body.status="incomplete"', "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",), cfg_needs=("complete_payment",),

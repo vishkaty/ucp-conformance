@@ -12255,20 +12255,20 @@
    "state": "converting",
    "no_further_work": false,
    "musts": 780,
-   "check": 107,
+   "check": 106,
    "exempt": 0,
-   "gap": 673,
+   "gap": 674,
    "accounted_pct": 14,
    "roles": {
     "summary": {
-     "merchant": 525,
+     "merchant": 526,
      "agent": 302,
-     "both": 66,
+     "both": 67,
      "other": 19
     },
     "merchant": {
-     "musts": 525,
-     "check": 105,
+     "musts": 526,
+     "check": 106,
      "exempt": 0,
      "gap": 420,
      "gap_by_testability": {
@@ -12294,9 +12294,9 @@
    "by_transport": {
     "rest": {
      "musts": 522,
-     "check": 84,
+     "check": 83,
      "exempt": 0,
-     "gap": 438
+     "gap": 439
     },
     "mcp": {
      "musts": 19,
@@ -12375,12 +12375,12 @@
     "discovery-live": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 37,
+    "self-referenced": 36,
     "register-selfcheck": 13,
     "reference-impl": 25
    },
    "integrity": {
-    "target_facing": 69,
+    "target_facing": 68,
     "corpus": 13,
     "algorithm": 25
    },
@@ -12388,7 +12388,7 @@
     "manual": 131,
     "needs-oauth": 15,
     "needs-receiver": 165,
-    "testable": 362
+    "testable": 363
    },
    "areas": [
     {
@@ -12437,11 +12437,11 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 12,
-     "gap": 41,
+     "check": 11,
+     "gap": 42,
      "gap_manual": 3,
      "gap_needs-receiver": 8,
-     "gap_testable": 30,
+     "gap_testable": 31,
      "musts": 53
     },
     {
@@ -14038,7 +14038,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "check",
-     "role": "platform",
+     "role": "both",
      "normative_basis": "schema",
      "requirement": "line_items is required on create and update requests and omitted on complete requests",
      "source": "ucp:source/schemas/shopping/checkout.json#L34-L38",
@@ -14107,7 +14107,8 @@
      "requirement": "When an Idempotency-Key is provided, server MUST store the key+result >=24h, return the cached result for a duplicate key whose request body matches the original, and return 409 if the key is reused with a mismatched body",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1309-L1312",
      "covered_by": [
-      "merchant_checks.py"
+      "merchant_checks.py",
+      "merchant_checks_08_25_envelope.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -14393,16 +14394,12 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "check",
+     "status": "gap",
      "role": "platform",
      "normative_basis": "sentence",
      "requirement": "When retrying the original Complete Checkout request after Get Checkout still cannot establish whether the Business processed it, the Platform MUST NOT use a new idempotency key for that retry.",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1113-L1115",
-     "covered_by": [
-      "merchant_checks_08_25_envelope.py"
-     ],
-     "evidence": "self-referenced",
-     "reach": []
+     "covered_by": []
     },
     {
      "id": "CHK-079",
