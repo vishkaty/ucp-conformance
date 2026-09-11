@@ -48,13 +48,16 @@ VERSIONS (D4-01, B5a). `--version 2026-04-08` (default; output byte-stable) runs
 fixture corpus over the 78-schema base. `--version 2026-08-25` runs the 116-schema base over
 responses CAPTURED in-process from the pinned golden-0825 (selfcheck/fixtures/2026-08-25/, see
 capture_golden_0825.py) plus the #43 boundary fixtures rebuilt on the captured completed
-checkout, plus the `--def selected_payment_instrument` path where the pinned Rust oracle ABORTS
+checkout, plus the `--def selected_payment_instrument` path where the PINNED Rust build ABORTS
 (stack overflow on the `$ref: "#"` self-root, ucp-schema#45): rust_verdict carries a THIRD state,
-"crash" (any rc not in {0,1}), which is a divergence of its own class, acknowledged by the
-sibling register entry. Register entries carry `versions` (which corpora must reproduce them)
-and `expires_on.schema_validator_pin_not` (the entry FAILS as `STALE ACKNOWLEDGEMENT (pin
-moved)` the moment SOURCES.lock's schema_validator.commit is no longer that pin, independently
-of the reproduction test).
+"crash" (any rc not in {0,1}), a divergence class of its own. PER-VERSION ORACLE (D4-04,
+decision 7b): schema_oracle.bin_for(version) routes the 2026-08-25 layout to the merged-main
+b52518f5 build (conformance/ci/oracle_manifest.json; contains #66), on which that path
+validates and the #43 boundary agrees — both 08-25 acknowledgements were retired and the
+items stay as regression watches. Register entries carry `versions` (which corpora must
+reproduce them) and `expires_on.schema_validator_pin_not` (the entry FAILS as `STALE
+ACKNOWLEDGEMENT (pin moved)` the moment the build serving a listed version is no longer that
+pin, independently of the reproduction test).
 
 Usage:
     python3 conformance/selfcheck/validate_dual_oracle.py [--server URL] [-v] [--version V]
@@ -228,17 +231,21 @@ def divergence_corpus():
 
 
 def crash_corpus():
-    """The `--def` self-root blind spot (ucp-schema#45/#46, fix #66): on the pinned oracle,
+    """The `--def` self-root blind spot (ucp-schema#45/#46, fix #66): on the PINNED build,
     `--def selected_payment_instrument` on the 08-25 payment_instrument.json (allOf[0] is
-    {"$ref": "#"}) ABORTS with a stack overflow while the referee validates it — a
-    crash-vs-verdict divergence acknowledged by the #45 sibling entry. Empty at 04-08
-    (the pinned oracle does not abort there; R24 lists the self-root files per version)."""
+    {"$ref": "#"}) ABORTS with a stack overflow while the referee validates it. Since D4-04
+    the 2026-08-25 layout runs the per-version b52518f5 build (contains #66): this item now
+    AGREES (valid on both engines) and stays in the corpus as the REGRESSION WATCH for that
+    fix — a crash here is a NEW divergence (the #45 acknowledgement was retired). Empty at
+    04-08: no 04-08 check calls --def on that file (the pinned build aborts there too; the
+    pointer is the manifest's known_blind_spots entry, asserted unreached by
+    validate_schema_oracle_manifest.py)."""
     if VERSION != "2026-08-25":
         return []
-    return [Item("dual45.def_selected_payment_instrument_crash", _PI_REL[VERSION],
+    return [Item("dual45.def_selected_payment_instrument_regression_watch", _PI_REL[VERSION],
                  "selected_payment_instrument", "complete", "request",
                  {"id": "instr_1", "handler_id": "handler_card_1", "type": "card",
-                  "selected": True}, expect_divergence=_ID45)]
+                  "selected": True})]
 
 
 def golden_corpus(server):
@@ -280,7 +287,17 @@ def load_register(version=None):
     return entries
 
 
-def oracle_pin(lock=LOCK):
+def oracle_pin(lock=LOCK, version=None):
+    """The commit of the ucp-schema build serving `version` (default: the gate's VERSION):
+    conformance/ci/oracle_manifest.json per_version (D4-04, decision 7b) — whose 2026-04-08
+    entry must equal SOURCES.lock schema_validator.commit (validate_schema_oracle_manifest.py
+    asserts it) — with the lock as the fallback when the manifest is absent."""
+    version = version or VERSION
+    try:
+        import schema_oracle
+        return schema_oracle.manifest_entry(version)["commit"]
+    except Exception:  # noqa: BLE001 — manifest absent/unknown version: the lock's pinned build
+        pass
     try:
         return json.loads(pathlib.Path(lock).read_text())["schema_validator"]["commit"]
     except Exception as e:  # noqa: BLE001
@@ -483,10 +500,19 @@ def selftest():
     fixed_rust = lambda p, s, d, o, di: referee_verdict(referee, p, s, d, o, di)[0]
     _res3, nd3, reproduced3 = evaluate(divergence_corpus(), referee, rust_fn=fixed_rust)
     reg = load_register()
-    stale = [eid for eid in reg if eid not in reproduced3]
-    expired = (_ID43 in stale) and (len(nd3) == 0)
-    print(f"  {'✓' if expired else '✗'} self-expiry: on a FIXED oracle the #43 "
-          f"acknowledgement {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
+    if VERSION == DEFAULT_VERSION:
+        stale = [eid for eid in reg if eid not in reproduced3]
+        expired = (_ID43 in stale) and (len(nd3) == 0)
+        print(f"  {'✓' if expired else '✗'} self-expiry: on a FIXED oracle the #43 "
+              f"acknowledgement {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
+    else:
+        # no acknowledgement is live at this version (D4-04 retired them on the per-version
+        # build): plant one and prove the corpus does not reproduce it -> STALE
+        planted_reg = dict(reg, **{"planted-ack": {"id": "planted-ack", "upstream": "x", "class": "verdict"}})
+        stale = [eid for eid in planted_reg if eid not in reproduced3]
+        expired = ("planted-ack" in stale) and (len(nd3) == 0)
+        print(f"  {'✓' if expired else '✗'} self-expiry: a planted acknowledgement no corpus item "
+              f"reproduces {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
     ok = ok and expired
 
     # (3) referee lifecycle filter is faithful to the official resolver (independent of
@@ -498,27 +524,33 @@ def selftest():
     ok = ok and faithful
 
     if VERSION != DEFAULT_VERSION:
-        # (5) the versioned base + the real pinned oracle over the boundary fixtures: #43
-        #     is a VERDICT divergence, the --def self-root path is a CRASH, both acknowledged
-        #     by their own entries; nothing NEW.
+        # (5) the versioned base + the PER-VERSION oracle (D4-04: the merged-main b52518f5
+        #     build, which contains #66) over the boundary fixtures: the #43 boundary AGREES
+        #     (three verdict items), the --def self-root path VALIDATES (no crash); nothing
+        #     NEW and no acknowledgement live at this version (both retired).
         res5, nd5, rep5 = evaluate(divergence_corpus(), referee, known_ids=reg)
         crash_items = [r for r in res5 if r[1] == "crash"]
-        verdict_acks = [r for r in res5 if r[4] == "acknowledged" and r[1] != "crash"]
-        case5 = (referee.schema_count == 116 and len(nd5) == 0 and len(crash_items) == 1
-                 and crash_items[0][4] == "acknowledged" and _ID45 in rep5 and _ID43 in rep5
-                 and len(verdict_acks) == 3)
+        agreed = [r for r in res5 if r[4] == "agree"]
+        watch = [r for r in res5 if r[0].label.startswith("dual45.") and r[4] == "agree" and r[1] is True]
+        case5 = (referee.schema_count == 116 and len(nd5) == 0 and len(crash_items) == 0
+                 and len(agreed) == len(res5) == 5 and len(watch) == 1 and len(reg) == 0)
         print(f"  {'✓' if case5 else '✗'} case 5: referee base {VERSION} loads "
-              f"{referee.schema_count} schemas; #43 boundary = verdict divergence ×"
-              f"{len(verdict_acks)} acknowledged ({_ID43}); --def selected_payment_instrument = "
-              f"crash-vs-verdict ×{len(crash_items)} acknowledged ({_ID45}); NEW {len(nd5)}")
+              f"{referee.schema_count} schemas; per-version oracle {oracle_pin()[:8]}: #43 boundary "
+              f"+ control agree ×{len(agreed) - len(watch)} (fixed by #66), --def selected_payment_instrument "
+              f"validates (#45 fixed, crash ×{len(crash_items)}); NEW {len(nd5)}; "
+              f"acknowledged divergences at {VERSION}: {len(reg)}")
         ok = ok and case5
-        # (6) pin-expiry kill-test: the same register with the pin moved must be STALE
-        moved = stale_by_pin(reg, "0000000000000000000000000000000000000000")
-        pinned = {eid for eid in reg if (reg[eid].get("expires_on") or {}).get("schema_validator_pin_not")}
-        case6 = {m[0] for m in moved} == pinned and pinned == set(reg) and not stale_by_pin(reg, oracle_pin())
-        print(f"  {'✓' if case6 else '✗'} case 6: pin-expiry — every entry carries "
+        # (6) pin-expiry kill-test over the WHOLE register (every version): a moved pin must
+        #     flag every pinned entry STALE; the real per-version pins flag none.
+        allreg = {e["id"]: e for e in json.loads(REGISTER.read_text())["divergences"]}
+        moved = stale_by_pin(allreg, "0000000000000000000000000000000000000000")
+        pinned = {eid for eid in allreg if (allreg[eid].get("expires_on") or {}).get("schema_validator_pin_not")}
+        real_ok = all(not stale_by_pin({eid: e}, oracle_pin(version=v))
+                      for eid, e in allreg.items() for v in (e.get("versions") or [DEFAULT_VERSION]))
+        case6 = {m[0] for m in moved} == pinned and pinned == set(allreg) and len(allreg) >= 1 and real_ok
+        print(f"  {'✓' if case6 else '✗'} case 6: pin-expiry — every register entry ({len(allreg)}) carries "
               f"expires_on.schema_validator_pin_not; a moved pin flags all {len(moved)} as "
-              f"STALE (pin moved); the real pin flags none")
+              f"STALE (pin moved); the real per-version pins flag none")
         ok = ok and case6
 
     print("PASS" if ok else "FAIL")

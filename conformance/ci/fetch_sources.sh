@@ -37,6 +37,19 @@ rows = [
     # the sources-age tripwire both key to this locked commit.
     ("ap2",            s["ap2_reference"]["repo"], sha(s["ap2_reference"])),
 ]
+# D4-04 (decision 7b): the schema-validation oracle is one ucp-schema build PER LAYOUT,
+# declared in conformance/ci/oracle_manifest.json (per_version[*].vendor_dir/commit); the
+# 2026-04-08 entry equals schema_validator above (asserted by validate_schema_oracle_manifest.py),
+# every other distinct vendor_dir is materialized here too (e.g. ucp-schema-0825 @ b52518f5).
+import os
+man = os.path.join(os.path.dirname(sys.argv[1]), "ci", "oracle_manifest.json")
+if os.path.exists(man):
+    seen = {r[0] for r in rows}
+    for v, e in json.load(open(man)).get("per_version", {}).items():
+        if "alias_of" in e or e["vendor_dir"] in seen:
+            continue
+        seen.add(e["vendor_dir"])
+        rows.append((e["vendor_dir"], "ucp-schema", e["commit"]))
 for d_, r, c in rows:
     print(d_, r, c)
 PY

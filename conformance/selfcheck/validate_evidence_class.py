@@ -157,6 +157,25 @@ def representative_checks():
     return fails
 
 
+def row_labels_match_mechanics():
+    """Family 6 (D4-04): every golden_check_08_25 `Row` documents its evidence class in the
+    `evidence` field; that hand label must EQUAL what evidence.classify_check derives from the
+    Row's predicate (the file's own docstring promises this — a drift is the hand-label-vs-
+    mechanics gap this gate exists to catch). Kill-proof: relabel one Row -> red."""
+    fails = []
+    import golden_check_08_25 as gc
+    rows = [r for r in getattr(gc, "ROWS", []) or [] if hasattr(r, "evidence")]
+    if not rows:
+        rows = [r for r in getattr(gc, "CHECKS", []) or [] if hasattr(r, "evidence")]
+    if not rows:
+        return ["golden_check_08_25 exposes no Row with an `evidence` field"]
+    for r in rows:
+        got, _t = evidence.classify_check(r, "golden_check_08_25", "2026-08-25", {})
+        if got != r.evidence:
+            fails.append(f"Row {r.id}: documented evidence '{r.evidence}' but mechanics derive '{got}'")
+    return fails
+
+
 _KEY_CACHE = {}
 
 
@@ -439,7 +458,8 @@ def main():
     fails = []
     print("evidence-class gate — classifier kill-tests + published-split sync\n")
     fams = [("representative checks", representative_checks),
-            ("classifier kill-tests", classifier_kill_tests)]
+            ("classifier kill-tests", classifier_kill_tests),
+            ("golden_check_08_25 Row labels == mechanics (D4-04)", row_labels_match_mechanics)]
     for name, fn in fams:
         f = fn()
         print(f"  {'✓' if not f else '✗'} {name}" + (f" ({len(f)} failure(s))" if f else ""))

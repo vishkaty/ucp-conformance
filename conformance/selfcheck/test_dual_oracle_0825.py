@@ -4,8 +4,8 @@
 Failing-first: today `dual_oracle_referee.SCHEMA_BASE` has no 2026-08-25 entry, so
 `get_referee("2026-08-25")` raises RefereeUnavailable, and validate_dual_oracle.py has no
 `--version`. Target: the 08-25 referee base loads 116 schemas; `--selftest --version
-2026-08-25` runs case 5 (the #43 boundary at 08-25 is acknowledged as crash-vs-verdict via the
-sibling entry ucp-schema-45-selfroot-def-crash) and the 04-08 output stays byte-stable.
+2026-08-25` runs case 5 and the 04-08 output stays byte-stable. Since D4-04 (per-version oracle)
+case 5 asserts the #43 boundary AGREES and the --def self-root path validates (both retired).
 
 Run:  python3 -m pytest conformance/selfcheck/test_dual_oracle_0825.py -q
 """
@@ -31,11 +31,12 @@ def test_referee_base_0825_loads_116_schemas():
     assert r.schema_count == 116
 
 
-def test_selftest_0825_case5_acknowledges_crash_vs_verdict():
+def test_selftest_0825_case5_per_version_oracle_agrees_no_crash():
+    # D4-04: the 08-25 layout runs the merged-main build; #43/#45 acknowledgements retired
     r = subprocess.run([sys.executable, str(GATE), "--selftest", "--version", "2026-08-25"],
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert "case 5" in r.stdout and "crash" in r.stdout and "acknowledged" in r.stdout
+    assert "case 5" in r.stdout and "crash ×0" in r.stdout and "acknowledged divergences at 2026-08-25: 0" in r.stdout
 
 
 def test_0408_selftest_byte_stable_without_version_flag():

@@ -168,6 +168,18 @@ def gates(server, require_server=False):
         ("dual-oracle-0825", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25"), None, (2,)),
         ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
          None, (2,)),
+        # D4-04 (B6, decision 7b): the oracle is one ucp-schema build PER LAYOUT
+        # (conformance/ci/oracle_manifest.json: pinned 9b5c3206 for 04-08 + aliases, merged-main
+        # b52518f5 for 08-25). oracle-manifest proves the manifest (merged SHAs only, 04-08 ==
+        # the lock, vendor dirs at their commit + --version fingerprint, no 08-25 blind spot,
+        # no --def call site on an unjudged blind spot); oracle-verdict-diff runs BOTH builds
+        # over BOTH corpora (0 crash/rc2 on the assigned build's own layout, cross cells
+        # recorded, STALE when the split stops being justified) and requires the tracked
+        # oracle_verdict_diff.json (owner --record, decision 24) to be <= 14 d old and
+        # cell-identical. Both rc 2 (honest skip) when a build is not materialized.
+        ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
+        ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
+        ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
          "golden", ()),
