@@ -4,7 +4,9 @@
   "live-wire": "kill-tested on the wire against at least one independently-authored server (flower golden / node reference \u2014 see `reach` per row)",
   "fixture-schema": "our fixture validated through the OFFICIAL ucp-schema oracle (spec-anchored, not circular)",
   "fixture-crypto": "self-signed crypto primitive self-test (e.g. the AP2 fixture-key checks) \u2014 spec-shaped, not independently corroborated",
-  "self-referenced": "graded only against our own fixture, with no independent oracle or target \u2014 the fixture-circularity class we flag upstream (conformance#79), named here in our own suite"
+  "self-referenced": "graded only against our own fixture, with no independent oracle or target \u2014 the fixture-circularity class we flag upstream (conformance#79), named here in our own suite",
+  "register-selfcheck": "a fact about the PINNED SPEC TEXT itself (a struct check fed the vendored schema document) \u2014 grades the corpus, never an implementation (A3)",
+  "reference-impl": "OUR implementation of an algorithm the prose fixes, proven against our own fixtures \u2014 no target, no independent oracle (A3)"
  },
  "spec_repo": "Universal-Commerce-Protocol/ucp",
  "spec_pins": {
@@ -84,13 +86,22 @@
     "live-wire",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 16,
     "fixture-crypto": 0,
-    "self-referenced": 105
+    "self-referenced": 105,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 121,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 2,
@@ -2559,13 +2570,22 @@
     "live-wire",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 22,
     "fixture-crypto": 0,
-    "self-referenced": 107
+    "self-referenced": 107,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 129,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 2,
@@ -5181,13 +5201,22 @@
     "live-wire",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 67,
     "fixture-schema": 68,
     "fixture-crypto": 4,
-    "self-referenced": 138
+    "self-referenced": 138,
+    "register-selfcheck": 0,
+    "reference-impl": 0
+   },
+   "integrity": {
+    "target_facing": 277,
+    "corpus": 0,
+    "algorithm": 0
    },
    "gap_by_testability": {
     "manual": 7,
@@ -10452,13 +10481,22 @@
     "live-wire",
     "fixture-schema",
     "fixture-crypto",
-    "self-referenced"
+    "self-referenced",
+    "register-selfcheck",
+    "reference-impl"
    ],
    "evidence_breakdown": {
     "live-wire": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 45
+    "self-referenced": 7,
+    "register-selfcheck": 13,
+    "reference-impl": 25
+   },
+   "integrity": {
+    "target_facing": 39,
+    "corpus": 13,
+    "algorithm": 25
    },
    "gap_by_testability": {
     "manual": 131,
@@ -10799,7 +10837,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -10883,7 +10921,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -10897,7 +10935,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -10911,7 +10949,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -10925,7 +10963,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -10939,7 +10977,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -10953,7 +10991,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11183,7 +11221,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11197,7 +11235,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11211,7 +11249,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11295,7 +11333,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11309,7 +11347,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11323,7 +11361,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11337,7 +11375,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11431,7 +11469,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11445,7 +11483,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11459,7 +11497,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11473,7 +11511,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -11487,7 +11525,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11551,7 +11589,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11565,7 +11603,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11579,7 +11617,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11593,7 +11631,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -11607,7 +11645,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12487,7 +12525,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12511,7 +12549,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12545,7 +12583,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -12559,7 +12597,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -14766,7 +14804,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -14790,7 +14828,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -16968,7 +17006,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -16982,7 +17020,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -16996,7 +17034,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -17030,7 +17068,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -17044,7 +17082,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -17058,7 +17096,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "reference-impl",
      "reach": []
     },
     {
@@ -17702,7 +17740,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {
@@ -17716,7 +17754,7 @@
      "covered_by": [
       "struct_check_08_25.py"
      ],
-     "evidence": "self-referenced",
+     "evidence": "register-selfcheck",
      "reach": []
     },
     {

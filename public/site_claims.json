@@ -20,28 +20,36 @@
         "live-wire": 0,
         "fixture-schema": 16,
         "fixture-crypto": 0,
-        "self-referenced": 105
+        "self-referenced": 105,
+        "register-selfcheck": 0,
+        "reference-impl": 0
       },
       "2026-01-23": {
         "check": 129,
         "live-wire": 0,
         "fixture-schema": 22,
         "fixture-crypto": 0,
-        "self-referenced": 107
+        "self-referenced": 107,
+        "register-selfcheck": 0,
+        "reference-impl": 0
       },
       "2026-04-08": {
         "check": 277,
         "live-wire": 67,
         "fixture-schema": 68,
         "fixture-crypto": 4,
-        "self-referenced": 138
+        "self-referenced": 138,
+        "register-selfcheck": 0,
+        "reference-impl": 0
       },
       "2026-08-25": {
         "check": 77,
         "live-wire": 0,
         "fixture-schema": 32,
         "fixture-crypto": 0,
-        "self-referenced": 45
+        "self-referenced": 7,
+        "register-selfcheck": 13,
+        "reference-impl": 25
       }
     },
     "reviewed": "2026-09-01"

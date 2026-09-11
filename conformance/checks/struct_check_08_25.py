@@ -891,6 +891,16 @@ CATALOG_UNIT_PRICE_CHECKS = [
 CHECKS = (CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS + DISCOVERY_FETCH_SAFETY_CHECKS
           + CATALOG_SCHEMA_CHECKS + CATALOG_LOOKUP_ALGORITHM_CHECKS + CATALOG_UNIT_PRICE_CHECKS)
 
+# A3 (D1-13): the objects loaded VERBATIM from the pinned corpus (and what is extracted
+# from them unchanged — the reverse-domain pattern/examples). coverage/evidence.py
+# classifies a check here `register-selfcheck` only when its fn or a valid case reaches
+# one of these BY IDENTITY (the verdict is a fact about the spec text); every other
+# struct check is `reference-impl` (our own implementation of a prose-fixed algorithm,
+# proven against our own fixtures). Register a new corpus load here or it classifies
+# fail-closed as reference-impl.
+CORPUS_DOCS = (_REAL_CAPABILITY_DOC, _RDN_DOC, _RDN_RE, _RDN_EXAMPLES, _REAL_PAGINATION_DOC,
+               _REAL_CATALOG_LOOKUP_DOC, _REAL_CATALOG_SEARCH_DOC)
+
 
 def case_key(case):
     """The stable record form of one negative arg-tuple (D1-12 per_id declared/killed)."""
