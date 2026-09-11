@@ -572,12 +572,42 @@ def boot_proxy(golden):
     return _boot([sys.executable, str(SELF / "mutation_proxy.py"),
                   "--upstream", golden, "--port", str(PROXY_PORT)], PROXY)
 
-def run_gate(name, argv, timeout=180):
+# Per-gate runtime BUDGETS (W1 carry-over, lane D4; W0-integration.md §11). Every gate
+# runs under DEFAULT_GATE_TIMEOUT unless listed here with a larger ceiling AND the
+# typical time that justified it, so a budget is a recorded measurement, never a
+# waiver: an over-budget gate is still rc 124 TIMEOUT (kill-proven by
+# conformance/ci/test_gate_budgets.py). `dual-oracle-0825` measured 83.4 / 82.0 /
+# 130.4 s on green CI runs (the 116-schema referee registry is rebuilt per
+# (op, direction) on the Actions runner; ~1 s locally) and hit the flat 180 s once on
+# main (run 34560082606, rc 124) while the identical tree was green minutes earlier.
+DEFAULT_GATE_TIMEOUT = 180
+GATE_BUDGETS = {
+    "dual-oracle-0825": {
+        "budget_s": 420,
+        "typical": "82-130 s on CI (runs 34498740847/34550184677/34560082606); ~1 s local"},
+    "dual-oracle-0825-killtest": {
+        "budget_s": 420,
+        "typical": "same referee build as dual-oracle-0825 plus the resolver comparison; ~1 s local"},
+}
+
+
+def gate_budget(name):
+    """The timeout (seconds) a gate runs under: its GATE_BUDGETS ceiling, else the flat
+    DEFAULT_GATE_TIMEOUT."""
+    return int(GATE_BUDGETS.get(name, {}).get("budget_s", DEFAULT_GATE_TIMEOUT))
+
+
+def run_gate(name, argv, timeout=None):
+    if timeout is None:
+        timeout = gate_budget(name)
     t0 = time.monotonic()
     try:
         p = subprocess.run(argv, cwd=str(ROOT), capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        return {"rc": 124, "dt": timeout, "tail": "TIMEOUT"}
+        typical = GATE_BUDGETS.get(name, {}).get("typical")
+        return {"rc": 124, "dt": timeout,
+                "tail": f"TIMEOUT after the {timeout}s budget"
+                        + (f" (typical {typical})" if typical else "")}
     tail = (p.stdout + p.stderr).strip().splitlines()
     return {"rc": p.returncode, "dt": time.monotonic() - t0,
             "tail": tail[-1] if tail else "", "out": p.stdout + p.stderr}
