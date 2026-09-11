@@ -168,6 +168,53 @@ def gates(server, require_server=False):
         ("dual-oracle-0825", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25"), None, (2,)),
         ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
          None, (2,)),
+        # D4-04 (B6, decision 7b): the oracle is one ucp-schema build PER LAYOUT
+        # (conformance/ci/oracle_manifest.json: pinned 9b5c3206 for 04-08 + aliases, merged-main
+        # b52518f5 for 08-25). oracle-manifest proves the manifest (merged SHAs only, 04-08 ==
+        # the lock, vendor dirs at their commit + --version fingerprint, no 08-25 blind spot,
+        # no --def call site on an unjudged blind spot); oracle-verdict-diff runs BOTH builds
+        # over BOTH corpora (0 crash/rc2 on the assigned build's own layout, cross cells
+        # recorded, STALE when the split stops being justified) and requires the tracked
+        # oracle_verdict_diff.json (owner --record, decision 24) to be <= 14 d old and
+        # cell-identical. Both rc 2 (honest skip) when a build is not materialized.
+        # D4-05 (B5b): the PYDANTIC third leg at 08-25 — the python-sdk generated models in
+        # two venvs (conformance/ci/make_sdk_venvs.sh): the PyPI tag cut (0.5.0) GATED through
+        # known_sdk_drops.json (self-expiring on pypi_ucp_sdk_gt), python-sdk main report-only,
+        # the js-sdk zod leg report-only (rows -> ops/feeds/zod_divergences.json when ops/ is
+        # mounted, else RECORD_DIR). rc 2 = venv not built (honest skip, never green).
+        ("dual-oracle-0825-pydantic", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25", "--pydantic"),
+         None, (2,)),
+        ("dual-oracle-0825-pydantic-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25", "--pydantic"),
+         None, (2,)),
+        # D4-07 (E3): the stateful sequence-fuzz oracle (conformance/ci/seq_invariants.py
+        # I1..I10; I10 = REPLAY-002, mode per replay_mode.json — decision 1) must provably
+        # catch four PLANTED lifecycle violations on an in-process stub and stay quiet on a
+        # clean one. Hermetic (no sockets). The live run (disposable golden on a free port,
+        # --boot --seconds 120 --races 8) is nightly (D4-10) + the 14-day report line below.
+        ("seqfuzz-selftest", _py(ROOT / "conformance" / "ci" / "seqfuzz_gate.py", "--selftest"), None, ()),
+        # D4-06 (E1): the official-suite cross-checker's allowlist semantics (USED / STALE red /
+        # EXPIRED red via samples_pin_not, or_pr_merged through a STUBBED gh, or_date) and junit
+        # parsing, hermetic; the live suite runs nightly against :8382/:8398 (D4-10).
+        ("crosscheck-selftest", _py(ROOT / "conformance" / "ci" / "official_crosscheck.py", "--selftest"), None, ()),
+        # D4-08 (E2, decision 4): the discovery-live sampler's DENYLIST (GET /.well-known/ucp
+        # only, no signing/replay headers, sample hosts only), per-UA robots, rate limiter,
+        # offline grader (no socket), role-scoped earnable rows, the discovery-live evidence
+        # rule (>=3 domains within 30 d, never live-wire), GITHUB_ACTIONS refusal, and
+        # differential_targets.json == 2 — all hermetic (stubbed network).
+        ("discovery-live-selftest", _py(ROOT / "conformance" / "ci" / "discovery_live.py", "--selftest"), None, ()),
+        # D4-09 (E6): ucpchecker /status page comparison — agreement matrix, documented
+        # divergence classes (legacy-keys, redirects, payment_handlers, robots), 24 h cache,
+        # weekly cap; hermetic (synthetic pages).
+        ("ucpchecker-compare-selftest", _py(ROOT / "conformance" / "ci" / "ucpchecker_compare.py", "--selftest"), None, ()),
+        # D4-10: nightly.yml's contract (jobs, timeouts, registered non-sweep ports, no
+        # continue-on-error on assertions, no discovery-live job, no ops/ write, artifacts).
+        ("nightly-workflow-selftest", _py(ROOT / "conformance" / "ci" / "validate_nightly_workflow.py", "--selftest"), None, ()),
+        # D4-17: ops/tools/pull_feeds.py (nightly artifacts -> ops/feeds by gh GET, provenance,
+        # --check drift, never git) — via ops_tool_gate: SKIP rc 2 when ops/ is not mounted.
+        ("pull-feeds-selftest", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/pull_feeds.py", "--selftest"), None, (2,)),
+        ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
+        ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
+        ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
          "golden", ()),
@@ -572,12 +619,42 @@ def boot_proxy(golden):
     return _boot([sys.executable, str(SELF / "mutation_proxy.py"),
                   "--upstream", golden, "--port", str(PROXY_PORT)], PROXY)
 
-def run_gate(name, argv, timeout=180):
+# Per-gate runtime BUDGETS (W1 carry-over, lane D4; W0-integration.md §11). Every gate
+# runs under DEFAULT_GATE_TIMEOUT unless listed here with a larger ceiling AND the
+# typical time that justified it, so a budget is a recorded measurement, never a
+# waiver: an over-budget gate is still rc 124 TIMEOUT (kill-proven by
+# conformance/ci/test_gate_budgets.py). `dual-oracle-0825` measured 83.4 / 82.0 /
+# 130.4 s on green CI runs (the 116-schema referee registry is rebuilt per
+# (op, direction) on the Actions runner; ~1 s locally) and hit the flat 180 s once on
+# main (run 34560082606, rc 124) while the identical tree was green minutes earlier.
+DEFAULT_GATE_TIMEOUT = 180
+GATE_BUDGETS = {
+    "dual-oracle-0825": {
+        "budget_s": 420,
+        "typical": "82-130 s on CI (runs 34498740847/34550184677/34560082606); ~1 s local"},
+    "dual-oracle-0825-killtest": {
+        "budget_s": 420,
+        "typical": "same referee build as dual-oracle-0825 plus the resolver comparison; ~1 s local"},
+}
+
+
+def gate_budget(name):
+    """The timeout (seconds) a gate runs under: its GATE_BUDGETS ceiling, else the flat
+    DEFAULT_GATE_TIMEOUT."""
+    return int(GATE_BUDGETS.get(name, {}).get("budget_s", DEFAULT_GATE_TIMEOUT))
+
+
+def run_gate(name, argv, timeout=None):
+    if timeout is None:
+        timeout = gate_budget(name)
     t0 = time.monotonic()
     try:
         p = subprocess.run(argv, cwd=str(ROOT), capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        return {"rc": 124, "dt": timeout, "tail": "TIMEOUT"}
+        typical = GATE_BUDGETS.get(name, {}).get("typical")
+        return {"rc": 124, "dt": timeout,
+                "tail": f"TIMEOUT after the {timeout}s budget"
+                        + (f" (typical {typical})" if typical else "")}
     tail = (p.stdout + p.stderr).strip().splitlines()
     return {"rc": p.returncode, "dt": time.monotonic() - t0,
             "tail": tail[-1] if tail else "", "out": p.stdout + p.stderr}
@@ -635,6 +712,16 @@ def r11_battery_report_line():
             + (f" ({acked} acknowledged-open)" if acked else "")
             + behavior
             + f", {age_days:.1f}d ago{stale}")
+
+
+def seqfuzz_report_line():
+    """D4-07: the tracked seqfuzz LAST_RUN.json under the 14-day rule (battery idiom)."""
+    try:
+        sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+        import seqfuzz_gate
+        return seqfuzz_gate.report_line()
+    except Exception as e:  # noqa: BLE001
+        return f"seqfuzz          ✗ report line unavailable ({e})"
 
 
 def main():
@@ -733,6 +820,7 @@ def main():
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
     print(r11_battery_report_line() + "  (report-only, not counted above; the counted gate is battery-freshness)")
+    print(seqfuzz_report_line() + "  (report-only; nightly seqfuzz job, decision 24: owner commits conformance/ci/seqfuzz/LAST_RUN.json)")
     if args.only:
         # the acceptance-line form: one `✓ PASS <gate> <detail>` per selected gate
         for name, status, detail in results:

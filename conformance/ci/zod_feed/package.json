@@ -1,0 +1,9 @@
+{
+  "name": "spck-zod-feed",
+  "private": true,
+  "description": "D4-05 (B5b): the js-sdk zod leg, REPORT-ONLY — @ucp-js/sdk pinned at the published npm cut; node_modules is gitignored, `npm ci --no-audit --no-fund` here before running ../zod_feed.mjs",
+  "type": "module",
+  "dependencies": {
+    "@ucp-js/sdk": "0.5.1"
+  }
+}

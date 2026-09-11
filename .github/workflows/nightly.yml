@@ -1,0 +1,117 @@
+# nightly.yml — the NIGHTLY, never-a-push-gate lane (D4-10; PLAN-v3 §2.12/§2.10/§2.9).
+#
+# Three independent jobs, artifacts only (decision 24: no bot identity, no commits from CI;
+# ops/tools/pull_feeds.py downloads the artifacts by `gh` GET into ops/feeds/ and the OWNER
+# commits them to spck-ops):
+#   crosscheck  the OFFICIAL conformance suite (016ecbc2, per-pin venv) against our goldens on
+#               the nightly ports :8382 (flower-04-08, gated by the self-expiring allowlist) and
+#               :8398 (golden-0825, report-only); absl mock ports 8484/8485 (E1, D4-06)
+#   seqfuzz     stateful sequence fuzz, 120 s + 8 idempotency races, on a DISPOSABLE golden-0825
+#               (free port + mktemp DB_DIR) with I10 in golden_gates mode (E3, D4-07)
+#   oracles     the per-version oracle verdict-diff matrix + the pydantic/zod third legs
+#               (B6 D4-04, B5b D4-05)
+# There is deliberately NO discovery-live job: the sampler runs only on the owner's machine
+# (decision 4; ops/tools/run_sampler.sh refuses under GITHUB_ACTIONS). Nothing here writes
+# under ops/ (not mounted in Actions). Ports come from conformance/ci/ports.json and are
+# disjoint from the push-gate sweep set — validate_nightly_workflow.py (gate
+# nightly-workflow-selftest) holds all of that.
+name: nightly
+on:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: false
+      - name: Fetch pinned upstream sources
+        run: bash conformance/ci/fetch_sources.sh
+      - name: Official suite vs flower-04-08 on :8382 (gated allowlist; mocks 8484/8485)
+        run: python3 conformance/ci/official_crosscheck.py --golden flower-04-08 --suite-sha 016ecbc22240affdec4429a60d539bedd04ab51b --out-dir nightly-out/crosscheck
+      - name: Official suite vs golden-0825 on :8398 (report-only)
+        run: python3 conformance/ci/official_crosscheck.py --golden golden-0825 --suite-sha 016ecbc22240affdec4429a60d539bedd04ab51b --report-only --out-dir nightly-out/crosscheck
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official_crosscheck
+          path: nightly-out/crosscheck/
+          retention-days: 30
+
+  seqfuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: false
+      - name: Fetch pinned upstream sources (the 08-25 oracle build is the golden boot guard)
+        run: bash conformance/ci/fetch_sources.sh
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build the per-version ucp-schema oracle (boot guard for golden-0825)
+        run: cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml
+      - name: Sequence fuzz 120 s + 8 races on a disposable golden-0825 (I10 golden_gates mode)
+        run: python3 conformance/ci/seqfuzz_gate.py --boot --seconds 120 --races 8 --context golden_gates --out nightly-out/seqfuzz/seqfuzz_LAST_RUN.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seqfuzz_LAST_RUN
+          path: nightly-out/seqfuzz/
+          retention-days: 30
+
+  oracles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install the independent schema referee
+        run: python3 -m pip install "jsonschema>=4.26" referencing
+      - name: Fetch pinned upstream sources
+        run: bash conformance/ci/fetch_sources.sh
+      - name: Build both ucp-schema oracles
+        run: |
+          cargo build --release --manifest-path conformance/.vendor/ucp-schema/Cargo.toml
+          cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml
+      - name: Per-version oracle manifest
+        run: python3 conformance/selfcheck/validate_schema_oracle_manifest.py
+      - name: Oracle verdict-diff matrix (both builds x both layouts)
+        run: python3 conformance/ci/oracle_verdict_diff.py --check || python3 conformance/ci/oracle_verdict_diff.py
+      - name: python-sdk venvs (tag 0.5.0 gated, main report-only) + pinned js-sdk for the zod leg
+        run: |
+          bash conformance/ci/make_sdk_venvs.sh
+          cd conformance/ci/zod_feed && npm install --no-audit --no-fund --package-lock=false
+      - name: Pydantic + zod legs at 2026-08-25
+        run: mkdir -p nightly-out/oracles && RUN_SUITE_RECORD_DIR=nightly-out/oracles python3 conformance/selfcheck/validate_dual_oracle.py --version 2026-08-25 --pydantic | tee nightly-out/oracles/dual_oracle_0825_pydantic.txt
+      - name: Collect the verdict-diff record for the artifact
+        run: RUN_SUITE_RECORD_DIR=nightly-out/oracles python3 conformance/ci/oracle_verdict_diff.py --record --check && cp conformance/ci/oracle_verdict_diff.json nightly-out/oracles/oracle_verdict_diff.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oracles
+          path: nightly-out/oracles/
+          retention-days: 30

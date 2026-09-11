@@ -246,8 +246,14 @@ def _require_oracle():
     base = so.SCHEMA_BASE.get(VERSION)
     if base is None or not base.exists():
         raise OracleUnavailable(f"conformance/.vendor/ucp-{VERSION} not fetched")
-    if not so.BIN.exists():
-        raise OracleUnavailable(f"ucp-schema validator not built at {so.BIN}")
+    if not so.bin_for(VERSION).exists():
+        raise OracleUnavailable(f"ucp-schema validator not built at {so.bin_for(VERSION)}")
+    # D4-04 boot guard: the per-version build must be the manifest's (commit + --version
+    # fingerprint); a mismatch is an honest SKIP ("oracle SHA mismatch"), never a verdict.
+    import validate_schema_oracle_manifest as vsom
+    rc, line = vsom.boot_guard(VERSION)
+    if rc != 0:
+        raise OracleUnavailable(line)
 
 
 # ---------------------------------------------------------------------------

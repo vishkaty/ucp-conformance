@@ -48,13 +48,16 @@ VERSIONS (D4-01, B5a). `--version 2026-04-08` (default; output byte-stable) runs
 fixture corpus over the 78-schema base. `--version 2026-08-25` runs the 116-schema base over
 responses CAPTURED in-process from the pinned golden-0825 (selfcheck/fixtures/2026-08-25/, see
 capture_golden_0825.py) plus the #43 boundary fixtures rebuilt on the captured completed
-checkout, plus the `--def selected_payment_instrument` path where the pinned Rust oracle ABORTS
+checkout, plus the `--def selected_payment_instrument` path where the PINNED Rust build ABORTS
 (stack overflow on the `$ref: "#"` self-root, ucp-schema#45): rust_verdict carries a THIRD state,
-"crash" (any rc not in {0,1}), which is a divergence of its own class, acknowledged by the
-sibling register entry. Register entries carry `versions` (which corpora must reproduce them)
-and `expires_on.schema_validator_pin_not` (the entry FAILS as `STALE ACKNOWLEDGEMENT (pin
-moved)` the moment SOURCES.lock's schema_validator.commit is no longer that pin, independently
-of the reproduction test).
+"crash" (any rc not in {0,1}), a divergence class of its own. PER-VERSION ORACLE (D4-04,
+decision 7b): schema_oracle.bin_for(version) routes the 2026-08-25 layout to the merged-main
+b52518f5 build (conformance/ci/oracle_manifest.json; contains #66), on which that path
+validates and the #43 boundary agrees — both 08-25 acknowledgements were retired and the
+items stay as regression watches. Register entries carry `versions` (which corpora must
+reproduce them) and `expires_on.schema_validator_pin_not` (the entry FAILS as `STALE
+ACKNOWLEDGEMENT (pin moved)` the moment the build serving a listed version is no longer that
+pin, independently of the reproduction test).
 
 Usage:
     python3 conformance/selfcheck/validate_dual_oracle.py [--server URL] [-v] [--version V]
@@ -228,17 +231,21 @@ def divergence_corpus():
 
 
 def crash_corpus():
-    """The `--def` self-root blind spot (ucp-schema#45/#46, fix #66): on the pinned oracle,
+    """The `--def` self-root blind spot (ucp-schema#45/#46, fix #66): on the PINNED build,
     `--def selected_payment_instrument` on the 08-25 payment_instrument.json (allOf[0] is
-    {"$ref": "#"}) ABORTS with a stack overflow while the referee validates it — a
-    crash-vs-verdict divergence acknowledged by the #45 sibling entry. Empty at 04-08
-    (the pinned oracle does not abort there; R24 lists the self-root files per version)."""
+    {"$ref": "#"}) ABORTS with a stack overflow while the referee validates it. Since D4-04
+    the 2026-08-25 layout runs the per-version b52518f5 build (contains #66): this item now
+    AGREES (valid on both engines) and stays in the corpus as the REGRESSION WATCH for that
+    fix — a crash here is a NEW divergence (the #45 acknowledgement was retired). Empty at
+    04-08: no 04-08 check calls --def on that file (the pinned build aborts there too; the
+    pointer is the manifest's known_blind_spots entry, asserted unreached by
+    validate_schema_oracle_manifest.py)."""
     if VERSION != "2026-08-25":
         return []
-    return [Item("dual45.def_selected_payment_instrument_crash", _PI_REL[VERSION],
+    return [Item("dual45.def_selected_payment_instrument_regression_watch", _PI_REL[VERSION],
                  "selected_payment_instrument", "complete", "request",
                  {"id": "instr_1", "handler_id": "handler_card_1", "type": "card",
-                  "selected": True}, expect_divergence=_ID45)]
+                  "selected": True})]
 
 
 def golden_corpus(server):
@@ -264,6 +271,222 @@ def golden_corpus(server):
 
 
 # ---------------------------------------------------------------------------
+# PYDANTIC third leg (D4-05 / B5b): the python-sdk generated models, per SDK cut, in their
+# own venvs (pydantic_leg.py; conformance/ci/make_sdk_venvs.sh). The TAG cut (PyPI latest)
+# is GATED: a tag-vs-referee disagreement must be an acknowledged entry of
+# conformance/ci/known_sdk_drops.json (self-expiring on `pypi_ucp_sdk_gt`); the MAIN cut is
+# REPORT-ONLY. The zod leg (conformance/ci/zod_feed.mjs) is report-only too.
+# ---------------------------------------------------------------------------
+DROPS = ROOT / "conformance" / "ci" / "known_sdk_drops.json"
+ZOD_FEED = ROOT / "conformance" / "ci" / "zod_feed.mjs"
+ZOD_MAP = {
+    ("schemas/shopping/checkout.json", None): "CheckoutResponseSchema",
+    ("schemas/shopping/order.json", None): "OrderSchema",
+    ("schemas/profile.json", "jwk_public_key"): "SigningKeySchema",
+    ("schemas/common/types/unit.json", None): "UnitSchema",
+    ("schemas/common/types/time_interval.json", None): "TimeIntervalSchema",
+    ("schemas/common/types/location_serves.json", None): "LocationServesSchema",
+    ("schemas/shopping/types/fulfillment_method.json", None): "FulfillmentMethodSchema",
+    ("schemas/common/types/payment_instrument.json", "selected_payment_instrument"): "SelectedPaymentInstrumentSchema",
+}
+
+
+def drops_corpus():
+    """The L4 N24/N25 probe families at 2026-08-25: each drop payload (the referee rejects it;
+    the tag SDK accepts it — tagged with its known_sdk_drops id) next to a CONTROL the same
+    model must accept (no false alarm). Empty at other versions."""
+    if VERSION != "2026-08-25":
+        return []
+    P, U, T, L, F = ("schemas/profile.json", "schemas/common/types/unit.json",
+                     "schemas/common/types/time_interval.json", "schemas/common/types/location_serves.json",
+                     "schemas/shopping/types/fulfillment_method.json")
+    fm = {"id": "m1", "type": "shipping", "line_item_ids": []}
+    return [
+        Item("drop.jwk_no_crv", P, "jwk_public_key", "read", "response",
+             {"kty": "EC", "kid": "k1", "x": "AAAA", "y": "BBBB"}, expect_divergence="sdk-drop-jwk-no-crv"),
+        Item("drop.jwk_alg_mismatch", P, "jwk_public_key", "read", "response",
+             {"kty": "EC", "kid": "k1", "crv": "P-256", "x": "AAAA", "y": "BBBB", "alg": "ES384"},
+             expect_divergence="sdk-drop-jwk-alg-mismatch"),
+        Item("control.jwk_valid", P, "jwk_public_key", "read", "response",
+             {"kty": "EC", "kid": "k1", "crv": "P-256", "x": "AAAA", "y": "BBBB", "alg": "ES256"}),
+        Item("drop.unit_c62_scale2", U, None, "read", "response",
+             {"unit": "C62", "scale": 2, "display_text": "each"}, expect_divergence="sdk-drop-unit-c62-scale"),
+        Item("control.unit_valid", U, None, "read", "response", {"unit": "C62", "scale": 0, "display_text": "each"}),
+        Item("drop.ti_opens_only", T, None, "read", "response", {"opens": "09:00"},
+             expect_divergence="sdk-drop-time-interval-dependent-required"),
+        Item("control.ti_valid", T, None, "read", "response", {"opens": "09:00", "closes": "17:00"}),
+        Item("drop.ls_two_props", L, None, "read", "response",
+             {"address": {"address_country": "US"}, "point": {"latitude": 1.0, "longitude": 2.0}},
+             expect_divergence="sdk-drop-location-serves-max-properties"),
+        Item("control.ls_valid", L, None, "read", "response", {"address": {"address_country": "US"}}),
+        Item("drop.fm_dest_unknown_type", F, None, "read", "response",
+             dict(fm, destinations=[{"id": "d1", "type": "teleport"}]),
+             expect_divergence="sdk-drop-fulfillment-destination-unknown-type"),
+        Item("drop.fm_dest_wrong_shape", F, None, "read", "response",
+             dict(fm, destinations=[{"id": "d1", "type": "shipping_address", "address_country": 5}]),
+             expect_divergence="sdk-drop-fulfillment-destination-nested-retyping"),
+        Item("control.fm_dest_valid", F, None, "read", "response",
+             dict(fm, destinations=[{"id": "d1", "type": "shipping_address", "address_country": "US"}])),
+    ]
+
+
+def load_drops():
+    d = json.loads(DROPS.read_text())
+    entries = {e["id"]: e for e in d.get("drops", []) if VERSION in (e.get("versions") or [VERSION])}
+    for e in entries.values():
+        if not e.get("upstream"):
+            raise GateUnavailable(f"known_sdk_drops entry {e['id']!r} has no upstream link — suppression, not acknowledgement")
+    return d.get("sdk") or {}, entries
+
+
+def _ver(v):
+    return tuple(int(x) for x in str(v).split("."))
+
+
+def drops_expired(entries, tag_version):
+    """[(id, threshold)] — entries whose `expires_on.pypi_ucp_sdk_gt` the tag venv's ucp-sdk
+    version already exceeds: the next PyPI cut carries the fix, re-derive or delete."""
+    out = []
+    for eid, e in entries.items():
+        thr = (e.get("expires_on") or {}).get("pypi_ucp_sdk_gt")
+        if thr and _ver(tag_version) > _ver(thr):
+            out.append((eid, thr))
+    return out
+
+
+def evaluate_leg(items, referee, leg_verdicts, known_ids):
+    """Compare one SDK leg's verdicts ({label: (ok, faults)}) to the referee. Returns
+    (results, new_divergences, reproduced_ids, not_judged) with result =
+    (item, leg_ok, ref_ok, ref_faults, status) status in {agree, acknowledged, new-divergence,
+    not-judged}. Acknowledged iff the item carries a known drop id present in known_ids."""
+    results, new_div, reproduced, nj = [], [], set(), 0
+    for it in items:
+        if it.label not in leg_verdicts:
+            nj += 1
+            results.append((it, None, None, [], "not-judged")); continue
+        leg_ok, _f = leg_verdicts[it.label]
+        ref_ok, ref_faults = referee_verdict(referee, it.payload, it.schema_rel, it.def_name, it.op, it.direction)
+        if leg_ok == ref_ok:
+            results.append((it, leg_ok, ref_ok, ref_faults, "agree")); continue
+        ack = it.expect_divergence
+        if ack and ack in known_ids:
+            reproduced.add(ack)
+            results.append((it, leg_ok, ref_ok, ref_faults, "acknowledged"))
+        else:
+            new_div.append((it, leg_ok, ref_ok, ref_faults))
+            results.append((it, leg_ok, ref_ok, ref_faults, "new-divergence"))
+    return results, new_div, reproduced, nj
+
+
+def _leg_requests(items):
+    import pydantic_leg as pl
+    reqs = []
+    for it in items:
+        m = pl.model_for(it.schema_rel, it.def_name, it.op, it.direction)
+        if m:
+            reqs.append((it.label, m, it.payload))
+    return reqs
+
+
+def zod_report(items, referee):
+    """Run the zod leg (node + pinned @ucp-js/sdk) over the mapped items; returns
+    (rows_written, path) or (None, reason). Report-only; never fails the gate."""
+    import shutil, subprocess, tempfile
+    node = shutil.which("node")
+    pkg = ROOT / "conformance" / "ci" / "zod_feed" / "node_modules" / "@ucp-js" / "sdk"
+    if not node or not pkg.exists() or not ZOD_FEED.exists():
+        return None, "not run (node + `npm install` in conformance/ci/zod_feed required)"
+    payload = []
+    for it in items:
+        z = ZOD_MAP.get((it.schema_rel, it.def_name))
+        if not z:
+            continue
+        ref_ok, _ = referee_verdict(referee, it.payload, it.schema_rel, it.def_name, it.op, it.direction)
+        payload.append({"label": it.label, "zod": z, "payload": it.payload, "referee_ok": ref_ok})
+    ops_feeds = ROOT / "ops" / "feeds"
+    if (ROOT / "ops").is_dir():
+        ops_feeds.mkdir(parents=True, exist_ok=True)
+        out = ops_feeds / "zod_divergences.json"
+    else:
+        rd = os.environ.get("RUN_SUITE_RECORD_DIR") or tempfile.mkdtemp(prefix="zod_feed_")
+        out = pathlib.Path(rd) / "zod_divergences.json"
+    fd, inp = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    fd, fresh = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    pathlib.Path(inp).write_text(json.dumps(payload))
+    try:
+        r = subprocess.run([node, str(ZOD_FEED), "--in", inp, "--out", fresh],
+                           capture_output=True, text=True, cwd=str(ROOT / "conformance" / "ci" / "zod_feed"))
+        if r.returncode != 0:
+            return None, f"zod leg failed: {(r.stderr or r.stdout)[-160:]}"
+        doc = json.loads(pathlib.Path(fresh).read_text())
+        # a tracked ops feed is rewritten only when its ROWS change (never for a timestamp alone —
+        # the CI-1 class: a gate must not dirty a tracked file on every run)
+        try:
+            same = out.exists() and json.loads(out.read_text()).get("rows") == doc["rows"]
+        except ValueError:
+            same = False
+        if not same:
+            out.write_text(json.dumps(doc, indent=1) + "\n")
+    finally:
+        os.unlink(inp); os.unlink(fresh)
+    return len(doc["rows"]), str(out.relative_to(ROOT) if str(out).startswith(str(ROOT)) else out) + ("" if not same else " (unchanged)")
+
+
+def run_pydantic(referee, items, tag_leg=None, main_leg=None, drops=None, with_zod=True):
+    """The third column. Returns (rc, lines): 0 all agree/acknowledged, 1 a NEW tag drop,
+    a STALE or EXPIRED acknowledgement, 2 a leg unavailable (never green)."""
+    import pydantic_leg as pl
+    tag_leg = tag_leg or pl.PydanticLeg(pl.TAG, "pydantic-tag")
+    main_leg = main_leg or pl.PydanticLeg(pl.MAIN, "pydantic-main")
+    lines = []
+    try:
+        sdk, entries = (drops if drops is not None else load_drops())
+        tag_v = tag_leg.version()
+        if sdk.get("pypi_pin") and tag_v != sdk["pypi_pin"]:
+            return 2, [f"pydantic-tag: venv resolves ucp-sdk {tag_v} but known_sdk_drops.json pins "
+                       f"{sdk['pypi_pin']} — SDK PIN DRIFT, rebuild (make_sdk_venvs.sh)"]
+        reqs = _leg_requests(items)
+        tag_res = tag_leg.validate_many(reqs)
+        try:
+            main_v = main_leg.version(); main_res = main_leg.validate_many(reqs)
+        except pl.LegUnavailable as e:
+            main_v, main_res = None, {}
+            lines.append(f"  · pydantic-main unavailable ({e}) — report-only leg skipped")
+    except (pl.LegUnavailable, GateUnavailable) as e:
+        return 2, [f"pydantic leg unavailable: {e}"]
+    res, new_div, reproduced, nj = evaluate_leg(items, referee, tag_res, entries)
+    for it, leg_ok, ref_ok, f, st in res:
+        if st == "acknowledged":
+            lines.append(f"  ACK  pydantic-tag {it.label}: sdk=valid:{leg_ok} ref=valid:{ref_ok} faults={f[:2]} — {it.expect_divergence}")
+    for it, leg_ok, ref_ok, f in new_div:
+        lines.append(f"  ✗ NEW SDK DIVERGENCE  pydantic-tag {it.label}: sdk=valid:{leg_ok} ref=valid:{ref_ok} faults={f[:3]} — "
+                     f"acknowledge in known_sdk_drops.json with an upstream link, or fix the model map")
+    stale = [eid for eid in entries if eid not in reproduced]
+    for eid in stale:
+        lines.append(f"  ✗ STALE SDK DROP  {eid}: the tag SDK no longer reproduces it — delete or re-derive")
+    expired = drops_expired(entries, tag_v)
+    for eid, thr in expired:
+        lines.append(f"  ✗ EXPIRED SDK DROP  {eid}: acknowledged for ucp-sdk <= {thr} but the tag venv is {tag_v} — re-derive on the new cut")
+    main_div = 0
+    if main_res:
+        mres, mnew, _r, _nj = evaluate_leg(items, referee, main_res, set())
+        for it, leg_ok, ref_ok, f in mnew:
+            main_div += 1
+            lines.append(f"  REPORT pydantic-main {it.label}: sdk=valid:{leg_ok} ref=valid:{ref_ok} faults={f[:3]} (report-only, ledger candidate)")
+    zod_rows, zod_where = zod_report(items, referee) if with_zod else (None, "skipped")
+    ok = not new_div and not stale and not expired
+    agree = sum(1 for r in res if r[4] == "agree")
+    lines.append(f"pydantic-tag {tag_v}: agree {agree} · acknowledged drops {len(reproduced)} · NEW {len(new_div)} · "
+                 f"stale {len(stale)} · expired {len(expired)} · not-judged {nj}")
+    lines.append(f"3 engines · {len(new_div)} unexplained divergence · pydantic-tag: {len(reproduced)} acknowledged drops "
+                 f"(expire on PyPI > {sdk.get('pypi_pin', '?')}) · pydantic-main: {main_div}"
+                 + (f" ({main_v}, report-only)" if main_v else "")
+                 + (f" · zod: report-only, {zod_rows} rows written to {zod_where}" if zod_rows is not None
+                    else f" · zod: {zod_where}"))
+    return (0 if ok else 1), lines
+
+
+# ---------------------------------------------------------------------------
 # Register
 # ---------------------------------------------------------------------------
 def load_register(version=None):
@@ -280,7 +503,17 @@ def load_register(version=None):
     return entries
 
 
-def oracle_pin(lock=LOCK):
+def oracle_pin(lock=LOCK, version=None):
+    """The commit of the ucp-schema build serving `version` (default: the gate's VERSION):
+    conformance/ci/oracle_manifest.json per_version (D4-04, decision 7b) — whose 2026-04-08
+    entry must equal SOURCES.lock schema_validator.commit (validate_schema_oracle_manifest.py
+    asserts it) — with the lock as the fallback when the manifest is absent."""
+    version = version or VERSION
+    try:
+        import schema_oracle
+        return schema_oracle.manifest_entry(version)["commit"]
+    except Exception:  # noqa: BLE001 — manifest absent/unknown version: the lock's pinned build
+        pass
     try:
         return json.loads(pathlib.Path(lock).read_text())["schema_validator"]["commit"]
     except Exception as e:  # noqa: BLE001
@@ -346,8 +579,8 @@ def known_ids_class(known_ids, ack):
     return "verdict"
 
 
-def run(server=None, verbose=False):
-    """Returns (exit_code, lines)."""
+def run(server=None, verbose=False, pydantic=False):
+    """Returns (exit_code, lines). pydantic=True adds the third column (08-25 only)."""
     from dual_oracle_referee import get_referee, available, RefereeUnavailable
     lines = []
     if not available():
@@ -426,6 +659,12 @@ def run(server=None, verbose=False):
                      f"re-derive on the new oracle, then delete or re-pin this entry.")
 
     ok = (not new_div) and (not stale) and (not moved)
+    if pydantic:
+        prc, plines = run_pydantic(referee, items + drops_corpus())
+        lines += plines
+        if prc == 2:
+            return 2, lines
+        ok = ok and prc == 0
     if VERSION != DEFAULT_VERSION:
         lines.append(f"referee base {VERSION}: {referee.schema_count} schemas · corpus: "
                      f"{len(items)} payloads · agreements {agree} · acknowledged divergences: "
@@ -441,7 +680,7 @@ def run(server=None, verbose=False):
 # Self-tests (kill-tests): the gate must provably catch a PLANTED divergence and a
 # STALE acknowledgement, and the referee's lifecycle filter must match the resolver.
 # ---------------------------------------------------------------------------
-def selftest():
+def selftest(pydantic=False):
     from dual_oracle_referee import get_referee, available
     if not available():
         print("referee unavailable — skip"); return 2
@@ -483,10 +722,19 @@ def selftest():
     fixed_rust = lambda p, s, d, o, di: referee_verdict(referee, p, s, d, o, di)[0]
     _res3, nd3, reproduced3 = evaluate(divergence_corpus(), referee, rust_fn=fixed_rust)
     reg = load_register()
-    stale = [eid for eid in reg if eid not in reproduced3]
-    expired = (_ID43 in stale) and (len(nd3) == 0)
-    print(f"  {'✓' if expired else '✗'} self-expiry: on a FIXED oracle the #43 "
-          f"acknowledgement {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
+    if VERSION == DEFAULT_VERSION:
+        stale = [eid for eid in reg if eid not in reproduced3]
+        expired = (_ID43 in stale) and (len(nd3) == 0)
+        print(f"  {'✓' if expired else '✗'} self-expiry: on a FIXED oracle the #43 "
+              f"acknowledgement {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
+    else:
+        # no acknowledgement is live at this version (D4-04 retired them on the per-version
+        # build): plant one and prove the corpus does not reproduce it -> STALE
+        planted_reg = dict(reg, **{"planted-ack": {"id": "planted-ack", "upstream": "x", "class": "verdict"}})
+        stale = [eid for eid in planted_reg if eid not in reproduced3]
+        expired = ("planted-ack" in stale) and (len(nd3) == 0)
+        print(f"  {'✓' if expired else '✗'} self-expiry: a planted acknowledgement no corpus item "
+              f"reproduces {'goes stale (gate would fail until deleted)' if expired else 'did NOT expire'}")
     ok = ok and expired
 
     # (3) referee lifecycle filter is faithful to the official resolver (independent of
@@ -498,29 +746,84 @@ def selftest():
     ok = ok and faithful
 
     if VERSION != DEFAULT_VERSION:
-        # (5) the versioned base + the real pinned oracle over the boundary fixtures: #43
-        #     is a VERDICT divergence, the --def self-root path is a CRASH, both acknowledged
-        #     by their own entries; nothing NEW.
+        # (5) the versioned base + the PER-VERSION oracle (D4-04: the merged-main b52518f5
+        #     build, which contains #66) over the boundary fixtures: the #43 boundary AGREES
+        #     (three verdict items), the --def self-root path VALIDATES (no crash); nothing
+        #     NEW and no acknowledgement live at this version (both retired).
         res5, nd5, rep5 = evaluate(divergence_corpus(), referee, known_ids=reg)
         crash_items = [r for r in res5 if r[1] == "crash"]
-        verdict_acks = [r for r in res5 if r[4] == "acknowledged" and r[1] != "crash"]
-        case5 = (referee.schema_count == 116 and len(nd5) == 0 and len(crash_items) == 1
-                 and crash_items[0][4] == "acknowledged" and _ID45 in rep5 and _ID43 in rep5
-                 and len(verdict_acks) == 3)
+        agreed = [r for r in res5 if r[4] == "agree"]
+        watch = [r for r in res5 if r[0].label.startswith("dual45.") and r[4] == "agree" and r[1] is True]
+        case5 = (referee.schema_count == 116 and len(nd5) == 0 and len(crash_items) == 0
+                 and len(agreed) == len(res5) == 5 and len(watch) == 1 and len(reg) == 0)
         print(f"  {'✓' if case5 else '✗'} case 5: referee base {VERSION} loads "
-              f"{referee.schema_count} schemas; #43 boundary = verdict divergence ×"
-              f"{len(verdict_acks)} acknowledged ({_ID43}); --def selected_payment_instrument = "
-              f"crash-vs-verdict ×{len(crash_items)} acknowledged ({_ID45}); NEW {len(nd5)}")
+              f"{referee.schema_count} schemas; per-version oracle {oracle_pin()[:8]}: #43 boundary "
+              f"+ control agree ×{len(agreed) - len(watch)} (fixed by #66), --def selected_payment_instrument "
+              f"validates (#45 fixed, crash ×{len(crash_items)}); NEW {len(nd5)}; "
+              f"acknowledged divergences at {VERSION}: {len(reg)}")
         ok = ok and case5
-        # (6) pin-expiry kill-test: the same register with the pin moved must be STALE
-        moved = stale_by_pin(reg, "0000000000000000000000000000000000000000")
-        pinned = {eid for eid in reg if (reg[eid].get("expires_on") or {}).get("schema_validator_pin_not")}
-        case6 = {m[0] for m in moved} == pinned and pinned == set(reg) and not stale_by_pin(reg, oracle_pin())
-        print(f"  {'✓' if case6 else '✗'} case 6: pin-expiry — every entry carries "
+        # (6) pin-expiry kill-test over the WHOLE register (every version): a moved pin must
+        #     flag every pinned entry STALE; the real per-version pins flag none.
+        allreg = {e["id"]: e for e in json.loads(REGISTER.read_text())["divergences"]}
+        moved = stale_by_pin(allreg, "0000000000000000000000000000000000000000")
+        pinned = {eid for eid in allreg if (allreg[eid].get("expires_on") or {}).get("schema_validator_pin_not")}
+        real_ok = all(not stale_by_pin({eid: e}, oracle_pin(version=v))
+                      for eid, e in allreg.items() for v in (e.get("versions") or [DEFAULT_VERSION]))
+        case6 = {m[0] for m in moved} == pinned and pinned == set(allreg) and len(allreg) >= 1 and real_ok
+        print(f"  {'✓' if case6 else '✗'} case 6: pin-expiry — every register entry ({len(allreg)}) carries "
               f"expires_on.schema_validator_pin_not; a moved pin flags all {len(moved)} as "
-              f"STALE (pin moved); the real pin flags none")
+              f"STALE (pin moved); the real per-version pins flag none")
         ok = ok and case6
 
+    if pydantic and VERSION == "2026-08-25":
+        import pydantic_leg as pl
+        tag = pl.PydanticLeg(pl.TAG, "pydantic-tag")
+        if not tag.available():
+            print("pydantic-tag venv not built — skip (conformance/ci/make_sdk_venvs.sh)"); return 2
+        sdk, entries = load_drops()
+        drops = drops_corpus()
+        # (7) the #43 false-accept payload, judged by the pydantic-tag leg ALONE (no referee):
+        #     the SDK model rejects what the pinned Rust oracle false-accepted
+        ck = "schemas/shopping/checkout.json"
+        bad = _valid_checkout(); bad["payment"] = {"instruments": [{"selected": True}]}
+        t_ok, t_f = tag.validate(bad, pl.model_for(ck, None, "read", "response"))
+        case7 = (t_ok is False) and any(f.startswith("/payment/instruments/0") for f in t_f)
+        print(f"  {'✓' if case7 else '✗'} case 7: #43 payload, referee disabled — the pydantic-tag leg alone "
+              f"{'reds' if case7 else 'did NOT red'} (faults {t_f[:2]})")
+        ok = ok and case7
+        # (8) JWK without crv: tag accepts, referee rejects -> acknowledged by its drop entry
+        jwk = [it for it in drops if it.label == "drop.jwk_no_crv"]
+        res8, nd8, rep8, _ = evaluate_leg(jwk, referee, tag.validate_many(_leg_requests(jwk)), entries)
+        case8 = res8 and res8[0][4] == "acknowledged" and res8[0][1] is True and res8[0][2] is False
+        print(f"  {'✓' if case8 else '✗'} case 8: JWK without crv — tag accepts, referee rejects -> "
+              f"{'acknowledged (sdk-drop-jwk-no-crv)' if case8 else 'NOT acknowledged'}")
+        ok = ok and case8
+        # (9) delete the entry -> the same item is a NEW divergence (gate reds)
+        fewer = {k: v for k, v in entries.items() if k != "sdk-drop-jwk-no-crv"}
+        _r9, nd9, _rep9, _ = evaluate_leg(jwk, referee, tag.validate_many(_leg_requests(jwk)), fewer)
+        case9 = len(nd9) == 1
+        print(f"  {'✓' if case9 else '✗'} case 9: entry deleted -> {'NEW divergence (gate reds)' if case9 else 'still quiet (blind!)'}")
+        ok = ok and case9
+        # (10) offline venv -> rc 2, never green
+        rc10, l10 = run_pydantic(referee, jwk, tag_leg=pl.PydanticLeg(ROOT / "nope-venv", "pydantic-tag"),
+                                 main_leg=pl.PydanticLeg(ROOT / "nope-venv", "pydantic-main"), drops=(sdk, entries), with_zod=False)
+        case10 = rc10 == 2
+        print(f"  {'✓' if case10 else '✗'} case 10: offline venv -> rc {rc10} ({'skip, never green' if case10 else 'WRONG'})")
+        ok = ok and case10
+        # (11) expiry kill-test: threshold 0.4.9 -> every entry EXPIRED; the real threshold -> none
+        low = {k: dict(v, expires_on={"pypi_ucp_sdk_gt": "0.4.9"}) for k, v in entries.items()}
+        case11 = len(drops_expired(low, tag.version())) == len(entries) >= 1 and not drops_expired(entries, tag.version())
+        print(f"  {'✓' if case11 else '✗'} case 11: pypi_ucp_sdk_gt 0.4.9 -> {len(drops_expired(low, tag.version()))}/{len(entries)} "
+              f"EXPIRED; real threshold -> {len(drops_expired(entries, tag.version()))}")
+        ok = ok and case11
+        # (12) controls agree on the tag leg (no false alarm) + an unmapped item is not-judged
+        ctrl = [it for it in drops if it.label.startswith("control.")]
+        res12, nd12, _r, _ = evaluate_leg(ctrl, referee, tag.validate_many(_leg_requests(ctrl)), entries)
+        unm = [Item("unmapped", "schemas/nope.json", None, "read", "response", {})]
+        _r13, _n13, _rr, nj13 = evaluate_leg(unm, referee, {}, entries)
+        case12 = all(r[4] == "agree" for r in res12) and len(nd12) == 0 and nj13 == 1
+        print(f"  {'✓' if case12 else '✗'} case 12: {len(ctrl)} controls agree on the tag leg · unmapped item -> not-judged {nj13}")
+        ok = ok and case12
     print("PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -574,12 +877,17 @@ def main():
     ap.add_argument("--selftest", action="store_true", help="run the kill-tests")
     ap.add_argument("--version", default=DEFAULT_VERSION, choices=["2026-04-08", "2026-08-25"],
                     help="spec version / schema base to run (default 2026-04-08)")
+    ap.add_argument("--pydantic", action="store_true",
+                    help="add the python-sdk pydantic third leg (2026-08-25 only; D4-05): tag cut gated via "
+                         "known_sdk_drops.json, main cut report-only, zod feed report-only")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
     set_version(args.version)
+    if args.pydantic and args.version != "2026-08-25":
+        ap.error("--pydantic requires --version 2026-08-25 (ucp-sdk 0.5.0 models are the 08-25 cut)")
     if args.selftest:
-        return selftest()
-    code, lines = run(server=args.server, verbose=args.verbose)
+        return selftest(pydantic=args.pydantic)
+    code, lines = run(server=args.server, verbose=args.verbose, pydantic=args.pydantic)
     print("\n".join(lines))
     return code
 

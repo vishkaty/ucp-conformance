@@ -419,6 +419,22 @@ def _census_for(ver, completeness):
     return {"mode": mode, "unaccounted": pv.get("missed", 0), "gate_from": gate_from}
 
 
+def _discovery_live_slot(version):
+    """D4-08 (decision 4): the public aggregate of the discovery-live sampler — {stores, as_of}
+    from conformance/coverage/discovery_reach.json (written by discovery_live.py --grade
+    --record on the owner's machine; never domains). None until captures exist; 08-25 only
+    (the sampled profiles are graded against the 2026-08-25 rows)."""
+    if version != "2026-08-25":
+        return None
+    try:
+        d = json.load(open(os.path.join(HERE, "discovery_reach.json")))
+    except Exception:
+        return None
+    if not d.get("stores"):
+        return None
+    return {"stores": d["stores"], "as_of": d.get("as_of")}
+
+
 def export_json():
     """The full requirements-traceability export: per version, every MUST row with its
     bucket (check/exempt/gap), testability, verbatim requirement, pinned-spec source,
@@ -523,7 +539,7 @@ def export_json():
             "roles": None,                          # D2-08
             "by_transport": by_transport,
             "surface": None,                        # filled below (subprocess census)
-            "discovery_live": None,                 # D4-08 writes {stores, as_of}
+            "discovery_live": _discovery_live_slot(ver),   # D4-08: {stores, as_of} from discovery_reach.json (08-25 only)
             "evidence_classes": list(evidence.CLASSES),
             "evidence_breakdown": evidence.breakdown(evmap, ver, check_ids),
             "gap_by_testability": dict(sorted(gap_by_test.items())),

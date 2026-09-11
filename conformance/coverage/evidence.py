@@ -79,10 +79,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CONF = os.path.dirname(HERE)                       # conformance/
 REACH_FILE = os.path.join(HERE, "reach_report.json")
 
-CLASSES = ("live-wire", "fixture-schema", "fixture-crypto", "self-referenced")
+# discovery-live (D4-08, decision 4): a check whose predicate reads a discovery-live CAPTURE
+# (conformance/ci/discovery_live.load_capture — a real store's GET /.well-known/ucp, sampled on
+# the owner's machine under probe_policy.json) and whose entry in coverage/discovery_reach.json
+# shows >= 3 distinct domains graded within 30 days. Ranked below live-wire and NEVER promoted
+# to it: a discovery capture is one read of one public document, not an independent
+# implementation the differential gate probes (differential_targets.json stays at 2).
+CLASSES = ("live-wire", "discovery-live", "fixture-schema", "fixture-crypto", "self-referenced")
 # strongest-first rank for per-id aggregation (an id covered by several checks gets
 # the strongest evidence any of them provides)
-_RANK = {"live-wire": 3, "fixture-schema": 2, "fixture-crypto": 1, "self-referenced": 0}
+_RANK = {"live-wire": 4, "discovery-live": 3, "fixture-schema": 2, "fixture-crypto": 1, "self-referenced": 0}
+DISCOVERY_REACH_FILE = os.path.join(HERE, "discovery_reach.json")
+_DISCOVERY_MODULES = ("discovery_live",)
 
 # network entrypoints: the engine's wire functions by NAME (resolved by identity in
 # _reaches, so a same-named local helper can't spoof them) + stdlib net modules.
@@ -173,6 +181,29 @@ def _reaches(fn, target_funcs=frozenset(), module_prefixes=(), _seen=None, _dept
     return False
 
 
+def _reaches_file(fn, basenames, _seen=None, _depth=0):
+    """True iff `fn` TRANSITIVELY references a function DEFINED in one of `basenames`
+    (compared by code-object filename, so a module executed as __main__ — e.g.
+    discovery_live.py --selftest — is recognised exactly like `import discovery_live`)."""
+    if _seen is None:
+        _seen = set()
+    if _depth > 8 or not callable(fn):
+        return False
+    objs, _names = _referenced_objects(fn)
+    for obj in objs:
+        co = getattr(obj, "__code__", None)
+        if co is None:
+            continue
+        if os.path.basename(co.co_filename) in basenames:
+            return True
+        if id(co) in _seen:
+            continue
+        _seen.add(id(co))
+        if co.co_filename.startswith(CONF) and _reaches_file(obj, basenames, _seen, _depth + 1):
+            return True
+    return False
+
+
 def acquisition(chk):
     """How the check OBTAINS its graded response: 'wire' (live server), 'fixture'
     (local synthetic target), or 'schema-tier' (namedtuple checks whose runner IS
@@ -233,13 +264,57 @@ def load_reach(path=REACH_FILE):
     return out
 
 
-def classify_check(chk, module_stem, version, reach=None):
+def load_discovery_reach(path=DISCOVERY_REACH_FILE):
+    """{check_id: {domains, latest}} from the committed discovery_reach.json (rows are keyed
+    by req id there; a check earns via any of its req_ids). Missing file => {} (fail-closed:
+    every capture-reading check demotes to self-referenced)."""
+    try:
+        d = json.load(open(path))
+    except Exception:
+        return {}
+    return d.get("rows") or {}
+
+
+def _discovery_row(chk, discovery_reach):
+    """The strongest discovery_reach row for this check: by check id, else by any req id."""
+    if not discovery_reach:
+        return None
+    if chk.id in discovery_reach:
+        return discovery_reach[chk.id]
+    best = None
+    for rid in (getattr(chk, "req_ids", None) or []):
+        row = discovery_reach.get(rid)
+        if row and (best is None or row.get("domains", 0) > best.get("domains", 0)):
+            best = row
+    return best
+
+
+def _discovery_live(row):
+    import datetime
+    if not row or not row.get("latest"):
+        return False
+    try:
+        age = (datetime.date.today() - datetime.date.fromisoformat(row["latest"])).days
+    except ValueError:
+        return False
+    return int(row.get("domains", 0)) >= 3 and age <= 30
+
+
+def classify_check(chk, module_stem, version, reach=None, discovery_reach=None):
     """(evidence_class, graded_independent_targets) for one check object AT one
     spec version. `version` is load-bearing for the wire tier ONLY: a check
     graded against a target serving spec V corroborates V, never a sibling
     version the same check object also happens to be attributed to (R4 — the
-    reach report is keyed per-version precisely so this call can't cross-credit)."""
+    reach report is keyed per-version precisely so this call can't cross-credit).
+    A check whose predicate/fetch reaches discovery_live.load_capture is the DISCOVERY tier
+    (D4-08): discovery-live with >= 3 domains within 30 days, else self-referenced — never
+    live-wire, whatever the reach report says."""
     reach = {} if reach is None else reach
+    fn = getattr(chk, "predicate", None) or getattr(chk, "fetch_fn", None)
+    if fn is not None and (_reaches(fn, module_prefixes=_DISCOVERY_MODULES)
+                           or _reaches_file(fn, ("discovery_live.py",))):
+        dr = load_discovery_reach() if discovery_reach is None else discovery_reach
+        return ("discovery-live" if _discovery_live(_discovery_row(chk, dr)) else "self-referenced"), []
     acq = acquisition(chk)
     if acq == "schema-tier":
         return "fixture-schema", []

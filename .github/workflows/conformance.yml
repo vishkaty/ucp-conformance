@@ -73,17 +73,34 @@ jobs:
       - name: Fetch pinned upstream sources
         run: bash conformance/ci/fetch_sources.sh
 
-      - name: Cache the ucp-schema build
+      - name: Cache the ucp-schema builds (one per layout — conformance/ci/oracle_manifest.json)
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             conformance/.vendor/ucp-schema/target
-          key: ucp-schema-${{ runner.os }}-${{ hashFiles('conformance/SOURCES.lock.json') }}
+            conformance/.vendor/ucp-schema-0825/target
+          key: ucp-schema-${{ runner.os }}-${{ hashFiles('conformance/SOURCES.lock.json', 'conformance/ci/oracle_manifest.json') }}
 
-      - name: Build the ucp-schema oracle
+      - name: Build the ucp-schema oracle (pinned build, 2026-04-08 layout)
         run: cargo build --release --manifest-path conformance/.vendor/ucp-schema/Cargo.toml
+
+      - name: Build the per-version ucp-schema oracle (merged main b52518f5, 2026-08-25 layout — D4-04, decision 7b)
+        run: cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml
+
+      - name: Per-version oracle manifest — builds match their commits and --version fingerprints
+        run: python3 conformance/selfcheck/validate_schema_oracle_manifest.py
+
+      - name: Build the python-sdk venvs for the pydantic third leg (D4-05; tag 0.5.0 gated, main report-only)
+        # network installs (PyPI + git); a failure here makes dual-oracle-0825-pydantic an honest
+        # rc 2 skip, never a false green — so continue-on-error is safe for THIS step only.
+        run: bash conformance/ci/make_sdk_venvs.sh
+        continue-on-error: true
+
+      - name: Install the pinned js-sdk for the zod report-only leg (D4-05)
+        run: cd conformance/ci/zod_feed && npm install --no-audit --no-fund --package-lock=false
+        continue-on-error: true
 
       - name: Bring up the golden server
         run: |

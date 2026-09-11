@@ -72,6 +72,29 @@ if [ "$GOT_SDK" != "$WANT_SDK" ]; then
 fi
 echo "✓ golden-0825 ucp-sdk $GOT_SDK matches pyproject.toml pin" >&2
 
+# Oracle boot guard (D4-04, decision 7b): every gate that grades this golden validates
+# its bodies with the PER-VERSION ucp-schema build conformance/ci/oracle_manifest.json
+# assigns to 2026-08-25 (the merged-main b52518f5 build). Refuse to boot when
+# .vendor/<vendor_dir> is not at that commit or the binary's --version fingerprint is
+# not the manifest's (a swapped/stale build would silently change what a verdict
+# proves) — exit 3, same discipline as the SDK pin guard above. Set
+# ORACLE_GUARD_SKIP=1 only for a boot that grades nothing (never in a gate).
+ORACLE_GUARD="$ROOT/../../selfcheck/validate_schema_oracle_manifest.py"
+if [ -n "${ORACLE_GUARD_SKIP:-}" ]; then
+  echo "oracle guard: SKIPPED by ORACLE_GUARD_SKIP (a boot that grades nothing)" >&2
+elif [ ! -f "$ORACLE_GUARD" ]; then
+  # a synthetic ROOT (conformance/ci/golden_boot_guards.py copies this script into a scratch
+  # tree with no selfcheck/): nothing to verify against, say so; never silent, never green
+  echo "oracle guard: validator not present in this tree ($ORACLE_GUARD) — skipped (synthetic root)" >&2
+else
+  GUARD_LINE="$(python3 "$ORACLE_GUARD" --boot-guard 2026-08-25 2>&1)" || {
+    echo "$GUARD_LINE" >&2
+    echo "refusing to boot golden-0825: the 2026-08-25 oracle does not match conformance/ci/oracle_manifest.json (fetch_sources.sh + cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml)" >&2
+    exit 3
+  }
+  echo "$GUARD_LINE" >&2
+fi
+
 ( cd "$SERVER" && \
   uv run import_csv.py \
     --data_dir="$DATA_DIR" \

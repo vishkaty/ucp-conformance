@@ -1,0 +1,152 @@
+{
+  "_about": "KNOWN constraint DROPS of the published python-sdk generated models (the pydantic third leg of the dual-oracle gate at 2026-08-25, D4-05 / B5b): payloads the REFEREE rejects under the pinned schemas but `ucp-sdk==<sdk.pypi_pin>` (the tag cut on PyPI) ACCEPTS. Each entry is one probe family from the L4 N24/N25 sweep, reproduced every run by validate_dual_oracle.py --version 2026-08-25 --pydantic against the tag venv (conformance/ci/make_sdk_venvs.sh); a tag-vs-referee disagreement NOT listed here fails the gate; an entry the tag no longer reproduces fails as STALE. EXPIRY: `expires_on.pypi_ucp_sdk_gt` — the entry EXPIRES (gate FAIL until re-derived) as soon as the tag venv resolves a ucp-sdk version GREATER than that string (the next PyPI cut carries main's #89/#91/#93/#96 fixes). Registered in conformance/coverage/expiry_registers.json (review_by 30 d, clock_tier moving, spec_pin cd78fb38). python-sdk main (sdk.main_commit) is a REPORT-ONLY leg: its disagreements print as REPORT lines and feed ledger rows, never a verdict. Nothing may be listed without `upstream`.",
+  "sdk": {
+    "pypi_pin": "0.5.0",
+    "pypi_pin_note": "PyPI latest at 2026-09-11 (uploaded 2026-08-27) = tag v2026-08-25 = python-sdk b6f9b91c018f748a92166266004c8b625142cdfb (VERIFIED gh api git/ref/tags + pip index versions).",
+    "main_commit": "836b0228d19a4a64af8930c6b70c0e581c09b20b",
+    "main_note": "python-sdk main at 2026-09-11 (2026-09-04T14:38:23Z), 6 commits past the tag: #89 (JWK conditionals + unit.json scale pin), #91 (maxProperties family), #93 (discriminator array item retyping), #94 (capability role schemas from dotted defs), #95 docs, #96 (dependentRequired). No PyPI cut yet — packet (b) of D4-14 asks."
+  },
+  "drops": [
+    {
+      "id": "sdk-drop-jwk-no-crv",
+      "family": "JWK conditionals (profile.json#/$defs/jwk_public_key allOf if/then: EC keys carry crv, x, y)",
+      "schema_rel": "schemas/profile.json",
+      "def": "jwk_public_key",
+      "payload_label": "drop.jwk_no_crv",
+      "main_verdict": "rejects (fixed by #89)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-jwk-alg-mismatch",
+      "family": "JWK conditionals (P-256 pairs with ES256)",
+      "schema_rel": "schemas/profile.json",
+      "def": "jwk_public_key",
+      "payload_label": "drop.jwk_alg_mismatch",
+      "main_verdict": "rejects (fixed by #89)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-unit-c62-scale",
+      "family": "unit.json C62 scale pin (if unit == C62 then scale const 0)",
+      "schema_rel": "schemas/common/types/unit.json",
+      "def": null,
+      "payload_label": "drop.unit_c62_scale2",
+      "main_verdict": "rejects (fixed by #89)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-time-interval-dependent-required",
+      "family": "dependentRequired (time_interval.json opens -> closes)",
+      "schema_rel": "schemas/common/types/time_interval.json",
+      "def": null,
+      "payload_label": "drop.ti_opens_only",
+      "main_verdict": "rejects (fixed by #96)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/96",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-location-serves-max-properties",
+      "family": "maxProperties (location_serves.json exactly one of point | address)",
+      "schema_rel": "schemas/common/types/location_serves.json",
+      "def": null,
+      "payload_label": "drop.ls_two_props",
+      "main_verdict": "rejects (fixed by #91)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/91",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-fulfillment-destination-unknown-type",
+      "family": "discriminator array item retyping (fulfillment_method.json destinations[] by type)",
+      "schema_rel": "schemas/shopping/types/fulfillment_method.json",
+      "def": null,
+      "payload_label": "drop.fm_dest_unknown_type",
+      "main_verdict": "rejects (fixed by #93)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93",
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    },
+    {
+      "id": "sdk-drop-fulfillment-destination-nested-retyping",
+      "family": "discriminator array item retyping, NESTED field types (destinations[].address_country must be a string)",
+      "schema_rel": "schemas/shopping/types/fulfillment_method.json",
+      "def": null,
+      "payload_label": "drop.fm_dest_wrong_shape",
+      "main_verdict": "ACCEPTS too (VERIFIED 2026-09-11 on 836b0228: #93 approximates the discriminator but not the nested field types) — pydantic-main REPORT line; candidate python-sdk issue (held: not in the decision-5 order; ledger row via D4-14 landing note)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93",
+      "candidate_filing": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "review_by": "2026-10-10",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving",
+      "tag_accepts": true,
+      "referee_rejects": true,
+      "expires_on": {
+        "pypi_ucp_sdk_gt": "0.5.0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "_about": "PER-VERSION schema-validation ORACLE manifest (D4-04 / B6, decision 7 CLOSED 2026-09-10: per-version oracle from MERGED SHAs; verdict-diff on both layouts; boot guard on SHA). One `ucp-schema` build per spec-version LAYOUT: the pinned 9b5c3206 build (SOURCES.lock schema_validator) serves the 2026-04-08 layout and its aliases; the merged-main b52518f5 build (contains #66, which fixes the `$ref: \"#\"` self-root recursion that aborts the pinned build on `--def selected_payment_instrument`) serves the 2026-08-25 layout. schema_oracle.bin_for(version) resolves through this file; validate_schema_oracle_manifest.py (gate `oracle-manifest`) enforces it: every entry `merged: true` (a PR build such as #72 is never pinned), the 2026-04-08 entry's commit == SOURCES.lock schema_validator.commit (the lock stays the single source for the pinned build), vendor dirs checked out at their commit, `known_blind_spots` empty for the 08-25 build, and no `--def` call site in the checks hits a blind spot the referee does not judge. Boot guard: serve_golden_0825.sh and golden_check_08_25.py refuse (exit 3 / SKIP) when .vendor/<vendor_dir> is not at `commit`. oracle_verdict_diff.py records both builds x both layouts; when both agree everywhere the split is STALE and this file collapses to one entry. LOCK: this block is destined for SOURCES.lock.json `schema_validator.per_version` with exactly these field names (D2's names); lane D4 may not edit the lock (EXEC-BRIEF rule 4), so the manifest lives here until D2 lands the lock section, and the validator cross-checks the two. `bin_version` is the exact `<bin> --version` line (1.4.0 pinned, 1.4.1 merged main): the boot guard fingerprints the BINARY with it, so a swapped build is refused even when the checkout SHA is right.",
+  "repo": "Universal-Commerce-Protocol/ucp-schema",
+  "policy": "merged SHAs or tags only (PLAN-0825 SS B; decision 7b). A #72 build is never pinned; when #72 merges, both versions move to one SHA and the alias table collapses.",
+  "resolved": {
+    "on": "2026-09-11",
+    "method": "gh api repos/Universal-Commerce-Protocol/ucp-schema/branches/main -> b52518f501bfb3310f084c263d82c2647c184f1f (2026-08-27T15:16:34Z); compare b52518f5...main -> identical (ahead 0, behind 0); #66 merged 2026-08-24T18:50:10Z; #44 closed unmerged; #72 open; #67 (release 2.0.0) open"
+  },
+  "per_version": {
+    "2026-08-25": {
+      "commit": "b52518f501bfb3310f084c263d82c2647c184f1f",
+      "ref": "main",
+      "merged": true,
+      "commit_date": "2026-08-27T15:16:34Z",
+      "vendor_dir": "ucp-schema-0825",
+      "bin": "ucp-schema-0825/target/release/ucp-schema",
+      "bin_version": "ucp-schema 1.4.1",
+      "layout": "0825",
+      "known_blind_spots": [],
+      "verdict_diff": "conformance/ci/oracle_verdict_diff.json#2026-08-25"
+    },
+    "2026-04-08": {
+      "commit": "9b5c32066f0fe5f50918ec612ba43ad70e2547e3",
+      "ref": "main",
+      "merged": true,
+      "commit_date": "2026-07-24T11:59:35Z",
+      "vendor_dir": "ucp-schema",
+      "bin": "ucp-schema/target/release/ucp-schema",
+      "bin_version": "ucp-schema 1.4.0",
+      "layout": "0408",
+      "known_blind_spots": [
+        "schemas/shopping/types/payment_instrument.json#/$defs/selected_payment_instrument"
+      ],
+      "blind_spot_note": "the pinned build aborts (rc 134, stack overflow) on `--def selected_payment_instrument` at the 04-08 layout too (VERIFIED 2026-09-11) and false-accepts payment.instruments[*] through checkout.json (ucp-schema#43, acknowledged in known_oracle_divergences.json); no 04-08 check calls --def on that file, and the checkout path is judged by the referee (dual-oracle gate).",
+      "verdict_diff": "conformance/ci/oracle_verdict_diff.json#2026-04-08"
+    },
+    "2026-01-23": {
+      "alias_of": "2026-04-08"
+    },
+    "2026-01-11": {
+      "alias_of": "2026-04-08"
+    }
+  }
+}

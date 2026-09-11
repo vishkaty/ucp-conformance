@@ -19,7 +19,45 @@ import json, subprocess, pathlib, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 VENDOR = ROOT / "conformance" / ".vendor"
+# The PINNED build (SOURCES.lock schema_validator): the 2026-04-08-layout oracle and the
+# module-level default. D4-04 (decision 7b): the oracle is PER VERSION — bin_for(version)
+# resolves through conformance/ci/oracle_manifest.json (one merged SHA per layout; the
+# 2026-08-25 layout runs the merged-main b52518f5 build that no longer aborts on the
+# `$ref: "#"` self-root `--def` path). BIN stays the pinned path for callers that only
+# ask "is an oracle built at all".
 BIN = VENDOR / "ucp-schema" / "target" / "release" / "ucp-schema"
+MANIFEST = ROOT / "conformance" / "ci" / "oracle_manifest.json"
+DEFAULT_VERSION = "2026-04-08"
+
+
+def load_manifest(path=MANIFEST):
+    return json.loads(pathlib.Path(path).read_text())
+
+
+def manifest_entry(version, manifest=None):
+    """The manifest's per_version entry for `version`, aliases resolved (an `alias_of`
+    entry points at the layout it shares). Raises OracleUnavailable for an unknown
+    version or a dangling alias."""
+    m = manifest or load_manifest()
+    pv = m.get("per_version") or {}
+    seen = set()
+    while True:
+        e = pv.get(version)
+        if e is None:
+            raise OracleUnavailable(f"no oracle manifest entry for {version} in {MANIFEST}")
+        if "alias_of" not in e:
+            return e
+        if version in seen:
+            raise OracleUnavailable(f"alias cycle at {version} in {MANIFEST}")
+        seen.add(version)
+        version = e["alias_of"]
+
+
+def bin_for(version=None, manifest=None):
+    """Path of the ucp-schema binary that serves `version`'s layout (per the manifest)."""
+    if version is None:
+        return BIN
+    return VENDOR / manifest_entry(version, manifest)["bin"]
 # spec version -> local "site root" dir that maps https://ucp.dev/ (so the
 # validator resolves a capability schema URL https://ucp.dev/schemas/<x> to
 # <base>/schemas/<x>). Each dir therefore CONTAINS a schemas/ subdir.
@@ -39,14 +77,16 @@ class OracleUnavailable(RuntimeError):
 # ucp-schema#45) is a CRASH, not a verdict — validate_dual_oracle.rust_verdict reads it.
 LAST_RC = None
 
-def _run(args):
+def _run(args, version=None):
+    """Invoke the oracle that serves `version` (None -> the pinned default build)."""
     global LAST_RC
-    if not BIN.exists():
+    b = bin_for(version)
+    if not b.exists():
         # parents[2] may not exist for an unusual BIN path; don't let the message crash.
-        hint = str(BIN.parents[2]) if len(BIN.parents) > 2 else str(BIN.parent)
+        hint = str(b.parents[2]) if len(b.parents) > 2 else str(b.parent)
         raise OracleUnavailable(
-            f"ucp-schema binary not built at {BIN}. Run: cd {hint} && cargo build --release")
-    r = subprocess.run([str(BIN), *args], capture_output=True, text=True)
+            f"ucp-schema binary not built at {b}. Run: cd {hint} && cargo build --release")
+    r = subprocess.run([str(b), *args], capture_output=True, text=True)
     LAST_RC = r.returncode
     return r
 
@@ -68,7 +108,7 @@ def validate(payload_path, op, *, request=False, response=False,
         args.append("--response")
     if strict:
         args.append("--strict")
-    r = _run(args)
+    r = _run(args, version=version)
     return (r.returncode == 0, (r.stdout + r.stderr).strip())
 
 def _ucp_schema_path(base):
@@ -108,7 +148,7 @@ def validate_profile(profile, version="2026-01-23", role="business", def_name=No
         pathlib.Path(path).write_text(json.dumps(profile))
         r = _run(["validate", path, "--schema", str(schema),
                   "--def", def_name or f"{role}_schema",
-                  "--op", "read", "--schema-local-base", str(base)])
+                  "--op", "read", "--schema-local-base", str(base)], version=version)
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
         os.unlink(path)
@@ -128,7 +168,7 @@ def resolve_def(schema_rel, def_name, op, version="2026-04-08", direction="reque
         args.append("--request")
     elif direction == "response":
         args.append("--response")
-    r = _run(args)
+    r = _run(args, version=version)
     if r.returncode != 0:
         raise OracleUnavailable(f"resolve failed: {(r.stdout + r.stderr)[:200]}")
     return json.loads(r.stdout)
@@ -149,7 +189,7 @@ def resolve_root(schema_rel, op, version="2026-01-23", direction="request"):
         args.append("--request")
     elif direction == "response":
         args.append("--response")
-    r = _run(args)
+    r = _run(args, version=version)
     if r.returncode != 0:
         raise OracleUnavailable(f"resolve failed: {(r.stdout + r.stderr)[:200]}")
     return json.loads(r.stdout)
@@ -178,7 +218,7 @@ def validate_against(payload, schema_rel, def_name, op="read", version="2026-04-
             args.append("--request")
         elif direction == "response":
             args.append("--response")
-        r = _run(args)
+        r = _run(args, version=version)
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
         os.unlink(path)
@@ -211,7 +251,7 @@ def validate_nested_def(payload, schema_rel, def_path, op="read", version="2026-
         pathlib.Path(ppath).write_text(json.dumps(payload))
         r = _run(["validate", ppath, "--schema", wpath, "--op", op,
                   "--schema-local-base", str(base),
-                  "--schema-remote-base", "https://ucp.dev"])
+                  "--schema-remote-base", "https://ucp.dev"], version=version)
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
         os.unlink(wpath); os.unlink(ppath)
@@ -236,7 +276,7 @@ def validate_root(payload, schema_rel, op="read", version="2026-04-08", directio
             args.append("--request")
         elif direction == "response":
             args.append("--response")
-        r = _run(args)
+        r = _run(args, version=version)
         return (r.returncode == 0, (r.stdout + r.stderr).strip())
     finally:
         os.unlink(path)
