@@ -269,6 +269,8 @@ def selftest():
         good_in = evaluate(scratch(merchant_gap=0, expired=False))
     except NameError as e:
         print(f"  ✗ evaluate absent: {e}")
+        print("\ndone2-status selftest: FAIL (1 case(s))")
+        return 1
     # W1 integration (D2-16 x D5-13): item 9's site sentence is the REGISTERED CLAIM-RUB-016 text
     # on its page ("Airtight means the MUST / MUST NOT / REQUIRED / SHALL obligations …"), not the
     # plan's placeholder literal 'airtight = MUST' (kept as the pre-D5-13 fallback).
@@ -281,12 +283,10 @@ def selftest():
             absent = rubric_sentence_present(pub, {"claims": [{"id": "CLAIM-RUB-016", "page": "rubric.html", "text": "some other sentence"}]})
             (pub / "old.html").write_text("airtight = MUST only")
             legacy = rubric_sentence_present(pub, {"claims": []})
-            case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)",
-                 present is True and absent is False and legacy is True, f"present={present} absent={absent} legacy={legacy}")
+            bad += case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)",
+                        present is True and absent is False and legacy is True, f"present={present} absent={absent} legacy={legacy}")
         except NameError as e:
-            case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)", False, str(e))
-        print("\ndone2-status selftest: FAIL (1 case(s))")
-        return 1
+            bad += case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)", False, str(e))
     bad += case("scratch export with roles.merchant.gap 3 -> item 2 FAIL",
                 bad_in[2]["pass"] is False and "3" in bad_in[2]["evidence"], repr(bad_in[2]))
     bad += case("scratch register with an expired review_by -> item 8 FAIL",
