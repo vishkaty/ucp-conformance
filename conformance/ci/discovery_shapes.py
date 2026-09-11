@@ -156,6 +156,25 @@ def selftest():
     p_mcp = {"ucp": {"version": "2026-04-08", "services": {"dev.ucp.shopping": [{"transport": "mcp", "endpoint": "x"}]}}}
     p_emb = {"ucp": {"version": "2026-04-08", "services": {"dev.ucp.shopping": [{"transport": "embedded", "endpoint": "x"}]}}}
     p_0111 = {"ucp": {"version": "2026-01-11", "services": {"dev.ucp.shopping": {"rest": {"endpoint": "x"}}}}, "signing_keys": []}
+    # W1 integration (D4-08 writer x D5-13 reader): D4 records a FAILED fetch as a
+    # discovery-capture/1 document with body null and http.status 0 (the 2026-09-11 smoke's
+    # jlique.com, DNS failure). It is a non-200 capture — excluded from the count, never
+    # "malformed" — and check_dir() must find captures under D4's YYYY-MM-DD subdirectories.
+    import datetime as _dt, json as _json, tempfile as _tf
+    dead = {"schema": "discovery-capture/1", "domain": "dead.example", "fetched_at": "2026-09-11T00:00:00Z",
+            "http": {"status": 0, "headers": {}, "redirects": 0, "error": "URLError"}, "body": None, "body_text": None,
+            "body_sha256": None, "frame": "hf", "robots_checked": True, "grade": {}}
+    live = [{"schema": "discovery-capture/1", "domain": f"s{i}.example", "fetched_at": "2026-09-11T00:00:00Z",
+             "http": {"status": 200, "headers": {}, "redirects": 0}, "body": {"ucp": {"version": "2026-08-25"}},
+             "body_text": "{}", "body_sha256": "x", "frame": "hf", "robots_checked": True, "grade": {}} for i in range(3)]
+    r = discovery_reach(live + [dead], _dt.date(2026, 9, 11))
+    case("failed fetch (status 0, body null) is excluded, not malformed", (r["stores"], len(r["malformed"])), (3, 0))
+    with _tf.TemporaryDirectory() as td:
+        day = pathlib.Path(td) / "2026-09-11"; day.mkdir()
+        for c in live + [dead]:
+            (day / f"{c['domain']}.json").write_text(_json.dumps(c))
+        rc, _line = check_dir(td, today=_dt.date(2026, 9, 11))
+        case("check_dir finds captures under a YYYY-MM-DD subdirectory (D4's layout)", rc, 0)
     case("8-cap mcp+embedded (no rest) -> other", shape_bucket(p8), "other")
     case("14-cap rest+mcp with keys -> rest_keys", shape_bucket(p14), "rest_keys")
     case("mcp-only -> mcp_only", shape_bucket(p_mcp), "mcp_only")
