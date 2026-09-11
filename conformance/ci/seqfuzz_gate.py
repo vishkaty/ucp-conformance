@@ -258,10 +258,15 @@ class Run:
         raw = compact(create_body(rng)); key = f"idem-{uuid.uuid4().hex[:10]}"
         st, body = self._step("create", "POST", "/checkout-sessions", raw, key, prev)
         if st != 201 or not isinstance(body, dict):
+            self.failed_creates = getattr(self, "failed_creates", 0) + 1
             return
+        self.failed_creates = 0
         cid = body["id"]; prev = {"status": body.get("status"), "id": cid}
-        plan = ops or [rng.choice(["get", "update", "update", "complete", "cancel", "replay_same",
-                                   "replay_mismatch", "replay_reserialized"]) for _ in range(rng.randint(3, 7))]
+        # `complete` consumes seeded stock (L5 N19: an unbounded fuzz exhausts the inventory and
+        # every later create is a 4xx that says nothing about the lifecycle) — keep it rare.
+        menu = ["get", "update", "update", "cancel", "replay_same", "replay_mismatch", "replay_reserialized"]
+        menu += ["complete"] if rng.random() < 0.25 else []
+        plan = ops or [rng.choice(menu) for _ in range(rng.randint(3, 7))]
         for op in plan:
             if op == "get":
                 st, body = self._step("get", "GET", f"/checkout-sessions/{cid}", None, None, prev)
@@ -301,6 +306,11 @@ class Run:
         t_end = time.monotonic() + seconds
         while time.monotonic() < t_end:
             self.sequence(rng)
+            if getattr(self, "failed_creates", 0) >= 20:
+                # 20 consecutive failed creates = the seeded stock is gone (or the golden is
+                # down): stop, and say so — a fuzz over an empty shop proves nothing
+                self.stopped = f"stopped early: 20 consecutive creates failed after {self.sequences} sequences (stock exhausted?)"
+                break
 
     def races(self, n):
         """Concurrent same-key requests: (a) same bytes -> one id; (b) mismatched -> exactly one 2xx,
@@ -496,13 +506,15 @@ def main():
     try:
         run = Run(HttpClient(base), mode=mode, pending=pending)
         t0 = time.monotonic()
+        races = run.races(a.races) if a.races else None     # races FIRST, on a fresh stock
         run.fuzz(a.seconds, a.seed)
-        races = run.races(a.races) if a.races else None
         dt = time.monotonic() - t0
     finally:
         if ctx:
             ctx.__exit__(None, None, None)
     line = summary_line(run, races)
+    if getattr(run, "stopped", None):
+        print(f"  · {run.stopped}")
     for iid, ex in run.examples.items():
         print(f"  ✗ {iid}: {ex}")
     doc = {"ran_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
@@ -510,6 +522,7 @@ def main():
            "context": a.context, "sequences": run.sequences, "requests": run.requests,
            "violations": run.violations, "examples": run.examples, "reports": run.reports,
            "pending": ({"task": pending, **run.pending_hits} if pending else None),
+           "stopped": getattr(run, "stopped", None),
            "races": races, "invariants_mode": {"I10": mode}, "summary": line}
     out = pathlib.Path(a.out) if a.out else pathlib.Path(os.environ.get("RUN_SUITE_RECORD_DIR") or tempfile.mkdtemp(prefix="seqfuzz_")) / "seqfuzz_LAST_RUN.json"
     out.parent.mkdir(parents=True, exist_ok=True); out.write_text(json.dumps(doc, indent=1) + "\n")
