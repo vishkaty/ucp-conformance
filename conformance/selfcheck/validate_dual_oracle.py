@@ -411,16 +411,25 @@ def zod_report(items, referee):
         rd = os.environ.get("RUN_SUITE_RECORD_DIR") or tempfile.mkdtemp(prefix="zod_feed_")
         out = pathlib.Path(rd) / "zod_divergences.json"
     fd, inp = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    fd, fresh = tempfile.mkstemp(suffix=".json"); os.close(fd)
     pathlib.Path(inp).write_text(json.dumps(payload))
     try:
-        r = subprocess.run([node, str(ZOD_FEED), "--in", inp, "--out", str(out)],
+        r = subprocess.run([node, str(ZOD_FEED), "--in", inp, "--out", fresh],
                            capture_output=True, text=True, cwd=str(ROOT / "conformance" / "ci" / "zod_feed"))
+        if r.returncode != 0:
+            return None, f"zod leg failed: {(r.stderr or r.stdout)[-160:]}"
+        doc = json.loads(pathlib.Path(fresh).read_text())
+        # a tracked ops feed is rewritten only when its ROWS change (never for a timestamp alone —
+        # the CI-1 class: a gate must not dirty a tracked file on every run)
+        try:
+            same = out.exists() and json.loads(out.read_text()).get("rows") == doc["rows"]
+        except ValueError:
+            same = False
+        if not same:
+            out.write_text(json.dumps(doc, indent=1) + "\n")
     finally:
-        os.unlink(inp)
-    if r.returncode != 0:
-        return None, f"zod leg failed: {(r.stderr or r.stdout)[-160:]}"
-    doc = json.loads(out.read_text())
-    return len(doc["rows"]), str(out.relative_to(ROOT) if str(out).startswith(str(ROOT)) else out)
+        os.unlink(inp); os.unlink(fresh)
+    return len(doc["rows"]), str(out.relative_to(ROOT) if str(out).startswith(str(ROOT)) else out) + ("" if not same else " (unchanged)")
 
 
 def run_pydantic(referee, items, tag_leg=None, main_leg=None, drops=None, with_zod=True):
