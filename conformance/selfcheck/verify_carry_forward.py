@@ -71,7 +71,9 @@ def evaluate(cf, from_rows, to_rows, dead_term_hits):
         if t is None:
             errs.append(f"{i}: backported into {from_v} but no {to_v} row with that id exists")
         elif norm(t.get("quote")) != norm(from_by_id[i].get("quote")):
-            errs.append(f"{i}: backported row's quote differs from its {to_v} source row (normalized)")
+            # same escape as the forward rule: a reviewed drift_note on the backported row
+            if not str((from_by_id[i].get("lineage") or {}).get("drift_note", "")).strip():
+                errs.append(f"{i}: backported row's quote differs from its {to_v} source row (normalized) and lineage has no drift_note")
     forward_ids = set(from_by_id) - backported
     # 1. exactly once
     seen = {}
@@ -284,6 +286,14 @@ def selftest():
         counts, errs = evaluate(cf, fr5, to5, hits)
         bad += case("… with the counterpart present -> PASS, total still 5",
                     errs == [] and counts["total"] == 5 and counts["backported"] == 1, repr((counts, errs))[:200])
+        # backported row whose quote had to be trimmed at the target pin: drift_note required
+        fr6 = fr + [{"id": "LOY-001", "quote": "Loyalty MUST verify", "lineage": {"from": "V2", "disposition": "backported"}}]
+        _, errs = evaluate(cf, fr6, to5, hits)
+        bad += case("backported row with a differing quote and no drift_note -> FAIL",
+                    any("LOY-001" in e and "drift_note" in e for e in errs), repr(errs)[:200])
+        fr6[-1]["lineage"]["drift_note"] = "trailing cross-reference differs in the flat doc tree"
+        _, errs = evaluate(cf, fr6, to5, hits)
+        bad += case("… with a drift_note -> PASS", errs == [], repr(errs)[:200])
     except NameError as e:
         print(f"  ✗ carry-forward fixtures: {e}")
         bad += 1

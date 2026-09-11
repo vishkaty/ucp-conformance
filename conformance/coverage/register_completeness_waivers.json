@@ -14,7 +14,7 @@
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
-        "2026-04-08": "a2d8bf0b"
+        "2026-04-08": "a25a4a24"
       },
       "clock_tier": "pin-only"
     },
@@ -39,7 +39,7 @@
       "reason": "The Embedded Protocol (EP) itself: window.postMessage / MessagePort channel establishment and message framing between a host page and an embedded commerce UI. Purely a browser client-side transport contract; nothing here is observable at a server endpoint, so it is outside a server-conformance checker's testable surface. Re-verified against the 2026-08-25 vendor tree (same path, unmoved by the reorg; full 557-line read confirms no server-observable content was added -- JSON-RPC message format, handshake/auth/session-error/lifecycle/state-change message patterns, error codes, and CSP/iframe-sandbox/credentialless-iframe security all remain browser-transport-only).",
       "review_by": "2026-12-06",
       "spec_pin": {
-        "2026-04-08": "a2d8bf0b",
+        "2026-04-08": "a25a4a24",
         "2026-08-25": "cd78fb38"
       },
       "clock_tier": "pin-only"
@@ -52,7 +52,7 @@
       "class": "out-of-scope",
       "reason": "Embedded-Protocol (EP) binding for cart: the browser host <-> iframe MessagePort UI protocol for embedded cart sessions. Same rationale as embedded-checkout \u2014 binds the host/embedded UI, not the server API, and is not observable from a server endpoint.",
       "review_by": "2026-10-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -68,7 +68,7 @@
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
-        "2026-04-08": "a2d8bf0b"
+        "2026-04-08": "a25a4a24"
       },
       "clock_tier": "pin-only"
     },
@@ -96,7 +96,7 @@
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
-        "2026-04-08": "a2d8bf0b"
+        "2026-04-08": "a25a4a24"
       },
       "clock_tier": "pin-only"
     },
@@ -113,7 +113,7 @@
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
-        "2026-04-08": "a2d8bf0b"
+        "2026-04-08": "a25a4a24"
       },
       "clock_tier": "pin-only"
     },
@@ -138,7 +138,7 @@
       "reason": "A worked, illustrative example of a processor-tokenizer payment-handler configuration. Non-normative by spec convention; keywords narrate the example, not server obligations.",
       "review_by": "2026-10-07",
       "spec_pin": {
-        "2026-04-08": "a2d8bf0b",
+        "2026-04-08": "a25a4a24",
         "2026-01-23": "dcf7eac7"
       },
       "clock_tier": "pin-only"
@@ -156,7 +156,7 @@
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
-        "2026-04-08": "a2d8bf0b"
+        "2026-04-08": "a25a4a24"
       },
       "clock_tier": "pin-only"
     },
@@ -236,7 +236,7 @@
       "reason": "Step-1 restatement 'The platform MUST verify the signature:' (pseudocode intro) is the same platform-verifies-merchant-signature obligation captured by the L110 new_row ('The platform MUST verify the business's signature before presenting'). Consistent with 2026-01-11/23 where the equivalent line waives to PAY-023.",
       "duplicate_of": "new_row@ucp:docs/specification/ap2-mandates.md#L110",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -247,7 +247,7 @@
       "reason": "'When the user confirms the purchase, the platform MUST facilitate the generation of ... mandates' restates the platform-provides-mandates obligation captured by the L31 new_row ('Platforms MUST provide cryptographically signed proofs (Mandates)'). Consistent with 2026-01-11/23 where the equivalent line waives to PAY-020.",
       "duplicate_of": "new_row@ucp:docs/specification/ap2-mandates.md#L31",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -301,7 +301,7 @@
       "class": "non-normative",
       "reason": "Client-side obligation on MCP clients (the caller) to send meta['ucp-agent'] profile. Already captured transport-agnostically by DISC-006 ('Platforms MUST include their profile URI in every request using the transport-appropriate mechanism'); MCP meta is that mechanism. Not a server obligation.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -312,7 +312,7 @@
       "reason": "Same obligation as the OpenRPC->tools/call transformation MUST at L804 (this line just introduces the worked complete_checkout example of that transformation).",
       "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L804",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -363,7 +363,7 @@
       "class": "non-normative",
       "reason": "Client-side meta obligation (MCP clients MUST include meta). Duplicate of DISC-006 client profile obligation; MCP meta is the transport-appropriate mechanism.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -373,7 +373,7 @@
       "class": "non-normative",
       "reason": "Client obligation ('Platforms MUST check messages before accessing order fields'). Duplicate of ORD-023 (MUST check the messages array in responses before accessing order data).",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -383,7 +383,7 @@
       "class": "non-normative",
       "reason": "Client bullet under 'Platforms implementing the MCP binding' (MUST include meta.ucp-agent.profile on all requests). Duplicate of DISC-006 profile obligation.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -393,7 +393,7 @@
       "class": "non-normative",
       "reason": "Client bullet - verbatim ORD-023 quote ('MUST check the messages array in responses before accessing order data'). Duplicate of ORD-023.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -403,7 +403,7 @@
       "class": "non-normative",
       "reason": "Client-side meta obligation. Duplicate of DISC-006 (transport-appropriate profile mechanism).",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -414,7 +414,7 @@
       "reason": "Same identifier-pattern clause as the canonical checkout id-field row (checkout-mcp L120), applied to the `cart` object. Per shared-clause dedup, waive against the first 2026-04-08 occurrence.",
       "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L120",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -425,7 +425,7 @@
       "reason": "Identical 'A conforming MCP transport implementation MUST:' stem as the canonical checkout conformance row (checkout-mcp L783); cart-specific bullets carry no additional RFC-2119 keywords.",
       "duplicate_of": "ucp:docs/specification/checkout-mcp.md#L783",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -435,7 +435,7 @@
       "class": "non-normative",
       "reason": "Client-side meta obligation. Duplicate of DISC-006.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -446,7 +446,7 @@
       "reason": "Platform-side mirror of the spec-origin/namespace binding: 'Platform MUST validate this binding and SHOULD reject capabilities where the spec origin does not match the namespace authority.' The server-observable constraint is the business's well-formedness obligation captured in the new L83 row. This is a client-side validation obligation, not exercised by the REST conformance surface (older versions rowed it as DISC-004).",
       "duplicate_of": "NEW:overview.md#L83",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -457,7 +457,7 @@
       "reason": "'Vendors MUST use their own reverse-domain namespace for custom capabilities' is governance framing enforced by the spec-origin/namespace binding (new L83 row) plus the reverse-domain naming rule (new L59 row). Not a distinct server-observable obligation. Older versions rowed it as DISC-005.",
       "duplicate_of": "NEW:overview.md#L83",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -467,7 +467,7 @@
       "class": "non-normative",
       "reason": "'Transport definitions MUST be thin: they declare method names and reference base schemas only' is an authoring rule for the OpenAPI/OpenRPC transport-definition documents themselves, not a runtime obligation on a conforming business/platform. Restated normatively at L215. Not server-observable via the conformance HTTP surface. (Older versions rowed the analog as DISC-006.)",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -477,7 +477,7 @@
       "class": "non-normative",
       "reason": "'Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only' governs the structure of transport-definition artifacts (spec-authoring), not the runtime behavior of a server. Duplicate of the same rule at L120. Not testable via the conformance HTTP surface.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -487,7 +487,7 @@
       "class": "non-normative",
       "reason": "'They MUST NOT enumerate fields or define payload shapes inline' is the negative half of the same transport-definition authoring rule (L215/L120). Concerns how schema documents are written, not runtime server behavior. (Older versions: DISC-009.)",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -497,7 +497,7 @@
       "class": "non-normative",
       "reason": "Second keyword occurrence on the same line 217 ('Each extension schema MUST declare...'); same extension-schema authoring convention as the first L217 occurrence. Not a runtime server obligation.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -507,7 +507,7 @@
       "class": "non-normative",
       "reason": "'Platforms MUST resolve schemas client-side by fetching and composing base schemas with active extension schemas' describes internal platform (client) schema-composition process. Not a business-server obligation and not observable over the conformance HTTP surface. Restated at L330/L629. (Older versions: DISC-011.)",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -517,7 +517,7 @@
       "class": "non-normative",
       "reason": "'The $defs key MUST use the full parent capability name (reverse-domain format)' is an extension-schema authoring convention (build-time verifiable), not a runtime server obligation. Restated at L253/L255.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -527,7 +527,7 @@
       "class": "non-normative",
       "reason": "'Extension schemas MUST have a $defs entry for each parent declared in extends' is an extension-schema authoring rule (build-time check per the spec's own 'Verifiable' note). Not runtime server behavior.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -537,7 +537,7 @@
       "class": "non-normative",
       "reason": "'The $defs key MUST match the parent's full capability name exactly' duplicates the authoring convention at L225. Extension-schema authoring rule, not a runtime server obligation.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -547,7 +547,7 @@
       "class": "non-normative",
       "reason": "'Keys in requires.capabilities MUST be a subset of the extension's $defs keys' constrains how an extension schema author writes the requires block (self-consistency of the schema document), not runtime server behavior. Mirrored only descriptively in ucp.json (not a hard schema constraint).",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -558,7 +558,7 @@
       "reason": "'Platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution' is the extension-`requires` refinement of version-compatibility verification. Its server-observable effect (incompatible extensions excluded from the active capability set) is captured by the new L1974 row (version-compatible capabilities only) and NEG-002 (capabilities_incompatible).",
       "duplicate_of": "NEW:overview.md#L1974",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -568,7 +568,7 @@
       "class": "non-normative",
       "reason": "'Platforms MUST resolve schemas following this sequence' enumerates the client-side schema-resolution flow (Discovery/Negotiation/Fetch/Compose/Validate). Restates L220/L629; internal platform process, not server-observable.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -579,7 +579,7 @@
       "reason": "'Platforms MUST communicate their profile URI with each request' is the profile-advertisement obligation already rowed as DISC-006 (Platforms MUST include their profile URI in every request, overview.md#L622-L623).",
       "duplicate_of": "DISC-006",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -590,7 +590,7 @@
       "reason": "'HTTP Transport: Platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header' is the concrete header-syntax detail already captured per-transport by CHK-046 (UCP-Agent header, RFC 8941 dictionary syntax) and at the overview level by DISC-006.",
       "duplicate_of": "CHK-046",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -601,7 +601,7 @@
       "reason": "'MCP Transport: Platforms MUST include a meta object containing request metadata' is the MCP-transport mechanism of the same profile-advertisement obligation (DISC-006). MCP transport is out of the REST conformance surface (transport: rest).",
       "duplicate_of": "DISC-006",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -612,7 +612,7 @@
       "reason": "'Namespace Validation: Platforms MUST validate that capability spec URI origins match namespace authorities' is the platform-side mirror of the spec-origin/namespace binding captured in the new L83 row (and L90). Client-side validation, not exercised by the REST server surface. (Older versions: NEG-007.)",
       "duplicate_of": "NEW:overview.md#L83",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -622,7 +622,7 @@
       "class": "non-normative",
       "reason": "'Schema Resolution: Platforms MUST fetch and compose schemas for negotiated capabilities before making requests' restates the client-side schema-resolution process (L220/L330). Internal platform behavior, not server-observable.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -633,7 +633,7 @@
       "reason": "'Profile Resolution: businesses MUST fetch and validate the platform profile unless already cached' is the business obligation whose server-observable outcomes are already rowed: invalid_profile_url (NEG-005), profile_unreachable (NEG-003), profile_malformed (NEG-004).",
       "duplicate_of": "NEG-005",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -644,7 +644,7 @@
       "reason": "'Capability Intersection: Businesses MUST compute the intersection of platform and business capabilities' is the negotiation computation whose observable output is the response's ucp.capabilities, captured by the new L950 row (and the empty-intersection error case by NEG-002). Older versions rowed it as NEG-010.",
       "duplicate_of": "NEW:overview.md#L950",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -655,7 +655,7 @@
       "reason": "'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error' is the MCP/Streamable-HTTP variant of the standard-HTTP-status-code obligation (captured for REST at L1587 and concretely by CHK-050 and the NEG/SIG status-code rows). MCP transport is out of the REST conformance surface.",
       "duplicate_of": "CHK-050",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -666,7 +666,7 @@
       "reason": "'Business-to-platform webhooks MUST be signed' is already rowed as SIG-027 (Webhook notifications MUST be signed) and ORD-026/ORD-027 (order webhook payloads MUST be signed per Message Signatures).",
       "duplicate_of": "SIG-027",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -677,7 +677,7 @@
       "reason": "'If a profile cannot be fetched or fails validation, businesses MUST reject the request with an appropriate error and status code' is the general statement whose server-observable outcomes are already rowed: NEG-005 (invalid_profile_url), NEG-003 (profile_unreachable), NEG-004 (profile_malformed).",
       "duplicate_of": "NEG-005",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -688,7 +688,7 @@
       "reason": "'MUST return the UCP response payload in structuredContent' is the MCP dual-output response requirement. MCP transport is out of the REST conformance surface (transport: rest); the equivalent REST obligation to return the UCP envelope is captured per-capability (e.g., CHK-034).",
       "duplicate_of": "CHK-034",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -699,7 +699,7 @@
       "reason": "'All UCP communication MUST occur over HTTPS' is the umbrella transport-security statement; HTTPS is rowed per capability/transport: CART-023, CHK-045, ORD-022 (HTTPS + TLS 1.3), IDL-053 (HTTPS + TLS 1.2), and DISC-001/DISC-004 for profiles.",
       "duplicate_of": "CHK-045",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -710,7 +710,7 @@
       "reason": "'businesses MUST respond with a version_unsupported error' (unsupported platform protocol version) is already rowed as NEG-001 (version_unsupported -> HTTP 422), which cites overview.md#L699,L1912.",
       "duplicate_of": "NEG-001",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -721,7 +721,7 @@
       "reason": "'Businesses MUST validate the platform's protocol version on every request' is the obligation whose server-observable outcome (version_unsupported when incompatible) is rowed as NEG-001.",
       "duplicate_of": "NEG-001",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -731,7 +731,7 @@
       "class": "non-normative",
       "reason": "'The following changes MUST NOT be introduced without a new version:' (breaking-changes list) is spec-evolution governance describing how the protocol itself may change across versions, not a runtime obligation on a conforming implementation.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -741,7 +741,7 @@
       "class": "non-normative",
       "reason": "'Capabilities MUST follow the same backwards compatibility rules as the protocol' is versioning governance for capability authors (how capabilities evolve across versions), not a runtime server obligation.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -752,7 +752,7 @@
       "reason": "'Businesses MUST validate capability version compatibility using the same logic as ... above' is realized through the intersection version-selection and its error outcome capabilities_incompatible (NEG-002), and the version-compatible-capabilities selection (new L1974 row).",
       "duplicate_of": "NEG-002",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -919,7 +919,7 @@
       "class": "non-normative",
       "reason": "Subject=platform. Intro sentence to the 'Warning Presentation' rendering-contract table: 'The presentation field on warning messages controls the rendering contract the platform MUST follow.' Narrative lead-in whose normative cells are already rowed \u2014 the overall rendering contract is ERR-012, and the individual table/prose obligations are ERR-013..ERR-022. Not a distinct server obligation (platform-side rendering, not server-observable).",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -930,7 +930,7 @@
       "reason": "Subject=platform. Table cell '| Escalate if cannot honor | \u2014 | MUST via continue_url |' is the tabular restatement of the disclosure-escalation prose at L371, already captured verbatim by ERR-018 ('Platforms that cannot honor the disclosure rendering contract MUST escalate to merchant UI via continue_url...'). Table-cell restatement of an already-rowed platform requirement.",
       "duplicate_of": "ERR-018",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -940,7 +940,7 @@
       "class": "non-normative",
       "reason": "Subject=platform. Section lead-in: 'Warnings with presentation: \"disclosure\" carry notices ... that MUST follow the prescribed rendering contract below.' Narrative pointer to the disclosure rendering-contract bullets that immediately follow, each already rowed (ERR-014 display content, ERR-015 proximity, ERR-016 must-not-hide, ERR-017 image_url). Not a distinct obligation.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -951,7 +951,7 @@
       "reason": "Subject=business. 'Eligibility and policy enforcement MUST occur at checkout time using binding transaction data.' Already captured by SAE-012 (same verbatim requirement; SAE-012 cites the context schema description that mirrors this checkout.md prose). Same normative obligation, different source location.",
       "duplicate_of": "SAE-012",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -962,7 +962,7 @@
       "reason": "Subject=platform. 'signal values MUST NOT be buyer-asserted claims \u2014 platforms provide signals based on direct observation or by relaying independently verifiable third-party attestations.' Already captured by SAE-001 (quotes the fuller overview.md#Signals statement of the same platform-bound MUST NOT). Platform-provenance obligation, not a business-response wire shape.",
       "duplicate_of": "SAE-001",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -973,7 +973,7 @@
       "reason": "Subject=business. 'Unknown types MUST include display_text (schema-enforced).' The parenthetical explicitly flags schema enforcement and TOT-004 already captures 'unknown types MUST include display_text' with schema_enforced=true (totals.json if/then: type not in well-known enum -> require display_text).",
       "row_id": "TOT-004",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -984,7 +984,7 @@
       "reason": "Subject=platform (requester). 'When HTTP Message Signatures are used, requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.' REST-transport restatement of the canonical signatures.md requirement rowed as SIG-013 (Signature-Input and Signature headers required on requests/responses); the Content-Digest-when-body clause is rowed as SIG-011. No distinct obligation.",
       "duplicate_of": "SIG-013",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -995,7 +995,7 @@
       "reason": "Subject=business. Business-guidelines bullet '* MUST authenticate requests to order data before returning a response (see Authorization)' is the guideline restatement of the Authorization-section requirement already captured by ORD-012 (whose notes explicitly record 'Restated in Business guideline at L403'). Same authentication obligation.",
       "duplicate_of": "ORD-012",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1005,7 +1005,7 @@
       "class": "non-normative",
       "reason": "Subject is 'Specifications' (payment-handler spec authors), not the merchant server: 'Specifications **MUST** explicitly document these field mappings.' Binds document authors of downstream handler specs, not a runtime server obligation; not testable via HTTP/MCP.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1015,7 +1015,7 @@
       "class": "non-normative",
       "reason": "Subject is 'The specification' (payment-handler spec authors): 'The specification **MUST** define a mapping for common failures...' Binds handler-spec authors, not the merchant server; documentation obligation, not runtime-observable.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1025,7 +1025,7 @@
       "class": "non-normative",
       "reason": "Same sentence as the REQUIRED occurrence on L762 under '## Specification Template'; the MUST binds spec-author document structure ('Sections marked [REQUIRED] MUST be present'), not the merchant server.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1035,7 +1035,7 @@
       "class": "non-normative",
       "reason": "Bullet under '## Conformance Checklist for Spec Authors' \u2192 'Before publishing a payment handler specification, verify: ... [ ] All [REQUIRED] sections are present'. Explicit spec-author checklist item, not a server obligation.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1086,7 +1086,7 @@
       "duplicate_of": "ERR-015",
       "reason": "Contract-table cell 'Proximity to path | MUST' (disclosure column) summarizes the disclosure prose bullet at L359 that ERR-015 already captures: platforms MUST display the warning in proximity to the component referenced by path.",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1097,7 +1097,7 @@
       "duplicate_of": "ERR-016",
       "reason": "Contract-table cell 'Dismissible | MUST NOT' (disclosure column) summarizes the disclosure prose bullet at L363 that ERR-016 already captures: platforms MUST NOT hide, collapse, or auto-dismiss the disclosure warning.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1108,7 +1108,7 @@
       "duplicate_of": "ERR-017",
       "reason": "Contract-table cell 'Render image_url | MUST' (disclosure column) summarizes the disclosure prose bullet at L364 that ERR-017 already captures: platforms MUST render image_url when present for disclosure warnings.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1119,7 +1119,7 @@
       "duplicate_of": "TOT-007",
       "reason": "'MUST NOT alter the rendered output - the business's presented totals are authoritative' restates TOT-007's prohibition (platforms MUST NOT substitute their own computed totals for the business's values), applied here to the sum-mismatch verification case. The other MUST NOT in the block (autonomous",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1130,7 +1130,7 @@
       "duplicate_of": "TOT-001",
       "reason": "'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half is TOT-018.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1141,7 +1141,7 @@
       "duplicate_of": "IDL-012",
       "reason": "Security-summary restatement 'Platforms MUST validate the iss parameter in the authorization response' duplicates IDL-012, the primary Mix-Up-Attack iss-validation obligation defined in the main flow (L138).",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1152,7 +1152,7 @@
       "duplicate_of": "IDL-026",
       "reason": "'Businesses MUST emit WWW-Authenticate: Bearer challenges ... on 401 and 403 responses' is exactly IDL-026 (businesses MUST emit a WWW-Authenticate: Bearer challenge on 401 identity_required and 403 insufficient_scope responses).",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1163,7 +1163,7 @@
       "duplicate_of": "IDL-020",
       "reason": "'Businesses MUST enforce exact string matching for redirect_uri' is exactly IDL-020 (businesses MUST enforce exact string matching for the redirect_uri parameter during authorization).",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1174,7 +1174,7 @@
       "duplicate_of": "ORD-015",
       "reason": "The order-rest conformance bullet 'MUST include UCP-Agent header with profile URL on all requests' is the identical obligation captured by ORD-015 (platforms MUST include the UCP-Agent header with profile URL on all order requests).",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1185,7 +1185,7 @@
       "duplicate_of": "ORD-022",
       "reason": "'MUST serve all endpoints over HTTPS with TLS 1.3+' duplicates ORD-022 (all order REST endpoints MUST be served over HTTPS with minimum TLS version 1.3).",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1196,7 +1196,7 @@
       "duplicate_of": "DISC-002",
       "reason": "'Implementations MUST NOT follow redirects (3xx) on profile fetches' duplicates DISC-002 (profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them). Same no-redirect-on-profile-fetch obligation; the adjacent DISC-004 only covers the HTTPS-rejection item.",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1207,7 +1207,7 @@
       "duplicate_of": "OVR-004",
       "reason": "'Businesses MUST include the negotiated protocol version in every response' is captured by OVR-004 (businesses MUST include the ucp field in every response, containing the processing version and active capabilities); ucp.version IS the negotiated protocol version.",
       "review_by": "2026-12-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1218,7 +1218,7 @@
       "duplicate_of": "OVR-010",
       "reason": "'Pre-release implementations ... MUST NOT be surfaced through public discovery' duplicates OVR-010 (protocol version MUST be a dated YYYY-MM-DD release; businesses MUST NOT advertise a non-date/draft version string in their profile version field or supported_versions).",
       "review_by": "2026-10-08",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {
@@ -1390,7 +1390,7 @@
       "reason": "'Businesses MUST return `iss` in every authorization response' (L588-590, Mix-Up Attack prevention bullet in the Security Considerations recap) restates IDL-018 verbatim (MUST return the iss parameter in the authorization response, L168-169). Sibling restatements in the SAME bullet are already waived this way (L586 duplicate_of IDL-012, L593 duplicate_of IDL-026) -- L589 was the one line in the bullet the pre-R13 per-physical-line matcher accidentally marked covered via a false-positive short-phrase match ('businesses must' against six unrelated far-away rows), so it was never flagged for its own waiver until the R13 line-boundary-agnostic fix (conformance/selfcheck/verify_register_completeness.py) removed that false positive and surfaced the genuine, pre-existing gap. R13-WAIVER-CLEANUP.md has the full before/after accounting.",
       "duplicate_of": "IDL-018",
       "review_by": "2026-11-07",
-      "spec_pin": "a2d8bf0b",
+      "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
     {

@@ -1,6 +1,7 @@
 {
   "_about": "Acknowledged upstream TAG MOVES (D2-17, RV2 constitution item 1; PLAN-v3 §2.8). sources_age.py --check compares every pinned spec tag's live identity (tag object sha + dereferenced commit) with SOURCES.lock.json; a move that matches an UNEXPIRED entry here on (tag, from, to, tag_object) prints 'acknowledged (decision N, review_by ...)' and keeps rc 0 — fail-noisy, not fail-blocking. A different `to`/`tag_object` is a NEW move and reds preflight; an entry past its review_by is as good as absent. Entries carry the expiry clock (expiry_registers.json: clock_tier moving = 30 d, decision 23; spec_pin = the lock's commit for `version`, so the re-pin that resolves the move also drifts this entry out). D2-15 (decision 3, W1) re-pins 2026-04-08 to a25a4a24 and retires the entry below.",
-  "moves": [
+  "moves": [],
+  "_retired": [
     {
       "tag": "v2026-04-08",
       "repo": "Universal-Commerce-Protocol/ucp",
@@ -13,7 +14,9 @@
       "reason": "loyalty backport ucp#813 re-pointed the v2026-04-08 tag (tag object ebac9d15, tagger 2026-04-13) from a2d8bf0b to a25a4a24; the pinned artifact stays a2d8bf0b in W0; re-pin pending decision 3 (D2-15, W1) with the 19 LOY rows entering EXEMPT needs-target-capability so 04-08 stays live",
       "review_by": "2026-10-10",
       "spec_pin": "a2d8bf0b",
-      "clock_tier": "moving"
+      "clock_tier": "moving",
+      "retired_on": "2026-09-11",
+      "retired_by": "D2-15 re-pin to a25a4a24 (decision 3)"
     }
   ]
 }

@@ -179,9 +179,13 @@ def agent_exempt_ids():
     return json.load(open(AGENT_EXEMPT))
 
 
-def account(ver, label_unrun=False, labels=None):
+def account(ver, label_unrun=False, labels=None, evidence=None):
+    """`evidence` (D2-15, CI-1): an in-run evidence map ({check_id: {version: {date,
+    spec_pin}}}) instead of the tracked file — what the CI gate hands governance via
+    --in-run, so a spec re-pin (which by design stales every tracked attribution until
+    the owner's run_agent.py --record) never publishes a 0 that a green run refutes."""
     rows = agent_rows(ver)
-    checks = agent_check_ids(ver, label_unrun=label_unrun, labels=labels)
+    checks = agent_check_ids(ver, evidence=evidence, label_unrun=label_unrun, labels=labels)
     ex = agent_exempt_ids()
     check = sorted(r for r in rows if r in checks)
     exempt = sorted(r for r in rows if r not in checks and r in ex)
@@ -196,6 +200,9 @@ def main():
     ap.add_argument("--snapshot-lock", metavar="NOTE",
                     help="D2-08: regenerate agent_denominator_lock.json from the role field "
                          "(deliberate; NOTE is recorded in the lock's _about) and print the diff")
+    ap.add_argument("--evidence", metavar="PATH",
+                    help="compute attribution from this in-run evidence file (run_agent.py --evidence-out) "
+                         "instead of the tracked agent_run_evidence.json (CI-1 / D2-15)")
     ap.add_argument("--label-unrun", action="store_true",
                     help="count checks that ran only on another sandbox version and LABEL the "
                          "export with evidence: {sandbox-version} (default: suppress them)")
@@ -208,9 +215,10 @@ def main():
     failed = False
     summary = {}
     print("AGENT coverage axis (platform/agent obligations) — separate from merchant\n")
+    evd = load_evidence(args.evidence)["evidence"] if args.evidence else None
     for ver in VERSIONS:
         labels = {}
-        rows, check, exempt, gap = account(ver, label_unrun=args.label_unrun, labels=labels)
+        rows, check, exempt, gap = account(ver, label_unrun=args.label_unrun, labels=labels, evidence=evd)
         n = len(rows)
         pct = round(100 * (len(check) + len(exempt)) / n) if n else 0
         summary[ver] = {"agent_musts": n, "check": len(check), "exempt": len(exempt),

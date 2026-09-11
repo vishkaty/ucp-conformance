@@ -1,5 +1,5 @@
 {
- "_about": "Reviewed DENOMINATOR-MEMBERSHIP snapshot for the agent lane (drift lock). The set of rows agent_matrix counts as agent-bound at each version, frozen after the 2026-07-03 denominator-accuracy audit (agent_denominator_audit.json). The agent-denominator gate FAILS if the live computed membership differs \u2014 forcing a deliberate re-review before the denominator can move. Adding a CHECK does NOT change membership (a covered row was already counted as a gap), so normal coverage growth never trips this; only a new spec row, a heuristic change, or a reclassification does. EXTENDED 2026-09-01 to add the 2026-08-25 agent-lane graduation snapshot (agent_denominator_audit.json's \u201c2026-08-25_review\u201d section): 220 ids, independently reviewed on the SAME per-row idiom, entirely separate from (and not gated on) the merchant lane's own 2026-08-25 graduation five days earlier. REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11)",
+ "_about": "Reviewed DENOMINATOR-MEMBERSHIP snapshot for the agent lane (drift lock). The set of rows agent_matrix counts as agent-bound at each version, frozen after the 2026-07-03 denominator-accuracy audit (agent_denominator_audit.json). The agent-denominator gate FAILS if the live computed membership differs \u2014 forcing a deliberate re-review before the denominator can move. Adding a CHECK does NOT change membership (a covered row was already counted as a gap), so normal coverage growth never trips this; only a new spec row, a heuristic change, or a reclassification does. EXTENDED 2026-09-01 to add the 2026-08-25 agent-lane graduation snapshot (agent_denominator_audit.json's \u201c2026-08-25_review\u201d section): 220 ids, independently reviewed on the SAME per-row idiom, entirely separate from (and not gated on) the merchant lane's own 2026-08-25 graduation five days earlier. REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-08 (2026-09-11): denominator = register role field (platform|both|host, decision 27); overrides retired; per-version adjudications in requirements/role_adjudications.json (batch role-adjudication-2026-09-11) REGENERATED 2026-09-11: D2-15 (2026-09-11): 2026-04-08 re-pinned to a25a4a24; LOY rows backported (LOY-001 both); LOY-016 re-adjudicated business at 2026-08-25",
  "versions": {
   "2026-01-11": [
    "CHK-006",
@@ -177,6 +177,7 @@
    "IDL-057",
    "IDL-061",
    "IDL-062",
+   "LOY-001",
    "MCP-002",
    "ORD-015",
    "ORD-023",
@@ -385,7 +386,6 @@
    "LOC-050",
    "LOC-054",
    "LOY-001",
-   "LOY-016",
    "MCP-002",
    "MCP-007",
    "MCP-008",

@@ -335,8 +335,8 @@
    "browser_capable": true,
    "schema_enforced": false,
    "notes": "Privacy-relevant; checkable by confirming `id` values are business-internal opaque identifiers rather than raw stable member/account numbers, and that only `display_id` (masked) is ever human-recognizable.",
-   "role": "platform",
-   "role_provenance": "agent-lock",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
    "normative_basis": "sentence"
   },
   {

@@ -10,7 +10,7 @@
  "spec_pins": {
   "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e",
   "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
-  "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "2026-04-08": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "2026-08-25": "cd78fb38e819de77d9b527d110476eccb876f1bd"
  },
  "versions": {
@@ -5925,22 +5925,22 @@
   "2026-04-08": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 366,
+   "musts": 385,
    "check": 277,
-   "exempt": 81,
+   "exempt": 100,
    "gap": 8,
    "accounted_pct": 98,
    "roles": {
     "summary": {
-     "merchant": 293,
-     "agent": 133,
-     "both": 64,
+     "merchant": 312,
+     "agent": 134,
+     "both": 65,
      "other": 4
     },
     "merchant": {
-     "musts": 293,
+     "musts": 312,
      "check": 277,
-     "exempt": 9,
+     "exempt": 28,
      "gap": 7,
      "gap_by_testability": {
       "manual": 6,
@@ -5948,10 +5948,10 @@
      }
     },
     "agent": {
-     "musts": 133,
+     "musts": 134,
      "check": 55,
      "exempt": 3,
-     "gap": 75
+     "gap": 76
     },
     "other": {
      "musts": 4,
@@ -5962,9 +5962,9 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 359,
+     "musts": 361,
      "check": 271,
-     "exempt": 80,
+     "exempt": 82,
      "gap": 8
     },
     "mcp": {
@@ -5986,17 +5986,17 @@
      "gap": 0
     },
     "any": {
-     "musts": 0,
+     "musts": 17,
      "check": 0,
-     "exempt": 0,
+     "exempt": 17,
      "gap": 0
     }
    },
    "surface": {
     "prose": {
-     "pin": "a2d8bf0b",
-     "mandatory_hits": 478,
-     "covered_by_rows": 235,
+     "pin": "a25a4a24",
+     "mandatory_hits": 495,
+     "covered_by_rows": 252,
      "scope_excluded": 173,
      "waived": {
       "duplicate": 41,
@@ -6007,7 +6007,7 @@
      "census_mode": "gate"
     },
     "schema": {
-     "files": 81,
+     "files": 82,
      "atoms": null,
      "atoms_referenced": null,
      "atoms_ruled": null,
@@ -6016,15 +6016,15 @@
      "enforce": false
     },
     "should": {
-     "hits": 152,
-     "should": 141,
+     "hits": 156,
+     "should": 145,
      "should_not": 7,
      "recommended": 4,
      "not_recommended": 0,
      "rows": 67,
-     "hit_lines": 150,
-     "hit_lines_under_a_row_quote": 64,
-     "uncovered": 86,
+     "hit_lines": 154,
+     "hit_lines_under_a_row_quote": 65,
+     "uncovered": 89,
      "scope": "report-only (decision 8)"
     }
    },
@@ -6101,6 +6101,11 @@
      "gap": 1,
      "gap_manual": 1,
      "musts": 57
+    },
+    {
+     "area": "loyalty",
+     "exempt": 19,
+     "musts": 19
     },
     {
      "area": "order",
@@ -9453,6 +9458,253 @@
      "covered_by": []
     },
     {
+     "id": "LOY-001",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "both",
+     "normative_basis": "schema",
+     "requirement": "A loyalty_membership object MUST include `id`, `name`, and `provisional`",
+     "source": "ucp:source/schemas/common/loyalty.json#L132",
+     "covered_by": [],
+     "exempt_reason": "party: the Business and Platform (ucp:source/schemas/common/loyalty.json#L132 \u2014 \"\"required\": [\"id\", \"name\", \"provisional\"],\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-002",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "schema",
+     "requirement": "Programs that can be joined independently MUST be modeled as separate sibling entries under the loyalty map, distinguished by reverse-domain naming",
+     "source": "ucp:source/schemas/common/loyalty.json#L131",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:source/schemas/common/loyalty.json#L131 \u2014 \"Programs that can be joined independently MUST be modeled as separate sibling entries unde\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-003",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "schema",
+     "requirement": "All loyalty map keys MUST use reverse-domain naming to ensure provenance and prevent collisions when multiple extensions contribute to the shared namespace",
+     "source": "ucp:source/schemas/common/loyalty.json#L168",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:source/schemas/common/loyalty.json#L168 \u2014 \"All loyalty keys MUST use reverse-domain naming to ensure provenance and prevent collision\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-004",
+     "area": "loyalty",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "schema",
+     "requirement": "`display_id` MUST NOT be set if the membership has not been verified",
+     "source": "ucp:source/schemas/common/loyalty.json#L144",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:source/schemas/common/loyalty.json#L144 \u2014 \"MUST NOT be set if the membership has not been verified.\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-006",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Programs that can be joined independently MUST be modeled as separate sibling top-level keys in the loyalty extension map, namespaced by reverse-domain naming",
+     "source": "ucp:docs/specification/loyalty.md#L209",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L209 \u2014 \"Programs that can be joined independently MUST be modeled as separate sibling entries unde\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-007",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a business populates the loyalty extension from authenticated identity without an explicit eligibility claim, the map key MUST be the same reverse-domain identifier the business would accept as a claim value",
+     "source": "ucp:docs/specification/loyalty.md#L216",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L216 \u2014 \"In this case, the map key MUST be the same reverse-domain identifier the business would ac\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-008",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a business verifies a membership claim or determines membership from authenticated identity, it MUST return `provisional: false` and MUST populate the active tier(s) in `tiers` when the program has tier structure (tier-less programs MAY omit `tiers`)",
+     "source": "ucp:docs/specification/loyalty.md#L219",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L219 \u2014 \"When a business verifies a membership claim or determines membership from   authenticated \u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-009",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a membership claim is recognized and accepted but not verified, the business MUST return `provisional: true` and MUST NOT return `display_id` until the membership is verified",
+     "source": "ucp:docs/specification/loyalty.md#L225",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L225 \u2014 \"When a membership claim in the request is recognized and accepted but not verified by   th\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-010",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a membership claim is accepted but cannot be verified, the business MUST communicate the failure via a recoverable message with `type: \"error\"` and `code: \"eligibility_invalid\"`",
+     "source": "ucp:docs/specification/loyalty.md#L229",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L229 \u2014 \"the business   MUST communicate the failure via a recoverable `message` with `type: \"error\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-011",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "At checkout completion, all accepted-but-unverified loyalty claims MUST be resolved per the Eligibility Verification at Completion contract",
+     "source": "ucp:docs/specification/loyalty.md#L234",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L234 \u2014 \"At checkout completion, all accepted but unverified loyalty claims MUST be resolved per th\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-012",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Businesses MUST evaluate conditions beyond membership (e.g. a minimum purchase threshold) before applying a monetary loyalty benefit",
+     "source": "ucp:docs/specification/loyalty.md#L241",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L241 \u2014 \"Businesses MUST evaluate those conditions before applying the benefit.\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-013",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a monetary loyalty benefit applies, businesses MUST surface the price impact through the base capability's price fields (catalog price/list_price/price_range, or cart/checkout totals / line_items[].totals)",
+     "source": "ucp:docs/specification/loyalty.md#L244",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L244 \u2014 \"When the benefit applies, businesses MUST surface the price impact through the base capabi\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-014",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "If a discount extension applied discount still requires verification because one or more accepted loyalty claims remain unverified, the corresponding applied discount MUST set `provisional: true`",
+     "source": "ucp:docs/specification/loyalty.md#L252",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L252 \u2014 \"If the discount still requires verification, for example because one or more accepted loya\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-015",
+     "area": "loyalty",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Businesses MUST NOT put inapplicable monetary loyalty benefits in the discount extension",
+     "source": "ucp:docs/specification/loyalty.md#L258",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L258 \u2014 \"Businesses MUST NOT put inapplicable benefits in the discount extension.\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-016",
+     "area": "loyalty",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member identifiers, since that would allow the platform to uniquely identify individual buyers",
+     "source": "ucp:docs/specification/loyalty.md#L665",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L665 \u2014 \"Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member id\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-017",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Loyalty extension response MUST only include `display_id` after verified/authenticated memberships",
+     "source": "ucp:docs/specification/loyalty.md#L667",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L667 \u2014 \"Loyalty extension response MUST only include `display_id` after verified/authenticated mem\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-018",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Loyalty extension response MUST treat all `context.eligibility` values in the request as buyer claims rather than proof",
+     "source": "ucp:docs/specification/loyalty.md#L669",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L669 \u2014 \"Loyalty extension response MUST treat all `context.eligibility` values in the request as b\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-019",
+     "area": "loyalty",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When a membership claim is recognized and accepted but not yet verified, the business MUST return provisional: true and MAY return display-safe tier context for the state accepted during the session, but MUST NOT return display_id until the membership is verified.",
+     "source": "ucp:docs/specification/loyalty.md#L225",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L225 \u2014 \"* When a membership claim in the request is recognized and accepted but not verified by   \u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
+     "id": "LOY-020",
+     "area": "loyalty",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "If a loyalty eligibility claim cannot be verified, the business MUST return a recoverable error via messages[] with code: \"eligibility_invalid\".",
+     "source": "ucp:docs/specification/loyalty.md#L406",
+     "covered_by": [],
+     "exempt_reason": "party: the Business (ucp:docs/specification/loyalty.md#L406 \u2014 \"If the claim cannot be verified, the business MUST return a recoverable error via `message\u2026\"). observable: only against a 2026-04-08 target that DECLARES dev.ucp.common.loyalty and serves the loyalty extension; no 2026-04-08 golden, reference sample or third-party store declares it (ucp#813 backported the extension into the tag on 2026-09-09; every 04-08 implementation predates it). why-not-now: decision 3 (CLOSED 2026-09-10) \u2014 the 19 backported LOY rows enter as EXEMPT needs-target-capability so the re-pin does not turn 2026-04-08 into a version with new testable GAPs; converts when D3-26b's loyalty host exists, at which point this entry is deleted and the row is graded."
+    },
+    {
      "id": "MCP-001",
      "area": "transports",
      "keyword": "MUST",
@@ -11974,28 +12226,28 @@
    "accounted_pct": 10,
    "roles": {
     "summary": {
-     "merchant": 524,
-     "agent": 303,
+     "merchant": 525,
+     "agent": 302,
      "both": 66,
      "other": 19
     },
     "merchant": {
-     "musts": 524,
+     "musts": 525,
      "check": 77,
      "exempt": 0,
-     "gap": 447,
+     "gap": 448,
      "gap_by_testability": {
       "manual": 52,
       "needs-oauth": 12,
       "needs-receiver": 103,
-      "testable": 280
+      "testable": 281
      }
     },
     "agent": {
-     "musts": 303,
+     "musts": 302,
      "check": 0,
      "exempt": 3,
-     "gap": 300
+     "gap": 299
     },
     "other": {
      "musts": 19,
@@ -17307,7 +17559,7 @@
      "keyword": "MUST NOT",
      "testability": "testable",
      "status": "gap",
-     "role": "platform",
+     "role": "business",
      "normative_basis": "sentence",
      "requirement": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member identifiers, since that would allow the platform to uniquely identify individual buyers",
      "source": "ucp:docs/specification/common/extensions/loyalty.md#L680",

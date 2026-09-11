@@ -3814,6 +3814,13 @@
   },
   {
    "version": "2026-08-25",
+   "id": "LOY-016",
+   "role": "business",
+   "reason": "response-side duty (the Business's loyalty response must be data-minimized); the Platform is the party the rule protects, not the party it binds — the old agent lock's substring match on 'the platform' was a mis-resolution; merchant lane",
+   "requirement": "Loyalty extension response MUST be data-minimized and MUST NOT expose raw stable member identifiers, since that would al"
+  },
+  {
+   "version": "2026-08-25",
    "id": "LOY-018",
    "role": "business",
    "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",

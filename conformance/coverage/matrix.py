@@ -304,6 +304,9 @@ def _pinned_spec_versions():
 # the program is building — but has not yet. `manual` / `untestable` GAPs are the
 # exemption program's business (A10) and never block `live`.
 CONVERTING_TIERS = ("testable", "needs-receiver", "needs-oauth")
+# The open testable-tier rows a version is RULED to carry (matrix --selftest pins them):
+# 2026-04-08 = SIG-039 only (B3 ruling 2026-09-10; D2-15 must not add one).
+OPEN_TESTABLE_TIER_PINNED = {"2026-04-08": ["SIG-039"]}
 
 
 def _version_state(n_check, n_exempt, has_register, testable_gap):
@@ -378,22 +381,14 @@ def _row_role(r):
 
 
 def _agent_axis_report():
-    """Runs agent_matrix.py --json ONCE (subprocess — the agent lane lives in its own
-    tree and is never imported by the merchant matrix) and returns
-    {version: {agent_musts, check, exempt, gap}} or None if unreachable."""
-    script = os.path.join(CONF, "agent", "agent_matrix.py")
+    """The agent lane's published, gate-verified summary — conformance/agent/
+    agent_coverage.json ({version: {agent_musts, check, exempt, gap, …}}), the file
+    agent-governance proves fresh against the lane's in-run evidence (CI-1 / D2-15). The
+    merchant matrix never recomputes the agent axis (its evidence is the lane's, not
+    the tracked file's); None if the file is absent."""
+    path = os.path.join(CONF, "agent", "agent_coverage.json")
     try:
-        import tempfile
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
-            tmp = tf.name
-        r = subprocess.run([sys.executable, script, "--json", tmp], cwd=ROOT,
-                           capture_output=True, text=True, timeout=120)
-        out = json.load(open(tmp)) if r.returncode == 0 and os.path.exists(tmp) else None
-        try:
-            os.remove(tmp)
-        except OSError:
-            pass
-        return out
+        return json.load(open(path))
     except Exception:
         return None
 
@@ -943,6 +938,18 @@ def selftest():
             print(f"  ✗ {v}: no_further_work={got!r} (state {e['state']}, current site {CURRENT_SITE_VERSION}) <-- expected {want!r}")
     print(f"  {'✓' if nfw_ok else '✗'} no_further_work emitted per version (converting AND older than {CURRENT_SITE_VERSION})")
     bad += 0 if nfw_ok else 1
+
+    # D2-15 / B3 (owner ruling 2026-09-10): 2026-04-08 stays `converting` with EXACTLY one
+    # open testable-tier row (SIG-039, the W2 signing probe's) — the re-pin to a25a4a24
+    # must not add a testable GAP (the 19 backported LOY rows are EXEMPT
+    # needs-target-capability). Pinned here so a dropped LOY exemption reds this selftest.
+    for v, want in OPEN_TESTABLE_TIER_PINNED.items():
+        e = fresh["versions"].get(v, {})
+        got = sorted(r["id"] for r in e.get("rows", [])
+                     if r["status"] == "gap" and r["testability"] in CONVERTING_TIERS)
+        ok = got == sorted(want)
+        print(f"  {'✓' if ok else '✗'} {v}: open testable-tier rows {got}" + ("" if ok else f"  <-- pinned {sorted(want)}"))
+        bad += 0 if ok else 1
 
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0

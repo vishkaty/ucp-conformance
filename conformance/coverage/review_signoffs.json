@@ -839,6 +839,43 @@
      "due": "2026-09-18"
     }
    }
+  },
+  {
+   "batch": "repin-2026-04-08-2026-09-11",
+   "kind": "sample",
+   "date": "2026-09-11",
+   "reviewer": "re-pin re-stamp (mechanical, add_expiry_clocks.py --repin 2026-04-08); the human sample below is the review",
+   "spec_reverified": true,
+   "notes": "SOURCES.lock.json re-pinned 2026-04-08 a2d8bf0b -> a25a4a24 (decision 3, D2-15). Every clocked entry in scope of 2026-04-08 (160) had its spec_pin re-stamped to the new pin; review_by untouched. The re-pin's diff is loyalty.md + loyalty.json (new) and one example line in discount.md, and every pre-existing 2026-04-08 register quote re-verifies verbatim at the new pin (register gate), so no entry's subject moved. The sample is a deterministic 16/160 selection (random.Random(20260911).sample over the sorted entry names) the owner re-reads at a25a4a24 and records as human_review.status=recorded; PENDING until then.",
+   "sample": {
+    "seed": 20260911,
+    "of": 160,
+    "size": 16,
+    "ids": [
+     "exemptions.json CART-020",
+     "exemptions.json ERR-014",
+     "exemptions.json ERR-015",
+     "exemptions.json FUL-029",
+     "exemptions.json IDL-012",
+     "exemptions.json PAY-009",
+     "exemptions.json PAY-028",
+     "exemptions.json TOT-010",
+     "register_completeness_waivers.json waivers[0]",
+     "register_completeness_waivers.json waivers[21]",
+     "register_completeness_waivers.json waivers[28]",
+     "register_completeness_waivers.json waivers[31]",
+     "register_completeness_waivers.json waivers[42]",
+     "register_completeness_waivers.json waivers[46]",
+     "register_completeness_waivers.json waivers[76]",
+     "register_completeness_waivers.json waivers[88]"
+    ],
+    "human_review": {
+     "status": "pending",
+     "by": null,
+     "on": null,
+     "due": "2026-09-18"
+    }
+   }
   }
  ]
 }
