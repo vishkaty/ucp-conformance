@@ -1,0 +1,70 @@
+{
+ "as_of": "2026-09-11",
+ "stores": 5,
+ "days": [
+  "2026-09-11"
+ ],
+ "window_days": 30,
+ "rows": {
+  "OVR-001": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "OVR-010": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "DISC-001": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "DISC-002": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "DISC-003": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "DISC-005": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "SIG-007": {
+   "domains": 0,
+   "clean_pass": 0,
+   "deviation": 0,
+   "latest": null
+  },
+  "SIG-008": {
+   "domains": 0,
+   "clean_pass": 0,
+   "deviation": 0,
+   "latest": null
+  },
+  "CAP-001": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  },
+  "CAP-003": {
+   "domains": 4,
+   "clean_pass": 4,
+   "deviation": 0,
+   "latest": "2026-09-11"
+  }
+ }
+}

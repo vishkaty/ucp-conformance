@@ -1,0 +1,15 @@
+{
+  "_about": "THE probe policy for every third-party network touch this suite makes (decision 4, CLOSED 2026-09-10; PLAN-v3 SS 2.11): the discovery-live sampler (conformance/ci/discovery_live.py, D4-08), the monthly state-of-UCP tracker (ops/tools/state_of_ucp_scan.py) and the ucpchecker comparison (D4-09) read it. Discovery-only: GET /.well-known/ucp, nothing else; never a catalog read (decision 4b: NOT NOW), never a mutating, signed, replayed or negative probe; runs ONLY on the owner's machine (never in GitHub Actions; captures are private and never Actions artifacts); a named, contactable User-Agent; per-UA robots.txt honoured; <=1 request/s, <=1 fetch per store per day, <=50 stores per day; 10 s timeout; no redirects followed (the redirect itself is graded); raw captures pruned after 90 days, aggregates only in public.",
+  "user_agent": "spck-conformance-research/0.1 (+https://spck.dev/research; read-only discovery probe; contact vishal@katyal.ai)",
+  "methods_allowed": ["GET"],
+  "paths_allowed": ["/.well-known/ucp"],
+  "headers_denied": ["Idempotency-Key", "Signature", "Signature-Input", "Content-Digest", "UCP-Agent", "Authorization", "Cookie"],
+  "rate": {"per_second": 1, "per_store_per_day": 1, "per_day": 50},
+  "timeout_s": 10,
+  "redirects": false,
+  "robots": true,
+  "retention_days": 90,
+  "frame": {"source": "hf:UCPChecker/ucp-merchants@ee420129b462cf109a571f7102084b282679dd1b", "file": "ucp-merchants-2026-04-02.csv", "note": "the pinned CC-BY dataset state_of_ucp_scan.py already uses; ucpchecker /api/ is never touched"},
+  "actions_forbidden": true,
+  "catalog_reads": "NOT NOW (decision 4b)"
+}

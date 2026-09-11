@@ -196,6 +196,16 @@ def gates(server, require_server=False):
         # EXPIRED red via samples_pin_not, or_pr_merged through a STUBBED gh, or_date) and junit
         # parsing, hermetic; the live suite runs nightly against :8382/:8398 (D4-10).
         ("crosscheck-selftest", _py(ROOT / "conformance" / "ci" / "official_crosscheck.py", "--selftest"), None, ()),
+        # D4-08 (E2, decision 4): the discovery-live sampler's DENYLIST (GET /.well-known/ucp
+        # only, no signing/replay headers, sample hosts only), per-UA robots, rate limiter,
+        # offline grader (no socket), role-scoped earnable rows, the discovery-live evidence
+        # rule (>=3 domains within 30 d, never live-wire), GITHUB_ACTIONS refusal, and
+        # differential_targets.json == 2 — all hermetic (stubbed network).
+        ("discovery-live-selftest", _py(ROOT / "conformance" / "ci" / "discovery_live.py", "--selftest"), None, ()),
+        # D4-09 (E6): ucpchecker /status page comparison — agreement matrix, documented
+        # divergence classes (legacy-keys, redirects, payment_handlers, robots), 24 h cache,
+        # weekly cap; hermetic (synthetic pages).
+        ("ucpchecker-compare-selftest", _py(ROOT / "conformance" / "ci" / "ucpchecker_compare.py", "--selftest"), None, ()),
         # D4-10: nightly.yml's contract (jobs, timeouts, registered non-sweep ports, no
         # continue-on-error on assertions, no discovery-live job, no ops/ write, artifacts).
         ("nightly-workflow-selftest", _py(ROOT / "conformance" / "ci" / "validate_nightly_workflow.py", "--selftest"), None, ()),
