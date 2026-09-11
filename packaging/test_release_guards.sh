@@ -5,6 +5,9 @@
 #   prerelease_tag_ok a PEP 440 pre-release tag (v0.4.0rc1) is accepted by the tag guard
 #   lane_branch_tag   (D5-15) a tag on a commit that is NOT an ancestor of main → exit 1
 #                     (scratch git repo + stub gh)
+#   check-run history (W1 carry-over) under REQUIRE_CI: any completed-success `selftest` run for
+#                     the SHA counts, a newer in-progress run never masks it, a failure-only
+#                     history and a green run under another job name are refused
 # Usage: bash packaging/test_release_guards.sh   (exit 0 pass · 1 fail)
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -80,6 +83,41 @@ sed -i.bak 's/^version = .*/version = "0.4.0rc1"/' "$D/packaging/pyproject.toml"
 gitrepo "$D"; mkdir -p "$D/bin"; printf '#!/usr/bin/env bash\necho failure\n' > "$D/bin/gh"; chmod +x "$D/bin/gh"
 OUT="$(cd "$D" && RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
 if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "check-run"; then ok "selftest check-run 'failure' with RELEASE_GUARDS_REQUIRE_CI=1 -> guard exit 1"; else bad "failed check-run not refused under REQUIRE_CI (rc=$RC):"; echo "$OUT" | tail -4; fi
+rm -rf "$D"
+
+# (W1 carry-over, W0-integration §11) check-run history semantics under REQUIRE_CI: ANY
+# completed-success `selftest` run for the SHA counts; a newer in-progress run never masks it;
+# a history with no green run is refused; a green run under another job name never counts.
+ghstub() {   # $1 = dir; writes a stub gh that prints a planted history (newest first), honouring --jq via the real jq
+  mkdir -p "$1/bin"; cat > "$1/bin/gh" <<'SH'
+#!/usr/bin/env bash
+case "${GH_STUB_MODE:-success}" in
+  inprogress-then-success) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"success"}]}';;
+  inprogress-then-failure) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
+  other-job-only)          J='{"total_count":2,"check_runs":[{"name":"action-selftest","status":"completed","conclusion":"success"},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
+  *)                       J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"success"}]}';;
+esac
+expr=""; prev=""; for a in "$@"; do [ "$prev" = "--jq" ] && expr="$a"; prev="$a"; done
+if [ -n "$expr" ]; then echo "$J" | jq -r "$expr"; else echo "$J"; fi
+SH
+  chmod +x "$1/bin/gh"
+}
+rcscratch() {   # a scratch repo at 0.4.0rc1 with origin/main == HEAD
+  local d; d="$(scratch)"; printf '# Changelog\n\n## 0.4.0 — unreleased\n\n## 0.4.0rc1 — unreleased\n- rc\nacceptance: pending\n' > "$d/packaging/CHANGELOG.md"
+  sed -i.bak 's/^version = .*/version = "0.4.0rc1"/' "$d/packaging/pyproject.toml"; echo '__version__ = "0.4.0rc1"' > "$d/packaging/spck_conformance/__init__.py"; rm -f "$d"/packaging/*.bak
+  gitrepo "$d"; ghstub "$d"; echo "$d"
+}
+D="$(rcscratch)"
+OUT="$(cd "$D" && GH_STUB_MODE=inprogress-then-success RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -eq 0 ]; then ok "in-progress newest run + older completed-success run -> accepted under REQUIRE_CI"; else bad "in-progress newest run MASKS the green run under REQUIRE_CI (rc=$RC):"; echo "$OUT" | grep -i "check-run" | sed 's/^/      /'; fi
+rm -rf "$D"
+D="$(rcscratch)"
+OUT="$(cd "$D" && GH_STUB_MODE=inprogress-then-failure RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "check-run"; then ok "in-progress newest run + older FAILURE only -> guard exit 1"; else bad "failure-only history accepted (rc=$RC):"; echo "$OUT" | tail -4; fi
+rm -rf "$D"
+D="$(rcscratch)"
+OUT="$(cd "$D" && GH_STUB_MODE=other-job-only RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "check-run"; then ok "green 'action-selftest' + failed 'selftest' -> guard exit 1 (name filter)"; else bad "another job's green run counted as selftest (rc=$RC):"; echo "$OUT" | tail -4; fi
 rm -rf "$D"
 
 # missing CHANGELOG entry: a bump without an entry is refused
