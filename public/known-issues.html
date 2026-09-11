@@ -56,11 +56,11 @@ labeled. Source of truth: <code>conformance/ci/known_issues.json</code> in the
 <div class="stats">
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">10</div><div class="l">issues tracked</div></div>
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">10</div><div class="l">open on a published cut</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">4</div><div class="l">fixed on an upstream main</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">6</div><div class="l">no fix anywhere yet</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">5</div><div class="l">fixed on an upstream main</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">5</div><div class="l">no fix anywhere yet</div></div>
 </div>
 <p class="note">By artifact: golden-0825 1 · js-sdk 2 · official-conformance 1 · python-sdk 1 · samples-node 1 · samples-python 1 · ucp-schema 1 · ucp-spec 2. Spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>
-(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-09-09</span>.
+(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-09-11</span>.
 Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <article class="ki" id="KI-001">
 <h2><a class="rid" href="#KI-001">KI-001</a> <span class="chip">python-sdk</span> <span class="comp">generated pydantic models (schema constraints)</span></h2>
@@ -134,12 +134,12 @@ Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 </article>
 <article class="ki" id="KI-008">
 <h2><a class="rid" href="#KI-008">KI-008</a> <span class="chip">ucp-spec</span> <span class="comp">release tag v2026-04-08</span></h2>
-<p class="symptom">The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -&gt; a25a4a24, #813 loyalty backport: +15 MUSTs, +common/loyalty.json). Our lock pins a2d8bf0b; acknowledged under decision 3 (re-pin in W1).</p>
+<p class="symptom">The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -&gt; a25a4a24, #813 loyalty backport: +19 register MUSTs, +common/loyalty.json). Our lock pinned a2d8bf0b until the D2-15 re-pin of 2026-09-11 (decision 3); a release tag moving after publication is the upstream fact recorded here.</p>
 <dl class="meta">
-<dt>Reproduce</dt><dd><code class="cmd">GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check</code><div class="eo"><span class="k">expected</span> tag v2026-04-08 == a2d8bf0b</div><div class="eo"><span class="k">observed</span> TAG MOVED v2026-04-08 -&gt; a25a4a24 (acknowledged)</div></dd>
-<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">ucp tag v2026-04-08 @ a25a4a24</span></li></ul></dd>
+<dt>Reproduce</dt><dd><code class="cmd">GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check</code><div class="eo"><span class="k">expected</span> tag v2026-04-08 == the locked commit (a25a4a24 since 2026-09-11)</div><div class="eo"><span class="k">observed</span> sources-age: OK — all 4 pinned spec tag(s) still carry their locked identity (tag object + dereferenced commit); before the re-pin: TAG MOVED v2026-04-08 -&gt; a25a4a24 (acknowledged)</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">ucp tag v2026-04-08 @ a25a4a24</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">spck SOURCES.lock 2026-04-08 @ a25a4a24 (re-pinned 2026-09-11)</span> <span class="ev">— D2-15 (2026-09-11): SOURCES.lock.json 2026-04-08 commit a2d8bf0b -&gt; a25a4a24, tag_move_observed -&gt; tag_move_resolved; known_tag_moves.json entry retired; sources_age.py --check -&gt; OK, no TAG MOVED; register 1875/1875 verified at the new pin; ledger R20</span></li></ul></dd>
 <dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/813" rel="noopener">Universal-Commerce-Protocol/ucp/pull/813</a></li></ul></dd>
-<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-09 · review by 2026-12-08 · ledger row R20</dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-09-11 · review by 2026-12-08 · ledger row R20</dd>
 </dl>
 </article>
 <article class="ki" id="KI-009">

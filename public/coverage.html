@@ -267,14 +267,14 @@
       ceiling.style.fontStyle = "italic";
       card.appendChild(ceiling);
     }
-    // Lock-note footnote (CLAIM-COV-003, D5-02 / decision 3): the 04-08 numbers were
-    // measured at the pinned commit; the upstream v2026-04-08 tag was re-pointed on
-    // 2026-09-09 (ucp#813). The SHA renders from spec_pins (never typed here); the
-    // footnote retires with the W1 re-pin (known_tag_moves.json review_by).
+    // Lock-note footnote (CLAIM-COV-003, D5-02 / decision 3; re-worded at the W1 re-pin,
+    // D2-15): the 04-08 numbers are measured at the pinned commit, which IS the commit the
+    // upstream v2026-04-08 tag has pointed to since 2026-09-09 (ucp#813). The SHA renders
+    // from spec_pins (never typed here).
     if (VER === "2026-04-08" && DATA.spec_pins && DATA.spec_pins[VER]) {
       var lock = el("div", "note",
         "measured at commit " + String(DATA.spec_pins[VER]).slice(0, 8) +
-        "; the v2026-04-08 tag was re-pointed 2026-09-09 (ucp#813)");
+        ", which the v2026-04-08 tag has pointed to since 2026-09-09 (ucp#813)");
       lock.style.margin = "2px 0 8px";
       lock.style.fontStyle = "italic";
       card.appendChild(lock);

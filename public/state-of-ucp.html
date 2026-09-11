@@ -117,7 +117,7 @@ launched with Mastercard, Amex, JCB, UnionPay, Adyen, PayPal, Coinbase and more
 requirements in our register went from
 <span data-live="coverage.json:$.versions['2026-01-11'].musts">178</span> to
 <span data-live="coverage.json:$.versions['2026-01-23'].musts">188</span> to
-<span data-live="coverage.json:$.versions['2026-04-08'].musts">366</span> —
+<span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> —
 nearly doubling in the latest release. Every requirement is individually traceable at
 <a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
   <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
@@ -244,7 +244,7 @@ Provisioned ≠ adopted ≠ transacting.</li>
     <li><b>An endorsement is not a deployment.</b> The marquee brands endorse and participate via managed
 surfaces; they do not serve their own endpoints.</li>
     <li><b>"Conformant" is three different questions.</b> Of the
-<span data-live="coverage.json:$.versions['2026-04-08'].musts">366</span> requirements, as we
+<span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> requirements, as we
 classify them: <span data-live="state-of-ucp/adoption-facts.json:$.testability_server">185</span> test a business
 server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_agent_bound">90</span> bind the buying
 agent (which almost no tooling measures — our dedicated agent-side register catalogues
@@ -302,8 +302,8 @@ our own golden server — deviate from the pinned text, we keep a reproduction, 
 ledger anchor for each one, re-verified within thirty days. <b data-live="known-issues.json:$.summary.rows">10</b>
 issues are tracked at spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>;
 <b data-live="known-issues.json:$.summary.open_on_some_cut">10</b> are still open on a published cut,
-<b data-live="known-issues.json:$.summary.fixed_on_some_cut">4</b> are fixed on an upstream main but not yet in a
-release, and <b data-live="known-issues.json:$.summary.unfixed_everywhere">6</b> have no fix anywhere yet. Latest
+<b data-live="known-issues.json:$.summary.fixed_on_some_cut">5</b> are fixed on an upstream main but not yet in a
+release, and <b data-live="known-issues.json:$.summary.unfixed_everywhere">5</b> have no fix anywhere yet. Latest
 re-verification: <span data-live="known-issues.json:$.summary.latest_re_verified">2026-09-09</span>. The full
 table, with the command to reproduce each row, is at <a href="/known-issues">spck.dev/known-issues</a>.</p>
 

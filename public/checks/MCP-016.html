@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAT-009 — Catalog conformance check | spck.dev</title>
-<meta name="description" content="UCP requirement CAT-009: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
+<title>MCP-016 — Transports conformance check | spck.dev</title>
+<meta name="description" content="UCP requirement MCP-016: what the spck.dev conformance suite verifies, the spec citation, and the versions it applies to.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -31,19 +31,19 @@
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub ↗</a></div></nav>
 <div class="wrap">
 <header class="page-head">
-  <div class="eyebrow"><a href="/checks/">Check register</a> / Catalog</div>
-  <h1>CAT-009</h1>
+  <div class="eyebrow"><a href="/checks/">Check register</a> / Transports</div>
+  <h1>MCP-016</h1>
   <p class="sub">A requirement the spck.dev suite checks on UCP servers. The quoted text is
 the normative requirement; the citation links to the exact line of the pinned spec source
 it was taken from.</p>
 </header>
-<blockquote class="req-quote">A valid search request MUST include at least one of: a query string, one or more filters, or an extension-defined input</blockquote>
+<blockquote class="req-quote">A conforming cart MCP transport implementation MUST implement JSON-RPC 2.0 correctly, provide all core cart tools, return errors per the Core Specification, return business outcomes as a JSON-RPC result with UCP envelope and messages array, validate tool inputs against UCP schemas, and support HTTP transport with streaming.</blockquote>
 <dl class="meta-grid">
   <dt>Keyword</dt><dd>MUST</dd>
-  <dt>Area</dt><dd>Catalog</dd>
-  <dt>Versions</dt><dd><span class="chip">2026-04-08</span></dd>
-  <dt>Testability</dt><dd>testable</dd>
-  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/catalog/search.md#L40" rel="noopener">ucp:docs/specification/catalog/search.md#L40</a> <span class="chip">2026-04-08</span></dd>
+  <dt>Area</dt><dd>Transports</dd>
+  <dt>Versions</dt><dd><span class="chip">2026-08-25</span></dd>
+  <dt>Testability</dt><dd>needs a receiver the suite controls, so it runs in the CLI/full suite</dd>
+  <dt>Spec source</dt><dd><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/cart/mcp.md#L651-L659" rel="noopener">ucp:docs/specification/shopping/cart/mcp.md#L651-L659</a> <span class="chip">2026-08-25</span></dd>
 </dl>
 <h2>How this is graded</h2>
 <p class="sub">A deviation on a MUST fails the run and shows the requirement next to the

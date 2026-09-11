@@ -8,8 +8,8 @@
     "rows": 10,
     "refuted": 0,
     "open_on_some_cut": 10,
-    "fixed_on_some_cut": 4,
-    "unfixed_everywhere": 6,
+    "fixed_on_some_cut": 5,
+    "unfixed_everywhere": 5,
     "by_artifact": {
       "golden-0825": 1,
       "js-sdk": 2,
@@ -25,7 +25,7 @@
       "shared": 2,
       "theirs": 7
     },
-    "latest_re_verified": "2026-09-09",
+    "latest_re_verified": "2026-09-11",
     "oldest_re_verified": "2026-09-09",
     "re_verified_window_days": 30
   },
@@ -254,23 +254,28 @@
       "id": "KI-008",
       "artifact": "ucp-spec",
       "component": "release tag v2026-04-08",
-      "symptom": "The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -> a25a4a24, #813 loyalty backport: +15 MUSTs, +common/loyalty.json). Our lock pins a2d8bf0b; acknowledged under decision 3 (re-pin in W1).",
+      "symptom": "The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -> a25a4a24, #813 loyalty backport: +19 register MUSTs, +common/loyalty.json). Our lock pinned a2d8bf0b until the D2-15 re-pin of 2026-09-11 (decision 3); a release tag moving after publication is the upstream fact recorded here.",
       "repro": {
         "command": "GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check",
-        "expected": "tag v2026-04-08 == a2d8bf0b",
-        "observed": "TAG MOVED v2026-04-08 -> a25a4a24 (acknowledged)"
+        "expected": "tag v2026-04-08 == the locked commit (a25a4a24 since 2026-09-11)",
+        "observed": "sources-age: OK \u2014 all 4 pinned spec tag(s) still carry their locked identity (tag object + dereferenced commit); before the re-pin: TAG MOVED v2026-04-08 -> a25a4a24 (acknowledged)"
       },
       "status_by_cut": [
         {
           "cut": "ucp tag v2026-04-08 @ a25a4a24",
           "status": "open"
+        },
+        {
+          "cut": "spck SOURCES.lock 2026-04-08 @ a25a4a24 (re-pinned 2026-09-11)",
+          "status": "fixed",
+          "evidence": "D2-15 (2026-09-11): SOURCES.lock.json 2026-04-08 commit a2d8bf0b -> a25a4a24, tag_move_observed -> tag_move_resolved; known_tag_moves.json entry retired; sources_age.py --check -> OK, no TAG MOVED; register 1875/1875 verified at the new pin; ledger R20"
         }
       ],
       "origin": "theirs",
       "filed": [
         "https://github.com/Universal-Commerce-Protocol/ucp/pull/813"
       ],
-      "re_verified": "2026-09-09",
+      "re_verified": "2026-09-11",
       "confidence": "high",
       "ledger_row": "R20",
       "review_by": "2026-12-08",

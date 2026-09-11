@@ -37,12 +37,17 @@ test("08-25 summary never contains the retired ceiling sentence", async () => { 
 test("08-25 ceiling sentence renders verbatim from registered CLAIM-COV-002", async () => { // SITE-R-028
   const c = claim("CLAIM-COV-002");
   assert.ok(c && c.text, "CLAIM-COV-002 registered in public/site_claims.json");
-  const doc = await render();
+  // W1 integration: the committed export now carries discovery_live {stores > 0} (D4-08's smoke),
+  // which D5-13 binds to the CLAIM-COV-007 form instead of this ceiling (tests below); the
+  // ceiling is asserted on a copy with the slot nulled — the W0 shape of the export.
+  const cov0 = JSON.parse(JSON.stringify(COV));
+  cov0.versions["2026-08-25"].discovery_live = null;
+  const doc = await render(cov0);
   clickTab(doc, "2026-08-25");
   const text = doc.getElementById("summary").textContent;
   assert.ok(text.includes(c.text), `rendered summary carries the registered text\n${text}`);
   // data-driven: with live-wire evidence present the sentence retires itself
-  const cov2 = JSON.parse(JSON.stringify(COV));
+  const cov2 = JSON.parse(JSON.stringify(cov0));
   cov2.versions["2026-08-25"].evidence_breakdown["live-wire"] = 1;
   const doc2 = await render(cov2);
   clickTab(doc2, "2026-08-25");
@@ -56,7 +61,8 @@ test("04-08 tab carries the tag re-point footnote (CLAIM-COV-003) from the pinne
   clickTab(doc, "2026-04-08");
   const text = doc.getElementById("summary").textContent;
   assert.ok(text.includes(c.text), `04-08 summary carries the registered footnote\n${text}`);
-  assert.match(text, /a2d8bf0b/);
+  assert.match(text, /a25a4a24/);                 // the re-pinned 04-08 commit (D2-15, decision 3), rendered from spec_pins
+  assert.doesNotMatch(text, /re-pointed/);     // the tag-move clause retired with the re-pin
   assert.match(text, /ucp#813/);
   clickTab(doc, "2026-08-25");
   assert.ok(!doc.getElementById("summary").textContent.includes(c.text), "footnote is 04-08 only");
@@ -163,8 +169,10 @@ test("roles.summary renders the per-role MUST split and a role toggle re-renders
   assert.ok(btn, "merchant role button"); btn.dispatch("click");
   const after = doc.getElementById("summary").textContent;
   assert.match(after, /500/); assert.match(after, /430/);
-  // without roles (the committed export today) nothing role-related renders
-  const doc2 = await render(COV);
+  // without roles (an export with the D2-08 block stripped) nothing role-related renders
+  const cov2 = JSON.parse(JSON.stringify(COV));
+  for (const vv of Object.values(cov2.versions)) delete vv.roles;
+  const doc2 = await render(cov2);
   clickTab(doc2, "2026-08-25");
   assert.ok(!doc2.getElementById("role-toggle"), "no role toggle without roles in the export");
 });
