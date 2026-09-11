@@ -47,3 +47,22 @@ def test_selftest_catches_the_four_planted_violations_and_control_is_quiet():
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+def test_i9_triad_contract_for_the_envelope_mchecks():
+    """W1 integration (D1-16a <-> D4-07): merchant_checks_08_25_envelope.py (CHK-048/CHK-078)
+    imports the I9 idempotency triad from THIS module by name — the three function
+    names/signatures are the cross-lane contract; D4's module is the one implementation.
+    Each returns (ok: bool, detail: str) over plain status ints + decoded JSON bodies."""
+    import seq_invariants as si
+    first = {"id": "chk_1", "status": "completed", "order": {"id": "ord_1"}}
+    assert si.replay_cached(200, first, 200, dict(first)) == (True, "cached result replayed")
+    ok, detail = si.replay_cached(200, first, 200, {**first, "order": {"id": "ord_2"}})
+    assert not ok and "ord_2" in detail and "second order" in detail
+    assert not si.replay_cached(200, first, 201, dict(first))[0]           # status must match the cache
+    env = {"ucp": {"version": "2026-08-25", "status": "error"},
+           "messages": [{"type": "error", "code": "idempotency_conflict", "content": "x", "severity": "unrecoverable"}]}
+    assert si.mismatch_409(409, env)[0] and not si.mismatch_409(200, env)[0] and not si.mismatch_409(409, {})[0]
+    assert si.terminal_rejected(409, env)[0] and not si.terminal_rejected(200, first)[0] and not si.terminal_rejected(404, {})[0]
+    for name in ("replay_cached", "mismatch_409", "terminal_rejected"):
+        assert name in si.I9_ANCHORS and si.I9_ANCHORS[name], name
