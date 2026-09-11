@@ -252,6 +252,22 @@ def selftest():
         good_in = evaluate(scratch(merchant_gap=0, expired=False))
     except NameError as e:
         print(f"  ✗ evaluate absent: {e}")
+    # W1 integration (D2-16 x D5-13): item 9's site sentence is the REGISTERED CLAIM-RUB-016 text
+    # on its page ("Airtight means the MUST / MUST NOT / REQUIRED / SHALL obligations …"), not the
+    # plan's placeholder literal 'airtight = MUST' (kept as the pre-D5-13 fallback).
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as td:
+        pub = pathlib.Path(td); (pub / "rubric.html").write_text("<p>Airtight means the MUST obligations; SHOULD-class report-only</p>")
+        claims = {"claims": [{"id": "CLAIM-RUB-016", "page": "rubric.html", "text": "Airtight means the MUST obligations; SHOULD-class report-only"}]}
+        try:
+            present = rubric_sentence_present(pub, claims)
+            absent = rubric_sentence_present(pub, {"claims": [{"id": "CLAIM-RUB-016", "page": "rubric.html", "text": "some other sentence"}]})
+            (pub / "old.html").write_text("airtight = MUST only")
+            legacy = rubric_sentence_present(pub, {"claims": []})
+            case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)",
+                 present is True and absent is False and legacy is True, f"present={present} absent={absent} legacy={legacy}")
+        except NameError as e:
+            case("item 9 detects the registered CLAIM-RUB-016 text on its page (absent -> False; legacy literal -> True)", False, str(e))
         print("\ndone2-status selftest: FAIL (1 case(s))")
         return 1
     bad += case("scratch export with roles.merchant.gap 3 -> item 2 FAIL",
