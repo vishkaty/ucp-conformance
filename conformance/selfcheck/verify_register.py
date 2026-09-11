@@ -14,6 +14,7 @@ each fragment is checked independently. Matching is whitespace/emphasis-insensit
 Exit non-zero if any row fails. Usage: verify_register.py [version ...]
 """
 import json, re, sys, pathlib
+from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]          # repo root
 REQ_DIR = ROOT / "conformance" / "requirements"
@@ -162,6 +163,63 @@ def basis_errors(rows, ver, queued_ids, signed_ids):
         if basis in REVIEW_BASES and rid not in signed_ids:
             errs.append(f"{rid}: normative_basis `{basis}` without a review_signoffs batch naming it at {ver}")
     return errs
+
+
+# B6 (W1 review V4): the normative_basis review queue is an EXEMPTION register — it is the
+# only thing that makes a null `normative_basis` acceptable to this gate — so it carries the
+# standard expiry clock (PLAN-v3 §7 step 8; decision 23 / D2-19 two-tier rule). Its truth
+# depends only on the spec pin (the rows are quotes at a pinned commit; nothing upstream or
+# external moves under it), so it is the 90-day `pin-only` tier.
+BASIS_QUEUE_TIER = "pin-only"
+
+
+def basis_queue_clock_errors(doc, ver, pin, today, label):
+    """Clock hands on one normative_basis_review_queue.json. `doc` is the loaded file,
+    `pin` the 8-hex spec commit for `ver`, `label` how the file is named in a finding.
+    Returns [] when the queue's clock is live; otherwise one message per problem, each
+    naming the file. An expired / pin-drifted / unclocked queue confers no exemption:
+    the null-basis rows it covers become ordinary BASIS failures."""
+    import datetime
+    errs = []
+    if not isinstance(doc, dict):
+        return [f"{label}: not an object — cannot carry an expiry clock"]
+    rb, sp, tier = doc.get("review_by"), doc.get("spec_pin"), doc.get("clock_tier")
+    if not rb:
+        errs.append(f"{label}: no `review_by` — the queue is an exemption register and must be "
+                    f"clocked (decision 23, {BASIS_QUEUE_TIER} tier); register it in "
+                    f"conformance/coverage/expiry_registers.json")
+    if not sp:
+        errs.append(f"{label}: no `spec_pin` — record the 8-hex commit the queue was derived at")
+    if tier != BASIS_QUEUE_TIER:
+        errs.append(f"{label}: clock_tier {tier!r} — the queue's truth depends only on the spec "
+                    f"pin, so it is the {BASIS_QUEUE_TIER} (90-day) tier (decision 23)")
+    if not doc.get("converts_when"):
+        errs.append(f"{label}: no `converts_when` — name the task that empties the queue (D2-11b)")
+    if doc.get("version") not in (None, ver):
+        errs.append(f"{label}: `version` {doc.get('version')!r} is not {ver}")
+    if sp and pin and str(sp)[:8] != str(pin)[:8]:
+        errs.append(f"{label}: spec_pin {sp} drifted from the lock's {ver} pin {pin} — every "
+                    f"queue decision was made against the old pin; re-derive the queue")
+    if rb:
+        try:
+            d = datetime.date.fromisoformat(str(rb))
+        except ValueError:
+            errs.append(f"{label}: review_by {rb!r} is not an ISO date")
+        else:
+            if d < today:
+                errs.append(f"{label}: review_by {rb} < today {today.isoformat()} — the queue "
+                            f"expired; adjudicate the rows (D2-11b) or re-review and re-clock it. "
+                            f"Until then a null `normative_basis` is not acceptable here.")
+    return errs
+
+
+def _pin_for(ver):
+    """The lock's 8-hex spec commit for `ver` (None when the lock cannot be read)."""
+    try:
+        d = json.loads((ROOT / "conformance" / "SOURCES.lock.json").read_text())
+        return (d["spec"]["versions"][ver]["commit"] or "")[:8] or None
+    except Exception:                                        # noqa: BLE001
+        return None
 
 
 def _signed_basis_ids(ver):
@@ -372,8 +430,16 @@ def main(argv):
         # D2-11a (A6): normative_basis — enum, sentence⇒keyword, definition|inferred⇒signed,
         # null only for queued rows.
         bqf = vdir / "normative_basis_review_queue.json"
-        bqueue = {q.get("id") for q in json.loads(bqf.read_text()).get("queue", [])} if bqf.exists() else set()
-        berrs = basis_errors(vrows, ver, bqueue, _signed_basis_ids(ver))
+        bqdoc = json.loads(bqf.read_text()) if bqf.exists() else {}
+        bqueue = {q.get("id") for q in bqdoc.get("queue", [])}
+        # B6: an expired / pin-drifted / unclocked queue confers no exemption — the clock
+        # failure is reported AND the queued ids stop excusing a null normative_basis.
+        qclock = basis_queue_clock_errors(bqdoc, ver, _pin_for(ver), date.today(),
+                                          f"requirements/{ver}/normative_basis_review_queue.json") \
+            if bqf.exists() else []
+        if qclock:
+            bqueue = set()
+        berrs = qclock + basis_errors(vrows, ver, bqueue, _signed_basis_ids(ver))
         for e in berrs:
             print(f"  FAIL  BASIS {ver}: {e}")
         role_fails += len(berrs)
@@ -508,7 +574,7 @@ def _selftest_normative_basis():
             _f = ROOT / "conformance" / "requirements" / _v / "normative_basis_review_queue.json"
             if _f.exists():
                 _d = json.loads(_f.read_text())
-                real += basis_queue_clock_errors(_d, _v, _pin_for(_v), _dt.date.today(),
+                real += basis_queue_clock_errors(_d, _v, _pin_for(_v), date.today(),
                                                  f"requirements/{_v}/normative_basis_review_queue.json")
     except NameError as e:
         real = [f"NameError: {e}"]

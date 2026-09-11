@@ -1,5 +1,10 @@
 {
- "_about": "normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose quote carries no mandatory keyword, is not a schema constraint and is not fenced pseudocode. The `register` gate accepts a null normative_basis ONLY for a row listed here. To resolve: record the row in requirements/normative_basis_adjudications.json (table / bullet / definition / inferred with a justification; definition|inferred need a review_signoffs batch) and re-run assign_normative_basis.py --apply.",
+ "_about": "normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose quote carries no mandatory keyword, is not a schema constraint and is not fenced pseudocode. The `register` gate accepts a null normative_basis ONLY for a row listed here. To resolve: record the row in requirements/normative_basis_adjudications.json (table / bullet / definition / inferred with a justification; definition|inferred need a review_signoffs batch) and re-run assign_normative_basis.py --apply. B6 (W1 review V4): this queue is an EXEMPTION register \u2014 it is the only thing that makes a null normative_basis acceptable to the `register` gate \u2014 so it carries the standard expiry clock (PLAN-v3 \u00a77 step 8). clock_tier `pin-only` (decision 23 / D2-19): the queue's truth depends only on the spec pin, nothing upstream moves under it, so the horizon is 90 days. Registered in conformance/coverage/expiry_registers.json as normative_basis_review_queue.2026_08_25 (root clock: the FILE is the one clocked entry, D1-10's form). verify_register.py reds on an expired / pin-drifted / unclocked queue and stops honouring it, so the rows below cannot sit at a null normative_basis past the clock.",
+ "version": "2026-08-25",
+ "spec_pin": "cd78fb38",
+ "review_by": "2026-12-10",
+ "clock_tier": "pin-only",
+ "converts_when": "D2-11b",
  "queue": [
   {
    "id": "ACT-007",

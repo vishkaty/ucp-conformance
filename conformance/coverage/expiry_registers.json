@@ -1,5 +1,5 @@
 {
- "_about": "Registry of every register whose entries carry an expiry clock (PLAN-v3 §2.4, D2-04/D2-19). validate_expiry_clocks.py walks each register's `entries` path and requires `review_by` (ISO date; FAIL when past, warn within 14 d) and `spec_pin` (8-hex lock commit per version in scope; FAIL on drift) on every entry — unless `clock` is `none` (retirements: a sanctioned retirement is a permanent fact about a pinned spec). `scope` says which spec version(s) an entry's truth depends on: `versions` (entry.versions list), `version` (entry.version), `all` (every registered version), `none` (no spec pin — the entry is about the site, not a pin). `clock_tier` (D2-19, decision 23): `moving` = truth depends on upstream pins/goldens/external tools (30 d); `pin-only` = truth depends only on the spec pin (90 d). Later additions per plan: expected_skips_* (D1-10), known_issues.json (D5-07), known_tag_moves.json (D2-17), official_crosscheck_allowlist.json, known_sdk_drops.json, known_external_agent_divergences.json. add_expiry_clocks.py stamps missing hands; the seed batch is recorded in review_signoffs.json as `expiry-clock-seed-2026-09`. agent_lane_overrides.json (two registers) RETIRED 2026-09-11 by D2-08: the agent denominator is the register's role field; the overrides' reasons live on the rows as role_provenance.",
+ "_about": "Registry of every register whose entries carry an expiry clock (PLAN-v3 §2.4, D2-04/D2-19). validate_expiry_clocks.py walks each register's `entries` path and requires `review_by` (ISO date; FAIL when past, warn within 14 d) and `spec_pin` (8-hex lock commit per version in scope; FAIL on drift) on every entry — unless `clock` is `none` (retirements: a sanctioned retirement is a permanent fact about a pinned spec). `scope` says which spec version(s) an entry's truth depends on: `versions` (entry.versions list), `version` (entry.version), `all` (every registered version), `none` (no spec pin — the entry is about the site, not a pin). `clock_tier` (D2-19, decision 23): `moving` = truth depends on upstream pins/goldens/external tools (30 d); `pin-only` = truth depends only on the spec pin (90 d). Later additions per plan: expected_skips_* (D1-10), known_issues.json (D5-07), known_tag_moves.json (D2-17), official_crosscheck_allowlist.json, known_sdk_drops.json, known_external_agent_divergences.json. add_expiry_clocks.py stamps missing hands; the seed batch is recorded in review_signoffs.json as `expiry-clock-seed-2026-09`. agent_lane_overrides.json (two registers) RETIRED 2026-09-11 by D2-08: the agent denominator is the register's role field; the overrides' reasons live on the rows as role_provenance. B6 (W1 review V4, 2026-09-11): the four requirements/<version>/normative_basis_review_queue.json files are now registered (root clocks, pin-only) — they were the only expiry-contract breach in the W1 data; 216 rows previously carried a null normative_basis with no clock forcing the question.",
  "seed": {
   "batch": "expiry-clock-seed-2026-09",
   "date": "2026-09-10"
@@ -185,6 +185,42 @@
    "clock": "review_by",
    "clock_tier": "pin-only",
    "_note": "D1-16a: wave 1b committed target ids (root clock)."
+  },
+  {
+   "name": "normative_basis_review_queue.2026_01_11",
+   "file": "conformance/requirements/2026-01-11/normative_basis_review_queue.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "B6 (W1 review V4, D2-11a -> D2-11b): the mandatory rows whose quote carries no mandatory keyword; the `register` gate accepts a null normative_basis ONLY for a row listed here, so the queue is an exemption register and must expire. Root clock (the file IS the entry, D1-10's form) because D2-11b adjudicates the queue as one population. pin-only: the rows are quotes at the version's pinned commit. verify_register.py also reds on expiry/pin drift at run time and stops honouring the queue while it is expired."
+  },
+  {
+   "name": "normative_basis_review_queue.2026_01_23",
+   "file": "conformance/requirements/2026-01-23/normative_basis_review_queue.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "B6 (W1 review V4, D2-11a -> D2-11b): the mandatory rows whose quote carries no mandatory keyword; the `register` gate accepts a null normative_basis ONLY for a row listed here, so the queue is an exemption register and must expire. Root clock (the file IS the entry, D1-10's form) because D2-11b adjudicates the queue as one population. pin-only: the rows are quotes at the version's pinned commit. verify_register.py also reds on expiry/pin drift at run time and stops honouring the queue while it is expired."
+  },
+  {
+   "name": "normative_basis_review_queue.2026_04_08",
+   "file": "conformance/requirements/2026-04-08/normative_basis_review_queue.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "B6 (W1 review V4, D2-11a -> D2-11b): the mandatory rows whose quote carries no mandatory keyword; the `register` gate accepts a null normative_basis ONLY for a row listed here, so the queue is an exemption register and must expire. Root clock (the file IS the entry, D1-10's form) because D2-11b adjudicates the queue as one population. pin-only: the rows are quotes at the version's pinned commit. verify_register.py also reds on expiry/pin drift at run time and stops honouring the queue while it is expired."
+  },
+  {
+   "name": "normative_basis_review_queue.2026_08_25",
+   "file": "conformance/requirements/2026-08-25/normative_basis_review_queue.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "B6 (W1 review V4, D2-11a -> D2-11b): the mandatory rows whose quote carries no mandatory keyword; the `register` gate accepts a null normative_basis ONLY for a row listed here, so the queue is an exemption register and must expire. Root clock (the file IS the entry, D1-10's form) because D2-11b adjudicates the queue as one population. pin-only: the rows are quotes at the version's pinned commit. verify_register.py also reds on expiry/pin drift at run time and stops honouring the queue while it is expired."
   }
  ]
 }

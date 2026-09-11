@@ -142,18 +142,55 @@ def run_version(ver, apply=False):
     if apply:
         qf = os.path.join(REQ, ver, "normative_basis_review_queue.json")
         if queue:
-            json.dump({"_about": "normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose "
-                                 "quote carries no mandatory keyword, is not a schema constraint and is not "
-                                 "fenced pseudocode. The `register` gate accepts a null normative_basis ONLY "
-                                 "for a row listed here. To resolve: record the row in "
-                                 "requirements/normative_basis_adjudications.json (table / bullet / "
-                                 "definition / inferred with a justification; definition|inferred need a "
-                                 "review_signoffs batch) and re-run assign_normative_basis.py --apply.",
-                       "queue": queue}, open(qf, "w"), indent=1)
+            json.dump(queue_doc(qf, ver, queue), open(qf, "w"), indent=1)
             open(qf, "a").write("\n")
         elif os.path.exists(qf):
             os.remove(qf)
     return stats, queue
+
+
+DEFAULT_ABOUT = ("normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose quote "
+                 "carries no mandatory keyword, is not a schema constraint and is not fenced "
+                 "pseudocode. The `register` gate accepts a null normative_basis ONLY for a row "
+                 "listed here. To resolve: record the row in "
+                 "requirements/normative_basis_adjudications.json (table / bullet / definition / "
+                 "inferred with a justification; definition|inferred need a review_signoffs batch) "
+                 "and re-run assign_normative_basis.py --apply.")
+QUEUE_CLOCK_TIER = "pin-only"          # decision 23 / D2-19: truth depends only on the spec pin
+QUEUE_HORIZON_DAYS = 90
+
+
+def _lock_pin(ver):
+    try:
+        d = json.load(open(os.path.join(REQ, "..", "SOURCES.lock.json")))
+        return (d["spec"]["versions"][ver]["commit"] or "")[:8] or None
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
+def queue_doc(path, ver, queue):
+    """The queue file's document. B6 (W1 review V4): the queue is an EXEMPTION register, so it
+    carries the standard expiry clock; regenerating it must CARRY THE CLOCK FORWARD rather than
+    silently de-clock 216 rows. An existing file's `_about` and clock hands are preserved
+    verbatim; a brand-new queue is stamped with the version's lock pin and a full pin-only
+    horizon so the gate has something live to police (re-review it deliberately, don't let a
+    regeneration extend it)."""
+    import datetime
+    old = {}
+    if os.path.exists(path):
+        try:
+            old = json.load(open(path)) or {}
+        except Exception:                                    # noqa: BLE001
+            old = {}
+    doc = {"_about": old.get("_about") or DEFAULT_ABOUT,
+           "version": old.get("version") or ver,
+           "spec_pin": old.get("spec_pin") or _lock_pin(ver),
+           "review_by": old.get("review_by") or
+           (datetime.date.today() + datetime.timedelta(days=QUEUE_HORIZON_DAYS)).isoformat(),
+           "clock_tier": old.get("clock_tier") or QUEUE_CLOCK_TIER,
+           "converts_when": old.get("converts_when") or "D2-11b",
+           "queue": queue}
+    return doc
 
 
 def main(argv=None):
