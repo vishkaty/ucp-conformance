@@ -225,7 +225,8 @@ def run(server, defects_state=None, expected_skips=EXPECTED_SKIPS, record=None):
     import merchant_checks_08_25_mcp as mcpchk
     from engine import CLEAN, DEVIATION
     from merchant import MerchantCtx, discover
-    from validate_merchant_checks import REF_CONFIG, _skip_class, _write_record
+    from merchant_checks import skip_class
+    from validate_merchant_checks import REF_CONFIG, _write_record
     try:
         profile, _ = discover(server)
     except SystemExit as e:
@@ -255,7 +256,7 @@ def run(server, defects_state=None, expected_skips=EXPECTED_SKIPS, record=None):
 
     # 2. skips vs the pinned population
     doc = json.loads(pathlib.Path(expected_skips).read_text())
-    skip_map = {cid: _skip_class(st) for cid, st in skipped}
+    skip_map = {cid: skip_class(st) for cid, st in skipped}
     sfails, n_unexplained = assess_skips(doc, skip_map, ok + [b[0] for b in broken] + [w[0] for w in weak],
                                          live_pin(), datetime.date.today().isoformat())
     fails += sfails
