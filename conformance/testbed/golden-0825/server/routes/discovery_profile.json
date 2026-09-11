@@ -12,6 +12,13 @@
           "transport": "rest",
           "endpoint": "{{ENDPOINT}}",
           "schema": "https://ucp.dev/2026-08-25/services/shopping/rest.openapi.json"
+        },
+        {
+          "version": "2026-08-25",
+          "spec": "https://ucp.dev/2026-08-25/specification/overview",
+          "transport": "mcp",
+          "endpoint": "{{ENDPOINT}}/mcp",
+          "schema": "https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json"
         }
       ]
     },

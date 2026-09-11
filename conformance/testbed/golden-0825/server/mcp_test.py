@@ -35,8 +35,11 @@ import uuid
 from absl.testing import absltest
 from cryptography.hazmat.primitives.asymmetric import ec
 import config
-from integration_test import IntegrationTest
+import integration_test
 import ucp_signing
+
+# A freshly created checkout is in one of the two pre-completion states.
+OPEN_STATES = {"incomplete", "ready_for_complete"}
 
 
 class _ProfileHandler(http.server.BaseHTTPRequestHandler):
@@ -58,11 +61,11 @@ class _ProfileHandler(http.server.BaseHTTPRequestHandler):
     del args
 
 
-class _McpBase(IntegrationTest):
+class _McpBase(integration_test.IntegrationTest):
   """IntegrationTest scaffolding (temp DBs, seeded rose x5 / tulip x2, in-process
   client) minus its inherited lifecycle tests, plus a loopback profile server."""
 
-  for _inherited in [n for n in dir(IntegrationTest) if n.startswith("test_")]:
+  for _inherited in [n for n in dir(integration_test.IntegrationTest) if n.startswith("test_")]:
     locals()[_inherited] = None
   del _inherited
 
@@ -160,7 +163,10 @@ class ToolsCallBridgeTest(_McpBase):
     self.assertNotIn("error", j, j)
     sc = j["result"]["structuredContent"]
     self.assertTrue(sc.get("id"), sc)
-    self.assertEqual(sc.get("status"), "incomplete", sc)
+    # the in-process seed needs no fulfillment for "rose", so the fresh
+    # session is already ready_for_complete; the live golden's flower seed
+    # answers incomplete (the D3-09 acceptance curl). Both are open states.
+    self.assertIn(sc.get("status"), OPEN_STATES, json.dumps(sc))
     self.assertEqual(sc["ucp"]["version"], config.get_server_version())
     content = j["result"]["content"]
     self.assertEqual(content[0]["type"], "text")
@@ -241,7 +247,7 @@ class ToolsCallBridgeTest(_McpBase):
     self.assertEqual(len(events), 1, r.text)
     data = "".join(line[5:].lstrip() for line in events[0].splitlines() if line.startswith("data:"))
     j = json.loads(data)
-    self.assertEqual(j["result"]["structuredContent"]["status"], "incomplete", j)
+    self.assertIn(j["result"]["structuredContent"]["status"], OPEN_STATES, data)
 
   def test_transport_advertised(self) -> None:
     """The profile advertises the mcp transport at <endpoint>/mcp."""
@@ -267,7 +273,7 @@ class SignedBridgeTest(_McpBase):
     body = self._rpc_body("create_checkout", self._create_args())
     r = self._signed_call(body)
     self.assertEqual(r.status_code, 200, r.text)
-    self.assertEqual(r.json()["result"]["structuredContent"]["status"], "incomplete", r.text)
+    self.assertIn(r.json()["result"]["structuredContent"]["status"], OPEN_STATES, r.text)
     unsigned = self._call("create_checkout", self._create_args())
     self._assert_error(unsigned, -32000, "signature_missing", 401)
 

@@ -26,12 +26,19 @@ mutant:
                  Proves disarm genuinely restores the normal serve path, not just that
                  arming did something.
 
+CHECK-GRADED patch rows (D3-09): a `mutants[]` entry may name `checks[]` instead of an
+`oracle` when no official-validator call can reject the mutated body (the ucp-schema CLI
+has no operation shapes for the MCP transport envelope; profile.json accepts a REST-only
+services[]). Such a row still proves FIRED by `patch_applied`, then is CAUGHT/RESTORED
+exactly like a behavior row: every named check CLEAN -> DEVIATION -> CLEAN.
+
 BEHAVIOR rows (defects_config.json `behavior_mutants[]`, D3-01 / decision 19) carry no
 patch: `{name, behavior: "<key>", checks[], violates}`. Exactly one guard per key in
 server code asks `DefectsEngine.behavior_armed(key)` and takes the violating branch
 while the row is armed. This runner grades such a row by the CONFORMANCE CHECKS it
-names (`checks[]` = check ids from conformance/checks/area_*.py, plus the runner's own
-`battery.*` selftest checks): KILLED when every named check is CLEAN before arming,
+names (`checks[]` = check ids from conformance/checks/area_*.py, `gc:<row>` rows of
+golden_check_08_25.py, `mcp:<id>` MChecks of merchant_checks_08_25_mcp.py graded through
+the merchant runner's own MerchantCtx (D3-09), plus the runner's own `battery.*` checks): KILLED when every named check is CLEAN before arming,
 DEVIATION armed, and CLEAN again disarmed; SURVIVED when armed and not all deviate;
 LOADER-BROKEN when the server's `x-defects-consulted` header shows NO guard consulted
 the row's key while it was armed (an unwired key -- the row is data nobody reads).
@@ -124,8 +131,14 @@ class Golden:
         env["SIM_SECRET"] = SIM_SECRET
         if self.defects_config:
             env["DEFECTS_CONFIG"] = str(self.defects_config)
+            # D3-09: the enabled boot may resolve a signer's keys from the loopback
+            # http:// platform profile this runner hosts (battery.mcp_meta_precedes_
+            # verify); signatures stay optional. The disabled (phase 0) boot is the
+            # literal default path and does not get it.
+            env["ALLOW_INSECURE_PROFILE_URLS"] = "1"
         else:
             env.pop("DEFECTS_CONFIG", None)
+            env.pop("ALLOW_INSECURE_PROFILE_URLS", None)
         if self.state_file:
             env["DEFECTS_STATE_FILE"] = str(self.state_file)
         else:
@@ -286,6 +299,18 @@ def perform(route):
         return http("GET", f"/orders/{order_id}")
     if path.startswith("/testing/defect-fixtures/"):
         return http("GET", path)
+    if path == "/mcp":
+        # D3-09: the canonical MCP request is a tools/call create_checkout whose
+        # meta names the same (unresolvable, unsigned-path) agent profile
+        # ucp_headers() sends on REST.
+        return http("POST", path, {
+            "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+            "params": {"name": "create_checkout", "arguments": {
+                "meta": {"ucp-agent": {"profile": "http://localhost:9/.well-known/ucp"}},
+                "checkout": {"line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}],
+                             "fulfillment": _fulfillment_block()},
+            }},
+        })
     raise ValueError(f"validate_golden_0825_battery.py: no fixture-builder for route {route}")
 
 
@@ -373,7 +398,7 @@ def patch_applied(body, patch, before=None):
 # ---------------------------------------------------------------------------
 
 
-def run_mutant(m, state_file, acknowledged, request_route=None):
+def run_mutant(m, state_file, acknowledged, request_route=None, registry=None):
     """Runs one `mutants[]` entry (a real business route, arm/disarm via the
     hot-reload state file). `fixture_only[]` entries go through run_fixture()
     instead -- they have no arm state at all (see defects_config.json).
@@ -406,6 +431,15 @@ def run_mutant(m, state_file, acknowledged, request_route=None):
         return {"name": name, "verdict": "LOADER-BROKEN",
                 "detail": "armed response does not reflect the configured patch -- "
                           "the mutant is configured but was NOT served"}
+
+    if "oracle" not in m:
+        # D3-09 check-graded patch row: FIRED is proven above; CAUGHT/RESTORED are
+        # judged by the conformance checks the row names, like a behavior row.
+        if registry is None or not m.get("checks"):
+            return {"name": name, "verdict": "CHECK-UNKNOWN",
+                    "detail": "patch row carries no oracle and no resolvable checks[]"}
+        return _flip_proof(name, m["checks"], state_file, acknowledged, registry,
+                           detail_prefix="patch fired; ")
 
     ok, detail = run_oracle(m["oracle"], armed_body)
     if ok:
@@ -519,6 +553,95 @@ def _pred_0408_consent(r):
     return CLEAN if ok else DEVIATION
 
 
+# ---- battery.mcp_meta_precedes_verify (D3-09) -------------------------------------
+# A correctly ES256-signed MCP tools/call whose agent profile travels ONLY in
+# arguments.meta (no UCP-Agent header on the wire). The golden must map meta ->
+# UCP-Agent BEFORE verify_signature so the keys resolve from the profile this
+# runner hosts on a loopback http server; the outcome is read from the
+# defects-mode-only `x-defects-signature` header (server.py), which is what
+# makes the ordering observable on a permissive (signatures-optional) boot.
+# Pure stdlib: the P-256 signer is the harness's own (merchant_checks_04_08_
+# signatures.py, openssl-anchored in fixtures/merchant/selfcheck.py).
+import base64
+import hashlib
+import secrets
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
+
+_MCP_SIGNER = {}
+
+
+def _b64u(b):
+    return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
+
+
+def _mcp_signer():
+    """Lazily: one P-256 keypair + one loopback profile server per battery run."""
+    if _MCP_SIGNER:
+        return _MCP_SIGNER
+    from merchant_checks_04_08_signatures import _EC_G, _EC_N, _ec_mul
+    d = secrets.randbelow(_EC_N - 1) + 1
+    qx, qy = _ec_mul(d, _EC_G)
+    kid = "battery-mcp-agent-key"
+    jwk = {"kid": kid, "kty": "EC", "crv": "P-256", "alg": "ES256", "use": "sig",
+           "x": _b64u(qx.to_bytes(32, "big")), "y": _b64u(qy.to_bytes(32, "big"))}
+    body = json.dumps({"ucp": {"version": VERSION}, "keys": [jwk]}).encode()
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):                                  # noqa: N802
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    _MCP_SIGNER.update(d=d, kid=kid, server=srv,
+                       profile_url=f"http://127.0.0.1:{srv.server_address[1]}/profile.json")
+    return _MCP_SIGNER
+
+
+def _fetch_signed_mcp(base):
+    from merchant_checks_04_08_signatures import ecdsa_p256_sign
+    signer = _mcp_signer()
+    rpc = {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+           "params": {"name": "create_checkout", "arguments": {
+               "meta": {"ucp-agent": {"profile": signer["profile_url"]}},
+               "checkout": {"line_items": [{"item": {"id": "bouquet_roses"}, "quantity": 1}]}}}}
+    raw = json.dumps(rpc).encode()          # engine.fetch serializes identically
+    digest = "sha-256=:" + base64.b64encode(hashlib.sha256(raw).digest()).decode() + ":"
+    idem = str(uuid.uuid4())
+    u = urlsplit(base)
+    comps = ["@method", "@authority", "@path", "content-digest", "content-type", "idempotency-key"]
+    raw_params = "(" + " ".join(f'"{c}"' for c in comps) + f');keyid="{signer["kid"]}"'
+    values = {"@method": "POST", "@authority": u.netloc, "@path": "/mcp",
+              "content-digest": digest, "content-type": "application/json",
+              "idempotency-key": idem}
+    sig_base = "\n".join([f'"{c}": {values[c]}' for c in comps]
+                         + [f'"@signature-params": {raw_params}']).encode()
+    sig = ecdsa_p256_sign(sig_base, signer["d"])
+    headers = {"Content-Type": "application/json", "Content-Digest": digest,
+               "idempotency-key": idem, "request-id": str(uuid.uuid4()),
+               "Signature-Input": f"sig1={raw_params}",
+               "Signature": "sig1=:" + base64.b64encode(sig).decode() + ":"}
+    return chk_engine.fetch(base, "/mcp", "POST", rpc, headers)
+
+
+def _pred_signed_mcp(r):
+    """CLEAN iff the golden reports the signature VERIFIED (keys resolved from
+    the meta-mapped profile) and answered the call with a result."""
+    outcome = next((v for k, v in r.headers.items() if k.lower() == "x-defects-signature"), "")
+    if not str(outcome).startswith("verified:"):
+        return DEVIATION
+    j = r.json if isinstance(r.json, dict) else {}
+    return CLEAN if r.status == 200 and "result" in j and "error" not in j else DEVIATION
+
+
 # The runner's own checks, resolvable from a behavior row's checks[] like any
 # conformance check id. `battery.behavior_stub` is the observable behind the
 # golden's test-only /testing/defects/behavior-stub route (its guard is the one
@@ -536,7 +659,42 @@ BATTERY_CHECKS = [
     chk_engine.Check("battery.projection_0408_consent", ["CNST@2026-04-08"], "MUST",
                      _fetch_0408_consent, _pred_0408_consent,
                      ['set:buyer.consent.marketing={"granted":true,"source":"platform","description":"x"}']),
+    chk_engine.Check("battery.mcp_meta_precedes_verify", ["MCP-SIGNING@2026-08-25"], "MUST",
+                     _fetch_signed_mcp, _pred_signed_mcp,
+                     ["hset:x-defects-signature=failed:signature_invalid",
+                      "hdrop:x-defects-signature", "status:401",
+                      'set:error={"code":-32000,"message":"x"}']),
 ]
+
+
+class _MerchantCheckRow:
+    """A merchant_checks_08_25_mcp.py MCheck adapted to this runner's verdict
+    protocol: id `mcp:<check id>`, verdict = the check's clean predicate on the
+    golden's CURRENT response, driven through the SAME MerchantCtx merchant.py
+    builds (discovery + REF_CONFIG), so the battery grades the row with the
+    real harness check, not a battery-local re-implementation."""
+
+    def __init__(self, chk, ctx):
+        self.id, self.chk, self.ctx = f"mcp:{chk.id}", chk, ctx
+
+    def verdict(self):
+        import merchant_checks
+        try:
+            resp = self.chk.fetch_fn(self.ctx)
+        except Exception as e:                       # noqa: BLE001
+            return f"error:{e}"
+        return merchant_checks._pred(self.chk, resp, self.ctx)
+
+
+def _mcp_rows():
+    """`mcp:<id>` -> _MerchantCheckRow for every MCP MCheck, against THIS golden."""
+    import importlib
+    from merchant import MerchantCtx, discover
+    from validate_merchant_checks import REF_CONFIG
+    mod = importlib.import_module("merchant_checks_08_25_mcp")
+    profile, _ = discover(BASE)
+    ctx = MerchantCtx(BASE, profile, REF_CONFIG)
+    return {f"mcp:{c.id}": _MerchantCheckRow(c, ctx) for c in mod.CHECKS_MCP}
 
 
 class _GoldenCheckRow:
@@ -570,6 +728,8 @@ def check_registry():
     gc.PORT, gc.BASE, gc.SIM_SECRET = PORT, BASE, SIM_SECRET   # its http() reads these per call
     for row in gc.CHECKS:
         reg.setdefault(f"gc:{row.id}", _GoldenCheckRow(row))
+    for cid, row in _mcp_rows().items():
+        reg.setdefault(cid, row)
     return reg
 
 
@@ -577,23 +737,22 @@ def _check_verdict(chk):
     """The check's verdict on the golden's CURRENT response: an engine.Check's
     clean predicate via the same engine.run_check merchant.py uses, or a
     golden_check_08_25.py row's own predicate."""
-    if isinstance(chk, _GoldenCheckRow):
+    if isinstance(chk, (_GoldenCheckRow, _MerchantCheckRow)):
         return chk.verdict()
     _, detail = chk_engine.run_check(chk, BASE)
     return detail["clean"]
 
 
-def run_behavior(b, state_file, acknowledged, registry):
-    """Runs one `behavior_mutants[]` row: every named check must be CLEAN
-    disarmed, DEVIATION armed, CLEAN again disarmed (FIRED/CAUGHT/RESTORED,
-    judged by the checks the row names); and the server must report the row's
-    key as consulted while armed, else the row is an UNWIRED key -> LOADER-BROKEN."""
-    name, key = b["name"], b["behavior"]
-    unknown = [cid for cid in b["checks"] if cid not in registry]
+def _flip_proof(name, check_ids, state_file, acknowledged, registry, key=None, detail_prefix=""):
+    """CAUGHT/RESTORED by the named conformance checks: every one CLEAN disarmed,
+    DEVIATION armed, CLEAN again disarmed. With `key` (a behavior row) the server
+    must also report the key as consulted while armed, else the row is an UNWIRED
+    key -> LOADER-BROKEN."""
+    unknown = [cid for cid in check_ids if cid not in registry]
     if unknown:
         return {"name": name, "verdict": "CHECK-UNKNOWN",
-                "detail": f"behavior row names checks this runner cannot resolve: {unknown}"}
-    checks = [registry[cid] for cid in b["checks"]]
+                "detail": f"row names checks this runner cannot resolve: {unknown}"}
+    checks = [registry[cid] for cid in check_ids]
 
     arm(state_file, None)
     clean = {c.id: _check_verdict(c) for c in checks}
@@ -607,7 +766,7 @@ def run_behavior(b, state_file, acknowledged, registry):
     consulted = consulted_keys_now()
     arm(state_file, None)
 
-    if key not in consulted:
+    if key is not None and key not in consulted:
         return {"name": name, "verdict": "LOADER-BROKEN",
                 "detail": f"no guard consulted behavior key {key!r} while armed "
                           f"(consulted: {sorted(consulted)}) -- the row is data nobody reads"}
@@ -615,15 +774,23 @@ def run_behavior(b, state_file, acknowledged, registry):
     if not_flipped:
         verdict = "SURVIVED" if name not in acknowledged else "SURVIVED-ACKNOWLEDGED"
         return {"name": name, "verdict": verdict,
-                "detail": f"armed, but these checks did not deviate: {not_flipped}"}
+                "detail": f"{detail_prefix}armed, but these checks did not deviate: {not_flipped}"}
 
     restored = {c.id: _check_verdict(c) for c in checks}
     not_restored = {k: v for k, v in restored.items() if v != CLEAN}
     if not_restored:
         return {"name": name, "verdict": "RESTORE-FAILED",
                 "detail": f"disarmed but still red: {not_restored}"}
+    what = f"guard consulted {key!r}; " if key is not None else detail_prefix
     return {"name": name, "verdict": "KILLED",
-            "detail": f"guard consulted {key!r}; {len(checks)} check(s) flipped CLEAN->DEVIATION->CLEAN"}
+            "detail": f"{what}{len(checks)} check(s) flipped CLEAN->DEVIATION->CLEAN"}
+
+
+def run_behavior(b, state_file, acknowledged, registry):
+    """Runs one `behavior_mutants[]` row (see _flip_proof): FIRED/CAUGHT/RESTORED
+    judged by the checks the row names, plus the consulted-key proof."""
+    return _flip_proof(b["name"], b["checks"], state_file, acknowledged, registry,
+                       key=b["behavior"])
 
 
 def run_fixture(f):
@@ -711,11 +878,11 @@ def main():
             _, pre_body = http("GET", "/.well-known/ucp", expect_json=False)
 
             results = []
+            registry = check_registry()
             for m in config["mutants"]:
-                results.append(run_mutant(m, state_file, acknowledged))
+                results.append(run_mutant(m, state_file, acknowledged, registry=registry))
             for f in config.get("fixture_only", []):
                 results.append(run_fixture(f))
-            registry = check_registry()
             behavior_names = {b["name"] for b in config.get("behavior_mutants", [])}
             for b in config.get("behavior_mutants", []):
                 results.append(run_behavior(b, state_file, acknowledged, registry))

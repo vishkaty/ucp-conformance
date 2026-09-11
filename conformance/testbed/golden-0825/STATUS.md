@@ -386,6 +386,37 @@ python3 conformance/selfcheck/validate_golden_0825_battery.py --selftest
 cd conformance/testbed/golden-0825/server && uv run --group dev pytest defects_test.py -v
 ```
 
+**UPDATE 2026-09-11 (lane/w1-d3, D3-09): the MCP `tools/call` bridge.**
+`routes/mcp_bridge.py` + `routes/mcp.py`: `tools/call` is dispatched IN-PROCESS to
+the same REST handlers (validation, negotiation, idempotency, the error envelope,
+the defects seam -- a REST patch mutant is visible over MCP too), UCP payloads come
+back in `result.structuredContent` (+ `content[]` text), business outcomes (4xx UCP
+envelopes) are `result`s, protocol errors are JSON-RPC errors under the REST status
+they map from (OVR-060): -32602 invalid params (meta missing, `id` inside a
+create/update payload, a 422 invalid_request), -32001 negotiation, -32000 protocol
+(signature errors, idempotency_conflict, 401/403/429/503), -32603 for a 500; one
+SSE `message` event when the client accepts `text/event-stream`. `server.py`'s
+`McpMetaMiddleware` maps `arguments.meta` (`ucp-agent` -> UCP-Agent incl. an
+optional `version`, `idempotency-key` -> Idempotency-Key) onto the request BEFORE
+`verify_signature` runs on the route; the verifier's required-component set is
+computed over the WIRE headers (a header this server synthesized is never demanded
+of the signer), the HTTP-level UCP-Agent wins when present. `tools/list` mirrors the
+shopping OpenRPC for the tools this golden serves (checkout 5, cart 4, get_order;
+no catalog) with `outputSchema`. The profile advertises `transport: mcp` at
+`{{ENDPOINT}}/mcp` (the 04-08 leaf stays REST-only). Rows (defects_config.json):
+behavior `mcp_meta_not_required`, `mcp_business_error_as_jsonrpc_error`,
+`mcp_tools_list_missing_cancel`, `mcp_negotiation_error_code_-32000`,
+`mcp_error_http_status_200`, `mcp_headers_after_verify`; patch rows graded by
+checks (`checks[]` instead of `oracle`, the ucp-schema CLI has no operation shapes
+for `transports/mcp_tool_call.json`) `mcp_result_not_structured`,
+`mcp_transport_not_advertised`. The battery resolves `mcp:<id>` check ids from
+`conformance/checks/merchant_checks_08_25_mcp.py` through the merchant runner's own
+MerchantCtx, and grades the ordering row with a signed loopback-profile call read
+off the defects-mode-only `x-defects-signature` header (`serve_golden_0825.sh`
+`ALLOW_INSECURE_PROFILE_URLS=1`, set by the battery's enabled boot only). Tests:
+`server/mcp_test.py` (12; the ordering, signed-bytes and idempotency round-trip
+tests named in PLAN-v3 SS2.15).
+
 ## Deliberately NOT done (budget-box)
 
 - MCP/embedded/A2A transports (`routes/mcp.py` exists, untested) — REST is the
