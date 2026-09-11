@@ -611,7 +611,7 @@ def gates(server, require_server=False):
         # WHEEL carries all of it. Without it a bundle subdirectory with no package-data
         # glob is dropped at build time and only an installed user finds out (W1: the
         # Action's own-checkout job died on `seq_invariants`).
-        ("package-wheel", _py(ROOT / "packaging" / "test_wheel_completeness.py"), None, ()),
+        ("package-wheel", _py(ROOT / "packaging" / "test_wheel_completeness.py"), None, (2,)),
         # D1-22: `--only <gate>` runs exactly the named gates, boots only what they need,
         # and refuses an unknown name (rc 2) — so every acceptance command written as
         # `run_suite.py --only X` proves X. In-process against the real table; the

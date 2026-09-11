@@ -12,7 +12,7 @@ copied by sync_bundle.sh line 26) reached CI — the Action's own-checkout job f
 
 Contract: bundle *.py set == wheel *.py set, under _bundle/conformance/.
 """
-import glob, pathlib, shutil, subprocess, sys, tempfile, unittest, zipfile
+import glob, importlib, pathlib, shutil, subprocess, sys, tempfile, unittest, zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "packaging" / "spck_conformance" / "_bundle" / "conformance"
@@ -48,5 +48,30 @@ class WheelCompleteness(unittest.TestCase):
             f"packaging/pyproject.toml): {missing}")
 
 
+def _have_build():
+    """Probe `python -m build` in a SUBPROCESS. `import build` is a false positive here:
+    packaging/ contains a `build/` directory, so with packaging/ on sys.path the import
+    finds that directory as a namespace package and reports success on an interpreter
+    that cannot build anything (observed: the skip path ran the test and died on
+    `No module named build`)."""
+    return subprocess.run([sys.executable, "-m", "build", "--version"],
+                          capture_output=True).returncode == 0
+
+
+def _ensure_build():
+    """`python -m build` is not on a bare CI runner (release_guards.sh installs it the
+    same way). If it cannot be made available, SKIP with rc 2 — run_suite's skip
+    convention — rather than red on the runner's toolchain. Never a false green: the
+    skip line names why, and CI installs `build` in its setup step."""
+    if _have_build():
+        return True
+    subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "build"],
+                   capture_output=True)
+    return _have_build()
+
+
 if __name__ == "__main__":
+    if not _ensure_build():
+        print("- SKIP: `build` unavailable on this interpreter — wheel completeness not checked")
+        sys.exit(2)
     unittest.main(verbosity=2)
