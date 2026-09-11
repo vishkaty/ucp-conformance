@@ -1150,7 +1150,7 @@ CHECKS = [
     MCheck("idempotency.conflict_409", ["IDM-004"], "MUST", idem_conflict_resp, p_409,
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-048"], "2026-08-25": ["CHK-048"]}),
+           req_ids_map={"2026-04-08": ["CHK-048"], "2026-08-25": ["CHK-048"]}, versions=V_0825),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
            capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest", versions=V_0825),

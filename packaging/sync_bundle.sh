@@ -16,6 +16,10 @@ cp "$SRC/checks/engine.py" "$SRC/checks/merchant.py" "$SRC/checks/wire_shapes.py
 # them (a bundle without them prints no coverage number; validate_bundle.py lists them).
 cp "$SRC"/checks/expected_skips_*.json "$DST/checks/"
 cp "$SRC/selfcheck/verdict_gate.py" "$DST/selfcheck/"
+# D1-16a: the single seq_invariants implementation (I9 idempotency triad) that
+# merchant_checks_08_25_envelope.py imports from conformance/ci (D4-07 owns the file).
+mkdir -p "$DST/ci"
+cp "$SRC/ci/seq_invariants.py" "$DST/ci/"
 cp -R "$SRC/requirements/." "$DST/requirements/"
 # agent lane (the reverse harness): reference agent + sandbox + checks + runner, so the
 # distributed CLI is genuinely two-sided (`spck-conformance --agent`). Its only cross-tree

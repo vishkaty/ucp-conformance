@@ -10413,17 +10413,17 @@
    "state": "converting",
    "no_further_work": false,
    "musts": 780,
-   "check": 88,
+   "check": 99,
    "exempt": 0,
-   "gap": 692,
-   "accounted_pct": 11,
+   "gap": 681,
+   "accounted_pct": 13,
    "roles": null,
    "by_transport": {
     "rest": {
      "musts": 522,
-     "check": 71,
+     "check": 82,
      "exempt": 0,
-     "gap": 451
+     "gap": 440
     },
     "mcp": {
      "musts": 19,
@@ -10489,20 +10489,20 @@
     "live-wire": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 18,
+    "self-referenced": 29,
     "register-selfcheck": 13,
     "reference-impl": 25
    },
    "integrity": {
-    "target_facing": 50,
+    "target_facing": 61,
     "corpus": 13,
     "algorithm": 25
    },
    "gap_by_testability": {
     "manual": 131,
     "needs-oauth": 15,
-    "needs-receiver": 170,
-    "testable": 376
+    "needs-receiver": 169,
+    "testable": 366
    },
    "areas": [
     {
@@ -10551,11 +10551,11 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 9,
-     "gap": 44,
+     "check": 11,
+     "gap": 42,
      "gap_manual": 3,
-     "gap_needs-receiver": 9,
-     "gap_testable": 32,
+     "gap_needs-receiver": 8,
+     "gap_testable": 31,
      "musts": 53
     },
     {
@@ -10569,18 +10569,18 @@
     },
     {
      "area": "discovery-and-profile",
-     "check": 5,
-     "gap": 4,
+     "check": 6,
+     "gap": 3,
      "gap_needs-receiver": 1,
-     "gap_testable": 3,
+     "gap_testable": 2,
      "musts": 9
     },
     {
      "area": "error-envelope",
-     "check": 3,
-     "gap": 22,
+     "check": 10,
+     "gap": 15,
      "gap_manual": 13,
-     "gap_testable": 9,
+     "gap_testable": 2,
      "musts": 25
     },
     {
@@ -10750,8 +10750,9 @@
     },
     {
      "area": "version-negotiation-and-protocol-errors",
-     "gap": 5,
-     "gap_testable": 5,
+     "check": 1,
+     "gap": 4,
+     "gap_testable": 4,
      "musts": 5
     }
    ],
@@ -11992,10 +11993,14 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "requirement": "When an Idempotency-Key is provided, server MUST store the key+result >=24h, return the cached result for a duplicate key whose request body matches the original, and return 409 if the key is reused with a mismatched body",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1309-L1312",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-050",
@@ -12232,10 +12237,14 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When retrying the original Complete Checkout request after Get Checkout still cannot establish whether the Business processed it, the Platform MUST NOT use a new idempotency key for that retry.",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1113-L1115",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-079",
@@ -12564,10 +12573,14 @@
      "area": "discovery-and-profile",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Published artifact responses MUST send Cache-Control with public and max-age>=60, and MUST NOT use private/no-store/no-cache.",
      "source": "ucp:docs/specification/overview/index.md#L2240-L2242",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DISC-004",
@@ -12961,30 +12974,42 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message MUST include type, code, content, and severity fields.",
      "source": "ucp:source/schemas/common/types/message_error.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-002",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message type discriminator MUST be the constant \"error\".",
      "source": "ucp:source/schemas/common/types/message_error.json#L13",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-003",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message severity MUST be one of recoverable, requires_buyer_input, requires_buyer_review, unrecoverable.",
      "source": "ucp:source/schemas/common/types/message_error.json#L40",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-004",
@@ -13001,10 +13026,14 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Error message content_type, when present, MUST be one of plain or markdown (default plain).",
      "source": "ucp:source/schemas/common/types/message_error.json#L25",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-006",
@@ -13021,20 +13050,28 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Warning message MUST include type, code, and content fields.",
      "source": "ucp:source/schemas/common/types/message_warning.json#L6",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-010",
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "Warning message type discriminator MUST be the constant \"warning\".",
      "source": "ucp:source/schemas/common/types/message_warning.json#L12",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-011",
@@ -13203,10 +13240,14 @@
      "area": "error-envelope",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "A Message MUST be exactly one of error, warning, or info (oneOf discriminated container).",
      "source": "ucp:source/schemas/common/types/message.json#L7",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "ERR-034",
@@ -15184,10 +15225,14 @@
      "area": "version-negotiation-and-protocol-errors",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
      "source": "ucp:docs/specification/overview/index.md#L1862,L3553",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_envelope.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-002",

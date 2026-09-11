@@ -504,8 +504,9 @@ def _expected_skips_cases():
              and rest and not wrong, f"golden={mdoc.get('golden')} version={mdoc.get('version')} "
                                      f"rest={len(rest)} not pinned transport-not-declared={wrong[:6]}")
         unpinned = sorted(c.id for c in merchant_checks.all_checks() if c.id not in pop)
-        case("(h) mcp-only-0825: exactly 2 checks run (unpinned), 226 pinned",
-             len(unpinned) == 2 and len(pop) == 226, f"run={unpinned} pinned={len(pop)}")
+        # 226 at D1-11; D1-16a added 10 REST-only 08-25 MChecks (transport-not-declared here)
+        case("(h) mcp-only-0825: exactly 2 checks run (unpinned), 236 pinned",
+             len(unpinned) == 2 and len(pop) == 236, f"run={unpinned} pinned={len(pop)}")
     else:
         case("(h) mcp-only-0825: every in-scope REST check pinned transport-not-declared", False,
              f"no {mcp_file.name}")

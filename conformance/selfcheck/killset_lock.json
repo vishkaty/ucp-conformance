@@ -2,7 +2,7 @@
  "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
  "counts": {
   "ACheck": 44,
-  "MCheck": 228,
+  "MCheck": 238,
   "Row": 44,
   "engine": 89,
   "schema-tier": 81,
@@ -2084,6 +2084,66 @@
    "kind": "MCheck",
    "n_kills": 0,
    "n_kills_floor": 0
+  },
+  "merchant_checks_08_25_envelope:discovery.published_artifacts_cache_control": {
+   "hash": "8832a62b2c634c3840327100d476b0483c4b865edb0fa5b5d62a1a0de3b8c1b2",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_08_25_envelope:envelope.error_content_type_enum": {
+   "hash": "f09cce034bcbe553cba0b77b48516742b7da5ef276a615531515b1e76d831367",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.error_message_fields": {
+   "hash": "e29779e164cba3830d031a2254a51247e8d33f784582ad75abbd6acb4935c85e",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
+  },
+  "merchant_checks_08_25_envelope:envelope.error_severity_enum": {
+   "hash": "f1c5df3f284f9f815f22664e266161e32c0556a310d5780bc310fa3e179fab6c",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.error_type_const": {
+   "hash": "13d008469a3709de4785e981b26b93d9283fb5f77a9becf878286841caa1da7c",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:envelope.message_kinds_discriminated": {
+   "hash": "46b2d345dd5067fb3349c463a6b9f64d7e629897000a07cd183b7e27f2a0b94c",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_envelope:envelope.warning_message_fields": {
+   "hash": "c33fa9b050d229fce805292972f7592ece585305ba82f8e1633b8d236e3542b7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_envelope:envelope.warning_type_const": {
+   "hash": "795d26bb1c9e522b775feb5fb6ae7ee03fd60b63e727e9acb8d9517e1ca8cd9d",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_envelope:idempotency.replay_cached": {
+   "hash": "327f43f89dd1eb9cd79930cd8ddbbc7e4b4b79625e2a3430716fa1a053c3c6c3",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_08_25_envelope:negotiation.version_unsupported_422_0825": {
+   "hash": "f2284bf4626e67642e3aee8cdd57dad734916645c5643b0d281155cc78c0d6ee",
+   "kind": "MCheck",
+   "n_kills": 5,
+   "n_kills_floor": 5
   },
   "schema_check:cart.currency_required": {
    "hash": "f07cf85c359c9dfbb63fa33e111dc2e6f19f652477309708530740b1ea8fd1b8",

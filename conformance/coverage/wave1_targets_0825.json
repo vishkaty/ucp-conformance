@@ -36,8 +36,7 @@
  ],
  "blocked": {
   "CHK-017": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
-  "DSC-006": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
-  "CHK-048": "D1-16a: the 08-25 sentence adds the body-match/cached-replay clauses — attributed with the CHK-078/079 MChecks and per-id kills in D1-16a"
+  "DSC-006": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill"
  },
  "owner_tasks": [
   "D1-15",
