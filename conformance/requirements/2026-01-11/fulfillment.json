@@ -55,7 +55,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-derived MUST (JSON Schema required). type enum is shipping|pickup. ucp_request makes id omit-on-create / required-on-update."
+      "notes": "Schema-derived MUST (JSON Schema required). type enum is shipping|pickup. ucp_request makes id omit-on-create / required-on-update.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-004",
@@ -73,7 +76,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Extensions adding method types MUST extend this enum (fulfillment.md#L339-345)."
+      "notes": "Extensions adding method types MUST extend this enum (fulfillment.md#L339-345).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-005",
@@ -109,7 +115,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Option generation and selection updating totals exercised by fulfillment_test.py: FulfillmentTest.test_fulfillment_flow and FulfillmentTest.test_dynamic_fulfillment."
+      "notes": "Option generation and selection updating totals exercised by fulfillment_test.py: FulfillmentTest.test_fulfillment_flow and FulfillmentTest.test_dynamic_fulfillment.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-007",
@@ -127,7 +135,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-derived MUST. group.options[] and selected_option_id carry the selectable choices; selected_option_id is [string,null]."
+      "notes": "Schema-derived MUST. group.options[] and selected_option_id carry the selectable choices; selected_option_id is [string,null].",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-008",
@@ -145,7 +156,10 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "FIELD-NAME DIVERGENCE: schema requires 'totals' (array of total objects), while the spec Rendering table/prose call the field 'total' (price in minor units). See FUL-017. option id+totals asserted by fulfillment_test.py.test_fulfillment_flow (reads options[0]['id'] and options[0]['totals'])."
+      "notes": "FIELD-NAME DIVERGENCE: schema requires 'totals' (array of total objects), while the spec Rendering table/prose call the field 'total' (price in minor units). See FUL-017. option id+totals asserted by fulfillment_test.py.test_fulfillment_flow (reads options[0]['id'] and options[0]['totals']).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-009",
@@ -163,7 +177,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Required in Rendering table; reinforced as a business MUST at L179. Content correctness (distinguishes siblings) is not schema-enforced, only presence is. RECLASSIFIED manual->testable (2026-07-03): title PRESENCE is schema-enforced (fulfillment_option.json required[]; check fulfillment.option_title_required). The 'distinguishes siblings' adequacy judgment remains manual and is FUL-010's territory."
+      "notes": "Required in Rendering table; reinforced as a business MUST at L179. Content correctness (distinguishes siblings) is not schema-enforced, only presence is. RECLASSIFIED manual->testable (2026-07-03): title PRESENCE is schema-enforced (fulfillment_option.json required[]; check fulfillment.option_title_required). The 'distinguishes siblings' adequacy judgment remains manual and is FUL-010's territory.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "FUL-010",
@@ -181,7 +197,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Semantic content requirement; not machine-checkable from schema."
+      "notes": "Semantic content requirement; not machine-checkable from schema.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-011",
@@ -217,7 +236,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-013",
@@ -235,7 +257,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "description is optional in schema (not in fulfillment_option required[]); no-repeat semantic constraint not schema-enforceable."
+      "notes": "description is optional in schema (not in fulfillment_option required[]); no-repeat semantic constraint not schema-enforceable.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-014",
@@ -307,7 +332,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "FIELD-NAME DIVERGENCE: schema names this 'totals' (array, required); spec Rendering prose names it 'total' (scalar minor-units, may be null). Schema enforces presence of 'totals', not the nullability described here."
+      "notes": "FIELD-NAME DIVERGENCE: schema names this 'totals' (array, required); spec Rendering prose names it 'total' (scalar minor-units, may be null). Schema enforces presence of 'totals', not the nullability described here.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "FUL-018",
@@ -325,7 +352,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "available_methods is omit-on-request; description optional in fulfillment_available_method.json. Semantic, not schema-enforced."
+      "notes": "available_methods is omit-on-request; description optional in fulfillment_available_method.json. Semantic, not schema-enforced.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-019",
@@ -343,7 +373,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-020",
@@ -361,7 +393,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-021",
@@ -379,7 +413,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side rendering; not observable from a business/server response."
+      "notes": "Platform-side rendering; not observable from a business/server response.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-022",
@@ -397,7 +433,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Bulleted sub-requirements at L205-209 include 'Present all methods returned—method selection is a buyer decision'. Platform-side render behavior."
+      "notes": "Bulleted sub-requirements at L205-209 include 'Present all methods returned—method selection is a buyer decision'. Platform-side render behavior.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-023",
@@ -415,7 +453,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-024",
@@ -433,7 +473,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side handoff behavior."
+      "notes": "Platform-side handoff behavior.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-025",
@@ -451,7 +493,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Specific instance of the un-processable-selection handoff (cf. FUL-024)."
+      "notes": "Specific instance of the un-processable-selection handoff (cf. FUL-024).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-026",
@@ -469,7 +513,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conditional on platform profile config; response still uses methods[].groups[] with groups.length === 1. Not enforced by JSON Schema (no maxItems)."
+      "notes": "Conditional on platform profile config; response still uses methods[].groups[] with groups.length === 1. Not enforced by JSON Schema (no maxItems).",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-027",
@@ -487,7 +534,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-028",
@@ -505,7 +554,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": ""
+      "notes": "",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "FUL-029",
@@ -523,7 +574,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Meta-requirement on extension authors, not on a request/response payload."
+      "notes": "Meta-requirement on extension authors, not on a request/response payload.",
+      "role": "spec-author",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-030",
@@ -541,7 +595,10 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "shipping_destination = allOf(postal_address, {id required}). fulfillment_destination is oneOf(shipping_destination, retail_location). Address ID assignment for new addresses and reuse of existing IDs exercised by fulfillment_test.py: FulfillmentTest.test_new_user_new_address_persistence and FulfillmentTest.test_known_user_existing_address_reuse."
+      "notes": "shipping_destination = allOf(postal_address, {id required}). fulfillment_destination is oneOf(shipping_destination, retail_location). Address ID assignment for new addresses and reuse of existing IDs exercised by fulfillment_test.py: FulfillmentTest.test_new_user_new_address_persistence and FulfillmentTest.test_known_user_existing_address_reuse.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     }
   ],
   "notes": [

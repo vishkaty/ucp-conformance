@@ -18,7 +18,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Stated as a request behavior bullet, not an RFC2119 keyword; treated as normative MUST. Schema description echoes 'Replaces previously submitted codes'."
+      "notes": "Stated as a request behavior bullet, not an RFC2119 keyword; treated as normative MUST. Schema description echoes 'Replaces previously submitted codes'.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-002",
@@ -36,7 +38,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema description: 'Send empty array to clear.'"
+      "notes": "Schema description: 'Send empty array to clear.'",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-003",
@@ -54,7 +58,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema description: 'Case-insensitive.'"
+      "notes": "Schema description: 'Case-insensitive.'",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "DSC-004",
@@ -72,7 +78,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by BusinessLogicTest.test_discount_flow (applied[0].code present after applying '10OFF')."
+      "notes": "Asserted by BusinessLogicTest.test_discount_flow (applied[0].code present after applying '10OFF').",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-005",
@@ -90,7 +98,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by BusinessLogicTest.test_multiple_discounts_accepted (len(applied)==2 for ['10OFF','WELCOME20'], total reduced sequentially)."
+      "notes": "Asserted by BusinessLogicTest.test_multiple_discounts_accepted (len(applied)==2 for ['10OFF','WELCOME20'], total reduced sequentially).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-006",
@@ -108,7 +118,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Accept-one-reject-one asserted by BusinessLogicTest.test_multiple_discounts_one_rejected (['10OFF','INVALID_CODE'] -> len(applied)==1, applied[0].code=='10OFF')."
+      "notes": "Accept-one-reject-one asserted by BusinessLogicTest.test_multiple_discounts_one_rejected (['10OFF','INVALID_CODE'] -> len(applied)==1, applied[0].code=='10OFF').",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "DSC-007",
@@ -126,7 +138,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted indirectly by BusinessLogicTest.test_multiple_discounts_one_rejected (rejected code absent from applied)."
+      "notes": "Asserted indirectly by BusinessLogicTest.test_multiple_discounts_one_rejected (rejected code absent from applied).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-008",
@@ -144,7 +158,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Implementation guidance block. Rejected discount example in docs uses type 'warning' with code 'discount_code_expired'."
+      "notes": "Implementation guidance block. Rejected discount example in docs uses type 'warning' with code 'discount_code_expired'.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "DSC-009",
@@ -180,7 +196,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema: applied_discount.automatic boolean default false; code 'Omitted for automatic discounts.'"
+      "notes": "Schema: applied_discount.automatic boolean default false; code 'Omitted for automatic discounts.'",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "DSC-011",
@@ -198,7 +216,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Asserted by BusinessLogicTest.test_fixed_amount_discount ('FIXED500' -> applied[0].code and applied[0].amount present, total reduced)."
+      "notes": "Asserted by BusinessLogicTest.test_fixed_amount_discount ('FIXED500' -> applied[0].code and applied[0].amount present, total reduced).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-012",
@@ -216,7 +236,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "applied_discount.amount: integer, minimum 0. JSON-Schema enforced."
+      "notes": "applied_discount.amount: integer, minimum 0. JSON-Schema enforced.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-013",
@@ -234,7 +257,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "JSON-Schema enum constraint on applied_discount.method."
+      "notes": "JSON-Schema enum constraint on applied_discount.method.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-014",
@@ -252,7 +278,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "allocation.amount: integer, minimum 0. JSON-Schema enforced."
+      "notes": "allocation.amount: integer, minimum 0. JSON-Schema enforced.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-016",
@@ -270,7 +299,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Stated invariant; not expressible in JSON Schema."
+      "notes": "Stated invariant; not expressible in JSON Schema.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-017",
@@ -288,7 +319,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Integer/minimum 0 enforced in schema; subtractive display is a presentation convention."
+      "notes": "Integer/minimum 0 enforced in schema; subtractive display is a presentation convention.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-018",
@@ -306,7 +339,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cross-field invariant; not expressible in JSON Schema."
+      "notes": "Cross-field invariant; not expressible in JSON Schema.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-019",
@@ -324,7 +359,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Asserted by BusinessLogicTest.test_buyer_consent (marketing=True/analytics=False persisted at checkout.buyer.consent). consent fields are typed boolean in buyer_consent.json."
+      "notes": "Asserted by BusinessLogicTest.test_buyer_consent (marketing=True/analytics=False persisted at checkout.buyer.consent). consent fields are typed boolean in buyer_consent.json.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "DSC-020",
@@ -342,7 +379,10 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "JSON-Schema boolean type on consent properties; persistence asserted by BusinessLogicTest.test_buyer_consent."
+      "notes": "JSON-Schema boolean type on consent properties; persistence asserted by BusinessLogicTest.test_buyer_consent.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-022",
@@ -360,7 +400,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Security & Privacy consideration; non-enforcement is a property, manually reviewable."
+      "notes": "Security & Privacy consideration; non-enforcement is a property, manually reviewable.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "DSC-023",
@@ -378,7 +420,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Behavioral guidance on the platform side; not server-testable."
+      "notes": "Behavioral guidance on the platform side; not server-testable.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "IDL-001",
@@ -396,7 +440,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate."
+      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-002",
@@ -414,7 +461,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate."
+      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-003",
@@ -432,7 +482,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate."
+      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "IDL-004",
@@ -450,7 +502,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate."
+      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate.",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "IDL-005",
@@ -468,7 +522,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business-side baseline requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Business-side baseline requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-006",
@@ -486,7 +543,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Authorization server metadata document discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Authorization server metadata document discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-007",
@@ -504,7 +564,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business-side token endpoint requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Business-side token endpoint requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-008",
@@ -522,7 +585,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "User-facing account creation; manual verification."
+      "notes": "User-facing account creation; manual verification.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-009",
@@ -540,7 +606,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Standard UCP scopes, e.g. ucp:scopes:checkout_session covering Get/Create/Update/Delete/Cancel/Complete. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Standard UCP scopes, e.g. ucp:scopes:checkout_session covering Get/Create/Update/Delete/Cancel/Complete. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-010",
@@ -558,7 +627,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business-side revocation endpoint. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Business-side revocation endpoint. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-011",
@@ -576,7 +648,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cascading revocation semantics. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23). Graded on its observable core: the revoked (refresh) token is dead at the token endpoint; recursive access-token invalidation has no 01-era gated resource to observe against."
+      "notes": "Cascading revocation semantics. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23). Graded on its observable core: the revoked (refresh) token is dead at the token endpoint; recursive access-token invalidation has no 01-era gated resource to observe against.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-012",
@@ -594,7 +669,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Revocation endpoint client authentication. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23)."
+      "notes": "Revocation endpoint client authentication. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-013",
@@ -612,7 +690,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token \u2014 a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded \u2014 Complete needs the full payment flow)."
+      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token \u2014 a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded \u2014 Complete needs the full payment flow).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     }
   ],
   "notes": [

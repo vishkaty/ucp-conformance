@@ -82,9 +82,11 @@ def spec_files(ucp_dir: str):
     return sorted(base.rglob("*.md"))
 
 
-def scan_keywords(path: pathlib.Path):
+def scan_keywords(path: pathlib.Path, kw_re=KW_RE):
     """Yield (lineno, keyword, raw_line) for each mandatory keyword outside code
-    fences, skipping the RFC-2119 boilerplate definition."""
+    fences, skipping the RFC-2119 boilerplate definition. `kw_re` defaults to the
+    MANDATORY class; the SHOULD census (verify_should_census.py, D2-10) passes
+    SHOULD_RE so both censuses share one fence/boilerplate scan."""
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     in_fence = False
     out = []
@@ -101,7 +103,7 @@ def scan_keywords(path: pathlib.Path):
             continue
         # strip emphasis so "MUST **NOT**" still reads as MUST NOT
         probe = raw.replace("**", "").replace("`", "")
-        for m in KW_RE.finditer(probe):
+        for m in kw_re.finditer(probe):
             out.append((i, m.group(1), raw))
     return out, lines
 

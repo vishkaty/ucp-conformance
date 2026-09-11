@@ -20,7 +20,11 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Wholly new Action type (dev.ucp.common.payment.three_ds_challenge); no 04-08 equivalent."
+   "notes": "Wholly new Action type (dev.ucp.common.payment.three_ds_challenge); no 04-08 equivalent.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "inferred",
+   "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] payment/extensions/actions/three-ds-challenge.md L48-L50: L48 is a SHOULD sentence ('A Business SHOULD accept Complete Checkout, begin the payment attempt, and return complete_in_progress\u2026'); the quoted clause is its 'If the Business cannot accept completion before the challenge, it follows the core Checkout rule: it returns incomplete with a recoverable error Message whose path selects the challenge occurrence.' MUST inferred by reference: 'follows the core Checkout rule' binds the Business to the core rule, which is a MUST in shopping/checkout/index.md (incomplete + recoverable error on an unmet requirement). Kept MUST (decision 29); the SHOULD half is not this row."
   },
   {
    "id": "TDS-002",
@@ -38,7 +42,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side; UCP deliberately does not carry EMV 3DS payloads (CReq/CRes, AReq/ARes, RReq/RRes, transStatus)."
+   "notes": "Platform-side; UCP deliberately does not carry EMV 3DS payloads (CReq/CRes, AReq/ARes, RReq/RRes, transStatus).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-003",
@@ -56,7 +63,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Six-item Platform Behavior checklist (three-ds-challenge.md numbered list, L90-101)."
+   "notes": "Six-item Platform Behavior checklist (three-ds-challenge.md numbered list, L90-101).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-004",
@@ -74,7 +84,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, correctness-critical: prevents a Platform from short-circuiting the Business's authoritative payment-outcome determination."
+   "notes": "Platform-side, correctness-critical: prevents a Platform from short-circuiting the Business's authoritative payment-outcome determination.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-005",
@@ -92,7 +105,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Handler-surface behavior; observable only by instrumenting the loaded surface, not from the Business's Checkout responses."
+   "notes": "Handler-surface behavior; observable only by instrumenting the loaded surface, not from the Business's Checkout responses.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-006",
@@ -110,7 +126,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side forward-compatibility rule."
+   "notes": "Platform-side forward-compatibility rule.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-007",
@@ -128,7 +147,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires cross-referencing the Checkout's expires_at against the negotiated handler's documented ACS window; not mechanically derivable from a single response."
+   "notes": "Requires cross-referencing the Checkout's expires_at against the negotiated handler's documented ACS window; not mechanically derivable from a single response.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-008",
@@ -146,7 +168,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side."
+   "notes": "Platform-side.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-009",
@@ -164,7 +189,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Security-relevant handler/Platform trust-policy requirement."
+   "notes": "Security-relevant handler/Platform trust-policy requirement.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TDS-010",
@@ -182,7 +210,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by comparing a later Get Checkout response's payment/status state against a prior surface-reported outcome."
+   "notes": "Checkable by comparing a later Get Checkout response's payment/status state against a prior surface-reported outcome.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "TDS-011",
@@ -201,7 +231,10 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (shared surface-mounting contract cross-reference -- the 3DS-Challenge analogue of the device-data-collection.md row).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "host",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ]
 }

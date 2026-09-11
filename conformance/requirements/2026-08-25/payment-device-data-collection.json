@@ -20,7 +20,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Wholly new Action type (dev.ucp.common.payment.device_data_collection). No 04-08 equivalent existed."
+   "notes": "Wholly new Action type (dev.ucp.common.payment.device_data_collection). No 04-08 equivalent existed.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-002",
@@ -38,7 +41,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Five-item Platform Behavior checklist (device-data-collection.md numbered list, L90-99)."
+   "notes": "Five-item Platform Behavior checklist (device-data-collection.md numbered list, L90-99).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-003",
@@ -56,7 +62,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, privacy/UX-relevant."
+   "notes": "Platform-side, privacy/UX-relevant.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-004",
@@ -74,7 +83,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Handler-surface behavior; observable only by instrumenting the loaded surface."
+   "notes": "Handler-surface behavior; observable only by instrumenting the loaded surface.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-005",
@@ -92,7 +104,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side; prevents conflating the UCP outer deadline with the EMV 3DS threeDSCompInd timer."
+   "notes": "Platform-side; prevents conflating the UCP outer deadline with the EMV 3DS threeDSCompInd timer.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-006",
@@ -110,7 +125,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side."
+   "notes": "Platform-side.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-007",
@@ -128,7 +146,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Security-relevant handler/Platform trust-policy requirement."
+   "notes": "Security-relevant handler/Platform trust-policy requirement.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-008",
@@ -146,7 +167,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant (isolation of the third-party collection surface from Platform state)."
+   "notes": "Platform-side, security-relevant (isolation of the third-party collection surface from Platform state).",
+   "role": "host",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-009",
@@ -164,7 +188,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by inspecting captured Checkout responses/Action instances/notifications for leaked device-data fields; UCP does not carry the collected data by design."
+   "notes": "Checkable by inspecting captured Checkout responses/Action instances/notifications for leaked device-data fields; UCP does not carry the collected data by design.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-010",
@@ -183,7 +210,10 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (shared surface-mounting contract cross-reference).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "host",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "DDC-011",
@@ -202,7 +232,10 @@
     "2026-08-25"
    ],
    "notes": "New row (timeout unmount + no-remount rule).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   }
  ]
 }

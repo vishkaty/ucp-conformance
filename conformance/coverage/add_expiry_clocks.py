@@ -97,6 +97,68 @@ def stamp(registers, seed_date, pins, dry_run=False, restamp=False):
     return stamped
 
 
+def repin(registers, version, pins, dry_run=False):
+    """D2-15: after SOURCES.lock.json re-pins `version`, every clocked entry in scope of
+    that version carries the OLD 8-hex in `spec_pin` (pin-drift, by design: a re-pin
+    invalidates the review made against the old pin). Re-stamp `spec_pin` for exactly
+    those entries to the lock's new pin (string, or the version's slot of a map);
+    review_by is untouched. Returns [(entry, register, old_pin)] for the batch record —
+    the caller records the re-stamp as a sample batch (the human sample is the review)."""
+    new_pin = pins[version]
+    touched = []
+    docs = {}
+    for reg in registers:
+        if reg.get("clock") == "none" or reg.get("scope") == "none":
+            continue
+        path = os.path.join(ROOT, reg["file"])
+        doc = docs.get(path) or json.load(open(path))
+        docs[path] = doc
+        for ename, e in vec.iter_entries(reg, doc):
+            if not isinstance(e, dict) or version not in vec.entry_versions(reg, e, VERSIONS):
+                continue
+            sp = e.get("spec_pin")
+            if isinstance(sp, dict):
+                if sp.get(version) != new_pin:
+                    touched.append((f"{os.path.basename(reg['file'])} {ename}", reg["name"], sp.get(version)))
+                    sp[version] = new_pin
+            elif sp != new_pin:
+                touched.append((f"{os.path.basename(reg['file'])} {ename}", reg["name"], sp))
+                e["spec_pin"] = new_pin
+    if not dry_run:
+        for path, doc in docs.items():
+            dump_like(path, doc)
+    return touched
+
+
+def record_repin_batch(version, old_pin, new_pin, touched, on, dry_run=False):
+    """Record the re-stamp in review_signoffs.json as a `kind: sample` batch (decision 13:
+    max(10%, 10) human sample, PENDING until the owner records it)."""
+    import math, random
+    names = sorted(t[0] for t in touched)
+    size = min(len(names), max(10, math.ceil(0.10 * len(names))))
+    ids = sorted(random.Random(int(on.replace("-", ""))).sample(names, size)) if names else []
+    batch = {"batch": f"repin-{version}-{on}", "kind": "sample", "date": on,
+             "reviewer": f"re-pin re-stamp (mechanical, add_expiry_clocks.py --repin {version}); the human sample below is the review",
+             "spec_reverified": True,
+             "notes": f"SOURCES.lock.json re-pinned {version} {old_pin} -> {new_pin} (decision 3, D2-15). Every clocked "
+                      f"entry in scope of {version} ({len(names)}) had its spec_pin re-stamped to the new pin; review_by "
+                      f"untouched. The re-pin's diff is loyalty.md + loyalty.json (new) and one example line in "
+                      f"discount.md, and every pre-existing {version} register quote re-verifies verbatim at the new pin "
+                      f"(register gate), so no entry's subject moved. The sample is a deterministic {size}/{len(names)} "
+                      f"selection (random.Random({int(on.replace('-', ''))}).sample over the sorted entry names) the owner "
+                      f"re-reads at {new_pin} and records as human_review.status=recorded; PENDING until then.",
+             "sample": {"seed": int(on.replace("-", "")), "of": len(names), "size": size, "ids": ids,
+                        "human_review": {"status": "pending", "by": None, "on": None,
+                                         "due": (date.fromisoformat(on) + timedelta(days=7)).isoformat()}}}
+    if dry_run:
+        return batch
+    path = os.path.join(ROOT, "conformance", "coverage", "review_signoffs.json")
+    doc = json.load(open(path))
+    doc["signoffs"] = [b for b in doc.get("signoffs", []) if b.get("batch") != batch["batch"]] + [batch]
+    dump_like(path, doc)
+    return batch
+
+
 def record_seed_batch(seed, stamped, seed_date, dry_run=False):
     """The A10 sample contract on the seed batch (>=10%, seed-recorded, human pending)."""
     names = sorted(n for n, _ in stamped)
@@ -130,6 +192,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--seed-date")
+    ap.add_argument("--repin", metavar="VERSION",
+                    help="D2-15: re-stamp spec_pin to the lock's CURRENT pin for every entry in scope of "
+                         "VERSION and record a sample batch (pass --old-pin for the batch note)")
+    ap.add_argument("--old-pin", default="?")
     ap.add_argument("--restamp", action="store_true",
                     help="recompute every review_by with the current stagger (D2-19 migration); "
                          "spec_pin and the seed-batch sample record are untouched")
@@ -138,6 +204,14 @@ def main(argv=None):
     seed = regfile["seed"]
     seed_date = date.fromisoformat(a.seed_date or seed["date"])
     pins = vec.lock_pins()
+    if a.repin:
+        touched = repin(regfile["registers"], a.repin, pins, a.dry_run)
+        on = a.seed_date or date.today().isoformat()
+        b = record_repin_batch(a.repin, a.old_pin, pins[a.repin], touched, on, a.dry_run)
+        print(f"repin {a.repin} -> {pins[a.repin]}: {len(touched)} entr{'y' if len(touched) == 1 else 'ies'} re-stamped; "
+              f"batch {b['batch']} sample {b['sample']['size']}/{b['sample']['of']} human PENDING (due {b['sample']['human_review']['due']})"
+              + (" [dry-run]" if a.dry_run else ""))
+        return 0
     stamped = stamp(regfile["registers"], seed_date, pins, a.dry_run, a.restamp)
     by_reg = {}
     for _, r in stamped:

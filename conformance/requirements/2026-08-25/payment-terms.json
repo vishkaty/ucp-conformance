@@ -20,7 +20,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Prevents an ambiguous total: without a resolvable selection, the Checkout total would match no stated term. Fixture-testable on any response carrying terms: array is non-empty and selected_term_id resolves to one of its entries."
+   "notes": "Prevents an ambiguous total: without a resolvable selection, the Checkout total would match no stated term. Fixture-testable on any response carrying terms: array is non-empty and selected_term_id resolves to one of its entries.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-002",
@@ -38,7 +41,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "The presentation floor: a naive Platform must be able to render amounts and timing from only 4 fields, and the Business is the one obligated to author content meeting that bar. Manual: whether authored text 'presents what is owed and when' is a content-quality judgment, not a mechanical assertion."
+   "notes": "The presentation floor: a naive Platform must be able to render amounts and timing from only 4 fields, and the Business is the one obligated to author content meeting that bar. Manual: whether authored text 'presents what is owed and when' is a content-quality judgment, not a mechanical assertion.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-003",
@@ -56,7 +62,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Content-completeness obligation on the Business; manual (judgment of whether a description is 'complete'), consistent with PT-002."
+   "notes": "Content-completeness obligation on the Business; manual (judgment of whether a description is 'complete'), consistent with PT-002.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-004",
@@ -74,7 +83,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform rendering constraint (binds the request/render author, not the Business's response) — manual, matching the identity-linking precedent for client-behavior MUSTs no merchant check can grade."
+   "notes": "Platform rendering constraint (binds the request/render author, not the Business's response) — manual, matching the identity-linking precedent for client-behavior MUSTs no merchant check can grade.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-005",
@@ -92,7 +104,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Open-vocabulary tolerance rule on the Platform's interpretation logic. Manual: platform-bound behavior, not observable via a Business-facing check."
+   "notes": "Open-vocabulary tolerance rule on the Platform's interpretation logic. Manual: platform-bound behavior, not observable via a Business-facing check.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-006",
@@ -110,7 +125,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable: a schedule whose due date is not yet determinable (e.g. 'due on delivery') must not carry a due_at value."
+   "notes": "Fixture-testable: a schedule whose due date is not yet determinable (e.g. 'due on delivery') must not carry a due_at value.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-007",
@@ -128,7 +146,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Core financial-correctness invariant for this capability (arithmetic: sum(selected_term.schedules[].amount) == checkout.total) — fixture-testable, high priority for a live check, analogous to TOT-001/TOT-007's totals-authority guarantees."
+   "notes": "Core financial-correctness invariant for this capability (arithmetic: sum(selected_term.schedules[].amount) == checkout.total) — fixture-testable, high priority for a live check, analogous to TOT-001/TOT-007's totals-authority guarantees.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-008",
@@ -146,7 +167,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable: when a term's payable amount differs from the base price, checkout.totals must carry a matching discount/fee line."
+   "notes": "Fixture-testable: when a term's payable amount differs from the base price, checkout.totals must carry a matching discount/fee line.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-009",
@@ -164,7 +188,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-bound re-render obligation; manual, not gradable by a Business-facing check."
+   "notes": "Platform-bound re-render obligation; manual, not gradable by a Business-facing check.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-010",
@@ -182,7 +209,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable: all terms[].id values in one Checkout response are pairwise distinct."
+   "notes": "Fixture-testable: all terms[].id values in one Checkout response are pairwise distinct.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-011",
@@ -200,7 +230,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Binds the request author (Platform), matching the identity-linking precedent (e.g. IDL-002/003/004) where a client-request-shape MUST is manual/platform-conformance rather than gradable by a check against the Business under test."
+   "notes": "Binds the request author (Platform), matching the identity-linking precedent (e.g. IDL-002/003/004) where a client-request-shape MUST is manual/platform-conformance rather than gradable by a check against the Business under test.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-012",
@@ -218,7 +251,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable: submit a selected_term_id that is no longer offered and assert the response carries a payment_term_changed warning rather than a silently substituted term."
+   "notes": "Fixture-testable: submit a selected_term_id that is no longer offered and assert the response carries a payment_term_changed warning rather than a silently substituted term.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-013",
@@ -236,7 +272,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Distinct trigger from PT-012 (conflict-caused change or in-place rewrite, vs. a stale/unresolvable id): fixture-testable by inducing each condition and asserting the warning is present."
+   "notes": "Distinct trigger from PT-012 (conflict-caused change or in-place rewrite, vs. a stale/unresolvable id): fixture-testable by inducing each condition and asserting the warning is present.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-014",
@@ -254,7 +293,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform trust-model obligation (do not cache/reuse a prior response's handler eligibility); manual, not gradable by a Business-facing check."
+   "notes": "Platform trust-model obligation (do not cache/reuse a prior response's handler eligibility); manual, not gradable by a Business-facing check.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-015",
@@ -272,7 +314,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Business-side instrument-eligibility logic, server-observable via ucp.payment_handlers advertisement and the accept/reject outcome of a submitted instrument that cannot fund every schedule (e.g. a single-charge-only instrument against a multi-schedule term)."
+   "notes": "Business-side instrument-eligibility logic, server-observable via ucp.payment_handlers advertisement and the accept/reject outcome of a submitted instrument that cannot fund every schedule (e.g. a single-charge-only instrument against a multi-schedule term).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-016",
@@ -290,7 +335,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable: a multi-schedule term's payment_handlers/instrument assignment cannot be split across more than one instrument (defines the boundary with Split Payments, which composes only with single-schedule terms)."
+   "notes": "Fixture-testable: a multi-schedule term's payment_handlers/instrument assignment cannot be split across more than one instrument (defines the boundary with Split Payments, which composes only with single-schedule terms).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-017",
@@ -308,7 +356,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "The Warning Presentation disclosure rendering contract (the general rule lives in shopping/checkout/index.md, ERR-012/014-018 in checkout-lifecycle.json/error-envelope.json) re-asserted specifically for payment-terms disclosures, with its own escalation example. Filed as its own row rather than a duplicate waiver because it is the authoritative statement for THIS extension's disclosure obligation and its exact text does not appear at the general location. Manual: platform rendering behavior."
+   "notes": "The Warning Presentation disclosure rendering contract (the general rule lives in shopping/checkout/index.md, ERR-012/014-018 in checkout-lifecycle.json/error-envelope.json) re-asserted specifically for payment-terms disclosures, with its own escalation example. Filed as its own row rather than a duplicate waiver because it is the authoritative statement for THIS extension's disclosure obligation and its exact text does not appear at the general location. Manual: platform rendering behavior.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-018",
@@ -326,7 +377,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable on an Order response: the accepted-term disclosure carries the fixed path $.payment.accepted_term, and no disclosure for a non-accepted term is present."
+   "notes": "Fixture-testable on an Order response: the accepted-term disclosure carries the fixed path $.payment.accepted_term, and no disclosure for a non-accepted term is present.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-019",
@@ -344,7 +398,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Fixture-testable to the structural floor: every applies_to/path JSON-pointer resolves to an existing node in the same response (not dangling) — whether it is the node an author 'intended' is a judgment call beyond that floor."
+   "notes": "Fixture-testable to the structural floor: every applies_to/path JSON-pointer resolves to an existing node in the same response (not dangling) — whether it is the node an author 'intended' is a judgment call beyond that floor.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-020",
@@ -362,7 +419,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Scope-boundary rule (this extension discloses timing only; it is not a payment-execution/capture-management capability). Manual: a platform-inference restriction, not directly observable via a single API probe."
+   "notes": "Scope-boundary rule (this extension discloses timing only; it is not a payment-execution/capture-management capability). Manual: a platform-inference restriction, not directly observable via a single API probe.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-021",
@@ -380,7 +440,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Order-side counterpart to PT-007 (arithmetic invariant) plus an immutability guarantee, both fixture-testable against an Order response."
+   "notes": "Order-side counterpart to PT-007 (arithmetic invariant) plus an immutability guarantee, both fixture-testable against an Order response.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-022",
@@ -398,7 +461,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "The 'Platform responsibilities' conformance checklist; each bullet restates a rendering obligation stated in prose earlier in the file (PT-002/PT-005/PT-009/PT-017). Filed as one combined row (matching the IDL-040-style bundled-checklist convention) rather than per-bullet duplicate waivers, since the checklist is itself the canonical conformance-facing summary. Manual: platform rendering behavior."
+   "notes": "The 'Platform responsibilities' conformance checklist; each bullet restates a rendering obligation stated in prose earlier in the file (PT-002/PT-005/PT-009/PT-017). Filed as one combined row (matching the IDL-040-style bundled-checklist convention) rather than per-bullet duplicate waivers, since the checklist is itself the canonical conformance-facing summary. Manual: platform rendering behavior.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PT-023",
@@ -416,7 +482,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "The 'Business responsibilities' conformance checklist — mostly restates PT-001/PT-007/PT-008/PT-012/PT-013/PT-018 in one place, but 'Return the recomputed Checkout after a selection' is the only all-caps-MUST statement of that obligation anywhere in the file (the earlier prose at L134-138 states it descriptively, without an RFC-2119 keyword). Server-observable business response behavior throughout: testable."
+   "notes": "The 'Business responsibilities' conformance checklist — mostly restates PT-001/PT-007/PT-008/PT-012/PT-013/PT-018 in one place, but 'Return the recomputed Checkout after a selection' is the only all-caps-MUST statement of that obligation anywhere in the file (the earlier prose at L134-138 states it descriptively, without an RFC-2119 keyword). Server-observable business response behavior throughout: testable.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   }
  ]
 }

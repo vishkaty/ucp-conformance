@@ -75,10 +75,14 @@ def evidence_failures(checks, evidence, today, pins, unrun):
     return fails
 
 
-def _live_coverage():
+def _live_coverage(evidence=None):
+    """Live agent coverage; `evidence` = the in-run evidence map when governance runs
+    with --in-run (CI-1), else the tracked file (D2-15: after a spec re-pin the tracked
+    record is stale by design until the owner's run_agent.py --record, so only the
+    in-run path can be green — exactly what CI runs)."""
     out = {}
     for ver in agent_matrix.VERSIONS:
-        rows, check, exempt, gap = agent_matrix.account(ver)
+        rows, check, exempt, gap = agent_matrix.account(ver, evidence=evidence)
         out[ver] = {"agent_musts": len(rows), "check": len(check),
                     "exempt": len(exempt), "gap": len(gap),
                     "accounted_pct": round(100 * (len(check) + len(exempt)) / len(rows)) if rows else 0}
@@ -87,7 +91,9 @@ def _live_coverage():
 
 def run(in_run=None):
     fails = []
-    live = _live_coverage()
+    evd = agent_matrix.load_evidence(in_run if (in_run and os.path.exists(in_run)) else None)
+    live_evidence = evd["evidence"] if (in_run and os.path.exists(in_run)) else None
+    live = _live_coverage(live_evidence)
 
     # 1. freshness
     if os.path.exists(COV):
@@ -131,7 +137,7 @@ def run(in_run=None):
         for ver, locked in lock.items():
             if ver in suspended and suspended[ver].get("review_by", "") >= datetime.date.today().isoformat():
                 continue
-            _, check, exempt, _ = agent_matrix.account(ver)
+            _, check, exempt, _ = agent_matrix.account(ver, evidence=live_evidence)
             accounted = set(check) | set(exempt)
             for i in locked.get("check", []) + locked.get("exempt", []):
                 if i not in accounted:
@@ -153,7 +159,6 @@ def run(in_run=None):
     # 7. evidence: every attribution is backed by a fresh run at the current pin — the
     #    in-run handoff when it exists (never rescued by the tracked file, exactly as
     #    validate_battery_freshness treats --in-run), else the tracked file.
-    evd = agent_matrix.load_evidence(in_run if (in_run and os.path.exists(in_run)) else None)
     fails += evidence_failures(agent_checks.CHECKS, evd["evidence"], datetime.date.today(),
                                agent_matrix.spec_pins(), evd["unrun_versions"])
 

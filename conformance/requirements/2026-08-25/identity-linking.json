@@ -22,7 +22,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "IDL-002",
@@ -45,7 +47,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-003",
@@ -67,7 +72,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "IDL-004",
@@ -90,7 +97,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-005",
@@ -113,7 +123,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-006",
@@ -135,7 +148,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-007",
@@ -158,7 +174,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-008",
@@ -181,7 +200,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-009",
@@ -204,7 +226,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-010",
@@ -227,7 +252,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-011",
@@ -250,7 +278,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-012",
@@ -273,7 +304,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-013",
@@ -295,7 +329,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "IDL-014",
@@ -318,7 +354,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-015",
@@ -340,7 +379,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-016",
@@ -362,7 +404,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-017",
@@ -384,7 +429,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-018",
@@ -406,7 +454,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-019",
@@ -428,7 +479,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-020",
@@ -450,7 +504,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-021",
@@ -472,7 +529,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-022",
@@ -494,7 +554,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-023",
@@ -516,7 +579,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-024",
@@ -538,7 +604,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "direction",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-025",
@@ -560,7 +629,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-026",
@@ -582,7 +654,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-027",
@@ -604,7 +679,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-028",
@@ -626,7 +704,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-029",
@@ -648,7 +729,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-030",
@@ -670,7 +754,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "IDL-031",
@@ -693,7 +779,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-032",
@@ -716,7 +805,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-033",
@@ -738,7 +830,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-034",
@@ -761,7 +856,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-035",
@@ -784,7 +882,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-036",
@@ -806,7 +907,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-037",
@@ -828,7 +932,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-038",
@@ -851,7 +958,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-039",
@@ -873,7 +983,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-040",
@@ -895,7 +1008,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-041",
@@ -917,7 +1033,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-042",
@@ -939,7 +1058,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-043",
@@ -983,7 +1105,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-045",
@@ -1005,7 +1130,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-046",
@@ -1027,7 +1155,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-047",
@@ -1049,7 +1180,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-048",
@@ -1072,7 +1206,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-049",
@@ -1094,7 +1231,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-050",
@@ -1116,7 +1256,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-051",
@@ -1139,7 +1282,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-052",
@@ -1161,7 +1307,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-053",
@@ -1183,7 +1332,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-054",
@@ -1205,7 +1357,9 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "IDL-055",
@@ -1227,7 +1381,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-056",
@@ -1249,7 +1406,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-057",
@@ -1271,7 +1431,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-058",
@@ -1293,7 +1456,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-059",
@@ -1315,7 +1481,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "reworded"
-   }
+   },
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "IDL-060",
@@ -1337,7 +1506,10 @@
    "lineage": {
     "from": "2026-04-08",
     "disposition": "carried"
-   }
+   },
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "schema"
   },
   {
    "id": "IDL-061",
@@ -1360,7 +1532,10 @@
     "from": "2026-04-08",
     "disposition": "carried"
    },
-   "_completeness_batch": "completeness-2026-07-03"
+   "_completeness_batch": "completeness-2026-07-03",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-062",
@@ -1384,7 +1559,10 @@
     "disposition": "reworded"
    },
    "_completeness_batch": "completeness-2026-07-03",
-   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+   "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-063",
@@ -1402,7 +1580,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): no prior row covers this response-minimization rule (sits before IDL-001's OAuth-mechanism intro, in the general 'state population' prose). Requires comparing an authenticated vs. unauthenticated call to the same operation, hence needs-oauth."
+   "notes": "NEW at v2026-08-25 (P2b pass): no prior row covers this response-minimization rule (sits before IDL-001's OAuth-mechanism intro, in the general 'state population' prose). Requires comparing an authenticated vs. unauthenticated call to the same operation, hence needs-oauth.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-064",
@@ -1420,7 +1601,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound interpretation rule, not gradable by a Business-facing check (same class as IDL-002/003/004)."
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound interpretation rule, not gradable by a Business-facing check (same class as IDL-002/003/004).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-065",
@@ -1438,7 +1622,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the General-Guidelines statement of the self-listing-forbidden rule (the Identity Providers section restates it at L401-404 — see WAIVERS-PROPOSED.md, duplicate_of IDL-065). Testable via static inspection of the business's own published config.providers against its own AS issuer, no live grant needed."
+   "notes": "NEW at v2026-08-25 (P2b pass): the General-Guidelines statement of the self-listing-forbidden rule (the Identity Providers section restates it at L401-404 — see WAIVERS-PROPOSED.md, duplicate_of IDL-065). Testable via static inspection of the business's own published config.providers against its own AS issuer, no live grant needed.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-066",
@@ -1456,7 +1643,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the Accelerated IdP Flow's business-side infrastructure requirement. The grant_types_supported metadata field is directly fetchable and checkable (testable); full behavioral support of the grant type would need needs-oauth, but the concretely checkable artifact is the metadata declaration."
+   "notes": "NEW at v2026-08-25 (P2b pass): the Accelerated IdP Flow's business-side infrastructure requirement. The grant_types_supported metadata field is directly fetchable and checkable (testable); full behavioral support of the grant type would need needs-oauth, but the concretely checkable artifact is the metadata declaration.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-067",
@@ -1474,7 +1664,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound fallback logic; manual."
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-bound fallback logic; manual.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-068",
@@ -1492,7 +1685,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side defense against a self-referential provider entry; platform-bound, manual."
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side defense against a self-referential provider entry; platform-bound, manual.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-069",
@@ -1510,7 +1706,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Open-vocabulary tolerance rule on the platform's config-parsing behavior; manual."
+   "notes": "NEW at v2026-08-25 (P2b pass). Open-vocabulary tolerance rule on the platform's config-parsing behavior; manual.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-070",
@@ -1528,7 +1727,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side IdP-metadata discovery procedure; manual."
+   "notes": "NEW at v2026-08-25 (P2b pass). Platform-side IdP-metadata discovery procedure; manual.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-071",
@@ -1546,7 +1748,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the allowlist-closure guarantee underlying the whole Accelerated IdP Flow's trust model. Needs-oauth: proving rejection requires presenting a live JWT grant with an unlisted iss."
+   "notes": "NEW at v2026-08-25 (P2b pass): the allowlist-closure guarantee underlying the whole Accelerated IdP Flow's trust model. Needs-oauth: proving rejection requires presenting a live JWT grant with an unlisted iss.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-072",
@@ -1564,7 +1769,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the token-exchange request parameters step of the Accelerated IdP Flow. The IdP Requirements section restates the identical-values half at L687-689 (see WAIVERS-PROPOSED.md — covered directly by IDL-073's quote span rather than waived separately). Needs-oauth: verifying the issued grant's aud claim requires a live token-exchange call."
+   "notes": "NEW at v2026-08-25 (P2b pass): the token-exchange request parameters step of the Accelerated IdP Flow. The IdP Requirements section restates the identical-values half at L687-689 (see WAIVERS-PROPOSED.md — covered directly by IDL-073's quote span rather than waived separately). Needs-oauth: verifying the issued grant's aud claim requires a live token-exchange call.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-073",
@@ -1582,7 +1790,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Core Accelerated IdP Flow security invariant; platform-bound send-behavior, manual (matches the IDL-002/003/004 platform-request-shape precedent)."
+   "notes": "NEW at v2026-08-25 (P2b pass). Core Accelerated IdP Flow security invariant; platform-bound send-behavior, manual (matches the IDL-002/003/004 platform-request-shape precedent).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-074",
@@ -1600,7 +1811,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the core replay-protection constraint on the JWT authorization grant itself (jti presence tightens the base RFC's MAY to a UCP MUST). One of the more consequential new MUSTs in this section. The earlier preview sentence at L523-524 ('aud MUST be a single-valued URI plus a unique jti') restates this — see WAIVERS-PROPOSED.md, duplicate_of IDL-074. Needs-oauth: verifying aud/jti on an issued grant requires a live token-exchange call."
+   "notes": "NEW at v2026-08-25 (P2b pass): the core replay-protection constraint on the JWT authorization grant itself (jti presence tightens the base RFC's MAY to a UCP MUST). One of the more consequential new MUSTs in this section. The earlier preview sentence at L523-524 ('aud MUST be a single-valued URI plus a unique jti') restates this — see WAIVERS-PROPOSED.md, duplicate_of IDL-074. Needs-oauth: verifying aud/jti on an issued grant requires a live token-exchange call.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-075",
@@ -1618,7 +1832,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the business-side grant-validation contract (iss allowlist match, exact aud match, signature verification, fail-closed on JWKS unavailability). Needs-oauth: testing requires presenting live grants (valid and deliberately invalid) to the business's token endpoint."
+   "notes": "NEW at v2026-08-25 (P2b pass): the business-side grant-validation contract (iss allowlist match, exact aud match, signature verification, fail-closed on JWKS unavailability). Needs-oauth: testing requires presenting live grants (valid and deliberately invalid) to the business's token endpoint.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-076",
@@ -1636,7 +1853,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Distinct error-handling obligation from IDL-075 (post-validation scope-satisfaction failure, not grant-validity failure). Needs-oauth."
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct error-handling obligation from IDL-075 (post-validation scope-satisfaction failure, not grant-validity failure). Needs-oauth.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-077",
@@ -1654,7 +1874,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-076 and IDL-078 (interactive-onboarding-required case). Needs-oauth."
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-076 and IDL-078 (interactive-onboarding-required case). Needs-oauth.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-078",
@@ -1672,7 +1895,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-077 (missing-claim case, not interaction-required case). Needs-oauth."
+   "notes": "NEW at v2026-08-25 (P2b pass). Distinct trigger from IDL-077 (missing-claim case, not interaction-required case). Needs-oauth.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-079",
@@ -1690,7 +1916,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): IdP-side metadata publication requirement, analogous to IDL-016/017's business-side RFC 8414 metadata rows. Testable: metadata is fetchable and its field presence directly checkable, no live grant needed."
+   "notes": "NEW at v2026-08-25 (P2b pass): IdP-side metadata publication requirement, analogous to IDL-016/017's business-side RFC 8414 metadata rows. Testable: metadata is fetchable and its field presence directly checkable, no live grant needed.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-080",
@@ -1708,7 +1937,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the IdP's own token-exchange obligations (the counterpart actor to IDL-072/IDL-074, not a business or platform). Bundles all four bullets, including the resource/audience identical-values restatement (see IDL-072) and the not-issue-unauthorized-grants MUST NOT, into one row. Needs-oauth: requires a live token-exchange call to the IdP."
+   "notes": "NEW at v2026-08-25 (P2b pass): the IdP's own token-exchange obligations (the counterpart actor to IDL-072/IDL-074, not a business or platform). Bundles all four bullets, including the resource/audience identical-values restatement (see IDL-072) and the not-issue-unauthorized-grants MUST NOT, into one row. Needs-oauth: requires a live token-exchange call to the IdP.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-081",
@@ -1726,7 +1958,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the cross-path scope-consistency guarantee that keeps the Accelerated IdP Flow from becoming a lower-assurance side door around config.scopes policy. Needs-oauth: verifying uniformity requires exercising both identity paths and comparing outcomes."
+   "notes": "NEW at v2026-08-25 (P2b pass): the cross-path scope-consistency guarantee that keeps the Accelerated IdP Flow from becoming a lower-assurance side door around config.scopes policy. Needs-oauth: verifying uniformity requires exercising both identity paths and comparing outcomes.",
+   "role": "business",
+   "role_provenance": "not-agent-bound",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-082",
@@ -1744,7 +1979,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). A qualitative restatement (the only concrete threshold is a SHOULD, not this MUST); no hard testable bound, hence manual rather than needs-oauth/testable."
+   "notes": "NEW at v2026-08-25 (P2b pass). A qualitative restatement (the only concrete threshold is a SHOULD, not this MUST); no hard testable bound, hence manual rather than needs-oauth/testable.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-083",
@@ -1762,7 +2000,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass): the runtime replay-tracking enforcement duty, distinct from IDL-074's jti-presence field requirement. Note: the source prose itself reads as if an editorial sentence ('a short exp narrows the replay window, but only jti tracking closes it.') was inserted mid-sentence, breaking grammatical continuity between 'enforce single-use JWT' and 'authorization grants by tracking the jti claim' — quoted verbatim as vendored; the core MUST is unambiguous regardless. Needs-oauth: proving enforcement requires replaying a used grant and observing rejection."
+   "notes": "NEW at v2026-08-25 (P2b pass): the runtime replay-tracking enforcement duty, distinct from IDL-074's jti-presence field requirement. Note: the source prose itself reads as if an editorial sentence ('a short exp narrows the replay window, but only jti tracking closes it.') was inserted mid-sentence, breaking grammatical continuity between 'enforce single-use JWT' and 'authorization grants by tracking the jti claim' — quoted verbatim as vendored; the core MUST is unambiguous regardless. Needs-oauth: proving enforcement requires replaying a used grant and observing rejection.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-084",
@@ -1780,7 +2021,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "NEW at v2026-08-25 (P2b pass). A data-handling/retention restriction on the business's internal storage, not observable via a single API probe; manual."
+   "notes": "NEW at v2026-08-25 (P2b pass). A data-handling/retention restriction on the business's internal storage, not observable via a single API probe; manual.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-085",
@@ -1799,7 +2043,10 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (Mix-Up Attack prevention, business-side iss echo).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ],
  "notes": [

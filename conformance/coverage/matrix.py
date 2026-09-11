@@ -44,6 +44,9 @@ from common.spec_versions import (  # noqa: E402
 # SHALL NOT, REQUIRED) — one tuple shared with coverage_gate / agent_matrix / the two
 # census scripts (D2-01), never a local pair that can drift from the census regex.
 from common.keywords import MANDATORY  # noqa: E402
+# D2-08: the role vocabulary and the lane each role enters — one module shared with
+# agent_matrix.agent_rows() and verify_register, so the two lanes partition the MUSTs.
+from common.roles import ROLES, MERCHANT_LANE, AGENT_LANE, OTHER_LANE  # noqa: E402
 REQ = os.path.join(CONF, "requirements")
 EXEMPT_FILE = os.path.join(CONF, "coverage", "exemptions.json")
 ID_RE = re.compile(r'\b([A-Z]{2,6}-\d{2,3})\b')
@@ -301,6 +304,9 @@ def _pinned_spec_versions():
 # the program is building — but has not yet. `manual` / `untestable` GAPs are the
 # exemption program's business (A10) and never block `live`.
 CONVERTING_TIERS = ("testable", "needs-receiver", "needs-oauth")
+# The open testable-tier rows a version is RULED to carry (matrix --selftest pins them):
+# 2026-04-08 = SIG-039 only (B3 ruling 2026-09-10; D2-15 must not add one).
+OPEN_TESTABLE_TIER_PINNED = {"2026-04-08": ["SIG-039"]}
 
 
 def _version_state(n_check, n_exempt, has_register, testable_gap):
@@ -364,6 +370,76 @@ def _schema_census_report():
 
 
 TRANSPORTS = ("rest", "mcp", "a2a", "embedded", "any")
+LANES = ("merchant", "agent", "other")
+
+
+def _row_role(r):
+    """A row's `role` (D2-08); a row without one reads `unassigned` — never silently
+    bucketed into a lane (the `register` gate reds on any mandatory row without a role)."""
+    role = r.get("role")
+    return role if role in ROLES else "unassigned"
+
+
+def _agent_axis_report():
+    """The agent lane's published, gate-verified summary — conformance/agent/
+    agent_coverage.json ({version: {agent_musts, check, exempt, gap, …}}), the file
+    agent-governance proves fresh against the lane's in-run evidence (CI-1 / D2-15). The
+    merchant matrix never recomputes the agent axis (its evidence is the lane's, not
+    the tracked file's); None if the file is absent."""
+    path = os.path.join(CONF, "agent", "agent_coverage.json")
+    try:
+        return json.load(open(path))
+    except Exception:
+        return None
+
+
+def roles_block(rows, status_by_id, agent_axis=None):
+    """The per-role denominators (export v2 `roles`, PLAN-v3 §2.4 / D2-08). `rows` are
+    the mandatory rows of one version, `status_by_id` their MERCHANT-axis bucket
+    (check|exempt|gap), `agent_axis` the agent lane's own {agent_musts, check, exempt,
+    gap} for the version (None -> nulls; the agent axis is a separate program).
+
+      summary   {merchant, agent, both, other} — lane sizes; `both`-role rows sit in
+                both lanes, so merchant + agent − both + other == musts (W1-4; asserted
+                by matrix --selftest and validate_evidence_class).
+      merchant  merchant-lane rows (business | both | handler — decision 27) with their
+                merchant-axis buckets and gap_by_testability.
+      agent     agent-lane rows (platform | both | host — decision 27): musts from the
+                role field (== agent_matrix.agent_rows by construction), check/exempt/
+                gap from the agent axis when available.
+      other     spec-author rows (speclint register-selfcheck, D2-18), by_role.
+    """
+    summary = {"merchant": 0, "agent": 0, "both": 0, "other": 0}
+    merchant = {"musts": 0, "check": 0, "exempt": 0, "gap": 0}
+    mgap = Counter()
+    other_by_role = Counter()
+    n_agent = 0
+    for r in rows:
+        role = _row_role(r)
+        st = status_by_id.get(r.get("id"), "gap")
+        if role in MERCHANT_LANE:
+            summary["merchant"] += 1
+            merchant["musts"] += 1
+            merchant[st] += 1
+            if st == "gap":
+                mgap[r.get("testability", "?")] += 1
+        if role in AGENT_LANE:
+            summary["agent"] += 1
+            n_agent += 1
+        if role == "both":
+            summary["both"] += 1
+        if role in OTHER_LANE or role == "unassigned":
+            summary["other"] += 1
+            other_by_role[role] += 1
+    merchant["gap_by_testability"] = dict(sorted(mgap.items()))
+    agent = {"musts": n_agent, "check": None, "exempt": None, "gap": None}
+    if agent_axis:
+        agent.update({"check": agent_axis.get("check"), "exempt": agent_axis.get("exempt"),
+                      "gap": agent_axis.get("gap")})
+        if agent_axis.get("agent_musts") != n_agent:
+            agent["axis_musts_mismatch"] = agent_axis.get("agent_musts")
+    return {"summary": summary, "merchant": merchant, "agent": agent,
+            "other": {"musts": summary["other"], "by_role": dict(sorted(other_by_role.items()))}}
 
 
 def _row_transport(r):
@@ -376,7 +452,19 @@ def _row_transport(r):
     return t if t in TRANSPORTS else "any"
 
 
-def _surface_for(ver, completeness, schema_census, pins):
+def _should_census_report():
+    """Runs verify_should_census.py --json ONCE (report-only, D2-10) for `surface.should`;
+    None if unreachable. Same subprocess discipline as _completeness_report()."""
+    script = os.path.join(CONF, "selfcheck", "verify_should_census.py")
+    try:
+        r = subprocess.run([sys.executable, script, "--json"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=120)
+        return json.loads(r.stdout)
+    except Exception:
+        return None
+
+
+def _surface_for(ver, completeness, schema_census, pins, should_census=None):
     """The published SURFACE (export v2, PLAN-v3 §2.4 / D2-07): what the accounting
     denominator is measured against, by layer.
       prose  — the completeness census: every mandatory-keyword hit in the pinned
@@ -403,7 +491,15 @@ def _surface_for(ver, completeness, schema_census, pins):
                   "atoms_unaccounted": None,
                   "files_unreferenced": len(sv.get("unreferenced") or []),
                   "enforce": bool((schema_census or {}).get("enforce"))}
-    return {"prose": prose, "schema": schema, "should": None}
+    should = None
+    sh = ((should_census or {}).get("per_version") or {}).get(ver)
+    if sh is not None:
+        should = {"hits": sh.get("hits"), "should": sh.get("should"), "should_not": sh.get("should_not"),
+                  "recommended": sh.get("recommended"), "not_recommended": sh.get("not_recommended"),
+                  "rows": sh.get("rows"), "hit_lines": sh.get("hit_lines"),
+                  "hit_lines_under_a_row_quote": sh.get("hit_lines_under_a_row_quote"),
+                  "uncovered": sh.get("uncovered"), "scope": "report-only (decision 8)"}
+    return {"prose": prose, "schema": schema, "should": should}
 
 
 def _census_for(ver, completeness):
@@ -451,6 +547,8 @@ def export_json():
     # per-version mode/unaccounted count is emitted for every state (D2-06).
     completeness = None
     schema_census = None
+    should_census = None
+    agent_axis = _agent_axis_report()        # D2-08: roles.agent check/exempt/gap (subprocess)
     out = {"_about": "spck.dev UCP conformance coverage — every normative MUST accounted "
                      "as CHECK (kill-rate-validated), EXEMPT (documented), or GAP. "
                      "Generated by conformance/coverage/matrix.py --json; the `coverage` "
@@ -498,6 +596,8 @@ def export_json():
             ev = evmap.get(ver, {}).get(rid) if status == "check" else None
             jrows.append({"id": rid, "area": r["_area"], "keyword": r.get("keyword"),
                           "testability": r.get("testability", "?"), "status": status,
+                          "role": _row_role(r),
+                          "normative_basis": r.get("normative_basis"),       # D2-11a (null = review queue)
                           "requirement": r.get("requirement", ""),
                           "source": r.get("source", ""),
                           "covered_by": covmap[ver].get(rid, []),
@@ -536,7 +636,8 @@ def export_json():
             # export v2 (D2-07): the surface the denominator is measured against, the
             # transport split, and the scaffolds later tasks fill (null until then).
             # D5 renders exactly these names (RV1 C2).
-            "roles": None,                          # D2-08
+            "roles": roles_block(rows, {jr["id"]: jr["status"] for jr in jrows},
+                                 (agent_axis or {}).get(ver)),          # D2-08
             "by_transport": by_transport,
             "surface": None,                        # filled below (subprocess census)
             "discovery_live": _discovery_live_slot(ver),   # D4-08: {stores, as_of} from discovery_reach.json (08-25 only)
@@ -555,10 +656,12 @@ def export_json():
             completeness = _completeness_report() or {}
         if schema_census is None:
             schema_census = _schema_census_report() or {}
+        if should_census is None:
+            should_census = _should_census_report() or {}      # D2-10: surface.should
         census = _census_for(ver, completeness)
         if census is not None:
             entry["census"] = census
-        entry["surface"] = _surface_for(ver, completeness, schema_census, pins)
+        entry["surface"] = _surface_for(ver, completeness, schema_census, pins, should_census)
         out["versions"][ver] = entry
 
     # `unregistered` (§E): pinned in SOURCES.lock but no register tree at all yet.
@@ -572,7 +675,7 @@ def export_json():
         out["versions"][ver] = {
             "state": "unregistered",
             "musts": 0, "check": 0, "exempt": 0, "gap": 0, "accounted_pct": 0,
-            "roles": None,
+            "roles": roles_block([], {}, None),
             "by_transport": {t: {"musts": 0, "check": 0, "exempt": 0, "gap": 0} for t in TRANSPORTS},
             "surface": {"prose": None, "schema": None, "should": None},
             "discovery_live": None,
@@ -641,9 +744,21 @@ def exempt_reason_at(exempt, rid, ver):
     return ""
 
 
-def account(ver, cov, exempt):
+def _in_lane(r, lane):
+    role = _row_role(r)
+    return {"merchant": role in MERCHANT_LANE, "agent": role in AGENT_LANE,
+            "other": role in OTHER_LANE or role == "unassigned"}[lane]
+
+
+def account(ver, cov, exempt, role=None, transport=None):
+    """Bucket the mandatory rows at `ver`; `role` (a LANES name) and `transport`
+    (a TRANSPORTS name) narrow the rows — D2-08 per-lane / per-transport views."""
     rows = load_rows(ver)
     musts = [r for r in rows if r.get("keyword") in MANDATORY]
+    if role:
+        musts = [r for r in musts if _in_lane(r, role)]
+    if transport:
+        musts = [r for r in musts if _row_transport(r) == transport]
     buckets = {"CHECK": [], "EXEMPT": [], "GAP": []}
     gap_by_test = defaultdict(list)
     cov_ver = cov.get(ver, set())
@@ -666,7 +781,16 @@ def main():
                                    "covered_by, pinned-spec sources) to FILE")
     ap.add_argument("--require", choices=["testable", "all"], help="hard-fail on remaining gaps of this class")
     ap.add_argument("--version", help="restrict --require to one version")
+    ap.add_argument("--role", choices=LANES,
+                    help="D2-08: restrict --require and the report to one lane's rows — "
+                         "merchant (business|both|handler), agent (platform|both|host; the "
+                         "agent axis grades these, so --require reads agent_matrix), other "
+                         "(spec-author)")
+    ap.add_argument("--transport", choices=TRANSPORTS,
+                    help="D2-08: restrict --require and the report to rows bound to one "
+                         "transport (`any` = rows not bound to a transport)")
     a = ap.parse_args()
+    agent_axis = _agent_axis_report() if a.role == "agent" else None
 
     attr = attribution()                # populates _IMPORT_FAILURES
     cov = {v: set(m.keys()) for v, m in _covmap_from(attr).items()}
@@ -682,13 +806,21 @@ def main():
     failed = False
 
     for ver in VERSIONS:
-        musts, b, gap_by_test = account(ver, cov, exempt)
+        musts, b, gap_by_test = account(ver, cov, exempt, role=a.role, transport=a.transport)
         n = len(musts)
         pct = 100 * (len(b["CHECK"]) + len(b["EXEMPT"])) / n if n else 0
         ebd = evidence.breakdown(evmap, ver, b["CHECK"])
         ebd_line = " · ".join(f"{k} {ebd[k]}" for k in evidence.CLASSES)
-        print(f"\n===== {ver} =====")
+        scope = "".join(f" [{k}={v}]" for k, v in (("role", a.role), ("transport", a.transport)) if v)
+        print(f"\n===== {ver}{scope} =====")
         print(f"  MUSTs: {n} | CHECK: {len(b['CHECK'])} | EXEMPT: {len(b['EXEMPT'])} | GAP: {len(b['GAP'])}  -> accounted {pct:.0f}%")
+        if a.role == "agent":
+            ax = (agent_axis or {}).get(ver)
+            if ax:
+                print(f"  agent axis (agent_matrix): musts {ax.get('agent_musts')} | CHECK {ax.get('check')} "
+                      f"| EXEMPT {ax.get('exempt')} | GAP {ax.get('gap')}")
+            else:
+                print("  agent axis (agent_matrix): unavailable")
         print(f"  CHECK by evidence: {ebd_line}")
         if gap_by_test:
             print("  GAP by testability:", {k: len(v) for k, v in sorted(gap_by_test.items())})
@@ -698,8 +830,16 @@ def main():
             md.append(f"- GAP/{k}: {', '.join(sorted(gap_by_test[k]))}")
 
         if a.require and (not a.version or a.version == ver):
-            if a.require == "all" and b["GAP"]:
-                print(f"  ✗ {ver}: {len(b['GAP'])} MUST(s) unaccounted (require=all)"); failed = True
+            if a.role == "agent":
+                # the agent lane's own gate over the same role field (DONE-2 item 2)
+                ax = (agent_axis or {}).get(ver)
+                agap = ax.get("gap") if ax else None
+                if agap is None:
+                    print(f"  ✗ {ver} [role=agent]: agent axis unavailable — cannot certify"); failed = True
+                elif a.require == "all" and agap:
+                    print(f"  ✗ {ver} [role=agent]: {agap} MUST(s) unaccounted (agent_matrix)"); failed = True
+            elif a.require == "all" and b["GAP"]:
+                print(f"  ✗ {ver}{scope}: {len(b['GAP'])} MUST(s) unaccounted (require=all)"); failed = True
             elif a.require == "testable":
                 tg = gap_by_test.get("testable", [])
                 if tg:
@@ -777,6 +917,7 @@ def selftest():
         bad += 0 if ok else 1
 
     bad += test_mandatory_filter()
+    bad += test_roles_partition()
 
     # production sanity: today every pinned+registered version must classify
     # building/live (never unregistered) — proves the real export wires the same
@@ -814,6 +955,18 @@ def selftest():
     print(f"  {'✓' if nfw_ok else '✗'} no_further_work emitted per version (converting AND older than {CURRENT_SITE_VERSION})")
     bad += 0 if nfw_ok else 1
 
+    # D2-15 / B3 (owner ruling 2026-09-10): 2026-04-08 stays `converting` with EXACTLY one
+    # open testable-tier row (SIG-039, the W2 signing probe's) — the re-pin to a25a4a24
+    # must not add a testable GAP (the 19 backported LOY rows are EXEMPT
+    # needs-target-capability). Pinned here so a dropped LOY exemption reds this selftest.
+    for v, want in OPEN_TESTABLE_TIER_PINNED.items():
+        e = fresh["versions"].get(v, {})
+        got = sorted(r["id"] for r in e.get("rows", [])
+                     if r["status"] == "gap" and r["testability"] in CONVERTING_TIERS)
+        ok = got == sorted(want)
+        print(f"  {'✓' if ok else '✗'} {v}: open testable-tier rows {got}" + ("" if ok else f"  <-- pinned {sorted(want)}"))
+        bad += 0 if ok else 1
+
     print(f"\nmatrix selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
@@ -845,6 +998,52 @@ def test_mandatory_filter():
           f"mandatory of 5 synthetic rows (MUST/MUST NOT/REQUIRED/SHALL/SHOULD)"
           + ("" if ok else f"  <-- expected 4 {want}, got {got}"))
     return 0 if ok else 1
+
+
+def test_roles_partition():
+    """D2-08 (PLAN-v3 §2.4/§2.5 / A4): the per-role denominators PARTITION the
+    MUSTs — `merchant + agent − both + other == musts` (both-role rows sit in both
+    lanes; handler rows are merchant-lane and host rows agent-lane per decision 27;
+    spec-author rows are `other`) — on a synthetic register through the SAME
+    `roles_block()` the export uses, and on the real export."""
+    synthetic = [
+        {"id": "ZZZ-001", "keyword": "MUST", "role": "business"},
+        {"id": "ZZZ-002", "keyword": "MUST", "role": "platform"},
+        {"id": "ZZZ-003", "keyword": "MUST", "role": "both"},
+        {"id": "ZZZ-004", "keyword": "MUST", "role": "handler"},
+        {"id": "ZZZ-005", "keyword": "MUST", "role": "host"},
+        {"id": "ZZZ-006", "keyword": "MUST", "role": "spec-author"},
+    ]
+    status = {r["id"]: "gap" for r in synthetic}
+    try:
+        rb = roles_block(synthetic, status, agent_axis=None)
+        s = rb["summary"]
+        ok = (s["merchant"], s["agent"], s["both"], s["other"]) == (3, 3, 1, 1) and \
+            s["merchant"] + s["agent"] - s["both"] + s["other"] == 6 and \
+            rb["merchant"]["musts"] == 3 and rb["agent"]["musts"] == 3 and \
+            rb["other"]["by_role"] == {"spec-author": 1}
+        detail = repr(rb)[:200]
+    except NameError as e:
+        ok, detail = False, f"NameError: {e}"
+    print(f"  {'✓' if ok else '✗'} test_roles_partition: synthetic merchant 3 + agent 3 − both 1 "
+          f"+ other 1 == 6 MUSTs" + ("" if ok else f"  <-- {detail}"))
+    bad = 0 if ok else 1
+    fresh = export_json()
+    for v, e in fresh["versions"].items():
+        rb = e.get("roles")
+        if not rb:
+            print(f"  ✗ test_roles_partition: {v} export has no roles block")
+            bad += 1
+            continue
+        s = rb["summary"]
+        tot = s["merchant"] + s["agent"] - s["both"] + s["other"]
+        if tot != e["musts"]:
+            print(f"  ✗ test_roles_partition: {v} merchant {s['merchant']} + agent {s['agent']} − "
+                  f"both {s['both']} + other {s['other']} = {tot} != musts {e['musts']}")
+            bad += 1
+    if not bad:
+        print("  ✓ test_roles_partition: real export roles partition the MUSTs at every version")
+    return bad
 
 
 if __name__ == "__main__":

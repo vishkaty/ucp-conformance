@@ -20,7 +20,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Wholly new extension (dev.ucp.common.payment.authentication); no 04-08 equivalent. Checkable by cross-referencing an emitted actions map against the negotiated capability set."
+   "notes": "Wholly new extension (dev.ucp.common.payment.authentication); no 04-08 equivalent. Checkable by cross-referencing an emitted actions map against the negotiated capability set.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-002",
@@ -38,7 +41,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "payment_authentication.json requires config.payment_instrument_id (minLength 1); cross-referencing against checkout.payment.instruments is a coded check."
+   "notes": "payment_authentication.json requires config.payment_instrument_id (minLength 1); cross-referencing against checkout.payment.instruments is a coded check.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-003",
@@ -56,7 +62,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side behavior."
+   "notes": "Platform-side behavior.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-004",
@@ -74,7 +83,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by counting outstanding device_data_collection/three_ds_challenge instances scoped to one payment_instrument_id in a single response."
+   "notes": "Checkable by counting outstanding device_data_collection/three_ds_challenge instances scoped to one payment_instrument_id in a single response.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "PAUTH-005",
@@ -92,7 +103,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Specializes the generic Actions rule (ACT-006) for Checkout Complete."
+   "notes": "Specializes the generic Actions rule (ACT-006) for Checkout Complete.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-006",
@@ -110,7 +124,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side behavior; the Business-observable half is that a Business receiving such an Update/Complete while complete_in_progress is holding may reject it, but the rule as stated binds the Platform."
+   "notes": "Platform-side behavior; the Business-observable half is that a Business receiving such an Update/Complete while complete_in_progress is holding may reject it, but the rule as stated binds the Platform.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-007",
@@ -128,7 +145,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "The Business-side half (replace with new id for retry) is checkable across sequential Checkout responses."
+   "notes": "The Business-side half (replace with new id for retry) is checkable across sequential Checkout responses.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-008",
@@ -146,7 +166,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable across sequential Checkout responses after a known terminal provider outcome."
+   "notes": "Checkable across sequential Checkout responses after a known terminal provider outcome.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-009",
@@ -164,7 +187,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side behavior."
+   "notes": "Platform-side behavior.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-010",
@@ -182,7 +208,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable across sequential responses after a Platform switches payment instrument via Update Checkout."
+   "notes": "Checkable across sequential responses after a Platform switches payment instrument via Update Checkout.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-011",
@@ -200,7 +229,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant (origin allowlisting) behavior."
+   "notes": "Platform-side, security-relevant (origin allowlisting) behavior.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-012",
@@ -218,7 +250,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side native bridge naming contract; needs a live native Platform to test."
+   "notes": "Platform-side native bridge naming contract; needs a live native Platform to test.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-013",
@@ -236,7 +271,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Observable on the embedded transport by capturing the surface's JSON-RPC traffic."
+   "notes": "Observable on the embedded transport by capturing the surface's JSON-RPC traffic.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-014",
@@ -254,7 +292,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant."
+   "notes": "Platform-side, security-relevant.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-015",
@@ -272,7 +313,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires instrumenting the handler-owned surface's client-side sequencing; not observable from the Business's HTTP responses alone."
+   "notes": "Requires instrumenting the handler-owned surface's client-side sequencing; not observable from the Business's HTTP responses alone.",
+   "role": "business",
+   "role_provenance": "direction",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-016",
@@ -290,7 +334,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant (postMessage origin/source validation)."
+   "notes": "Platform-side, security-relevant (postMessage origin/source validation).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-017",
@@ -308,7 +355,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side forward-compatibility rule."
+   "notes": "Platform-side forward-compatibility rule.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-018",
@@ -326,7 +376,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant."
+   "notes": "Platform-side, security-relevant.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-019",
@@ -344,7 +397,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side, security-relevant (SSRF/open-redirect-adjacent hardening); the Business-side half (only ever emitting such URLs) is testable directly against a captured config.url."
+   "notes": "Platform-side, security-relevant (SSRF/open-redirect-adjacent hardening); the Business-side half (only ever emitting such URLs) is testable directly against a captured config.url.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-020",
@@ -362,7 +418,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Documentation-contract requirement on the payment handler, not mechanically checkable from wire traffic."
+   "notes": "Documentation-contract requirement on the payment handler, not mechanically checkable from wire traffic.",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-021",
@@ -381,7 +440,10 @@
     "2026-08-25"
    ],
    "notes": "New row, 2026-08-25 census closure wave (Action-occurrence retry-via-new-id rule).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-022",
@@ -400,7 +462,10 @@
     "2026-08-25"
    ],
    "notes": "New row (action.ready version-matching rule).",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "handler",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "PAUTH-023",
@@ -419,7 +484,10 @@
     "2026-08-25"
    ],
    "notes": "New row (Platform embedding-security checklist lead-in). Item 1 (config.url parsing) is separately registered as PAUTH-019 (L345); this row is the umbrella statement for the full 5-item checklist, the same pattern as OVR-* Resolution-Flow-style lead-ins where not every item carries its own keyword. [2026-09-10 D2-02/A2] narrowed to the four non-itemized bullets: the config.url parsing item (L345-L346) is PAUTH-019 and the handler documentation duty (L351) is PAUTH-020; the keyword line L343 stays owned here.",
-   "_completeness_batch": "completeness-2026-08-31-w4"
+   "_completeness_batch": "completeness-2026-08-31-w4",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   }
  ]
 }

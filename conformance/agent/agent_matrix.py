@@ -84,38 +84,18 @@ def evidence_problem(entry, today, pin):
         return f"recorded at spec pin {str(entry.get('spec_pin'))[:8]}, current pin {str(pin)[:8]}"
     return None
 
-AGENT_WORDS = ("platform must", "platforms must", "the platform", "agent must",
-               "agents must", "mcp client", "client must", "consumer")
+# The agent denominator is the register's `role` field (D2-08 / PLAN-v3 §2.5): a
+# mandatory row enters this lane iff role ∈ AGENT_LANE (platform | both | host —
+# decision 27). AGENT_WORDS / AGENT_EXTRA / NOT_AGENT_BOUND (a substring heuristic plus
+# two id lists, later data in agent_lane_overrides.json) are RETIRED: their reasons live
+# on the rows as role_provenance (agent-lock / not-agent-bound / client-bound-exemption /
+# review:<batch>), version-scoped — the old id lists were not, so at 2026-01-23 the
+# AGENT_EXTRA id CHK-035 landed on "Business MUST send a confirmation email" (a
+# renumbered row). Both lanes now read the same field; agent_governance's
+# DENOMINATOR-DRIFT lock still guards this set (flip one row's role -> red).
+from common.roles import AGENT_LANE  # noqa: E402
 
-# NOT_AGENT_BOUND and AGENT_EXTRA used to be literal id sets HERE (with their reasons
-# as comments). They are now DATA in agent_lane_overrides.json (D2-04): each id carries
-# its reason, the versions it applies at, and an expiry clock (`review_by` + `spec_pin`)
-# so the override is re-adjudicated on a horizon and invalidated by a re-pin like every
-# other register entry (validate_expiry_clocks.py). The module attribute names are kept
-# for every consumer (agent_governance, validate_spec_versions, spec_versions doctrine).
-# D2-08 (role field) deletes both sets and this file once role-driven agent_rows lands.
-OVERRIDES = os.path.join(HERE, "agent_lane_overrides.json")
-
-
-def _load_overrides(path=OVERRIDES):
-    d = json.load(open(path))
-    return (frozenset(e["id"] for e in d.get("agent_extra", [])),
-            frozenset(e["id"] for e in d.get("not_agent_bound", [])))
-
-
-AGENT_EXTRA, NOT_AGENT_BOUND = _load_overrides()
-
-
-def _client_bound_ids():
-    if not os.path.exists(EXEMPT):
-        return set()
-    d = json.load(open(EXEMPT))
-    out = set()
-    for k, v in d.items():
-        for e in (v if isinstance(v, list) else [v]):
-            if isinstance(e, dict) and e.get("class") == "client-bound":
-                out.add(k)
-    return out
+DENOMINATOR_LOCK = os.path.join(HERE, "agent_denominator_lock.json")
 
 
 def agent_rows(ver):
@@ -132,20 +112,37 @@ def agent_rows(ver):
     the honest number: zero rows, not a silent guess."""
     if ver in AGENT_REGISTER_ONLY_VERSIONS:
         return set()
-    cb = _client_bound_ids()
     ids = set()
     for f in glob.glob(os.path.join(REQ, ver, "*.json")):
+        if os.path.basename(f).startswith("_"):
+            continue
         for r in json.load(open(f)).get("rows", []):
             if ver not in (r.get("versions") or [ver]):
                 continue
             if r.get("keyword") not in MANDATORY:
                 continue
-            if r["id"] in NOT_AGENT_BOUND:         # business-only (denominator-accuracy audit)
-                continue
-            text = (r.get("requirement", "") + " " + r.get("quote", "")).lower()
-            if any(w in text for w in AGENT_WORDS) or r["id"] in cb or r["id"] in AGENT_EXTRA:
+            if r.get("role") in AGENT_LANE:
                 ids.add(r["id"])
     return ids
+
+
+def snapshot_denominator_lock(note, path=DENOMINATOR_LOCK):
+    """Regenerate agent_denominator_lock.json DELIBERATELY from the role field (D2-08):
+    the versions block is rewritten from agent_rows(); `_about` keeps its history and
+    gains a dated `note`. Returns {version: (added, removed)} vs the previous snapshot."""
+    old = json.load(open(path)) if os.path.exists(path) else {"_about": "", "versions": {}}
+    diff = {}
+    new_versions = {}
+    for v in VERSIONS:
+        live = sorted(agent_rows(v))
+        prev = set(old.get("versions", {}).get(v, []))
+        diff[v] = (sorted(set(live) - prev), sorted(prev - set(live)))
+        new_versions[v] = live
+    about = old.get("_about", "")
+    stamp = datetime.date.today().isoformat()
+    doc = {"_about": about + f" REGENERATED {stamp}: {note}", "versions": new_versions}
+    open(path, "w").write(json.dumps(doc, indent=1) + "\n")
+    return diff
 
 
 def agent_check_ids(ver, evidence=None, today=None, pins=None, label_unrun=False, labels=None):
@@ -182,9 +179,13 @@ def agent_exempt_ids():
     return json.load(open(AGENT_EXEMPT))
 
 
-def account(ver, label_unrun=False, labels=None):
+def account(ver, label_unrun=False, labels=None, evidence=None):
+    """`evidence` (D2-15, CI-1): an in-run evidence map ({check_id: {version: {date,
+    spec_pin}}}) instead of the tracked file — what the CI gate hands governance via
+    --in-run, so a spec re-pin (which by design stales every tracked attribution until
+    the owner's run_agent.py --record) never publishes a 0 that a green run refutes."""
     rows = agent_rows(ver)
-    checks = agent_check_ids(ver, label_unrun=label_unrun, labels=labels)
+    checks = agent_check_ids(ver, evidence=evidence, label_unrun=label_unrun, labels=labels)
     ex = agent_exempt_ids()
     check = sorted(r for r in rows if r in checks)
     exempt = sorted(r for r in rows if r not in checks and r in ex)
@@ -196,16 +197,28 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--require", choices=["all"])
     ap.add_argument("--json")
+    ap.add_argument("--snapshot-lock", metavar="NOTE",
+                    help="D2-08: regenerate agent_denominator_lock.json from the role field "
+                         "(deliberate; NOTE is recorded in the lock's _about) and print the diff")
+    ap.add_argument("--evidence", metavar="PATH",
+                    help="compute attribution from this in-run evidence file (run_agent.py --evidence-out) "
+                         "instead of the tracked agent_run_evidence.json (CI-1 / D2-15)")
     ap.add_argument("--label-unrun", action="store_true",
                     help="count checks that ran only on another sandbox version and LABEL the "
                          "export with evidence: {sandbox-version} (default: suppress them)")
     args = ap.parse_args()
+    if args.snapshot_lock:
+        for v, (added, removed) in snapshot_denominator_lock(args.snapshot_lock).items():
+            print(f"  {v}: +{len(added)} {added} · -{len(removed)} {removed}")
+        print("agent_denominator_lock.json regenerated from the role field")
+        return 0
     failed = False
     summary = {}
     print("AGENT coverage axis (platform/agent obligations) — separate from merchant\n")
+    evd = load_evidence(args.evidence)["evidence"] if args.evidence else None
     for ver in VERSIONS:
         labels = {}
-        rows, check, exempt, gap = account(ver, label_unrun=args.label_unrun, labels=labels)
+        rows, check, exempt, gap = account(ver, label_unrun=args.label_unrun, labels=labels, evidence=evd)
         n = len(rows)
         pct = round(100 * (len(check) + len(exempt)) / n) if n else 0
         summary[ver] = {"agent_musts": n, "check": len(check), "exempt": len(exempt),

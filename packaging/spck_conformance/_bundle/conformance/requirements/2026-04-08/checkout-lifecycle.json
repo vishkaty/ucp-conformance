@@ -1,6 +1,6 @@
 {
   "_area": "checkout-lifecycle",
-  "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "_spec_commit": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "area": "checkout-lifecycle",
   "rows": [
     {
@@ -19,7 +19,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence here. Schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation."
+      "notes": "Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence here. Schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-002",
@@ -37,7 +40,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "SHOULD; prose-only."
+      "notes": "SHOULD; prose-only.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-003",
@@ -73,7 +78,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Schema declares continue_url format:uri but does not enforce absolute-HTTPS-only; format:uri also accepts http and relative refs in most validators, so schema_enforced=false. Needs a receiver returning continue_url to test."
+      "notes": "Schema declares continue_url format:uri but does not enforce absolute-HTTPS-only; format:uri also accepts http and relative refs in most validators, so schema_enforced=false. Needs a receiver returning continue_url to test.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-005",
@@ -109,7 +117,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Permissive option."
+      "notes": "Permissive option.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-007",
@@ -127,7 +137,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Permalink is REST-specific construct."
+      "notes": "Permalink is REST-specific construct.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-008",
@@ -145,7 +157,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-001/CHK-014/CHK-043. Not a business-response wire shape."
+      "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-001/CHK-014/CHK-043. Not a business-response wire shape.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-009",
@@ -163,7 +178,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side permissive."
+      "notes": "Platform-side permissive.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-010",
@@ -181,7 +198,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior."
+      "notes": "Platform-side behavior.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-011",
@@ -199,7 +218,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Side effect outside the HTTP response; not observable via the API surface."
+      "notes": "Side effect outside the HTTP response; not observable via the API surface.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-012",
@@ -217,7 +239,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Subjective quality requirement."
+      "notes": "Subjective quality requirement.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-013",
@@ -235,7 +259,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Determinism across repeated calls is only weakly observable; partial check would require replaying identical requests. No single-response oracle."
+      "notes": "Determinism across repeated calls is only weakly observable; partial check would require replaying identical requests. No single-response oracle.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-014",
@@ -253,7 +280,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Duplicate of CHK-001 under Guidelines; kept for coverage."
+      "notes": "Duplicate of CHK-001 under Guidelines; kept for coverage.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-015",
@@ -271,7 +301,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cross-field conditional (status vs messages[].severity); not expressible in the base checkout.json. Needs a receiver that emits requires_escalation."
+      "notes": "Cross-field conditional (status vs messages[].severity); not expressible in the base checkout.json. Needs a receiver that emits requires_escalation.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-016",
@@ -289,7 +322,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "SHOULD; restates CHK-002."
+      "notes": "SHOULD; restates CHK-002.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-017",
@@ -307,7 +342,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Stated descriptively (no MUST keyword) but normative; keyword normalized to MUST. State-transition legality is prose-only, not schema-enforced. Oracle: conformance checkout_lifecycle_test.py test_cannot_update_completed_checkout / test_cannot_cancel_completed_checkout / test_complete_is_idempotent assert non-200 on mutating a completed checkout. Conformance suite pinned to spec 2026-01-23; assertions align."
+      "notes": "Stated descriptively (no MUST keyword) but normative; keyword normalized to MUST. State-transition legality is prose-only, not schema-enforced. Oracle: conformance checkout_lifecycle_test.py test_cannot_update_completed_checkout / test_cannot_cancel_completed_checkout / test_complete_is_idempotent assert non-200 on mutating a completed checkout. Conformance suite pinned to spec 2026-01-23; assertions align.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-018",
@@ -325,7 +362,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Operation/verb/endpoint binding from the REST operations table; keyword normalized to MUST. Oracle: test_create_checkout (returns 200/201 with checkout id)."
+      "notes": "Operation/verb/endpoint binding from the REST operations table; keyword normalized to MUST. Oracle: test_create_checkout (returns 200/201 with checkout id).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-019",
@@ -343,7 +382,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verb/endpoint binding. Oracle: test_get_checkout asserts 200."
+      "notes": "Verb/endpoint binding. Oracle: test_get_checkout asserts 200.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-020",
@@ -361,7 +402,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verb=PUT enforces full-replacement semantics. Oracle: test_update_checkout asserts 200."
+      "notes": "Verb=PUT enforces full-replacement semantics. Oracle: test_update_checkout asserts 200.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-021",
@@ -379,7 +422,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: test_complete_checkout asserts 200, status completed, and order present."
+      "notes": "Oracle: test_complete_checkout asserts 200, status completed, and order present.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-022",
@@ -397,7 +442,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: test_cancel_checkout asserts 200 and status canceled."
+      "notes": "Oracle: test_cancel_checkout asserts 200 and status canceled.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-023",
@@ -415,7 +462,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Request-author (platform) obligation to send the entire checkout resource on PUT; the business full-replacement semantics are checked by the update/replace checks. Not a business-response wire shape."
+      "notes": "Request-author (platform) obligation to send the entire checkout resource on PUT; the business full-replacement semantics are checked by the update/replace checks. Not a business-response wire shape.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-024",
@@ -433,7 +483,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Client obligation (clients MUST include all previously set fields on PUT). Not observable on a business response."
+      "notes": "Client obligation (clients MUST include all previously set fields on PUT). Not observable on a business response.",
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CHK-025",
@@ -451,7 +503,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Descriptive 'is' normalized to MUST. order is not in base required[]; presence-on-complete is conditional, so schema_enforced=false. Oracle: test_complete_checkout asserts order, order.id, order.permalink_url present."
+      "notes": "Descriptive 'is' normalized to MUST. order is not in base required[]; presence-on-complete is conditional, so schema_enforced=false. Oracle: test_complete_checkout asserts order, order.id, order.permalink_url present.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-026",
@@ -487,7 +541,9 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Oracle: test_cancel_is_idempotent / test_cannot_cancel_completed_checkout assert non-200 (the suite treats this as MUST-not-200, stricter than the spec's SHOULD)."
+      "notes": "Oracle: test_cancel_is_idempotent / test_cannot_cancel_completed_checkout assert non-200 (the suite treats this as MUST-not-200, stricter than the spec's SHOULD).",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-028",
@@ -523,7 +579,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; status-value semantics."
+      "notes": "Platform-side behavior; status-value semantics.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-030",
@@ -541,7 +599,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior."
+      "notes": "Platform-side behavior.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-031",
@@ -559,7 +619,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Defines the only status from which autonomous Complete is permitted (see lifecycle diagram L67-76: Complete edge originates at ready_for_complete). Keyword 'can' normalized to MAY. Permission, not enforceable on a single response."
+      "notes": "Defines the only status from which autonomous Complete is permitted (see lifecycle diagram L67-76: Complete edge originates at ready_for_complete). Keyword 'can' normalized to MAY. Permission, not enforceable on a single response.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-032",
@@ -577,7 +639,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side behavior; defines canceled as terminal."
+      "notes": "Platform-side behavior; defines canceled as terminal.",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-033",
@@ -595,7 +659,10 @@
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema enum enforces status values. Terminal states completed/canceled per lifecycle diagram. Oracle: lifecycle tests assert status 'canceled'/'completed'."
+      "notes": "Schema enum enforces status values. Terminal states completed/canceled per lifecycle diagram. Oracle: lifecycle tests assert status 'canceled'/'completed'.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-034",
@@ -613,7 +680,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema required[] on the response object. Note: these are response-required; on request bodies several are ucp_request:omit (see CHK-035..039). links is mandatory for legal compliance."
+      "notes": "Schema required[] on the response object. Note: these are response-required; on request bodies several are ucp_request:omit (see CHK-035..039). links is mandatory for legal compliance.",
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-035",
@@ -631,7 +701,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "ucp_request:omit is a UCP annotation, not standard JSON-Schema; a plain validator on checkout.json would NOT reject id-in-request, so schema_enforced=false (a UCP-aware request-profile validator would). REST examples include a deprecated id in PUT bodies (checkout-rest.md L207) noted 'id is provided in URL path'."
+      "notes": "ucp_request:omit is a UCP annotation, not standard JSON-Schema; a plain validator on checkout.json would NOT reject id-in-request, so schema_enforced=false (a UCP-aware request-profile validator would). REST examples include a deprecated id in PUT bodies (checkout-rest.md L207) noted 'id is provided in URL path'.",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-036",
@@ -649,7 +722,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced."
+      "notes": "Response-only field; ucp_request annotation, not base-schema-enforced.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-037",
@@ -667,7 +743,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Covers status(L76), currency(L82), totals(L86), messages(L94), links(L102), expires_at(L108), continue_url(L114), order(L127) \u2014 all ucp_request:omit. Annotation, not base-schema-enforced."
+      "notes": "Covers status(L76), currency(L82), totals(L86), messages(L94), links(L102), expires_at(L108), continue_url(L114), order(L127) \u2014 all ucp_request:omit. Annotation, not base-schema-enforced.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-038",
@@ -685,7 +764,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Per-operation request requiredness via ucp_request; not enforced by a plain validator against base checkout.json (only the response required[] is). Needs a UCP request-profile validator."
+      "notes": "Per-operation request requiredness via ucp_request; not enforced by a plain validator against base checkout.json (only the response required[] is). Needs a UCP request-profile validator.",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-039",
@@ -703,7 +785,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Payment optional on create (matches prose L42-44) and update; required on complete. Per-operation requiredness via ucp_request, not base-schema-enforced. Oracle test sends payment payload on complete but does not assert rejection-on-missing."
+      "notes": "Payment optional on create (matches prose L42-44) and update; required on complete. Per-operation requiredness via ucp_request, not base-schema-enforced. Oracle test sends payment payload on complete but does not assert rejection-on-missing.",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-040",
@@ -775,7 +860,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Description text only; continue_url is not in required[] and no conditional schema (if/then) encodes this, so a validator won't catch it. Mirrors CHK-001."
+      "notes": "Description text only; continue_url is not in required[] and no conditional schema (if/then) encodes this, so a validator won't catch it. Mirrors CHK-001.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-044",
@@ -793,7 +881,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "JSON well-formedness is a parse-level check, upstream of schema validation."
+      "notes": "JSON well-formedness is a parse-level check, upstream of schema validation.",
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-045",
@@ -811,7 +902,10 @@
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Transport-layer check; not observable in JSON body. browser_capable=false (TLS-version inspection not available from browser fetch)."
+      "notes": "Transport-layer check; not observable in JSON body. browser_capable=false (TLS-version inspection not available from browser fetch).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-046",
@@ -829,7 +923,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
+      "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-047",
@@ -865,7 +962,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Covered by separate idempotency_test.py (not in scope read)."
+      "notes": "Covered by separate idempotency_test.py (not in scope read).",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-049",
@@ -883,7 +983,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cross-system consistency recommendation."
+      "notes": "Cross-system consistency recommendation.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-050",
@@ -901,7 +1003,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Distinguishes protocol errors (HTTP status) from business outcomes (HTTP 200 + messages)."
+      "notes": "Distinguishes protocol errors (HTTP status) from business outcomes (HTTP 200 + messages).",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CHK-051",
@@ -919,7 +1023,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Behavioral; needs a receiver that produces a business-outcome scenario."
+      "notes": "Behavioral; needs a receiver that produces a business-outcome scenario.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-052",
@@ -937,7 +1043,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Error-handling behavior; severity enum itself is in message schema (not base checkout.json)."
+      "notes": "Error-handling behavior; severity enum itself is in message schema (not base checkout.json).",
+      "role": "platform",
+      "role_provenance": "client-bound-exemption"
     },
     {
       "id": "CHK-053",
@@ -955,7 +1063,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Descriptive normative behavior; ucp.status is the shape discriminator. Restated in checkout-rest.md L1317-1333."
+      "notes": "Descriptive normative behavior; ucp.status is the shape discriminator. Restated in checkout-rest.md L1317-1333.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-054",
@@ -973,7 +1083,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Two SHOULDs (business + platform) about error-stack ordering."
+      "notes": "Two SHOULDs (business + platform) about error-stack ordering.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CHK-055",
@@ -991,7 +1103,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Constrains autonomous Complete (relevant to ready_for_complete autonomy). Platform-side; lower-case 'must not' in prose, normative."
+      "notes": "Constrains autonomous Complete (relevant to ready_for_complete autonomy). Platform-side; lower-case 'must not' in prose, normative.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-056",
@@ -1009,7 +1124,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Completion-gating invariant; also L259-260 'all accepted claims MUST be resolved before the transaction can complete'. Prose-only."
+      "notes": "Completion-gating invariant; also L259-260 'all accepted claims MUST be resolved before the transaction can complete'. Prose-only.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-057",
@@ -1027,7 +1145,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business discretion on post-terminal Get behavior; expires_at default TTL 6h (schema L107)."
+      "notes": "Business discretion on post-terminal Get behavior; expires_at default TTL 6h (schema L107).",
+      "role": "platform",
+      "role_provenance": "subject"
     }
   ],
   "notes": [

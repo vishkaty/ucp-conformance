@@ -22,7 +22,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-002",
@@ -44,7 +47,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-003",
@@ -66,7 +72,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-004",
@@ -88,7 +97,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-005",
@@ -110,7 +121,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-006",
@@ -132,7 +145,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-007",
@@ -154,7 +169,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-008",
@@ -176,7 +194,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-009",
@@ -198,7 +219,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-010",
@@ -220,7 +243,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-011",
@@ -242,7 +268,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-012",
@@ -264,7 +293,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-013",
@@ -286,7 +318,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-014",
@@ -308,7 +343,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-015",
@@ -330,7 +368,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-016",
@@ -352,7 +392,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "SAE-017",
@@ -374,7 +416,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-018",
@@ -396,7 +441,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-020",
@@ -418,7 +466,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-021",
@@ -440,7 +491,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     }
   ]
 }

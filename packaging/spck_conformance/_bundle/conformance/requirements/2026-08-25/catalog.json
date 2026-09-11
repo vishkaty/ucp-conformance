@@ -23,7 +23,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-002",
@@ -45,7 +48,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-003",
@@ -67,7 +73,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-004",
@@ -89,7 +98,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "renamed"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CAT-005",
@@ -111,7 +122,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-007",
@@ -133,7 +147,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CAT-008",
@@ -156,7 +172,10 @@
         "from": "2026-04-08",
         "disposition": "reworded"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-009",
@@ -178,7 +197,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-010",
@@ -200,7 +222,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-011",
@@ -244,7 +269,11 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] shopping/catalog/index.md L376 (Common Scenarios / Empty Search): 'When search finds no matches, return an empty array without messages.' — an imperative sentence with no keyword. MUST inferred from the imperative mood in a normative section and from CAT-020's envelope rule (application outcomes return HTTP 200 with the UCP envelope); an implementation that returns an error message for an empty search contradicts the stated behaviour. Kept MUST (decision 29)."
     },
     {
       "id": "CAT-013",
@@ -266,7 +295,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-014",
@@ -288,7 +320,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-015",
@@ -310,7 +345,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-016",
@@ -332,7 +370,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-017",
@@ -354,7 +395,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-018",
@@ -376,7 +420,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-019",
@@ -398,7 +445,11 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] shopping/catalog/rest.md L479-L482 (Product Not Found): 'the server returns HTTP 200 with ucp.status: \"error\" and a descriptive message. This is an application outcome, not a transport error' — descriptive present tense, no keyword. MUST inferred: the sentence defines the only conforming response to an unresolvable identifier (HTTP 200 + error envelope, never a 404), consistent with CAT-020. Kept MUST (decision 29)."
     },
     {
       "id": "CAT-020",
@@ -420,7 +471,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-021",
@@ -464,7 +517,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-023",
@@ -486,7 +542,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-024",
@@ -508,7 +567,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11"
     },
     {
       "id": "CAT-025",
@@ -530,7 +591,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-026",
@@ -552,7 +615,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction"
     },
     {
       "id": "CAT-027",
@@ -574,7 +639,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-028",
@@ -596,7 +664,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-029",
@@ -618,7 +689,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-030",
@@ -640,7 +714,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-031",
@@ -662,7 +739,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-032",
@@ -684,7 +764,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-033",
@@ -706,7 +789,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-034",
@@ -729,7 +815,10 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)"
+      "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-035",
@@ -751,7 +840,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-036",
@@ -773,7 +865,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-037",
@@ -817,7 +912,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CAT-039",
@@ -836,7 +933,10 @@
         "2026-08-25"
       ],
       "notes": "New row, 2026-08-25 census closure wave (catalog/index.md unit_price comparator rules — a wholly new subsystem at 08-25; the CAT-035..038 wave already registered adjacent sections of this file but not this cluster).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-040",
@@ -855,7 +955,10 @@
         "2026-08-25"
       ],
       "notes": "New row (unit_price comparator rules).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-041",
@@ -874,7 +977,10 @@
         "2026-08-25"
       ],
       "notes": "New row (unit_price comparator rules, folded — the same-unit constraint and the no-conversion prohibition are one integrated invariant read across three sentences).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-042",
@@ -893,7 +999,10 @@
         "2026-08-25"
       ],
       "notes": "New row (unit_price comparator formula).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-043",
@@ -912,7 +1021,10 @@
         "2026-08-25"
       ],
       "notes": "New row (unit_price comparator rounding + authoritativeness, folded — the Business rounding duty and the Platform non-recompute prohibition are one integrated invariant).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-044",
@@ -931,7 +1043,10 @@
         "2026-08-25"
       ],
       "notes": "New row (unit_price echo-on-transaction-lines rule).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-045",
@@ -950,7 +1065,10 @@
         "2026-08-25"
       ],
       "notes": "New row (catalog error-handling guidance, get_product not-found). Client/agent-side behavioral rule.",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-046",
@@ -969,7 +1087,10 @@
         "2026-08-25"
       ],
       "notes": "New row (Specific Header Requirements).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-047",
@@ -988,7 +1109,10 @@
         "2026-08-25"
       ],
       "notes": "New row (Page Size).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

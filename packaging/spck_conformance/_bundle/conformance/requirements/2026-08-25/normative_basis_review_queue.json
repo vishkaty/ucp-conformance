@@ -1,0 +1,677 @@
+{
+ "_about": "normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose quote carries no mandatory keyword, is not a schema constraint and is not fenced pseudocode. The `register` gate accepts a null normative_basis ONLY for a row listed here. To resolve: record the row in requirements/normative_basis_adjudications.json (table / bullet / definition / inferred with a justification; definition|inferred need a review_signoffs batch) and re-run assign_normative_basis.py --apply.",
+ "queue": [
+  {
+   "id": "ACT-007",
+   "version": "2026-08-25",
+   "file": "actions.json",
+   "source": "ucp:docs/specification/overview/index.md#L721",
+   "requirement": "An extension can declare Action type keys only within a reverse-domain namespace controlled by its schema authority (the",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "ACT-014",
+   "version": "2026-08-25",
+   "file": "actions.json",
+   "source": "ucp:docs/specification/overview/index.md#L801",
+   "requirement": "The common Actions contract defines no generic execution machinery (no URL scheme/origin/delegate policy, no sandbox/per",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-004",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L38",
+   "requirement": "The consent extension is bounded to one level of nesting: purposes have segments; segments do not nest further",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-005",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L51",
+   "requirement": "Businesses are responsible for selecting the initial `granted` value according to their applicable policy before adverti",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-006",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L146",
+   "requirement": "`description` and `links` are response-only; the platform does not echo them on confirm. `granted` and `source` are requ",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-014",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L384",
+   "requirement": "For an advertised segment, the segment's `granted` value overrides the parent purpose's `granted` for that segment (more",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-018",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L120",
+   "requirement": "This extension defines four well-known purpose identifiers under the `dev.ucp.consent.*` namespace: analytics, marketing",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CNST-019",
+   "version": "2026-08-25",
+   "file": "buyer-consent-v2.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L132",
+   "requirement": "This extension defines two well-known marketing segment identifiers: `dev.ucp.consent.marketing.email` and `dev.ucp.cons",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAP-006",
+   "version": "2026-08-25",
+   "file": "capability-namespace-authority.json",
+   "source": "ucp:docs/specification/overview/index.md#L889",
+   "requirement": "The platform derives `authority_prefix` by normalizing the schema URL's hostname (lowercase, strip trailing dot, IDN in ",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAP-007",
+   "version": "2026-08-25",
+   "file": "capability-namespace-authority.json",
+   "source": "ucp:docs/specification/overview/index.md#L893",
+   "requirement": "The authority binding is valid only if the entity `name` equals `authority_prefix` (exact match) or `name` is `authority",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAP-008",
+   "version": "2026-08-25",
+   "file": "capability-namespace-authority.json",
+   "source": "ucp:docs/specification/overview/index.md#L940",
+   "requirement": "The authority check treats a public suffix (e.g. co.uk, or a private-section suffix like github.io) as an ordinary autho",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAP-012",
+   "version": "2026-08-25",
+   "file": "capability-namespace-authority.json",
+   "source": "ucp:docs/specification/overview/index.md#L963",
+   "requirement": "Authority binding is not a fetch-safety control: fetching the `schema` URL is additionally subject to the protocol's URL",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAT-020",
+   "version": "2026-08-25",
+   "file": "catalog.json",
+   "source": "ucp:docs/specification/shopping/catalog/rest.md#L543-L544",
+   "requirement": "All application-level outcomes (incl. not-found) return HTTP 200 with the UCP envelope and optional messages array",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAT-024",
+   "version": "2026-08-25",
+   "file": "catalog.json",
+   "source": "ucp:docs/specification/shopping/catalog/rest.md#L605-L606",
+   "requirement": "REST transport MUST support cursor-based pagination for Search per the shared pagination contract",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAT-025",
+   "version": "2026-08-25",
+   "file": "catalog.json",
+   "source": "ucp:docs/specification/shopping/catalog/rest.md#L607",
+   "requirement": "REST transport MUST return HTTP 200 for lookup requests; unknown identifiers result in fewer products returned",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAT-026",
+   "version": "2026-08-25",
+   "file": "catalog.json",
+   "source": "ucp:docs/specification/shopping/catalog/rest.md#L608",
+   "requirement": "REST transport MUST return HTTP 400 with request_too_large error for requests exceeding batch size limits",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CAT-038",
+   "version": "2026-08-25",
+   "file": "catalog.json",
+   "source": "ucp:docs/specification/shopping/catalog/index.md#L348-L349",
+   "requirement": "Disclosure warnings (presentation:\"disclosure\") carry notices that platforms must not hide or dismiss",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-018",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L83",
+   "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-019",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L84",
+   "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-020",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L85",
+   "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-021",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L86",
+   "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-022",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L87",
+   "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-025",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L1094-L1099",
+   "requirement": "Complete Checkout response is the checkout object; when completion finishes synchronously status is completed and order ",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-050",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L1342-L1343",
+   "requirement": "Protocol errors return appropriate HTTP status (401/403/409/429/503) with JSON body containing code and content",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-051",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/rest.md#L1344",
+   "requirement": "Business outcomes (including unavailable merchandise) return HTTP 200 with the UCP envelope and messages array",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-053",
+   "version": "2026-08-25",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L515-L518",
+   "requirement": "On create with all items unavailable, response carries ucp.status:error with messages and no resource body",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-003",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L134",
+   "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics)",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-004",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L135",
+   "requirement": "Sending an empty array codes:[] removes all discount codes",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-005",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L136",
+   "requirement": "Discount codes are matched case-insensitively by the business",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-007",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L141",
+   "requirement": "Rejected codes are communicated via the messages[] array",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-008",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L142",
+   "requirement": "Discount amounts are reflected in totals[] and line_items[].totals[]",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-012",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L189",
+   "requirement": "Automatic discounts appear in discounts.applied with automatic:true and no code field",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-013",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L191",
+   "requirement": "Automatic discounts cannot be removed by the platform",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-018",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L304-L306",
+   "requirement": "If a discount has allocations pointing to line items it contributes to items_discount; otherwise (no allocations, or shi",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-019",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L313-L314",
+   "requirement": "Invariant: totals[type=items_discount].amount equals sum of line_items[].totals[type=items_discount].amount",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-020",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L319-L320",
+   "requirement": "Discount amounts in discounts.applied are positive integers (value of the discount)",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-021",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L320-L321",
+   "requirement": "Discount entries in totals[] are negative (strictly < 0); the sign is schema-enforced",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-022",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L125",
+   "requirement": "Invariant: sum of allocations[].amount equals applied_discount.amount",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-030",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/discount.md#L512-L513",
+   "requirement": "When multiple codes are submitted and one is invalid, only the valid discount is applied (accept-one-reject-one); reject",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-032",
+   "version": "2026-08-25",
+   "file": "discounts-consent.json",
+   "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L84-L85",
+   "requirement": "When the buyer_consent capability is active, the buyer object within cart and/or checkout carries a consent field (a map",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "ERR-034",
+   "version": "2026-08-25",
+   "file": "error-envelope.json",
+   "source": "ucp:docs/specification/shopping/checkout/index.md#L491",
+   "requirement": "ucp.status is the shape discriminator: 'success' carries the expected payload, 'error' carries error information instead",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "FUL-009",
+   "version": "2026-08-25",
+   "file": "fulfillment.json",
+   "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L396",
+   "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "FUL-017",
+   "version": "2026-08-25",
+   "file": "fulfillment.json",
+   "source": "ucp:docs/specification/shopping/extensions/fulfillment.md#L398",
+   "requirement": "options[].totals is the required cost breakdown (an array of `total` objects), replacing the old prose name `total` (a n",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDL-001",
+   "version": "2026-08-25",
+   "file": "identity-linking.json",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L34-L36",
+   "requirement": "Identity linking uses OAuth 2.0 for authorization (the 'v1 auth mechanism' framing was dropped; direct OAuth 2.0 against",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "LOC-006",
+   "version": "2026-08-25",
+   "file": "location.json",
+   "source": "ucp:docs/specification/common/location/index.md#L69-L71",
+   "requirement": "A Location ID selects only the physical entity; it does not determine the interaction mode, guarantee availability, or b",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "LOC-008",
+   "version": "2026-08-25",
+   "file": "location.json",
+   "source": "ucp:docs/specification/common/location/index.md#L115",
+   "requirement": "The exact `00:00`\u2013`23:59` pair represents the entire local civil date (including DST transitions) as a reserved exceptio",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "LOC-009",
+   "version": "2026-08-25",
+   "file": "location.json",
+   "source": "ucp:docs/specification/common/location/index.md#L138",
+   "requirement": "Intersecting non-identical exception ranges are invalid, including when one range contains another; timed entries with i",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "LOC-023",
+   "version": "2026-08-25",
+   "file": "location.json",
+   "source": "ucp:docs/specification/common/location/search.md#L63",
+   "requirement": "For any candidate Location, every explicit structured constraint is conjunctive: distance AND serves AND every supplied ",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "NEG-003",
+   "version": "2026-08-25",
+   "file": "negotiation-errors.json",
+   "source": "ucp:docs/specification/overview/index.md#L1860",
+   "requirement": "A resolved-but-unfetchable profile (timeout/non-2xx) maps to profile_unreachable, HTTP 424.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "NEG-004",
+   "version": "2026-08-25",
+   "file": "negotiation-errors.json",
+   "source": "ucp:docs/specification/overview/index.md#L1861",
+   "requirement": "A fetched profile that is not valid JSON or violates schema maps to profile_malformed, HTTP 422.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "NEG-005",
+   "version": "2026-08-25",
+   "file": "negotiation-errors.json",
+   "source": "ucp:docs/specification/overview/index.md#L1859",
+   "requirement": "A request whose platform profile URL is malformed, MISSING, or unresolvable is rejected with invalid_profile_url (REST 4",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "ORD-007",
+   "version": "2026-08-25",
+   "file": "order.json",
+   "source": "ucp:docs/specification/shopping/order/index.md#L125",
+   "requirement": "Adjustment quantities and amounts are signed \u2014 negative for reductions (returns, refunds), positive for additions (excha",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "TDS-010",
+   "version": "2026-08-25",
+   "file": "payment-3ds-challenge.json",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L230",
+   "requirement": "A later Checkout response based on server-side provider state remains authoritative regardless of any 3DS surface notifi",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "PAY-014",
+   "version": "2026-08-25",
+   "file": "payment.json",
+   "source": "ucp:docs/specification/overview/index.md#L2903",
+   "requirement": "Businesses MUST validate handler_id before processing (ensure handler is in the advertised set)",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "REPLAY-001",
+   "version": "2026-08-25",
+   "file": "replay-protection-payload-matching.json",
+   "source": "ucp:docs/specification/signatures.md#L834",
+   "requirement": "On a duplicate Idempotency-Key request whose payload does NOT match the original, the business MUST reject with 409 Conf",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-008",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L187",
+   "requirement": "`ucp.request_constraints` MUST be used only in authoritative operation responses; it has no effect in discovery profiles",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-009",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L192",
+   "requirement": "A submitted request is valid under Request Constraints only if it satisfies the resolved request schema AND every object",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-011",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L220",
+   "requirement": "The Constraint Expression grammar does not admit a `ucp` member/key",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-012",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L234",
+   "requirement": "Within a Constraint Expression, sibling members (`required`, `properties`, `anyOf`) at the same Object Constraint positi",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-023",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L338",
+   "requirement": "Each authoritative resource response supplies the Request Constraints set for the next request to that resource; the fol",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-024",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L341",
+   "requirement": "Invalid request_constraints values in a new set MUST NOT fall back to preserving stale values from a prior response, and",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-025",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L348",
+   "requirement": "A response containing an authoritative resource MUST supply its Request Constraints set even when it reports an applicat",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "RC-026",
+   "version": "2026-08-25",
+   "file": "request-constraints.json",
+   "source": "ucp:docs/specification/overview/index.md#L362",
+   "requirement": "Request Constraints add no new outcome or error code; passing schema + Request Constraints validation establishes only s",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-006",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L124-L125",
+   "requirement": "The algorithm is derived from the key's kty/crv fields in the JWK; alg is NOT included in Signature-Input parameters.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-008",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L213-L217",
+   "requirement": "Public keys are published in the signer's UCP profile; the publishing contract and the verifier's key-list lookup rule (",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-012",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L404,L407",
+   "requirement": "Content-Digest header is required when a request/response has a body.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-013",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L402-L403",
+   "requirement": "Signature-Input and Signature headers are required on requests and responses.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-014",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L430-L432",
+   "requirement": "REST request signed components MUST include @method, @authority, and @path (all Required).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-015",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L437-L438,L448",
+   "requirement": "REST request signed components MUST include content-digest and content-type when the request has a body.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-016",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L436,L446",
+   "requirement": "idempotency-key MUST be a signed component for POST, PUT, DELETE, PATCH requests.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-017",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L433,L440",
+   "requirement": "@query MUST be a signed component if the request has query parameters.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-018",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L434,L442",
+   "requirement": "ucp-agent MUST be a signed component if the UCP-Agent header is present.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-020",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L539,L545",
+   "requirement": "REST response signed components use @status instead of @method (Required).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-021",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L546-L547,L549",
+   "requirement": "REST response signed components MUST include content-digest and content-type if the response has a body.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-022",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L830",
+   "requirement": "Idempotency-Key must have minimum 128 bits of entropy (e.g., UUID v4, 22+ char alphanumeric).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-023",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L832",
+   "requirement": "Server storage of idempotency keys must be a minimum of 24 hours, recommended 48 hours.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-024",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L835",
+   "requirement": "On idempotency storage failure, fail closed (reject request with 503).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-025",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L833",
+   "requirement": "On duplicate idempotency key with a matching payload, return the cached response and do not re-execute.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-031",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L922",
+   "requirement": "signature_missing maps to HTTP 401 (required signature header/field not present).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-032",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L923",
+   "requirement": "signature_invalid maps to HTTP 401 (signature verification failed).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-033",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L924",
+   "requirement": "key_not_found maps to HTTP 401 (key ID not found in signer's published key set).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-034",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L925",
+   "requirement": "digest_mismatch maps to HTTP 400 (body digest doesn't match Content-Digest header).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SIG-035",
+   "version": "2026-08-25",
+   "file": "signatures.json",
+   "source": "ucp:docs/specification/signatures.md#L926",
+   "requirement": "algorithm_unsupported maps to HTTP 400 (signature algorithm not supported).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "SPL-007",
+   "version": "2026-08-25",
+   "file": "split-payments.json",
+   "source": "ucp:docs/specification/payment/extensions/split-payments.md#L158",
+   "requirement": "A zero available balance on an open-amount instrument is a valid $0 contribution, not a failure",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  }
+ ]
+}

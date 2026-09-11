@@ -20,7 +20,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "actions.json $defs.instance.required=[\"id\"]. Wholly new generic mechanism (## Actions) \u2014 no analogous section existed in the 04-08 overview.md; it underpins Payment Authentication, and Cart/Checkout/Catalog Actions adoption."
+   "notes": "actions.json $defs.instance.required=[\"id\"]. Wholly new generic mechanism (## Actions) \u2014 no analogous section existed in the 04-08 overview.md; it underpins Payment Authentication, and Cart/Checkout/Catalog Actions adoption.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "ACT-002",
@@ -38,7 +41,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "actions.json additionalProperties (the per-type array) has minItems 1."
+   "notes": "actions.json additionalProperties (the per-type array) has minItems 1.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "ACT-003",
@@ -56,7 +62,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Enforced structurally by the actions.json schema's propertyNames constraint."
+   "notes": "Enforced structurally by the actions.json schema's propertyNames constraint.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "ACT-004",
@@ -74,7 +83,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable against a captured response: cross-reference known outstanding work against the actions map."
+   "notes": "Checkable against a captured response: cross-reference known outstanding work against the actions map.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-005",
@@ -92,7 +104,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by parsing message.path with an RFC 9535 JSONPath parser and confirming it resolves within the response."
+   "notes": "Checkable by parsing message.path with an RFC 9535 JSONPath parser and confirming it resolves within the response.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-006",
@@ -110,7 +125,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Directly checkable against a captured response when an Action is known to be gating the operation."
+   "notes": "Directly checkable against a captured response when an Action is known to be gating the operation.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-007",
@@ -128,7 +146,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable via the same authority-binding derivation algorithm as capability names (see CAP area) applied to the Action type key's owning extension."
+   "notes": "Checkable via the same authority-binding derivation algorithm as capability names (see CAP area) applied to the Action type key's owning extension.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "ACT-008",
@@ -146,7 +166,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "actions.json $defs.instance sets additionalProperties true (schema half); the Platform-tolerance half needs a live Platform receiver."
+   "notes": "actions.json $defs.instance sets additionalProperties true (schema half); the Platform-tolerance half needs a live Platform receiver.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-009",
@@ -164,7 +187,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by scanning a single response's actions map for duplicate ids across (and within) type arrays."
+   "notes": "Checkable by scanning a single response's actions map for duplicate ids across (and within) type arrays.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-010",
@@ -182,7 +208,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable across sequential responses for the same resource (e.g. a Checkout polled via Get)."
+   "notes": "Checkable across sequential responses for the same resource (e.g. a Checkout polled via Get).",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-011",
@@ -200,7 +229,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires correlating the emitted Actions map against the negotiated capability set from discovery."
+   "notes": "Requires correlating the emitted Actions map against the negotiated capability set from discovery.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-012",
@@ -218,7 +250,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Security-relevant Platform-side trust-boundary rule; needs a live Platform receiver to test (or code review of the Platform's Action dispatcher)."
+   "notes": "Security-relevant Platform-side trust-boundary rule; needs a live Platform receiver to test (or code review of the Platform's Action dispatcher).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-013",
@@ -236,7 +271,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side behavior; directly underpins the Payment Authentication reconciliation contract (see PAUTH/TDS/DDC areas)."
+   "notes": "Platform-side behavior; directly underpins the Payment Authentication reconciliation contract (see PAUTH/TDS/DDC areas).",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "ACT-014",
@@ -254,7 +292,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Architectural boundary: prevents a tester from expecting generic Actions-level security/timeout machinery outside a concrete Action type's own contract (e.g. Payment Authentication, see PAUTH/TDS/DDC)."
+   "notes": "Architectural boundary: prevents a tester from expecting generic Actions-level security/timeout machinery outside a concrete Action type's own contract (e.g. Payment Authentication, see PAUTH/TDS/DDC).",
+   "role": "spec-author",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   }
  ]
 }

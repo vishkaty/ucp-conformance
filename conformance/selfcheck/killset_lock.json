@@ -3136,7 +3136,7 @@
    "n_kills_floor": 2
   }
  },
- "generated": "2026-09-10",
+ "generated": "2026-09-11",
  "pins": {
   "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
   "reference_sample_server": "00333a80ebca3efd442d515b261a36e57de815d3",
@@ -3145,7 +3145,7 @@
   "spec": {
    "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e",
    "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
-   "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+   "2026-04-08": "a25a4a24e738b74c8fa83254448d0666e478f595",
    "2026-08-25": "cd78fb38e819de77d9b527d110476eccb876f1bd"
   }
  },

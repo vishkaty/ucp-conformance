@@ -391,6 +391,17 @@ def acknowledged_move(finding, moves, today):
     return None
 
 
+def stale_acknowledgements(moves, lock):
+    """D2-15: entries of known_tag_moves.json whose `to` is ALREADY the lock's pinned
+    commit for their tag — the move has been resolved by a re-pin, so the entry is stale
+    and must be deleted (left behind it would pre-acknowledge the next move to that sha
+    and keep an expiry clock on a resolved fact)."""
+    s = lock.get("sources", lock)
+    by_tag = {e.get("tag"): e.get("commit") for e in s.get("spec", {}).get("versions", {}).values()
+              if isinstance(e, dict)}
+    return [m for m in moves if _same_sha(m.get("to"), by_tag.get(m.get("tag")))]
+
+
 def run_check(today=None):
     """Live drift check for preflight. Exit 0 / 1 / 2 (see the module docstring).
 
@@ -417,6 +428,10 @@ def run_check(today=None):
               f"(offline / API error); the pins are unverified this run.")
         return 2
     moves = load_known_tag_moves()
+    for m in stale_acknowledgements(moves, lock):
+        print(f"sources-age: FAIL — stale acknowledgement in known_tag_moves.json: {m.get('tag')} "
+              f"{m.get('from')} → {m.get('to')} is already the pinned commit (re-pinned); delete the entry.")
+        rc = 1
     for f in evaluate_tag_identity(tags, idents):
         line = (f"TAG MOVED {f['tag']}: locked {f['from']} → {f['to']} "
                 f"(tag object {f['tag_object']}, tagger {(f.get('tagger_date') or 'n/a')[:10]})")
@@ -684,7 +699,10 @@ def _selftest():
     # P: the REAL file acknowledges the REAL move recorded in the lock (no network:
     # the finding is rebuilt from SOURCES.lock.json's tag_move_observed).
     real_lock = json.loads(LOCK.read_text())
-    obs = (real_lock.get("spec", {}).get("versions", {}).get("2026-04-08") or {}).get("tag_move_observed")
+    v0408 = real_lock.get("spec", {}).get("versions", {}).get("2026-04-08") or {}
+    obs = v0408.get("tag_move_observed")
+    if obs and _same_sha(obs.get("to"), v0408.get("commit")):
+        obs = None            # resolved by a re-pin (D2-15): nothing to acknowledge
     if obs:
         real_finding = {"key": "spec/2026-04-08", "version": "2026-04-08", "tag": "v2026-04-08",
                         "from": obs["from"], "to": obs["to"], "tag_object": obs["tag_object"]}
@@ -694,6 +712,23 @@ def _selftest():
                          f"{obs} (file absent, mismatched, or expired) — preflight is red")
         elif real.get("decision") != 3:
             fails.append(f"P: the acknowledgement must cite decision 3, got {real.get('decision')}")
+
+    # Q (D2-15): an acknowledgement whose `to` is ALREADY the lock's commit for that
+    # version is STALE — the re-pin resolved the move, the entry must be deleted (an
+    # entry left behind would silently pre-acknowledge the NEXT move to the same sha).
+    lock_q = {"spec": {"versions": {"2026-04-08": {"tag": "v2026-04-08", "commit": "a25a4a24e738b74c8fa83254448d0666e478f595"}}}}
+    try:
+        stale = stale_acknowledgements([entry], lock_q)
+        if not stale or stale[0].get("tag") != "v2026-04-08":
+            fails.append("Q: an entry whose `to` equals the lock's pinned commit must be reported as a stale acknowledgement")
+        if stale_acknowledgements([{**entry, "to": "0badf00d"}], lock_q):
+            fails.append("Q': an entry whose `to` is not the pinned commit is not stale")
+    except NameError as e:
+        fails.append(f"Q: stale_acknowledgements absent: {e}")
+
+    # Q'': the REAL known_tag_moves.json holds no stale acknowledgement against the REAL lock
+    if stale_acknowledgements(load_known_tag_moves(), real_lock):
+        fails.append("Q'': known_tag_moves.json still acknowledges a move the lock has already resolved (delete the entry)")
 
     if fails:
         print("sources-age selftest: FAIL")

@@ -80,7 +80,27 @@ def gates(server, require_server=False):
         # unique-id invariant (reach_report / probe-hygiene key by check id).
         ("register-selftest", _py(SELF / "verify_register.py", "--selftest"),   None, ()),
         ("merchant-checks-selftest", _py(SELF / "validate_merchant_checks.py", "--selftest"), None, ()),
+        # D2-08: the role seed/heuristic (requirements/tools/assign_roles.py) reproduces its
+        # 7-row fixture — lock/NAB/client-bound/subject/direction/queue — hermetically; the
+        # roles themselves are gated by `register` (field, enum, lock consistency both
+        # ways, empty review queue, agent-side one-lane rule, area map as register data).
+        ("roles-selftest", _py(ROOT / "conformance" / "requirements" / "tools" / "assign_roles.py", "--selftest"), None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
+        # D2-09 (A15): every 2026-04-08 row is accounted exactly once in 2026-08-25
+        # (carried/renamed/reworded/dead/merged/downgraded); carried quotes byte-fresh or
+        # drift-noted; dead rows dead-proven by search term; merged targets exist; the
+        # D2-15 backport (2026-08-25 -> 2026-04-08) checked in reverse. Hermetic.
+        ("carry-forward", _py(SELF / "verify_carry_forward.py"),                 None, ()),
+        ("carry-forward-selftest", _py(SELF / "verify_carry_forward.py", "--selftest"), None, ()),
+        # D2-10 (decision 8): SHOULD-class census, REPORT-ONLY — always rc 0; its totals
+        # reach coverage.json surface.should (byte-compared by `coverage`, pinned by
+        # `evidence-class`). The selftest proves the scan on a fixture.
+        ("should-census", _py(SELF / "verify_should_census.py"),                 None, ()),
+        ("should-census-selftest", _py(SELF / "verify_should_census.py", "--selftest"), None, ()),
+        # D2-16: the DONE-2 status report (coverage/done2_status.py) is a program-review
+        # artefact, never a gate — but its evaluator must provably go red: scratch inputs
+        # flip items 2 (merchant-lane GAP) and 8 (expired clock). Hermetic.
+        ("done2-selftest", _py(ROOT / "conformance" / "coverage" / "done2_status.py", "--selftest"), None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)
         # must not silently regress to the pre-fix per-physical-line algorithm, which

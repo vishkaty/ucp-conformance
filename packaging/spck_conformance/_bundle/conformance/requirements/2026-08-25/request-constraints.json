@@ -20,7 +20,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "request_constraints.json properties.required has minItems 1, matching this description text. New in 08-25 (#655/#744); no 04-08 equivalent (request_constraints did not exist)."
+   "notes": "request_constraints.json properties.required has minItems 1, matching this description text. New in 08-25 (#655/#744); no 04-08 equivalent (request_constraints did not exist).",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-002",
@@ -38,7 +41,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "minProperties 1 on the properties member."
+   "notes": "minProperties 1 on the properties member.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-003",
@@ -56,7 +62,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "anyOf has minItems 1 and each item carries minProperties 1 in the schema."
+   "notes": "anyOf has minItems 1 and each item carries minProperties 1 in the schema.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-004",
@@ -74,7 +83,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "constraint_expression.json sets additionalProperties:false; overview/index.md#L232 states this in prose: 'No other member is admitted at either grammar position.'"
+   "notes": "constraint_expression.json sets additionalProperties:false; overview/index.md#L232 states this in prose: 'No other member is admitted at either grammar position.'",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-005",
@@ -92,7 +104,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "$defs.value_constraint anyOf requires enum or const; enum has minItems 1 + uniqueItems."
+   "notes": "$defs.value_constraint anyOf requires enum or const; enum has minItems 1 + uniqueItems.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-006",
@@ -110,7 +125,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "instrument_group.json is not cross-field-validatable by JSON Schema alone (min/max are independent integer properties); needs a coded check comparing the two values. Shared type: referenced both by available_payment_instrument-style constraint targets and by common/payment_split_payments.json (see SPL area)."
+   "notes": "instrument_group.json is not cross-field-validatable by JSON Schema alone (min/max are independent integer properties); needs a coded check comparing the two values. Shared type: referenced both by available_payment_instrument-style constraint targets and by common/payment_split_payments.json (see SPL area).",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-007",
@@ -128,7 +146,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "This is the 'instrument requirements via constraints' mechanism named in the release delta (commit d25cce30 per the hazard table): available_instruments[].constraints reuses the shared Constraint Expression grammar to describe which instrument declarations are on offer, distinct from ucp.request_constraints which governs the next request. No 04-08 equivalent \u2014 available_payment_instrument.json had no constraints field at 04-08."
+   "notes": "This is the 'instrument requirements via constraints' mechanism named in the release delta (commit d25cce30 per the hazard table): available_instruments[].constraints reuses the shared Constraint Expression grammar to describe which instrument declarations are on offer, distinct from ucp.request_constraints which governs the next request. No 04-08 equivalent \u2014 available_payment_instrument.json had no constraints field at 04-08.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "RC-008",
@@ -146,7 +167,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Wholly new section (## Request Constraints, #655 + #744); no analogous mechanism existed in the 04-08 overview.md."
+   "notes": "Wholly new section (## Request Constraints, #655 + #744); no analogous mechanism existed in the 04-08 overview.md.",
+   "role": "business",
+   "role_provenance": "direction"
   },
   {
    "id": "RC-009",
@@ -164,7 +187,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Defines the Business's authoritative validation algorithm (overview/index.md L198-209 gives the pseudocode)."
+   "notes": "Defines the Business's authoritative validation algorithm (overview/index.md L198-209 gives the pseudocode).",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "RC-010",
@@ -182,7 +207,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side preflight is optional (MAY, L211) but when performed must be complete."
+   "notes": "Platform-side preflight is optional (MAY, L211) but when performed must be complete.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-011",
@@ -200,7 +228,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Prose restriction on top of the closed grammar (RC-004); a captured request_constraints value naming `ucp` in required/properties is non-conformant."
+   "notes": "Prose restriction on top of the closed grammar (RC-004); a captured request_constraints value naming `ucp` in required/properties is non-conformant.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "RC-012",
@@ -218,7 +248,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "constraint_expression.json's anyOf items $ref '#' (the grammar itself), which has no `path` property, so a branch carrying `path` is schema-invalid."
+   "notes": "constraint_expression.json's anyOf items $ref '#' (the grammar itself), which has no `path` property, so a branch carrying `path` is schema-invalid.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "RC-013",
@@ -236,7 +268,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by parsing the emitted `path` string with a conformant RFC 9535 JSONPath parser."
+   "notes": "Checkable by parsing the emitted `path` string with a conformant RFC 9535 JSONPath parser.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-014",
@@ -254,7 +289,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires judging whether the omitted-path derivation would have matched intent; not mechanically checkable without a reference oracle."
+   "notes": "Requires judging whether the omitted-path derivation would have matched intent; not mechanically checkable without a reference oracle.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-015",
@@ -272,7 +310,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "See the worked example at overview/index.md#L449-455 (stable-ID path for line_123 surviving reorder)."
+   "notes": "See the worked example at overview/index.md#L449-455 (stable-ID path for line_123 surviving reorder).",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-016",
@@ -290,7 +331,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable as a proxy by confirming the emitted path is syntactically valid RFC 9535 and correctly quotes any embedded special characters (e.g. a line-item id containing a quote or bracket)."
+   "notes": "Checkable as a proxy by confirming the emitted path is syntactically valid RFC 9535 and correctly quotes any embedded special characters (e.g. a line-item id containing a quote or bracket).",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-017",
@@ -308,7 +352,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Directly checkable: any captured request_constraints value must validate against common/types/request_constraints.json. (Quote trimmed before the inline markdown link to keep verbatim match exact.)"
+   "notes": "Directly checkable: any captured request_constraints value must validate against common/types/request_constraints.json. (Quote trimmed before the inline markdown link to keep verbatim match exact.)",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-018",
@@ -326,7 +373,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "Platform-side behavior; requires a live Platform under test."
+   "notes": "Platform-side behavior; requires a live Platform under test.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-019",
@@ -344,7 +394,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires semantic cross-referencing of every emitted request_constraints value against every other value that could select the same object; see the basket-wide + targeted-quantity contradiction example at L454-455."
+   "notes": "Requires semantic cross-referencing of every emitted request_constraints value against every other value that could select the same object; see the basket-wide + targeted-quantity contradiction example at L454-455.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-020",
@@ -362,7 +415,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": true,
-   "notes": "The enforcement half is testable end-to-end: capture an emitted request_constraints value, construct a violating next request, and confirm the Business rejects it."
+   "notes": "The enforcement half is testable end-to-end: capture an emitted request_constraints value, construct a violating next request, and confirm the Business rejects it.",
+   "role": "business",
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-021",
@@ -380,7 +436,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Policy judgment call (contrasts with execution-time conditions like inventory/fraud/authorization, which remain governed by messages instead)."
+   "notes": "Policy judgment call (contrasts with execution-time conditions like inventory/fraud/authorization, which remain governed by messages instead).",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "RC-022",
@@ -398,7 +456,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Platform-side behavior."
+   "notes": "Platform-side behavior.",
+   "role": "platform",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "RC-023",
@@ -416,7 +477,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable across two sequential authoritative responses on the same resource."
+   "notes": "Checkable across two sequential authoritative responses on the same resource.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "RC-024",
@@ -434,7 +497,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Requires comparing two sequential responses' request_constraints sets."
+   "notes": "Requires comparing two sequential responses' request_constraints sets.",
+   "role": "business",
+   "role_provenance": "direction"
   },
   {
    "id": "RC-025",
@@ -452,7 +517,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Checkable by inspecting an error-carrying authoritative response for a request_constraints value."
+   "notes": "Checkable by inspecting an error-carrying authoritative response for a request_constraints value.",
+   "role": "business",
+   "role_provenance": "direction"
   },
   {
    "id": "RC-026",
@@ -470,7 +537,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Boundary clarifier: prevents a tester from expecting a new wire status or error taxonomy entry for Request Constraints violations."
+   "notes": "Boundary clarifier: prevents a tester from expecting a new wire status or error taxonomy entry for Request Constraints violations.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   }
  ]
 }

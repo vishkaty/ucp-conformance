@@ -39,7 +39,11 @@ SEED_SAMPLE_FRACTION = 0.10
 
 
 def is_seed_batch(signoff):
-    return str(signoff.get("batch", "")).startswith(SEED_PREFIX)
+    """A SAMPLE batch: confers no coverage; its contract is the recorded >=10% human
+    sample (decision 13). Either the expiry-clock seed (batch name prefix, D2-04) or any
+    batch declaring `kind: sample` (D2-08 role adjudications; D2-11a normative-basis
+    adjudications; later A10 exemption batches)."""
+    return str(signoff.get("batch", "")).startswith(SEED_PREFIX) or signoff.get("kind") == "sample"
 
 
 def seed_batch_errors(signoff, today=None):
@@ -121,6 +125,12 @@ def _signed_ids():
         ids = s.get("ids") or {}
         if not any(ids.values()):
             problems.append("no ids")
+        # decision 13: a coverage batch that declares a `sample` (>=10% human re-read of a
+        # machine-assisted review) is valid only while that sample contract holds — a
+        # pending sample past its due date invalidates the batch, and with it the
+        # coverage it confers (fail-noisy, never a decorative field).
+        if isinstance(s.get("sample"), dict):
+            problems += seed_batch_errors(s)
         if problems:
             errs.append(f"sign-off '{batch}': " + "; ".join(problems))
             continue  # an invalid sign-off confers no coverage
@@ -160,7 +170,7 @@ def main():
     lock = json.load(open(LOCK))["versions"]
     tot = sum(len(v["check"]) for v in lock.values())
     for s in json.load(open(SIGN)).get("signoffs", []):
-        if is_seed_batch(s):
+        if is_seed_batch(s) or isinstance(s.get("sample"), dict):
             print(f"  {seed_batch_status(s)}")
     print(f"review-signoff gate: PASS — all {tot} locked CHECK ids across {len(lock)} "
           f"versions carry an adversarial-review sign-off.")

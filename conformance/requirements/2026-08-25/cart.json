@@ -22,7 +22,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-002",
@@ -44,7 +47,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-003",
@@ -88,7 +94,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-005",
@@ -110,7 +118,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-006",
@@ -132,7 +142,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-007",
@@ -154,7 +166,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-008",
@@ -176,7 +190,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-009",
@@ -198,7 +214,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-010",
@@ -220,7 +238,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-011",
@@ -242,7 +262,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-012",
@@ -264,7 +286,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-013",
@@ -286,7 +310,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-014",
@@ -308,7 +334,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-015",
@@ -330,7 +358,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-016",
@@ -352,7 +382,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-017",
@@ -373,8 +405,12 @@
       "notes": "Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause — 'the provided resource replaces the existing cart state on the business side' — IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog). [2026-09-10 D2-02/A2] CART-036 (the same L213-L215 sentence registered a second time as a 'new row' in completeness-2026-08-31-w4) merged here; source widened from L214 to L213-L215 so the MUST keyword line is owned by this row.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
-      }
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite p"
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-018",
@@ -396,7 +432,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-019",
@@ -440,7 +479,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-021",
@@ -462,7 +504,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-022",
@@ -484,7 +528,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-023",
@@ -506,7 +553,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-024",
@@ -528,7 +578,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-025",
@@ -572,7 +625,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "reworded"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-027",
@@ -616,7 +672,9 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-029",
@@ -638,7 +696,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-030",
@@ -660,7 +721,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-031",
@@ -682,7 +746,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-032",
@@ -703,8 +770,12 @@
       "notes": "Lineage: line_item.json quantity.minimum unchanged (still 1). NOTE: 2026-08-25 adds a new sibling constraint 'maximum': 9007199254740991 (L28) and a substantially expanded 'description' explaining sale-basis/quantity_unit semantics (measure-denominated items, each-basis default, mismatch handling) — additive, does not weaken or contradict the minimum:1 integer requirement this row tests. Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
-      }
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: line_item.json quantity.minimum unchanged (still 1). NOTE: 2026-08-25 adds a new sibling constraint 'maximum': 9007199254740991 (L28) and a substantially expanded 'description' explaining sale-basis/quantity_unit semantics (measure-denominated items, "
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-033",
@@ -726,7 +797,10 @@
       "lineage": {
         "from": "2026-04-08",
         "disposition": "carried"
-      }
+      },
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-034",
@@ -744,7 +818,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "NEW at v2026-08-25 (P2b wave 2). shopping/cart/embedded.md is the Embedded Cart Protocol (ECaP) binding -- otherwise a browser host<->iframe postMessage/MessageChannel transport contract (see the WAIVERS-PROPOSED-2.md batch waiving this file's other 27 unaccounted lines as non-normative for a server-endpoint checker), matching the existing embedded-protocol.md / embedded-cart.md scope-exclusion rationale. This ONE line is the exception: it is a requirement on the Cart REST/MCP API response body itself (ucp.services['dev.ucp.shopping'][].config.delegate, per-cart-session), genuinely server-observable and testable independent of any browser/iframe harness -- read in full before concluding the whole file could be blanket scope-excluded, per the tokenization-guide precedent this wave's brief points at."
+      "notes": "NEW at v2026-08-25 (P2b wave 2). shopping/cart/embedded.md is the Embedded Cart Protocol (ECaP) binding -- otherwise a browser host<->iframe postMessage/MessageChannel transport contract (see the WAIVERS-PROPOSED-2.md batch waiving this file's other 27 unaccounted lines as non-normative for a server-endpoint checker), matching the existing embedded-protocol.md / embedded-cart.md scope-exclusion rationale. This ONE line is the exception: it is a requirement on the Cart REST/MCP API response body itself (ucp.services['dev.ucp.shopping'][].config.delegate, per-cart-session), genuinely server-observable and testable independent of any browser/iframe harness -- read in full before concluding the whole file could be blanket scope-excluded, per the tokenization-guide precedent this wave's brief points at.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-035",
@@ -763,7 +840,10 @@
         "2026-08-25"
       ],
       "notes": "New row, 2026-08-25 census closure wave (Actions, cart has-no-status-lifecycle guard).",
-      "_completeness_batch": "completeness-2026-08-31-w4"
+      "_completeness_batch": "completeness-2026-08-31-w4",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     }
   ]
 }

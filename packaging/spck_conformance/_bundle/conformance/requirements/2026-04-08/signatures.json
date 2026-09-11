@@ -1,6 +1,6 @@
 {
  "_area": "signatures",
- "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+ "_spec_commit": "a25a4a24e738b74c8fa83254448d0666e478f595",
  "rows": [
   {
    "id": "SIG-001",
@@ -18,7 +18,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Request-signature is STUBBED as literal \"test\" in the suite (integration_test_utils get_headers, L133); the suite does NOT verify signatures."
+   "notes": "Request-signature is STUBBED as literal \"test\" in the suite (integration_test_utils get_headers, L133); the suite does NOT verify signatures.",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-002",
@@ -36,7 +38,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Verification row; suite stubs request-signature so official_oracle=false."
+   "notes": "Verification row; suite stubs request-signature so official_oracle=false.",
+   "role": "both",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-003",
@@ -108,7 +113,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Phrased as a prohibition (alg NOT in Signature-Input)."
+   "notes": "Phrased as a prohibition (alg NOT in Signature-Input).",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-007",
@@ -126,7 +133,10 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Pure-doc-structural JWK format check; browser_capable=true."
+   "notes": "Pure-doc-structural JWK format check; browser_capable=true.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-008",
@@ -144,7 +154,9 @@
    "official_oracle": false,
    "browser_capable": true,
    "schema_enforced": false,
-   "notes": "Key discovery via signing_keys[] in profile; doc-structural so browser_capable=true."
+   "notes": "Key discovery via signing_keys[] in profile; doc-structural so browser_capable=true.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-009",
@@ -162,7 +174,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Grace-period acceptance is receiver-side behavior over time."
+   "notes": "Grace-period acceptance is receiver-side behavior over time.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-010",
@@ -180,7 +194,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Crypto digest computation; not browser-capable."
+   "notes": "Crypto digest computation; not browser-capable.",
+   "role": "both",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-011",
@@ -198,7 +215,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Intermediary-bound MUST NOT (proxies/API gateways/other intermediaries MUST NOT re-serialize JSON bodies). Neither business nor platform endpoint duty; not observable via the two protocol parties."
+   "notes": "Intermediary-bound MUST NOT (proxies/API gateways/other intermediaries MUST NOT re-serialize JSON bodies). Neither business nor platform endpoint duty; not observable via the two protocol parties.",
+   "role": "platform",
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-012",
@@ -216,7 +236,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Conditional requirement: body present => Content-Digest required."
+   "notes": "Conditional requirement: body present => Content-Digest required.",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-013",
@@ -234,7 +256,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-014",
@@ -252,7 +276,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Reclassified from testable (signatures area pass): binds the REQUEST SIGNER. Requests to a merchant are platform-authored (client-bound); the merchant-authored requests subject to this component table are webhook notifications, so merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Not observable by probing merchant endpoints: verify_rest_request verifies only the components listed in Signature-Input \u2014 the receiver is not required to enforce the signer's component table."
+   "notes": "Reclassified from testable (signatures area pass): binds the REQUEST SIGNER. Requests to a merchant are platform-authored (client-bound); the merchant-authored requests subject to this component table are webhook notifications, so merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Not observable by probing merchant endpoints: verify_rest_request verifies only the components listed in Signature-Input \u2014 the receiver is not required to enforce the signer's component table.",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-015",
@@ -270,7 +296,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-016",
@@ -288,7 +316,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events)."
+   "notes": "Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-017",
@@ -306,7 +336,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027)."
+   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-018",
@@ -324,7 +356,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events)."
+   "notes": "Reclassified from testable: binds the REQUEST SIGNER (platform for API calls \u2014 client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
+   "role": "both",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-019",
@@ -342,7 +376,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Raw r||s not DER; verification row, suite stubs signature."
+   "notes": "Raw r||s not DER; verification row, suite stubs signature.",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-020",
@@ -360,7 +397,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-021",
@@ -378,7 +417,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Response-signing behavior verified by the receiving party."
+   "notes": "Response-signing behavior verified by the receiving party.",
+   "role": "business",
+   "role_provenance": "direction"
   },
   {
    "id": "SIG-022",
@@ -396,7 +437,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Client/signer-bound MUST - the client that generates the Idempotency-Key chooses >=128-bit entropy. Not observable on a business response."
+   "notes": "Client/signer-bound MUST - the client that generates the Idempotency-Key chooses >=128-bit entropy. Not observable on a business response.",
+   "role": "platform",
+   "role_provenance": "agent-lock"
   },
   {
    "id": "SIG-023",
@@ -414,7 +457,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Server-side retention behavior."
+   "notes": "Server-side retention behavior.",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "SIG-024",
@@ -432,7 +477,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Fail-closed 503; receiver-side fault injection required."
+   "notes": "Fail-closed 503; receiver-side fault injection required.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-025",
@@ -450,7 +497,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-026",
@@ -468,7 +517,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "platform",
+   "role_provenance": "subject"
   },
   {
    "id": "SIG-027",
@@ -486,7 +537,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Webhook-signing row; requires a receiver/webhook sender."
+   "notes": "Webhook-signing row; requires a receiver/webhook sender.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-028",
@@ -540,7 +594,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "subject"
   },
   {
    "id": "SIG-031",
@@ -558,7 +614,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Error code/status binding; verified by signature-checking receiver."
+   "notes": "Error code/status binding; verified by signature-checking receiver.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-032",
@@ -576,7 +634,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-033",
@@ -594,7 +654,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-034",
@@ -612,7 +674,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-035",
@@ -630,7 +694,9 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Wave-3 review F1 (2026-07-03) removed an UNSOUND check that probed a bogus `alg` Signature-Input PARAMETER: the algorithm is derived from the key crv, `alg` is not a parameter, so that probe had no spec-conformant trigger. Re-adjudicated 2026-08-04 (receiver-gap wave): the spec-true wire trigger is a signature whose keyid RESOLVES to a key published in the signer's signing_keys with an UNSUPPORTED crv-derived algorithm \u2014 resolution succeeds (so key_not_found is wrong), verification cannot proceed under any supported algorithm, and the error registry maps exactly this to algorithm_unsupported -> 400. Covered by signature.algorithm_unsupported_400 (merchant_checks_04_08_signatures): the suite signs citing the platform's published Ed25519 kid (config signature.unsupported_alg_kid); the controlled fixture implements the branch ahead of key lookup."
+   "notes": "Wave-3 review F1 (2026-07-03) removed an UNSOUND check that probed a bogus `alg` Signature-Input PARAMETER: the algorithm is derived from the key crv, `alg` is not a parameter, so that probe had no spec-conformant trigger. Re-adjudicated 2026-08-04 (receiver-gap wave): the spec-true wire trigger is a signature whose keyid RESOLVES to a key published in the signer's signing_keys with an UNSUPPORTED crv-derived algorithm \u2014 resolution succeeds (so key_not_found is wrong), verification cannot proceed under any supported algorithm, and the error registry maps exactly this to algorithm_unsupported -> 400. Covered by signature.algorithm_unsupported_400 (merchant_checks_04_08_signatures): the suite signs citing the platform's published Ed25519 kid (config signature.unsupported_alg_kid); the controlled fixture implements the branch ahead of key lookup.",
+   "role": "business",
+   "role_provenance": "review:role-adjudication-2026-09-11"
   },
   {
    "id": "SIG-036",
@@ -648,7 +714,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": "Verification algorithm pseudocode; suite stubs signature so official_oracle=false."
+   "notes": "Verification algorithm pseudocode; suite stubs signature so official_oracle=false.",
+   "role": "both",
+   "role_provenance": "agent-lock",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-037",
@@ -666,7 +735,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-038",
@@ -684,7 +756,10 @@
    "official_oracle": false,
    "browser_capable": false,
    "schema_enforced": false,
-   "notes": ""
+   "notes": "",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-039",
@@ -703,7 +778,10 @@
     "2026-04-08"
    ],
    "notes": "Subject: party emitting/verifying the `UCP-Agent` header on signed REST messages. Distinct from SIG-018 (which only requires `ucp-agent` to be a covered signature component when present) and from the profile-discovery rows in discovery/signatures; no existing SIG row constrains the `UCP-Agent` header dictionary format. Server-observable on signed requests/webhooks the business emits and in verification of inbound headers. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
-   "_completeness_batch": "completeness-2026-07-03"
+   "_completeness_batch": "completeness-2026-07-03",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-040",
@@ -722,7 +800,10 @@
     "2026-04-08"
    ],
    "notes": "Subject: emitter/verifier of the `UCP-Agent` header. Format constraint on the profile URL value; not covered by any existing SIG row. Line 358 ('Reject non-HTTPS URLs') is the verification-side corollary. Server-observable on the header value in signed messages. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
-   "_completeness_batch": "completeness-2026-07-03"
+   "_completeness_batch": "completeness-2026-07-03",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-041",
@@ -741,7 +822,10 @@
     "2026-04-08"
    ],
    "notes": "Subject: business (server) emitting its own `UCP-Agent` profile URL. Path constraint on business profile URLs; distinct from SIG-008 (public keys published in `signing_keys` at `/.well-known/ucp`) which constrains key publication, not the header value. Server-observable on the business's signed requests/webhooks. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
-   "_completeness_batch": "completeness-2026-07-03"
+   "_completeness_batch": "completeness-2026-07-03",
+   "role": "both",
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ],
  "notes": [

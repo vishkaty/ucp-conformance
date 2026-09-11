@@ -67,7 +67,12 @@ EXEMPT_CLASSES = {"real-world-act", "human-perception", "subjective-judgment",
                   # documents (capability transport definitions, extension schemas,
                   # payment-handler specs) — a party distinct from any implementation
                   # under test; conformance is established by document review.
-                  "spec-authoring"}
+                  "spec-authoring",
+                  # A10 (decision 13 / PLAN-v3 §2.4): the target must DECLARE a capability
+                  # before the row is observable — the only class allowed on a `testable`
+                  # row; needs `converts_when` (D2-15: the 19 backported LOY rows at
+                  # 2026-04-08; D2-08: OVR-011 re-classed from client-bound).
+                  "needs-target-capability"}
 
 
 def _validate_entry(rid, meta, must_in, covered, require_scope):
@@ -112,7 +117,27 @@ def _validate_entry(rid, meta, must_in, covered, require_scope):
         failures.append(f"exemption {rid}: missing a written `reason`")
     if meta.get("class") not in EXEMPT_CLASSES:
         failures.append(f"exemption {rid}: `class` must be one of {sorted(EXEMPT_CLASSES)}")
+    if meta.get("class") == "needs-target-capability" and not str(meta.get("converts_when", "")).strip():
+        failures.append(f"exemption {rid}: class needs-target-capability requires `converts_when` "
+                        f"(the task/host that makes the capability observable)")
     return failures
+
+
+def lane_rule_failures(export):
+    """One-lane rule, merchant side (D2-08 / A4): a merchant CHECK may grade only a
+    merchant-lane row (business | both | handler). A merchant check citing a
+    platform-only / host / spec-author row is fake merchant coverage of a platform duty
+    (the exact leak the agent lock guards on its side) — either the row binds both
+    parties (`both`) or the citation is wrong. The agent side lives in verify_register
+    (lane_errors). Reads the export's per-row `role` + `status`."""
+    fails = []
+    for ver, e in export.get("versions", {}).items():
+        for r in e.get("rows", []):
+            if r.get("status") == "check" and r.get("role") not in matrix.MERCHANT_LANE:
+                fails.append(f"lane rule {ver} {r['id']}: role {r.get('role')!r} is not merchant-lane "
+                             f"yet a merchant check covers it ({r.get('covered_by')}) — set role `both` "
+                             f"or fix the citation")
+    return fails
 
 
 def validate_exemptions(exempt, must_ids, covered):
@@ -290,6 +315,7 @@ def main():
                 for v in matrix.VERSIONS}
     covered = matrix.covered_ids_by_version()
     failures += validate_exemptions(exempt, must_ids, covered)
+    failures += lane_rule_failures(fresh)
 
     # 4. copy freshness: any advertised check count — on the public site OR in the
     #    tracked docs (README, ROADMAP, packaging README) — must equal the real

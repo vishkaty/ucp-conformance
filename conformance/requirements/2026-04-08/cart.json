@@ -1,6 +1,6 @@
 {
   "_area": "cart",
-  "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "_spec_commit": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "rows": [
     {
       "id": "CART-001",
@@ -18,7 +18,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Receiver-side behavior on Create Checkout with cart_id; not expressible in cart.json JSON-Schema. official_oracle false: conformance suite pinned to spec 2026-01-23 has no cart tests."
+      "notes": "Receiver-side behavior on Create Checkout with cart_id; not expressible in cart.json JSON-Schema. official_oracle false: conformance suite pinned to spec 2026-01-23 has no cart tests.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-002",
@@ -36,7 +39,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Idempotent cart-to-checkout conversion; stateful receiver behavior, not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Idempotent cart-to-checkout conversion; stateful receiver behavior, not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-003",
@@ -72,7 +78,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Receiver-side sync behavior. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Receiver-side sync behavior. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-005",
@@ -90,7 +98,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Optional cleanup behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Optional cleanup behavior; receiver-side. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-006",
@@ -108,7 +118,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform guideline; optional behavior. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Platform guideline; optional behavior. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-007",
@@ -126,7 +138,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform behavioral guideline. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Platform behavioral guideline. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-008",
@@ -144,7 +158,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform display guideline. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Platform display guideline. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-009",
@@ -162,7 +178,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform error-handling guideline. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Platform error-handling guideline. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-010",
@@ -180,7 +198,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "continue_url is optional in cart.json (ucp_request:omit on response), so schema does not require it. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "continue_url is optional in cart.json (ucp_request:omit on response), so schema does not require it. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-011",
@@ -198,7 +218,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business guideline. totals is schema-required in cart.json but content adequacy is not. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Business guideline. totals is schema-required in cart.json but content adequacy is not. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-012",
@@ -216,7 +238,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Optional partial-totals behavior. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Optional partial-totals behavior. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-013",
@@ -234,7 +258,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Business guideline. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Business guideline. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-014",
@@ -252,7 +278,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "expires_at is optional in cart.json. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "expires_at is optional in cart.json. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-015",
@@ -270,7 +298,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Lifecycle guideline; receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Lifecycle guideline; receiver-side. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-016",
@@ -288,7 +318,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Create Cart error behavior; ucp.status is discriminator, absence of id is secondary. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Create Cart error behavior; ucp.status is discriminator, absence of id is secondary. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-017",
@@ -306,7 +338,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause \u2014 'the provided resource replaces the existing cart state on the business side' \u2014 IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog)."
+      "notes": "Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause \u2014 'the provided resource replaces the existing cart state on the business side' \u2014 IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog).",
+      "role": "both",
+      "role_provenance": "agent-lock"
     },
     {
       "id": "CART-018",
@@ -324,7 +358,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Cancel Cart response behavior. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Cancel Cart response behavior. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-019",
@@ -360,7 +397,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-bound MUST NOT - platforms provide signals (see overview.md#signals); a business cannot be tested for the provenance of platform-supplied signal values."
+      "notes": "Platform-bound MUST NOT - platforms provide signals (see overview.md#signals); a business cannot be tested for the provenance of platform-supplied signal values.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-021",
@@ -378,7 +418,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Estimate-handling guideline; quote spans L252-L253. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Estimate-handling guideline; quote spans L252-L253. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "platform",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-022",
@@ -396,7 +438,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Well-formedness is a JSON-parse check, not a cart.json schema construct. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Well-formedness is a JSON-parse check, not a cart.json schema construct. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-023",
@@ -414,7 +459,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Transport security; verifiable at connection layer, not via JSON-Schema. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Transport security; verifiable at connection layer, not via JSON-Schema. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-024",
@@ -432,7 +480,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "HTTP header requirement on cart operations; not a body-schema constraint. Suite pinned to 2026-01-23 has no cart oracle. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land."
+      "notes": "HTTP header requirement on cart operations; not a body-schema constraint. Suite pinned to 2026-01-23 has no cart oracle. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-025",
@@ -468,7 +519,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Conditional MUST; the three numbered obligations are at L474-L476. Receiver-side. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Conditional MUST; the three numbered obligations are at L474-L476. Receiver-side. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-027",
@@ -504,7 +558,9 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Optional per-operation auth. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Optional per-operation auth. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "subject"
     },
     {
       "id": "CART-029",
@@ -522,7 +578,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-enforced via cart.json top-level required array (applies to response; ucp_request annotations on create/update are non-standard and not validator-enforced). Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Schema-enforced via cart.json top-level required array (applies to response; ucp_request annotations on create/update are non-standard and not validator-enforced). Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-030",
@@ -540,7 +599,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "ucp_request annotation is NOT standard JSON-Schema, so a validator on cart.json will NOT catch a cart_id on update => schema_enforced false. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "ucp_request annotation is NOT standard JSON-Schema, so a validator on cart.json will NOT catch a cart_id on update => schema_enforced false. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-031",
@@ -558,7 +620,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-enforced via line_item.json required array (cart reuses checkout line_item entity). Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Schema-enforced via line_item.json required array (cart reuses checkout line_item entity). Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-032",
@@ -576,7 +641,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-033",
@@ -594,7 +662,10 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": true,
-      "notes": "Schema-enforced via item.json required array. Suite pinned to 2026-01-23 has no cart oracle."
+      "notes": "Schema-enforced via item.json required array. Suite pinned to 2026-01-23 has no cart oracle.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     }
   ],
   "notes": [

@@ -1,6 +1,6 @@
 {
   "_area": "discovery-and-profile",
-  "_spec_commit": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "_spec_commit": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "rows": [
     {
       "id": "DISC-001",
@@ -8,13 +8,20 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L1053",
       "quote": "Profiles **MUST** be served over HTTPS.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Profile is the business well-known profile document."
+      "notes": "Profile is the business well-known profile document.",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DISC-002",
@@ -22,13 +29,20 @@
       "keyword": "MUST NOT",
       "source": "ucp:docs/specification/overview.md#L1054",
       "quote": "Profile endpoints **MUST NOT** use redirects (3xx).",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Companion impl rule at overview.md#L1099: 'Implementations MUST NOT follow redirects (3xx) on profile fetches.' Browser fetch auto-follows redirects opaquely -> CLI-only to assert no-redirect."
+      "notes": "Companion impl rule at overview.md#L1099: 'Implementations MUST NOT follow redirects (3xx) on profile fetches.' Browser fetch auto-follows redirects opaquely -> CLI-only to assert no-redirect.",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "DISC-003",
@@ -36,13 +50,20 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L1055-L1057",
       "quote": "Profile responses **MUST** include a `Cache-Control` header with `public` and `max-age` of at least 60 seconds. Profiles **MUST NOT** be served with `private`, `no-store`, or `no-cache` directives.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Reading response headers cross-origin is CORS-restricted in browser -> CLI-only."
+      "notes": "Reading response headers cross-origin is CORS-restricted in browser -> CLI-only.",
+      "role": "business",
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "DISC-004",
@@ -50,13 +71,20 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L1098",
       "quote": "Implementations **MUST** reject profile URLs not served over HTTPS.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": false,
       "browser_capable": false,
       "schema_enforced": false,
-      "notes": "Tester-side behavior we also implement in our own profile fetcher."
+      "notes": "Tester-side behavior we also implement in our own profile fetcher.",
+      "role": "both",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "DISC-005",
@@ -64,13 +92,20 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L147",
       "quote": "`endpoint` **MUST** be a valid URL with scheme (https)",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "testable",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Official suite protocol_test asserts a non-null rest endpoint."
+      "notes": "Official suite protocol_test asserts a non-null rest endpoint.",
+      "role": "business",
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "DISC-006",
@@ -78,13 +113,20 @@
       "keyword": "MUST",
       "source": "ucp:docs/specification/overview.md#L622-L623",
       "quote": "Platforms **MUST** include their profile URI in every request using the transport-appropriate mechanism.",
-      "versions": ["2026-04-08"],
-      "transport": ["rest"],
+      "versions": [
+        "2026-04-08"
+      ],
+      "transport": [
+        "rest"
+      ],
       "testability": "manual",
       "official_oracle": true,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it. Distinct from the 01-23/suite header set (request-signature/request-id are NOT 04-08 spec headers). Reclassified 2026-07-02: the MUST binds the PLATFORM (request author), not the merchant \u2014 same subject-binding as CAT-008/CAT-034. No merchant-observable obligation exists in THIS row (the spec does not mandate that businesses reject requests lacking the profile URI), so a merchant check would grade something the spec never requires of merchants. The tester itself satisfies the obligation as the platform: every suite request carries UCP-Agent profile=... (merchant_checks._hdr). Candidate for a documented client-side exemption in Phase 4."
+      "notes": "REST: UCP-Agent header (RFC 8941 dictionary, profile=). This is the platform/agent obligation; the tester IS the platform and must send it. Distinct from the 01-23/suite header set (request-signature/request-id are NOT 04-08 spec headers). Reclassified 2026-07-02: the MUST binds the PLATFORM (request author), not the merchant \u2014 same subject-binding as CAT-008/CAT-034. No merchant-observable obligation exists in THIS row (the spec does not mandate that businesses reject requests lacking the profile URI), so a merchant check would grade something the spec never requires of merchants. The tester itself satisfies the obligation as the platform: every suite request carries UCP-Agent profile=... (merchant_checks._hdr). Candidate for a documented client-side exemption in Phase 4.",
+      "role": "platform",
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     }
   ]
 }

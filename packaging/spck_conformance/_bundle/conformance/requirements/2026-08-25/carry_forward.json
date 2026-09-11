@@ -1,0 +1,1978 @@
+{
+ "_about": "Carry-forward ledger 2026-04-08 -> 2026-08-25 (D2-09 / PLAN-v3 §2.4, D2 design §A15): every 2026-04-08 row accounted exactly once. Generated once from the 2026-08-25 rows' `lineage` (P1-REPORT dispositions) + the D2-02 merges + P1's DEAD table with mechanical search terms; maintained by hand from here (a new disposition is a reviewed edit). Verified by conformance/selfcheck/verify_carry_forward.py (gate `carry-forward`). Reverse direction (D2-15): 2026-04-08 rows with lineage.disposition `backported` from 2026-08-25 are checked against their 2026-08-25 source row and are NOT part of the 482.",
+ "from": "2026-04-08",
+ "to": "2026-08-25",
+ "spec_pins": {
+  "from": "a2d8bf0b",
+  "to": "cd78fb38"
+ },
+ "generated": "2026-09-11",
+ "entries": [
+  {
+   "id": "A2A-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-026",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CART-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "CART-033",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-004",
+   "disposition": "renamed"
+  },
+  {
+   "id": "CAT-005",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CAT-006",
+   "disposition": "dead",
+   "reason": "Implementations SHOULD accept a page size of at least 10 — the floor is gone; default page size is now only RECOMMENDED at 10 (CAT-005/007/008 reworded) (P1-REPORT §DEAD)",
+   "search_terms": [
+    "page size of at least 10",
+    "accept a page size"
+   ]
+  },
+  {
+   "id": "CAT-007",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CAT-008",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CAT-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-024",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CAT-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-033",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-035",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-036",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-037",
+   "disposition": "carried"
+  },
+  {
+   "id": "CAT-038",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-024",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CHK-025",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CHK-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-033",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-035",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-036",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-037",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-038",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-039",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-040",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-041",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-042",
+   "disposition": "renamed"
+  },
+  {
+   "id": "CHK-043",
+   "disposition": "merged",
+   "into": "CHK-001",
+   "on": "2026-09-10",
+   "reason": "D2-02 (A2) register dedupe: same normalized quote + source + keyword as the surviving row"
+  },
+  {
+   "id": "CHK-044",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-045",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-046",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-047",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-048",
+   "disposition": "reworded"
+  },
+  {
+   "id": "CHK-049",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-050",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-051",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-052",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-053",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-054",
+   "disposition": "carried"
+  },
+  {
+   "id": "CHK-055",
+   "disposition": "merged",
+   "into": [
+    "TOT-010",
+    "TOT-011"
+   ],
+   "on": "2026-09-10",
+   "reason": "D2-02 (A2): CHK-055 quoted a MUST NOT half and a SHOULD half of one sentence; split into TOT-010 (MUST NOT) and TOT-011 (SHOULD), the agent check agent.no_autocomplete_mismatched_totals cites TOT-010"
+  },
+  {
+   "id": "CHK-056",
+   "disposition": "merged",
+   "into": "SAE-018",
+   "on": "2026-09-10",
+   "reason": "D2-02 (A2) register dedupe: same normalized quote + source + keyword as the surviving row"
+  },
+  {
+   "id": "CHK-057",
+   "disposition": "carried"
+  },
+  {
+   "id": "DISC-001",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DISC-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "DISC-003",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DISC-004",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DISC-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "DISC-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-029",
+   "disposition": "merged",
+   "into": "DSC-006",
+   "on": "2026-09-10",
+   "reason": "D2-02 (A2) register dedupe: same normalized quote + source + keyword as the surviving row"
+  },
+  {
+   "id": "DSC-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "DSC-031",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-032",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-033",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-034",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-035",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-036",
+   "disposition": "reworded"
+  },
+  {
+   "id": "DSC-037",
+   "disposition": "reworded"
+  },
+  {
+   "id": "ERR-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-033",
+   "disposition": "carried"
+  },
+  {
+   "id": "ERR-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-001",
+   "disposition": "reworded"
+  },
+  {
+   "id": "FUL-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-004",
+   "disposition": "dead",
+   "reason": "fulfillment_method.type MUST be one of shipping or pickup — superseded by the generalized Destinations model; the closed shipping/pickup enum no longer exists (FUL-005/FUL-030 reworded) (P1-REPORT §DEAD)",
+   "search_terms": [
+    "\"enum\": [\"shipping\", \"pickup\"]",
+    "MUST be one of shipping or pickup"
+   ]
+  },
+  {
+   "id": "FUL-005",
+   "disposition": "reworded"
+  },
+  {
+   "id": "FUL-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-008",
+   "disposition": "renamed"
+  },
+  {
+   "id": "FUL-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-017",
+   "disposition": "renamed"
+  },
+  {
+   "id": "FUL-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-021",
+   "disposition": "reworded"
+  },
+  {
+   "id": "FUL-022",
+   "disposition": "reworded"
+  },
+  {
+   "id": "FUL-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "FUL-029",
+   "disposition": "dead",
+   "reason": "extension schema adding a method to the fulfillment_method type enum — the enum-extension mechanism no longer exists under the Destinations model (P1-REPORT §DEAD)",
+   "search_terms": [
+    "adds the method to the fulfillment_method",
+    "fulfillment_method type enum"
+   ]
+  },
+  {
+   "id": "FUL-030",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-001",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-030",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-033",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-035",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-036",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-037",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-038",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-039",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-040",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-041",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-042",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-043",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-044",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-045",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-046",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-047",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-048",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-049",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-050",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-051",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-052",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-053",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-054",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-055",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-056",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-057",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-058",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-059",
+   "disposition": "reworded"
+  },
+  {
+   "id": "IDL-060",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-061",
+   "disposition": "carried"
+  },
+  {
+   "id": "IDL-062",
+   "disposition": "reworded"
+  },
+  {
+   "id": "MCP-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "MCP-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "MCP-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "MCP-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "MCP-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "MCP-006",
+   "disposition": "reworded"
+  },
+  {
+   "id": "NEG-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "NEG-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "NEG-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "NEG-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "NEG-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "ORD-033",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-002",
+   "disposition": "reworded"
+  },
+  {
+   "id": "OVR-003",
+   "disposition": "reworded"
+  },
+  {
+   "id": "OVR-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-007",
+   "disposition": "reworded"
+  },
+  {
+   "id": "OVR-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "OVR-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-018",
+   "disposition": "merged",
+   "into": "CHK-001",
+   "on": "2026-09-10",
+   "reason": "D2-02 (A2) register dedupe: same normalized quote + source + keyword as the surviving row"
+  },
+  {
+   "id": "PAY-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-021",
+   "disposition": "reworded"
+  },
+  {
+   "id": "PAY-022",
+   "disposition": "reworded"
+  },
+  {
+   "id": "PAY-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-025",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-026",
+   "disposition": "reworded"
+  },
+  {
+   "id": "PAY-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-030",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-033",
+   "disposition": "renamed"
+  },
+  {
+   "id": "PAY-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-035",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-036",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-037",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-038",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-039",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-040",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-041",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-042",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-043",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-044",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-045",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-046",
+   "disposition": "carried"
+  },
+  {
+   "id": "PAY-047",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-003",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SAE-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-019",
+   "disposition": "dead",
+   "reason": "Eligibility verification failure MUST only affect the messages array — the isolation guarantee has no surviving textual counterpart (SAE-021 reworded) (P1-REPORT §DEAD)",
+   "search_terms": [
+    "only affect the messages array",
+    "only affect the `messages` array"
+   ]
+  },
+  {
+   "id": "SAE-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "SAE-021",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-003",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-004",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-005",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-006",
+   "disposition": "renamed"
+  },
+  {
+   "id": "SIG-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-008",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-009",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-013",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-016",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-021",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-022",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-023",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-024",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-025",
+   "disposition": "renamed"
+  },
+  {
+   "id": "SIG-026",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-027",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-028",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-029",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-030",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-031",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-032",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-033",
+   "disposition": "renamed"
+  },
+  {
+   "id": "SIG-034",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-035",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-036",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-037",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-038",
+   "disposition": "reworded"
+  },
+  {
+   "id": "SIG-039",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-040",
+   "disposition": "carried"
+  },
+  {
+   "id": "SIG-041",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-001",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-002",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-004",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-005",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-006",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-007",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-008",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-010",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-011",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-012",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-014",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-015",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-017",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-018",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-019",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-020",
+   "disposition": "carried"
+  },
+  {
+   "id": "TOT-021",
+   "disposition": "carried"
+  }
+ ]
+}
