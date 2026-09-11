@@ -40,7 +40,7 @@ STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
 class MCheck:
     def __init__(self, cid, req_ids, keyword, fetch_fn, predicate, mutations,
                  capability=None, needs=(), cfg_needs=(), transport=None, versions=None,
-                 req_ids_map=None):
+                 req_ids_map=None, kills=None):
         self.id, self.req_ids, self.keyword = cid, req_ids, keyword
         self.fetch_fn, self.predicate, self.mutations = fetch_fn, predicate, mutations
         self.capability, self.needs = capability, tuple(needs)
@@ -58,6 +58,28 @@ class MCheck:
         # [] means the check verifies nothing normative at that version. Used for
         # grading (run_merchant_checks) AND coverage attribution (matrix.py).
         self.req_ids_map = dict(req_ids_map) if req_ids_map else None
+        # kills={"CHK-021": ["set:status=x"], "CHK-025": [...]} (D1-12, B2a): which of the
+        # mutations above prove WHICH register id. Mandatory for a multi-id check at
+        # 2026-08-25 (validate_req_kills.py reds a `shared` attribution); a single-id
+        # check needs none (every mutation is that id's). Hashed into killset_lock.json.
+        self.kills = {k: list(v) for k, v in dict(kills).items()} if kills else None
+
+def per_id_kills(rids, mutations, kills, survivors):
+    """{rid: {declared, killed}} for one run (D1-12): a single-id check's declared kills
+    are ALL its mutations; a multi-id check's are kills[rid] (nothing when undeclared —
+    that is the `shared` state the gate reds). `survivors` = the mutations (as declared)
+    that did NOT deviate."""
+    out = {}
+    surv = set(survivors)
+    for rid in rids:
+        if kills and rid in kills:
+            declared = list(kills[rid])
+        elif len(rids) == 1:
+            declared = list(mutations)
+        else:
+            declared = []
+        out[rid] = {"declared": declared, "killed": [m for m in declared if m not in surv]}
+    return out
 
 # PLAN-v3 §2.3 skip vocabulary (D1-10): every not-applicable/not-tested status the runner
 # emits maps to exactly one class; the merchant gate pins {id: class} per golden in
@@ -1549,6 +1571,7 @@ def run_merchant_checks(ctx, checks=None):
                                   "kill_safe": None})); continue
         muts = [_expand_mut(m, ctx) for m in chk.mutations]
         survivors = [m for m in muts if _pred(chk, mutate(golden, m), ctx) != DEVIATION]
+        raw_survivors = [raw for raw, m in zip(chk.mutations, muts) if m in survivors]
         kill_safe = (clean == CLEAN and not survivors)
         status = clean if kill_safe else (clean if clean == DEVIATION else INCONCLUSIVE)
         for rid in rids:
@@ -1556,6 +1579,9 @@ def run_merchant_checks(ctx, checks=None):
         detail.append((chk, {"status": clean,
                              "kills": f"{len(chk.mutations)-len(survivors)}/{len(chk.mutations)}",
                              "kill_safe": kill_safe, "survivors": survivors,
+                             # D1-12: which declared kill proved which register id (raw
+                             # mutation strings, before $-placeholder expansion)
+                             "per_id": per_id_kills(rids, chk.mutations, chk.kills, raw_survivors),
                              # evidence for actionable reports: what the server actually returned
                              "observed": {"status": golden.status, "body": _excerpt(golden.json)}}))
     for _chk, d in detail:                # D1-10: runner detail carries the §2.3 skip class

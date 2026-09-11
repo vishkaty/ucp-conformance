@@ -10,9 +10,9 @@ Kinds and what is hashed (keyed `module_stem:check_id`):
   engine       checks/v2026_*.py core + area_*.py via the manifest loaders — same fields
   schema-tier  checks/schema_check*.py namedtuple rows — every non-callable field (valid,
                negatives, controls, removed_op…) + sha256 of any fixture file a field names
-  struct       checks/struct_check_08_25.py — negatives + valid payloads
+  struct       checks/struct_check_08_25.py — negatives + valid payloads (+ `kills`, D1-12)
   Row          checks/golden_check_08_25.py rows — the named golden mutant's route + patch
-               from testbed/golden-0825/server/defects_config.json
+               from testbed/golden-0825/server/defects_config.json (+ `kills`, D1-12)
   ACheck       agent/agent_checks.py — kill_mutation + sha256 of reference_agent.DEFECTS
 
 `n_kills_floor` never drops on regeneration unless `shrink_notes[key]` carries an
@@ -87,12 +87,16 @@ def _row_entry(row, defects):
         if "behavior" in m:          # only behavior rows carry it: patch-row hashes unchanged
             entry["behavior"] = m["behavior"]
         resolved.append(entry)
-    return {"n_kills": len(resolved), "hash": _sha(resolved)}
+    kills = getattr(row, "kills", None) or {}
+    return {"n_kills": len(resolved), "hash": _sha({"mutants": resolved, "kills": kills} if kills else resolved)}
 
 
 def _struct_entry(chk):
-    return {"n_kills": len(chk.negatives),
-            "hash": _sha({"negatives": chk.negatives, "valid": chk.valid})}
+    kills = getattr(chk, "kills", None) or {}
+    d = {"negatives": chk.negatives, "valid": chk.valid}
+    if kills:                                   # D1-12: per-id kills are part of the kill set
+        d["kills"] = kills
+    return {"n_kills": len(chk.negatives), "hash": _sha(d)}
 
 
 def _schema_entry(row):

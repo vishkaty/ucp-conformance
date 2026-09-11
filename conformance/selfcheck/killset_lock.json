@@ -574,13 +574,13 @@
    "n_kills_floor": 1
   },
   "golden_check_08_25:ERR-028.unknown-route": {
-   "hash": "c13647afed457e9f3e3ca207fa2b716bc5fce82edf28469645a49b0b037d41f7",
+   "hash": "cdcfa84fc48a4be6358787bae4e7a69273ac81be713d18ba493c9d9a73f65ff4",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
   },
   "golden_check_08_25:ERR-028.validation-422": {
-   "hash": "5105ff105c44e682cd4be57c8958b7ace1c21cdb9e7f60dd231a1e41d53ccef0",
+   "hash": "5f6e10f6b181733dfffefaf665b6fed83f32c5109482513c0151f7c8385d9066",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -706,7 +706,7 @@
    "n_kills_floor": 1
   },
   "golden_check_08_25:TOT-014": {
-   "hash": "a3a93eaf3ca7714ac85dd1ccb4d8960d4fe60477bfebd623638bf044c71ccde3",
+   "hash": "734e560ffa356606dcbb8b6856de772b631ba703a1cecd597e177db815a6e878",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -2842,13 +2842,13 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.lookup_variants_require_nonempty_inputs": {
-   "hash": "0b1ab4d9fff546a06b0318b1bde6b7e329a4fee55de3d73b12c5091211757934",
+   "hash": "22a93ecaadf8831047cf3ee2e083ebced7fd19aa08d40b5e56e4f360da097878",
    "kind": "struct",
    "n_kills": 2,
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.pagination_cursor_required_when_has_next_page": {
-   "hash": "abdbfa3df56c9a7e51fecb90ff2147b0285502124bf8817ecbd6593d95c92b61",
+   "hash": "d2f17a441e70e8a4587605c24fdb60c7158f981fc26612058f48dccdb03467e8",
    "kind": "struct",
    "n_kills": 3,
    "n_kills_floor": 3
@@ -2866,10 +2866,10 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:catalog.unit_price_comparator_formula": {
-   "hash": "83b4815eb970005bec499e25801b681c0d7d0443d7da2d2f0d683506c9cba94d",
+   "hash": "44ac4bf41b38ec0e8419ac39a9bfc24d18b2180baee8be1e286ef78b6e47e78f",
    "kind": "struct",
-   "n_kills": 2,
-   "n_kills_floor": 2
+   "n_kills": 4,
+   "n_kills_floor": 4
   },
   "struct_check_08_25:catalog.unit_price_currency_matches_price_currency": {
    "hash": "6eac0b08a3750b3fcde5c1e2413efbd16b74db991e91a3a17a02f7d339e0efe7",
@@ -2896,7 +2896,7 @@
    "n_kills_floor": 1
   },
   "struct_check_08_25:discovery.dereference_no_redirect_follow": {
-   "hash": "2a238bdbbda725697119da943e882d25b9ca0c4d75b5b384bdde9f0d6a78eaf2",
+   "hash": "fdc2c960d61538aae11c2d20862b1e67c607b02c8e4a0cf63cded3106d6af280",
    "kind": "struct",
    "n_kills": 8,
    "n_kills_floor": 8
@@ -2944,10 +2944,10 @@
    "n_kills_floor": 2
   },
   "struct_check_08_25:permalink.continue_to_fallback_no_reflection": {
-   "hash": "0c72cd79b57e702bbf9e48f3e3b42e06507990434b8af9c1eb79a04e5d4aba12",
+   "hash": "887bb7a2a9ad01f6feae5122c57e265a3929eb0e8c45dacce746877adabe735c",
    "kind": "struct",
-   "n_kills": 1,
-   "n_kills_floor": 1
+   "n_kills": 2,
+   "n_kills_floor": 2
   },
   "struct_check_08_25:permalink.continue_to_static_rejection_rules": {
    "hash": "bd5a599313cde57af171443e6e1fb21f16d102b47dd9230f920fec5185e948d2",
@@ -3136,7 +3136,7 @@
    "n_kills_floor": 2
   }
  },
- "generated": "2026-09-10",
+ "generated": "2026-09-11",
  "pins": {
   "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
   "reference_sample_server": "00333a80ebca3efd442d515b261a36e57de815d3",

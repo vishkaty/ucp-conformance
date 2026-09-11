@@ -277,13 +277,15 @@ CONTROLLED_CONFIG = {
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG,
            "mcp-only-0825": {}}
 
-def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped):
+def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped, per_id=None):
     """The run record validate_dormancy.py unions (D1-07): which ids RAN on this golden
     (sound, broken, weak or reference-defect — all exercised) and why each other id
-    was skipped, in the §2.3 class vocabulary (merchant_checks.skip_class, D1-10)."""
+    was skipped, in the §2.3 class vocabulary (merchant_checks.skip_class, D1-10);
+    plus `per_id` {check_id: {rid: {declared, killed}}} for validate_req_kills.py (D1-12)."""
     ran = sorted(set(ok) | {c for c, _ in broken} | {c for c, _ in weak} | {c for c, _, _ in ref_defects})
     rec = {"golden": golden, "server": server, "served_version": ctx.version,
-           "ran": ran, "skipped": {cid: skip_class(st) for cid, st in skipped}}
+           "ran": ran, "skipped": {cid: skip_class(st) for cid, st in skipped},
+           "per_id": per_id or {}}
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(path).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
 
@@ -606,7 +608,9 @@ def main():
         print(f"      {d['upstream']} (filed {d['filed']})")
 
     if args.record:
-        _write_record(args.record, args.golden, args.server, ctx, ok, broken, weak, ref_defects, skipped)
+        per_id = {chk.id: d["per_id"] for chk, d in detail if "per_id" in d}
+        _write_record(args.record, args.golden, args.server, ctx, ok, broken, weak, ref_defects, skipped,
+                      per_id=per_id)
     n_run = len(ok) + len(broken) + len(weak)
     skipped_classes = {cid: skip_class(st) for cid, st in skipped}
     ran_ids = sorted(set(ok) | {c for c, _ in broken} | {c for c, _ in weak} | {c for c, _, _ in ref_defects})

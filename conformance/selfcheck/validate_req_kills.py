@@ -39,6 +39,141 @@ ENFORCED_VERSIONS = ("2026-08-25",)      # D1-21 widens this to every version (2
 
 
 # ---------------------------------------------------------------------------
+# the attribution table (matrix walk) and the pure assessment
+# ---------------------------------------------------------------------------
+def _kind(chk):
+    if hasattr(chk, "cfg_needs"):
+        return "MCheck"
+    if hasattr(chk, "make_request") and hasattr(chk, "mutant"):
+        return "Row"
+    if hasattr(chk, "negatives") and hasattr(chk, "valid") and hasattr(chk, "fn"):
+        return "struct"
+    if hasattr(chk, "schema_rel"):
+        return "schema-tier"
+    if hasattr(chk, "mutations"):
+        return "engine"
+    return "unknown"
+
+
+def _kill_declaration(chk):
+    """(n_kills, {rid: [kill key…]}) — the check's whole kill set size and its per-id map in
+    the record key form each runner writes (mutation strings / mutant names / struct
+    case keys)."""
+    kind = _kind(chk)
+    kills = getattr(chk, "kills", None) or {}
+    if kind in ("MCheck", "engine"):
+        return len(list(chk.mutations)), {r: [str(m) for m in v] for r, v in kills.items()}
+    if kind == "Row":
+        names = list(chk.mutant) if isinstance(chk.mutant, (list, tuple)) else [chk.mutant]
+        return len([n for n in names if n]), {r: [str(m) for m in v] for r, v in kills.items()}
+    if kind == "struct":
+        import struct_check_08_25
+        return len(chk.negatives), {r: [struct_check_08_25.case_key(c) for c in v] for r, v in kills.items()}
+    if kind == "schema-tier":
+        negs = getattr(chk, "negatives", None)
+        return (len(negs) if isinstance(negs, (list, tuple)) else 1), {}
+    return 0, {}
+
+
+def attributions(version):
+    """[{key, check_id, kind, rids, kills, n_kills}] — one entry per check OBJECT attributed
+    at `version` by matrix.attribution() (the single walk coverage and evidence use), its
+    rids at that version in walk order. Text-scan rows (no object) carry no kill set and
+    are not attributions of a check."""
+    import matrix
+    groups = {}
+    for v, rid, base, chk in matrix.attribution():
+        if v != version or chk is None:
+            continue
+        key = f"{pathlib.Path(base).stem}:{chk.id}"
+        g = groups.get(key)
+        if g is None:
+            n, kmap = _kill_declaration(chk)
+            g = groups[key] = {"key": key, "check_id": chk.id, "kind": _kind(chk), "rids": [],
+                               "kills": kmap, "n_kills": n}
+        if rid not in g["rids"]:
+            g["rids"].append(rid)
+    return list(groups.values())
+
+
+def assess(entries, records, enforce=True):
+    """Pure. entries = attributions(); records = {key or check_id: per_id} from the run
+    records (None = no record). -> (rc, findings, stats)."""
+    findings = []
+    stats = {"attributions": 0, "dedicated": 0, "shared": 0, "unkilled": 0, "unrecorded": 0,
+             "recorded": 0, "checks": len(entries)}
+    for e in entries:
+        rec = records.get(e["key"])
+        if rec is None:
+            rec = records.get(e["check_id"])
+        if rec is None:
+            stats["unrecorded"] += 1
+        else:
+            stats["recorded"] += 1
+        multi = len(e["rids"]) > 1
+        for rid in e["rids"]:
+            stats["attributions"] += 1
+            declared = e["kills"].get(rid) if multi else None
+            if multi and not declared:
+                stats["shared"] += 1
+                findings.append(f"shared: {e['key']} cites {rid} with no dedicated kill "
+                                f"(kills= names none of its {e['n_kills']} kills for this id)")
+                continue
+            if not multi and e["n_kills"] == 0:
+                stats["shared"] += 1
+                findings.append(f"shared: {e['key']} cites {rid} but declares no kills at all")
+                continue
+            if rec is not None:
+                killed = ((rec.get(rid) or {}).get("killed")) or []
+                if not killed:
+                    stats["unkilled"] += 1
+                    findings.append(f"unkilled: {e['key']} declares kills for {rid} but the run record "
+                                    f"observed none of them killed ({(rec.get(rid) or {}).get('declared')})")
+                    continue
+            stats["dedicated"] += 1
+    rc = 1 if enforce and (stats["shared"] or stats["unkilled"]) else 0
+    return rc, findings, stats
+
+
+def load_records(d):
+    """{check_id: per_id} over every *.json in DIR carrying a `per_id` block (the merchant
+    gates' --record, golden_check_08_25 --record, struct_check_08_25 --record)."""
+    out = {}
+    d = pathlib.Path(d) if d else None
+    if d is None or not d.is_dir():
+        return out
+    for f in sorted(d.glob("*.json")):
+        try:
+            doc = json.loads(f.read_text())
+        except ValueError:
+            continue
+        for cid, per_id in (doc.get("per_id") or {}).items():
+            out[cid] = per_id
+    return out
+
+
+def run(version, records_dir=None):
+    entries = attributions(version)
+    records = load_records(records_dir)
+    enforce = version in ENFORCED_VERSIONS
+    rc, findings, st = assess(entries, records, enforce=enforce)
+    for f in findings:
+        print(f"  {'✗' if enforce else '!'} {f}")
+    short = version[5:].replace("-", "-")
+    tag = f"{short}"
+    if st["shared"] == 0 and st["unkilled"] == 0:
+        head = (f"all {tag} attributions have >=1 dedicated kill "
+                f"({st['attributions']} attributions, 0 shared)")
+    else:
+        head = (f"{st['dedicated']}/{st['attributions']} {tag} attributions dedicated · "
+                f"{st['shared']} shared · {st['unkilled']} unkilled")
+    mode = "" if enforce else " (report-only until D1-21)"
+    print(f"req-kills {version}: {'PASS' if rc == 0 else 'FAIL'}{mode} — {head} · "
+          f"{st['checks']} checks ({st['recorded']} recorded, {st['unrecorded']} unrecorded)")
+    return rc
+
+
+# ---------------------------------------------------------------------------
 # --selftest (hermetic): the planted two-id check through the REAL merchant runner
 # ---------------------------------------------------------------------------
 def selftest():

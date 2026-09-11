@@ -108,7 +108,7 @@ def gates(server, require_server=False):
         # schema_check_04_08.py idiom). Deliberately unattributed: not wired into
         # checkset_manifest/matrix/coverage — the coverage/site flip is a separate,
         # owner-visible step (PLAN-0825 §G conversion-phase discipline).
-        ("struct-check-08-25", _py(CHK / "struct_check_08_25.py"),                None, ()),
+        ("struct-check-08-25", _py(CHK / "struct_check_08_25.py", *rec("struct-0825")), None, ()),
         # P3 wave 2 (2026-08-31, lane/p3-wave2): the golden-reading counterpart to
         # struct-check-08-25 above — rows checkable ONLY against a live golden-0825
         # server, unblocked by the R11 defect-injection battery landing. HERMETIC
@@ -122,7 +122,7 @@ def gates(server, require_server=False):
         # "self_referenced_mutants" array for rows the released schema cannot
         # itself enforce — see that file's own $comment and the module docstring
         # here). Deliberately unattributed, same discipline as struct-check-08-25.
-        ("golden-check-08-25", _py(CHK / "golden_check_08_25.py"),                None, (2,)),
+        ("golden-check-08-25", _py(CHK / "golden_check_08_25.py", *rec("golden-check-0825")), None, (2,)),
         # D3-29: golden-0825's OWN unit + smoke tests (server/*_test.py, smoke/) are
         # executed here, not merely present -- every D3 task's failing-first test is a
         # server or smoke test, so an unexecuted suite would let a red one sit in the
@@ -211,6 +211,15 @@ def gates(server, require_server=False):
         # without --require-server an empty record set skips honestly (rc 2).
         ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
                             *(["--require-server"] if require_server else [])), None, (2,)),
+        # D1-12 (B2a): every (check, register id) attribution at 2026-08-25 has >= 1 DEDICATED
+        # kill — a multi-id check must say which mutation/mutant/negative proves which id
+        # (`kills=`), and the run records above (merchant-0825, golden-check-08-25,
+        # struct-check-08-25 --record) must show it killed. `shared` / `unkilled` -> red;
+        # report-only at the older versions until D1-21 backfills them. Hermetic apart
+        # from the records (an unrecorded check is named, never silently passed).
+        ("req-kills-0825", _py(SELF / "validate_req_kills.py", "--version", "2026-08-25",
+                               "--records", str(RECORD_DIR)),                     None, ()),
+        ("req-kills-selftest", _py(SELF / "validate_req_kills.py", "--selftest"), None, ()),
         # D1-09: the R11 battery must have run, recently, and passed — counted. --battery
         # runs it in THIS invocation (report copied to RECORD_DIR, preferred); otherwise
         # the tracked LAST_RUN.json under the 14-day rule.

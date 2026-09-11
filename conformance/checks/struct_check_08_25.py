@@ -101,7 +101,11 @@ VERSIONS = ("2026-08-25",)
 #   valid:     list of arg-tuples that MUST make fn return True.
 #   negatives: list of arg-tuples that MUST make fn return False (the kill-rate proof:
 #              a negative that fn still accepts is a surviving mutant).
-Check = namedtuple("Check", "id req_ids fn valid negatives")
+#   kills:     {req_id: [negative arg-tuple, …]} (D1-12, B2a) — which negatives prove
+#              WHICH register id; mandatory for a multi-id check (validate_req_kills.py
+#              reds a `shared` attribution at 2026-08-25). Each listed case must be one
+#              of `negatives`. A single-id check needs none.
+Check = namedtuple("Check", "id req_ids fn valid negatives kills", defaults=(None,))
 
 
 # =====================================================================================
@@ -470,7 +474,10 @@ PERMALINK_CHECKS = [
           [("/ok/path", "/default", "/ok/path"),                  # valid -> passthrough
            ("https://evil.example/x", "/default", "/default"),     # invalid -> falls back
            ("//evil.example/x", "/default", "/default")],
-          [("https://evil.example/x", "/default", "https://evil.example/x")]),  # must NOT reflect raw
+          [("https://evil.example/x", "/default", "https://evil.example/x"),   # must NOT reflect raw (PERM-011)
+           ("https://evil.example/x", "/default", "/somewhere-else")],         # must fall back to THE DEFAULT (PERM-012)
+          kills={"PERM-011": [("https://evil.example/x", "/default", "https://evil.example/x")],
+                 "PERM-012": [("https://evil.example/x", "/default", "/somewhere-else")]}),
     Check("permalink.location_header_no_control_chars", ["PERM-011"],
           lambda dest: not any(c in _CONTROL_CHARS for c in dest),
           [("/collections/spring",), ("/buy/sku_123:1",)],
@@ -554,7 +561,13 @@ DISCOVERY_FETCH_SAFETY_CHECKS = [
     Check("discovery.dereference_no_redirect_follow", ["DISC-002", "DISC-007"],
           dereference_may_proceed,
           [(200,), (404,), (500,), (299,), (400,)],           # non-3xx -> may proceed
-          [(300,), (301,), (302,), (303,), (304,), (307,), (308,), (399,)]),  # 3xx -> MUST reject
+          [(300,), (301,), (302,), (303,), (304,), (307,), (308,), (399,)],   # 3xx -> MUST reject
+          # DISC-002 (profile endpoints: the permanent/temporary redirect pair a profile
+          # host would emit) and DISC-007 (any dereferenced URL: the rest of the 3xx class
+          # incl. 303/307/308 and the range edges) — same predicate, each id proven by
+          # its own cases (D1-12).
+          kills={"DISC-002": [(301,), (302,)],
+                 "DISC-007": [(300,), (303,), (304,), (307,), (308,), (399,)]}),
     Check("discovery.dereference_target_not_special_use", ["DISC-008"],
           dereference_target_allowed,
           [("8.8.8.8",), ("1.1.1.1",), ("2001:4860:4860::8888",),
@@ -667,7 +680,12 @@ CATALOG_SCHEMA_CHECKS = [
           pagination_cursor_required_when_has_next_page,
           [(_REAL_PAGINATION_DOC,)],
           [(_mutant_pagination_doc_without_cursor_conditional(),),
-           ({"$defs": {"response": {}}},), ({},)]),
+           ({"$defs": {"response": {}}},), ({},)],
+          # CAT-002 = the if/then constraint itself (its removal is the dedicated mutant);
+          # CAT-003 = "cursor present when has_next_page" as prose — a response def with
+          # no conditional at all is what that sentence forbids (D1-12).
+          kills={"CAT-002": [(_mutant_pagination_doc_without_cursor_conditional(),)],
+                 "CAT-003": [({"$defs": {"response": {}}},)]}),
     Check("catalog.lookup_request_requires_ids_min_one", ["CAT-028"],
           _lookup_request_ids_min_one,
           [(_REAL_CATALOG_LOOKUP_DOC,)],
@@ -773,7 +791,13 @@ CATALOG_LOOKUP_ALGORITHM_CHECKS = [
              {"id": "v3"}], ["v1", "v2"]),
            ([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
              {"id": "v2", "inputs": []},
-             {"id": "v3"}], ["v1", "v2", "v3"])]),
+             {"id": "v3"}], ["v1", "v2", "v3"])],
+          # CAT-018 (non-empty inputs): keeping v2 (empty inputs) is the defect;
+          # CAT-017 (no inputs entry at all): keeping v3 as well (D1-12).
+          kills={"CAT-018": [([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
+                               {"id": "v2", "inputs": []}, {"id": "v3"}], ["v1", "v2"])],
+                 "CAT-017": [([{"id": "v1", "inputs": [{"request_id": "x", "match_type": "exact"}]},
+                               {"id": "v2", "inputs": []}, {"id": "v3"}], ["v1", "v2", "v3"])]}),
     Check("catalog.variant_id_lookup_requested_variant_first", ["CAT-032"],
           lambda requested, all_ids, want: order_variants_for_lookup(requested, all_ids) == want,
           [("v2", ["v1", "v2", "v3"], ["v2", "v1", "v3"]),
@@ -847,9 +871,20 @@ CATALOG_UNIT_PRICE_CHECKS = [
            # -- double-rounding yields round(100/round(2.5)) = 50, not 40.
            (100, 25, 1, 1, 0, 40),
            (10000, 1, 0, 1, 0, 10000),   # 1:1 measure/reference -> unit price == price
-           (999, 3, 0, 1, 0, 333)],      # exact division, proves rounding is applied once
+           (999, 3, 0, 1, 0, 333),       # exact division, proves rounding is applied once
+           # D1-12: a reference != 1 (10 m per 50 m spool -> 1400) makes the reference
+           # half of the formula load-bearing; every earlier fixture had reference = 1.
+           (7000, 5000, 2, 10, 0, 1400)],
           [(7000, 5000, 2, 1, 0, 141),   # off-by-one -- proves the formula is exercised
-           (7000, 5000, 2, 1, 0, 7000)]),  # naive "echo price.amount" bug
+           (7000, 5000, 2, 1, 0, 7000),  # naive "echo price.amount" bug
+           (7000, 5000, 2, 10, 0, 140),  # ignores the reference scaling (reference != 1)
+           (100, 25, 1, 1, 0, 50)],      # rounded TWICE (CAT-043: round once, authoritative)
+          # CAT-042 = the formula (price / scaled measure x scaled reference); CAT-043 =
+          # round ONCE to minor units. Before D1-12 both ids shared two formula negatives
+          # and CAT-043 had no kill of its own (the gate's positive control).
+          kills={"CAT-042": [(7000, 5000, 2, 1, 0, 141), (7000, 5000, 2, 1, 0, 7000),
+                             (7000, 5000, 2, 10, 0, 140)],
+                 "CAT-043": [(100, 25, 1, 1, 0, 50)]}),
 ]
 
 
@@ -857,16 +892,43 @@ CHECKS = (CAP_CHECKS + NAMESPACE_CHECKS + PERMALINK_CHECKS + DISCOVERY_FETCH_SAF
           + CATALOG_SCHEMA_CHECKS + CATALOG_LOOKUP_ALGORITHM_CHECKS + CATALOG_UNIT_PRICE_CHECKS)
 
 
+def case_key(case):
+    """The stable record form of one negative arg-tuple (D1-12 per_id declared/killed)."""
+    return json.dumps(list(case), sort_keys=True, default=str)
+
+
+def per_id_kills(c, surviving_cases):
+    """{rid: {declared, killed}} (D1-12): a single-id check's declared kills are ALL its
+    negatives; a multi-id check's are kills[rid]. A declared case that is not one of the
+    negatives is a config error (raised: the gate must never trust an unlisted kill)."""
+    negs = [case_key(x) for x in c.negatives]
+    surv = {case_key(x) for x in surviving_cases}
+    out = {}
+    for rid in c.req_ids:
+        if c.kills and rid in c.kills:
+            declared = [case_key(x) for x in c.kills[rid]]
+            rogue = [d for d in declared if d not in negs]
+            if rogue:
+                raise ValueError(f"{c.id}: kills[{rid}] names a case that is not one of its negatives: {rogue}")
+        elif len(c.req_ids) == 1:
+            declared = list(negs)
+        else:
+            declared = []
+        out[rid] = {"declared": declared, "killed": [d for d in declared if d not in surv]}
+    return out
+
+
 def run():
-    """Run every check; return [(check, killed_all, detail)]. killed_all = every
+    """Run every check; return [(check, killed_all, detail, per_id)]. killed_all = every
     valid case accepted AND every negative case rejected (the kill-rate proof)."""
     results = []
     for c in CHECKS:
         try:
             valid_ok = [bool(c.fn(*case)) for case in c.valid]
             neg_ok = [bool(c.fn(*case)) for case in c.negatives]   # True = mutant SURVIVED
+            per_id = per_id_kills(c, [case for case, x in zip(c.negatives, neg_ok) if x])
         except Exception as e:                                     # noqa: BLE001
-            results.append((c, False, f"error: {e!r}"))
+            results.append((c, False, f"error: {e!r}", {}))
             continue
         surviving = sum(1 for x in neg_ok if x)
         rejected_valid = sum(1 for x in valid_ok if not x)
@@ -874,16 +936,24 @@ def run():
         detail = ("clean-pass + kill-safe" if killed_all
                   else f"{rejected_valid}/{len(valid_ok)} valid cases REJECTED, "
                        f"{surviving}/{len(neg_ok)} mutants SURVIVED")
-        results.append((c, killed_all, detail))
+        results.append((c, killed_all, detail, per_id))
     return results
 
 
 def main():
+    record = None
+    if "--record" in sys.argv:
+        record = sys.argv[sys.argv.index("--record") + 1]
     res = run()
     allok = True
-    for c, ok, detail in res:
+    for c, ok, detail, _per_id in res:
         print(f"  {'✓' if ok else '✗'} {c.id} ({','.join(c.req_ids)}): {detail}")
         allok = allok and ok
+    if record:      # D1-12: per-id kill record for validate_req_kills.py
+        rec = {"module": "struct_check_08_25", "served_version": VERSION,
+               "per_id": {c.id: per_id for c, _ok, _d, per_id in res}}
+        pathlib.Path(record).parent.mkdir(parents=True, exist_ok=True)
+        pathlib.Path(record).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
     print("PASS" if allok else "FAIL")
     return 0 if allok else 1
 

@@ -580,7 +580,10 @@ def p_no_credential_leak(status, body):
 # the rows
 # ---------------------------------------------------------------------------
 
-Row = namedtuple("Row", "id req_ids evidence doc make_request predicate mutant")
+# kills={rid: [mutant name, …]} (D1-12, B2a): which named mutant proves WHICH register id
+# — mandatory for a multi-id row (validate_req_kills.py reds a `shared` attribution at
+# 2026-08-25); a single-id row needs none. Each name must be (one of) the row's `mutant`.
+Row = namedtuple("Row", "id req_ids evidence doc make_request predicate mutant kills", defaults=(None,))
 
 
 def _oracle_profile(status, body):
@@ -726,14 +729,21 @@ CHECKS = [
         "framework body.",
         lambda: http("GET", "/nope"),
         _oracle_error_envelope(404, "not_found"),
-        "unknown_route_plain_404"),
+        "unknown_route_plain_404",
+        # a plain framework 404 drops the whole envelope: no `ucp` (ERR-028), no
+        # status "error" (ERR-029), no messages[] (ERR-030) — one mutant, three ids, each
+        # declared (D1-12)
+        kills={"ERR-028": ["unknown_route_plain_404"], "ERR-029": ["unknown_route_plain_404"],
+               "ERR-030": ["unknown_route_plain_404"]}),
     Row("ERR-028.validation-422", ["ERR-028", "ERR-029", "ERR-030"], "fixture-schema",
         "A request the business's models cannot represent (a non-reverse-DNS "
         "consent purpose key, buyer_consent.json $defs.consent propertyNames) is a "
         "422 invalid_request envelope -- ledger R15 closes: no bare 500.",
         lambda: _create_checkout_with_consent_key("not a reverse dns key"),
         _oracle_error_envelope(422, "invalid_request"),
-        "consent_bad_key_500"),
+        "consent_bad_key_500",
+        kills={"ERR-028": ["consent_bad_key_500"], "ERR-029": ["consent_bad_key_500"],
+               "ERR-030": ["consent_bad_key_500"]}),
     Row("FUL-030.omit-type", ["FUL-030"], "self-referenced",
         "C3b: when the platform omits destinations[].type (ucp_request: optional) "
         "the business defaults it per method and the response carries the const "
@@ -987,7 +997,10 @@ CHECKS = [
         "DSC-020 with its own discount-negative-amount mutant).",
         lambda: _create_checkout_with_discount(["10OFF"]),
         _oracle_root("schemas/shopping/checkout.json", "create"),
-        "totals-discount-amount-not-negative"),
+        "totals-discount-amount-not-negative",
+        # one schema-enforced rule under two ids (D1-12: each declares the same mutant)
+        kills={"TOT-014": ["totals-discount-amount-not-negative"],
+               "DSC-021": ["totals-discount-amount-not-negative"]}),
     Row("TOT-015", ["TOT-015"], "fixture-schema",
         "Additive well-known totals types (subtotal, fulfillment, tax, fee) "
         "MUST have non-negative amounts.",
@@ -1217,12 +1230,34 @@ BLOCKED = [
 ]
 
 
+def per_id_kills(row, verdict):
+    """{rid: {declared, killed}} (D1-12): a single-id row's declared kill is its mutant;
+    a multi-id row's are kills[rid] (each name must be the row's mutant)."""
+    names = list(row.mutant) if isinstance(row.mutant, (list, tuple)) else [row.mutant]
+    out = {}
+    for rid in row.req_ids:
+        if row.kills and rid in row.kills:
+            declared = list(row.kills[rid])
+            rogue = [n for n in declared if n not in names]
+            if rogue:
+                raise ValueError(f"{row.id}: kills[{rid}] names a mutant the row does not arm: {rogue}")
+        elif len(row.req_ids) == 1:
+            declared = list(names)
+        else:
+            declared = []
+        out[rid] = {"declared": declared, "killed": list(declared) if verdict == "KILLED" else []}
+    return out
+
+
 def main():
     try:
         _require_oracle()
     except OracleUnavailable as e:
         print(f"golden_check_08_25: SKIP -- {e}")
         return 2
+    record = None
+    if "--record" in sys.argv:
+        record = sys.argv[sys.argv.index("--record") + 1]
 
     results, (open_vocab_ok, open_vocab_detail) = run()
     allok = True
@@ -1230,6 +1265,11 @@ def main():
         ok = verdict == "KILLED"
         allok = allok and ok
         print(f"  {'✓' if ok else '✗'} {row.id} ({row.evidence}): {verdict} — {detail[:100]}")
+    if record:      # D1-12: per-id kill record for validate_req_kills.py
+        rec = {"module": "golden_check_08_25", "served_version": VERSION,
+               "per_id": {row.id: per_id_kills(row, verdict) for row, verdict, _d in results}}
+        pathlib.Path(record).parent.mkdir(parents=True, exist_ok=True)
+        pathlib.Path(record).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
     print(f"  {'✓' if open_vocab_ok else '✗'} FUL-003 open-vocabulary proof: {open_vocab_detail}")
     allok = allok and open_vocab_ok
 
