@@ -106,7 +106,18 @@
      "files_unreferenced": 24,
      "enforce": false
     },
-    "should": null
+    "should": {
+     "hits": 62,
+     "should": 57,
+     "should_not": 3,
+     "recommended": 2,
+     "not_recommended": 0,
+     "rows": 32,
+     "hit_lines": 60,
+     "hit_lines_under_a_row_quote": 30,
+     "uncovered": 30,
+     "scope": "report-only (decision 8)"
+    }
    },
    "discovery_live": null,
    "evidence_classes": [
@@ -2788,7 +2799,18 @@
      "files_unreferenced": 26,
      "enforce": false
     },
-    "should": null
+    "should": {
+     "hits": 66,
+     "should": 60,
+     "should_not": 4,
+     "recommended": 2,
+     "not_recommended": 0,
+     "rows": 32,
+     "hit_lines": 64,
+     "hit_lines_under_a_row_quote": 30,
+     "uncovered": 34,
+     "scope": "report-only (decision 8)"
+    }
    },
    "discovery_live": null,
    "evidence_classes": [
@@ -5627,7 +5649,18 @@
      "files_unreferenced": 36,
      "enforce": false
     },
-    "should": null
+    "should": {
+     "hits": 152,
+     "should": 141,
+     "should_not": 7,
+     "recommended": 4,
+     "not_recommended": 0,
+     "rows": 67,
+     "hit_lines": 150,
+     "hit_lines_under_a_row_quote": 64,
+     "uncovered": 86,
+     "scope": "report-only (decision 8)"
+    }
    },
    "discovery_live": null,
    "evidence_classes": [
@@ -11295,7 +11328,18 @@
      "files_unreferenced": 67,
      "enforce": false
     },
-    "should": null
+    "should": {
+     "hits": 274,
+     "should": 249,
+     "should_not": 17,
+     "recommended": 8,
+     "not_recommended": 0,
+     "rows": 70,
+     "hit_lines": 270,
+     "hit_lines_under_a_row_quote": 85,
+     "uncovered": 185,
+     "scope": "report-only (decision 8)"
+    }
    },
    "discovery_live": null,
    "evidence_classes": [

@@ -29,6 +29,94 @@ sys.path.insert(0, str(ROOT / "conformance" / "selfcheck"))
 from common.keywords import SHOULD_CLASS, SHOULD_RE  # noqa: E402
 
 
+import verify_register_completeness as vrc  # noqa: E402 — scan_keywords / covered_lines_for / rows_by_version_file
+
+KEYS = ("should", "should_not", "recommended", "not_recommended")
+_KEY_OF = {"SHOULD": "should", "SHOULD NOT": "should_not", "RECOMMENDED": "recommended",
+           "NOT RECOMMENDED": "not_recommended"}
+
+
+def census_file(path, rows):
+    """SHOULD-class census of ONE prose file against the register rows citing it.
+    -> {hits, should, should_not, recommended, not_recommended, hit_lines,
+        hit_lines_under_a_row_quote, uncovered}. Coverage is quote-content anchored
+    (covered_lines_for): a keyword line counts as covered only when some row's verbatim
+    quote sits on it — the same rule as the mandatory census."""
+    occ, flines = vrc.scan_keywords(pathlib.Path(path), kw_re=SHOULD_RE)
+    out = {"hits": len(occ), **{k: 0 for k in KEYS}}
+    for _, kw, _raw in occ:
+        out[_KEY_OF.get(kw, "should")] += 1
+    lines = sorted({ln for ln, _, _ in occ})
+    cov = vrc.covered_lines_for(rows, flines) if lines else set()
+    covered = [ln for ln in lines if ln in cov]
+    out["hit_lines"] = len(lines)
+    out["hit_lines_under_a_row_quote"] = len(covered)
+    out["uncovered"] = len(lines) - len(covered)
+    return out
+
+
+def census(versions=None):
+    """{version: {hits, should, …, rows, hit_lines_under_a_row_quote, uncovered, by_file}}
+    over docs/specification/**/*.md of each pinned version. `rows` = register rows keyed
+    SHOULD / SHOULD NOT at that version (the SHOULD-class rows the register already
+    carries; MAY-class rows are not counted)."""
+    rvf = vrc.rows_by_version_file()
+    out = {}
+    for ver, ucp_dir in vrc.VERSION_TREE.items():
+        if versions and ver not in versions:
+            continue
+        tot = {"hits": 0, **{k: 0 for k in KEYS}, "rows": 0, "hit_lines": 0,
+               "hit_lines_under_a_row_quote": 0, "uncovered": 0, "by_file": {}}
+        for path in vrc.spec_files(ucp_dir):
+            rel = str(path.relative_to(vrc.VENDOR / ucp_dir))
+            rows = rvf.get((ver, rel), [])
+            r = census_file(path, rows)
+            if r["hits"]:
+                tot["by_file"][rel] = {k: r[k] for k in ("hits", "hit_lines_under_a_row_quote", "uncovered")}
+            for k in ("hits", "hit_lines", "hit_lines_under_a_row_quote", "uncovered", *KEYS):
+                tot[k] += r[k]
+        seen = set()
+        for (v, _rel), rows in rvf.items():
+            if v == ver:
+                for r in rows:
+                    if r.get("keyword") in SHOULD_CLASS and r.get("id") not in seen:
+                        seen.add(r.get("id"))
+        tot["rows"] = len(seen)
+        tot["pin"] = None
+        out[ver] = tot
+    try:
+        lock = json.load(open(ROOT / "conformance" / "SOURCES.lock.json"))
+        for ver in out:
+            out[ver]["pin"] = (lock["spec"]["versions"].get(ver, {}).get("commit") or "")[:8]
+    except Exception:
+        pass
+    return out
+
+
+def main(argv):
+    as_json = "--json" in argv
+    versions = [a for a in argv if a.startswith("20")]
+    per = census(versions or None)
+    if as_json:
+        print(json.dumps({"_about": "SHOULD-class census, report-only (decision 8 / D2-10): the "
+                                    "published airtight claim is MUST/MUST NOT/REQUIRED/SHALL; "
+                                    "SHOULD-class obligations are counted and their coverage by "
+                                    "register-row quotes reported here, never gated.",
+                          "keywords": list(SHOULD_CLASS), "per_version": per}, indent=1))
+        return 0
+    print("SHOULD-class census (report-only, decision 8)\n")
+    for ver, t in per.items():
+        print(f"  {ver} @{t.get('pin')}: {t['hits']} hits (SHOULD {t['should']} · SHOULD NOT {t['should_not']} · "
+              f"RECOMMENDED {t['recommended']} · NOT RECOMMENDED {t['not_recommended']}) on {t['hit_lines']} lines · "
+              f"{t['hit_lines_under_a_row_quote']} lines under a row quote · {t['uncovered']} uncovered · "
+              f"{t['rows']} SHOULD-keyed rows")
+        top = sorted(t["by_file"].items(), key=lambda kv: -kv[1]["uncovered"])[:5]
+        for rel, f in top:
+            print(f"      {f['uncovered']:3} uncovered / {f['hits']:3} hits  {rel}")
+    print("\nshould-census: report-only (always rc 0)")
+    return 0
+
+
 def selftest():
     """A 2-line file with one SHOULD line covered by a row's quote -> hits 2, covered 1,
     uncovered 1; SHOULD NOT and RECOMMENDED are counted and split; a fenced SHOULD is

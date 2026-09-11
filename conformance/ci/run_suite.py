@@ -92,6 +92,11 @@ def gates(server, require_server=False):
         # D2-15 backport (2026-08-25 -> 2026-04-08) checked in reverse. Hermetic.
         ("carry-forward", _py(SELF / "verify_carry_forward.py"),                 None, ()),
         ("carry-forward-selftest", _py(SELF / "verify_carry_forward.py", "--selftest"), None, ()),
+        # D2-10 (decision 8): SHOULD-class census, REPORT-ONLY — always rc 0; its totals
+        # reach coverage.json surface.should (byte-compared by `coverage`, pinned by
+        # `evidence-class`). The selftest proves the scan on a fixture.
+        ("should-census", _py(SELF / "verify_should_census.py"),                 None, ()),
+        ("should-census-selftest", _py(SELF / "verify_should_census.py", "--selftest"), None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)
         # must not silently regress to the pre-fix per-physical-line algorithm, which

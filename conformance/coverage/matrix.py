@@ -457,7 +457,19 @@ def _row_transport(r):
     return t if t in TRANSPORTS else "any"
 
 
-def _surface_for(ver, completeness, schema_census, pins):
+def _should_census_report():
+    """Runs verify_should_census.py --json ONCE (report-only, D2-10) for `surface.should`;
+    None if unreachable. Same subprocess discipline as _completeness_report()."""
+    script = os.path.join(CONF, "selfcheck", "verify_should_census.py")
+    try:
+        r = subprocess.run([sys.executable, script, "--json"], cwd=ROOT,
+                           capture_output=True, text=True, timeout=120)
+        return json.loads(r.stdout)
+    except Exception:
+        return None
+
+
+def _surface_for(ver, completeness, schema_census, pins, should_census=None):
     """The published SURFACE (export v2, PLAN-v3 §2.4 / D2-07): what the accounting
     denominator is measured against, by layer.
       prose  — the completeness census: every mandatory-keyword hit in the pinned
@@ -484,7 +496,15 @@ def _surface_for(ver, completeness, schema_census, pins):
                   "atoms_unaccounted": None,
                   "files_unreferenced": len(sv.get("unreferenced") or []),
                   "enforce": bool((schema_census or {}).get("enforce"))}
-    return {"prose": prose, "schema": schema, "should": None}
+    should = None
+    sh = ((should_census or {}).get("per_version") or {}).get(ver)
+    if sh is not None:
+        should = {"hits": sh.get("hits"), "should": sh.get("should"), "should_not": sh.get("should_not"),
+                  "recommended": sh.get("recommended"), "not_recommended": sh.get("not_recommended"),
+                  "rows": sh.get("rows"), "hit_lines": sh.get("hit_lines"),
+                  "hit_lines_under_a_row_quote": sh.get("hit_lines_under_a_row_quote"),
+                  "uncovered": sh.get("uncovered"), "scope": "report-only (decision 8)"}
+    return {"prose": prose, "schema": schema, "should": should}
 
 
 def _census_for(ver, completeness):
@@ -516,6 +536,7 @@ def export_json():
     # per-version mode/unaccounted count is emitted for every state (D2-06).
     completeness = None
     schema_census = None
+    should_census = None
     agent_axis = _agent_axis_report()        # D2-08: roles.agent check/exempt/gap (subprocess)
     out = {"_about": "spck.dev UCP conformance coverage — every normative MUST accounted "
                      "as CHECK (kill-rate-validated), EXEMPT (documented), or GAP. "
@@ -623,10 +644,12 @@ def export_json():
             completeness = _completeness_report() or {}
         if schema_census is None:
             schema_census = _schema_census_report() or {}
+        if should_census is None:
+            should_census = _should_census_report() or {}      # D2-10: surface.should
         census = _census_for(ver, completeness)
         if census is not None:
             entry["census"] = census
-        entry["surface"] = _surface_for(ver, completeness, schema_census, pins)
+        entry["surface"] = _surface_for(ver, completeness, schema_census, pins, should_census)
         out["versions"][ver] = entry
 
     # `unregistered` (§E): pinned in SOURCES.lock but no register tree at all yet.

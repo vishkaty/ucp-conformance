@@ -333,6 +333,46 @@ def totals_invariants(export):
 TRANSPORTS = ("rest", "mcp", "a2a", "embedded", "any")
 
 
+# D2-10: the SHOULD-class census total at the pinned spec, hand-pinned so a scan change
+# (a dropped keyword class, a fence rule regression) cannot move the published number
+# silently — re-pin deliberately with the re-measured value when the spec pin moves.
+SHOULD_HITS_PINNED = {"2026-08-25": 274}
+
+
+def should_invariants(export):
+    """Family 6 (D2-10): surface.should is whole for every registered version —
+    hits == should + should_not + recommended + not_recommended;
+    hit_lines_under_a_row_quote + uncovered == hit_lines; scope says report-only;
+    and the 2026-08-25 total equals SHOULD_HITS_PINNED (decision 8's published 274)."""
+    fails = []
+    for ver, d in export["versions"].items():
+        if d.get("state") == "unregistered":
+            continue
+        sh = (d.get("surface") or {}).get("should")
+        if not isinstance(sh, dict):
+            fails.append(f"{ver}: surface.should is not an object (D2-10 census missing)")
+            continue
+        for key in ("hits", "should", "should_not", "recommended", "not_recommended", "rows",
+                    "hit_lines", "hit_lines_under_a_row_quote", "uncovered", "scope"):
+            if key not in sh:
+                fails.append(f"{ver}: surface.should.{key} missing")
+        if all(k in sh for k in ("hits", "should", "should_not", "recommended", "not_recommended")):
+            parts = sh["should"] + sh["should_not"] + sh["recommended"] + sh["not_recommended"]
+            if parts != sh["hits"]:
+                fails.append(f"{ver}: surface.should split {parts} != hits {sh['hits']}")
+        if all(k in sh for k in ("hit_lines", "hit_lines_under_a_row_quote", "uncovered")):
+            if sh["hit_lines_under_a_row_quote"] + sh["uncovered"] != sh["hit_lines"]:
+                fails.append(f"{ver}: surface.should covered {sh['hit_lines_under_a_row_quote']} + uncovered "
+                             f"{sh['uncovered']} != hit_lines {sh['hit_lines']}")
+        if "report-only" not in str(sh.get("scope", "")):
+            fails.append(f"{ver}: surface.should.scope must say report-only (decision 8)")
+        want = SHOULD_HITS_PINNED.get(ver)
+        if want is not None and sh.get("hits") != want:
+            fails.append(f"{ver}: surface.should.hits {sh.get('hits')} != pinned {want} (SHOULD_HITS_PINNED; "
+                         f"re-pin deliberately if the census legitimately moved)")
+    return fails
+
+
 def surface_invariants(export):
     """Family 5 (D2-07, export v2 — PLAN-v3 §2.4): the published SURFACE of each
     version is whole. For every version:
@@ -447,6 +487,7 @@ def main():
     export = matrix.export_json()
     for name, fn in [("published-totals invariants", totals_invariants),
                      ("surface invariants (export v2)", surface_invariants),
+                     ("SHOULD census invariants (D2-10, report-only)", should_invariants),
                      ("published-split sync", published_sync)]:
         f = fn(export)
         print(f"  {'✓' if not f else '✗'} {name}" + (f" ({len(f)} failure(s))" if f else ""))
