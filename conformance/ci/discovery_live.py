@@ -394,11 +394,17 @@ def reach_from(captures_root, today=None):
             g = cap.get("grade") or {}
             if not g:
                 continue
-            stores.add(cap["domain"])
+            graded_here = False
             for r, v in g.items():
                 if r in rows and v in ("clean-pass", "deviation"):
+                    graded_here = True
                     rows[r]["domains"].add(cap["domain"]); rows[r][v.replace("-", "_")] += 1
                     rows[r]["latest"] = max(rows[r]["latest"] or d.name, d.name)
+            # W1 integration: a store counts only when its DOCUMENT was graded on some row — an
+            # unfetched capture (status 0, every row not-applicable) is not "a store's document
+            # graded by this suite" (the public CLAIM-COV-007 sentence; D5-13's reader agrees).
+            if graded_here:
+                stores.add(cap["domain"])
     return {"as_of": today.isoformat(), "stores": len(stores), "days": days, "window_days": REACH_MAX_AGE_DAYS,
             "rows": {r: {"domains": len(v["domains"]), "clean_pass": v["clean_pass"], "deviation": v["deviation"], "latest": v["latest"]}
                      for r, v in rows.items()}}
