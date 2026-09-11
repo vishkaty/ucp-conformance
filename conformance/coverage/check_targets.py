@@ -37,6 +37,72 @@ LOCK = os.path.join(CONF, "SOURCES.lock.json")
 TASK_ID = re.compile(r"^D\d-\d+[a-z]?: .+")
 
 
+def lock_pins(path=LOCK):
+    d = json.load(open(path))
+    return {v: (e.get("commit") or "")[:8] for v, e in d.get("spec", {}).get("versions", {}).items()}
+
+
+def evaluate(doc, export, pins, today, allow_blocked, name):
+    """Pure. -> (rc, lines, stats{n, check, blocked, gap}). `export` is a coverage export
+    ({versions: {v: {rows: [{id, status}]}}})."""
+    fails = []
+    ver = doc.get("version")
+    ids = list(doc.get("ids") or [])
+    blocked = dict(doc.get("blocked") or {})
+    for k in ("wave", "version", "spec_pin", "review_by", "ids"):
+        if k not in doc:
+            fails.append(f"{name}: field `{k}` missing")
+    try:
+        if date.fromisoformat(str(doc.get("review_by"))) < today:
+            fails.append(f"{name}: expired (review_by {doc.get('review_by')} < {today.isoformat()})")
+    except ValueError:
+        fails.append(f"{name}: review_by {doc.get('review_by')!r} is not an ISO date")
+    if doc.get("spec_pin") != pins.get(ver):
+        fails.append(f"{name}: spec_pin {doc.get('spec_pin')!r} != SOURCES.lock {pins.get(ver)!r} for {ver}")
+    for bid, why in blocked.items():
+        if bid not in ids:
+            fails.append(f"{name}: blocked id {bid} is not in ids[]")
+        if not isinstance(why, str) or not TASK_ID.match(why):
+            fails.append(f"{name}: blocked[{bid}] = {why!r} must name a task id (\"D<lane>-<n>: reason\")")
+    status = {r.get("id"): r.get("status") for r in ((export.get("versions") or {}).get(ver) or {}).get("rows", [])}
+    n_check = n_blocked = n_gap = 0
+    for rid in ids:
+        st = status.get(rid)
+        if st == "check":
+            n_check += 1
+        elif rid in blocked:
+            n_blocked += 1
+            if not allow_blocked:
+                fails.append(f"{name}: {rid} is {st or 'absent'} — blocked by {blocked[rid]} (wave not closed: run with --allow-blocked mid-wave)")
+        else:
+            n_gap += 1
+            fails.append(f"{name}: {rid} is {st or 'absent from the register'} at {ver}, not CHECK (gap)")
+    st = {"n": len(ids), "check": n_check, "blocked": n_blocked, "gap": n_gap}
+    return (1 if fails else 0), fails, st
+
+
+def run(files, export_path=None, allow_blocked=False, today=None):
+    today = date.fromisoformat(today) if today else date.today()
+    if export_path:
+        export = json.load(open(export_path))
+    else:
+        import matrix
+        export = matrix.export_json()
+    pins = lock_pins()
+    rc_all = 0
+    for f in files:
+        name = os.path.basename(f)
+        doc = json.load(open(f))
+        rc, lines, st = evaluate(doc, export, pins, today, allow_blocked, name)
+        for l in lines:
+            print(f"  ✗ {l}")
+        tail = "" if not st["blocked"] else (" (excused: --allow-blocked)" if allow_blocked else "")
+        print(f"{name}: {st['check']}/{st['n']} ids CHECK at {doc.get('version')} · blocked {st['blocked']}{tail}")
+        rc_all |= rc
+    print(f"wave-targets: {'PASS' if rc_all == 0 else 'FAIL'}")
+    return rc_all
+
+
 def selftest():
     bad = 0
 

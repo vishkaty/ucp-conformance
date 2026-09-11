@@ -156,6 +156,15 @@
    "clock": "review_by",
    "clock_tier": "moving",
    "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned); D3-10's MCP harness lowers 226 — this clock forces that re-review."
+  },
+  {
+   "name": "wave_targets.wave1_0825",
+   "file": "conformance/coverage/wave1_targets_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "D1-14: a wave's committed target ids (root clock); check_targets.py also reds on expiry/pin drift at run time."
   }
  ]
 }

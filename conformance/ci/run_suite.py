@@ -40,7 +40,7 @@ gates need (so every acceptance command written as `run_suite.py --only <gate>` 
 runnable as written, cheaply, and proves the gate it names — pinned by
 conformance/ci/validate_run_suite_only.py, gate `run-suite-only`).
 """
-import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile
+import sys, subprocess, argparse, pathlib, urllib.request, time, os, tempfile, glob
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SELF = ROOT / "conformance" / "selfcheck"
@@ -146,6 +146,14 @@ def gates(server, require_server=False):
         ("expiry-clocks", _py(SELF / "validate_expiry_clocks.py"),                None, ()),
         ("expiry-clocks-selftest", _py(SELF / "validate_expiry_clocks.py", "--selftest"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
+        # D1-14 (PLAN-v3 §2.3): every committed wave target file — the ids a wave COMMITTED
+        # to convert — reads all CHECK at its version; mid-wave an id may be excused only
+        # by a `blocked` entry naming a task id (--allow-blocked here; the wave-close
+        # checkpoint runs WITHOUT it, so `blocked` must be empty then). Hermetic.
+        ("wave-targets", _py(ROOT / "conformance" / "coverage" / "check_targets.py", "--allow-blocked",
+                             *sorted(glob.glob(str(ROOT / "conformance" / "coverage" / "wave*_targets_*.json")))),
+         None, ()),
+        ("wave-targets-selftest", _py(ROOT / "conformance" / "coverage" / "check_targets.py", "--selftest"), None, ()),
         ("verdict",     _py(SELF / "verdict_gate.py"),                          None, ()),
         ("schema",      _py(SELF / "schema_oracle.py"),                         None, (2,)),
         ("fixture",     _py(FIXTURE / "selfcheck.py"),                          None, (2,)),
