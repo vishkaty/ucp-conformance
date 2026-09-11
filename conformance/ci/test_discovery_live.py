@@ -8,6 +8,7 @@ evidence class do not exist.
 
 Run:  python3 -m pytest conformance/ci/test_discovery_live.py -q
 """
+import datetime
 import json
 import pathlib
 import subprocess
@@ -63,3 +64,26 @@ def test_matrix_export_carries_the_discovery_live_slot():
     assert slot == {"stores": reach["stores"], "as_of": reach["as_of"]}, slot
     assert matrix._discovery_live_slot("2026-04-08") is None
     assert matrix.export_json()["versions"]["2026-08-25"]["discovery_live"] == slot
+
+
+def test_reach_counts_only_stores_whose_document_was_graded(tmp_path):
+    """W1 integration (D4-08 x D5-13): a capture whose fetch failed (http.status 0, body None,
+    every earnable row `not-applicable`) is not a graded store — the public CLAIM-COV-007
+    sentence says "N stores' documents graded by this suite". The 2026-09-11 smoke has one such
+    capture (jlique.com, DNS failure) and D4's aggregate counted it (stores 5, while every row's
+    `domains` is 4 and discovery_shapes.discovery_reach says 4 stores · 1 malformed)."""
+    import json
+    import discovery_live as dl
+    day = tmp_path / "2026-09-11"; day.mkdir()
+    def cap(domain, status, grade):
+        return {"schema": "discovery-capture/1", "domain": domain, "fetched_at": "2026-09-11T00:00:00Z",
+                "http": {"status": status, "headers": {}, "redirects": 0}, "body": {} if status == 200 else None,
+                "body_text": "", "body_sha256": "", "frame": "hf", "robots_checked": True, "grade": grade}
+    good = {r: "clean-pass" for r in dl.EARNABLE}
+    dead = {r: "not-applicable" for r in dl.EARNABLE}
+    for i in range(3):
+        (day / f"s{i}.example.json").write_text(json.dumps(cap(f"s{i}.example", 200, good)))
+    (day / "dead.example.json").write_text(json.dumps(cap("dead.example", 0, dead)))
+    r = dl.reach_from(tmp_path, today=datetime.date(2026, 9, 11))
+    assert r["stores"] == 3, r
+    assert all(v["domains"] == 3 for v in r["rows"].values()), r["rows"]
