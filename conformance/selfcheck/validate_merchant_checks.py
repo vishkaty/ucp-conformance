@@ -507,9 +507,31 @@ def _expected_skips_cases():
              and rest and not wrong, f"golden={mdoc.get('golden')} version={mdoc.get('version')} "
                                      f"rest={len(rest)} not pinned transport-not-declared={wrong[:6]}")
         unpinned = sorted(c.id for c in merchant_checks.all_checks() if c.id not in pop)
-        # 226 at D1-11; D1-16a added 10 REST-only 08-25 MChecks (transport-not-declared here)
-        case("(h) mcp-only-0825: exactly 2 checks run (unpinned), 236 pinned",
-             len(unpinned) == 2 and len(pop) == 236, f"run={unpinned} pinned={len(pop)}")
+        # 226 at D1-11; D1-16a added 10 REST-only 08-25 MChecks (transport-not-declared here);
+        # W1 integration (D1-11 x D3-10): D3-10's 11 MCP checks reach this fixture — the 9
+        # product-driven ones pin `needs-product` (the fixture has no product config), while
+        # discovery.mcp_transport_advertised and mcp.tools_list_core_checkout RUN (the fixture's
+        # advertised MCP endpoint answers tools/list) -> 4 run / 245 pinned.
+        case("(h) mcp-only-0825: exactly 4 checks run (unpinned), 245 pinned",
+             len(unpinned) == 4 and len(pop) == 245, f"run={unpinned} pinned={len(pop)}")
+        needs_product = sorted(cid for cid, cls in pop.items() if cls == "needs-product")
+        case("(h) mcp-only-0825: the 9 product-driven MCP checks are pinned needs-product",
+             len(needs_product) == 9 and all(cid.startswith("mcp.") for cid in needs_product),
+             f"needs-product={needs_product}")
+        # (h'') the fixture's MCP endpoint answers tools/list with every core checkout tool, so
+        # mcp.tools_list_core_checkout is graded (and kill-tested) on the MCP-only shape.
+        try:
+            sys.path.insert(0, str(HERE.parents[0] / "fixtures" / "profiles"))
+            import mcp_only_0825
+            import mcp_client
+            from merchant_checks_08_25_mcp import CORE_CHECKOUT_TOOLS
+            with mcp_only_0825.served() as base:
+                res = mcp_client.McpClient(f"{base}/api/ucp/mcp").tools_list()
+                names = {t.get("name") for t in ((res.result or {}).get("tools") or []) if isinstance(t, dict)}
+            case("(h'') mcp-only-0825 fixture answers MCP tools/list with the core checkout tools",
+                 set(CORE_CHECKOUT_TOOLS) <= names, f"status={res.status} tools={sorted(names)}")
+        except Exception as e:      # noqa: BLE001 — a selftest case, never a crash
+            case("(h'') mcp-only-0825 fixture answers MCP tools/list with the core checkout tools", False, repr(e))
     else:
         case("(h) mcp-only-0825: every in-scope REST check pinned transport-not-declared", False,
              f"no {mcp_file.name}")
