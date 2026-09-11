@@ -361,6 +361,9 @@ def gates(server, require_server=False):
         # publish; ledger cross-ref needs ops/ mounted (rc 2 = honest SKIP in CI). Hermetic
         # kill-tests (--selftest) run first inside the same invocation.
         ("known-issues", _py(ROOT / "conformance" / "ci" / "validate_known_issues.py"), None, (2,)),
+        # D5-12: public/known-issues.{json,html} + the KI-* claims are byte-fresh projections of
+        # conformance/ci/known_issues.json (also run inside site-checkdocs and deploy.sh step 2)
+        ("known-issues-page", _py(ROOT / "conformance" / "web" / "gen_known_issues.py", "--check"), None, ()),
         # suite-01-23 (run_01_23.py) IS a gate — it must be ABLE to go red. Before P0-2 it
         # printed "aggregate: FAIL … UNSAFE" and unconditionally exited 0, so every one of
         # its engine checks was enforcement-free. This pins run_01_23.verdict_exit: red on any
