@@ -2164,7 +2164,7 @@
    "n_kills_floor": 7
   },
   "merchant_checks_08_25_mcp:mcp.checkout_structured_content": {
-   "hash": "c3873dac35750e4436b6f9d623f4b8a8b472d1154454b9310c0a6a8a1a1ee1a9",
+   "hash": "14ac15bbb6e8d8393c2b346bd95bfccd51f79e39930983fe685932701a0ff1f5",
    "kind": "MCheck",
    "n_kills": 7,
    "n_kills_floor": 7
@@ -2206,7 +2206,7 @@
    "n_kills_floor": 4
   },
   "merchant_checks_08_25_mcp:mcp.tools_list_core_checkout": {
-   "hash": "2c8b13d1f7006836be06fa2989b0cb97f6046d7df8bc4a5b95fc40ce6210b354",
+   "hash": "382d0b39e37e037b8ac1d4c1ffd6f29bdefba3210f4baa0ba942fc16fbbfc374",
    "kind": "MCheck",
    "n_kills": 4,
    "n_kills_floor": 4

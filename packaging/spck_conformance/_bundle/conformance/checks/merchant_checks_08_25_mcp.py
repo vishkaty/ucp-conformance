@@ -312,7 +312,14 @@ CHECKS_MCP = [
            ["drop:result.structuredContent", "drop:result", "set:result.structuredContent={}",
             'set:result.content=[{"type":"text","text":"{}"}]',
             'set:error={"code":-32000,"message":"x"}', "status:500", "corrupt-json"],
-           capability=_CHK, needs=("product",), transport="mcp", versions=V0825),
+           capability=_CHK, needs=("product",), transport="mcp", versions=V0825,
+           # per-id kills (D1-12, W1 integration): MCP-003 = a correct JSON-RPC result carrying
+           # the UCP envelope (items 1/4) -> the envelope/JSON mutations; MCP-004 = the
+           # tools/call transformation is honoured (an invocation answered as a result, not a
+           # protocol error / dropped result) -> the result-vs-error mutations.
+           kills={"MCP-003": ["drop:result.structuredContent", "set:result.structuredContent={}",
+                              'set:result.content=[{"type":"text","text":"{}"}]', "status:500", "corrupt-json"],
+                  "MCP-004": ["drop:result", 'set:error={"code":-32000,"message":"x"}']}),
     MCheck("mcp.business_outcome_as_result", ["MCP-003"], "MUST",
            out_of_stock_raw, p_business_outcome,
            ['set:error={"code":-32000,"message":"out of stock"}', "drop:result",
@@ -336,7 +343,14 @@ CHECKS_MCP = [
             'set:result.tools=[{"name":"create_checkout"},{"name":"get_checkout"},'
             '{"name":"update_checkout"},{"name":"complete_checkout"}]',
             "corrupt-json"],
-           capability=_CHK, transport="mcp", versions=V0825),
+           capability=_CHK, transport="mcp", versions=V0825,
+           # per-id kills (D1-12, W1 integration): MCP-003 item 2 = ALL core checkout tools are
+           # provided -> the emptied / four-tool lists; MCP-004 = the JSON-RPC tools/list method
+           # itself is served -> a dropped result / non-JSON answer.
+           kills={"MCP-003": ["set:result.tools=[]",
+                              'set:result.tools=[{"name":"create_checkout"},{"name":"get_checkout"},'
+                              '{"name":"update_checkout"},{"name":"complete_checkout"}]'],
+                  "MCP-004": ["drop:result", "corrupt-json"]}),
     MCheck("mcp.negotiation_error_32001", ["NEG-001"], "MUST",
            unsupported_version_raw, p_negotiation_32001,
            ["set:error.code=-32000", "drop:error", 'set:result={"structuredContent":{}}',
