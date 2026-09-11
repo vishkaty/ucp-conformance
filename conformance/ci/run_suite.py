@@ -357,6 +357,9 @@ def gates(server, require_server=False):
         # port. Hermetic; the checker runs its own kill-tests first (plants an unregistered
         # literal and a collision) so the gate cannot pass by being unable to fail.
         ("ports-registry", _py(ROOT / "conformance" / "ci" / "validate_ports_registry.py"), None, ()),
+        # D5-14 (G2): the five steward docs exist, each `last-reviewed:` <= 90 days, DECISIONS.md tracks
+        # every PLAN-v3 decision 1-34 + 4b; hermetic
+        ("docs-steward", _py(ROOT / "conformance" / "ci" / "validate_steward_docs.py"), None, ()),
         # the deploy path itself is guarded (D5-08): on a synthetic repo with stub gh/wrangler,
         # deploy.sh must refuse a dirty tree / HEAD≠origin/main / a failed selftest check-run /
         # a stale export / a red gate, and must deploy preview-<sha7> BEFORE main. Hermetic.
