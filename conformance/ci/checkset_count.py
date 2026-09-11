@@ -19,7 +19,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-_SNIPPET = ("import sys,json,collections;sys.path.insert(0,sys.argv[1]);sys.path.insert(1,sys.argv[2]);"
+_SNIPPET = ("import sys,json,collections;sys.path.insert(0,sys.argv[1]);sys.path.insert(1,sys.argv[2]);sys.path.insert(2,sys.argv[3]);"
             "import merchant_checks as m;"
             "ids=[c.id for c in m.all_checks()];d=sorted(k for k,v in collections.Counter(ids).items() if v>1);"
             "print(json.dumps({'merchant_checks':len(ids),'duplicates':d}))")
@@ -28,8 +28,10 @@ _SNIPPET = ("import sys,json,collections;sys.path.insert(0,sys.argv[1]);sys.path
 def merchant_check_count(checks_dir=None):
     """(count, duplicates) from an isolated interpreter importing the given checks dir."""
     d = str(checks_dir or os.environ.get("SPCK_CHECKS_DIR") or (ROOT / "conformance" / "checks"))
-    # the engine imports verdict_gate from conformance/selfcheck — a scratch checks dir borrows the real one
-    r = subprocess.run([sys.executable, "-c", _SNIPPET, d, str(ROOT / "conformance" / "selfcheck")],
+    # the engine imports verdict_gate from conformance/selfcheck, and (W1, D1-16a) the envelope
+    # module imports seq_invariants from conformance/ci — a scratch checks dir borrows both real dirs
+    r = subprocess.run([sys.executable, "-c", _SNIPPET, d, str(ROOT / "conformance" / "selfcheck"),
+                        str(ROOT / "conformance" / "ci")],
                        cwd=str(ROOT), capture_output=True, text=True, timeout=180)
     if r.returncode != 0:
         raise RuntimeError(f"merchant_checks.all_checks() failed in {d}: {r.stderr[-300:]}")
