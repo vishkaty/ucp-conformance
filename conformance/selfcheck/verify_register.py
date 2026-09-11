@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT / "conformance"))
 # VERSION_TREE used to be a private copy here — one of five independent lists across
 # the suite (PLAN-0825 G0-b / A.4, the version-map whack-a-mole seam) — now the single
 # shared source every consumer imports; see conformance/common/spec_versions.py.
-from common.spec_versions import VERSION_TREE  # noqa: E402
+from common.spec_versions import VERSION_TREE, VERSIONS  # noqa: E402
 from common.keywords import MANDATORY  # noqa: E402
 from common.roles import ROLES, AGENT_LANE, valid_provenance  # noqa: E402
 AGENT_LOCK = ROOT / "conformance" / "agent" / "agent_denominator_lock.json"
@@ -471,6 +471,49 @@ def _selftest_normative_basis():
         got = {r["id"]: nb.classify(r, fenced_lines={"docs/specification/x.md": {8, 9, 10}}) for r, _ in fx}
         ok = all(got[r["id"]] == want for r, want in fx)
         bad += case("fill fixture: schema / sentence / pseudocode (fenced line) / queue(None)", ok, repr(got)[:200])
+    # B6 (W1 review V4): the queue is the ONLY thing making a null normative_basis acceptable,
+    # so it is an exemption register and must carry the standard clock (decision 23 / D2-19:
+    # its truth depends only on the spec pin -> the 90-day `pin-only` tier). An expired,
+    # pin-drifted or unclocked queue confers nothing.
+    import datetime as _dt
+    today = _dt.date(2026, 9, 11)
+    PIN = "cd78fb38"
+    live = {"version": V, "review_by": "2026-12-09", "spec_pin": PIN, "clock_tier": "pin-only",
+            "converts_when": "D2-11b", "queue": [{"id": "ZZZ-105"}]}
+    try:
+        clean = basis_queue_clock_errors(live, V, PIN, today, "normative_basis_review_queue.json")
+        expired = basis_queue_clock_errors({**live, "review_by": "2026-09-10"}, V, PIN, today,
+                                           "normative_basis_review_queue.json")
+        drift = basis_queue_clock_errors({**live, "spec_pin": "deadbeef"}, V, PIN, today,
+                                         "normative_basis_review_queue.json")
+        unclocked = basis_queue_clock_errors({"version": V, "queue": [{"id": "ZZZ-105"}]}, V, PIN, today,
+                                             "normative_basis_review_queue.json")
+        badtier = basis_queue_clock_errors({**live, "clock_tier": "sideways"}, V, PIN, today,
+                                           "normative_basis_review_queue.json")
+    except NameError as e:
+        clean = expired = drift = unclocked = badtier = f"NameError: {e}"
+    ok = (clean == [] and
+          isinstance(expired, list) and len(expired) == 1 and "2026-09-10" in expired[0]
+          and "normative_basis_review_queue.json" in expired[0] and
+          isinstance(drift, list) and any("deadbeef" in e for e in drift) and
+          isinstance(unclocked, list) and len(unclocked) >= 1 and
+          isinstance(badtier, list) and any("sideways" in e for e in badtier))
+    bad += case("queue clock: live queue clean; expired review_by / spec_pin drift / no clock "
+                "hands / bad clock_tier each FAIL naming the file",
+                ok, repr((clean, expired, drift, unclocked, badtier))[:400])
+    # and the real committed queues must carry a live clock (the gate's own data)
+    try:
+        real = []
+        for _v in VERSIONS:
+            _f = ROOT / "conformance" / "requirements" / _v / "normative_basis_review_queue.json"
+            if _f.exists():
+                _d = json.loads(_f.read_text())
+                real += basis_queue_clock_errors(_d, _v, _pin_for(_v), _dt.date.today(),
+                                                 f"requirements/{_v}/normative_basis_review_queue.json")
+    except NameError as e:
+        real = [f"NameError: {e}"]
+    bad += case("the four committed normative_basis_review_queue.json files carry a live "
+                "pin-only clock", real == [], repr(real)[:400])
     return bad
 
 
