@@ -695,6 +695,19 @@ def _selftest():
         elif real.get("decision") != 3:
             fails.append(f"P: the acknowledgement must cite decision 3, got {real.get('decision')}")
 
+    # Q (D2-15): an acknowledgement whose `to` is ALREADY the lock's commit for that
+    # version is STALE — the re-pin resolved the move, the entry must be deleted (an
+    # entry left behind would silently pre-acknowledge the NEXT move to the same sha).
+    lock_q = {"spec": {"versions": {"2026-04-08": {"tag": "v2026-04-08", "commit": "a25a4a24e738b74c8fa83254448d0666e478f595"}}}}
+    try:
+        stale = stale_acknowledgements([entry], lock_q)
+        if not stale or stale[0].get("tag") != "v2026-04-08":
+            fails.append("Q: an entry whose `to` equals the lock's pinned commit must be reported as a stale acknowledgement")
+        if stale_acknowledgements([{**entry, "to": "0badf00d"}], lock_q):
+            fails.append("Q': an entry whose `to` is not the pinned commit is not stale")
+    except NameError as e:
+        fails.append(f"Q: stale_acknowledgements absent: {e}")
+
     if fails:
         print("sources-age selftest: FAIL")
         for f in fails:
