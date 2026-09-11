@@ -128,6 +128,13 @@ def page_lines(path):
 def sentences(text):
     return [s for s in re.split(r"(?<=[.!?])\s+", text) if s]
 
+def _merchant_count():
+    """(count, duplicate ids) of the runtime merchant check set — conformance/ci/checkset_count.py
+    (D5-16): one helper for every copy/manifest gate, never a source regex."""
+    sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+    from checkset_count import merchant_check_count
+    return merchant_check_count()
+
 # ── tiny jsonpath (dot / ['key'] / [0]) for data-live="file.json:$.a['b'][0]" ──
 def resolve_live(spec):
     """Returns (value, error). spec = '<file-under-public>:<path>'."""
@@ -758,11 +765,11 @@ def _real_manifest():
     if r.returncode != 0:
         raise RuntimeError(f"agent registry import failed: {r.stderr[-200:]}")
     ag = json.loads(r.stdout)
-    # merchant check count = the ENGINE's MCheck registry — same counting technique
-    # as coverage_gate copy-freshness (the advertised "N kill-rate-validated checks")
-    merchant = 0
-    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
-        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    # merchant check count = the ENGINE's runtime check set (checkset_count.py, D5-16) — the
+    # same helper coverage_gate copy-freshness, docclaims and the site_claims writer use
+    merchant, dup_ids = _merchant_count()
+    if dup_ids:
+        raise RuntimeError(f"duplicate merchant check id(s) {dup_ids} — the product count is undefined until fixed")
     return {
         "merchant_checks": merchant,
         "agent_checks": ag["agent_checks"],
@@ -1151,9 +1158,7 @@ def _base_version(v):
 def doc_live_values():
     """Live product values the doc counts are pinned to — the SAME counting technique
     the coverage gate / agent_governance / freshness use (never a second opinion)."""
-    merchant = 0
-    for f2 in glob.glob(str(ROOT / "conformance" / "checks" / "merchant_checks*.py")):
-        merchant += len(re.findall(r"^    MCheck\(", open(f2).read(), re.M))
+    merchant, _dups = _merchant_count()
     r = subprocess.run([sys.executable, "-c",
                         "import sys,json;sys.path.insert(0,'conformance/agent');"
                         "import agent_checks,reference_agent;"

@@ -159,10 +159,13 @@
     ];
   }
 
+  var ROLE_SEL = "all";
+  function renderSummaryRole(role) { ROLE_SEL = role; renderSummary(); }
   function renderSummary() {
     var v = DATA.versions[VER], box = document.getElementById("summary");
     box.textContent = "";
     var card = el("div", "card");
+    card._role = ROLE_SEL;
     var row = el("div", "statrow");
     [["Accounted", v.accounted_pct + "%"], ["Normative MUSTs", v.musts], ["Checked", v.check],
      ["Exempt", v.exempt], ["Gap", v.gap]].forEach(function (p) {
@@ -215,11 +218,16 @@
     }
     var eb = v.evidence_breakdown;
     if (eb) {
-      var evl = el("div", "note",
-        "Checked, by evidence class: live-wire " + (eb["live-wire"] || 0) +
-        " (kill-tested against an independent server) · official-schema " + (eb["fixture-schema"] || 0) +
-        " · crypto self-test " + (eb["fixture-crypto"] || 0) +
-        " · self-referenced " + (eb["self-referenced"] || 0) + " (our own fixture is the sole voucher)");
+      // D5-16: the class list is the export's (top-level evidence_classes = class -> description;
+      // per-version evidence_classes = the ordered list) — a new class (D1-13's register-selfcheck /
+      // reference-impl, D4-08's discovery-live) renders here with no page edit.
+      var classes = (v.evidence_classes && v.evidence_classes.length) ? v.evidence_classes
+                  : Object.keys(DATA.evidence_classes || eb);
+      var descr = DATA.evidence_classes || {};
+      var evl = el("div", "note", "Checked, by evidence class: " + classes.map(function (k) {
+        var dsc = descr[k] ? String(descr[k]).split(/[—(]/)[0].trim() : "";
+        return k + " " + (eb[k] || 0) + (dsc ? " (" + dsc + ")" : "");
+      }).join(" · "));
       evl.style.margin = "2px 0 8px";
       card.appendChild(evl);
     }
@@ -271,7 +279,36 @@
       lock.style.fontStyle = "italic";
       card.appendChild(lock);
     }
-    bar(card, segsFor(v), v.musts);
+    // D5-16 / D2-08: per-role denominators — when the export carries roles.summary the split
+    // renders and a toggle re-renders the bar for one role's own {musts, check, exempt, gap}
+    // (never blended into the all-roles numbers); absent roles (today) render nothing.
+    var roles = v.roles;
+    var ROLE = card._role || "all";
+    if (roles && roles.summary) {
+      var rs = roles.summary;
+      var rl = el("div", "note", "MUST rows by role: " + Object.keys(rs).map(function (k) { return k + " " + rs[k]; }).join(" · "));
+      rl.style.margin = "2px 0 6px";
+      card.appendChild(rl);
+      var tg = el("div", "tabs"); tg.id = "role-toggle";
+      ["all"].concat(Object.keys(roles).filter(function (k) { return k !== "summary" && roles[k] && typeof roles[k].musts === "number"; }))
+        .forEach(function (k) {
+          var b = el("button", "tab" + (k === ROLE ? " active" : ""), k === "all" ? "all roles" : k + " lane");
+          b.dataset.role = k;
+          b.addEventListener("click", function () { renderSummaryRole(k); });
+          tg.appendChild(b);
+        });
+      card.appendChild(tg);
+    }
+    var rv = (ROLE !== "all" && roles && roles[ROLE]) ? roles[ROLE] : null;
+    if (rv) {
+      var rline = el("div", "note", ROLE + " lane: " + rv.musts + " MUSTs · checked " + rv.check +
+        " · exempt " + rv.exempt + " · gap " + rv.gap);
+      rline.style.fontWeight = "600";
+      card.appendChild(rline);
+      bar(card, segsFor({ check: rv.check, exempt: rv.exempt, gap_by_testability: rv.gap_by_testability || { testable: rv.gap } }), rv.musts);
+    } else {
+      bar(card, segsFor(v), v.musts);
+    }
     var lg = el("div", "legend");
     [["seg-check", "Checked (kill-rate-validated)"], ["seg-exempt", "Exempt (documented)"],
      ["seg-testable", "Gap: testable now"], ["seg-harness", "Gap: needs harness"],

@@ -166,5 +166,5 @@ test("roles.summary renders the per-role MUST split and a role toggle re-renders
   // without roles (the committed export today) nothing role-related renders
   const doc2 = await render(COV);
   clickTab(doc2, "2026-08-25");
-  assert.equal(doc2.getElementById("role-toggle"), undefined);
+  assert.ok(!doc2.getElementById("role-toggle"), "no role toggle without roles in the export");
 });
