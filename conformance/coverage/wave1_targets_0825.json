@@ -36,22 +36,12 @@
  ],
  "blocked": {
   "CHK-017": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
-  "CHK-018": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-019": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-020": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-021": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-022": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-025": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-038": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "CHK-048": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "DISC-005": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "DSC-004": "D1-15: C4-A conversion lands in D1-15 (W1)",
   "DSC-006": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
-  "FUL-026": "D1-15: C4-A conversion lands in D1-15 (W1)",
-  "ORD-001": "D1-15: C4-A conversion lands in D1-15 (W1)"
+  "CHK-048": "D1-16a: the 08-25 sentence adds the body-match/cached-replay clauses — attributed with the CHK-078/079 MChecks and per-id kills in D1-16a"
  },
  "owner_tasks": [
   "D1-15",
+  "D1-16a",
   "D2-11a"
  ]
 }
