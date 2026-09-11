@@ -178,7 +178,7 @@ def selftest():
         day = pathlib.Path(td) / "2026-09-11"; day.mkdir()
         for c in live + [dead]:
             (day / f"{c['domain']}.json").write_text(_json.dumps(c))
-        rc, _line = check_dir(td, today=_dt.date(2026, 9, 11))
+        rc = check_dir(td, today=_dt.date(2026, 9, 11))
         case("check_dir finds captures under a YYYY-MM-DD subdirectory (D4's layout)", rc, 0)
     case("8-cap mcp+embedded (no rest) -> other", shape_bucket(p8), "other")
     case("14-cap rest+mcp with keys -> rest_keys", shape_bucket(p14), "rest_keys")
