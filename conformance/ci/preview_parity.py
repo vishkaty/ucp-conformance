@@ -297,7 +297,7 @@ def selftest():
         shutil.copy(ROOT / "functions" / "api" / "preview_ids.js", tmp)
         src = PREVIEW_JS.read_text()
         assert "const capsOk = legacy0111" in src
-        (pathlib.Path(tmp) / "conformance.js").write_text(src.replace("const capsOk = legacy0111", "const capsOk = true || legacy0111"))
+        (pathlib.Path(tmp) / "conformance.js").write_text(src.replace("const capsOk = legacy0111", "const capsOk = true; const _capsOkOrig = legacy0111"))
         js1 = js_verdicts(preview_js=pathlib.Path(tmp) / "conformance.js")
         case("capsOk forced true", compare(js1, eng, expected, m, today), True, must_name="capabilities")
     # 2. an id-map row deleted (add-only map: the preview emits an id the map no longer carries)
