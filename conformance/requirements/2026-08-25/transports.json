@@ -25,7 +25,8 @@
     "disposition": "carried"
    },
    "role": "business",
-   "role_provenance": "not-agent-bound"
+   "role_provenance": "not-agent-bound",
+   "normative_basis": "sentence"
   },
   {
    "id": "A2A-001",
@@ -50,7 +51,8 @@
     "disposition": "carried"
    },
    "role": "business",
-   "role_provenance": "not-agent-bound"
+   "role_provenance": "not-agent-bound",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-002",
@@ -75,7 +77,8 @@
     "disposition": "carried"
    },
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-003",
@@ -101,7 +104,8 @@
     "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: the six-item conformance list is unchanged verbatim; only the relative link target for 'Core Specification' updated from overview.md to ../../overview/index.md as a mechanical consequence of the reorg (three extra path segments for the"
    },
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-004",
@@ -126,7 +130,8 @@
     "disposition": "carried"
    },
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-005",
@@ -152,7 +157,8 @@
     "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: order-mcp.md moved to docs/specification/shopping/order/mcp.md; requirement text unchanged. The OpenRPC schema link changed representation from an absolute URL (https://ucp.dev/services/shopping/mcp.openrpc.json) to the doc-site's inte"
    },
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-006",
@@ -177,7 +183,8 @@
     "disposition": "reworded"
    },
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-007",
@@ -198,7 +205,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Client-side MCP request-shape rule, same pattern as MCP-001/006 (catalog MCP transport) already in this file.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-008",
@@ -219,7 +227,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Request Metadata).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-009",
@@ -240,7 +249,8 @@
    "notes": "New row (Conformance, MCP transport). Umbrella lead-in for the itemized conformance list, same pattern as MCP-006 (catalog) and the new LOC row for location/rest.md's parallel REST conformance list.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-010",
@@ -261,7 +271,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Same per-service Request Metadata pattern as MCP-007 (catalog) and MCP-008 (location).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-011",
@@ -282,7 +293,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Same per-service pattern as MCP-007/008/010.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-012",
@@ -303,7 +315,8 @@
    "notes": "New row (Error Handling). Client/platform-side response-handling duty; restated as a Conformance-list bullet at L292 (waived as a duplicate of this row).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-013",
@@ -324,7 +337,8 @@
    "notes": "New row (Conformance, MCP binding, bullet 1).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-014",
@@ -345,7 +359,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Request Metadata). Same per-service pattern as MCP-007/008/010/011.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-015",
@@ -366,7 +381,8 @@
    "notes": "New row (Identifier pattern). Cart-service analogue of MCP-002 (checkout's identical id-in-payload prohibition).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "MCP-016",
@@ -387,7 +403,8 @@
    "notes": "New row (Conformance). Cart-service analogue of MCP-003 (checkout's identical six-item conformance list).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ],
  "notes": "2026-08-25 REORG: docs/specification/catalog/mcp.md -> docs/specification/shopping/catalog/mcp.md; docs/specification/checkout-a2a.md -> docs/specification/shopping/checkout/a2a.md; docs/specification/checkout-mcp.md -> docs/specification/shopping/checkout/mcp.md; docs/specification/order-mcp.md -> docs/specification/shopping/order/mcp.md. Six of seven rows are byte-identical in substance to 2026-04-08 (only relative link paths and, for MCP-005, a link-syntax convention changed as a mechanical side effect of the reorg). MCP-006 is genuinely reworded because it embeds the same pagination-contract language change already found in CAT-024."

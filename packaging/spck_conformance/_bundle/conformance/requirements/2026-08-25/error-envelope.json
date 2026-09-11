@@ -25,7 +25,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-002",
@@ -49,7 +50,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-003",
@@ -73,7 +75,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-004",
@@ -97,7 +100,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-005",
@@ -121,7 +125,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-006",
@@ -146,7 +151,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to common/types/message_error.json. Non-normative example changed from '$.items[1]' (04-08) to '$.line_items[0]' (08-25); JSONPath format requirement itself unchanged, still prose-only."
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-007",
@@ -217,7 +223,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-010",
@@ -241,7 +248,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-011",
@@ -265,7 +273,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-012",
@@ -289,7 +298,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-013",
@@ -313,7 +323,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-014",
@@ -337,7 +348,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-015",
@@ -361,7 +373,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-016",
@@ -385,7 +398,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-017",
@@ -409,7 +423,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-018",
@@ -433,7 +448,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-019",
@@ -503,7 +519,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-022",
@@ -527,7 +544,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ERR-023",
@@ -598,7 +616,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-026",
@@ -622,7 +641,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-027",
@@ -671,7 +691,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-029",
@@ -695,7 +716,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-030",
@@ -719,7 +741,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-031",
@@ -743,7 +766,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ERR-032",

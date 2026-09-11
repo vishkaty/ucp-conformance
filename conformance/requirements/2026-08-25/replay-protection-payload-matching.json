@@ -42,7 +42,8 @@
    "schema_enforced": false,
    "notes": "New 'Payload Matching' paragraph. For signed requests the value is the Content-Digest header (persisted alongside the idempotency key); for unsigned requests the business computes the same digest from the received body bytes.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "REPLAY-003",
@@ -62,7 +63,8 @@
    "schema_enforced": true,
    "notes": "NEW explicit platform-side obligation; directly checkable end-to-end by reusing an idempotency key with a changed body and confirming REPLAY-001's rejection (409/-32000) rather than either the original or a silently-updated response.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   }
  ]
 }

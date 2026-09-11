@@ -40,7 +40,8 @@
    "schema_enforced": false,
    "notes": "Verification row; suite stubs request-signature so official_oracle=false.",
    "role": "both",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-003",
@@ -134,7 +135,8 @@
    "schema_enforced": false,
    "notes": "Pure-doc-structural JWK format check; browser_capable=true.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-008",
@@ -194,7 +196,8 @@
    "schema_enforced": false,
    "notes": "Crypto digest computation; not browser-capable.",
    "role": "both",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-011",
@@ -214,7 +217,8 @@
    "schema_enforced": false,
    "notes": "Intermediary-bound MUST NOT (proxies/API gateways/other intermediaries MUST NOT re-serialize JSON bodies). Neither business nor platform endpoint duty; not observable via the two protocol parties.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-012",
@@ -374,7 +378,8 @@
    "schema_enforced": false,
    "notes": "Raw r||s not DER; verification row, suite stubs signature.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-020",
@@ -534,7 +539,8 @@
    "schema_enforced": false,
    "notes": "Webhook-signing row; requires a receiver/webhook sender.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-028",
@@ -710,7 +716,8 @@
    "schema_enforced": false,
    "notes": "Verification algorithm pseudocode; suite stubs signature so official_oracle=false.",
    "role": "both",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-037",
@@ -730,7 +737,8 @@
    "schema_enforced": false,
    "notes": "",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-038",
@@ -750,7 +758,8 @@
    "schema_enforced": false,
    "notes": "",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "pseudocode"
   },
   {
    "id": "SIG-039",
@@ -771,7 +780,8 @@
    "notes": "Subject: party emitting/verifying the `UCP-Agent` header on signed REST messages. Distinct from SIG-018 (which only requires `ucp-agent` to be a covered signature component when present) and from the profile-discovery rows in discovery/signatures; no existing SIG row constrains the `UCP-Agent` header dictionary format. Server-observable on signed requests/webhooks the business emits and in verification of inbound headers. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
    "_completeness_batch": "completeness-2026-07-03",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-040",
@@ -792,7 +802,8 @@
    "notes": "Subject: emitter/verifier of the `UCP-Agent` header. Format constraint on the profile URL value; not covered by any existing SIG row. Line 358 ('Reject non-HTTPS URLs') is the verification-side corollary. Server-observable on the header value in signed messages. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
    "_completeness_batch": "completeness-2026-07-03",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SIG-041",
@@ -813,7 +824,8 @@
    "notes": "Subject: business (server) emitting its own `UCP-Agent` profile URL. Path constraint on business profile URLs; distinct from SIG-008 (public keys published in `signing_keys` at `/.well-known/ucp`) which constrains key publication, not the header value. Server-observable on the business's signed requests/webhooks. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
    "_completeness_batch": "completeness-2026-07-03",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ],
  "notes": [

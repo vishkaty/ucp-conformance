@@ -21,7 +21,8 @@
       "schema_enforced": true,
       "notes": "response $defs requires has_next_page",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-002",
@@ -41,7 +42,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced via if/then; prose at L30 says cursor MUST be present when has_next_page is true",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-003",
@@ -61,7 +63,8 @@
       "schema_enforced": true,
       "notes": "Prose-in-schema restatement of the if/then constraint",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-004",
@@ -99,7 +102,8 @@
       "schema_enforced": true,
       "notes": "minimum:1 and default:10 schema-enforced; clamp is MAY",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-006",
@@ -155,7 +159,8 @@
       "schema_enforced": false,
       "notes": "Client-side constraint; not server-testable",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-009",
@@ -175,7 +180,8 @@
       "schema_enforced": false,
       "notes": "search_request schema has no anyOf/required enforcing this; prose-only",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-010",
@@ -195,7 +201,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-011",
@@ -253,7 +260,8 @@
       "schema_enforced": false,
       "notes": "Also restated in catalog_lookup.json#L35 ids description",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-014",
@@ -273,7 +281,8 @@
       "schema_enforced": false,
       "notes": "Prose-in-schema; not structurally enforced",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-015",
@@ -293,7 +302,8 @@
       "schema_enforced": false,
       "notes": "Prose only; schema does not enforce uniqueItems on ids",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-016",
@@ -313,7 +323,8 @@
       "schema_enforced": false,
       "notes": "Prose only",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-017",
@@ -333,7 +344,8 @@
       "schema_enforced": true,
       "notes": "Partly schema-enforced: lookup_variant requires inputs with minItems:1 (catalog_lookup.json#L13-L20), so any variant present must carry inputs; presence/exclusion logic itself is prose",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-018",
@@ -353,7 +365,8 @@
       "schema_enforced": true,
       "notes": "lookup_variant allOf adds required inputs minItems:1",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-019",
@@ -431,7 +444,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-023",
@@ -451,7 +465,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-024",
@@ -531,7 +546,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-028",
@@ -551,7 +567,8 @@
       "schema_enforced": true,
       "notes": "",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-029",
@@ -571,7 +588,8 @@
       "schema_enforced": true,
       "notes": "Empty-results case is products:[] (still required, present as empty array)",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-030",
@@ -591,7 +609,8 @@
       "schema_enforced": true,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-031",
@@ -611,7 +630,8 @@
       "schema_enforced": true,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CAT-032",
@@ -631,7 +651,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-033",
@@ -651,7 +672,8 @@
       "schema_enforced": false,
       "notes": "Conditional requirement; schema lists selected but not unconditionally required",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-034",
@@ -671,7 +693,8 @@
       "schema_enforced": false,
       "notes": "Reclassified 2026-07-02: the MUST binds the CLIENT'S request `selected` input (lookup.md '#### Input'), not the merchant \u2014 same subject-binding as CAT-008. No merchant-observable obligation exists (the spec does not mandate a rejection of duplicate option names), so a merchant check would grade something the spec never requires of merchants. Response-side product.selected uniqueness is not normatively stated either. Candidate for a documented client-side exemption in Phase 4.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-035",
@@ -691,7 +714,8 @@
       "schema_enforced": false,
       "notes": "Cross-cuts catalog/checkout; relevant to catalog context handling",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-036",
@@ -711,7 +735,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CAT-037",

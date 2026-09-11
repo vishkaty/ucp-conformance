@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST NOT - platforms provide signals from direct observation/independent attestation; a business cannot be tested for the provenance of platform-supplied signal values.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-002",
@@ -40,7 +41,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced: signals.json propertyNames.pattern ^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+$ requires reverse-domain keys.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-003",
@@ -60,7 +62,8 @@
       "schema_enforced": true,
       "notes": "propertyNames pattern in signals.json enforces reverse-domain key naming.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-004",
@@ -140,7 +143,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced: attribution.json additionalProperties.type is 'string', so all values must be strings.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-008",
@@ -160,7 +164,8 @@
       "schema_enforced": false,
       "notes": "Negotiation-invariance is observed by comparing responses with/without attribution; behavioral, not schema-checkable.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-009",
@@ -200,7 +205,8 @@
       "schema_enforced": true,
       "notes": "Reverse-domain naming enforced via context.eligibility items $ref reverse_domain_name.json; non-identifying is semantic and not schema-checkable.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-011",
@@ -220,7 +226,8 @@
       "schema_enforced": false,
       "notes": "Behavioral handling of unrecognized claims; observed via business response, not schema.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-012",
@@ -240,7 +247,8 @@
       "schema_enforced": false,
       "notes": "Context type is provisional/non-authoritative; enforcement timing is behavioral.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "SAE-013",
@@ -260,7 +268,8 @@
       "schema_enforced": false,
       "notes": "Verification-at-completion contract; a claim is resolved when verified or rescinded. Behavioral.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-014",
@@ -280,7 +289,8 @@
       "schema_enforced": false,
       "notes": "Behavioral non-blocking requirement for unrecognized claims.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-015",
@@ -340,7 +350,8 @@
       "schema_enforced": false,
       "notes": "error/eligibility_invalid message code at completion; behavioral.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-018",
@@ -360,7 +371,8 @@
       "schema_enforced": false,
       "notes": "Core verification-at-completion prohibition; behavioral.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-019",
@@ -380,7 +392,8 @@
       "schema_enforced": false,
       "notes": "Scopes the effect of a failed verification to messages; behavioral.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-020",
@@ -400,7 +413,8 @@
       "schema_enforced": false,
       "notes": "eligibility_invalid + recoverable severity on failed verification; behavioral.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "SAE-021",

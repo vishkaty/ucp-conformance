@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "DISCREPANCY: official conformance suite protocol_test asserts HTTP 400 for incompatible version; the 04-08 spec maps to 422 and the suite is pinned to spec 2026-01-23. Spec is authoritative. Tester accepts 422; if 400 is seen, emit a FLAG citing the suite-vs-spec conflict, not a silent pass. See ambiguity register AMB-001.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "NEG-002",
@@ -40,7 +41,8 @@
       "schema_enforced": false,
       "notes": "A tester expecting 4xx for 'incompatible' is WRONG: this is 200-with-error-body. See AMB-006.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "NEG-003",

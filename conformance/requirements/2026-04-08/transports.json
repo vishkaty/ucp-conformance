@@ -21,7 +21,8 @@
       "notes": "Subject: MCP catalog endpoint (server). Distinct catalog-specific tool-availability obligation embedded in conformance bullet 2; parallels REST CAT-023. Server-observable. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "A2A-001",
@@ -42,7 +43,8 @@
       "notes": "Subject: business agent (server) response format over A2A transport. Genuinely missed - no A2A/DataPart rows exist. Server-observable. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs A2A transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-002",
@@ -63,7 +65,8 @@
       "notes": "Subject: MCP client constructing the request (identifier-pattern well-formedness). Not directly server-observable (spec does not mandate the endpoint reject an id in checkout), so manual/client-side. Canonical id-field row for 2026-04-08 (cart-mcp restates it). [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-003",
@@ -84,7 +87,8 @@
       "notes": "Subject: the MCP transport implementation (server/endpoint). Genuinely missed - register deferred the MCP binding (see cart.json note). Canonical MCP-conformance list for 2026-04-08; cart-mcp L635 and catalog-mcp L690 restate the same stem. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-004",
@@ -105,7 +109,8 @@
       "notes": "Subject: implementer (server). Distinct, more granular than the JSON-RPC bullet in the conformance stem: the concrete OpenRPC->tools/call param transformation. Observable on the endpoint's tool surface. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-005",
@@ -126,7 +131,8 @@
       "notes": "Subject: the business (server/endpoint) under 'Businesses implementing the MCP binding'. Server-observable tool-existence obligation; genuinely missed. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-006",
@@ -147,7 +153,8 @@
       "notes": "Umbrella lead-in for the catalog MCP conformance list (items 1,3-8). MCP-001 only captures item 2 (Lookup tools). Parallels MCP-003, which is the equivalent conformance roll-up for the checkout MCP binding. [added by completeness-2026-07-03 tight-residual re-adjudication]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     }
   ],
   "notes": ""

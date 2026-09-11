@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "Receiver-side behavior on Create Checkout with cart_id; not expressible in cart.json JSON-Schema. official_oracle false: conformance suite pinned to spec 2026-01-23 has no cart tests.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-002",
@@ -40,7 +41,8 @@
       "schema_enforced": false,
       "notes": "Idempotent cart-to-checkout conversion; stateful receiver behavior, not schema-checkable. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-003",
@@ -358,7 +360,8 @@
       "schema_enforced": false,
       "notes": "Cancel Cart response behavior. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-019",
@@ -396,7 +399,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST NOT - platforms provide signals (see overview.md#signals); a business cannot be tested for the provenance of platform-supplied signal values.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-021",
@@ -436,7 +440,8 @@
       "schema_enforced": false,
       "notes": "Well-formedness is a JSON-parse check, not a cart.json schema construct. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-023",
@@ -456,7 +461,8 @@
       "schema_enforced": false,
       "notes": "Transport security; verifiable at connection layer, not via JSON-Schema. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-024",
@@ -476,7 +482,8 @@
       "schema_enforced": false,
       "notes": "HTTP header requirement on cart operations; not a body-schema constraint. Suite pinned to 2026-01-23 has no cart oracle. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) \u2014 the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-025",
@@ -514,7 +521,8 @@
       "schema_enforced": false,
       "notes": "Conditional MUST; the three numbered obligations are at L474-L476. Receiver-side. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CART-027",
@@ -572,7 +580,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced via cart.json top-level required array (applies to response; ucp_request annotations on create/update are non-standard and not validator-enforced). Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-030",
@@ -592,7 +601,8 @@
       "schema_enforced": false,
       "notes": "ucp_request annotation is NOT standard JSON-Schema, so a validator on cart.json will NOT catch a cart_id on update => schema_enforced false. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-031",
@@ -612,7 +622,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced via line_item.json required array (cart reuses checkout line_item entity). Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-032",
@@ -632,7 +643,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CART-033",
@@ -652,7 +664,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced via item.json required array. Suite pinned to 2026-01-23 has no cart oracle.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     }
   ],
   "notes": [

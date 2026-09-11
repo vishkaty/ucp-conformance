@@ -21,7 +21,8 @@
       "notes": "Subject: business agent (server) A2A response format. Genuinely missed. Version-specific line. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs A2A transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-001",
@@ -42,7 +43,8 @@
       "notes": "Subject: MCP client (identifier-pattern well-formedness). Not server-observable. Canonical id-field row for 2026-01-23. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-002",
@@ -63,7 +65,8 @@
       "notes": "Subject: MCP endpoint (server). Genuinely missed. Canonical MCP-conformance list for 2026-01-23 (error-handling bullet differs from 2026-04-08). [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "MCP-003",
@@ -84,7 +87,8 @@
       "notes": "Subject: implementer (server). OpenRPC->tools/call param transformation. Version-specific line. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs MCP transport fixture; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     }
   ],
   "notes": ""

@@ -40,7 +40,8 @@
    "schema_enforced": false,
    "notes": "RFC 8414 metadata field. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Token-endpoint auth method selection is the platform's request behavior. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-003",
@@ -80,7 +81,8 @@
    "schema_enforced": false,
    "notes": "Capability-driven OAuth model new in 04-08 rework. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Public-client method choice + PKCE use are the platform's request behavior. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-005",
@@ -100,7 +102,8 @@
    "schema_enforced": false,
    "notes": "Mirrored at Security Considerations L581. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Not embedding a client_secret is a property of the platform's distributed binary. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-006",
@@ -120,7 +123,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Method-strength selection is the platform's negotiation behavior. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-007",
@@ -140,7 +144,8 @@
    "schema_enforced": false,
    "notes": "RFC 6750 \u00a72.1. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The Authorization: Bearer header is authored by the platform. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-008",
@@ -160,7 +165,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Challenge processing is the platform's response handling. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-009",
@@ -180,7 +186,8 @@
    "schema_enforced": false,
    "notes": "Platforms drive flow from structured scope param, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Extracting the scope param is the platform's response handling. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-010",
@@ -200,7 +207,8 @@
    "schema_enforced": false,
    "notes": "Authorization Code flow is mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The account-linking flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-011",
@@ -220,7 +228,8 @@
    "schema_enforced": false,
    "notes": "PKCE S256 mandatory. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). PKCE use on the request side is the platform's; the business-side enforcement is IDL-019/023/036/049 (checked). Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-012",
@@ -240,7 +249,8 @@
    "schema_enforced": false,
    "notes": "Mix-up defense. Issuer declared in RFC 8414 metadata. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). iss validation is the platform's response handling; the business-side iss emission is IDL-018 (checked). Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-013",
@@ -280,7 +290,8 @@
    "schema_enforced": false,
    "notes": "Restated at Security Considerations L617-L618. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side revocation endpoint is IDL-027/028 (checked). Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-015",
@@ -300,7 +311,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-016",
@@ -320,7 +332,8 @@
    "schema_enforced": false,
    "notes": "RFC 8414 well-known metadata is a fetchable endpoint; RFC 8414 discovery is the 04-08 rework.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-017",
@@ -340,7 +353,8 @@
    "schema_enforced": false,
    "notes": "Restated at Security Considerations L613-L614.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-018",
@@ -360,7 +374,8 @@
    "schema_enforced": false,
    "notes": "Mix-up defense companion to IDL-012. Restated at L589-L590. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-019",
@@ -380,7 +395,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-020",
@@ -400,7 +416,8 @@
    "schema_enforced": false,
    "notes": "Loopback exception (127.0.0.1 / [::1]): ignore port, match scheme/host/path. Restated at Security Considerations L602-L604. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-021",
@@ -420,7 +437,8 @@
    "schema_enforced": false,
    "notes": "RFC 8252 \u00a77.3 native/desktop ephemeral ports. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-022",
@@ -440,7 +458,8 @@
    "schema_enforced": false,
    "notes": "Presence in RFC 8414 metadata is fetch-testable; enforcement is needs-oauth.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-023",
@@ -460,7 +479,8 @@
    "schema_enforced": false,
    "notes": "Public-client path. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-024",
@@ -480,7 +500,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "direction"
+   "role_provenance": "direction",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-025",
@@ -500,7 +521,8 @@
    "schema_enforced": false,
    "notes": "RFC 9068 \u00a74. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Graded on its observable core (W2-F5 bar met 2026-08-04): the mint hook now yields deterministic EXPIRED, REVOKED, and FOREIGN-CLIENT tokens \u2014 exp/revocation (identity.expired/revoked_token_rejected, cited IDL-042) plus the client_id/azp binding half (identity.foreign_client_token_rejected, cited HERE) must each draw the invalid_token challenge. Whether an opaque-token business literally inspects iss/aud strings remains not black-box distinguishable; exp + revocation + client binding are the enforceable core the quote names.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-026",
@@ -520,7 +542,8 @@
    "schema_enforced": false,
    "notes": "Restated at Security Considerations L593-L595. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-027",
@@ -540,7 +563,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-028",
@@ -560,7 +584,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-029",
@@ -580,7 +605,8 @@
    "schema_enforced": false,
    "notes": "Scope vocabulary: *.catalog.*:read, checkout:manage, order:read, order:manage. Capability-driven scopes new in 04-08 rework. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-030",
@@ -620,7 +646,8 @@
    "schema_enforced": false,
    "notes": "Strict two-tier discovery hierarchy; RFC 8414 primary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery abort semantics are the platform's fetch behavior. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-032",
@@ -640,7 +667,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Discovery fall-through is the platform's fetch behavior. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-033",
@@ -660,7 +688,8 @@
    "schema_enforced": false,
    "notes": "RFC 8414 \u00a73.3. Restated at Security Considerations L605-L607. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (metadata issuer == discovery base, byte-for-byte); the 'platforms MUST NOT normalize' half is platform-bound.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-034",
@@ -680,7 +709,8 @@
    "schema_enforced": false,
    "notes": "Derived from business config.scopes. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Requesting only the derived scope set is the platform's request authoring. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-035",
@@ -700,7 +730,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). state/iss verification is the platform's response handling. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-036",
@@ -720,7 +751,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (token requests with an absent/non-verifying code_verifier are rejected); the platform half (send the corresponding verifier) is requester-bound.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-037",
@@ -740,7 +772,8 @@
    "schema_enforced": true,
    "notes": "Full scope_token pattern enforced in schema identity_linking.json#L26 (^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+:[a-z][a-z0-9_]*$). Scope vocabulary: {capability}:{scope} e.g. *.catalog.*:read, checkout:manage, order:read, order:manage.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-038",
@@ -760,7 +793,8 @@
    "schema_enforced": false,
    "notes": "config.scopes hard-gates user-auth operations vs scopes_supported accepted vocabulary. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Treating config.scopes as gating is the platform's interpretation duty. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-039",
@@ -780,7 +814,8 @@
    "schema_enforced": false,
    "notes": "scope_policy is additionalProperties:true in schema. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring unrecognized per-scope policy fields is the platform's parsing duty. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-040",
@@ -800,7 +835,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-041",
@@ -820,7 +856,8 @@
    "schema_enforced": false,
    "notes": "realm MUST match issuer URI; see L600-L601. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-042",
@@ -840,7 +877,8 @@
    "schema_enforced": false,
    "notes": "When no token presented, error SHOULD be omitted (RFC 6750 \u00a73.1). Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-043",
@@ -878,7 +916,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "both",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-045",
@@ -898,7 +937,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-046",
@@ -918,7 +958,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-047",
@@ -938,7 +979,8 @@
    "schema_enforced": false,
    "notes": "Enables incremental authorization. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-048",
@@ -958,7 +1000,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Incremental-authorization retry behavior is the platform's flow control. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-049",
@@ -978,7 +1021,8 @@
    "schema_enforced": false,
    "notes": "Security Considerations. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-050",
@@ -998,7 +1042,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-051",
@@ -1018,7 +1063,8 @@
    "schema_enforced": false,
    "notes": "Platforms drive flow from structured scope/error params, not error_description. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Driving flow decisions from structured params is the platform's logic. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-052",
@@ -1038,7 +1084,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-053",
@@ -1058,7 +1105,8 @@
    "schema_enforced": false,
    "notes": "TLS version assertion requires CLI/transport-level inspection, not browser fetch.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-054",
@@ -1098,7 +1146,8 @@
    "schema_enforced": false,
    "notes": "Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the authorization-code+PKCE flow as the platform; graded in merchant_checks_04_08_oauth.py. Business half graded (revoked tokens are rejected after RFC 7009 revocation); the 'platforms MUST revoke on unlink' half is platform-bound.",
    "role": "both",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-056",
@@ -1118,7 +1167,8 @@
    "schema_enforced": false,
    "notes": "Forward-compat. config.providers is a reserved extension point in schema $comment. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The v1 fallback is the platform's flow selection. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-057",
@@ -1138,7 +1188,8 @@
    "schema_enforced": false,
    "notes": "Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Ignoring future config fields is the platform's parsing duty. Platform-conformance exemption candidate.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-058",
@@ -1158,7 +1209,8 @@
    "schema_enforced": false,
    "notes": "authorization_response_iss_parameter_supported:true advertises RFC 9207; fetchable from /.well-known/oauth-authorization-server.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-059",
@@ -1178,7 +1230,8 @@
    "schema_enforced": true,
    "notes": "scope_token $def applied as propertyNames of config.scopes (schema L54). Capability-driven scope vocabulary new in 04-08 rework.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "IDL-060",
@@ -1198,7 +1251,8 @@
    "schema_enforced": true,
    "notes": "business_schema requires config; config requires scopes (config.scopes). additionalProperties:true keeps config open for the reserved providers extension point.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "schema"
   },
   {
    "id": "IDL-061",
@@ -1219,7 +1273,8 @@
    "notes": "Subject: business (emits both the RFC 8414 `issuer` metadata value and the `iss` authorization-response parameter, which must be byte-identical) with a platform-side non-normalization corollary. Distinct from IDL-033 (issuer metadata value == discovery base URI) and IDL-018 (business must return `iss` at all): this row is the issuer-metadata-vs-iss-parameter equality invariant. Requires observing an OAuth authorization response, hence needs-oauth. [added by completeness-2026-07-03]",
    "_completeness_batch": "completeness-2026-07-03",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "IDL-062",
@@ -1240,7 +1295,8 @@
    "notes": "Step-2 (OIDC fallback) abort obligation. IDL-031 covers only the step-1 (RFC 8414) abort; IDL-032 covers only the no-silent-fall-through rule for step 1. Neither covers a step-2 fetch failure. Platform-side discovery behavior, so not server-observable (consistent with IDL-031/IDL-032 being 'manual'). [added by completeness-2026-07-03 tight-residual re-adjudication]",
    "_completeness_batch": "completeness-2026-07-03",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   }
  ],
  "notes": [

@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "Get Order returns the authoritative current-state snapshot, not incremental deltas. Oracle: .vendor/conformance/order_test.py test_order_retrieval asserts Get returns the order id; suite is spec-2026-01-23 (version skew vs 2026-04-08). Schema validates entity shape but cannot enforce full vs partial.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-002",
@@ -40,7 +41,8 @@
       "schema_enforced": false,
       "notes": "Retention requirement: removed items (quantity.total==0, status 'removed') are retained, not dropped. Not JSON-Schema enforceable (history is data-state, not shape).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-003",
@@ -60,7 +62,8 @@
       "schema_enforced": true,
       "notes": "currency appears in order.json top-level required[] (L32). Schema-enforced presence; ISO 4217 string per its description.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-004",
@@ -80,7 +83,8 @@
       "schema_enforced": true,
       "notes": "line_items in order.json top-level required[] (L30). Items $ref order_line_item.json.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-005",
@@ -100,7 +104,8 @@
       "schema_enforced": true,
       "notes": "Schema-required fields on each order_line_item.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-006",
@@ -120,7 +125,8 @@
       "schema_enforced": true,
       "notes": "quantity object requires total+fulfilled; each integer minimum:0.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-007",
@@ -160,7 +166,8 @@
       "schema_enforced": true,
       "notes": "adjustment.json required[]. type is open string (refund/return/credit/etc).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-009",
@@ -180,7 +187,8 @@
       "schema_enforced": false,
       "notes": "Description-level sign convention; totals[] $ref total.json (signed). Sign-vs-type not schema-bound.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-010",
@@ -240,7 +248,8 @@
       "schema_enforced": false,
       "notes": "Authentication requirement; supported mechanisms include RFC 9421 HTTP Message Signatures. Restated in Business guideline at L403. Still needs-oauth 2026-07-03: grading it requires a golden that REJECTS unauthenticated order reads, which contradicts every existing unauthenticated order check against the controlled fixture \u2014 needs a config-gated auth-required fixture mode first.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-013",
@@ -298,7 +307,8 @@
       "schema_enforced": false,
       "notes": "Platform guideline; transport header, not schema. Also stated in order-rest.md L252. Reclassified 2026-07-02: the MUST binds the PLATFORM's outbound requests (order.md Operations Guidelines 'Platform:' block; order-rest.md Conformance 'Platforms implementing the REST binding') \u2014 the order spec places no obligation on the business to reject requests lacking UCP-Agent (its Business guideline is authentication only), so a merchant check would grade something the spec never requires of merchants. Same subject-binding as CAT-008/CAT-034. Our own probe traffic does send UCP-Agent on all order requests. Candidate for a documented client-side exemption in Phase 4.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-016",
@@ -358,7 +368,8 @@
       "schema_enforced": true,
       "notes": "expectation.json required[]; method_type enum shipping|pickup|digital.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-019",
@@ -378,7 +389,8 @@
       "schema_enforced": true,
       "notes": "fulfillment_event.json required[]; append-only event log. type is open string.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-020",
@@ -398,7 +410,8 @@
       "schema_enforced": true,
       "notes": "order_confirmation.json required[]; details available at checkout completion.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-021",
@@ -418,7 +431,8 @@
       "schema_enforced": false,
       "notes": "Transport/encoding requirement.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-022",
@@ -438,7 +452,8 @@
       "schema_enforced": false,
       "notes": "Transport security. Restated for businesses at order-rest.md L260.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-023",
@@ -458,7 +473,8 @@
       "schema_enforced": false,
       "notes": "Error-handling guideline; messages may carry error envelope. Reclassified 2026-07-02: the MUST binds the PLATFORM's client-side consumption order (order-rest.md Conformance 'Platforms implementing the REST binding': check messages[] BEFORE accessing order data) \u2014 an internal client behavior with no wire-observable merchant obligation; no receiver/oauth harness can prove in what order a platform reads a response it already received. Same subject-binding as CAT-008/CAT-034. Candidate for a documented client-side exemption in Phase 4.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-024",
@@ -518,7 +534,8 @@
       "schema_enforced": false,
       "notes": "RFC 9421 message signatures; requires a receiver/platform endpoint to observe and verify.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-027",
@@ -538,7 +555,8 @@
       "schema_enforced": false,
       "notes": "Business guideline; Standard-Webhooks headers (Webhook-Id, Webhook-Timestamp) plus RFC 9421 signing headers.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-028",
@@ -558,7 +576,8 @@
       "schema_enforced": false,
       "notes": "UCP-Agent identifies the signer; used by platform for anti-spoof profile match.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-029",
@@ -578,7 +597,8 @@
       "schema_enforced": false,
       "notes": "Oracle: webhook_test.py test_webhook_event_stream asserts an order_placed event carries payload.order.id (suite spec-2026-01-23, version skew). Full population not schema-enforced.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-030",
@@ -598,7 +618,8 @@
       "schema_enforced": false,
       "notes": "Same current-state snapshot semantics as Get Order. Oracle: webhook_test.py asserts order_shipped event carries full payload.order (suite spec-2026-01-23, version skew).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-031",
@@ -618,7 +639,8 @@
       "schema_enforced": false,
       "notes": "Delivery reliability; observable only via a controllable failing receiver.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-032",
@@ -638,7 +660,8 @@
       "schema_enforced": false,
       "notes": "Reclassified 2026-07-03 (webhook/events area): the MUST binds the PLATFORM (order.md Events Guidelines 'Platform:' block) \u2014 the webhook RECEIVER's acknowledgement behavior, not the business under test. The suite's own harness receiver does respond 2xx immediately, but no check on a merchant can prove a third-party platform's conduct. Same subject-binding rationale as ORD-015/ORD-023. Candidate for a documented client/platform-side exemption in Phase 4.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-033",
@@ -658,7 +681,8 @@
       "schema_enforced": false,
       "notes": "Anti-spoof: verify the order was created with this business (profile URL matches) and reject webhooks where the signer's profile doesn't match the order's business. Reclassified 2026-07-03 (webhook/events area): the MUST binds the PLATFORM (order.md Webhook Signature Verification, 'Authorization (order ownership)': 'the platform MUST confirm...') \u2014 receiver-side authorization conduct, not a business obligation observable on the merchant under test. Candidate for a documented client/platform-side exemption in Phase 4.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

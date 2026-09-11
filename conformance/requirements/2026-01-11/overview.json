@@ -21,7 +21,8 @@
       "notes": "Subject: both parties (Data Privacy). Compliance obligation, not server-observable -> manual. Matches the 2026-04-08 register's PAY-030; the 2026-01-11 register rows only card-credential PCI (PAY-014), not the general PII/GDPR statement. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     }
   ],
   "notes": ""

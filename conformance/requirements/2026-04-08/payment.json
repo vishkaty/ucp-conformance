@@ -21,7 +21,8 @@
       "schema_enforced": true,
       "notes": "payment_handlers is a required top-level property of both platform_schema (ucp.json#L150) and business_schema (ucp.json#L180) UCP profiles, and of response_checkout_schema (ucp.json#L219). All entries deref payment_handler.json $defs.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-002",
@@ -41,7 +42,8 @@
       "schema_enforced": true,
       "notes": "payment_handler.json#/$defs/base requires id; base is inherited by platform_schema, business_schema, and response_schema via allOf, so the id requirement applies to discovery declarations and to handlers echoed in checkout responses.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-003",
@@ -61,7 +63,8 @@
       "schema_enforced": true,
       "notes": "response_checkout_schema (ucp.json#L213-241) requires payment_handlers; items deref payment_handler.json#/$defs/response_schema (ucp.json#L234), which allOf-includes base => id required. Overview L1173 (Negotiation step) describes the business advertising handlers in the profile.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-004",
@@ -81,7 +84,8 @@
       "schema_enforced": true,
       "notes": "platform_schema requires spec+schema (the platform-advertised URIs declaring how it supports the handler, guide L211). business_schema and response_schema (payment_handler.json#L35-45) do NOT add this requirement.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-005",
@@ -101,7 +105,8 @@
       "schema_enforced": true,
       "notes": "available_instruments is optional on payment_handler base; when present it must be non-empty. Guide L194-196: when absent the handler places no restrictions and supports the full set of its schema's instrument types.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-006",
@@ -141,7 +146,8 @@
       "schema_enforced": true,
       "notes": "Base available instrument requires type; constraints object is optional but when present MUST have at least one property (minProperties:1, available_payment_instrument.json#L17).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-008",
@@ -161,7 +167,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST (platforms treat available_instruments/handler config as authoritative). The business duty to RETURN the authoritative handlers/instruments is checked by PAY-001/003/005/007. Not a business-response wire shape.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-009",
@@ -181,7 +188,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST/MUST NOT (platforms treat available_instruments as authoritative and MUST NOT use contradicting types). Business emission is checked by PAY-005/007. Not a business-response wire shape.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-010",
@@ -201,7 +209,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST (platforms treat available_instruments as authoritative). Business emission is checked by PAY-005/007. Not a business-response wire shape.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-011",
@@ -221,7 +230,8 @@
       "schema_enforced": true,
       "notes": "Reinforced at schema level for token credentials: token_credential.json#L21 marks the token field ucp_response:omit, so the sensitive value is not echoed. Unidirectional/no-echo for arbitrary credential shapes is prose.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-012",
@@ -241,7 +251,8 @@
       "schema_enforced": true,
       "notes": "token_credential requires type+token (token_credential.json#L12); the token string is ucp_response:omit, the schema-level enforcement of the no-echo rule (PAY-011). binding_test.py exercises completion using a token+binding.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-013",
@@ -301,7 +312,8 @@
       "schema_enforced": false,
       "notes": "Context-dependent business logic; observable only with a cooperating receiver across differing cart contexts. Not schema-enforceable.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-016",
@@ -341,7 +353,8 @@
       "schema_enforced": true,
       "notes": "Platform-bound MUST (the PLATFORM opens continue_url after a 3DS/SCA soft-decline). The business soft-decline duty (return requires_escalation + continue_url + a requires_buyer_input message) is checked by CHK-001/CHK-004/CHK-015 and PAY-018.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-018",
@@ -361,7 +374,8 @@
       "schema_enforced": false,
       "notes": "Conditional requirement stated in the field description; not encoded as a JSON-Schema if/then, so schema validators do not enforce the conditional presence (schema_enforced:false). requires_escalation enumerated at checkout.json#L69.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-019",
@@ -381,7 +395,8 @@
       "schema_enforced": true,
       "notes": "Base payment_instrument. handler_id corresponds to the id field in the Payment Handler definition (payment_instrument.json#L19), the routing key validated by the business (PAY-014). payment.instruments[] derefs selected_payment_instrument (payment.json#L11).",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-020",
@@ -401,7 +416,8 @@
       "schema_enforced": true,
       "notes": "Base credential; additionalProperties:true. Specific schemas constrain type to a const (e.g., card_credential type const 'card').",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-021",
@@ -421,7 +437,8 @@
       "schema_enforced": true,
       "notes": "type const 'card'; card_number_type enum fpan|network_token|dpan (card_credential.json#L23-27). card_credential_test.py test_card_credential_payment submits a card credential with card_number_type:'fpan' on /complete.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-022",
@@ -441,7 +458,8 @@
       "schema_enforced": false,
       "notes": "Stated in the schema title/description, not as a JSON-Schema constraint (schema still permits the shape). Also: both parties handling CardCredential MUST be PCI DSS compliant and transmission MUST use HTTPS/TLS (same description).",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-023",
@@ -461,7 +479,8 @@
       "schema_enforced": true,
       "notes": "card_payment_instrument allOf payment_instrument (so id/handler_id/type all required) plus type const 'card' (#L45). available_card_payment_instrument adds a constraints.brands array (minItems 1, uniqueItems) in $defs (#L18-28).",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-024",
@@ -481,7 +500,8 @@
       "schema_enforced": true,
       "notes": "token field is ucp_response:omit (PAY-012). binding_test.py test_token_binding_completion completes a checkout using a token credential carrying binding data.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-025",
@@ -501,7 +521,8 @@
       "schema_enforced": false,
       "notes": "Meta-requirement on handler spec authors. Base token_credential.json does NOT itself include an expiry field; concrete handler token schemas must add one (guide best practice 'Include Expiry', L838).",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-026",
@@ -521,7 +542,8 @@
       "schema_enforced": true,
       "notes": "binding.identity (payment_identity) is required only when acting on behalf of another participant (binding.json#L15). binding_test.py supplies binding.checkout_id on completion. Binding prevents replay where a credential for Business A is used at Business B (guide L755).",
       "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-027",
@@ -541,7 +563,8 @@
       "schema_enforced": true,
       "notes": "Used by binding.identity to name the binding target (e.g., agent tokenizing for merchant). access_token obtained during onboarding with the tokenizer.",
       "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-028",
@@ -561,7 +584,8 @@
       "schema_enforced": false,
       "notes": "Meta-requirement on handler spec authors. Spec MUST also explicitly document field mappings (guide L92) and MUST define which credential types are accepted by the business (guide L623).",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-029",
@@ -581,7 +605,8 @@
       "schema_enforced": false,
       "notes": "Meta-requirement on handler authors. Authors MAY extend base credential schemas with handler-specific context and MAY define multiple credential types (guide L619-621).",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-030",
@@ -601,7 +626,8 @@
       "schema_enforced": false,
       "notes": "Data Privacy. UCP encourages tokenized payment data to minimize liability. All UCP communication MUST occur over HTTPS (overview L1678).",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-031",
@@ -622,7 +648,8 @@
       "notes": "Subject: BUSINESS/server. Intro summary of the merchant-authorization signing obligation. 04-08 register has zero ap2-mandates rows; parity with PAY-019 in 2026-01-11/23. Manifests on a checkout response we receive -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-032",
@@ -643,7 +670,8 @@
       "notes": "Subject: PLATFORM/client. Not observable against a merchant server -> manual. 04-08 register lacks any ap2 row; parity with PAY-020 in 2026-01-11/23. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-033",
@@ -664,7 +692,8 @@
       "notes": "Subject: PLATFORM/client profile. Not captured by any existing register row in any version. Platform-profile obligation, not driveable against a merchant server -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-034",
@@ -685,7 +714,8 @@
       "notes": "Subject: BUSINESS/server. Parity with PAY-021 in 2026-01-11/23. Observable on the checkout response once AP2 is active -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-035",
@@ -706,7 +736,8 @@
       "notes": "Subject: BUSINESS/server. Negative obligation on receipt of a completion request. Parity with PAY-022 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-036",
@@ -727,7 +758,8 @@
       "notes": "Subject: PLATFORM/client. Parity with PAY-023 in 2026-01-11/23. Canonical row for the platform-verifies-merchant-signature obligation (the Step-1 restatement at L282 waives to this) -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-037",
@@ -748,7 +780,8 @@
       "notes": "Subject: BUSINESS/server key resolution. Parity with PAY-024 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-038",
@@ -769,7 +802,8 @@
       "notes": "Subject: BUSINESS/server error behavior on unresolvable key or invalid signature. Parity with PAY-025 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-039",
@@ -790,7 +824,8 @@
       "notes": "Subject: BUSINESS/server. Detailed placement/format statement, distinct from the L29 intro (register keeps both, cf. PAY-019 vs PAY-027). Parity with PAY-027 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-040",
@@ -811,7 +846,8 @@
       "notes": "Subject: BUSINESS/server signature computation. Parity with PAY-028 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-041",
@@ -832,7 +868,8 @@
       "notes": "Subject: PLATFORM producing mandates, but presence of the two artifacts is observable in the request payload. Mirrors PAY-029 (marked testable) in 2026-01-11/23 for cross-version consistency. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-042",
@@ -853,7 +890,8 @@
       "notes": "Subject: mandate content (platform-produced, business-verified). Parity with PAY-030 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-043",
@@ -874,7 +912,8 @@
       "notes": "Subject: BUSINESS/server (and both parties) signing/verification canonicalization. Parity with PAY-033 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-044",
@@ -895,7 +934,8 @@
       "notes": "Subject: both parties incl. BUSINESS/server. Parity with PAY-031 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-045",
@@ -916,7 +956,8 @@
       "notes": "Subject: BUSINESS/server behavior on a mandate-less completion request. Parity with PAY-032 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-046",
@@ -937,7 +978,8 @@
       "notes": "Subject: PLATFORM PROVIDER/client. Distinct user-consent obligation not captured by any existing register row in any version. Not driveable against a merchant server -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-047",
@@ -958,7 +1000,8 @@
       "notes": "Subject: BUSINESS/server verification obligations on completion. List-intro stem but the canonical server obligation; parity with PAY-034 in 2026-01-11/23 -> needs-receiver. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

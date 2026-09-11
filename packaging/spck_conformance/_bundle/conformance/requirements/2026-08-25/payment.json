@@ -24,7 +24,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-002",
@@ -48,7 +49,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-003",
@@ -72,7 +74,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-004",
@@ -96,7 +99,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-005",
@@ -120,7 +124,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-006",
@@ -168,7 +173,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-008",
@@ -192,7 +198,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-009",
@@ -217,7 +224,8 @@
       },
       "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-010",
@@ -242,7 +250,8 @@
       },
       "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-011",
@@ -266,7 +275,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-012",
@@ -290,7 +300,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-013",
@@ -362,7 +373,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-016",
@@ -411,7 +423,8 @@
       },
       "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-019",
@@ -435,7 +448,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-020",
@@ -459,7 +473,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-021",
@@ -483,7 +498,8 @@
         "disposition": "reworded"
       },
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-022",
@@ -507,7 +523,8 @@
         "disposition": "reworded"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-023",
@@ -532,7 +549,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated: shopping/types/card_payment_instrument.json -> common/types/card_payment_instrument.json; required+const('card') unchanged (const now at L36, was L45). Note: the $defs sub-schema changed shape — old 'available_card_payment_instrument' w"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-024",
@@ -556,7 +574,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-025",
@@ -580,7 +599,8 @@
         "disposition": "carried"
       },
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-026",
@@ -604,7 +624,8 @@
         "disposition": "reworded"
       },
       "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-027",
@@ -628,7 +649,8 @@
         "disposition": "carried"
       },
       "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-028",
@@ -652,7 +674,8 @@
         "disposition": "carried"
       },
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-029",
@@ -676,7 +699,8 @@
         "disposition": "carried"
       },
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-030",
@@ -700,7 +724,8 @@
         "disposition": "carried"
       },
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-031",
@@ -724,7 +749,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-032",
@@ -748,7 +774,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-033",
@@ -772,7 +799,8 @@
         "disposition": "renamed"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-034",
@@ -796,7 +824,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-035",
@@ -820,7 +849,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-036",
@@ -844,7 +874,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-037",
@@ -868,7 +899,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-038",
@@ -892,7 +924,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-039",
@@ -916,7 +949,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-040",
@@ -940,7 +974,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-041",
@@ -964,7 +999,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-042",
@@ -988,7 +1024,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-043",
@@ -1012,7 +1049,8 @@
         "disposition": "carried"
       },
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-044",
@@ -1036,7 +1074,8 @@
         "disposition": "carried"
       },
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-045",
@@ -1060,7 +1099,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-046",
@@ -1084,7 +1124,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-047",
@@ -1108,7 +1149,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-048",
@@ -1129,7 +1171,8 @@
       "notes": "New row, 2026-08-25 census closure wave (overview/index.md Payment section, Instrument Cardinality, previously unaccounted). The default single-instrument-per-submission constraint and its relaxation condition (split_payments capability active), plus the business-side rejection duty and required error code.",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-049",
@@ -1150,7 +1193,8 @@
       "notes": "New row, 2026-08-25 census closure wave (AP2 Mandates, Step 1 merchant-authorization signature verification).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-050",
@@ -1171,7 +1215,8 @@
       "notes": "New row (AP2 Mandates, Step 2 lead-in).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     }
   ]
 }

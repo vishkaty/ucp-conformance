@@ -1,0 +1,56 @@
+{
+ "_about": "normative_basis adjudications (D2-11a / PLAN-v3 §2.4 A6, decision 29; batch normative-basis-adjudication-2026-09-11): the nokw rows the W1/W2 converters need ruled before they convert (D1-15, D1-18, D3-17, D3-20, D3-23, D5-11 — RV1 #12). assign_normative_basis.py applies these as normative_basis + normative_basis_justification; definition|inferred rows are named in the review_signoffs.json batch of the same name (>=10% human sample PENDING for the owner, decision 13). The remaining queued rows are D2-11b's.",
+ "batch": "normative-basis-adjudication-2026-09-11",
+ "date": "2026-09-11",
+ "reviewer": "Wave 1 lane D2 (Claude Code session, 2026-09-11) — each anchor re-read in the vendored 2026-08-25 tree at cd78fb38",
+ "adjudications": [
+  {
+   "version": "2026-08-25",
+   "id": "SIG-001",
+   "basis": "inferred",
+   "justification": "signatures.md L42-L43 is the Architecture lead-in ('UCP uses HTTP Message Signatures (RFC 9421) for all HTTP-based transports') — a mechanism statement with no keyword. The MUST is inferred from the section's operative requirements (the Signing requests / Verification MUSTs, SIG-010..SIG-018, SIG-036..SIG-038) which all presuppose RFC 9421 as the only signature mechanism; a non-RFC-9421 signature cannot verify, so the choice is itself observable and is already graded by both lanes (merchant CHECK at 2026-04-08, agent verifier). Kept MUST (decision 29); not a downgrade candidate."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "SIG-009",
+   "basis": "inferred",
+   "justification": "signatures.md L226 is step 3 of the numbered Key Rotation procedure under the lead-in 'To rotate keys without service interruption:' (no keyword). The floor '(minimum 7 days)' is stated as a requirement of the interruption-free procedure; MUST inferred because a verifier that drops an old key earlier than the floor fails signatures the procedure guarantees will verify. Kept MUST for D1-15/D3-23; flagged as a D2-11b downgrade candidate (procedural guidance) — needs-receiver either way."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "CAT-012",
+   "basis": "inferred",
+   "justification": "shopping/catalog/index.md L376 (Common Scenarios / Empty Search): 'When search finds no matches, return an empty array without messages.' — an imperative sentence with no keyword. MUST inferred from the imperative mood in a normative section and from CAT-020's envelope rule (application outcomes return HTTP 200 with the UCP envelope); an implementation that returns an error message for an empty search contradicts the stated behaviour. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "CAT-019",
+   "basis": "inferred",
+   "justification": "shopping/catalog/rest.md L479-L482 (Product Not Found): 'the server returns HTTP 200 with ucp.status: \"error\" and a descriptive message. This is an application outcome, not a transport error' — descriptive present tense, no keyword. MUST inferred: the sentence defines the only conforming response to an unresolvable identifier (HTTP 200 + error envelope, never a 404), consistent with CAT-020. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "DSC-006",
+   "basis": "bullet",
+   "justification": "shopping/extensions/discount.md L140: first bullet under the bold lead-in '**Response behavior:**' (L138), the list that defines the discount extension's normative response contract (its siblings 'Rejected codes communicated via messages[]' and the totals reflection rules are DSC-007/DSC-008). Bullet under a normative lead-in; kept MUST (decision 29; the D2 design named exactly these DSC bullets as `bullet`)."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "SPL-004",
+   "basis": "pseudocode",
+   "justification": "payment/extensions/split-payments.md L95-L97: '**Matching algorithm:** a submission matches a combination if there exists an assignment of each submitted instrument to exactly one group such that …' — the matching algorithm stated as structured prose (existential condition + itemised constraints), not fenced. Classed pseudocode: it specifies the exact acceptance algorithm (decision 29 keeps tables/pseudocode as MUST); the D1-15 converter grades the algorithm's outcome."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "CHK-017",
+   "basis": "bullet",
+   "justification": "shopping/checkout/index.md L1028-L1029: '* After a checkout session reaches the state \"completed\", it is considered immutable.' — a bullet in the Availability list whose sibling items carry MUST / SHOULD (L1022-L1027: MUST provide continue_url…, MUST include at least one message…). Bullet in a keyword-bearing list; kept MUST (decision 29): immutability after completion is the stated contract the sibling MUSTs rely on."
+  },
+  {
+   "version": "2026-08-25",
+   "id": "TDS-001",
+   "basis": "inferred",
+   "justification": "payment/extensions/actions/three-ds-challenge.md L48-L50: L48 is a SHOULD sentence ('A Business SHOULD accept Complete Checkout, begin the payment attempt, and return complete_in_progress…'); the quoted clause is its 'If the Business cannot accept completion before the challenge, it follows the core Checkout rule: it returns incomplete with a recoverable error Message whose path selects the challenge occurrence.' MUST inferred by reference: 'follows the core Checkout rule' binds the Business to the core rule, which is a MUST in shopping/checkout/index.md (incomplete + recoverable error on an unmet requirement). Kept MUST (decision 29); the SHOULD half is not this row."
+  }
+ ]
+}

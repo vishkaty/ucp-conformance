@@ -22,7 +22,8 @@
    "schema_enforced": true,
    "notes": "Wholly new capability family (dev.ucp.common.location.search / .lookup, #589). No 04-08 equivalent existed (04-08 shopping/types/retail_location.json had no amenities/hours model). location.json $defs.amenity requires description (minLength 1).",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOC-002",
@@ -42,7 +43,8 @@
    "schema_enforced": false,
    "notes": "amenity_type.json $ref's reverse_domain_name.json for the syntactic shape; this 2-tier hierarchy rule is prose-only on top of that.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOC-003",
@@ -62,7 +64,8 @@
    "schema_enforced": true,
    "notes": "location.json if/then conditional requirement.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOC-004",
@@ -82,7 +85,8 @@
    "schema_enforced": true,
    "notes": "location_filter.json filters.items constraints.",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOC-005",
@@ -102,7 +106,8 @@
    "schema_enforced": true,
    "notes": "location_filter.json filters.hours.required + pattern enforcing the Z/offset suffix.",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOC-006",
@@ -142,7 +147,8 @@
    "schema_enforced": false,
    "notes": "Provisional-vs-authoritative boundary rule; the caching half is a Platform-side SHOULD NOT.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-008",
@@ -202,7 +208,8 @@
    "schema_enforced": false,
    "notes": "The IANA-identifier validity check is testable against the IANA tz database; the 'expressed in that frame' half needs cross-referencing against the timezone value.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-011",
@@ -222,7 +229,8 @@
    "schema_enforced": false,
    "notes": "Requires issuing the same Location lookup from two different request-context timezones and confirming identical returned hours/timezone.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-012",
@@ -242,7 +250,8 @@
    "schema_enforced": false,
    "notes": "Coded cross-field check on any emitted hours/exception_hours entry.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-013",
@@ -262,7 +271,8 @@
    "schema_enforced": false,
    "notes": "Platform-side interpretation rule.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-014",
@@ -282,7 +292,8 @@
    "schema_enforced": false,
    "notes": "Platform-side safety rule (fail-closed on unusable schedule data).",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-015",
@@ -302,7 +313,8 @@
    "schema_enforced": false,
    "notes": "Platform-side; complements the Business-side rule that `title` does not affect schedule evaluation (index.md#L105-106).",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-016",
@@ -322,7 +334,8 @@
    "schema_enforced": true,
    "notes": "Schema half (LOC-001) plus the Platform-side rejection rule which needs a receiver.",
    "role": "business",
-   "role_provenance": "not-agent-bound"
+   "role_provenance": "not-agent-bound",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-017",
@@ -342,7 +355,8 @@
    "schema_enforced": false,
    "notes": "Platform-side amenity-presentation rule protecting custom/vendor amenity identifiers.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-018",
@@ -362,7 +376,8 @@
    "schema_enforced": false,
    "notes": "Requires confirming a Business does not silently broaden or narrow matching based on context/signals alone.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-019",
@@ -382,7 +397,8 @@
    "schema_enforced": false,
    "notes": "Shared Signals contract (overview/index.md#signals) reused by Location; abuse-prevention invariant.",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-020",
@@ -402,7 +418,8 @@
    "schema_enforced": true,
    "notes": "search_response.locations is a required array; an empty array on no-match is directly checkable.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-021",
@@ -422,7 +439,8 @@
    "schema_enforced": false,
    "notes": "Security/privacy-relevant; not verifiable from the wire alone without knowledge of the business's internal location set.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-022",
@@ -442,7 +460,8 @@
    "schema_enforced": false,
    "notes": "Data-retention rule; not observable from the wire, requires server-side/policy verification.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-023",
@@ -482,7 +501,8 @@
    "schema_enforced": false,
    "notes": "Checkable by pairing a `query` string that textually implies a location/relation with an explicit constraint that excludes it, and confirming the explicit constraint wins.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-025",
@@ -502,7 +522,8 @@
    "schema_enforced": false,
    "notes": "Prevents a Business from silently promoting soft hints into spatial proof.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-026",
@@ -522,7 +543,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting `distance` with `max` but no `center` and confirming the Business rejects the request as invalid rather than deriving a center.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-027",
@@ -542,7 +564,8 @@
    "schema_enforced": false,
    "notes": "Checkable with a Location placed at exactly distance.max from the supplied center.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-028",
@@ -562,7 +585,8 @@
    "schema_enforced": false,
    "notes": "Requires precise geodesic-distance test fixtures near the boundary to distinguish from a tolerant or planar implementation.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-029",
@@ -582,7 +606,8 @@
    "schema_enforced": false,
    "notes": "Checkable by requesting a radius above the business's configured cap and confirming rejection rather than a silently-clamped result set.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-030",
@@ -602,7 +627,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting a `serves` map with zero or multiple target keys and confirming rejection.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-031",
@@ -622,7 +648,8 @@
    "schema_enforced": false,
    "notes": "Checkable against the submitted address object.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-032",
@@ -642,7 +669,8 @@
    "schema_enforced": false,
    "notes": "Companion rule to LOC-025/LOC-026 for the serves relation specifically.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-033",
@@ -662,7 +690,8 @@
    "schema_enforced": false,
    "notes": "Checkable with a target format the business is known not to model (e.g. an unsupported postal-code system).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-034",
@@ -682,7 +711,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting a filters key the business does not advertise support for and confirming rejection rather than a silently-broadened result.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-035",
@@ -702,7 +732,8 @@
    "schema_enforced": false,
    "notes": "Checkable by supplying open_at with an offset that differs from the Location's own timezone and confirming evaluation uses the Location's timezone, not the request's offset.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-036",
@@ -722,7 +753,8 @@
    "schema_enforced": false,
    "notes": "Fail-closed rule for the hours filter; checkable with a Location lacking usable schedule data.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-037",
@@ -742,7 +774,8 @@
    "schema_enforced": false,
    "notes": "Checkable with an open_at value near a schedule boundary (e.g. exactly at `closes`).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-038",
@@ -762,7 +795,8 @@
    "schema_enforced": true,
    "notes": "The 'must include every supplied identifier in the returned amenities map' half is directly checkable against the response.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-039",
@@ -782,7 +816,8 @@
    "schema_enforced": false,
    "notes": "Platform-side defensive validation rule.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-040",
@@ -802,7 +837,8 @@
    "schema_enforced": false,
    "notes": "Checkable by filtering on a fabricated/unknown item identifier and confirming candidates are excluded, not broadened.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-041",
@@ -822,7 +858,8 @@
    "schema_enforced": false,
    "notes": "Cross-capability boundary rule (Location vs. Catalog/Cart/Checkout availability).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-042",
@@ -842,7 +879,8 @@
    "schema_enforced": false,
    "notes": "Checkable by omitting `limit` and confirming a bounded, non-empty-by-default page size is applied.",
    "role": "business",
-   "role_provenance": "not-agent-bound"
+   "role_provenance": "not-agent-bound",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-043",
@@ -862,7 +900,8 @@
    "schema_enforced": false,
    "notes": "Checkable with a Lookup request using the canonical id returned by a prior Search.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-044",
@@ -882,7 +921,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting duplicate/alias identifiers that resolve to the same Location and confirming a single returned entry with a merged `inputs` array (see LOC-045). [2026-09-10 D2-02/A2] the return-once clause (L41-L42) is LOC-055.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-045",
@@ -902,7 +942,8 @@
    "schema_enforced": true,
    "notes": "location_lookup.json lookup_location requires `inputs` (schema half); checkable directly against the response.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-046",
@@ -922,7 +963,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting more identifiers than the business's advertised/observed maximum and confirming a truncated-but-successful response.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-047",
@@ -942,7 +984,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against the messages[] array of a batch-limited Lookup response.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-048",
@@ -962,7 +1005,8 @@
    "schema_enforced": false,
    "notes": "Platform-side interpretation rule.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-049",
@@ -983,7 +1027,8 @@
    "notes": "New row, 2026-08-25 census closure wave (Amenity presentation).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-050",
@@ -1004,7 +1049,8 @@
    "notes": "New row (Amenity presentation, platform-side handling of unrecognized identifiers — distinct from LOC-017 at L220, which covers the business-side non-suppression duty).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-051",
@@ -1025,7 +1071,8 @@
    "notes": "New row (Spatial Relations, query-text-does-not-override-structured-constraints rule).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-052",
@@ -1046,7 +1093,8 @@
    "notes": "New row (namespaced-target extension-not-negotiated error rule — distinct trigger condition from the adjacent unmodeled-postal-code-system error rule already registered nearby).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-053",
@@ -1067,7 +1115,8 @@
    "notes": "New row (filters.amenities response-shape guarantee + platform-side conformance check, folded — one integrated rule).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-054",
@@ -1088,7 +1137,8 @@
    "notes": "New row (Page Size, platform-side non-assumption rule).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-055",
@@ -1109,7 +1159,8 @@
    "notes": "New row (Lookup deduplication). [2026-09-10 D2-02/A2] source narrowed to L41-L42; the dedupe duty on L39 is LOC-044.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOC-056",
@@ -1130,7 +1181,8 @@
    "notes": "New row (Conformance, REST transport). Umbrella lead-in for the itemized conformance list — no other list item carries its own MUST keyword (all are descriptive obligations under this one MUST), the same pattern as transports.json MCP-006 for the catalog MCP conformance list.",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ]
 }

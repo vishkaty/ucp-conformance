@@ -22,7 +22,8 @@
    "schema_enforced": true,
    "notes": "Wholly new extension (dev.ucp.common.loyalty). No 04-08 equivalent existed.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOY-002",
@@ -42,7 +43,8 @@
    "schema_enforced": false,
    "notes": "Checkable by confirming distinct, independently-verifiable programs never share one loyalty map key.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOY-003",
@@ -62,7 +64,8 @@
    "schema_enforced": true,
    "notes": "loyalty.json $defs.loyalty.propertyNames refs reverse_domain_name.json.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOY-004",
@@ -82,7 +85,8 @@
    "schema_enforced": false,
    "notes": "Cross-field check: display_id absent whenever provisional:true.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "LOY-005",
@@ -122,7 +126,8 @@
    "schema_enforced": false,
    "notes": "Doc-level restatement of LOY-002.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-007",
@@ -142,7 +147,8 @@
    "schema_enforced": false,
    "notes": "Checkable by comparing the response's loyalty map key against the identifier the business documents/accepts as a context.eligibility claim value.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-008",
@@ -162,7 +168,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against the response's loyalty entry.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-009",
@@ -182,7 +189,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against the response's loyalty entry.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-010",
@@ -202,7 +210,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against messages[] (also demonstrated in the worked example at L415-451).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-011",
@@ -222,7 +231,8 @@
    "schema_enforced": false,
    "notes": "Cross-references the (pre-existing, 04-08) Checkout eligibility-verification contract; the loyalty-specific binding to it is new.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-012",
@@ -242,7 +252,8 @@
    "schema_enforced": false,
    "notes": "Checkable end-to-end by submitting a cart below/above a documented benefit threshold.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-013",
@@ -262,7 +273,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against the response's totals/price fields.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-014",
@@ -282,7 +294,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against discounts.applied[].provisional cross-referenced with the loyalty entry's own provisional state.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-015",
@@ -302,7 +315,8 @@
    "schema_enforced": false,
    "notes": "Checkable by confirming discounts.applied[] never contains a benefit the business separately reports as ineligible via `benefits`/messages.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-016",
@@ -322,7 +336,8 @@
    "schema_enforced": false,
    "notes": "Privacy-relevant; checkable by confirming `id` values are business-internal opaque identifiers rather than raw stable member/account numbers, and that only `display_id` (masked) is ever human-recognizable.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-017",
@@ -342,7 +357,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable; restates LOY-004/LOY-009's display_id gating at the extension level.",
    "role": "business",
-   "role_provenance": "direction"
+   "role_provenance": "direction",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-018",
@@ -362,7 +378,8 @@
    "schema_enforced": false,
    "notes": "Trust-boundary invariant; underpins the provisional/verified state machine (LOY-008/009/010).",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-019",
@@ -383,7 +400,8 @@
    "notes": "New row, 2026-08-25 census closure wave (provisional-membership display-safety guard).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "LOY-020",
@@ -404,7 +422,8 @@
    "notes": "New row (eligibility_invalid error rule).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   }
  ]
 }

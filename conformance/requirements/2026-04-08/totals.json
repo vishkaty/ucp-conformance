@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "Rendering/display behavior; not enforceable by JSON Schema.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-002",
@@ -40,7 +41,8 @@
       "schema_enforced": false,
       "notes": "Rendering-behavior prohibition; not schema-checkable.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-004",
@@ -60,7 +62,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced via totals.json if/then: type not in well-known enum -> require display_text.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-005",
@@ -80,7 +83,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced: source/schemas/shopping/types/totals.json contains subtotal minContains:1 maxContains:1.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-006",
@@ -100,7 +104,8 @@
       "schema_enforced": true,
       "notes": "Schema-enforced: totals.json contains total minContains:1 maxContains:1.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-007",
@@ -120,7 +125,8 @@
       "schema_enforced": false,
       "notes": "Display-behavior prohibition.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-008",
@@ -160,7 +166,8 @@
       "schema_enforced": false,
       "notes": "Behavioral; depends on the optional sum check.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-011",
@@ -200,7 +207,8 @@
       "schema_enforced": false,
       "notes": "Display behavior.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-014",
@@ -220,7 +228,8 @@
       "schema_enforced": true,
       "notes": "Schema strictly-negative: source/schemas/shopping/types/total.json if type in [discount, items_discount] then amount exclusiveMaximum:0.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-015",
@@ -240,7 +249,8 @@
       "schema_enforced": true,
       "notes": "Schema non-negative: total.json if type in [subtotal, fulfillment, tax, fee] then amount minimum:0.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-017",
@@ -260,7 +270,8 @@
       "schema_enforced": false,
       "notes": "PROSE-ONLY arithmetic invariant; no JSON-Schema construct enforces it. We implement as a coded check (AMB-004).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "TOT-018",
@@ -300,7 +311,8 @@
       "schema_enforced": true,
       "notes": "Schema-required on lines[] item objects.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "TOT-020",
@@ -320,7 +332,8 @@
       "schema_enforced": true,
       "notes": "Schema-required fields on each total entry.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "TOT-021",
@@ -340,7 +353,8 @@
       "schema_enforced": true,
       "notes": "price.json amount $ref amount.json (integer minimum:0); currency pattern ^[A-Z]{3}$. Distinct from signed_amount used by totals entries which permits negatives.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     }
   ]
 }

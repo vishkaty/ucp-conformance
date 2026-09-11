@@ -121,7 +121,8 @@
       "schema_enforced": false,
       "notes": "REQUIRED normalized to MUST. Full-replacement (PUT) semantics are behavioral on the receiver; a dropped field being lost is only observable against a stateful receiver, not via base schema. Restated in checkout-rest.md L172-173 'Each PUT replaces the entire session'.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-007",
@@ -257,7 +258,8 @@
       "schema_enforced": true,
       "notes": "Schema enum enforces status values. Identical six-value enum to 2026-04-08. Terminal states completed/canceled per lifecycle diagram (checkout.md L86-93). Oracle: lifecycle tests assert status 'canceled'/'completed'.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-014",
@@ -277,7 +279,8 @@
       "schema_enforced": true,
       "notes": "Schema required[] on the response object; identical set to 2026-04-08. These are response-required; on request bodies several are ucp_request:omit (see CHK-016..020). links is mandatory for legal compliance.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-015",
@@ -317,7 +320,8 @@
       "schema_enforced": false,
       "notes": "Per-operation request requiredness via the ucp_request annotation on id; NOTE 2026-01-23 differs from 2026-04-08 where top-level id is a flat ucp_request:'omit'. Here id is required on update (id-in-URL plus body). ucp_request is a UCP annotation, not standard JSON-Schema, so a plain validator would not enforce it; schema_enforced=false.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-017",
@@ -337,7 +341,8 @@
       "schema_enforced": false,
       "notes": "Response-only field; ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): the OFFICIAL resolver arbitrates ucp_request annotations — the ucp property MUST be absent from every request-op resolution and present on the response resolution (RootCheck, schema_check_01_11_01_23.py).",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-018",
@@ -357,7 +362,8 @@
       "schema_enforced": false,
       "notes": "Per-operation request requiredness via ucp_request; not enforced by a plain validator against base checkout.json (only the response required[] is). Needs a UCP request-profile validator.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-019",
@@ -377,7 +383,8 @@
       "schema_enforced": false,
       "notes": "currency is response-required (in required[]) but omitted on all request operations: the merchant determines currency from address/context/geo IP. In 2026-04-08 currency carries a flat ucp_request:'omit'; here it is the explicit per-operation create/update/complete omit form, equivalent effect. ucp_request annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (currency absent from all request-op resolutions, present on response; RootCheck, schema_check_01_11_01_23.py).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-020",
@@ -397,7 +404,8 @@
       "schema_enforced": false,
       "notes": "Covers status(L74), totals(L91), messages(L99), links(L107), expires_at(L113), continue_url(L119), order(L132) — all ucp_request:omit. Annotation, not base-schema-enforced. RECLASSIFIED manual->testable (2026-07-03): resolver-arbitrated like CHK-017 (one RootCheck per response-only property; schema_check_01_11_01_23.py).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-021",
@@ -417,7 +425,8 @@
       "schema_enforced": false,
       "notes": "Payment optional on create (matches prose L42-45) and update; required on complete. Per-operation requiredness via ucp_request, not base-schema-enforced. Oracle (CheckoutLifecycleTest.test_complete_checkout) sends a payment payload on complete but does not assert rejection-on-missing.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "CHK-022",
@@ -495,7 +504,8 @@
       "schema_enforced": false,
       "notes": "Conditional invariant tied to runtime status; JSON Schema cannot enforce conditional presence. The schema description on continue_url notes it but does not encode the conditional. Requires a receiver that emits requires_escalation.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-026",
@@ -553,7 +563,8 @@
       "schema_enforced": false,
       "notes": "Schema declares continue_url format:uri but does not enforce absolute-HTTPS-only; format:uri also accepts http and relative refs in most validators, so schema_enforced=false. Needs a receiver returning continue_url.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-029",
@@ -631,7 +642,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST (the PLATFORM uses continue_url); the business duty to PROVIDE continue_url on requires_escalation is checked by CHK-025/CHK-038. Not a business-response wire shape.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-033",
@@ -691,7 +703,8 @@
       "schema_enforced": false,
       "notes": "Side effect outside the HTTP response; not observable via the API surface.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-036",
@@ -731,7 +744,8 @@
       "schema_enforced": false,
       "notes": "Determinism across repeated calls is only weakly observable; a partial check would require replaying identical requests. No single-response oracle.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-038",
@@ -751,7 +765,8 @@
       "schema_enforced": false,
       "notes": "Duplicate of CHK-025 under Guidelines; kept for coverage.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-039",
@@ -771,7 +786,8 @@
       "schema_enforced": false,
       "notes": "VERSION DELTA: 2026-01-23 requires a message with severity 'escalation'; 2026-04-08 instead requires severity of 'requires_buyer_input' or 'requires_buyer_review'. Cross-field conditional (status vs messages[].severity); not expressible in base checkout.json. Needs a receiver that emits requires_escalation.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-040",
@@ -989,7 +1005,8 @@
       "schema_enforced": false,
       "notes": "JSON well-formedness is a parse-level check, upstream of schema validation.",
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-051",
@@ -1009,7 +1026,8 @@
       "schema_enforced": false,
       "notes": "Transport-layer check; not observable in JSON body. browser_capable=false (TLS-version inspection not available from browser fetch).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "CHK-052",
@@ -1029,7 +1047,8 @@
       "schema_enforced": false,
       "notes": "Request-side header requirement on the platform; checked on requests, not on the checkout response body. Reclassified 2026-07-03 (adversarial review F2, suite-wide policy): 'All requests MUST include the UCP-Agent header' binds the REQUEST AUTHOR (platform) — the spec mandates no business-side rejection of header-less requests, so a merchant check grading a 4xx is a contrapositive stretch that can false-deviate a tolerant conformant merchant (same subject-binding as ORD-015/DISC-006, decided the same way for consistency). The suite's own probe traffic satisfies the MUST. Candidate for a client-bound exemption once version-scoped exemptions land.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDM-001",

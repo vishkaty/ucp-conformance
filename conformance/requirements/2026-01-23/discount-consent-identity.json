@@ -238,7 +238,8 @@
       "schema_enforced": true,
       "notes": "applied_discount.amount: integer, minimum 0. JSON-Schema enforced.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-013",
@@ -258,7 +259,8 @@
       "schema_enforced": true,
       "notes": "JSON-Schema enum constraint on applied_discount.method.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-014",
@@ -278,7 +280,8 @@
       "schema_enforced": true,
       "notes": "allocation.amount: integer, minimum 0. JSON-Schema enforced.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-015",
@@ -298,7 +301,8 @@
       "schema_enforced": false,
       "notes": "ucp_request annotation (create optional, update optional, complete omit) \u2014 convention metadata, not a standard JSON-Schema validation keyword.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-016",
@@ -398,7 +402,8 @@
       "schema_enforced": true,
       "notes": "JSON-Schema boolean type on consent properties; persistence asserted by BusinessLogicTest.test_buyer_consent.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-021",
@@ -418,7 +423,8 @@
       "schema_enforced": false,
       "notes": "buyer (with consent) ucp_request: create optional, update optional, complete omit. Consent is never required to gate checkout completion in 2026-01-23.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-022",
@@ -478,7 +484,8 @@
       "schema_enforced": false,
       "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-002",
@@ -498,7 +505,8 @@
       "schema_enforced": false,
       "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-003",
@@ -558,7 +566,8 @@
       "schema_enforced": false,
       "notes": "Business-side baseline requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-006",
@@ -578,7 +587,8 @@
       "schema_enforced": false,
       "notes": "Authorization server metadata document discovery. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-007",
@@ -598,7 +608,8 @@
       "schema_enforced": false,
       "notes": "Business-side token endpoint requirement. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-008",
@@ -618,7 +629,8 @@
       "schema_enforced": false,
       "notes": "User-facing account creation; manual verification.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-009",
@@ -638,7 +650,8 @@
       "schema_enforced": false,
       "notes": "Standard UCP scopes, e.g. ucp:scopes:checkout_session covering Get/Create/Update/Delete/Cancel/Complete. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-010",
@@ -658,7 +671,8 @@
       "schema_enforced": false,
       "notes": "Business-side revocation endpoint. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-011",
@@ -678,7 +692,8 @@
       "schema_enforced": false,
       "notes": "Cascading revocation semantics. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23). Graded on its observable core: the revoked (refresh) token is dead at the token endpoint; recursive access-token invalidation has no 01-era gated resource to observe against.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-012",
@@ -698,7 +713,8 @@
       "schema_enforced": false,
       "notes": "Revocation endpoint client authentication. Converted from needs-oauth 2026-07-03: the OAuth harness (checks/oauth_harness.py) drives the flow as the platform; graded in merchant_checks_01_11_01_23_oauth.py (identical text at 01-11/01-23).",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "IDL-013",

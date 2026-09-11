@@ -22,7 +22,8 @@
    "schema_enforced": false,
    "notes": "Core replay-guard invariant of the new generic binding model (rule 1 of 4 in the 'Binding' section). Fixture-testable against any Tokenizer implementation: feed a binding with a matching type but a different id (or vice versa) and assert rejection; feed one carrying an unrecognized extra member and assert it does NOT cause rejection. No 04-08 equivalent (the old checkout_id-only binding had no equality/partial-match rule).",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-002",
@@ -42,7 +43,8 @@
    "schema_enforced": false,
    "notes": "The extensibility half of the binding-comparison rule (rule 1 continued): a Tokenizer serving one capability today must not break when `binding` grows new members later. Fixture-testable: send an unrecognized member and assert it is ignored, not treated as a mismatch.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-003",
@@ -62,7 +64,8 @@
    "schema_enforced": false,
    "notes": "Binding rule 2 of 4: a Tokenizer cannot demand cross-checking binding.id against the owning capability's own store. Fixture-testable: send a well-formed but unresolvable/fictitious id and assert the Tokenizer does not reject solely on that basis.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-004",
@@ -82,7 +85,8 @@
    "schema_enforced": false,
    "notes": "Binding rule 3 of 4: forward-compatibility guarantee — a Tokenizer built for today's capabilities MUST remain usable by capabilities defined later without an implementation change. Fixture-testable: send a made-up, unrecognized binding.type and assert it is not rejected on that basis alone.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-005",
@@ -102,7 +106,8 @@
    "schema_enforced": false,
    "notes": "Binding rule 4 of 4: the participant-scoping half, replacing 04-08's removed delegated-identity property (see PAY-026 carried-forward note in payment.json). Needs-receiver, not testable by a single-request fixture: proving the MUST NOT requires a stateful /tokenize-then-/detokenize round trip against a live Tokenizer, presenting a caller/identity that does not match the participant recorded at issuance, and observing that the credential is withheld.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-006",
@@ -122,7 +127,8 @@
    "schema_enforced": false,
    "notes": "Closes an impersonation vector adjacent to TOK-005: a caller cannot authenticate itself merely by asserting an `identity` value. Needs-receiver: proving rejection requires a live call presenting only `identity` (no valid Authorization/credential) against a real Tokenizer.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-007",
@@ -142,7 +148,8 @@
    "schema_enforced": false,
    "notes": "A real interoperability requirement (which network-token acceptance mode a specific handler supports must be disclosed so a Platform can drive it correctly), not a document-formatting convention — distinguishing it from the waived guide/template rows. Manual: only checkable by reading the handler's own published specification document, not observable from a single API call.",
    "role": "spec-author",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-008",
@@ -162,7 +169,8 @@
    "schema_enforced": true,
    "notes": "source/schemas/common/types/binding.json requires id (minLength 1) — schema-enforced. binding.type is $ref reverse_domain_name.json, also required.",
    "role": "platform",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "TOK-009",
@@ -182,7 +190,8 @@
    "schema_enforced": false,
    "notes": "The lead-in to the 'Handler Specification Requirements' table (7 required content elements). A genuine interoperability disclosure requirement (analogous to a Discovery profile's required fields), not a spec-authoring style convention. Manual: verified by reviewing the handler's published specification document.",
    "role": "spec-author",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ]
 }

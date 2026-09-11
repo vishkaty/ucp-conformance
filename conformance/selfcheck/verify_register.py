@@ -134,6 +134,48 @@ def manual_mislabels(rows, check_ids):
 RELABEL_GATED_VERSIONS = ("2026-08-25",)
 
 
+# ---------------------------------------------------------------- D2-11a: normative_basis (A6)
+BASES = ("sentence", "table", "bullet", "pseudocode", "schema", "definition", "inferred")
+REVIEW_BASES = ("definition", "inferred")
+KW_IN_QUOTE = re.compile(r"\b(?:" + "|".join(re.escape(k) for k in sorted(MANDATORY, key=len, reverse=True)) + r")\b")
+
+
+def basis_errors(rows, ver, queued_ids, signed_ids):
+    """Every mandatory row at `ver` has `normative_basis` in BASES, or sits in the
+    version's normative_basis_review_queue (D2-11b's set); `sentence` requires a
+    MANDATORY keyword in the quote (emphasis stripped); `definition` / `inferred` need a
+    review_signoffs batch naming the (version, id) (decision 29: an inferred MUST is
+    kept only with a written, signed-off justification)."""
+    errs = []
+    for r in _mandatory_at(rows, ver):
+        rid, basis = r.get("id"), r.get("normative_basis")
+        if basis is None:
+            if rid not in queued_ids:
+                errs.append(f"{rid}: mandatory row without `normative_basis` and not in normative_basis_review_queue "
+                            f"(run requirements/tools/assign_normative_basis.py --apply)")
+            continue
+        if basis not in BASES:
+            errs.append(f"{rid}: normative_basis {basis!r} not in {list(BASES)}")
+            continue
+        if basis == "sentence" and not KW_IN_QUOTE.search((r.get("quote") or "").replace("**", "").replace("`", "")):
+            errs.append(f"{rid}: normative_basis `sentence` but no mandatory keyword in the quote (table/bullet/inferred?)")
+        if basis in REVIEW_BASES and rid not in signed_ids:
+            errs.append(f"{rid}: normative_basis `{basis}` without a review_signoffs batch naming it at {ver}")
+    return errs
+
+
+def _signed_basis_ids(ver):
+    """Ids named by any review_signoffs batch's `ids[ver]` (a batch with reviewer + date)."""
+    f = ROOT / "conformance" / "coverage" / "review_signoffs.json"
+    out = set()
+    if not f.exists():
+        return out
+    for s in json.loads(f.read_text()).get("signoffs", []):
+        if s.get("reviewer") and s.get("date"):
+            out.update((s.get("ids") or {}).get(ver, []))
+    return out
+
+
 # ---------------------------------------------------------------- D2-08: roles (A4)
 def _mandatory_at(rows, ver):
     return [r for r in rows if r.get("keyword") in MANDATORY
@@ -327,9 +369,17 @@ def main(argv):
         for e in rerrs:
             print(f"  FAIL  ROLE/AREA {ver}: {e}")
         role_fails += len(rerrs)
+        # D2-11a (A6): normative_basis — enum, sentence⇒keyword, definition|inferred⇒signed,
+        # null only for queued rows.
+        bqf = vdir / "normative_basis_review_queue.json"
+        bqueue = {q.get("id") for q in json.loads(bqf.read_text()).get("queue", [])} if bqf.exists() else set()
+        berrs = basis_errors(vrows, ver, bqueue, _signed_basis_ids(ver))
+        for e in berrs:
+            print(f"  FAIL  BASIS {ver}: {e}")
+        role_fails += len(berrs)
     print(f"\nregister quote-check: {ok}/{total} verified, {warn} line-warnings, {fail} FAILED, "
           f"{mislabels} manual-but-CHECK mislabels (gated at {', '.join(RELABEL_GATED_VERSIONS)}), "
-          f"{role_fails} role/area failures")
+          f"{role_fails} role/area/basis failures")
     return 1 if (fail or mislabels or role_fails) else 0
 
 def selftest():

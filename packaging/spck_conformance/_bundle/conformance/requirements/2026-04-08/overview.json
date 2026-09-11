@@ -21,7 +21,8 @@
       "notes": "Subject: business/platform profile author; server-observable via /.well-known/ucp (service & capability registry keys). Enforced by ucp.json services/capabilities propertyNames -> shopping/types/reverse_domain_name.json. No existing 2026-04-08 row covers capability/service name format (PAY-001 covers only the payment_handlers registry). Older versions row this as DISC-001. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-002",
@@ -42,7 +43,8 @@
       "notes": "Subject: business/platform profile; server-observable via /.well-known/ucp. Enforced by capability.json#/$defs/platform_schema required [spec,schema] (and service.json platform_schema requires spec + schema). No 2026-04-08 row covers this for capabilities (PAY-004 covers only payment handlers). Older versions: DISC-002. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-003",
@@ -63,7 +65,8 @@
       "notes": "Subject: business/platform profile; server-observable. Cross-field check (derive expected origin from the capability's reverse-domain authority, compare to the URL origin) is not expressible in JSON Schema, so not schema-enforced. Older versions: DISC-003. Platform-side validation (L90/L627) is the mirror of this and is waived to this row. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-004",
@@ -84,7 +87,8 @@
       "notes": "Subject: business; server-observable. Cross-cutting response-envelope obligation for EVERY response (broader than per-capability CHK-034, which only requires ucp in checkout responses). ucp.version is schema-required by ucp.json entity, but the cross-cutting presence + capabilities-content obligation is prose-only. Full clause (L641-644): '...containing: version: The UCP version used to process the request; capabilities: Array of active capabilities for this response.' Older versions: NEG-012. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-005",
@@ -105,7 +109,8 @@
       "notes": "Subject: business; server-observable via the response ucp.capabilities. Subsumes the intersection computation (L637) and orphan-extension exclusion (L640). 2026-04-08 adds operation-type relevance beyond the older NEG-010/NEG-011 framing. No existing 2026-04-08 row captures response capability selection. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-006",
@@ -126,7 +131,8 @@
       "notes": "Subject: business (verifier). Cross-cutting request-time identity-binding security obligation for credential-based auth. ORD-033 covers only the order-webhook signer-authorization case; this general binding of authenticated principal to UCP-Agent profile is not otherwise rowed. Covers worklist L1014 + L1019 (the L1019 API-keys/OAuth/mTLS bullet is the concrete elaboration and is waived to this row). [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-007",
@@ -147,7 +153,8 @@
       "notes": "Subject: business (verifier) discovery-cache/DoS-protection behavior. Genuine normative MUST NOT not captured elsewhere, but it constrains internal cache-refresh behavior that is not externally observable via the conformance HTTP surface -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-008",
@@ -168,7 +175,8 @@
       "notes": "Subject: general REST implementer; server-observable (response Content-Type header). Distinct from the per-capability 'body MUST be valid JSON per RFC 8259' rows (CART-022/CHK-044/ORD-021), which constrain body format, not the Content-Type media type. Older versions rowed the overview statement as NEG-019. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-009",
@@ -189,7 +197,8 @@
       "notes": "Subject: business profile; server-observable by fetching a profile URI listed in the primary profile's supported_versions map. Not schema-enforced (ucp.json business_schema permits supported_versions on any profile). New requirement in the 2026-04-08 versioning section. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-010",
@@ -210,7 +219,8 @@
       "notes": "Subject: business profile; server-observable via /.well-known/ucp. Enforced by ucp.json #/$defs/version pattern ^\\d{4}-\\d{2}-\\d{2}$ (and supported_versions propertyNames -> #/$defs/version). Covers worklist L1953 + L1954. New 'Pre-release Versions' section in 2026-04-08; no existing row. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-011",
@@ -231,7 +241,8 @@
       "notes": "Subject: business; observable in ucp.capabilities but requires multi-protocol-version fixtures to exercise -> manual. Covers worklist L1974 + L1976; also the target for the extension-`requires` version verification (L307) and capability-version validation (L2011). Distinct from operation-relevance (new L950 row). [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-012",
@@ -252,7 +263,8 @@
       "notes": "Step 3 of the negotiation algorithm. The adjacent OVR-004 covers step 4 (the ucp field). No existing row covers the extension-exclusion rule; observable in the negotiated response's active capabilities/extensions. [completeness-refine: testable in principle but needs an orphan-extension negotiation scenario not in the controlled fixture] [added by completeness-2026-07-03 tight-residual re-adjudication]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-013",
@@ -273,7 +285,8 @@
       "notes": "REST Transport (Core) conventions list. Distinct from OVR-008, which covers only the Content-Type: application/json bullet. Server-observable over HTTP. [completeness-refine: requirement is non-exhaustive (\"e.g.\" verbs, no precise normative list) \u2014 no crisp conformance oracle] [added by completeness-2026-07-03 tight-residual re-adjudication]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "OVR-014",
@@ -294,7 +307,8 @@
       "notes": "REST Transport (Core) conventions list. Distinct from OVR-008 (Content-Type) and from capability/error-specific status rows (CHK-050, ORD-032); this is the general REST status-code convention. [completeness-refine: requirement is non-exhaustive (\"e.g.\" status codes) \u2014 no crisp conformance oracle] [added by completeness-2026-07-03 tight-residual re-adjudication]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     }
   ],
   "notes": ""

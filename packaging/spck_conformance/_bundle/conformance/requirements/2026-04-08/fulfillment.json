@@ -57,7 +57,8 @@
       "schema_enforced": true,
       "notes": "Schema-derived MUST (JSON Schema required). type enum is shipping|pickup. Note ucp_request makes id omit-on-create.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-004",
@@ -77,7 +78,8 @@
       "schema_enforced": true,
       "notes": "Extensions adding method types MUST extend this enum (fulfillment.md#L336-343).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-005",
@@ -135,7 +137,8 @@
       "schema_enforced": true,
       "notes": "Schema-derived MUST. group.options[] and selected_option_id carry the selectable choices; selected_option_id is [string,null].",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-008",
@@ -155,7 +158,8 @@
       "schema_enforced": true,
       "notes": "FIELD-NAME DIVERGENCE: schema requires 'totals' (array of total objects), while the spec's Rendering table/prose call the field 'total' (price in minor units). See FUL-011.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-009",
@@ -195,7 +199,8 @@
       "schema_enforced": false,
       "notes": "Semantic content requirement; not machine-checkable from schema.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-011",
@@ -233,7 +238,8 @@
       "schema_enforced": false,
       "notes": "",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-013",
@@ -253,7 +259,8 @@
       "schema_enforced": false,
       "notes": "description is optional in schema (not in fulfillment_option required[]); no-repeat semantic constraint not schema-enforceable.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-014",
@@ -347,7 +354,8 @@
       "schema_enforced": false,
       "notes": "available_methods is omit-on-request; description optional in fulfillment_available_method.json. Semantic, not schema-enforced.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-019",
@@ -507,7 +515,8 @@
       "schema_enforced": false,
       "notes": "Conditional on platform profile config; response still uses methods[].groups[] with groups.length === 1. Not enforced by JSON Schema (no maxItems).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-027",
@@ -567,7 +576,8 @@
       "schema_enforced": false,
       "notes": "Meta-requirement on extension authors, not on a request/response payload.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-030",
@@ -587,7 +597,8 @@
       "schema_enforced": true,
       "notes": "shipping_destination = allOf(postal_address, {id required}). fulfillment_destination is oneOf(shipping_destination, retail_location). Address ID assignment/reuse exercised by fulfillment_test.py.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     }
   ],
   "notes": [

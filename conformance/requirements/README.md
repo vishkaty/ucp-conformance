@@ -22,6 +22,8 @@ a single per-version register. One file per area keeps extraction reviewable.
   "testability":   "testable | needs-receiver | needs-oauth | manual | untestable",
   "role":          "business | platform | both | handler | spec-author | host",   // who the obligation binds (D2-08; lane per decision 27)
   "role_provenance": "agent-lock | not-agent-bound | client-bound-exemption | subject | direction | backported | review:<batch>",
+  "normative_basis": "sentence | table | bullet | pseudocode | schema | definition | inferred",   // what carries the MUST (D2-11a; decision 29)
+  "normative_basis_justification": "[<batch>] why an inferred/definition/bullet/table MUST stands",  // review outcomes only
   "official_oracle": true|false,           // does the official 01-23 suite corroborate?
   "browser_capable": true|false,           // can the CORS-limited web tool check it?
   "schema_enforced": true|false,           // caught by ucp-schema, or needs coded check?
@@ -40,6 +42,16 @@ names a `coverage/review_signoffs.json` entry carrying the >=10% human sample, d
 13) or records the decision in `requirements/role_adjudications.json`. The agent
 denominator lock (`agent/agent_denominator_lock.json`) must agree with the roles both
 ways; regenerate it deliberately with `agent/agent_matrix.py --snapshot-lock "<note>"`.
+
+`normative_basis` is REQUIRED on every mandatory row unless the row is listed in
+`requirements/<v>/normative_basis_review_queue.json` (the nokw review set, D2-11b).
+`requirements/tools/assign_normative_basis.py --apply` fills `schema` (source under
+`source/`), `sentence` (a MUST-class keyword in the quote) and `pseudocode` (every cited
+line inside a fence) mechanically and queues the rest; reviewed outcomes (`table`,
+`bullet`, `definition`, `inferred`) are recorded in
+`requirements/normative_basis_adjudications.json` with a justification, and
+`definition|inferred` rows must be named by a `coverage/review_signoffs.json` batch
+(decision 29: an inferred MUST is kept only with a written, signed-off justification).
 
 ## Verdict rule reminder
 A MUST row → `deviation` when violated (blocks aggregate green). SHOULD → `advisory`.

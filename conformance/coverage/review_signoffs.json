@@ -801,6 +801,44 @@
      "due": "2026-09-18"
     }
    }
+  },
+  {
+   "batch": "normative-basis-adjudication-2026-09-11",
+   "kind": "sample",
+   "date": "2026-09-11",
+   "reviewer": "Wave 1 lane D2 (Claude Code session, 2026-09-11) — anchors re-read at cd78fb38; the human sample below is the owner's review",
+   "spec_reverified": true,
+   "notes": "normative_basis adjudications for the eight nokw rows the converters need (D2-11a, decision 29): SIG-001 inferred, SIG-009 inferred (D2-11b downgrade candidate), CAT-012 inferred, CAT-019 inferred, DSC-006 bullet, SPL-004 pseudocode, CHK-017 bullet, TDS-001 inferred — justifications in conformance/requirements/normative_basis_adjudications.json and on each row (normative_basis_justification). `ids` names the definition|inferred rulings the register gate requires a sign-off for. Sample = all eight (decision 13: max(10%, 10) capped at the batch size), PENDING until the owner records it.",
+   "ids": {
+    "2026-08-25": [
+     "SIG-001",
+     "SIG-009",
+     "CAT-012",
+     "CAT-019",
+     "TDS-001"
+    ]
+   },
+   "sample": {
+    "seed": 20260911,
+    "of": 8,
+    "size": 8,
+    "ids": [
+     "2026-08-25 SIG-001",
+     "2026-08-25 SIG-009",
+     "2026-08-25 CAT-012",
+     "2026-08-25 CAT-019",
+     "2026-08-25 DSC-006",
+     "2026-08-25 SPL-004",
+     "2026-08-25 CHK-017",
+     "2026-08-25 TDS-001"
+    ],
+    "human_review": {
+     "status": "pending",
+     "by": null,
+     "on": null,
+     "due": "2026-09-18"
+    }
+   }
   }
  ]
 }

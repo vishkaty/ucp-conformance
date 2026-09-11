@@ -586,6 +586,7 @@ def export_json():
             jrows.append({"id": rid, "area": r["_area"], "keyword": r.get("keyword"),
                           "testability": r.get("testability", "?"), "status": status,
                           "role": _row_role(r),
+                          "normative_basis": r.get("normative_basis"),       # D2-11a (null = review queue)
                           "requirement": r.get("requirement", ""),
                           "source": r.get("source", ""),
                           "covered_by": covmap[ver].get(rid, []),

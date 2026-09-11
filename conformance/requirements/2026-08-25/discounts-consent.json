@@ -144,7 +144,9 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "bullet",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] shopping/extensions/discount.md L140: first bullet under the bold lead-in '**Response behavior:**' (L138), the list that defines the discount extension's normative response contract (its siblings 'Rejected codes communicated via messages[]' and the totals reflection rules are DSC-007/DSC-008). Bullet under a normative lead-in; kept MUST (decision 29; the D2 design named exactly these DSC bullets as `bullet`)."
     },
     {
       "id": "DSC-007",
@@ -216,7 +218,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-010",
@@ -334,7 +337,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-015",
@@ -358,7 +362,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-016",
@@ -382,7 +387,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-017",
@@ -406,7 +412,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-018",
@@ -550,7 +557,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-024",
@@ -575,7 +583,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried from 2026-04-08 DSC-024; schema unchanged, same line number in the 08-25 pin."
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-025",
@@ -599,7 +608,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-026",
@@ -624,7 +634,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried from 2026-04-08 DSC-026; schema unchanged, same line number in the 08-25 pin."
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-027",
@@ -648,7 +659,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-028",
@@ -672,7 +684,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-030",
@@ -768,7 +781,8 @@
         "disposition": "reworded"
       },
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-034",
@@ -840,7 +854,8 @@
         "disposition": "reworded"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-037",

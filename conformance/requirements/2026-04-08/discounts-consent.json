@@ -181,7 +181,8 @@
       "schema_enforced": false,
       "notes": "Cross-resource continuity; requires a receiver supporting cart-to-checkout conversion",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-010",
@@ -279,7 +280,8 @@
       "schema_enforced": false,
       "notes": "Requires a receiver that accepts context.eligibility claims",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-015",
@@ -299,7 +301,8 @@
       "schema_enforced": false,
       "notes": "Platform-side UI obligation; not server-testable",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-016",
@@ -319,7 +322,8 @@
       "schema_enforced": false,
       "notes": "provisional boolean default false (discount.json#L64-67); eligibility field reverse-domain (discount.json#L69)",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-017",
@@ -339,7 +343,8 @@
       "schema_enforced": false,
       "notes": "Gates completion; cross-refs checkout.md eligibility-verification-at-completion",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "DSC-018",
@@ -459,7 +464,8 @@
       "schema_enforced": true,
       "notes": "applied_discount $defs required fields",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-024",
@@ -479,7 +485,8 @@
       "schema_enforced": true,
       "notes": "enum constraint",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-025",
@@ -499,7 +506,8 @@
       "schema_enforced": true,
       "notes": "minimum:1 schema-enforced; stacking order described at discount.md#L96-99",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-026",
@@ -519,7 +527,8 @@
       "schema_enforced": true,
       "notes": "allocation $defs required fields",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-027",
@@ -539,7 +548,8 @@
       "schema_enforced": true,
       "notes": "applied has ucp_request:omit; codes is the request input (discount.json#L86-92)",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-028",
@@ -559,7 +569,8 @@
       "schema_enforced": true,
       "notes": "checkout-with-discount: discounts ucp_request create/update optional, complete omit",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-029",
@@ -657,7 +668,8 @@
       "schema_enforced": true,
       "notes": "Oracle: test_buyer_consent asserts marketing and analytics consent persisted on the returned checkout. consent fields are optional (no required array) but type-constrained to boolean",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-034",
@@ -677,7 +689,8 @@
       "schema_enforced": true,
       "notes": "buyer-with-consent ucp_request: create optional, update optional, complete omit",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "DSC-035",

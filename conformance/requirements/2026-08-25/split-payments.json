@@ -22,7 +22,8 @@
    "schema_enforced": true,
    "notes": "Wholly new capability (dev.ucp.common.payment.split_payments). No 04-08 equivalent existed. business_split_payments_config.json requires allowed_combinations (minItems 1) and each combination has minItems 1.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "schema"
   },
   {
    "id": "SPL-002",
@@ -42,7 +43,8 @@
    "schema_enforced": false,
    "notes": "gift_card/store_credit/loyalty instrument types are illustrative in the spec; only `card` has a normative instrument schema in the base spec.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-003",
@@ -62,7 +64,8 @@
    "schema_enforced": false,
    "notes": "Checkable against a completed checkout: every reported per-instrument `amount` must be expressed in checkout.currency minor units.",
    "role": "handler",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-004",
@@ -82,7 +85,9 @@
    "schema_enforced": false,
    "notes": "The matching algorithm itself; the Business MAY use any algorithm to find the assignment (L102-103), but the outcome (match/no-match) is externally observable and testable.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "pseudocode",
+   "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] payment/extensions/split-payments.md L95-L97: '**Matching algorithm:** a submission matches a combination if there exists an assignment of each submitted instrument to exactly one group such that \u2026' \u2014 the matching algorithm stated as structured prose (existential condition + itemised constraints), not fenced. Classed pseudocode: it specifies the exact acceptance algorithm (decision 29 keeps tables/pseudocode as MUST); the D1-15 converter grades the algorithm's outcome."
   },
   {
    "id": "SPL-005",
@@ -102,7 +107,8 @@
    "schema_enforced": false,
    "notes": "Checkable via the response's per-instrument amount and ordering against the request's payment.instruments array order.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-006",
@@ -122,7 +128,8 @@
    "schema_enforced": false,
    "notes": "Requires observing the actual authorization against the stated request amount (e.g. via a payment-provider double or sandbox).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-007",
@@ -162,7 +169,8 @@
    "schema_enforced": false,
    "notes": "The messages[] half is testable from the response; the void/reverse half requires observing the payment provider's ledger (needs-receiver).",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-009",
@@ -182,7 +190,8 @@
    "schema_enforced": false,
    "notes": "The atomic-invariant guarantee for split payments; requires provider-side settlement observation.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-010",
@@ -202,7 +211,8 @@
    "schema_enforced": false,
    "notes": "Checkable by resubmitting a modified instrument set (e.g. replacement card after a decline, per the worked example at L438-518) and confirming the business treats it as new intent rather than resuming prior state.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-011",
@@ -222,7 +232,8 @@
    "schema_enforced": false,
    "notes": "Directly checkable against the messages[] array of a partially-failed split-payment response.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-012",
@@ -242,7 +253,8 @@
    "schema_enforced": false,
    "notes": "Requires a payment-provider double capable of simulating each failure mode.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-013",
@@ -262,7 +274,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting instruments whose combined contribution is known to fall short of the checkout total.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-014",
@@ -282,7 +295,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable by summing request-supplied amounts against checkout.currency total; a coded arithmetic check, not full JSON-Schema-enforced.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-015",
@@ -302,7 +316,8 @@
    "schema_enforced": false,
    "notes": "Checkable by submitting an instrument-type combination known not to appear in the business's declared allowed_combinations.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-016",
@@ -322,7 +337,8 @@
    "schema_enforced": false,
    "notes": "Directly checkable against the response's payment.instruments[].amount for each successfully-processed instrument.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-017",
@@ -342,7 +358,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable against the response payload for non-processed instruments.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "SPL-018",
@@ -362,7 +379,8 @@
    "schema_enforced": false,
    "notes": "The Platform-side half needs a live Platform; the Business-side half (not depending on echoed amounts) is checkable by omitting amount on a resubmission and confirming the business still re-derives it rather than erroring.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   }
  ]
 }

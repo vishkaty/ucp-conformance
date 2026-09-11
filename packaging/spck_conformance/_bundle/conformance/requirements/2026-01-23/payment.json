@@ -20,7 +20,8 @@
       "schema_enforced": false,
       "notes": "Spec-authoring requirement; no runtime oracle.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-002",
@@ -40,7 +41,8 @@
       "schema_enforced": true,
       "notes": "JSON-Schema required on PaymentHandler base ($defs/base); platform/business/response schemas all compose it.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-003",
@@ -60,7 +62,8 @@
       "schema_enforced": true,
       "notes": "platform_schema requires spec+schema in addition to base id; supports handler discovery.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-004",
@@ -80,7 +83,8 @@
       "schema_enforced": false,
       "notes": "Spec-authoring requirement.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-005",
@@ -100,7 +104,8 @@
       "schema_enforced": false,
       "notes": "Spec-authoring requirement.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-006",
@@ -120,7 +125,8 @@
       "schema_enforced": false,
       "notes": "Handler-schema design requirement; base token_credential.json does not enforce expiry.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-007",
@@ -140,7 +146,8 @@
       "schema_enforced": false,
       "notes": "Spec-authoring requirement.",
       "role": "spec-author",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-008",
@@ -160,7 +167,8 @@
       "schema_enforced": true,
       "notes": "handler_id validation/routing. Exercised by test_card_credential_payment, Ap2MandateTest.test_ap2_mandate_completion, TokenBindingTest.test_token_binding_completion (all send handler_id=mock_payment_handler).",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-009",
@@ -180,7 +188,8 @@
       "schema_enforced": true,
       "notes": "token_credential.json marks token with \"ucp_response\":\"omit\" enforcing non-echo for token credentials; general non-echo for all credential types needs a receiver-side response inspection oracle. No official test asserts non-echo.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-010",
@@ -240,7 +249,8 @@
       "schema_enforced": false,
       "notes": "Requires business-side logic; no official oracle.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-013",
@@ -260,7 +270,8 @@
       "schema_enforced": false,
       "notes": "Stated in schema description (not a structural constraint). Note: test_card_credential_payment sends a raw card credential and expects 200 against the mock, so no official oracle enforces this prohibition.",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-014",
@@ -280,7 +291,8 @@
       "schema_enforced": false,
       "notes": "Compliance/transport requirement; not assertable from payload schema.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-015",
@@ -300,7 +312,8 @@
       "schema_enforced": true,
       "notes": "JSON-Schema required; type const 'card', card_number_type enum [fpan,network_token,dpan]. test_card_credential_payment sends type=card, card_number_type=fpan.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-016",
@@ -320,7 +333,8 @@
       "schema_enforced": true,
       "notes": "JSON-Schema required. Ap2MandateTest.test_ap2_mandate_completion and TokenBindingTest.test_token_binding_completion both send credential {type: token, token: ...}.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-017",
@@ -340,7 +354,8 @@
       "schema_enforced": true,
       "notes": "Token binding. TokenBindingTest.test_token_binding_completion sends credential with binding {checkout_id, identity:{access_token}} and expects status completed.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-018",
@@ -360,7 +375,8 @@
       "schema_enforced": false,
       "notes": "Conditional requirement in schema description (not structurally enforced). TokenBindingTest.test_token_binding_completion supplies binding.identity.access_token.",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-019",
@@ -380,7 +396,8 @@
       "schema_enforced": false,
       "notes": "Requires business-side signing; no official oracle asserts merchant_authorization presence.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-020",
@@ -400,7 +417,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST (platforms provide cryptographically signed Mandates). The business AP2 duties are checked by PAY-019/021/026/027/035/036.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-021",
@@ -420,7 +438,8 @@
       "schema_enforced": false,
       "notes": "Business response obligation; no official oracle.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-022",
@@ -440,7 +459,8 @@
       "schema_enforced": true,
       "notes": "Signed checkout_mandate required for autonomous completion. ap2_mandate.json marks checkout_mandate/ap2 as ucp_request complete=required. Positive path asserted by Ap2MandateTest.test_ap2_mandate_completion (sends ap2.checkout_mandate, expects completed). Negative (missing mandate -> rejected) needs a receiver.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-023",
@@ -460,7 +480,8 @@
       "schema_enforced": false,
       "notes": "Platform-bound MUST (the PLATFORM verifies the business's merchant signature before presenting terms). The business duty to embed a valid ES* signature is checked by PAY-019/026/027/035.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-024",
@@ -480,7 +501,8 @@
       "schema_enforced": false,
       "notes": "Key-availability precondition.",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-025",
@@ -500,7 +522,8 @@
       "schema_enforced": false,
       "notes": "Business error-path obligation; no official oracle for the negative case.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-026",
@@ -520,7 +543,8 @@
       "schema_enforced": false,
       "notes": "Algorithm constraint enforced in the JWS header (alg); not structurally validated by the ap2_mandate string pattern.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-027",
@@ -540,7 +564,8 @@
       "schema_enforced": false,
       "notes": "Placement requirement; ap2_mandate.json marks merchant_authorization as ucp_request omit (response-only).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-028",
@@ -560,7 +585,8 @@
       "schema_enforced": false,
       "notes": "Signature scope requirement.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-029",
@@ -580,7 +606,8 @@
       "schema_enforced": false,
       "notes": "checkout_mandate at ap2.checkout_mandate; payment_mandate at payment.instruments[*].credential.token. Ap2MandateTest.test_ap2_mandate_completion exercises checkout_mandate plus token credential.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-030",
@@ -600,7 +627,8 @@
       "schema_enforced": false,
       "notes": "Mandate content requirement; opaque SD-JWT, not structurally validated.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-031",
@@ -620,7 +648,8 @@
       "schema_enforced": false,
       "notes": "Flow-lock requirement; negative (no-mandate -> failure) needs a receiver.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-032",
@@ -640,7 +669,8 @@
       "schema_enforced": true,
       "notes": "Enforced structurally by ap2 complete=required in ap2_mandate.json; runtime failure-path needs a receiver. No official negative test.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-033",
@@ -660,7 +690,8 @@
       "schema_enforced": false,
       "notes": "Canonicalization requirement for signature verification.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-034",
@@ -680,7 +711,8 @@
       "schema_enforced": false,
       "notes": "Business completion-verification steps (presence check, mandate verify, merchant-sig verify); negative paths need a receiver. error_code enum includes mandate_required.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-035",
@@ -700,7 +732,8 @@
       "schema_enforced": true,
       "notes": "merchant_authorization string pattern is schema-enforced; the alg/kid header claims are not validated by the regex. No official test asserts merchant_authorization.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-036",
@@ -720,7 +753,8 @@
       "schema_enforced": true,
       "notes": "ucp_request lifecycle marks checkout_mandate and ap2 as complete=required, create/update=omit. Ap2MandateTest.test_ap2_mandate_completion submits ap2.checkout_mandate on complete.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "schema"
     },
     {
       "id": "PAY-037",
@@ -741,7 +775,8 @@
       "notes": "Subject: PLATFORM/client profile. Not captured by existing ap2 rows PAY-019..034; those skip this platform-profile signing_keys obligation. Not driveable against a merchant server -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "PAY-038",
@@ -762,7 +797,8 @@
       "notes": "Subject: PLATFORM PROVIDER/client. Distinct user-consent obligation not captured by existing ap2 rows PAY-019..034. Not driveable against a merchant server -> manual. [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

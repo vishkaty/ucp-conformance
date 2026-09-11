@@ -22,7 +22,8 @@
    "schema_enforced": true,
    "notes": "REPLACES the 04-08 consent model entirely: 04-08 buyer_consent.json's `consent` object was four independent optional booleans (analytics, preferences, marketing, sale_of_data) with no source/description/segment structure. 08-25 introduces a two-level purpose+segment model. Filed separately from the 04-08 DSC-* carry-forward (see file docstring).",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "CNST-002",
@@ -42,7 +43,8 @@
    "schema_enforced": true,
    "notes": "consent_segment.json $defs has no `segments` property, unlike consent_purpose; nesting is structurally bounded to one level. (Quote picked from the segment description to disambiguate from the identical required-array text shared with consent_purpose at L11.)",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "CNST-003",
@@ -62,7 +64,8 @@
    "schema_enforced": true,
    "notes": "Enum-constrained on both consent_purpose and consent_segment.",
    "role": "both",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "schema"
   },
   {
    "id": "CNST-004",
@@ -162,7 +165,8 @@
    "schema_enforced": true,
    "notes": "Directly checkable end-to-end: confirm SMS marketing consent without a phone number and attempt complete_checkout.",
    "role": "business",
-   "role_provenance": "subject"
+   "role_provenance": "subject",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-009",
@@ -182,7 +186,8 @@
    "schema_enforced": false,
    "notes": "Normative requirement #1 ('Use the advertised settings').",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-010",
@@ -202,7 +207,8 @@
    "schema_enforced": false,
    "notes": "Continuation of normative requirement #1; namespace-authority-adjacent trust rule for custom purposes/segments.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-012",
@@ -222,7 +228,8 @@
    "schema_enforced": false,
    "notes": "Normative requirement #2, second half. Checkable by comparing a confirm payload's key set against the full advertised set.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-013",
@@ -242,7 +249,8 @@
    "schema_enforced": false,
    "notes": "Normative requirement #3 ('Advertised set is authoritative'). Checkable by submitting an un-advertised purpose/segment key and confirming it has no effect.",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-014",
@@ -282,7 +290,8 @@
    "schema_enforced": false,
    "notes": "Normative requirement #6 ('Per-business attribution'); a Platform-side cross-business isolation rule, needs a receiver spanning two businesses to test directly.",
    "role": "platform",
-   "role_provenance": "agent-lock"
+   "role_provenance": "agent-lock",
+   "normative_basis": "sentence"
   },
   {
    "id": "CNST-017",
@@ -363,7 +372,8 @@
    "notes": "New row, 2026-08-25 census closure wave (unmet-consent-dependency error-surfacing rule, paired with the adjacent completed-transition prohibition already registered nearby).",
    "_completeness_batch": "completeness-2026-08-31-w4",
    "role": "business",
-   "role_provenance": "review:role-adjudication-2026-09-11"
+   "role_provenance": "review:role-adjudication-2026-09-11",
+   "normative_basis": "sentence"
   }
  ]
 }

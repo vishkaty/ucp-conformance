@@ -24,7 +24,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-002",
@@ -48,7 +49,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-003",
@@ -72,7 +74,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-004",
@@ -96,7 +99,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-005",
@@ -120,7 +124,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-006",
@@ -144,7 +149,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-007",
@@ -193,7 +199,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-009",
@@ -217,7 +224,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-010",
@@ -289,7 +297,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-013",
@@ -361,7 +370,8 @@
       },
       "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-016",
@@ -433,7 +443,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-019",
@@ -457,7 +468,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-020",
@@ -481,7 +493,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "ORD-021",
@@ -505,7 +518,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "direction"
+      "role_provenance": "direction",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-022",
@@ -529,7 +543,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-023",
@@ -553,7 +568,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-024",
@@ -625,7 +641,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-027",
@@ -650,7 +667,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to shopping/order/index.md; link path adjusted to '../../signatures.md' for the new nesting depth (same signatures.md document); requirement text unchanged."
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-028",
@@ -674,7 +692,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-029",
@@ -698,7 +717,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-030",
@@ -722,7 +742,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-031",
@@ -746,7 +767,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-032",
@@ -770,7 +792,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-033",
@@ -794,7 +817,8 @@
         "disposition": "carried"
       },
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-034",
@@ -815,7 +839,8 @@
       "notes": "New row, 2026-08-25 census closure wave (Adjustments, settled-measure unit-identity rule, folded -- two MUST clauses stating one integrated invariant).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-035",
@@ -836,7 +861,8 @@
       "notes": "New row (Business conformance list, order-data authentication).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-036",
@@ -857,7 +883,8 @@
       "notes": "New row (Conformance, REST binding, Platforms bullet 1).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "ORD-037",
@@ -878,7 +905,8 @@
       "notes": "New row (Conformance, REST binding, Businesses bullet 1).",
       "_completeness_batch": "completeness-2026-08-31-w4",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

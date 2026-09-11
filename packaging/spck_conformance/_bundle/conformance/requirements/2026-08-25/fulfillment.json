@@ -69,7 +69,8 @@
         "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: fulfillment_method.json required array unchanged (id, type, line_item_ids), reformatted from single-line to multi-line array; same relative path."
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-005",
@@ -142,7 +143,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-008",
@@ -166,7 +168,8 @@
         "disposition": "renamed"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-009",
@@ -214,7 +217,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-011",
@@ -260,7 +264,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-013",
@@ -284,7 +289,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-014",
@@ -398,7 +404,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-019",
@@ -590,7 +597,8 @@
         "disposition": "carried"
       },
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-027",
@@ -662,7 +670,8 @@
         "disposition": "reworded"
       },
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "schema"
     },
     {
       "id": "FUL-031",
@@ -682,7 +691,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): part of the wholly new destination-precedence subsystem. 04-08's fulfillment.md has no `filters.fulfills_to`, no `destinations[]`/`selected_destination_id` typed-object architecture, and no Business Location Destination concept -- the whole 'Destinations' section (this file's ## Destinations onward) is new normative surface, consistent with FUL-030's own note flagging the schema-level counterpart as a substantive 08-25 addition.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-032",
@@ -702,7 +712,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the second precedence rule of the same new subsystem as FUL-031.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-033",
@@ -722,7 +733,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): part of the new typed destinations[] request/response contract.",
       "role": "platform",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-034",
@@ -742,7 +754,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the Business Location Destination subsection has no 04-08 antecedent (04-08 has no typed destination objects at all).",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-035",
@@ -762,7 +775,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the Business-side response-shape counterpart of FUL-034, same new subsection.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-036",
@@ -782,7 +796,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): part of the new 'Selection and Location Identity' section (no 04-08 antecedent). Two MUSTs of one integrated echo-back contract registered as a single row since they describe the same response, read as one rule.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-037",
@@ -802,7 +817,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): same new Selection and Location Identity section. Revalidation is an internal business-logic obligation not directly observable from a single request/response pair without a controlled fixture that changes availability between selection and Checkout, hence manual.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-038",
@@ -822,7 +838,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the anti-substitution guarantee immediately following FUL-037 in the same section. Three MUST NOT clauses of one integrated no-silent-substitution rule registered as a single row; the three all restate the same 'echo back exactly what was submitted' guarantee from different angles rather than being independently distinguishable obligations.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-039",
@@ -842,7 +859,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the rejection-path counterpart of FUL-036/FUL-037/FUL-038, closing the same new Selection and Location Identity section. Two MUSTs (unchanged Checkout; error Message with the specified shape) of one rejection contract registered as a single row.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-040",
@@ -862,7 +880,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the Catalog-discovery-to-Checkout-selection continuity guarantee for the new location-scoped `location` field on Catalog fulfillment methods; no 04-08 antecedent (04-08's Catalog section has no comparable place-identity carry-forward rule).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     },
     {
       "id": "FUL-041",
@@ -882,7 +901,8 @@
       "schema_enforced": false,
       "notes": "NEW at v2026-08-25 (P2b wave 2): the variant-vs-method availability precedence rule; no 04-08 antecedent (04-08 has no per-method availability field distinct from variant-level availability). Two keywords (MUST / MUST NOT) forming one precedence rule, registered as a single row.",
       "role": "platform",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "sentence"
     }
   ]
 }

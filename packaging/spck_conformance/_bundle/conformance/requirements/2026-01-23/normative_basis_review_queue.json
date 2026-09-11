@@ -1,0 +1,269 @@
+{
+ "_about": "normative_basis review queue (D2-11a -> D2-11b): mandatory rows whose quote carries no mandatory keyword, is not a schema constraint and is not fenced pseudocode. The `register` gate accepts a null normative_basis ONLY for a row listed here. To resolve: record the row in requirements/normative_basis_adjudications.json (table / bullet / definition / inferred with a justification; definition|inferred need a review_signoffs batch) and re-run assign_normative_basis.py --apply.",
+ "queue": [
+  {
+   "id": "CHK-001",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L48",
+   "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-002",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L49",
+   "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-003",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L50",
+   "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-004",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L51",
+   "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-005",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L52",
+   "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-007",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L172",
+   "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-008",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout.md#L329",
+   "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-012",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout.md#L273",
+   "requirement": "After a checkout session reaches the state completed it is considered immutable",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "CHK-015",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout.md#L57",
+   "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDM-002",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L1217",
+   "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDM-003",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L1218",
+   "requirement": "When an Idempotency-Key is provided, the server MUST return the cached result for duplicate keys",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDM-004",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L1219",
+   "requirement": "When an Idempotency-Key is provided, the server MUST return 409 Conflict if the key is reused with different parameters",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDM-005",
+   "version": "2026-01-23",
+   "file": "checkout-lifecycle.json",
+   "source": "ucp:docs/specification/checkout-rest.md#L1236",
+   "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-001",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L125",
+   "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-002",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L126",
+   "requirement": "Sending an empty codes array clears all discount codes.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-003",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L127",
+   "requirement": "Discount codes are matched case-insensitively by the business.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-004",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L131",
+   "requirement": "discounts.applied contains all active discounts (code-based and automatic) in the response.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-005",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L131",
+   "requirement": "When multiple valid discount codes are submitted, all are applied (accept-both) and appear in discounts.applied.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-006",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L137",
+   "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-007",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L314",
+   "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-010",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L175",
+   "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platfor",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-011",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L131",
+   "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-016",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L117",
+   "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-017",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L205",
+   "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-018",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/discount.md#L199",
+   "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-019",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/buyer-consent.md#L29",
+   "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "DSC-022",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/buyer-consent.md#L132",
+   "requirement": "Consent is declarative: the protocol communicates consent but does not enforce it, and legal compliance remains the busi",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "IDL-013",
+   "version": "2026-01-23",
+   "file": "discount-consent-identity.json",
+   "source": "ucp:docs/specification/identity-linking.md#L129",
+   "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:chec",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "FUL-009",
+   "version": "2026-01-23",
+   "file": "fulfillment.json",
+   "source": "ucp:docs/specification/fulfillment.md#L170",
+   "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "FUL-017",
+   "version": "2026-01-23",
+   "file": "fulfillment.json",
+   "source": "ucp:docs/specification/fulfillment.md#L172",
+   "requirement": "options[].total is the required price in minor units and may be null if not yet available",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "ORD-001",
+   "version": "2026-01-23",
+   "file": "order.json",
+   "source": "ucp:docs/specification/order.md#L24",
+   "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it w",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "ORD-019",
+   "version": "2026-01-23",
+   "file": "order.json",
+   "source": "ucp:docs/specification/order.md#L314",
+   "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UC",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  },
+  {
+   "id": "PAY-010",
+   "version": "2026-01-23",
+   "file": "payment.json",
+   "source": "ucp:docs/specification/overview.md#L602",
+   "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key co",
+   "reason_needed": "no mandatory keyword in the quote, not a schema constraint, not inside a fence \u2014 table / bullet / definition / inferred?"
+  }
+ ]
+}
