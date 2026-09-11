@@ -186,6 +186,16 @@ def gates(server, require_server=False):
          None, (2,)),
         ("dual-oracle-0825-pydantic-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25", "--pydantic"),
          None, (2,)),
+        # D4-07 (E3): the stateful sequence-fuzz oracle (conformance/ci/seq_invariants.py
+        # I1..I10; I10 = REPLAY-002, mode per replay_mode.json — decision 1) must provably
+        # catch four PLANTED lifecycle violations on an in-process stub and stay quiet on a
+        # clean one. Hermetic (no sockets). The live run (disposable golden on a free port,
+        # --boot --seconds 120 --races 8) is nightly (D4-10) + the 14-day report line below.
+        ("seqfuzz-selftest", _py(ROOT / "conformance" / "ci" / "seqfuzz_gate.py", "--selftest"), None, ()),
+        # D4-06 (E1): the official-suite cross-checker's allowlist semantics (USED / STALE red /
+        # EXPIRED red via samples_pin_not, or_pr_merged through a STUBBED gh, or_date) and junit
+        # parsing, hermetic; the live suite runs nightly against :8382/:8398 (D4-10).
+        ("crosscheck-selftest", _py(ROOT / "conformance" / "ci" / "official_crosscheck.py", "--selftest"), None, ()),
         ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
@@ -688,6 +698,16 @@ def r11_battery_report_line():
             + f", {age_days:.1f}d ago{stale}")
 
 
+def seqfuzz_report_line():
+    """D4-07: the tracked seqfuzz LAST_RUN.json under the 14-day rule (battery idiom)."""
+    try:
+        sys.path.insert(0, str(ROOT / "conformance" / "ci"))
+        import seqfuzz_gate
+        return seqfuzz_gate.report_line()
+    except Exception as e:  # noqa: BLE001
+        return f"seqfuzz          ✗ report line unavailable ({e})"
+
+
 def main():
     ap = argparse.ArgumentParser(description="TDD/CI gate runner for the UCP conformance suite.")
     ap.add_argument("--server", default="http://localhost:8182",
@@ -784,6 +804,7 @@ def main():
     print("-" * 72)
     print(f"{len(passed)} passed · {len(failed)} failed · {len(skipped)} skipped")
     print(r11_battery_report_line() + "  (report-only, not counted above; the counted gate is battery-freshness)")
+    print(seqfuzz_report_line() + "  (report-only; nightly seqfuzz job, decision 24: owner commits conformance/ci/seqfuzz/LAST_RUN.json)")
     if args.only:
         # the acceptance-line form: one `✓ PASS <gate> <detail>` per selected gate
         for name, status, detail in results:

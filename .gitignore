@@ -27,3 +27,5 @@ conformance/.vendor
 conformance/.sdk-venvs/
 conformance/ci/zod_feed/node_modules/
 conformance/ci/zod_feed/package-lock.json
+# D4-06: official-suite cross-checker scratch (suite clone per SHA, python-sdk worktree, venv)
+conformance/.crosscheck/

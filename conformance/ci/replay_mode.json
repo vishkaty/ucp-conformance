@@ -1,0 +1,13 @@
+{
+  "_about": "REPLAY-002 mode switch (decision 1, CLOSED 2026-09-10; PLAN-v3 SS 2.10). signatures.md#L837-L845 at v2026-08-25 (cd78fb38) says a duplicate-key request's payload is matched by the SHA-256 of the RAW BODY BYTES, so a byte-different but JSON-equal retry MUST get 409 (REPLAY-001/002). `conformance/ci/seq_invariants.I10 replay_reserialized` is THE single implementation (D1-16b's Row and D3-23's mutant import it) and reads its mode from this file per context: `golden_gates` (sig-0825, seqfuzz, D1-16b Rows) ENFORCE; `user_facing` (CLI / Action runs) REPORT — the citation + KI-009 link printed, never a deviation — until F3-f (the spec question) is answered or `report_until` passes, then `enforce` (seq_invariants.resolve_mode self-expires it). `golden_pending`: golden-0825 today hashes the PARSED body (services/checkout_service.py _compute_hash, sort_keys) so a re-serialized replay is CACHED; D3-23 (W2) makes it byte-exact. Until D3-23 lands (and never past `until`), the seqfuzz gate counts I10 hits on OUR golden as `PENDING D3-23` — printed, dated, not silent; after `until` they count as violations.",
+  "golden_gates": "enforce",
+  "user_facing": "report",
+  "report_until": "2026-11-09",
+  "reason": "F3-f pending (spec question: byte fidelity vs semantically identical retries); KI-009",
+  "citation": "ucp:docs/specification/signatures.md#L837-L845",
+  "known_issue": "KI-009",
+  "decision": 1,
+  "golden_pending": {"task": "D3-23", "until": "2026-10-15", "reason": "golden-0825 hashes parsed JSON (idem_hash_json_equal); byte-exact payload matching lands with D3-23"},
+  "review_by": "2026-10-10",
+  "spec_pin": "cd78fb38"
+}

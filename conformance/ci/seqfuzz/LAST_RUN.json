@@ -1,0 +1,59 @@
+{
+ "ran_at": "2026-09-11T05:57:37+00:00",
+ "ran_at_epoch": 1789106257.9717739,
+ "golden_sha": "223d9143b52c",
+ "seconds": 120.2,
+ "seed": 20260911,
+ "context": "golden_gates",
+ "sequences": 8431,
+ "requests": 27327,
+ "violations": {
+  "I9": 132,
+  "I8": 2,
+  "races": 1
+ },
+ "examples": {
+  "I9": "replay_mismatch PUT /checkout-sessions/b47dd936-3a63-4bb9-9aae-92f02b7e9cc2 -> 400: mismatched-payload replay answered 400, REPLAY-001 requires 409",
+  "I8": "replay_reserialized POST /checkout-sessions -> 0: replay_reserialized transport failure: BadStatusLine: POST /checkout-sessions HTTP/1.1\r\n",
+  "races": "{\"same_bytes\": {\"n\": 8, \"status_2xx\": 0, \"distinct_ids\": 0, \"statuses\": {\"400\": 8}}, \"mismatch\": {\"n\": 8, \"status_2xx\": 0, \"status_409\": 0, \"statuses\": {\"400\": 8}}, \"lost_response_retry\": {\"status\": [404, 404], \"same_order_id\": false}, \"fresh_key_after_ready\": {\"status\": 404, \"completed\": false}, \"ok\": false}"
+ },
+ "reports": {},
+ "pending": {
+  "task": "D3-23",
+  "I10": 1861
+ },
+ "races": {
+  "same_bytes": {
+   "n": 8,
+   "status_2xx": 0,
+   "distinct_ids": 0,
+   "statuses": {
+    "400": 8
+   }
+  },
+  "mismatch": {
+   "n": 8,
+   "status_2xx": 0,
+   "status_409": 0,
+   "statuses": {
+    "400": 8
+   }
+  },
+  "lost_response_retry": {
+   "status": [
+    404,
+    404
+   ],
+   "same_order_id": false
+  },
+  "fresh_key_after_ready": {
+   "status": 404,
+   "completed": false
+  },
+  "ok": false
+ },
+ "invariants_mode": {
+  "I10": "enforce"
+ },
+ "summary": "135 violations / 9 invariants (I10 enforce: 1861 re-serialized replays cached PENDING D3-23) / 27327 requests / 8431 sequences / races: same-bytes 0/8 0 ids, mismatch 0x2xx+0x409 (RACE FAIL)"
+}

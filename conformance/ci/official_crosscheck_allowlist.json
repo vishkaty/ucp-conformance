@@ -1,0 +1,27 @@
+{
+  "_about": "Self-expiring allowlist of OFFICIAL conformance-suite tests that are known to fail against a named golden for a diagnosed, filed reason (D4-06 / E1). Semantics per run (official_crosscheck.py): an entry is USED when its test failed this run; STALE (gate FAIL) when the test PASSED while the entry is unexpired — the exception outlived the defect, delete it; EXPIRED (gate FAIL, regardless of outcome) when any `expires_on` condition holds: `samples_pin_not` — the lock's reference_sample_server.commit is no longer that SHA (the golden moved; re-derive), `or_pr_merged` — the named PR is merged (checked by `gh api` GET when online; a stubbed `gh` in --selftest), `or_date` — today is past it. Nothing may be listed without `upstream`. Registered in conformance/coverage/expiry_registers.json (review_by 30 d, moving tier — the truth depends on the samples pin).",
+  "allow": [
+    {
+      "id": "samples-218-order-update-put-instruments-500",
+      "suite_sha": "016ecbc2",
+      "golden": "flower-04-08",
+      "test": "order_test.py::OrderTest::test_order_update",
+      "reason": "PUT /checkout-sessions/{id} carrying payment.instruments 500s at services/checkout_service.py:532 on the pinned samples server (samples#218; fix samples#220, our branch 8627c191 open, 0 reviews)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
+      "expires_on": {"samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3", "or_pr_merged": "samples#220", "or_date": "2026-11-01"},
+      "review_by": "2026-10-10",
+      "clock_tier": "moving"
+    },
+    {
+      "id": "samples-218-order-adjustments-put-instruments-500",
+      "suite_sha": "016ecbc2",
+      "golden": "flower-04-08",
+      "test": "order_test.py::OrderTest::test_order_adjustments",
+      "reason": "same defect as samples-218-order-update-put-instruments-500: the adjustments flow issues the same PUT with payment.instruments and 500s at checkout_service.py:532 (L5 N2: both official failures on the 04-08 golden are the #218 class)",
+      "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
+      "expires_on": {"samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3", "or_pr_merged": "samples#220", "or_date": "2026-11-01"},
+      "review_by": "2026-10-10",
+      "clock_tier": "moving"
+    }
+  ]
+}
