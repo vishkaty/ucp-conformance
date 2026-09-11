@@ -308,7 +308,7 @@ def main():
     #    advertised a stale "37") and conformance/ci/README.md are copy too.
     copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
         os.path.join(ROOT, "README.md"),
-        os.path.join(ROOT, "docs", "ROADMAP.md"),
+        os.path.join(ROOT, "docs", "archive", "ROADMAP.md"),
         os.path.join(ROOT, "packaging", "README.md"),
         os.path.join(ROOT, "conformance", "ci", "README.md")] + \
         glob.glob(os.path.join(ROOT, "functions", "**", "*.js"), recursive=True)

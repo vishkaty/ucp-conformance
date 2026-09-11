@@ -199,7 +199,7 @@ def _agent_copy_freshness():
         (re.compile(r"\d+\+? checks? \((\d+) defects modeled\)"), "'N checks (M defects modeled)' prose"),
     ]
     files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
-        os.path.join(ROOT, "README.md"), os.path.join(ROOT, "docs", "ROADMAP.md"),
+        os.path.join(ROOT, "README.md"), os.path.join(ROOT, "docs", "archive", "ROADMAP.md"),
         os.path.join(ROOT, "docs", "TWO-LANE.md")]
     out = []
     for page in files:

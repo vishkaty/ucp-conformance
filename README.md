@@ -114,7 +114,7 @@ mandatory keyword in the pinned prose against the register, so the percentage is
 of a *proven-complete* set of requirements, not an assumed one. The remaining gap is a
 categorized residue — documented spec bugs we won't fake, client/platform-bound obligations,
 and a needs-receiver / MCP-A2A-transport tail we haven't built a harness for yet (see
-[docs/ROADMAP.md](docs/ROADMAP.md)).
+[WORKSTREAMS.md](WORKSTREAMS.md)).
 
 ## How it stays honest
 
@@ -163,7 +163,7 @@ site deploy (`packaging/deploy.sh`, step 4) reads the history the same way.
 ## Links
 
 - **Web check:** https://spck.dev/check
-- **Live coverage matrix:** https://spck.dev/coverage · [Roadmap](docs/ROADMAP.md)
+- **Live coverage matrix:** https://spck.dev/coverage · [Workstreams](WORKSTREAMS.md) · [Architecture](ARCHITECTURE.md) · [Principles](PRINCIPLES.md) · [Decisions](DECISIONS.md)
 - **PyPI:** https://pypi.org/project/spck-conformance/
 - **Methodology, coverage & ambiguities:** [docs/](docs/) · [conformance/](conformance/)
 - **UCP spec (official):** https://ucp.dev

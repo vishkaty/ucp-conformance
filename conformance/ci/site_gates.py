@@ -1117,7 +1117,7 @@ DOC_CLAIMS = WEB / "doc_claims.json"
 # hand-authored non-page copy in scope (generated docs/spec-coverage-matrix.md is
 # byte-compared by the coverage gate and excluded here)
 DOC_FILES = ("README.md", "conformance/ci/README.md", "packaging/README.md",
-             "docs/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
+             "docs/archive/ROADMAP.md", "docs/TWO-LANE.md", "docs/TEST-INTEGRITY.md",
              "docs/merchant-conformance.md", "docs/ap2-vectors.md")
 DOC_GLOBS = ("functions/**/*.js",)
 # (regex, live-value key, label) — every captured count MUST equal the live value
