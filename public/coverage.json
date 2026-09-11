@@ -50,6 +50,10 @@
     },
     "other": {
      "musts": 9,
+     "check": 0,
+     "exempt": 9,
+     "gap": 0,
+     "gap_by_testability": {},
      "by_role": {
       "spec-author": 9
      }
@@ -2932,6 +2936,10 @@
     },
     "other": {
      "musts": 9,
+     "check": 0,
+     "exempt": 9,
+     "gap": 0,
+     "gap_by_testability": {},
      "by_role": {
       "spec-author": 9
      }
@@ -5980,6 +5988,10 @@
     },
     "other": {
      "musts": 4,
+     "check": 0,
+     "exempt": 4,
+     "gap": 0,
+     "gap_by_testability": {},
      "by_role": {
       "spec-author": 4
      }
@@ -12287,6 +12299,14 @@
     },
     "other": {
      "musts": 19,
+     "check": 0,
+     "exempt": 0,
+     "gap": 19,
+     "gap_by_testability": {
+      "manual": 12,
+      "needs-receiver": 1,
+      "testable": 6
+     },
      "by_role": {
       "spec-author": 19
      }

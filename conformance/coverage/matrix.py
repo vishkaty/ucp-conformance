@@ -407,11 +407,16 @@ def roles_block(rows, status_by_id, agent_axis=None):
       agent     agent-lane rows (platform | both | host — decision 27): musts from the
                 role field (== agent_matrix.agent_rows by construction), check/exempt/
                 gap from the agent axis when available.
-      other     spec-author rows (speclint register-selfcheck, D2-18), by_role.
+      other     spec-author rows (speclint register-selfcheck, D2-18) with their
+                merchant-axis buckets, gap_by_testability and by_role — the same
+                complete shape as `merchant`, so every lane the coverage page
+                offers a tab for renders a complete line (B2).
     """
     summary = {"merchant": 0, "agent": 0, "both": 0, "other": 0}
     merchant = {"musts": 0, "check": 0, "exempt": 0, "gap": 0}
+    other = {"musts": 0, "check": 0, "exempt": 0, "gap": 0}
     mgap = Counter()
+    ogap = Counter()
     other_by_role = Counter()
     n_agent = 0
     for r in rows:
@@ -430,16 +435,21 @@ def roles_block(rows, status_by_id, agent_axis=None):
             summary["both"] += 1
         if role in OTHER_LANE or role == "unassigned":
             summary["other"] += 1
+            other["musts"] += 1
+            other[st] += 1
+            if st == "gap":
+                ogap[r.get("testability", "?")] += 1
             other_by_role[role] += 1
     merchant["gap_by_testability"] = dict(sorted(mgap.items()))
+    other["gap_by_testability"] = dict(sorted(ogap.items()))
+    other["by_role"] = dict(sorted(other_by_role.items()))
     agent = {"musts": n_agent, "check": None, "exempt": None, "gap": None}
     if agent_axis:
         agent.update({"check": agent_axis.get("check"), "exempt": agent_axis.get("exempt"),
                       "gap": agent_axis.get("gap")})
         if agent_axis.get("agent_musts") != n_agent:
             agent["axis_musts_mismatch"] = agent_axis.get("agent_musts")
-    return {"summary": summary, "merchant": merchant, "agent": agent,
-            "other": {"musts": summary["other"], "by_role": dict(sorted(other_by_role.items()))}}
+    return {"summary": summary, "merchant": merchant, "agent": agent, "other": other}
 
 
 def _row_transport(r):
@@ -1059,6 +1069,50 @@ def test_roles_partition():
             bad += 1
     if not bad:
         print("  ✓ test_roles_partition: real export roles partition the MUSTs at every version")
+    bad += test_roles_blocks_complete(fresh)
+    return bad
+
+
+def test_roles_blocks_complete(fresh=None):
+    """B2 (W1 review): every lane block the coverage page offers a TAB for must carry a
+    complete {musts, check, exempt, gap}. public/coverage.html builds the toggle from
+    `roles[k].musts` being a number, so a block with musts but no buckets rendered
+    `other lane: 19 MUSTs · checked undefined · exempt undefined · gap undefined`.
+    Asserted on a synthetic register through the same roles_block() and on the real
+    export (the agent lane's buckets come from the agent axis, so they are exempted
+    only when that axis is genuinely absent — never on the published export)."""
+    KEYS = ("musts", "check", "exempt", "gap")
+    bad = 0
+    synth = [{"id": "ZZZ-001", "keyword": "MUST", "role": "business"},
+             {"id": "ZZZ-002", "keyword": "MUST", "role": "spec-author"},
+             {"id": "ZZZ-003", "keyword": "MUST", "role": "spec-author"}]
+    rb = roles_block(synth, {"ZZZ-001": "check", "ZZZ-002": "exempt", "ZZZ-003": "gap"},
+                     agent_axis={"agent_musts": 0, "check": 0, "exempt": 0, "gap": 0})
+    o = rb["other"]
+    ok = all(isinstance(o.get(k), int) for k in KEYS) and \
+        (o["musts"], o["check"], o["exempt"], o["gap"]) == (2, 0, 1, 1) and \
+        o["check"] + o["exempt"] + o["gap"] == o["musts"] and "gap_by_testability" in o
+    print(f"  {'✓' if ok else '✗'} test_roles_blocks_complete: synthetic other lane buckets "
+          f"(2 MUSTs = 0 check + 1 exempt + 1 gap)" + ("" if ok else f"  <-- {o!r}"))
+    bad += 0 if ok else 1
+    fresh = fresh or export_json()
+    for v, e in (fresh.get("versions") or {}).items():
+        for lane, blk in sorted((e.get("roles") or {}).items()):
+            if lane == "summary" or not isinstance(blk, dict) or not isinstance(blk.get("musts"), int):
+                continue                      # not a lane the page renders a tab for
+            missing = [k for k in KEYS if not isinstance(blk.get(k), int)]
+            if missing:
+                print(f"  ✗ test_roles_blocks_complete: {v} roles.{lane} has a tab but no {missing} "
+                      f"— the page would render 'undefined'")
+                bad += 1
+                continue
+            if blk["check"] + blk["exempt"] + blk["gap"] != blk["musts"]:
+                print(f"  ✗ test_roles_blocks_complete: {v} roles.{lane} buckets "
+                      f"{blk['check']}+{blk['exempt']}+{blk['gap']} != musts {blk['musts']}")
+                bad += 1
+    if not bad:
+        print("  ✓ test_roles_blocks_complete: every tabbed lane at every version carries "
+              "musts/check/exempt/gap that sum")
     return bad
 
 
