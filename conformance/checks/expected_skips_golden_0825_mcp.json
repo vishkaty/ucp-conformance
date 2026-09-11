@@ -1,6 +1,7 @@
 {
- "_about": "Pinned skip population of the MCP conformance checks (checks/merchant_checks_08_25_mcp.py) on golden-0825's MCP binding, gate mcp-check-0825 (validate_mcp_checks.py, D3-10; PLAN-v3 \u00a72.3). Every one of the 11 checks RUNS on the golden (it advertises checkout/cart/order over MCP and REF_CONFIG supplies out_of_stock_id + complete_payment), so the population is empty: any skip is unexplained and red. Regenerate deliberately from a real run; clock_tier moving (30 d). Registration in coverage/expiry_registers.json is D1-10's (it registers checks/expected_skips_*.json); until then validate_mcp_checks.py checks spec_pin and review_by itself.",
+ "_about": "Pinned skip population of the MCP conformance checks (checks/merchant_checks_08_25_mcp.py) on golden-0825's MCP binding, gate mcp-check-0825 (validate_mcp_checks.py, D3-10; PLAN-v3 §2.3). Every one of the 11 checks RUNS on the golden (it advertises checkout/cart/order over MCP and REF_CONFIG supplies out_of_stock_id + complete_payment), so the population is empty: any skip is unexplained and red. Regenerate deliberately from a real run; clock_tier moving (30 d). Registered in coverage/expiry_registers.json as a root-clocked entry (D1-10 form, W1 integration); validate_mcp_checks.py also checks spec_pin and review_by itself.",
  "golden": "golden-0825-mcp",
+ "version": "2026-08-25",
  "spec_pin": "cd78fb38",
  "review_by": "2026-10-09",
  "clock_tier": "moving",

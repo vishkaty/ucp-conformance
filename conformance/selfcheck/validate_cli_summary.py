@@ -164,7 +164,7 @@ def selftest():
         check("(b) banner present", "REST transport not declared" in ((doc or {}).get("banner") or ""),
               f"banner={(doc or {}).get('banner')!r}")
         na = ((doc or {}).get("checks_summary") or {}).get("not_applicable") or {}
-        check("(b) not_applicable totals 236 (238 checks − 2 runnable over MCP)",
+        check("(b) not_applicable totals 236 (249 checks − 13 reachable over MCP: 4 run + 9 needs-product, W1 integration)",
               sum(na.values()) == 236 if na else False, f"{na}")
         check("(b) not_applicable split pinned",
               {k: na.get(k) for k in PIN_MCP_ONLY_NA} == PIN_MCP_ONLY_NA, f"{na}")

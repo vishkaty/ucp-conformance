@@ -12,9 +12,12 @@ answer is `verdict.coverage: null` + `support: "rest-not-declared"` (never 0/N),
 merchant gate grades it against a pinned NEAR-EMPTY population
 (checks/expected_skips_mcp_only_0825.json: 2 run / 226 pinned).
 
-Loopback only; serves GET /.well-known/ucp (+ the versioned leaf) and answers 404 to
-everything else — a REST probe that reaches it is the D1-11 kill direction (`has_rest`
-forced True -> deviations -> red).
+Loopback only; serves GET /.well-known/ucp (+ the versioned leaf), a minimal JSON-RPC
+endpoint at the advertised MCP path (`tools/list` = the five core checkout tools, any other
+method -> -32601; W1 integration, D1-11 x D3-10: mcp.tools_list_core_checkout is graded and
+kill-tested on this shape, the product-driven MCP checks pin `needs-product`), and answers
+404 to everything else — a REST probe that reaches it is the D1-11 kill direction
+(`has_rest` forced True -> deviations -> red).
 
     python3 conformance/fixtures/profiles/mcp_only_0825.py [--port 0]   # prints the base URL
 """
@@ -25,6 +28,10 @@ import json
 import threading
 
 VERSION = "2026-08-25"
+# the core checkout tools tools/list must name (MCP-003 item 2 / MCP-004; the same tuple
+# merchant_checks_08_25_mcp.CORE_CHECKOUT_TOOLS grades)
+MCP_CORE_CHECKOUT_TOOLS = ("create_checkout", "get_checkout", "update_checkout",
+                           "complete_checkout", "cancel_checkout")
 CAPABILITIES = (
     "dev.ucp.shopping.checkout", "dev.ucp.shopping.order", "dev.ucp.shopping.fulfillment",
     "dev.ucp.shopping.discount", "dev.ucp.shopping.buyer_consent", "dev.ucp.shopping.cart",
@@ -84,8 +91,27 @@ class _Handler(http.server.BaseHTTPRequestHandler):
             return self._send(200, {"ucp": {**doc, "version": v}})
         self._send(404, {"error": "not found"})
 
-    def do_POST(self):          # no REST shopping transport: every request is a 404
+    def do_POST(self):          # no REST shopping transport: every non-MCP request is a 404
+        if self.path.rstrip("/") == "/api/ucp/mcp":
+            return self._mcp()
         self._send(404, {"error": "not found"})
+
+    def _mcp(self):
+        """The advertised MCP endpoint, minimal: JSON-RPC 2.0 `tools/list` answers the five
+        core checkout tools (checkout-mcp.md); every other method is -32601 (no tools/call:
+        the fixture has no products, so the product-driven MCP checks pin needs-product)."""
+        n = int(self.headers.get("Content-Length") or 0)
+        try:
+            doc = json.loads(self.rfile.read(n) or b"{}")
+        except ValueError:
+            doc = {}
+        rid = doc.get("id") if isinstance(doc, dict) else None
+        if isinstance(doc, dict) and doc.get("method") == "tools/list":
+            tools = [{"name": t, "description": f"{t.replace('_', ' ')} (UCP {VERSION})",
+                      "inputSchema": {"type": "object"}} for t in MCP_CORE_CHECKOUT_TOOLS]
+            return self._send(200, {"jsonrpc": "2.0", "id": rid, "result": {"tools": tools}})
+        self._send(200, {"jsonrpc": "2.0", "id": rid,
+                         "error": {"code": -32601, "message": "method not found"}})
 
     do_PUT = do_DELETE = do_PATCH = do_POST
 

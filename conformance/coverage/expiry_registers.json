@@ -157,7 +157,16 @@
    "scope": "version",
    "clock": "review_by",
    "clock_tier": "moving",
-   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned); D3-10's MCP harness lowers 226 — this clock forces that re-review."
+   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned at D1-11; 4 run / 245 pinned after D3-10's MCP harness landed — W1 integration re-review). This clock forces the next re-review."
+  },
+  {
+   "name": "expected_skips.golden_0825_mcp",
+   "file": "conformance/checks/expected_skips_golden_0825_mcp.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D3-10: the pinned skip population of the MCP checks on golden-0825's MCP binding (gate mcp-check-0825, own boot on :8195); the file IS the entry (root clock). Registered at W1 integration in D1-10's form."
   },
   {
    "name": "wave_targets.wave1_0825",
