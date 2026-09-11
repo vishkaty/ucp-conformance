@@ -201,7 +201,7 @@ def gates(server, require_server=False):
         ("nightly-workflow-selftest", _py(ROOT / "conformance" / "ci" / "validate_nightly_workflow.py", "--selftest"), None, ()),
         # D4-17: ops/tools/pull_feeds.py (nightly artifacts -> ops/feeds by gh GET, provenance,
         # --check drift, never git) — via ops_tool_gate: SKIP rc 2 when ops/ is not mounted.
-        ("pull-feeds-selftest", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "pull_feeds.py", "--selftest"), None, (2,)),
+        ("pull-feeds-selftest", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/pull_feeds.py", "--selftest"), None, (2,)),
         ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
