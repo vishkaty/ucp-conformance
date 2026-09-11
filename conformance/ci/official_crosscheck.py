@@ -55,6 +55,12 @@ SDK_TAG_FOR_SUITE = {"016ecbc2": "v2026-04-08-6"}     # the suite's own conforma
 # ---------------------------------------------------------------------------
 # allowlist semantics
 # ---------------------------------------------------------------------------
+def _short_ref(url):
+    """https://github.com/Universal-Commerce-Protocol/samples/issues/218 -> samples#218"""
+    m = re.search(r"github\.com/[^/]+/([^/]+)/(?:issues|pull)/(\d+)", url or "")
+    return f"{m.group(1)}#{m.group(2)}" if m else (url or "?")
+
+
 def samples_pin(lock=LOCK):
     return json.loads(pathlib.Path(lock).read_text())["reference_sample_server"]["commit"]
 
@@ -260,7 +266,7 @@ def live(golden, sha, report_only, out_dir):
     ok = not cls["stale"] and not cls["expired"] and (report_only or not cls["unlisted_failures"])
     used_ids = cls["used"]
     lines.append(f"suite {got[:8]} · sdk {pin} · golden {golden} · {len(statuses)} tests: {n_pass} pass / {n_fail} fail / "
-                 f"{n_skip} skip · allowlisted {len(used_ids)} ({', '.join(sorted({e['upstream'].rsplit('/', 2)[-2] + '#' + e['upstream'].rsplit('/', 1)[-1] for e in entries if e['id'] in used_ids})) or '-'})"
+                 f"{n_skip} skip · allowlisted {len(used_ids)} ({', '.join(sorted({_short_ref(e['upstream']) for e in entries if e['id'] in used_ids})) or '-'})"
                  f" · stale {len(cls['stale'])} · expired {len(cls['expired'])}"
                  + (f" · unlisted failures {len(cls['unlisted_failures'])} (report)" if report_only and cls['unlisted_failures'] else "")
                  + f" · {'PASS' if ok else 'FAIL'}" + (" (report-only)" if report_only else ""))

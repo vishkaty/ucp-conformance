@@ -8,18 +8,26 @@
       "test": "order_test.py::OrderTest::test_order_update",
       "reason": "PUT /checkout-sessions/{id} carrying payment.instruments 500s at services/checkout_service.py:532 on the pinned samples server (samples#218; fix samples#220, our branch 8627c191 open, 0 reviews)",
       "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
-      "expires_on": {"samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3", "or_pr_merged": "samples#220", "or_date": "2026-11-01"},
+      "expires_on": {
+        "samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3",
+        "or_pr_merged": "samples#220",
+        "or_date": "2026-11-01"
+      },
       "review_by": "2026-10-10",
       "clock_tier": "moving"
     },
     {
-      "id": "samples-218-order-adjustments-put-instruments-500",
+      "id": "samples-218-order-fulfillment-retrieval-put-instruments-500",
       "suite_sha": "016ecbc2",
       "golden": "flower-04-08",
-      "test": "order_test.py::OrderTest::test_order_adjustments",
-      "reason": "same defect as samples-218-order-update-put-instruments-500: the adjustments flow issues the same PUT with payment.instruments and 500s at checkout_service.py:532 (L5 N2: both official failures on the 04-08 golden are the #218 class)",
+      "test": "order_test.py::OrderTest::test_order_fulfillment_retrieval",
+      "reason": "same defect as samples-218-order-update-put-instruments-500: the test's checkout update (PUT /checkout-sessions/{id}) carries the checkout's payment.instruments through integration_test_utils' update helper and 500s at checkout_service.py:532 (VERIFIED 2026-09-11 live: 77 tests, exactly these two 500s; test_order_adjustments passes)",
       "upstream": "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
-      "expires_on": {"samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3", "or_pr_merged": "samples#220", "or_date": "2026-11-01"},
+      "expires_on": {
+        "samples_pin_not": "00333a80ebca3efd442d515b261a36e57de815d3",
+        "or_pr_merged": "samples#220",
+        "or_date": "2026-11-01"
+      },
       "review_by": "2026-10-10",
       "clock_tier": "moving"
     }
