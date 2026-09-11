@@ -87,6 +87,12 @@ async def verify_signature(request: Request) -> None:
   No profile fetch occurs unless a ``Signature-Input`` header is present, so
   unsigned traffic incurs no extra work.
 
+  The outcome (``absent`` / ``verified:<keyid>`` / ``failed:<code>``) is
+  recorded in ``request.scope["ucp_signature_outcome"]``; server.py's defects
+  middleware exposes it as ``x-defects-signature`` ONLY while defects mode is
+  on, so the R11 battery can grade signature-path behavior rows on a
+  permissive (signatures-optional) golden.
+
   Args:
     request: The incoming request.
 
@@ -95,10 +101,22 @@ async def verify_signature(request: Request) -> None:
       verification fails.
 
   """
+  if request.scope.get("ucp_mcp_bridged"):
+    # A REST request the MCP bridge dispatched in-process (routes/mcp_bridge.py):
+    # the outer /mcp request was already verified over the signed JSON-RPC
+    # bytes; the bridged request carries no signature of its own.
+    return
   headers = {k.lower(): v for k, v in request.headers.items()}
+  # MCP (D3-09): headers server.py's McpMetaMiddleware synthesized from
+  # `arguments.meta` (UCP-Agent / Idempotency-Key) resolve the signer's
+  # PROFILE below, but the REQUIRED-COMPONENT set is computed over the headers
+  # the signer could actually cover -- the ones on the wire.
+  mapped = request.scope.get("ucp_meta_mapped") or set()
+  wire_headers = {k: v for k, v in headers.items() if k not in mapped}
   enforcing = config.FLAGS.require_signatures
 
   if "signature-input" not in headers or "signature" not in headers:
+    request.scope["ucp_signature_outcome"] = "absent"
     if enforcing:
       raise _signature_http_error(
         ucp_signing.SignatureError(
@@ -115,6 +133,7 @@ async def verify_signature(request: Request) -> None:
       401,
       "UCP-Agent profile URL is required to resolve the signing key",
     )
+    request.scope["ucp_signature_outcome"] = f"failed:{exc.code}"
     if enforcing:
       raise _signature_http_error(exc)
     logger.warning("Cannot verify signature: %s", exc.message)
@@ -131,11 +150,12 @@ async def verify_signature(request: Request) -> None:
       headers.get("host", ""),
       request.url.path,
       request.url.query,
-      headers,
+      wire_headers,
       body,
       keys,
     )
   except ucp_signing.SignatureError as exc:
+    request.scope["ucp_signature_outcome"] = f"failed:{exc.code}"
     if enforcing:
       raise _signature_http_error(exc) from exc
     logger.warning(
@@ -145,6 +165,7 @@ async def verify_signature(request: Request) -> None:
       exc.message,
     )
     return
+  request.scope["ucp_signature_outcome"] = f"verified:{keyid}"
   logger.info(
     "RFC 9421 signature verified (keyid=%s, profile=%s)",
     keyid,

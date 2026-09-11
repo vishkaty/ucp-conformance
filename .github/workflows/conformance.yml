@@ -136,6 +136,9 @@ jobs:
         # target); if that server is not up, the gate simply omits it — no failure.
         env:
           UCP_NODEJS_URL: http://localhost:3000
+          # the run-scoped record dir (merchant run records, the battery's in-run report):
+          # fixed so the artifact step below can upload the battery report from it
+          RUN_SUITE_RECORD_DIR: ${{ runner.temp }}/run_suite_records
 
       - name: Reach report drift check (B3 — decision 6 gated, never commits)
         # Regenerates the differential reach report IN MEMORY against the live targets
@@ -151,13 +154,15 @@ jobs:
           UCP_NODEJS_URL: http://localhost:3000
 
       - name: "Publish the golden-0825 battery report (R11 in CI — decision 24: an artifact, never a bot commit)"
-        # --battery above ran the R11 mutant battery inside this run; the tracked
-        # LAST_RUN.json is refreshed by the owner at release time from this artifact.
+        # --battery above ran the R11 mutant battery inside this run and wrote THIS run's
+        # report to RUN_SUITE_RECORD_DIR (the battery's --out; the tracked LAST_RUN.json is
+        # never rewritten by a run — W1 D3 carry-over, the CI-1 class); the owner refreshes
+        # the tracked file at release time from this artifact (or `--record` locally).
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: golden-0825-battery-LAST_RUN
-          path: conformance/testbed/golden-0825/battery/LAST_RUN.json
+          path: ${{ runner.temp }}/run_suite_records/battery_LAST_RUN.json
           if-no-files-found: warn
 
       - name: Tear down the Node.js reference

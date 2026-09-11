@@ -34,6 +34,7 @@ import generated_routes.ucp_routes
 from routes.defect_fixtures import router as defect_fixtures_router
 from routes.discovery import router as discovery_router
 from routes.mcp import router as mcp_router
+from routes.mcp_bridge import McpMetaMiddleware
 from routes.order import router as order_router
 import routes.ucp_implementation
 import server_state
@@ -139,6 +140,12 @@ class VersionProjectionMiddleware:
 
 
 app.add_middleware(VersionProjectionMiddleware)
+# MCP (D3-09): map `arguments.meta` onto the UCP-Agent / Idempotency-Key
+# headers of a POST /mcp tools/call BEFORE anything reads them -- the version
+# projection above (negotiation), verify_signature on the route (key
+# resolution), the bridged REST handlers. Added after (= outside) the
+# projection middleware so the mapped UCP-Agent is what the projection sees.
+app.add_middleware(McpMetaMiddleware)
 
 
 # R11 (PLAN-0825 SS C.4): the ONE choke point for defect injection. The engine
@@ -156,7 +163,8 @@ async def defects_middleware(request: Request, call_next):
 
   While defects mode is ON, every response additionally carries
   `x-defects-consulted`: the behavior keys some guard consulted since the arm
-  state last changed (D3-01, decision 19). The battery reads it after driving
+  state last changed (D3-01, decision 19), and `x-defects-signature`: the
+  request's signature-verification outcome (D3-09). The battery reads it after driving
   a behavior row's checks to tell an UNWIRED key (LOADER-BROKEN: no guard ever
   asked) apart from a guard that asked and whose checks did not flip."""
   response = await call_next(request)
@@ -167,6 +175,12 @@ async def defects_middleware(request: Request, call_next):
   consulted = engine.consulted_keys()
   if consulted:
     response.headers["x-defects-consulted"] = ",".join(sorted(consulted))
+  # D3-09: the signature-verification outcome of THIS request (dependencies.
+  # verify_signature records it), so the battery can grade signature-path
+  # behavior rows (mcp_headers_after_verify) on a permissive golden.
+  outcome = request.scope.get("ucp_signature_outcome")
+  if outcome:
+    response.headers["x-defects-signature"] = outcome
   return response
 
 

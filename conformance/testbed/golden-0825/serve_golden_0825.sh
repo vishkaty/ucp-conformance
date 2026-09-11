@@ -34,6 +34,12 @@ DEFECTS_STATE_FILE="${DEFECTS_STATE_FILE:-}"
 # lane-local proof can host). Unset/0 (the default) boots exactly as before:
 # signatures verified when present, never required.
 REQUIRE_SIGNATURES="${REQUIRE_SIGNATURES:-}"
+# D3-09: ALLOW_INSECURE_PROFILE_URLS=1 passes --allow_insecure_profile_urls on its
+# own (signatures stay optional): a permissive golden may then resolve a signer's
+# keys from a loopback http:// platform profile. The R11 battery sets it so its
+# signed MCP check (mcp_headers_after_verify) can host the profile in-process.
+# Implied by REQUIRE_SIGNATURES=1 (which passes the flag already); unset = never.
+ALLOW_INSECURE_PROFILE_URLS="${ALLOW_INSECURE_PROFILE_URLS:-}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 SERVER="$ROOT/server"
 DATA_DIR="${DATA_DIR:-$ROOT/test_data/flower_shop}"
@@ -122,6 +128,12 @@ if [ -n "$REQUIRE_SIGNATURES" ] && [ "$REQUIRE_SIGNATURES" != "0" ]; then
   echo "signature enforcement ON: --require_signatures (localhost platform profiles allowed)" >&2
 fi
 
+PROFILE_FLAGS=""
+if [ -z "$SIGNATURE_FLAGS" ] && [ -n "$ALLOW_INSECURE_PROFILE_URLS" ] && [ "$ALLOW_INSECURE_PROFILE_URLS" != "0" ]; then
+  PROFILE_FLAGS="--allow_insecure_profile_urls"
+  echo "loopback platform profiles allowed: --allow_insecure_profile_urls (signatures still optional)" >&2
+fi
+
 echo "starting golden-0825 on :$PORT ..." >&2
 # See serve_golden.sh for why this is `( cd ... && exec ... ) & echo $!` with stdio
 # redirected rather than a plain background job: it detaches every inherited fd so
@@ -131,7 +143,7 @@ echo "starting golden-0825 on :$PORT ..." >&2
     --transactions_db_path="$DB_DIR/transactions.db" \
     --port="$PORT" \
     --simulation_secret="$SIM_SECRET" \
-    $DEFECTS_FLAG $DEFECTS_STATE_FLAG $SIGNATURE_FLAGS ) >"$DB_DIR/server.log" 2>&1 </dev/null &
+    $DEFECTS_FLAG $DEFECTS_STATE_FLAG $SIGNATURE_FLAGS $PROFILE_FLAGS ) >"$DB_DIR/server.log" 2>&1 </dev/null &
 echo $! >"$DB_DIR/server.pid"
 
 WRAPPER_PID="$(cat "$DB_DIR/server.pid")"

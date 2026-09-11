@@ -1,522 +1,1329 @@
 {
-  "$comment": "R11 mutant battery (PLAN-0825 SS C.4 / SS8-L3.4). Every mutant here is DATA, never server code (P-7 / the walls doctrine): server.py's defects_middleware and routes/defect_fixtures.py are the only code, and neither knows about any individual mutant by name. `oracle` tells the battery runner (conformance/selfcheck/validate_golden_0825_battery.py) which official-validator call proves the mutant SHOULD be caught; it is not consulted by the server at all. Paths are JSON arrays of keys/indices, not dotted strings, because this corpus's own field names are reverse-DNS dotted strings (e.g. dev.ucp.shopping.cart) that would make a dotted path grammar ambiguous.",
-  "mutants": [
+ "$comment": "R11 mutant battery (PLAN-0825 SS C.4 / SS8-L3.4). Every mutant here is DATA, never server code (P-7 / the walls doctrine): server.py's defects_middleware and routes/defect_fixtures.py are the only code, and neither knows about any individual mutant by name. `oracle` tells the battery runner (conformance/selfcheck/validate_golden_0825_battery.py) which official-validator call proves the mutant SHOULD be caught; it is not consulted by the server at all. Paths are JSON arrays of keys/indices, not dotted strings, because this corpus's own field names are reverse-DNS dotted strings (e.g. dev.ucp.shopping.cart) that would make a dotted path grammar ambiguous. D3-09: a `mutants[]` entry may carry `checks[]` (+ `graded_by: \"checks\"`, `no_oracle_because`) INSTEAD of `oracle` when no official-validator call can reject the mutated body -- the battery then grades it like a behavior row (every named check CLEAN -> DEVIATION -> CLEAN across arm/disarm) while still proving the patch FIRED.",
+ "mutants": [
+  {
+   "name": "sdkdrop-jwk-missing-crv",
+   "family": "sdk-drop-jwk",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp"
+   },
+   "patch": [
     {
-      "name": "sdkdrop-jwk-missing-crv",
-      "family": "sdk-drop-jwk",
-      "surface": "discovery",
-      "route": {"method": "GET", "path": "/.well-known/ucp"},
-      "patch": [
-        {"op": "drop", "path": ["keys", 0, "crv"]}
-      ],
-      "violates": "profile.json $defs.jwk_public_key allOf: an EC key requires crv+x+y, an OKP key requires crv+x -- crv is required under either branch, so dropping it from the real published signing key breaks whichever kty this instance actually runs.",
-      "upstream": "python-sdk#88 (JWK's 5 conditional rules dropped by generated models)",
-      "oracle": {"kind": "profile", "role": "business"}
-    },
-    {
-      "name": "sdkdrop-c62-nonzero-scale",
-      "family": "sdk-drop-c62-scale",
-      "surface": "checkout",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [
-        {"op": "set", "path": ["line_items", 0, "item", "quantity_unit"],
-         "value": {"unit": "C62", "scale": 3, "display_text": "each"}}
-      ],
-      "violates": "common/types/unit.json allOf if/then: when unit is the C62 well-known code, scale (if present) MUST be const 0.",
-      "upstream": "python-sdk#89 (unit.json's C62/scale conditional rule dropped by generated models)",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "sdkdrop-discriminator-array-retype",
-      "family": "sdk-drop-discriminator",
-      "surface": "checkout",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [
-        {"op": "drop", "path": ["fulfillment", "methods", 0, "destinations", 0, "type"]}
-      ],
-      "violates": "shopping/types/fulfillment_method.json allOf: when a method's type is 'shipping', its destinations[] items narrow from the generic fulfillment_destination.json base to shipping_destination.json specifically, which (like the base) requires `type`. A model that lost this per-item discriminated narrowing (the exact 0.5.0 bug STATUS.md's migration notes describe -- FulfillmentMethod.destinations landed as the generic base) would not even notice `type` is gone. Checked against the fulfillment extension's combined def: bare checkout.json does not declare a `fulfillment` property at all (it is added by the extension schema, like discounts/buyer), so validating against checkout.json alone would validate vacuously.",
-      "upstream": "python-sdk#92+#93 (discriminator array-retyping, the 8th constraint-drop family)",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "discovery-capability-not-array",
-      "family": "per-surface-discovery",
-      "surface": "discovery",
-      "route": {"method": "GET", "path": "/.well-known/ucp"},
-      "patch": [
-        {"op": "set", "path": ["ucp", "capabilities", "dev.ucp.shopping.cart"], "value": "not-an-array"}
-      ],
-      "violates": "ucp.json $defs.base.properties.capabilities.additionalProperties: {type: array, items: capability.json#/$defs/base} -- a capability registry value MUST be an array.",
-      "register_refs": ["review evidence re-executed as DATA (ledger R11): the original ad hoc review found this exact violation, reported by the official validator as `capabilities/.../cart: not of type \"array\"`"],
-      "oracle": {"kind": "profile", "role": "business"}
-    },
-    {
-      "name": "checkout-create-drop-id",
-      "family": "per-surface-checkout",
-      "surface": "checkout",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "drop", "path": ["id"]}],
-      "violates": "shopping/checkout.json required: [ucp, id, line_items, status, currency, totals, links]",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "checkout-read-drop-totals",
-      "family": "per-surface-checkout",
-      "surface": "checkout",
-      "route": {"method": "GET", "path": "/checkout-sessions/{id}"},
-      "patch": [{"op": "drop", "path": ["totals"]}],
-      "violates": "shopping/checkout.json required includes totals",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "read"}
-    },
-    {
-      "name": "checkout-update-drop-line-items",
-      "family": "per-surface-checkout",
-      "surface": "checkout",
-      "route": {"method": "PUT", "path": "/checkout-sessions/{id}"},
-      "patch": [{"op": "drop", "path": ["line_items"]}],
-      "violates": "shopping/checkout.json required includes line_items",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "update"}
-    },
-    {
-      "name": "checkout-complete-bad-status",
-      "family": "per-surface-checkout",
-      "surface": "checkout",
-      "route": {"method": "POST", "path": "/checkout-sessions/{id}/complete"},
-      "patch": [{"op": "set", "path": ["status"], "value": "shipped"}],
-      "violates": "shopping/checkout.json properties.status.enum: [incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, canceled] -- 'shipped' is not a member.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "complete"}
-    },
-    {
-      "name": "checkout-cancel-drop-currency",
-      "family": "per-surface-checkout",
-      "surface": "checkout",
-      "route": {"method": "POST", "path": "/checkout-sessions/{id}/cancel"},
-      "patch": [{"op": "drop", "path": ["currency"]}],
-      "violates": "shopping/checkout.json required includes currency",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "cancel"}
-    },
-    {
-      "name": "cart-create-drop-id",
-      "family": "per-surface-cart",
-      "surface": "cart",
-      "route": {"method": "POST", "path": "/carts"},
-      "patch": [{"op": "drop", "path": ["id"]}],
-      "violates": "shopping/cart.json required: [ucp, id, line_items, currency, totals]",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
-    },
-    {
-      "name": "cart-read-drop-totals",
-      "family": "per-surface-cart",
-      "surface": "cart",
-      "route": {"method": "GET", "path": "/carts/{id}"},
-      "patch": [{"op": "drop", "path": ["totals"]}],
-      "violates": "shopping/cart.json required includes totals",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "read"}
-    },
-    {
-      "name": "cart-update-drop-line-items",
-      "family": "per-surface-cart",
-      "surface": "cart",
-      "route": {"method": "PUT", "path": "/carts/{id}"},
-      "patch": [{"op": "drop", "path": ["line_items"]}],
-      "violates": "shopping/cart.json required includes line_items",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "update"}
-    },
-    {
-      "name": "cart-cancel-drop-currency",
-      "family": "per-surface-cart",
-      "surface": "cart",
-      "route": {"method": "POST", "path": "/carts/{id}/cancel"},
-      "patch": [{"op": "drop", "path": ["currency"]}],
-      "violates": "shopping/cart.json required includes currency",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "cancel"}
-    },
-    {
-      "name": "order-drop-permalink",
-      "family": "per-surface-order",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["permalink_url"]}],
-      "violates": "shopping/order.json required: [ucp, id, checkout_id, permalink_url, line_items, fulfillment, currency, totals]",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-null-regression",
-      "family": "per-surface-order",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "set", "path": ["messages"], "value": null}],
-      "violates": "shopping/order.json properties.messages: {type: array} -- null is not an array. Deliberately reproduces the shape of the samples '34-null' defect class this golden's own adaptation fixed (STATUS.md SS Migration point 4; gap ledger G2): a regression here is exactly the bug this mutant exists to catch if it ever comes back.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "discount-negative-amount",
-      "family": "per-surface-discount",
-      "surface": "discount",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [
-        {"op": "set", "path": ["discounts"],
-         "value": {"applied": [{"title": "Test Discount", "amount": -50}]}}
-      ],
-      "violates": "shopping/discount.json $defs.applied_discount.amount -> common/types/amount.json: {type: integer, minimum: 0} -- a discount amount (bare integer minor-units, not an {amount, currency} object -- the currency is the checkout's own top-level `currency`) cannot be negative. Only checked when validated against the discount extension's combined def (dev.ucp.shopping.checkout), not against bare checkout.json (whose additionalProperties policy leaves an unknown `discounts` key unchecked) -- see the oracle.kind=against entries below.",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/discount.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "fulfillment-drop-method-id",
-      "family": "per-surface-fulfillment",
-      "surface": "fulfillment",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "drop", "path": ["fulfillment", "methods", 0, "id"]}],
-      "violates": "shopping/types/fulfillment_method.json required: [id, type, line_item_ids] -- checked against the fulfillment extension's combined def (bare checkout.json does not know the shape of its own `fulfillment` property).",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "consent-invalid-source",
-      "family": "per-surface-consent",
-      "surface": "consent",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [
-        {"op": "set", "path": ["buyer"],
-         "value": {"consent": {"com.example.marketing":
-                     {"granted": true, "source": "invalid_source", "description": "x"}}}}
-      ],
-      "violates": "shopping/buyer_consent.json $defs.consent_purpose.source.enum: [business, platform] -- checked against the buyer-consent extension's combined def.",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/buyer_consent.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "consent-purpose-missing-granted",
-      "family": "check-conversion-p3-wave2",
-      "surface": "consent",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [
-        {"op": "set", "path": ["buyer"],
-         "value": {"consent": {"com.example.marketing":
-                     {"source": "platform", "description": "x"}}}}
-      ],
-      "violates": "shopping/buyer_consent.json $defs.consent_purpose.required: [granted, source, description] -- CNST-001. A consent_purpose is an OBJECT with these three members, never a bare boolean (the retired sale_of_data-style shape R5a/R5 warn against carrying forward) -- checked against the buyer-consent extension's combined def, same route/oracle-kind as consent-invalid-source (its sibling mutant, which proves CNST-003's source enum instead of this row's required-fields obligation).",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/buyer_consent.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "fulfillment-group-drop-id",
-      "family": "check-conversion-p3-wave2",
-      "surface": "fulfillment",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "drop", "path": ["fulfillment", "methods", 0, "groups", 0, "id"]}],
-      "violates": "shopping/types/fulfillment_group.json required: [id, line_item_ids] -- FUL-007. Checked against the fulfillment extension's combined def, same route as fulfillment-drop-method-id (its sibling, which proves FUL-003's method-level required fields instead of this row's group-level ones).",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "fulfillment-option-drop-title",
-      "family": "check-conversion-p3-wave2",
-      "surface": "fulfillment",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "drop", "path": ["fulfillment", "methods", 0, "groups", 0, "options", 0, "title"]}],
-      "violates": "shopping/types/fulfillment_option_base.json required: [id, title] -- FUL-008. The clean POST /checkout-sessions response for this route's fixture body (a shipping method with groups[0].selected_option_id=std-ship) genuinely populates groups[0].options[] from shipping_rates.csv (std-ship/exp-ship-us), so this mutant targets a real served field, not a fabricated one. Checked against the fulfillment extension's combined def.",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/fulfillment.json",
-                 "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "cart-line-item-drop-quantity",
-      "family": "check-conversion-p3-wave3",
-      "surface": "cart",
-      "route": {"method": "POST", "path": "/carts"},
-      "patch": [{"op": "drop", "path": ["line_items", 0, "quantity"]}],
-      "violates": "shopping/types/line_item.json required: [id, item, quantity, totals] -- CART-031. Checked against bare cart.json (line_items is a base cart field, not extension-added), same route/oracle-kind as the four per-surface-cart top-level mutants above; this one targets the LINE ITEM level instead of the cart's own top level.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
-    },
-    {
-      "name": "cart-quantity-below-minimum",
-      "family": "check-conversion-p3-wave3",
-      "surface": "cart",
-      "route": {"method": "POST", "path": "/carts"},
-      "patch": [{"op": "set", "path": ["line_items", 0, "quantity"], "value": 0}],
-      "violates": "shopping/types/line_item.json properties.quantity: {type: integer, minimum: 1} -- CART-032 (line item quantity MUST be an integer of at least 1; 0 is schema-invalid, distinct from cart-line-item-drop-quantity's required-field violation).",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
-    },
-    {
-      "name": "cart-item-drop-price",
-      "family": "check-conversion-p3-wave3",
-      "surface": "cart",
-      "route": {"method": "POST", "path": "/carts"},
-      "patch": [{"op": "drop", "path": ["line_items", 0, "item", "price"]}],
-      "violates": "shopping/types/item.json required: [id, title, price] -- CART-033 (a line item's `item` sub-object).",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/cart.json", "op": "create"}
-    },
-    {
-      "name": "order-drop-currency",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["currency"]}],
-      "violates": "shopping/order.json required includes currency -- ORD-003.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-drop-line-items",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["line_items"]}],
-      "violates": "shopping/order.json required includes line_items -- ORD-004.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-line-item-drop-status",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["line_items", 0, "status"]}],
-      "violates": "shopping/types/order_line_item.json required: [id, item, quantity, totals, status] -- ORD-005. Sibling of order-drop-line-items (that mutant drops the whole array; this one drops one required member of a line item to prove the row's own per-item MUST).",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-quantity-drop-fulfilled",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["line_items", 0, "quantity", "fulfilled"]}],
-      "violates": "shopping/types/order_line_item.json $defs quantity.required: [total, fulfilled] -- ORD-006.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-expectation-drop-method-type",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["fulfillment", "expectations", 0, "method_type"]}],
-      "violates": "shopping/types/expectation.json required: [id, line_items, method_type, destination] -- ORD-018.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "order-event-drop-occurred-at",
-      "family": "check-conversion-p3-wave3",
-      "surface": "order",
-      "route": {"method": "GET", "path": "/orders/{id}"},
-      "patch": [{"op": "drop", "path": ["fulfillment", "events", 0, "occurred_at"]}],
-      "violates": "shopping/types/fulfillment_event.json required: [id, occurred_at, type, line_items] -- ORD-019. apply_patch() is a no-op on a path that fails to resolve (defects.py's own documented permissive-patch behavior), so this mutant only fires against an order whose fulfillment.events[] is non-empty -- the checking row's own fixture calls POST /testing/simulate-shipping/{id} before each GET /orders/{id} to populate events[0] (the same test-only route STATUS.md's R11 section already documents as secret-gated and safe to call regardless of arm state, since its own route never matches an armed mutant here).",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/order.json", "op": "read"}
-    },
-    {
-      "name": "discount-applied-drop-title",
-      "family": "check-conversion-p3-wave4",
-      "surface": "discount",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["discounts"], "value": {"applied": [{"amount": 350}]}}],
-      "violates": "shopping/discount.json $defs.applied_discount required: [title, amount] -- DSC-023. Only checked when validated against the discount extension's combined def (dev.ucp.shopping.checkout), same as discount-negative-amount above. Replaces the WHOLE `discounts` key (same idiom as discount-negative-amount / consent-invalid-source / consent-purpose-missing-granted) rather than dropping a field on a path that only exists when the calling fixture itself submitted a matching discount code -- self-contained, so it fires identically whether the caller is golden_check_08_25.py's own discount-code fixture or the R11 battery's plain create fixture (which never submits a discount code, and would otherwise make a `drop` here a silent no-op -- found live 2026-09-01, same class as R17's fixture-vs-mutant gap).",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/discount.json", "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "discount-allocation-drop-path",
-      "family": "check-conversion-p3-wave4",
-      "surface": "discount",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["discounts"], "value": {"applied": [{"title": "Test Discount", "amount": 350, "allocations": [{"amount": 350}]}]}}],
-      "violates": "shopping/discount.json $defs.allocation required: [path, amount] -- DSC-026. Self-contained whole-key `set`, same reason as discount-applied-drop-title above.",
-      "oracle": {"kind": "against", "schema": "schemas/shopping/discount.json", "def": "dev.ucp.shopping.checkout", "op": "create"}
-    },
-    {
-      "name": "totals-discount-amount-not-negative",
-      "family": "check-conversion-p3-wave4",
-      "surface": "totals",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "total", "amount": 3500}, {"type": "discount", "amount": 50}]}],
-      "violates": "common/types/total.json allOf[0] (type in [discount, items_discount] -> amount exclusiveMaximum 0) -- TOT-014 / DSC-021. Replaces the WHOLE `totals` array with a self-contained, fully-specified array (one subtotal, one total, one discount with a POSITIVE amount) instead of setting an index whose meaning depends on which optional entries (fulfillment, discount) the calling fixture happened to produce -- self-contained per discount-applied-drop-title's own note; isolates exactly the one violation (the required exactly-one-subtotal/exactly-one-total invariants stay satisfied).",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "totals-fulfillment-amount-negative",
-      "family": "check-conversion-p3-wave4",
-      "surface": "totals",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "fulfillment", "amount": -999}, {"type": "total", "amount": 2501}]}],
-      "violates": "common/types/total.json allOf[1] (type in [subtotal, fulfillment, tax, fee] -> amount minimum 0) -- TOT-015. Self-contained whole-array `set`, same reason as totals-discount-amount-not-negative above.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "totals-missing-subtotal",
-      "family": "check-conversion-p3-wave4",
-      "surface": "totals",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "fulfillment", "amount": 0}, {"type": "total", "amount": 3500}]}],
-      "violates": "common/types/totals.json allOf[0]: contains {type: const subtotal}, minContains 1, maxContains 1 -- TOT-005. Self-contained whole-array `set` with no subtotal entry at all, same reason as totals-discount-amount-not-negative above.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "totals-missing-total",
-      "family": "check-conversion-p3-wave4",
-      "surface": "totals",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["totals"], "value": [{"type": "subtotal", "amount": 3500}, {"type": "fulfillment", "amount": 0}]}],
-      "violates": "common/types/totals.json allOf[1]: contains {type: const total}, minContains 1, maxContains 1 -- TOT-006. Self-contained whole-array `set` with no total entry at all, same reason as totals-discount-amount-not-negative above.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
-    },
-    {
-      "name": "totals-entry-drop-type",
-      "family": "check-conversion-p3-wave4",
-      "surface": "totals",
-      "route": {"method": "POST", "path": "/checkout-sessions"},
-      "patch": [{"op": "set", "path": ["totals"], "value": [{"amount": 999}, {"type": "subtotal", "amount": 3500}, {"type": "total", "amount": 3500}]}],
-      "violates": "common/types/total.json required: [type, amount] -- TOT-020. Self-contained whole-array `set`: an untyped entry proves the required-fields obligation in isolation, with a separate valid subtotal and total entry present so the exactly-one-subtotal/exactly-one-total invariants stay satisfied and only the ONE targeted violation fires.",
-      "oracle": {"kind": "root", "schema": "schemas/shopping/checkout.json", "op": "create"}
+     "op": "drop",
+     "path": [
+      "keys",
+      0,
+      "crv"
+     ]
     }
-  ],
-  "self_referenced_mutants": [
-    {
-      "$comment": "P3 wave 2 (check-conversion): mutants whose violated rule the released schema does NOT itself enforce (additionalProperties/optionality lets the mutated shape validate CLEAN through the official oracle), so the CAUGHT step is judged by the check file's own predicate instead of schema_oracle -- self-referenced evidence class (PLAN-0825 SS B/SS E), not fixture-schema. Loaded into the SAME DefectsEngine.mutants dict as the array above (defects.py merges both -- one arm/disarm mechanism, same hot-reload state file), so arming/disarming works identically; they are simply NOT iterated by validate_golden_0825_battery.py's standing R11 report gate (which loops `config[\"mutants\"]` and requires an oracle rejection or a defects_config.json acknowledgement -- neither applies here, since nothing is actually broken or acknowledged-broken: the schema is just silent on this behavioral rule by design). Graded instead by conformance/checks/golden_check_08_25.py, which arms/disarms these by name directly.",
-      "name": "sig-keys-not-published",
-      "family": "check-conversion-p3-wave2",
-      "surface": "discovery",
-      "route": {"method": "GET", "path": "/.well-known/ucp"},
-      "patch": [{"op": "drop", "path": ["keys"]}],
-      "violates": "overview/index.md#L1262-1265 (SIG-008): 'When a profile publishes signing keys, they MUST appear in the top-level keys[] array.' profile.json's $defs.base declares `keys` OPTIONAL (not in `required`), so a profile that publishes no keys at all is schema-VALID -- the MUST is conditional ('when a profile publishes...') and cannot be phrased as an unconditional schema constraint the oracle can enforce. This golden DOES commit to publishing a webhook-signing key (R14), so for THIS golden the conditional is always active; the check's own predicate is the only thing that can judge it.",
-      "graded_by": "conformance/checks/golden_check_08_25.py: p_keys_published (SIG-008)"
-    },
-    {
-      "name": "pay-credential-leaked-in-response",
-      "family": "check-conversion-p3-wave2",
-      "surface": "payment",
-      "route": {"method": "POST", "path": "/checkout-sessions/{id}/complete"},
-      "patch": [
-        {"op": "set", "path": ["payment"],
-         "value": {"instruments": [{"id": "instr_1", "handler_id": "mock_payment_handler",
-                    "type": "token", "credential": {"type": "token", "token": "R11-MUTANT-CREDENTIAL-LEAK-PROOF"}}]}}
-      ],
-      "violates": "overview/index.md L2511 (PAY-011): 'Credentials flow Platform -> Business only. Businesses MUST NOT echo credentials back in responses.' + common/types/token_credential.json#L21 (PAY-012): the token field's `\"ucp_response\": \"omit\"` annotation. Empirically confirmed (2026-08-31, lane/p3-wave2) that the official oracle does NOT enforce either rule: injecting this exact credential.token into a real, otherwise-valid complete_checkout response still validates_root() clean (`ucp_response: omit` is a codegen/docs directive, not a JSON-Schema keyword any of these schemas turn into additionalProperties:false or a forbidden-field constraint) -- self-referenced by construction, not a defects-mode bug and not an oracle bug either; there is nothing for schema_oracle to catch here. This golden's clean design (checkout-complete and order-GET responses never carry a `payment` field at all) is a compliant, if maximally conservative, way to satisfy both rows; this mutant proves the check would catch a regression that reintroduced the leaked-credential class.",
-      "graded_by": "conformance/checks/golden_check_08_25.py: p_no_credential_leak (PAY-011, PAY-012)"
-    },
-    {
-      "name": "leaf_wrong_version",
-      "family": "c3-leaf-profile",
-      "surface": "discovery",
-      "route": {
-        "method": "GET",
-        "path": "/.well-known/ucp/2026-04-08"
-      },
-      "patch": [
-        {
-          "op": "set",
-          "path": [
-            "version"
-          ],
-          "value": "2026-08-25"
-        }
-      ],
-      "violates": "overview/index.md#L3521-L3523 (OVR-069): a profile fetched from a supported_versions URI MUST carry a top-level version (bare 04-08 document) equal to the key it was selected under. The 04-08 profile schema accepts any dated version string, so no oracle call can reject this -- graded by golden_check_08_25.py's own predicate (self-referenced).",
-      "graded_by": "conformance/checks/golden_check_08_25.py OVR-069"
-    },
-    {
-      "name": "leaf_carries_supported_versions",
-      "family": "c3-leaf-profile",
-      "surface": "discovery",
-      "route": {
-        "method": "GET",
-        "path": "/.well-known/ucp/2026-04-08"
-      },
-      "patch": [
-        {
-          "op": "set",
-          "path": [
-            "supported_versions"
-          ],
-          "value": {
-            "2026-01-23": "https://example.com/.well-known/ucp/2026-01-23"
-          }
-        }
-      ],
-      "violates": "overview/index.md#L3531-L3533 (OVR-009): a version-specific (leaf) profile MUST NOT contain a supported_versions field. supported_versions is an optional property at 08-25 and unknown (additionalProperties) at 04-08, so no oracle rejects it -- self-referenced.",
-      "graded_by": "conformance/checks/golden_check_08_25.py OVR-009"
-    }
-  ],
-  "behavior_mutants_$comment": "D3-01 / decision 19: BEHAVIOR rows. No patch, no route: exactly one `behavior_armed(<behavior>)` guard per key in server code takes the violating branch while the row is armed (the `guard` field names it, for humans). The battery grades a row by the conformance checks it names (`checks[]`: ids from conformance/checks/area_*.py) -- KILLED when each flips CLEAN->DEVIATION->CLEAN across arm/disarm; LOADER-BROKEN when the server's x-defects-consulted record shows no guard read the key.",
-  "behavior_mutants": [
-    {
-      "name": "negotiation_accept_any",
-      "behavior": "negotiation.accept_any",
-      "checks": [
-        "negotiation.version_unsupported_error"
-      ],
-      "violates": "overview/index.md NEG table / OVR-071, NEG-001 -- a version the business does not advertise ({ucp.version} ∪ supported_versions) MUST be rejected with version_unsupported. Armed, dependencies.validate_ucp_headers's guard accepts any well-formed version, so the check's version=\"2099-01-01\" create returns 201 instead of 422.",
-      "guard": "dependencies.validate_ucp_headers (D3-02)"
-    },
-    {
-      "name": "projection_leaks_type",
-      "behavior": "projection.leak_destination_type",
-      "checks": [
-        "battery.projection_0408_shape"
-      ],
-      "violates": "decision 18 / shopping/types/shipping_destination.json@2026-04-08 (postal_address + id, no `type`; FUL-003 at 04-08): a response negotiated at 2026-04-08 must not carry the 08-25 destinations[].type discriminator. Armed, services/version_projection.py skips the destinations delta. Killed by battery.projection_0408_shape's direct shape predicate: the pinned 04-08 oracle accepts a leaked `type` (no additionalProperties bar at 04-08; verified 2026-09-10), so neither the oracle nor the leaf differential is the judge for this row.",
-      "guard": "services/version_projection.py project_response (D3-03)"
-    },
-    {
-      "name": "projection_consent_objects_on_0408",
-      "behavior": "projection.consent_objects",
-      "checks": [
-        "battery.projection_0408_consent"
-      ],
-      "violates": "decision 18 / shopping/buyer_consent.json@2026-04-08 ($defs.consent: marketing/analytics/preferences/sale_of_data are BOOLEANS): a response negotiated at 2026-04-08 must not carry 08-25 consent_purpose objects. Armed, services/version_projection.py skips the consent delta (RV2 T1).",
-      "guard": "services/version_projection.py project_response (D3-03)"
-    },
-    {
-      "name": "unknown_route_plain_404",
-      "behavior": "errors.unknown_route_plain_404",
-      "checks": [
-        "gc:ERR-028.unknown-route"
-      ],
-      "violates": "error_response.json (ERR-028/029/030): every error response is a UCP envelope -- ucp{version,status:error} + messages[]. Armed, an unknown route answers the framework's plain {\"detail\": \"Not Found\"} (the inherited behavior).",
-      "guard": "server.py http_exception_handler (D3-04)"
-    },
-    {
-      "name": "consent_bad_key_500",
-      "behavior": "errors.validation_error_500",
-      "checks": [
-        "gc:ERR-028.validation-422"
-      ],
-      "violates": "error_response.json (ERR-028/029/030) + ledger R15: a request the models cannot represent (e.g. a non-reverse-DNS consent purpose key, buyer_consent.json $defs.consent propertyNames) is 422 invalid_request with a path, never a bare 500. Armed, the escaped pydantic ValidationError is served as the inherited plain-text 500.",
-      "guard": "server.py model_validation_exception_handler (D3-04)"
-    },
-    {
-      "name": "destination_type_required_on_request",
-      "behavior": "request.destination_type_required",
-      "checks": [
-        "gc:FUL-030.omit-type"
-      ],
-      "violates": "shipping_destination.json / fulfillment_destination.json `type` is ucp_request:optional (C3b): a platform may omit it and the business defaults it per method, the response carrying the const discriminator (FUL-030). Armed, nothing is defaulted and the 08-25 model rejects the request with 422.",
-      "guard": "services/version_projection.py default_destination_types (D3-04)"
-    },
-    {
-      "name": "discount_reject_silent",
-      "behavior": "discount.reject_silent",
-      "checks": [
-        "gc:DSC-007",
-        "gc:DSC-030"
-      ],
-      "violates": "discount.md#L138-L141 (DSC-007) and #L512-L513 (DSC-030): a rejected code is communicated via messages[] (echoed in discounts.codes, absent from discounts.applied). Armed, rejections are dropped silently -- the inherited behavior.",
-      "guard": "services/checkout_service.py _recalculate_totals discount block (D3-04)"
-    }
-  ],
-  "acknowledged_gaps": {},
-  "_acknowledged_gaps_history": {
-    "sdkdrop-jwk-missing-crv": {
-      "note": "RESOLVED 2026-08-31 (lane/p3-wave2, R14 in GAP-LEDGER-0825.md) -- this was NOT an oracle composition bug. Root cause: the golden published its signing key at ucp.keys[] (nested) + the retired top-level signing_keys[], never at the schema-canonical TOP-LEVEL keys[] (profile.json $defs.base: {ucp, keys} siblings; overview/index.md#L1262-1265). Because ucp.keys[] is unvalidated additionalProperties noise (ucp.json's business_schema declares no `keys` property inside `ucp`), the oracle was never actually exercising the allOf-conditional crv rule at all -- there was nothing wrong with PR #66 composition. Fixed: routes/discovery.py now publishes keys[] at the correct top level; ucp_signing._extract_keys reads the same location (it previously read ucp.keys[], the same wrong nested spot, so the bug was internally self-consistent and invisible to the smoke suite -- exactly GAP-LEDGER-0825.md's S8a class). This mutant's patch path is now [\"keys\", 0, \"crv\"]; re-run 2026-08-31: KILLED (\"Validation failed: /keys/0: \\\"crv\\\" is a required property\"). Kept here, emptied from the live acknowledged_gaps above, per that object's own self-expiring discipline (delete once it kills).",
-      "was": "See git history (conformance/testbed/golden-0825/server/defects_config.json before lane/p3-wave2) for the original acknowledged_gaps entry text."
-    }
+   ],
+   "violates": "profile.json $defs.jwk_public_key allOf: an EC key requires crv+x+y, an OKP key requires crv+x -- crv is required under either branch, so dropping it from the real published signing key breaks whichever kty this instance actually runs.",
+   "upstream": "python-sdk#88 (JWK's 5 conditional rules dropped by generated models)",
+   "oracle": {
+    "kind": "profile",
+    "role": "business"
+   }
   },
-  "fixture_only": [
+  {
+   "name": "sdkdrop-c62-nonzero-scale",
+   "family": "sdk-drop-c62-scale",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
     {
-      "name": "location_serves",
-      "family": "sdk-drop-maxproperties",
-      "route": {"method": "GET", "path": "/testing/defect-fixtures/location_serves"},
-      "body": {"point": {"latitude": 40.7128, "longitude": -74.006},
-               "address": {"address_country": "US"}},
-      "violates": "common/types/location_serves.json: minProperties and maxProperties both 1 -- exactly one target-form key; this fixture carries two (point and address). This golden does not implement Location Search/Lookup (STATUS.md, honestly not advertised), so this mutant is served through the test-only /testing/defect-fixtures/location_serves route rather than a real business response -- see routes/defect_fixtures.py for why. Unlike the `mutants` entries, this fixture needs no arm/disarm: it is always servable (behind Simulation-Secret) whenever defects mode is on, and 404s whenever it is off.",
-      "upstream": "python-sdk#90+#91 (maxProperties family, mirrors their #49/#55 fix)",
-      "oracle": {"kind": "root", "schema": "schemas/common/types/location_serves.json", "op": "read"}
+     "op": "set",
+     "path": [
+      "line_items",
+      0,
+      "item",
+      "quantity_unit"
+     ],
+     "value": {
+      "unit": "C62",
+      "scale": 3,
+      "display_text": "each"
+     }
     }
-  ]
+   ],
+   "violates": "common/types/unit.json allOf if/then: when unit is the C62 well-known code, scale (if present) MUST be const 0.",
+   "upstream": "python-sdk#89 (unit.json's C62/scale conditional rule dropped by generated models)",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "sdkdrop-discriminator-array-retype",
+   "family": "sdk-drop-discriminator",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "methods",
+      0,
+      "destinations",
+      0,
+      "type"
+     ]
+    }
+   ],
+   "violates": "shopping/types/fulfillment_method.json allOf: when a method's type is 'shipping', its destinations[] items narrow from the generic fulfillment_destination.json base to shipping_destination.json specifically, which (like the base) requires `type`. A model that lost this per-item discriminated narrowing (the exact 0.5.0 bug STATUS.md's migration notes describe -- FulfillmentMethod.destinations landed as the generic base) would not even notice `type` is gone. Checked against the fulfillment extension's combined def: bare checkout.json does not declare a `fulfillment` property at all (it is added by the extension schema, like discounts/buyer), so validating against checkout.json alone would validate vacuously.",
+   "upstream": "python-sdk#92+#93 (discriminator array-retyping, the 8th constraint-drop family)",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/fulfillment.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "discovery-capability-not-array",
+   "family": "per-surface-discovery",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "ucp",
+      "capabilities",
+      "dev.ucp.shopping.cart"
+     ],
+     "value": "not-an-array"
+    }
+   ],
+   "violates": "ucp.json $defs.base.properties.capabilities.additionalProperties: {type: array, items: capability.json#/$defs/base} -- a capability registry value MUST be an array.",
+   "register_refs": [
+    "review evidence re-executed as DATA (ledger R11): the original ad hoc review found this exact violation, reported by the official validator as `capabilities/.../cart: not of type \"array\"`"
+   ],
+   "oracle": {
+    "kind": "profile",
+    "role": "business"
+   }
+  },
+  {
+   "name": "checkout-create-drop-id",
+   "family": "per-surface-checkout",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "id"
+     ]
+    }
+   ],
+   "violates": "shopping/checkout.json required: [ucp, id, line_items, status, currency, totals, links]",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "checkout-read-drop-totals",
+   "family": "per-surface-checkout",
+   "surface": "checkout",
+   "route": {
+    "method": "GET",
+    "path": "/checkout-sessions/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "totals"
+     ]
+    }
+   ],
+   "violates": "shopping/checkout.json required includes totals",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "checkout-update-drop-line-items",
+   "family": "per-surface-checkout",
+   "surface": "checkout",
+   "route": {
+    "method": "PUT",
+    "path": "/checkout-sessions/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items"
+     ]
+    }
+   ],
+   "violates": "shopping/checkout.json required includes line_items",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "update"
+   }
+  },
+  {
+   "name": "checkout-complete-bad-status",
+   "family": "per-surface-checkout",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions/{id}/complete"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "status"
+     ],
+     "value": "shipped"
+    }
+   ],
+   "violates": "shopping/checkout.json properties.status.enum: [incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, canceled] -- 'shipped' is not a member.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "complete"
+   }
+  },
+  {
+   "name": "checkout-cancel-drop-currency",
+   "family": "per-surface-checkout",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions/{id}/cancel"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "currency"
+     ]
+    }
+   ],
+   "violates": "shopping/checkout.json required includes currency",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "cancel"
+   }
+  },
+  {
+   "name": "cart-create-drop-id",
+   "family": "per-surface-cart",
+   "surface": "cart",
+   "route": {
+    "method": "POST",
+    "path": "/carts"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "id"
+     ]
+    }
+   ],
+   "violates": "shopping/cart.json required: [ucp, id, line_items, currency, totals]",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "cart-read-drop-totals",
+   "family": "per-surface-cart",
+   "surface": "cart",
+   "route": {
+    "method": "GET",
+    "path": "/carts/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "totals"
+     ]
+    }
+   ],
+   "violates": "shopping/cart.json required includes totals",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "cart-update-drop-line-items",
+   "family": "per-surface-cart",
+   "surface": "cart",
+   "route": {
+    "method": "PUT",
+    "path": "/carts/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items"
+     ]
+    }
+   ],
+   "violates": "shopping/cart.json required includes line_items",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "update"
+   }
+  },
+  {
+   "name": "cart-cancel-drop-currency",
+   "family": "per-surface-cart",
+   "surface": "cart",
+   "route": {
+    "method": "POST",
+    "path": "/carts/{id}/cancel"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "currency"
+     ]
+    }
+   ],
+   "violates": "shopping/cart.json required includes currency",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "cancel"
+   }
+  },
+  {
+   "name": "order-drop-permalink",
+   "family": "per-surface-order",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "permalink_url"
+     ]
+    }
+   ],
+   "violates": "shopping/order.json required: [ucp, id, checkout_id, permalink_url, line_items, fulfillment, currency, totals]",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-null-regression",
+   "family": "per-surface-order",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "messages"
+     ],
+     "value": null
+    }
+   ],
+   "violates": "shopping/order.json properties.messages: {type: array} -- null is not an array. Deliberately reproduces the shape of the samples '34-null' defect class this golden's own adaptation fixed (STATUS.md SS Migration point 4; gap ledger G2): a regression here is exactly the bug this mutant exists to catch if it ever comes back.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "discount-negative-amount",
+   "family": "per-surface-discount",
+   "surface": "discount",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "discounts"
+     ],
+     "value": {
+      "applied": [
+       {
+        "title": "Test Discount",
+        "amount": -50
+       }
+      ]
+     }
+    }
+   ],
+   "violates": "shopping/discount.json $defs.applied_discount.amount -> common/types/amount.json: {type: integer, minimum: 0} -- a discount amount (bare integer minor-units, not an {amount, currency} object -- the currency is the checkout's own top-level `currency`) cannot be negative. Only checked when validated against the discount extension's combined def (dev.ucp.shopping.checkout), not against bare checkout.json (whose additionalProperties policy leaves an unknown `discounts` key unchecked) -- see the oracle.kind=against entries below.",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/discount.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "fulfillment-drop-method-id",
+   "family": "per-surface-fulfillment",
+   "surface": "fulfillment",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "methods",
+      0,
+      "id"
+     ]
+    }
+   ],
+   "violates": "shopping/types/fulfillment_method.json required: [id, type, line_item_ids] -- checked against the fulfillment extension's combined def (bare checkout.json does not know the shape of its own `fulfillment` property).",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/fulfillment.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "consent-invalid-source",
+   "family": "per-surface-consent",
+   "surface": "consent",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "buyer"
+     ],
+     "value": {
+      "consent": {
+       "com.example.marketing": {
+        "granted": true,
+        "source": "invalid_source",
+        "description": "x"
+       }
+      }
+     }
+    }
+   ],
+   "violates": "shopping/buyer_consent.json $defs.consent_purpose.source.enum: [business, platform] -- checked against the buyer-consent extension's combined def.",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/buyer_consent.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "consent-purpose-missing-granted",
+   "family": "check-conversion-p3-wave2",
+   "surface": "consent",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "buyer"
+     ],
+     "value": {
+      "consent": {
+       "com.example.marketing": {
+        "source": "platform",
+        "description": "x"
+       }
+      }
+     }
+    }
+   ],
+   "violates": "shopping/buyer_consent.json $defs.consent_purpose.required: [granted, source, description] -- CNST-001. A consent_purpose is an OBJECT with these three members, never a bare boolean (the retired sale_of_data-style shape R5a/R5 warn against carrying forward) -- checked against the buyer-consent extension's combined def, same route/oracle-kind as consent-invalid-source (its sibling mutant, which proves CNST-003's source enum instead of this row's required-fields obligation).",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/buyer_consent.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "fulfillment-group-drop-id",
+   "family": "check-conversion-p3-wave2",
+   "surface": "fulfillment",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "methods",
+      0,
+      "groups",
+      0,
+      "id"
+     ]
+    }
+   ],
+   "violates": "shopping/types/fulfillment_group.json required: [id, line_item_ids] -- FUL-007. Checked against the fulfillment extension's combined def, same route as fulfillment-drop-method-id (its sibling, which proves FUL-003's method-level required fields instead of this row's group-level ones).",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/fulfillment.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "fulfillment-option-drop-title",
+   "family": "check-conversion-p3-wave2",
+   "surface": "fulfillment",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "methods",
+      0,
+      "groups",
+      0,
+      "options",
+      0,
+      "title"
+     ]
+    }
+   ],
+   "violates": "shopping/types/fulfillment_option_base.json required: [id, title] -- FUL-008. The clean POST /checkout-sessions response for this route's fixture body (a shipping method with groups[0].selected_option_id=std-ship) genuinely populates groups[0].options[] from shipping_rates.csv (std-ship/exp-ship-us), so this mutant targets a real served field, not a fabricated one. Checked against the fulfillment extension's combined def.",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/fulfillment.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "cart-line-item-drop-quantity",
+   "family": "check-conversion-p3-wave3",
+   "surface": "cart",
+   "route": {
+    "method": "POST",
+    "path": "/carts"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items",
+      0,
+      "quantity"
+     ]
+    }
+   ],
+   "violates": "shopping/types/line_item.json required: [id, item, quantity, totals] -- CART-031. Checked against bare cart.json (line_items is a base cart field, not extension-added), same route/oracle-kind as the four per-surface-cart top-level mutants above; this one targets the LINE ITEM level instead of the cart's own top level.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "cart-quantity-below-minimum",
+   "family": "check-conversion-p3-wave3",
+   "surface": "cart",
+   "route": {
+    "method": "POST",
+    "path": "/carts"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "line_items",
+      0,
+      "quantity"
+     ],
+     "value": 0
+    }
+   ],
+   "violates": "shopping/types/line_item.json properties.quantity: {type: integer, minimum: 1} -- CART-032 (line item quantity MUST be an integer of at least 1; 0 is schema-invalid, distinct from cart-line-item-drop-quantity's required-field violation).",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "cart-item-drop-price",
+   "family": "check-conversion-p3-wave3",
+   "surface": "cart",
+   "route": {
+    "method": "POST",
+    "path": "/carts"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items",
+      0,
+      "item",
+      "price"
+     ]
+    }
+   ],
+   "violates": "shopping/types/item.json required: [id, title, price] -- CART-033 (a line item's `item` sub-object).",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/cart.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "order-drop-currency",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "currency"
+     ]
+    }
+   ],
+   "violates": "shopping/order.json required includes currency -- ORD-003.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-drop-line-items",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items"
+     ]
+    }
+   ],
+   "violates": "shopping/order.json required includes line_items -- ORD-004.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-line-item-drop-status",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items",
+      0,
+      "status"
+     ]
+    }
+   ],
+   "violates": "shopping/types/order_line_item.json required: [id, item, quantity, totals, status] -- ORD-005. Sibling of order-drop-line-items (that mutant drops the whole array; this one drops one required member of a line item to prove the row's own per-item MUST).",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-quantity-drop-fulfilled",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "line_items",
+      0,
+      "quantity",
+      "fulfilled"
+     ]
+    }
+   ],
+   "violates": "shopping/types/order_line_item.json $defs quantity.required: [total, fulfilled] -- ORD-006.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-expectation-drop-method-type",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "expectations",
+      0,
+      "method_type"
+     ]
+    }
+   ],
+   "violates": "shopping/types/expectation.json required: [id, line_items, method_type, destination] -- ORD-018.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "order-event-drop-occurred-at",
+   "family": "check-conversion-p3-wave3",
+   "surface": "order",
+   "route": {
+    "method": "GET",
+    "path": "/orders/{id}"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "fulfillment",
+      "events",
+      0,
+      "occurred_at"
+     ]
+    }
+   ],
+   "violates": "shopping/types/fulfillment_event.json required: [id, occurred_at, type, line_items] -- ORD-019. apply_patch() is a no-op on a path that fails to resolve (defects.py's own documented permissive-patch behavior), so this mutant only fires against an order whose fulfillment.events[] is non-empty -- the checking row's own fixture calls POST /testing/simulate-shipping/{id} before each GET /orders/{id} to populate events[0] (the same test-only route STATUS.md's R11 section already documents as secret-gated and safe to call regardless of arm state, since its own route never matches an armed mutant here).",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/order.json",
+    "op": "read"
+   }
+  },
+  {
+   "name": "discount-applied-drop-title",
+   "family": "check-conversion-p3-wave4",
+   "surface": "discount",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "discounts"
+     ],
+     "value": {
+      "applied": [
+       {
+        "amount": 350
+       }
+      ]
+     }
+    }
+   ],
+   "violates": "shopping/discount.json $defs.applied_discount required: [title, amount] -- DSC-023. Only checked when validated against the discount extension's combined def (dev.ucp.shopping.checkout), same as discount-negative-amount above. Replaces the WHOLE `discounts` key (same idiom as discount-negative-amount / consent-invalid-source / consent-purpose-missing-granted) rather than dropping a field on a path that only exists when the calling fixture itself submitted a matching discount code -- self-contained, so it fires identically whether the caller is golden_check_08_25.py's own discount-code fixture or the R11 battery's plain create fixture (which never submits a discount code, and would otherwise make a `drop` here a silent no-op -- found live 2026-09-01, same class as R17's fixture-vs-mutant gap).",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/discount.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "discount-allocation-drop-path",
+   "family": "check-conversion-p3-wave4",
+   "surface": "discount",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "discounts"
+     ],
+     "value": {
+      "applied": [
+       {
+        "title": "Test Discount",
+        "amount": 350,
+        "allocations": [
+         {
+          "amount": 350
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "violates": "shopping/discount.json $defs.allocation required: [path, amount] -- DSC-026. Self-contained whole-key `set`, same reason as discount-applied-drop-title above.",
+   "oracle": {
+    "kind": "against",
+    "schema": "schemas/shopping/discount.json",
+    "def": "dev.ucp.shopping.checkout",
+    "op": "create"
+   }
+  },
+  {
+   "name": "totals-discount-amount-not-negative",
+   "family": "check-conversion-p3-wave4",
+   "surface": "totals",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "totals"
+     ],
+     "value": [
+      {
+       "type": "subtotal",
+       "amount": 3500
+      },
+      {
+       "type": "total",
+       "amount": 3500
+      },
+      {
+       "type": "discount",
+       "amount": 50
+      }
+     ]
+    }
+   ],
+   "violates": "common/types/total.json allOf[0] (type in [discount, items_discount] -> amount exclusiveMaximum 0) -- TOT-014 / DSC-021. Replaces the WHOLE `totals` array with a self-contained, fully-specified array (one subtotal, one total, one discount with a POSITIVE amount) instead of setting an index whose meaning depends on which optional entries (fulfillment, discount) the calling fixture happened to produce -- self-contained per discount-applied-drop-title's own note; isolates exactly the one violation (the required exactly-one-subtotal/exactly-one-total invariants stay satisfied).",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "totals-fulfillment-amount-negative",
+   "family": "check-conversion-p3-wave4",
+   "surface": "totals",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "totals"
+     ],
+     "value": [
+      {
+       "type": "subtotal",
+       "amount": 3500
+      },
+      {
+       "type": "fulfillment",
+       "amount": -999
+      },
+      {
+       "type": "total",
+       "amount": 2501
+      }
+     ]
+    }
+   ],
+   "violates": "common/types/total.json allOf[1] (type in [subtotal, fulfillment, tax, fee] -> amount minimum 0) -- TOT-015. Self-contained whole-array `set`, same reason as totals-discount-amount-not-negative above.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "totals-missing-subtotal",
+   "family": "check-conversion-p3-wave4",
+   "surface": "totals",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "totals"
+     ],
+     "value": [
+      {
+       "type": "fulfillment",
+       "amount": 0
+      },
+      {
+       "type": "total",
+       "amount": 3500
+      }
+     ]
+    }
+   ],
+   "violates": "common/types/totals.json allOf[0]: contains {type: const subtotal}, minContains 1, maxContains 1 -- TOT-005. Self-contained whole-array `set` with no subtotal entry at all, same reason as totals-discount-amount-not-negative above.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "totals-missing-total",
+   "family": "check-conversion-p3-wave4",
+   "surface": "totals",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "totals"
+     ],
+     "value": [
+      {
+       "type": "subtotal",
+       "amount": 3500
+      },
+      {
+       "type": "fulfillment",
+       "amount": 0
+      }
+     ]
+    }
+   ],
+   "violates": "common/types/totals.json allOf[1]: contains {type: const total}, minContains 1, maxContains 1 -- TOT-006. Self-contained whole-array `set` with no total entry at all, same reason as totals-discount-amount-not-negative above.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "totals-entry-drop-type",
+   "family": "check-conversion-p3-wave4",
+   "surface": "totals",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "totals"
+     ],
+     "value": [
+      {
+       "amount": 999
+      },
+      {
+       "type": "subtotal",
+       "amount": 3500
+      },
+      {
+       "type": "total",
+       "amount": 3500
+      }
+     ]
+    }
+   ],
+   "violates": "common/types/total.json required: [type, amount] -- TOT-020. Self-contained whole-array `set`: an untyped entry proves the required-fields obligation in isolation, with a separate valid subtotal and total entry present so the exactly-one-subtotal/exactly-one-total invariants stay satisfied and only the ONE targeted violation fires.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "create"
+   }
+  },
+  {
+   "name": "mcp_result_not_structured",
+   "family": "mcp-bridge-d3-09",
+   "surface": "mcp",
+   "route": {
+    "method": "POST",
+    "path": "/mcp"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "result",
+      "structuredContent"
+     ]
+    }
+   ],
+   "violates": "overview/index.md 'Response Format' (MCP): UCP MCP servers MUST return the UCP response payload in result.structuredContent; source/schemas/transports/mcp_tool_call.json $defs.response requires it (MCP-003/MCP-004). Armed, a tools/call result carries only the content[] compatibility text.",
+   "graded_by": "checks",
+   "checks": [
+    "mcp:mcp.checkout_structured_content"
+   ],
+   "no_oracle_because": "the ucp-schema CLI has no operation shapes for schemas/transports/mcp_tool_call.json (validate --op read/--response: 'container schema has no operation shape'), verified 2026-09-11 (D3-09); graded by the MCP conformance check instead, exactly like a behavior row."
+  },
+  {
+   "name": "mcp_transport_not_advertised",
+   "family": "mcp-bridge-d3-09",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "ucp",
+      "services",
+      "dev.ucp.shopping",
+      1
+     ]
+    }
+   ],
+   "violates": "overview/index.md service declaration: a business that serves the MCP transport advertises it as a services[] entry with transport: mcp and its endpoint (D3-09 'transport: mcp advertised'). Armed, the profile lists the REST binding only, so an MCP client cannot discover the endpoint the golden actually serves.",
+   "graded_by": "checks",
+   "checks": [
+    "mcp:discovery.mcp_transport_advertised"
+   ],
+   "no_oracle_because": "profile.json accepts a REST-only services[] (the entry is optional), so the profile oracle cannot reject the mutated body; graded by the MCP conformance check."
+  }
+ ],
+ "self_referenced_mutants": [
+  {
+   "$comment": "P3 wave 2 (check-conversion): mutants whose violated rule the released schema does NOT itself enforce (additionalProperties/optionality lets the mutated shape validate CLEAN through the official oracle), so the CAUGHT step is judged by the check file's own predicate instead of schema_oracle -- self-referenced evidence class (PLAN-0825 SS B/SS E), not fixture-schema. Loaded into the SAME DefectsEngine.mutants dict as the array above (defects.py merges both -- one arm/disarm mechanism, same hot-reload state file), so arming/disarming works identically; they are simply NOT iterated by validate_golden_0825_battery.py's standing R11 report gate (which loops `config[\"mutants\"]` and requires an oracle rejection or a defects_config.json acknowledgement -- neither applies here, since nothing is actually broken or acknowledged-broken: the schema is just silent on this behavioral rule by design). Graded instead by conformance/checks/golden_check_08_25.py, which arms/disarms these by name directly.",
+   "name": "sig-keys-not-published",
+   "family": "check-conversion-p3-wave2",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "keys"
+     ]
+    }
+   ],
+   "violates": "overview/index.md#L1262-1265 (SIG-008): 'When a profile publishes signing keys, they MUST appear in the top-level keys[] array.' profile.json's $defs.base declares `keys` OPTIONAL (not in `required`), so a profile that publishes no keys at all is schema-VALID -- the MUST is conditional ('when a profile publishes...') and cannot be phrased as an unconditional schema constraint the oracle can enforce. This golden DOES commit to publishing a webhook-signing key (R14), so for THIS golden the conditional is always active; the check's own predicate is the only thing that can judge it.",
+   "graded_by": "conformance/checks/golden_check_08_25.py: p_keys_published (SIG-008)"
+  },
+  {
+   "name": "pay-credential-leaked-in-response",
+   "family": "check-conversion-p3-wave2",
+   "surface": "payment",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions/{id}/complete"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "payment"
+     ],
+     "value": {
+      "instruments": [
+       {
+        "id": "instr_1",
+        "handler_id": "mock_payment_handler",
+        "type": "token",
+        "credential": {
+         "type": "token",
+         "token": "R11-MUTANT-CREDENTIAL-LEAK-PROOF"
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "violates": "overview/index.md L2511 (PAY-011): 'Credentials flow Platform -> Business only. Businesses MUST NOT echo credentials back in responses.' + common/types/token_credential.json#L21 (PAY-012): the token field's `\"ucp_response\": \"omit\"` annotation. Empirically confirmed (2026-08-31, lane/p3-wave2) that the official oracle does NOT enforce either rule: injecting this exact credential.token into a real, otherwise-valid complete_checkout response still validates_root() clean (`ucp_response: omit` is a codegen/docs directive, not a JSON-Schema keyword any of these schemas turn into additionalProperties:false or a forbidden-field constraint) -- self-referenced by construction, not a defects-mode bug and not an oracle bug either; there is nothing for schema_oracle to catch here. This golden's clean design (checkout-complete and order-GET responses never carry a `payment` field at all) is a compliant, if maximally conservative, way to satisfy both rows; this mutant proves the check would catch a regression that reintroduced the leaked-credential class.",
+   "graded_by": "conformance/checks/golden_check_08_25.py: p_no_credential_leak (PAY-011, PAY-012)"
+  },
+  {
+   "name": "leaf_wrong_version",
+   "family": "c3-leaf-profile",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp/2026-04-08"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "version"
+     ],
+     "value": "2026-08-25"
+    }
+   ],
+   "violates": "overview/index.md#L3521-L3523 (OVR-069): a profile fetched from a supported_versions URI MUST carry a top-level version (bare 04-08 document) equal to the key it was selected under. The 04-08 profile schema accepts any dated version string, so no oracle call can reject this -- graded by golden_check_08_25.py's own predicate (self-referenced).",
+   "graded_by": "conformance/checks/golden_check_08_25.py OVR-069"
+  },
+  {
+   "name": "leaf_carries_supported_versions",
+   "family": "c3-leaf-profile",
+   "surface": "discovery",
+   "route": {
+    "method": "GET",
+    "path": "/.well-known/ucp/2026-04-08"
+   },
+   "patch": [
+    {
+     "op": "set",
+     "path": [
+      "supported_versions"
+     ],
+     "value": {
+      "2026-01-23": "https://example.com/.well-known/ucp/2026-01-23"
+     }
+    }
+   ],
+   "violates": "overview/index.md#L3531-L3533 (OVR-009): a version-specific (leaf) profile MUST NOT contain a supported_versions field. supported_versions is an optional property at 08-25 and unknown (additionalProperties) at 04-08, so no oracle rejects it -- self-referenced.",
+   "graded_by": "conformance/checks/golden_check_08_25.py OVR-009"
+  }
+ ],
+ "behavior_mutants_$comment": "D3-01 / decision 19: BEHAVIOR rows. No patch, no route: exactly one `behavior_armed(<behavior>)` guard per key in server code takes the violating branch while the row is armed (the `guard` field names it, for humans). The battery grades a row by the conformance checks it names (`checks[]`: ids from conformance/checks/area_*.py) -- KILLED when each flips CLEAN->DEVIATION->CLEAN across arm/disarm; LOADER-BROKEN when the server's x-defects-consulted record shows no guard read the key.",
+ "behavior_mutants": [
+  {
+   "name": "negotiation_accept_any",
+   "behavior": "negotiation.accept_any",
+   "checks": [
+    "negotiation.version_unsupported_error"
+   ],
+   "violates": "overview/index.md NEG table / OVR-071, NEG-001 -- a version the business does not advertise ({ucp.version} ∪ supported_versions) MUST be rejected with version_unsupported. Armed, dependencies.validate_ucp_headers's guard accepts any well-formed version, so the check's version=\"2099-01-01\" create returns 201 instead of 422.",
+   "guard": "dependencies.validate_ucp_headers (D3-02)"
+  },
+  {
+   "name": "projection_leaks_type",
+   "behavior": "projection.leak_destination_type",
+   "checks": [
+    "battery.projection_0408_shape"
+   ],
+   "violates": "decision 18 / shopping/types/shipping_destination.json@2026-04-08 (postal_address + id, no `type`; FUL-003 at 04-08): a response negotiated at 2026-04-08 must not carry the 08-25 destinations[].type discriminator. Armed, services/version_projection.py skips the destinations delta. Killed by battery.projection_0408_shape's direct shape predicate: the pinned 04-08 oracle accepts a leaked `type` (no additionalProperties bar at 04-08; verified 2026-09-10), so neither the oracle nor the leaf differential is the judge for this row.",
+   "guard": "services/version_projection.py project_response (D3-03)"
+  },
+  {
+   "name": "projection_consent_objects_on_0408",
+   "behavior": "projection.consent_objects",
+   "checks": [
+    "battery.projection_0408_consent"
+   ],
+   "violates": "decision 18 / shopping/buyer_consent.json@2026-04-08 ($defs.consent: marketing/analytics/preferences/sale_of_data are BOOLEANS): a response negotiated at 2026-04-08 must not carry 08-25 consent_purpose objects. Armed, services/version_projection.py skips the consent delta (RV2 T1).",
+   "guard": "services/version_projection.py project_response (D3-03)"
+  },
+  {
+   "name": "unknown_route_plain_404",
+   "behavior": "errors.unknown_route_plain_404",
+   "checks": [
+    "gc:ERR-028.unknown-route"
+   ],
+   "violates": "error_response.json (ERR-028/029/030): every error response is a UCP envelope -- ucp{version,status:error} + messages[]. Armed, an unknown route answers the framework's plain {\"detail\": \"Not Found\"} (the inherited behavior).",
+   "guard": "server.py http_exception_handler (D3-04)"
+  },
+  {
+   "name": "consent_bad_key_500",
+   "behavior": "errors.validation_error_500",
+   "checks": [
+    "gc:ERR-028.validation-422"
+   ],
+   "violates": "error_response.json (ERR-028/029/030) + ledger R15: a request the models cannot represent (e.g. a non-reverse-DNS consent purpose key, buyer_consent.json $defs.consent propertyNames) is 422 invalid_request with a path, never a bare 500. Armed, the escaped pydantic ValidationError is served as the inherited plain-text 500.",
+   "guard": "server.py model_validation_exception_handler (D3-04)"
+  },
+  {
+   "name": "destination_type_required_on_request",
+   "behavior": "request.destination_type_required",
+   "checks": [
+    "gc:FUL-030.omit-type"
+   ],
+   "violates": "shipping_destination.json / fulfillment_destination.json `type` is ucp_request:optional (C3b): a platform may omit it and the business defaults it per method, the response carrying the const discriminator (FUL-030). Armed, nothing is defaulted and the 08-25 model rejects the request with 422.",
+   "guard": "services/version_projection.py default_destination_types (D3-04)"
+  },
+  {
+   "name": "discount_reject_silent",
+   "behavior": "discount.reject_silent",
+   "checks": [
+    "gc:DSC-007",
+    "gc:DSC-030"
+   ],
+   "violates": "discount.md#L138-L141 (DSC-007) and #L512-L513 (DSC-030): a rejected code is communicated via messages[] (echoed in discounts.codes, absent from discounts.applied). Armed, rejections are dropped silently -- the inherited behavior.",
+   "guard": "services/checkout_service.py _recalculate_totals discount block (D3-04)"
+  },
+  {
+   "name": "mcp_meta_not_required",
+   "behavior": "mcp.meta_not_required",
+   "checks": [
+    "mcp:mcp.meta_required_32602"
+   ],
+   "violates": "checkout/mcp.md#L80-L83 (MCP-010) and services/shopping/mcp.openrpc.json components.meta (required: ucp-agent.profile): every tools/call carries meta; checkout/mcp.md conformance item 5 'Validate tool inputs against UCP schemas' (MCP-003). Armed, routes/mcp_bridge.py accepts a request without meta under a synthesized agent identity instead of answering -32602.",
+   "guard": "routes/mcp_bridge.py _build_rest_request (D3-09)"
+  },
+  {
+   "name": "mcp_business_error_as_jsonrpc_error",
+   "behavior": "mcp.business_error_as_jsonrpc_error",
+   "checks": [
+    "mcp:mcp.business_outcome_as_result"
+   ],
+   "violates": "checkout/mcp.md 'Business Outcomes' and conformance item 4 (MCP-003): business outcomes (out_of_stock included) are returned as JSON-RPC result with the UCP envelope and messages. Armed, routes/mcp_bridge.py serves them as a JSON-RPC -32000 error.",
+   "guard": "routes/mcp_bridge.py classify (D3-09)"
+  },
+  {
+   "name": "mcp_tools_list_missing_cancel",
+   "behavior": "mcp.tools_list_missing_cancel",
+   "checks": [
+    "mcp:mcp.tools_list_core_checkout"
+   ],
+   "violates": "checkout/mcp.md conformance item 2 (MCP-003): 'Provide all core checkout tools defined in this specification' (create/get/update/complete/cancel). Armed, routes/mcp.py's tools/list omits cancel_checkout.",
+   "guard": "routes/mcp.py mcp_endpoint tools/list (D3-09)"
+  },
+  {
+   "name": "mcp_negotiation_error_code_-32000",
+   "behavior": "mcp.negotiation_error_code_32000",
+   "checks": [
+    "mcp:mcp.negotiation_error_32001"
+   ],
+   "violates": "overview/index.md#L1857-L1863 (negotiation errors, MCP column): version_unsupported and the other negotiation failures are JSON-RPC -32001 (NEG-001's MCP column). Armed, routes/mcp_bridge.py emits them as the generic -32000.",
+   "guard": "routes/mcp_bridge.py classify (D3-09)"
+  },
+  {
+   "name": "mcp_error_http_status_200",
+   "behavior": "mcp.error_http_status_200",
+   "checks": [
+    "mcp:mcp.error_http_status"
+   ],
+   "violates": "overview/index.md#L2083-L2085 (OVR-060): over Streamable HTTP the server MUST return the corresponding HTTP status code alongside the JSON-RPC error. Armed, every JSON-RPC error is served under HTTP 200.",
+   "guard": "routes/mcp_bridge.py dispatch_tool_call + routes/mcp.py mcp_endpoint (D3-09)"
+  },
+  {
+   "name": "mcp_headers_after_verify",
+   "behavior": "mcp.headers_after_verify",
+   "checks": [
+    "battery.mcp_meta_precedes_verify"
+   ],
+   "violates": "checkout/mcp.md 'Request Signing' + signatures.md (MCP transport): the signer's identity resolves from the UCP-Agent profile, which over MCP travels in arguments.meta; the meta->header mapping must therefore run BEFORE verify_signature (PLAN-v3 SS2.15, the named ordering test mcp_test.py::test_meta_headers_precede_signature_verify). Armed, server.py's McpMetaMiddleware maps meta AFTER verification: a correctly signed call whose profile is only in meta fails key resolution (signature_invalid) -- rejected under REQUIRE_SIGNATURES, allowed-with-warning otherwise.",
+   "guard": "routes/mcp_bridge.py McpMetaMiddleware (D3-09)"
+  }
+ ],
+ "acknowledged_gaps": {},
+ "_acknowledged_gaps_history": {
+  "sdkdrop-jwk-missing-crv": {
+   "note": "RESOLVED 2026-08-31 (lane/p3-wave2, R14 in GAP-LEDGER-0825.md) -- this was NOT an oracle composition bug. Root cause: the golden published its signing key at ucp.keys[] (nested) + the retired top-level signing_keys[], never at the schema-canonical TOP-LEVEL keys[] (profile.json $defs.base: {ucp, keys} siblings; overview/index.md#L1262-1265). Because ucp.keys[] is unvalidated additionalProperties noise (ucp.json's business_schema declares no `keys` property inside `ucp`), the oracle was never actually exercising the allOf-conditional crv rule at all -- there was nothing wrong with PR #66 composition. Fixed: routes/discovery.py now publishes keys[] at the correct top level; ucp_signing._extract_keys reads the same location (it previously read ucp.keys[], the same wrong nested spot, so the bug was internally self-consistent and invisible to the smoke suite -- exactly GAP-LEDGER-0825.md's S8a class). This mutant's patch path is now [\"keys\", 0, \"crv\"]; re-run 2026-08-31: KILLED (\"Validation failed: /keys/0: \\\"crv\\\" is a required property\"). Kept here, emptied from the live acknowledged_gaps above, per that object's own self-expiring discipline (delete once it kills).",
+   "was": "See git history (conformance/testbed/golden-0825/server/defects_config.json before lane/p3-wave2) for the original acknowledged_gaps entry text."
+  }
+ },
+ "fixture_only": [
+  {
+   "name": "location_serves",
+   "family": "sdk-drop-maxproperties",
+   "route": {
+    "method": "GET",
+    "path": "/testing/defect-fixtures/location_serves"
+   },
+   "body": {
+    "point": {
+     "latitude": 40.7128,
+     "longitude": -74.006
+    },
+    "address": {
+     "address_country": "US"
+    }
+   },
+   "violates": "common/types/location_serves.json: minProperties and maxProperties both 1 -- exactly one target-form key; this fixture carries two (point and address). This golden does not implement Location Search/Lookup (STATUS.md, honestly not advertised), so this mutant is served through the test-only /testing/defect-fixtures/location_serves route rather than a real business response -- see routes/defect_fixtures.py for why. Unlike the `mutants` entries, this fixture needs no arm/disarm: it is always servable (behind Simulation-Secret) whenever defects mode is on, and 404s whenever it is off.",
+   "upstream": "python-sdk#90+#91 (maxProperties family, mirrors their #49/#55 fix)",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/common/types/location_serves.json",
+    "op": "read"
+   }
+  }
+ ]
 }

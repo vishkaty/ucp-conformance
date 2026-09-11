@@ -468,14 +468,19 @@ class EnforcedModeTest(_SigTestBase):
     self._assert_error(response, 401, "signature_missing")
 
   def test_mcp_unsigned_rejected(self) -> None:
-    """The MCP transport endpoint also enforces signatures when required."""
+    """The MCP transport endpoint also enforces signatures when required: a
+    JSON-RPC -32000 protocol error carrying the UCP envelope as `data`, under
+    HTTP 401 (D3-09, OVR-060)."""
     with self.client:
       response = self.client.post(
         "/mcp",
         headers={"UCP-Agent": f'profile="{self.profile_url}"'},
         json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
       )
-    self._assert_error(response, 401, "signature_missing")
+    self.assertEqual(response.status_code, 401, response.text)
+    body = response.json()
+    self.assertEqual(body["error"]["code"], -32000, body)
+    self.assertEqual(body["error"]["data"]["messages"][0]["code"], "signature_missing", body)
 
 
 def _resolver(body: bytes, headers: dict, port: int):

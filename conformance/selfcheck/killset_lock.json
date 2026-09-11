@@ -2,7 +2,7 @@
  "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
  "counts": {
   "ACheck": 44,
-  "MCheck": 238,
+  "MCheck": 249,
   "Row": 44,
   "engine": 89,
   "schema-tier": 81,
@@ -2144,6 +2144,72 @@
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5
+  },
+  "merchant_checks_08_25_mcp:discovery.mcp_transport_advertised": {
+   "hash": "c3d6e55126bf75ee519b04f56e45474eae41436e12c7bcd2dcc379d470aca192",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_mcp:mcp.business_outcome_as_result": {
+   "hash": "e684b5079f863f075c2e3a9e11104f41a087a96fb8a432a6d709b00f381fa16d",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
+  "merchant_checks_08_25_mcp:mcp.cart_via_tools_call": {
+   "hash": "83ddf47792198300842844e484951bcd767da55ca184c8674b0abeb751d38d71",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_08_25_mcp:mcp.checkout_structured_content": {
+   "hash": "c3873dac35750e4436b6f9d623f4b8a8b472d1154454b9310c0a6a8a1a1ee1a9",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_08_25_mcp:mcp.error_http_status": {
+   "hash": "fa179310f4a0f1b034d836d6583fdff10eaa0101fa1cf107730a98c41fbaf549",
+   "kind": "MCheck",
+   "n_kills": 3,
+   "n_kills_floor": 3
+  },
+  "merchant_checks_08_25_mcp:mcp.get_order_tool_0825": {
+   "hash": "68659894e00241e7ecb48677f9dd85013b135c31f07821e430bb9fda67a4dfbc",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_08_25_mcp:mcp.id_in_payload_rejected": {
+   "hash": "3abc330961aa30029c435fd4bda0c69b8fe47b50e5d4ba26e81063be9454a4f7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_mcp:mcp.idempotency_conflict_32000": {
+   "hash": "cae6dfa60519635912f7992c407e336337efa2a249fcd7061a135f8086515ff2",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_mcp:mcp.meta_required_32602": {
+   "hash": "3abc330961aa30029c435fd4bda0c69b8fe47b50e5d4ba26e81063be9454a4f7",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_mcp:mcp.negotiation_error_32001": {
+   "hash": "40a86248ed1d1361a807a2dc057e5d95c318668180bf8ab338a2f876c595deaf",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
+  "merchant_checks_08_25_mcp:mcp.tools_list_core_checkout": {
+   "hash": "2c8b13d1f7006836be06fa2989b0cb97f6046d7df8bc4a5b95fc40ce6210b354",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
   },
   "schema_check:cart.currency_required": {
    "hash": "f07cf85c359c9dfbb63fa33e111dc2e6f19f652477309708530740b1ea8fd1b8",

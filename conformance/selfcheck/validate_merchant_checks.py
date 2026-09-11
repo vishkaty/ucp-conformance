@@ -279,8 +279,11 @@ CONTROLLED_CONFIG = {
 # warning (discount.md#L138-L141), so discount.rejected_via_messages (DSC-007) runs and
 # kill-tests here (armed `discount_reject_silent` -> red) instead of skipping needs-config.
 GOLDEN_0825_CONFIG = {**REF_CONFIG, "discount": {**REF_CONFIG["discount"], "rejected_messages": True}}
+# golden-0825-mcp (D3-10): the same golden through its MCP binding (:8195); its pinned
+# skip population is checks/expected_skips_golden_0825_mcp.json (gate mcp-check-0825).
+# Same server, same config (W1 integration: GOLDEN_0825_CONFIG, not the plain REF_CONFIG).
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": GOLDEN_0825_CONFIG,
-           "mcp-only-0825": {}}
+           "mcp-only-0825": {}, "golden-0825-mcp": GOLDEN_0825_CONFIG}
 
 def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped, per_id=None):
     """The run record validate_dormancy.py unions (D1-07): which ids RAN on this golden
