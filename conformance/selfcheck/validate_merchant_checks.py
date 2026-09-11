@@ -473,6 +473,37 @@ def _expected_skips_cases():
     except NameError:
         has_flag = False
     case("main() accepts --expected-skips FILE", has_flag, "no --expected-skips")
+
+    # (h) D1-11 (C2b): the MCP-only 08-25 profile (Shopify shape, L3 N30) is a GOLDENS entry
+    # with a pinned NEAR-EMPTY population: every REST check in scope at 08-25 is pinned
+    # `transport-not-declared` (never a fake fraction, never a silent skip), the rest
+    # `version-scoped`/`capability-not-declared`; exactly the 2 transport-free discovery
+    # checks run.
+    mcp_file = HERE.parents[0] / "checks" / "expected_skips_mcp_only_0825.json"
+    case("(h) GOLDENS carries mcp-only-0825", "mcp-only-0825" in GOLDENS, f"GOLDENS={sorted(GOLDENS)}")
+    if mcp_file.is_file():
+        mdoc = json.loads(mcp_file.read_text())
+        pop = mdoc.get("expected_skips") or {}
+        in_scope = [c for c in merchant_checks.all_checks()
+                    if not c.versions or "2026-08-25" in c.versions]
+        rest = [c.id for c in in_scope if c.transport == "rest"]
+        wrong = sorted(cid for cid in rest if pop.get(cid) != "transport-not-declared")
+        case("(h) mcp-only-0825: every in-scope REST check pinned transport-not-declared",
+             mdoc.get("golden") == "mcp-only-0825" and mdoc.get("version") == "2026-08-25"
+             and rest and not wrong, f"golden={mdoc.get('golden')} version={mdoc.get('version')} "
+                                     f"rest={len(rest)} not pinned transport-not-declared={wrong[:6]}")
+        unpinned = sorted(c.id for c in merchant_checks.all_checks() if c.id not in pop)
+        case("(h) mcp-only-0825: exactly 2 checks run (unpinned), 226 pinned",
+             len(unpinned) == 2 and len(pop) == 226, f"run={unpinned} pinned={len(pop)}")
+    else:
+        case("(h) mcp-only-0825: every in-scope REST check pinned transport-not-declared", False,
+             f"no {mcp_file.name}")
+        case("(h) mcp-only-0825: exactly 2 checks run (unpinned), 226 pinned", False, f"no {mcp_file.name}")
+    try:
+        import validate_mcp_only_0825  # noqa: F401 — the hermetic gate (boots the fixture on port 0)
+        case("(h) gate validate_mcp_only_0825.py exists", True)
+    except ImportError as e:
+        case("(h) gate validate_mcp_only_0825.py exists", False, str(e))
     return ok
 
 
