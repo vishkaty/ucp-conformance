@@ -59,6 +59,31 @@ class MCheck:
         # grading (run_merchant_checks) AND coverage attribution (matrix.py).
         self.req_ids_map = dict(req_ids_map) if req_ids_map else None
 
+# PLAN-v3 §2.3 skip vocabulary (D1-10): every not-applicable/not-tested status the runner
+# emits maps to exactly one class; the merchant gate pins {id: class} per golden in
+# checks/expected_skips_<golden>.json and reds on any skip outside that population.
+SKIP_CLASSES = ("version-scoped", "transport-not-declared", "capability-not-declared",
+                "needs-product", "needs-config", "oracle-unavailable")
+
+def skip_class(status):
+    """The §2.3 skip class of a runner status string; None when the check RAN."""
+    st = str(status)
+    if st.startswith("not-applicable (spec"):
+        return "version-scoped"
+    if st.startswith("not-applicable (no "):
+        return "transport-not-declared"
+    if st.startswith("not-applicable"):
+        return "capability-not-declared"
+    if st.startswith("not-tested (no product"):
+        return "needs-product"
+    if st.startswith("not-tested (needs config"):
+        return "needs-config"
+    if st.startswith("not-tested (oracle"):
+        return "oracle-unavailable"
+    if st.startswith(("not-applicable", "not-tested")):
+        return "other"
+    return None
+
 def _rids(chk, version):
     """The register ids this check verifies AT this spec version."""
     if chk.req_ids_map and version in chk.req_ids_map:
@@ -1533,4 +1558,8 @@ def run_merchant_checks(ctx, checks=None):
                              "kill_safe": kill_safe, "survivors": survivors,
                              # evidence for actionable reports: what the server actually returned
                              "observed": {"status": golden.status, "body": _excerpt(golden.json)}}))
+    for _chk, d in detail:                # D1-10: runner detail carries the §2.3 skip class
+        sc = skip_class(d["status"])
+        if sc is not None:
+            d["skip_class"] = sc
     return results, detail

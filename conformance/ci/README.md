@@ -31,9 +31,10 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `wire-shapes` | version-keyed request shapes: 08-25 delta applied, older versions frozen byte-for-byte, unreviewed version fails closed | official 08-25 schemas |
 | `cli-summary` | the CLI denominator is capability/transport-aware from `_area_capabilities.json` (fail-closed); no coverage number for unreviewed/REST-less servers | — |
 | `killset-lock` / `killset-lock-selftest` | every kill set hashed in `killset_lock.json`; a silent shrink or drift is red, named | — |
-| `dormancy` | every merchant check runs on some golden or is named in `dormancy_exemptions.json` (floor 13; partial union is red) | the four goldens |
+| `dormancy` | every merchant check runs on some golden or is named in `dormancy_exemptions.json` (floor 13; partial union is red) | the five goldens |
 | `battery-freshness` | the R11 golden-0825 mutant battery ran, recently, and passed (in-run in CI) | own golden-0825 |
 | `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
+| `merchant-0825` | every merchant check is clean-pass + kill-safe on golden-0825 (:8197) against its PINNED skip population (`checks/expected_skips_golden_0825.json`: 29 run / 199 pinned); the four older merchant gates carry their own pinned files — an unexplained skip, a pinned id that ran, a class change or an expired clock is red on every golden | own golden-0825 |
 | `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
 | `golden-0825-unit` | golden-0825's own unit + smoke tests (`server/*_test.py`, `smoke/`) are **executed** under `uv` on every run, so a red failing-first test can never sit unnoticed in the tree; `uv` absent = honest skip (rc 2), FAIL under `--require-server`. `golden-0825-unit-selftest` plants a failing test in a scratch copy (must be red) and hides `uv` (must be rc 2) | — |
 | `site-docclaims` | non-page copy (README, this file, packaging README, docs, `functions/**/*.js`) advertises only live counts; registered doc claims hold; every gate row in this table names a real `run_suite.py` gate | — |

@@ -27,11 +27,24 @@ REQ_DIR = HERE.parents[0] / "requirements"
 
 CORE_CAP = "dev.ucp.shopping.checkout"
 
-# Versions this runner can grade end-to-end: a reviewed wire shape (wire_shapes.py)
-# is the W0 criterion; D1-10 narrows it to versions with a pinned skip population.
-# Outside it the CLI still runs (deviations are real) but prints NO coverage number:
-# `verdict.coverage: null`, `verdict.support: "unreviewed-version"`, and a banner.
-SUPPORTED_SERVED_VERSIONS = tuple(SHAPE_VERSIONS)
+# Versions this runner can grade end-to-end (PLAN-v3 §2.3, D1-10): a reviewed wire shape
+# (wire_shapes.py) AND a pinned skip population on a merchant-gate golden
+# (checks/expected_skips_<golden>.json — the file's `version` is the served version it
+# pins; shipped in the package bundle). Mechanical, fail-closed: a version with no pinned
+# population — or a bundle that lost the files — prints NO coverage number: the CLI still
+# runs (deviations are real) but `verdict.coverage: null`, `verdict.support:
+# "unreviewed-version"`, and a banner. validate_merchant_checks.py --selftest (g) pins
+# the derivation to the four reviewed versions.
+def _pinned_skip_versions():
+    out = set()
+    for f in glob.glob(str(HERE / "expected_skips_*.json")):
+        try:
+            out.add(json.loads(pathlib.Path(f).read_text()).get("version"))
+        except (OSError, ValueError):
+            continue
+    return out
+
+SUPPORTED_SERVED_VERSIONS = tuple(v for v in SHAPE_VERSIONS if v in _pinned_skip_versions())
 # Transports whose register rows THIS runner can grade. REST-scoped today: an
 # MCP-only server is honestly "rest-not-declared" (coverage null), never 0.0.
 GRADEABLE_TRANSPORTS = ("rest",)

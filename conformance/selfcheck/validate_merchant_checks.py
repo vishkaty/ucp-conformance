@@ -15,15 +15,25 @@ can false-PASS. Either fails this gate, so it can never reach a real merchant.
 
 Run (reference server must be live on :8182):
     python3 conformance/selfcheck/validate_merchant_checks.py [--server http://localhost:8182]
+    ... --golden golden-0825 --server http://localhost:8197 \
+        --expected-skips conformance/checks/expected_skips_golden_0825.json     # D1-10
 Exit 0 = every merchant check is sound; 1 = a broken/weak check (blocks release).
+
+D1-10 (C2, PLAN-v3 §2.3): with --expected-skips FILE every skip is graded against the
+golden's PINNED population {id: class}: an unexplained skip, a pinned id that ran, a class
+change, an expired review_by or a spec_pin drift fails the gate — skip-inflation cannot
+hollow a merchant gate on any golden. One file per GOLDENS entry (per served version for
+`controlled`), each a clocked register in coverage/expiry_registers.json.
 """
 import sys, json, argparse, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "checks"))
 sys.path.insert(0, str(HERE))
 import merchant_checks                                   # noqa: E402
+from merchant_checks import skip_class                   # noqa: E402
 from merchant import MerchantCtx, discover               # noqa: E402
 from engine import CLEAN                                  # noqa: E402
+SOURCES_LOCK = HERE.parents[1] / "conformance" / "SOURCES.lock.json"
 
 # The reference server (Flower Shop) seeded data — the fixed, known-good target.
 # Doubles as the canonical example of the --config schema a real merchant supplies.
@@ -263,33 +273,89 @@ CONTROLLED_CONFIG = {
 # the 08-25 request delta (D1-01/D1-02). D1-10 pins its expected-skip population.
 GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG}
 
-def _skip_class(status):
-    """The PLAN-v3 §2.3 skip vocabulary, from the runner's status string."""
-    st = str(status)
-    if st.startswith("not-applicable (spec"):
-        return "version-scoped"
-    if st.startswith("not-applicable (no "):
-        return "transport-not-declared"
-    if st.startswith("not-applicable"):
-        return "capability-not-declared"
-    if st.startswith("not-tested (no product"):
-        return "needs-product"
-    if st.startswith("not-tested (needs config"):
-        return "needs-config"
-    if st.startswith("not-tested (oracle"):
-        return "oracle-unavailable"
-    return "other"
-
-
 def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped):
     """The run record validate_dormancy.py unions (D1-07): which ids RAN on this golden
     (sound, broken, weak or reference-defect — all exercised) and why each other id
-    was skipped, in the §2.3 class vocabulary."""
+    was skipped, in the §2.3 class vocabulary (merchant_checks.skip_class, D1-10)."""
     ran = sorted(set(ok) | {c for c, _ in broken} | {c for c, _ in weak} | {c for c, _, _ in ref_defects})
     rec = {"golden": golden, "server": server, "served_version": ctx.version,
-           "ran": ran, "skipped": {cid: _skip_class(st) for cid, st in skipped}}
+           "ran": ran, "skipped": {cid: skip_class(st) for cid, st in skipped}}
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(path).write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n")
+
+
+# ---------------------------------------------------------------------------
+# D1-10 (C2): the pinned skip population — checks/expected_skips_<golden>.json
+#   {golden, version, spec_pin, review_by, clock_tier, expected_skips: {id: class}}
+# One file per GOLDENS entry (per served version for `controlled`). The gate reds on:
+# an UNEXPLAINED skip (skipped, not pinned), a STALE pin (pinned, but it ran), a CLASS
+# mismatch, an EXPIRED review_by, a spec_pin that drifted from SOURCES.lock.json, or a
+# file pinned for another golden / served version. Each file is also a clocked entry in
+# coverage/expiry_registers.json (`entries: "$"`, moving tier — RV2 T15).
+# ---------------------------------------------------------------------------
+def load_expected_skips(path):
+    d = json.loads(pathlib.Path(path).read_text())
+    for k in ("golden", "version", "spec_pin", "review_by", "expected_skips"):
+        if k not in d:
+            raise ValueError(f"{path}: expected-skips file lacks `{k}`")
+    return d
+
+
+def lock_pins(path=SOURCES_LOCK):
+    d = json.loads(pathlib.Path(path).read_text())
+    return {v: (e.get("commit") or "")[:8] for v, e in d.get("spec", {}).get("versions", {}).items()}
+
+
+def evaluate_expected_skips(expected, skipped, ran, *, golden, served_version, today, pins):
+    """Pure. expected = the loaded file; skipped = {id: class} observed this run; ran = ids
+    that ran. -> (rc, lines, n_pinned, n_unexplained)."""
+    from datetime import date
+    fails = []
+    pop = dict(expected.get("expected_skips") or {})
+    if expected.get("golden") != golden:
+        fails.append(f"expected-skips file is pinned for golden {expected.get('golden')!r}, "
+                     f"this run grades {golden!r}")
+    if expected.get("version") != served_version:
+        fails.append(f"expected-skips file is pinned for served version {expected.get('version')!r}, "
+                     f"the golden serves {served_version!r}")
+    rb = str(expected.get("review_by") or "")
+    try:
+        if date.fromisoformat(rb) < today:
+            fails.append(f"expected-skips population expired (review_by {rb} < {today.isoformat()})")
+    except ValueError:
+        fails.append(f"expected-skips review_by {rb!r} is not an ISO date")
+    want = pins.get(served_version)
+    if want is None or expected.get("spec_pin") != want:
+        fails.append(f"expected-skips spec_pin {expected.get('spec_pin')!r} != SOURCES.lock "
+                     f"{want!r} for {served_version} (re-pin means re-review)")
+    ran = set(ran)
+    unexplained = sorted(cid for cid in skipped if cid not in pop)
+    for cid in unexplained:
+        fails.append(f"UNEXPLAINED skip: {cid} ({skipped[cid]}) is not in the pinned population")
+    for cid in sorted(pop):
+        if cid in ran:
+            fails.append(f"stale pin: {cid} RAN but is pinned as {pop[cid]} — remove it from the file")
+        elif cid not in skipped:
+            fails.append(f"stale pin: {cid} is pinned as {pop[cid]} but neither ran nor skipped "
+                         f"(check gone?) — regenerate the file deliberately")
+        elif skipped[cid] != pop[cid]:
+            fails.append(f"skip class mismatch: {cid} skipped as {skipped[cid]}, pinned as {pop[cid]}")
+    n_pinned = sum(1 for cid in skipped if cid in pop and skipped[cid] == pop[cid])
+    return (1 if fails else 0), fails, n_pinned, len(unexplained)
+
+
+def generate_expected_skips(golden, served_version, skipped, review_by, pins):
+    """The file content for a real run's skip population (generation is deliberate:
+    `--write-expected-skips FILE` on a green run; the review_by is the moving tier's)."""
+    return {"_about": ("Pinned skip population (D1-10, PLAN-v3 §2.3): the ONLY merchant checks "
+                       f"permitted to skip on golden {golden!r} at served version {served_version}, "
+                       "each with its reviewed class. validate_merchant_checks.py --expected-skips "
+                       "reds on any other skip, a pinned id that runs, a class change, an expired "
+                       "review_by or a spec_pin drift. Regenerate DELIBERATELY with "
+                       "--write-expected-skips on a green run and re-review the diff."),
+            "golden": golden, "version": served_version,
+            "spec_pin": pins.get(served_version), "review_by": review_by, "clock_tier": "moving",
+            "expected_skips": {cid: skipped[cid] for cid in sorted(skipped)}}
 
 
 OVR002_MUTANTS = (
@@ -438,7 +504,7 @@ def selftest():
     return 0 if ok else 1
 
 
-def main():
+def build_parser():
     ap = argparse.ArgumentParser(description="Reference gate for merchant checks.")
     ap.add_argument("--server", default="http://localhost:8182")
     ap.add_argument("--golden", choices=sorted(GOLDENS), default="flower",
@@ -448,7 +514,19 @@ def main():
     ap.add_argument("--record", metavar="FILE",
                     help="write a run record {golden, served_version, ran, skipped:{id: class}} for "
                          "validate_dormancy.py (D1-07)")
-    args = ap.parse_args()
+    ap.add_argument("--expected-skips", metavar="FILE",
+                    help="the pinned skip population for this golden (D1-10): any skip outside it, "
+                         "a pinned id that ran, a class change, an expired review_by or a spec_pin "
+                         "drift fails the gate")
+    ap.add_argument("--write-expected-skips", metavar="FILE",
+                    help="DELIBERATE regeneration: write this run's skip population as the pinned "
+                         "file (review_by = today + 30 d, moving tier) — review the diff")
+    ap.add_argument("--today", help="ISO date override for the review_by clock (tests)")
+    return ap
+
+
+def main():
+    args = build_parser().parse_args()
     if args.selftest:
         return selftest()
     profile, _ = discover(args.server)
@@ -495,6 +573,27 @@ def main():
     if args.record:
         _write_record(args.record, args.golden, args.server, ctx, ok, broken, weak, ref_defects, skipped)
     n_run = len(ok) + len(broken) + len(weak)
+    skipped_classes = {cid: skip_class(st) for cid, st in skipped}
+    ran_ids = sorted(set(ok) | {c for c, _ in broken} | {c for c, _ in weak} | {c for c, _, _ in ref_defects})
+    from datetime import date, timedelta
+    today = date.fromisoformat(args.today) if args.today else date.today()
+    if args.write_expected_skips:
+        doc = generate_expected_skips(args.golden, ctx.version, skipped_classes,
+                                      (today + timedelta(days=30)).isoformat(), lock_pins())
+        pathlib.Path(args.write_expected_skips).write_text(json.dumps(doc, indent=1) + "\n")
+        print(f"\n  wrote {args.write_expected_skips}: {len(doc['expected_skips'])} pinned skips "
+              f"(review_by {doc['review_by']}) — review the diff before committing")
+    if args.expected_skips:
+        expected = load_expected_skips(args.expected_skips)
+        src, lines, n_pinned, n_unexpl = evaluate_expected_skips(
+            expected, skipped_classes, ran_ids, golden=args.golden, served_version=ctx.version,
+            today=today, pins=lock_pins())
+        for l in lines:
+            print(f"  ✗ {l}")
+        verdict = "GATE FAILED" if (broken or weak or src) else "GATE PASSED"
+        print(f"\n  {len(ok)}/{n_run} run checks sound · {n_pinned} skipped (pinned) · "
+              f"{n_unexpl} unexplained · {verdict}")
+        return 1 if verdict == "GATE FAILED" else 0
     print(f"\n  {len(ok)}/{n_run} run checks sound · {len(skipped)} skipped (n/a on reference)")
     if broken or weak:
         print("  GATE FAILED — fix the check(s) above before they can grade a real merchant.")

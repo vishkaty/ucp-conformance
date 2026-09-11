@@ -63,6 +63,8 @@ def iter_entries(reg, doc):
     Paths:  `$.*`        every value of an id-keyed dict, `_`-prefixed keys skipped;
                          a list value yields one entry per element as `<id>[i]`
             `$.key[*]`   every element of the list under `key`
+            `$`          the document itself is the ONE clocked entry (D1-10: the
+                         expected_skips_<golden>.json files carry their clock at the root)
     Note-only entries (every key `_`-prefixed, e.g. a scratch `_note` object) are
     skipped — they are commentary, not clocked claims; so is any entry lacking the
     register's `entry_requires` key (site_claims: an object without `text` is not a
@@ -76,7 +78,10 @@ def iter_entries(reg, doc):
         if all(k.startswith("_") for k in e):
             return True
         return bool(need) and need not in e
-    if spec == "$.*":
+    if spec == "$":
+        if not is_note(doc):
+            yield "$", doc
+    elif spec == "$.*":
         for k, v in doc.items():
             if k.startswith("_"):
                 continue
@@ -299,6 +304,19 @@ def selftest():
     case("(c) no clock hands -> missing-clock", by.get("w.json waivers[2]") == ["missing-clock"], by)
     case("(d) clock: none register -> no finding", "r.json retirements[0]" not in by, by)
     case("clean entry -> no finding", "w.json waivers[3]" not in by, by)
+    # (k) D1-10: a root-clocked register (`entries: "$"`) is ONE entry — expired reds, clean is quiet
+    regs_k = [{"name": "expected_skips.x", "file": "x.json", "entries": "$", "scope": "version",
+               "clock": "review_by", "clock_tier": "moving"}]
+    fk = evaluate(regs_k, {"x.json": {"golden": "x", "version": "2026-08-25", "spec_pin": "cd78fb38",
+                                      "review_by": "2026-09-09", "expected_skips": {"a": "needs-config"}}}.get, pins, today)
+    case("(k) root-clocked register (`$`) expired -> exactly one expired finding",
+         [x["kind"] for x in fk] == ["expired"] and fk[0]["entry"] == "x.json $", fk)
+    fk2 = evaluate(regs_k, {"x.json": {"golden": "x", "version": "2026-08-25", "spec_pin": "cd78fb38",
+                                       "review_by": "2026-10-01", "expected_skips": {}}}.get, pins, today)
+    case("(k') root-clocked register clean -> no finding", fk2 == [], fk2)
+    fk3 = evaluate(regs_k, {"x.json": {"golden": "x", "version": "2026-08-25", "spec_pin": "deadbeef",
+                                       "review_by": "2026-10-01", "expected_skips": {}}}.get, pins, today)
+    case("(k'') root-clocked register spec_pin drift -> pin-drift", [x["kind"] for x in fk3] == ["pin-drift"], fk3)
     f2 = evaluate(regs, docs.get, pins, date(2026, 1, 1))
     case("(e) --today override: 2026-01-01 sees no expiry",
          not any(x["kind"] == "expired" for x in f2), [x["kind"] for x in f2])

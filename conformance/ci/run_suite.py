@@ -73,6 +73,9 @@ def gates(server, require_server=False):
     # require_server also turns a missing TOOLCHAIN into a failure for the gates
     # that name it (golden-0825-unit: `uv`), not just a missing server.
     rec = lambda name: ("--record", str(RECORD_DIR / f"{name}.json"))   # noqa: E731
+    # D1-10: every merchant gate grades against its PINNED skip population (C2): an
+    # unexplained skip, a pinned id that ran, a class change or an expired clock reds it.
+    skips = lambda name: ("--expected-skips", str(CHK / f"expected_skips_{name}.json"))   # noqa: E731
     return [
         ("register",    _py(SELF / "verify_register.py"),                       None, ()),
         # D2-02: hermetic kill-tests behind the `register` gate's duplicate-pair and
@@ -169,7 +172,8 @@ def gates(server, require_server=False):
         ("dual-oracle-0825-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25"),
          None, (2,)),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
-        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower")),
+        ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower"),
+                            *skips("flower")),
          "golden", ()),
         # A 5xx from a conformant golden means our probe was malformed or the reference
         # crashed. Either way the verdict is not about the requirement the check names,
@@ -178,17 +182,25 @@ def gates(server, require_server=False):
          "golden", ()),
         ("merchant-catalog", _py(SELF / "validate_merchant_checks.py",
                                  "--server", CONTROLLED, "--golden", "controlled",
-                                 *rec("controlled-04-08")), "controlled", ()),
+                                 *rec("controlled-04-08"), *skips("controlled_04_08")), "controlled", ()),
         ("merchant-ctrl-01-23", _py(SELF / "validate_merchant_checks.py",
                                     "--server", CONTROLLED_0123, "--golden", "controlled",
-                                    *rec("controlled-01-23")),
+                                    *rec("controlled-01-23"), *skips("controlled_01_23")),
          "controlled-01-23", ()),
         ("merchant-ctrl-01-11", _py(SELF / "validate_merchant_checks.py",
                                     "--server", CONTROLLED_0111, "--golden", "controlled",
-                                    *rec("controlled-01-11")),
+                                    *rec("controlled-01-11"), *skips("controlled_01_11")),
          "controlled-01-11", ()),
+        # D1-10 (C2): golden-0825 joins the merchant gate — the 2026-08-25 golden booted on
+        # :8197 by boot_golden_0825 (shared with probe-shape-0825), graded with REF_CONFIG
+        # through the 08-25 wire shapes, against ITS pinned skip population (199 pinned,
+        # 29 run). Writes the fifth dormancy record.
+        ("merchant-0825", _py(SELF / "validate_merchant_checks.py",
+                              "--server", GOLDEN_0825, "--golden", "golden-0825",
+                              *rec("golden-0825"), *skips("golden_0825")),
+         "golden-0825", ()),
         # D1-07: every merchant check runs on SOME golden or is named in
-        # dormancy_exemptions.json (floor 13). Unions the four records above; a missing
+        # dormancy_exemptions.json (floor 13). Unions the five records above; a missing
         # record is a partial union (red under --require-server, never a smaller set);
         # without --require-server an empty record set skips honestly (rc 2).
         ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
