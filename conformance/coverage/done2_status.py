@@ -294,6 +294,23 @@ def selftest():
     bad += case("same inputs fixed -> items 2 and 8 PASS",
                 good_in[2]["pass"] is True and good_in[8]["pass"] is True, repr((good_in[2], good_in[8])))
     bad += case("twelve items reported", sorted(good_in) == list(range(1, ITEMS + 1)), repr(sorted(good_in)))
+    # B3 (W1 review V1): item 10 filtered `kind == "sample"` BEFORE testing human_review.status,
+    # so a batch whose human sample is outstanding but which carries no `kind` was invisible —
+    # `coverage-lock-2026-08-25-2026-09-11` (10/77, due 2026-09-18) among them. The filter is the
+    # human-review block alone: a batch with no sample block is not a sample batch and never counts.
+    nokind = scratch(merchant_gap=0, expired=False)
+    nokind["signoffs"] = [{"batch": "s1", "kind": "sample", "sample": {"human_review": {"status": "recorded"}}},
+                          {"batch": "no-kind-pending", "sample": {"human_review": {"status": "pending", "due": "2026-09-18"}}}]
+    r10 = evaluate(nokind)[10]
+    bad += case("item 10 names a PENDING batch that carries no `kind` field",
+                r10["pass"] is False and "no-kind-pending" in str(r10["evidence"]), repr(r10))
+    allrec = scratch(merchant_gap=0, expired=False)
+    allrec["signoffs"] = [{"batch": "s1", "kind": "sample", "sample": {"human_review": {"status": "recorded"}}},
+                          {"batch": "no-kind-recorded", "sample": {"human_review": {"status": "recorded"}}},
+                          {"batch": "no-human-sample-at-all"}]
+    r10b = evaluate(allrec)[10]
+    bad += case("item 10 PASSes when every batch carrying a human sample is recorded",
+                r10b["pass"] is True and "none" in str(r10b["evidence"]), repr(r10b))
     print(f"\ndone2-status selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
