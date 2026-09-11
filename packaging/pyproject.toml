@@ -38,4 +38,12 @@ spck_conformance = [
   "_bundle/conformance/agent/*.py",
   "_bundle/conformance/agent/*.json",
   "_bundle/conformance/common/*.py",
+  # Subdirectories the flat globs above do not reach. Each is filled deliberately by
+  # packaging/sync_bundle.sh; without a glob here the wheel drops it silently and the
+  # installed CLI dies on ImportError while every local gate stays green (W1: the Action's
+  # own-checkout job on `seq_invariants`). packaging/test_wheel_completeness.py pins
+  # bundle == wheel so this list can never fall behind the cp list again.
+  "_bundle/conformance/ci/*.py",
+  "_bundle/conformance/testbed/*.py",
+  "_bundle/conformance/agent/fixtures_08_25/*.json",
 ]

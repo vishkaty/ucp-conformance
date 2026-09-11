@@ -25,6 +25,11 @@ cp "$SRC/selfcheck/verdict_gate.py" "$DST/selfcheck/"
 mkdir -p "$DST/ci"
 cp "$SRC/ci/seq_invariants.py" "$DST/ci/"
 cp -R "$SRC/requirements/." "$DST/requirements/"
+# requirements/tools are register-maintenance scripts (assign_roles, backport_rows,
+# assign_normative_basis) run from a checkout; nothing the runner imports touches
+# them, so they are not part of the distributed bundle. They only ever arrived
+# through the recursive copy above.
+rm -rf "$DST/requirements/tools"
 # agent lane (the reverse harness): reference agent + sandbox + checks + runner, so the
 # distributed CLI is genuinely two-sided (`spck-conformance --agent`). Its only cross-tree
 # dep is common/crypto, and its "parent-of-agent on sys.path" resolution works in the bundle.
