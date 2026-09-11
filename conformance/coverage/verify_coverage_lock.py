@@ -51,10 +51,41 @@ def _retired():
     return out, errs
 
 
-def run():
-    if not os.path.exists(LOCK):
-        return ["coverage_lock.json missing — generate it with gen_coverage_lock.py"]
-    lock = json.load(open(LOCK))["versions"]
+def completeness_failures(lock, published):
+    """B4 (W1 review V2) — the COMPLETENESS direction of the lock.
+
+    coverage_lock.json is not only the floor the suite may not fall below; it is also the
+    POPULATION verify_review_signoffs.py walks. So a published CHECK id that is OUTSIDE the
+    lock is a coverage claim no adversarial review ever had to see: at 4a51834 the 08-25 lock
+    held 77 CHECK ids while the export published 106, and the review gate still printed PASS.
+
+    Red whenever a version's published CHECK set is a STRICT SUPERSET of its locked CHECK set.
+    The other direction (locked ⊋ published) is the lock-holds rule above plus retirements.json
+    and is deliberately not this rule's business.
+
+    `lock` is {version: {check: [...], exempt: [...]}}; `published` is {version: set(ids)}.
+    """
+    out = []
+    for v in sorted(published):
+        extra = sorted(set(published[v]) - set((lock.get(v) or {}).get("check", [])))
+        if not extra:
+            continue
+        shown = ", ".join(extra[:10]) + (f", … (+{len(extra) - 10} more)" if len(extra) > 10 else "")
+        out.append(
+            f"{v}: {len(extra)} published CHECK id(s) are not in coverage_lock.json ({shown}) — "
+            f"the lock is the adversarial-review population, so these are coverage claims no "
+            f"sign-off covers. Run gen_coverage_lock.py and add a review_signoffs.json batch "
+            f"for them.")
+    return out
+
+
+def run(lock=None):
+    """`lock` overrides coverage_lock.json's `versions` block (the selftest feeds a scratch
+    lock through the SAME path the gate runs, so unwiring a rule from here cannot stay green)."""
+    if lock is None:
+        if not os.path.exists(LOCK):
+            return ["coverage_lock.json missing — generate it with gen_coverage_lock.py"]
+        lock = json.load(open(LOCK))["versions"]
     cov = matrix.coverage_map()
     ex = matrix.load_exemptions()
     retired, failures = _retired()
@@ -86,6 +117,7 @@ def run():
             failures.append(
                 f"{v} {i}: was EXEMPT in the lock, is now GAP — accounting regressed. "
                 f"Re-exempt/cover it, or record a retirement.")
+    failures += completeness_failures(lock, {v: set(cov[v]) for v in cov})
     return failures
 
 
@@ -98,8 +130,10 @@ def main():
         return 1
     lock = json.load(open(LOCK))["versions"]
     tot = sum(len(v["check"]) + len(v["exempt"]) for v in lock.values())
+    npub = sum(len(matrix.coverage_map()[v]) for v in matrix.VERSIONS)
     print(f"coverage-lock gate: PASS — all {tot} locked (check+exempt) ids across "
-          f"{len(lock)} versions are still accounted (or spec-groundedly retired).")
+          f"{len(lock)} versions are still accounted (or spec-groundedly retired), and all "
+          f"{npub} published CHECK ids are inside the lock (the review population).")
     return 0
 
 
@@ -130,6 +164,16 @@ def selftest():
          "direction + retirements own it)", subset == [], repr(subset))
     case("a version with no lock block at all reds", len(missing_v) == 1 and "A-1" in missing_v[0],
          repr(missing_v))
+    # the rule must be WIRED INTO run(), not merely defined: feed run() a scratch lock that drops
+    # one published CHECK id and require the real gate path to red naming it.
+    real = json.load(open(LOCK))["versions"]
+    drop = sorted(matrix.coverage_map()[V])[0]
+    stale = {v: {"check": [i for i in b.get("check", []) if not (v == V and i == drop)],
+                 "exempt": list(b.get("exempt", []))} for v, b in real.items()}
+    wired = run(lock=stale)
+    case(f"run() applies the completeness rule (scratch lock missing {V} {drop} -> red)",
+         any("not in coverage_lock.json" in f and drop in f for f in wired), repr(wired[-3:]))
+    case("run() on the committed lock is clean", run() == [], repr(run()[:3]))
     print(f"\ncoverage-lock selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 

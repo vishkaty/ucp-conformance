@@ -987,6 +987,455 @@
      "due": "2026-09-18"
     }
    }
+  },
+  {
+   "batch": "coverage-check-0825-w1-2026-09-11",
+   "date": "2026-09-11",
+   "reviewer": "W1 fixer lane (Claude Code session, 2026-09-11) — machine-assisted adversarial re-verification of the 29 CHECK ids Wave 1 converted at 2026-08-25, under the owner ruling of 2026-09-10; the human sample below is the owner's review and is PENDING",
+   "spec_reverified": true,
+   "notes": "W1 review B4. gen_coverage_lock.py regenerated the lock (786 -> 815 accounted ids, add-only, 0 dropped); the 29 ids below are the 08-25 CHECK rows this wave converted (lock 08-25 check 77 -> 106) and which, until now, sat OUTSIDE the sign-off population — verify_review_signoffs walks coverage_lock.json, so a published CHECK outside the lock was reviewed by nobody. verify_coverage_lock.py now reds on published CHECK ⊋ locked CHECK so this can never recur. Machine-assisted adversarial re-verification, this session, at spec pin cd78fb38e819de77d9b527d110476eccb876f1bd (2026-08-25), under the owner ruling of 2026-09-10 (W0-review.md ruling (a): 2026-08-25 receives its own coverage lock; sign-offs record the session and the ruling date). Per id, four things were re-derived and are recorded in `per_id` below: (a) CITATION — the row's quote is verbatim at the pin (register quote-check: 1875/1875 verified, 0 line-warnings, 0 FAILED); (b) KILL — every citing check is locked in selfcheck/killset_lock.json (killset-lock: 249 MCheck · 89 engine · 81 schema-tier · 35 struct · 44 Row · 44 ACheck locked · 0 drift · pins OK) and carries either a dedicated kills[<id>] entry or, being single-id, the whole declared mutant set (req-kills 2026-08-25: PASS — all 08-25 attributions have >=1 dedicated kill, 138 attributions, 0 shared); (c) LANE — all 29 are merchant-lane (role business 28, both 1: CHK-038), so no merchant CHECK sits on a platform-only duty (coverage_gate lane rule, D2-08); (d) STRICTNESS — each check grades the row's stated outcome only (REST method/path table rows, checkout immutability and completion shape, discount clear/applied semantics, message_error/message_warning schema required[]/const/enum and the message oneOf discriminator, MCP tools/call transform, tools/list core set, JSON-RPC error-to-HTTP status, idempotency replay/conflict, version_unsupported negotiation), never a stricter reading. Evidence class: all 29 are self-referenced or fixture-schema at 08-25 — no live-wire corroboration exists at this version (disclosed on public/coverage.html; W1-review N5). Normative basis: 11 sentence, 8 schema, 2 bullet, and 8 still in the D2-11b review queue (CHK-018, CHK-019, CHK-020, CHK-021, CHK-022, CHK-025, DSC-004, REPLAY-001) — kept MUST per decision 29 (tables/bullets), their conversions stand, and B6 puts those queues on the 90-day pin-only clock. The human sample is a deterministic max(10%, 10) = 10/29 selection (random.Random(20260911).sample over the sorted ids, the same draw as the other 09-11 batches) which the OWNER re-reads at cd78fb38 and records as human_review.status=recorded (decision 13). It is PENDING until then — this session does not and may not claim it; past the due date this batch is invalid and the 08-25 lock reds on review-signoff.",
+   "ids": {
+    "2026-08-25": [
+     "CHK-017",
+     "CHK-018",
+     "CHK-019",
+     "CHK-020",
+     "CHK-021",
+     "CHK-022",
+     "CHK-025",
+     "CHK-038",
+     "CHK-048",
+     "DISC-003",
+     "DISC-005",
+     "DSC-004",
+     "DSC-006",
+     "ERR-001",
+     "ERR-002",
+     "ERR-003",
+     "ERR-005",
+     "ERR-009",
+     "ERR-010",
+     "ERR-031",
+     "FUL-026",
+     "MCP-003",
+     "MCP-004",
+     "MCP-005",
+     "MCP-016",
+     "NEG-001",
+     "ORD-001",
+     "OVR-060",
+     "REPLAY-001"
+    ]
+   },
+   "per_id": {
+    "CHK-017": {
+     "anchor": "ucp:docs/specification/shopping/checkout/index.md#L1028-L1029",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "bullet",
+     "graded_by": [
+      "merchant_checks:checkout.completed_immutable [MCheck, killset_lock locked; single-id check, whole declared kill set (2 mutants) is this id's]"
+     ]
+    },
+    "CHK-018": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L83",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.create_valid [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]"
+     ]
+    },
+    "CHK-019": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L84",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.retrieve [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "CHK-020": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L85",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.update [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "CHK-021": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L86",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.complete_order [MCheck, killset_lock locked; dedicated kills [\"status:500\", \"drop:status\"]]"
+     ]
+    },
+    "CHK-022": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L87",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.cancel [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]"
+     ]
+    },
+    "CHK-025": {
+     "anchor": "ucp:docs/specification/shopping/checkout/index.md#L1094-L1099",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:checkout.complete_order [MCheck, killset_lock locked; dedicated kills [\"set:status=\\\"incomplete\\\"\", \"drop:order\"]]"
+     ]
+    },
+    "CHK-038": {
+     "anchor": "ucp:source/schemas/shopping/checkout.json#L34-L38",
+     "role": "both",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks:checkout.create_requires_line_items [MCheck, killset_lock locked; single-id check, whole declared kill set (2 mutants) is this id's]"
+     ]
+    },
+    "CHK-048": {
+     "anchor": "ucp:docs/specification/shopping/checkout/rest.md#L1309-L1312",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks:idempotency.conflict_409 [MCheck, killset_lock locked; single-id check, whole declared kill set (2 mutants) is this id's]",
+      "merchant_checks_08_25_envelope:idempotency.replay_cached [MCheck, killset_lock locked; single-id check, whole declared kill set (6 mutants) is this id's]"
+     ]
+    },
+    "DISC-003": {
+     "anchor": "ucp:docs/specification/overview/index.md#L2240-L2242",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:discovery.published_artifacts_cache_control [MCheck, killset_lock locked; single-id check, whole declared kill set (7 mutants) is this id's]"
+     ]
+    },
+    "DISC-005": {
+     "anchor": "ucp:docs/specification/overview/index.md#L1035",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks:discovery.rest_endpoint [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "DSC-004": {
+     "anchor": "ucp:docs/specification/shopping/extensions/discount.md#L135",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks:discount.empty_clears [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "DSC-006": {
+     "anchor": "ucp:docs/specification/shopping/extensions/discount.md#L140",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "bullet",
+     "graded_by": [
+      "merchant_checks:discount.single_applied [MCheck, killset_lock locked; single-id check, whole declared kill set (8 mutants) is this id's]"
+     ]
+    },
+    "ERR-001": {
+     "anchor": "ucp:source/schemas/common/types/message_error.json#L6",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.error_message_fields [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "ERR-002": {
+     "anchor": "ucp:source/schemas/common/types/message_error.json#L13",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.error_type_const [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "ERR-003": {
+     "anchor": "ucp:source/schemas/common/types/message_error.json#L40",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.error_severity_enum [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "ERR-005": {
+     "anchor": "ucp:source/schemas/common/types/message_error.json#L25",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.error_content_type_enum [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "ERR-009": {
+     "anchor": "ucp:source/schemas/common/types/message_warning.json#L6",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.warning_message_fields [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]"
+     ]
+    },
+    "ERR-010": {
+     "anchor": "ucp:source/schemas/common/types/message_warning.json#L12",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.warning_type_const [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "ERR-031": {
+     "anchor": "ucp:source/schemas/common/types/message.json#L7",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "schema",
+     "graded_by": [
+      "merchant_checks_08_25_envelope:envelope.message_kinds_discriminated [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]"
+     ]
+    },
+    "FUL-026": {
+     "anchor": "ucp:docs/specification/shopping/extensions/fulfillment.md#L786",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks:fulfillment.single_group_default [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "MCP-003": {
+     "anchor": "ucp:docs/specification/shopping/checkout/mcp.md#L804-L812",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "mcp"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.checkout_structured_content [MCheck, killset_lock locked; dedicated kills [\"drop:result.structuredContent\", \"set:result.structuredContent={}\", \"set:result.content=[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"{}\\\"}]\", \"status:500\", \"corrupt-json\"]]",
+      "merchant_checks_08_25_mcp:mcp.business_outcome_as_result [MCheck, killset_lock locked; single-id check, whole declared kill set (6 mutants) is this id's]",
+      "merchant_checks_08_25_mcp:mcp.meta_required_32602 [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]",
+      "merchant_checks_08_25_mcp:mcp.id_in_payload_rejected [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]",
+      "merchant_checks_08_25_mcp:mcp.tools_list_core_checkout [MCheck, killset_lock locked; dedicated kills [\"set:result.tools=[]\", \"set:result.tools=[{\\\"name\\\":\\\"create_checkout\\\"},{\\\"name\\\":\\\"get_checkout\\\"},{\\\"name\\\":\\\"update_checkout\\\"},{\\\"name\\\":\\\"complete_checkout\\\"}]\"]]"
+     ]
+    },
+    "MCP-004": {
+     "anchor": "ucp:docs/specification/shopping/checkout/mcp.md#L824-L826",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "mcp"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.checkout_structured_content [MCheck, killset_lock locked; dedicated kills [\"drop:result\", \"set:error={\\\"code\\\":-32000,\\\"message\\\":\\\"x\\\"}\"]]",
+      "merchant_checks_08_25_mcp:mcp.tools_list_core_checkout [MCheck, killset_lock locked; dedicated kills [\"drop:result\", \"corrupt-json\"]]"
+     ]
+    },
+    "MCP-005": {
+     "anchor": "ucp:docs/specification/shopping/order/mcp.md#L299-L300",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "mcp"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.get_order_tool_0825 [MCheck, killset_lock locked; single-id check, whole declared kill set (7 mutants) is this id's]"
+     ]
+    },
+    "MCP-016": {
+     "anchor": "ucp:docs/specification/shopping/cart/mcp.md#L651-L659",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "mcp"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.cart_via_tools_call [MCheck, killset_lock locked; single-id check, whole declared kill set (7 mutants) is this id's]"
+     ]
+    },
+    "NEG-001": {
+     "anchor": "ucp:docs/specification/overview/index.md#L1862,L3553",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.negotiation_error_32001 [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]",
+      "merchant_checks_08_25_envelope:negotiation.version_unsupported_422_0825 [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "ORD-001": {
+     "anchor": "ucp:docs/specification/shopping/order/index.md#L555",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks:order.entity_shape [MCheck, killset_lock locked; single-id check, whole declared kill set (5 mutants) is this id's]"
+     ]
+    },
+    "OVR-060": {
+     "anchor": "ucp:docs/specification/overview/index.md#L2083-L2085",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "testable",
+     "transport": [
+      "mcp"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.error_http_status [MCheck, killset_lock locked; single-id check, whole declared kill set (3 mutants) is this id's]"
+     ]
+    },
+    "REPLAY-001": {
+     "anchor": "ucp:docs/specification/signatures.md#L834",
+     "role": "business",
+     "keyword": "MUST NOT",
+     "testability": "testable",
+     "transport": [
+      "any"
+     ],
+     "normative_basis": null,
+     "graded_by": [
+      "merchant_checks_08_25_mcp:mcp.idempotency_conflict_32000 [MCheck, killset_lock locked; single-id check, whole declared kill set (4 mutants) is this id's]"
+     ]
+    }
+   },
+   "sample": {
+    "seed": 20260911,
+    "of": 29,
+    "size": 10,
+    "ids": [
+     "CHK-017",
+     "CHK-019",
+     "CHK-022",
+     "DSC-004",
+     "ERR-001",
+     "ERR-002",
+     "ERR-005",
+     "ERR-031",
+     "MCP-003",
+     "NEG-001"
+    ],
+    "human_review": {
+     "status": "pending",
+     "by": null,
+     "on": null,
+     "due": "2026-09-18"
+    }
+   }
   }
  ]
 }
