@@ -90,8 +90,12 @@ def discovery_reach(captures, today):
     for i, c in enumerate(captures):
         tag = f"#{i}"
         if not isinstance(c, dict) or c.get("schema") != SCHEMA or not c.get("domain") \
-                or not isinstance(c.get("http"), dict) or not isinstance(c.get("body"), (dict, str)):
+                or not isinstance(c.get("http"), dict):
             malformed.append(f"{tag}: not a {SCHEMA} document"); continue
+        # a 200 answer must carry its body; a failed fetch (D4-08 records status 0, body null)
+        # is a legitimate non-200 capture — excluded below, never malformed (W1 integration)
+        if c["http"].get("status") == 200 and not isinstance(c.get("body"), (dict, str)):
+            malformed.append(f"{tag}: 200 without a body"); continue
         d = _date(c.get("fetched_at"))
         if d is None:
             malformed.append(f"{tag}: fetched_at unparsable"); continue
@@ -110,7 +114,8 @@ def discovery_reach(captures, today):
 def check_dir(d, today=None):
     today = today or datetime.date.today()
     caps = []
-    for f in sorted(pathlib.Path(d).glob("*.json")):
+    # captures live directly in d or one level down under D4-08's YYYY-MM-DD directories
+    for f in sorted(list(pathlib.Path(d).glob("*.json")) + list(pathlib.Path(d).glob("????-??-??/*.json"))):
         try:
             caps.append(json.load(open(f, encoding="utf-8")))
         except ValueError:
