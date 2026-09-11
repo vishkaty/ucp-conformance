@@ -165,6 +165,15 @@
    "clock": "review_by",
    "clock_tier": "pin-only",
    "_note": "D1-14: a wave's committed target ids (root clock); check_targets.py also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "wave_targets.wave1b_0825",
+   "file": "conformance/coverage/wave1b_targets_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "pin-only",
+   "_note": "D1-16a: wave 1b committed target ids (root clock)."
   }
  ]
 }
