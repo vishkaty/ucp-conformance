@@ -23,9 +23,11 @@ Server-dependent gates are skipped (not failed) when no golden is reachable, unl
 --require-server. The schema gate skips if the ucp-schema binary isn't built (exit 2).
 
 R11 golden-0825 mutant battery (D1-09): a COUNTED gate, `battery-freshness`. In CI
-run with --battery so the battery runs inside this invocation (its report is the
-in-run source the gate prefers); locally without --battery the gate reads the tracked
-conformance/testbed/golden-0825/battery/LAST_RUN.json under a 14-day rule (the owner
+run with --battery so the battery runs inside this invocation (its report goes to
+RECORD_DIR/battery_LAST_RUN.json via the battery's --out -- the in-run source the gate
+prefers; the tracked file is never rewritten by a run); locally without --battery the
+gate reads the tracked conformance/testbed/golden-0825/battery/LAST_RUN.json under a
+14-day rule (the owner refreshes it with `validate_golden_0825_battery.py --record`; the
 commits it on the release path — decision 24: artifacts, no bot commits).
 
 Usage:
@@ -69,6 +71,9 @@ def _py(path, *args):
 # RUN_SUITE_RECORD_DIR to keep the records (the dormancy kill-proof replays them).
 RECORD_DIR = pathlib.Path(os.environ.get("RUN_SUITE_RECORD_DIR")
                           or tempfile.mkdtemp(prefix="run_suite_records_"))
+# the R11 battery's in-run report (run_suite --battery writes it via the battery's --out;
+# battery-freshness reads it with --in-run; CI uploads it as the artifact)
+BATTERY_IN_RUN = RECORD_DIR / "battery_LAST_RUN.json"
 
 def gates(server, require_server=False):
     # (name, argv, needs: None|"golden"|"controlled", skip_exit_codes)
@@ -217,7 +222,10 @@ def gates(server, require_server=False):
          "golden-0825-mcp", (2,)),
         ("mcp-check-0825-selftest", _py(SELF / "validate_mcp_checks.py", "--selftest"), None, ()),
         ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
-                                  "--in-run", str(RECORD_DIR / "battery_LAST_RUN.json")), None, ()),
+                                  "--in-run", str(BATTERY_IN_RUN)), None, ()),
+        # W1 D3 carry-over: the battery's --out/--record split (the CI-1 class) — a battery
+        # run never rewrites the tracked LAST_RUN.json; hermetic writer + wiring cases.
+        ("battery-record-split", _py(SELF / "test_battery_record_split.py"), None, ()),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
         # the CLOSED testable tier can never silently reopen (wave-2 milestone)
         ("require-testable-04-08",
@@ -599,18 +607,25 @@ BATTERY = SELF / "validate_golden_0825_battery.py"
 BATTERY_REPORT = ROOT / "conformance" / "testbed" / "golden-0825" / "battery" / "LAST_RUN.json"
 
 
+def battery_argv():
+    """The --battery invocation: the battery writes THIS run's report to RECORD_DIR
+    (`--out`), the in-run source battery-freshness reads; never `--record` -- the
+    tracked LAST_RUN.json is rewritten only by the owner on the release path
+    (W1 D3 carry-over, the CI-1 class; test_battery_record_split.py pins it)."""
+    return [sys.executable, str(BATTERY), "--out", str(BATTERY_IN_RUN)]
+
+
 def run_battery():
-    """--battery: run the R11 golden-0825 mutant battery inside this invocation and copy
-    its report into RECORD_DIR as the in-run source for battery-freshness. Its own port
-    (GOLDEN_0825_BATTERY_PORT, default 8199) and oracle-skip semantics are the battery's."""
+    """--battery: run the R11 golden-0825 mutant battery inside this invocation with
+    its report handed to RECORD_DIR as the in-run source for battery-freshness. Its own
+    port (GOLDEN_0825_BATTERY_PORT, default 8199) and oracle-skip semantics are the
+    battery's; the tracked report is never touched."""
     t0 = time.monotonic()
-    p = subprocess.run([sys.executable, str(BATTERY)], cwd=str(ROOT), capture_output=True, text=True)
+    RECORD_DIR.mkdir(parents=True, exist_ok=True)
+    p = subprocess.run(battery_argv(), cwd=str(ROOT), capture_output=True, text=True)
     tail = (p.stdout + p.stderr).strip().splitlines()
     print(f"battery (--battery): rc={p.returncode} [{time.monotonic() - t0:.1f}s] "
-          f"{tail[-1] if tail else ''}")
-    if p.returncode == 0 and BATTERY_REPORT.exists():
-        RECORD_DIR.mkdir(parents=True, exist_ok=True)
-        (RECORD_DIR / "battery_LAST_RUN.json").write_bytes(BATTERY_REPORT.read_bytes())
+          f"{tail[-1] if tail else ''} -> {BATTERY_IN_RUN if BATTERY_IN_RUN.exists() else 'no report'}")
 
 R11_BATTERY_REPORT = BATTERY_REPORT     # D3-01's report line (behavior N/N) reads the same tracked file
 R11_BATTERY_STALE_DAYS = 14

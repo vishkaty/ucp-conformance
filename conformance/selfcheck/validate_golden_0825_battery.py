@@ -55,8 +55,16 @@ Exit codes: 0 = every mutant fired+caught, disabled-mode proof holds, no gap;
 proof failed; 2 = the ucp-schema oracle binary/vendor tree isn't available (honest
 skip, mirrors every other oracle-backed gate in this suite).
 
+Report files (W1 D3 carry-over, the CI-1 class / decision 24): a plain run records
+NOTHING on disk. `--out FILE` writes THIS run's report to FILE (run_suite's --battery
+hands it to RECORD_DIR/battery_LAST_RUN.json, the in-run source battery-freshness
+prefers); `--record` rewrites the TRACKED battery/LAST_RUN.json -- the owner's explicit
+release-time act. Before the split every run rewrote the tracked file (`ran_at`), which
+left the tree dirty for preflight's clean-tree step on a UTC-rollover day
+(W0-integration SS10.2); test_battery_record_split.py pins the contract.
+
 Usage:
-    python3 conformance/selfcheck/validate_golden_0825_battery.py
+    python3 conformance/selfcheck/validate_golden_0825_battery.py [--out FILE] [--record]
     python3 conformance/selfcheck/validate_golden_0825_battery.py --selftest
 """
 from __future__ import annotations
@@ -844,6 +852,12 @@ def main():
                           "(a defect configured but never served) and assert this "
                           "runner detects it as LOADER-BROKEN, not a silent pass.")
     ap.add_argument("--config", default=str(DEFAULT_CONFIG))
+    ap.add_argument("--out", metavar="FILE",
+                     help="write THIS run's report to FILE (run_suite --battery: RECORD_DIR/"
+                          "battery_LAST_RUN.json, read by battery-freshness --in-run); the "
+                          "tracked battery/LAST_RUN.json is left untouched")
+    ap.add_argument("--record", action="store_true",
+                     help="rewrite the TRACKED battery/LAST_RUN.json (release path, owner's act)")
     args = ap.parse_args()
 
     try:
@@ -913,20 +927,23 @@ def main():
           + f"; disabled-mode byte-identity: {'OK' if phase01_ok else 'FAILED'}")
     print("R11 battery:", "PASS" if ok else "FAIL")
 
-    _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed, b_total)
+    write_report(ok, results, phase01_ok, killed, acked, b_killed, b_total,
+                 out=args.out, record=args.record)
     return 0 if ok else 1
 
 
-def _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed=0, b_total=0):
-    """Standalone gate, report-only line in run_suite.py (this battery boots a
-    server twice and takes ~15s -- too heavy to run on every default run_suite
-    invocation, matching the schema-census precedent: report-only by default,
-    a deliberate flip to a hard default gate is a later, separate step). This
-    is the artifact run_suite.py's report line reads; see its docstring there
-    for the staleness rule (P-2, self-expiring: an old report is flagged, not
-    quietly trusted forever)."""
-    out_dir = GOLDEN_DIR / "battery"
-    out_dir.mkdir(exist_ok=True)
+TRACKED_REPORT = GOLDEN_DIR / "battery" / "LAST_RUN.json"
+
+
+def write_report(ok, results, phase01_ok, killed, acked, b_killed=0, b_total=0,
+                 out=None, record=False):
+    """The run report: to `out` (this run's in-run copy, battery-freshness --in-run)
+    and/or, ONLY with `record`, to the tracked battery/LAST_RUN.json that run_suite's
+    report-only line and the local battery-freshness fallback read under the 14-day
+    rule (P-2). Neither flag: nothing is written -- a battery run never churns a
+    tracked file as a side effect (decision 24; the UTC-rollover class of CI-1)."""
+    if out is None and not record:
+        return
     report = {
         "ran_at": time.time(),
         "ran_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -940,7 +957,14 @@ def _write_last_run_report(ok, results, phase01_ok, killed, acked, b_killed=0, b
         "survivors": [r["name"] for r in results if r["verdict"] == "SURVIVED"],
         "loader_broken": [r["name"] for r in results if r["verdict"] == "LOADER-BROKEN"],
     }
-    (out_dir / "LAST_RUN.json").write_text(json.dumps(report, indent=1))
+    text = json.dumps(report, indent=1)
+    if out is not None:
+        out = pathlib.Path(out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text)
+    if record:
+        TRACKED_REPORT.parent.mkdir(exist_ok=True)
+        TRACKED_REPORT.write_text(text)
 
 
 # ---------------------------------------------------------------------------
