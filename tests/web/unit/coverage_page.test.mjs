@@ -176,3 +176,28 @@ test("roles.summary renders the per-role MUST split and a role toggle re-renders
   clickTab(doc2, "2026-08-25");
   assert.ok(!doc2.getElementById("role-toggle"), "no role toggle without roles in the export");
 });
+
+// ── B2 (W1 review): every rendered role tab must render a complete lane line ───────────
+// The toggle admits any roles[k] with a numeric `musts`; the "other" lane block carried only
+// {musts, by_role}, so clicking it rendered "checked undefined · exempt undefined · gap undefined"
+// on the live page. Drive the REAL committed export (not a synthetic one) and click every tab
+// the page itself renders.
+test("every rendered role tab renders a complete lane line — no undefined", async () => { // B2
+  for (const ver of Object.keys(COV.versions)) {
+    const doc = await render();
+    clickTab(doc, ver);
+    const toggle = doc.getElementById("role-toggle");
+    if (!toggle) continue;                       // versions without a roles block render no toggle
+    const roles = toggle.children.map((b) => b.dataset.role).filter((r) => r !== "all");
+    assert.ok(roles.length, `${ver}: role tabs rendered`);
+    for (const role of roles) {
+      const d = await render();
+      clickTab(d, ver);
+      d.getElementById("role-toggle").children.find((b) => b.dataset.role === role).dispatch("click");
+      const text = d.getElementById("summary").textContent;
+      assert.match(text, new RegExp(`${role} lane: \\d+ MUSTs · checked \\d+ · exempt \\d+ · gap \\d+`),
+        `${ver}/${role}: complete lane line\n${text}`);
+      assert.doesNotMatch(text, /undefined/, `${ver}/${role}: no undefined in the rendered summary\n${text}`);
+    }
+  }
+});
