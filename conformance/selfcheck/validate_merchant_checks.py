@@ -541,6 +541,28 @@ def _expected_skips_cases():
         case("(h) gate validate_mcp_only_0825.py exists", True)
     except ImportError as e:
         case("(h) gate validate_mcp_only_0825.py exists", False, str(e))
+    # (i) W1 integration (D1-15 x D5-11): on an UNREVIEWED served version (no pinned population,
+    # `support: unreviewed-version`, coverage null) the checks still RUN — "deviations below are
+    # real". A check attributed at EVERY reviewed version (versions == V_0825, the C4 conversions)
+    # is unscoped there exactly like a versions=None check; only a check whose versions are a
+    # proper subset (a version-locked profile.* check) is version-scoped away.
+    from types import SimpleNamespace
+    import engine
+    from engine import CLEAN
+    ctx_draft = SimpleNamespace(version="draft", has_rest=True, has_mcp=False, capabilities=set(),
+                                product_id="p", config={}, profile={}, shopping_endpoint="http://x", base="http://x")
+    def fetch(_ctx):
+        return engine.Resp(200, {"Content-Type": "application/json"}, b'{"a": 1}')
+    unscoped = merchant_checks.MCheck("k.unscoped", ["ZZB-001"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+                                      versions=merchant_checks.V_0825)
+    locked = merchant_checks.MCheck("k.locked", ["ZZB-002"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+                                    versions=("2026-04-08",))
+    _, det = merchant_checks.run_merchant_checks(ctx_draft, [unscoped, locked])
+    st = {c.id: d["status"] for c, d in det}
+    case("(i) unreviewed version: a check attributed at every reviewed version RUNS (like versions=None)",
+         st.get("k.unscoped") == "clean-pass", f"status={st.get('k.unscoped')!r}")
+    case("(i) unreviewed version: a version-locked check is version-scoped away",
+         str(st.get("k.locked", "")).startswith("not-applicable (spec draft out of scope)"), f"status={st.get('k.locked')!r}")
     return ok
 
 
