@@ -271,7 +271,11 @@ CONTROLLED_CONFIG = {
 # golden-0825 (conformance/testbed/golden-0825, our own 2026-08-25 reference) is seeded
 # from the same flower_shop data, so REF_CONFIG grades it as-is; wire_shapes.py supplies
 # the 08-25 request delta (D1-01/D1-02). D1-10 pins its expected-skip population.
-GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG}
+# mcp-only-0825 (D1-11): the Shopify-shaped MCP-only 08-25 profile fixture
+# (fixtures/profiles/mcp_only_0825.py) — no config: nothing REST-gradeable runs on it, and
+# its pinned population says so check by check (expected_skips_mcp_only_0825.json).
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG,
+           "mcp-only-0825": {}}
 
 def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped):
     """The run record validate_dormancy.py unions (D1-07): which ids RAN on this golden

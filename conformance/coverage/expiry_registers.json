@@ -147,6 +147,15 @@
    "clock": "review_by",
    "clock_tier": "moving",
    "_note": "D1-10 (RV2 T15): the pinned skip population of one merchant gate golden; the file IS the entry (root clock). validate_merchant_checks.py --expected-skips also reds on expiry/pin drift at run time."
+  },
+  {
+   "name": "expected_skips.mcp_only_0825",
+   "file": "conformance/checks/expected_skips_mcp_only_0825.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned); D3-10's MCP harness lowers 226 — this clock forces that re-review."
   }
  ]
 }

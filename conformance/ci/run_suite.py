@@ -199,6 +199,12 @@ def gates(server, require_server=False):
                               "--server", GOLDEN_0825, "--golden", "golden-0825",
                               *rec("golden-0825"), *skips("golden_0825")),
          "golden-0825", ()),
+        # D1-11 (C2b): the Shopify-shaped MCP-only 08-25 profile (fixtures/profiles/
+        # mcp_only_0825.py, booted by the gate on an ephemeral loopback port) grades against
+        # its pinned NEAR-EMPTY population (2 run / 226 pinned, every in-scope REST check
+        # transport-not-declared) and the CLI prints coverage null + rest-not-declared.
+        # Hermetic; writes a dormancy-style record too (not in the union: nothing REST runs).
+        ("merchant-mcp-only-0825", _py(SELF / "validate_mcp_only_0825.py"),   None, ()),
         # D1-07: every merchant check runs on SOME golden or is named in
         # dormancy_exemptions.json (floor 13). Unions the five records above; a missing
         # record is a partial union (red under --require-server, never a smaller set);
