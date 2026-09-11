@@ -106,7 +106,7 @@ def evaluate(inp):
     # 9 SHOULD scope
     sh = (inp.get("should") or {}).get(V) or {}
     out[9] = {"pass": sh.get("hits") is not None and bool(inp.get("rubric_sentence")),
-              "evidence": f"SHOULD census hits {sh.get('hits')} · site sentence 'airtight = MUST …' present {bool(inp.get('rubric_sentence'))}"}
+              "evidence": f"SHOULD census hits {sh.get('hits')} · site sentence (registered CLAIM-RUB-016, MUST-class only) present {bool(inp.get('rubric_sentence'))}"}
     # 10 review
     pend = [b.get("batch") for b in (inp.get("signoffs") or []) if b.get("kind") == "sample" or str(b.get("batch", "")).startswith("expiry-clock-seed")
             if ((b.get("sample") or {}).get("human_review") or {}).get("status") != "recorded"]
@@ -131,6 +131,24 @@ def _run(argv, timeout=120):
         return None, ""
     except Exception:
         return None, ""
+
+
+RUBRIC_CLAIM = "CLAIM-RUB-016"
+
+
+def rubric_sentence_present(public_dir, claims_doc):
+    """Item 9's site sentence (decision 8): the REGISTERED CLAIM-RUB-016 text (D5-13: "Airtight
+    means the MUST / MUST NOT / REQUIRED / SHALL obligations at spec pin …; SHOULD-class
+    obligations are censused report-only …") present on its page; the plan's placeholder
+    literal 'airtight = MUST' anywhere under public/ is the pre-D5-13 fallback."""
+    public_dir = pathlib.Path(public_dir)
+    claims = {c.get("id"): c for c in (claims_doc or {}).get("claims", []) if isinstance(c, dict)}
+    c = claims.get(RUBRIC_CLAIM)
+    if c and c.get("text") and c.get("page"):
+        page = public_dir / c["page"]
+        if page.exists() and c["text"] in page.read_text(errors="replace"):
+            return True
+    return any("airtight = MUST" in p.read_text(errors="replace") for p in public_dir.glob("*.html"))
 
 
 def collect(quick=False):
@@ -183,8 +201,7 @@ def collect(quick=False):
         inp["should"] = json.loads(out).get("per_version", {})
     except Exception:
         inp["should"] = {}
-    inp["rubric_sentence"] = any("airtight = MUST" in p.read_text(errors="replace")
-                                 for p in (ROOT / "public").glob("*.html"))
+    inp["rubric_sentence"] = rubric_sentence_present(ROOT / "public", jload(ROOT / "public" / "site_claims.json"))
     inp["signoffs"] = (jload(CONF / "coverage" / "review_signoffs.json") or {}).get("signoffs", [])
     inp["attribution_rc"] = _run([CONF / "ci" / "attribution_hook_gate.py"])[0]
     fl = ROOT / "ops" / "tools" / "filing_lint.py"
