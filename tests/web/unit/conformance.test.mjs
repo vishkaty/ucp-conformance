@@ -70,7 +70,7 @@ test("every preview row carries its engine twin(s) and requirement ids from the 
   const r = runPreviewChecks(GOOD_PROFILE, "application/json");      // 2026-04-08
   const by = Object.fromEntries(r.checks.map((c) => [c.id, c]));
   assert.deepEqual(by["discovery.capabilities_object"].req_ids, ["OVR-001"]);   // was mis-cited DISC-001
-  assert.deepEqual(by["discovery.capabilities_object"].engine, ["profile.reverse_domain_names"]);
+  assert.deepEqual(by["discovery.capabilities_object"].engine, ["profile.reverse_domain_names", "discovery.reverse_domain_names"]);
   assert.deepEqual(by["discovery.services_array"].req_ids, ["DISC-005"]);       // was mis-cited DISC-007
   assert.deepEqual(by["discovery.version"].req_ids, ["OVR-010"]);
   for (const c of r.checks) {

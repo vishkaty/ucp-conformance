@@ -1,0 +1,122 @@
+{
+ "schema": "preview-capture/1",
+ "name": "controlled-2026-01-23",
+ "source": "conformance/fixtures/merchant/server.py --spec-version 2026-01-23 (ephemeral port)",
+ "captured_at": "2026-09-11",
+ "spec_version": "2026-01-23",
+ "normalized": {
+  "from": [
+   "http://127.0.0.1:60108",
+   "http://localhost:60108"
+  ],
+  "to": "https://capture.example"
+ },
+ "well_known": {
+  "status": 200,
+  "content_type": "application/json",
+  "body": {
+   "version": "2026-01-23",
+   "services": {
+    "dev.ucp.shopping": [
+     {
+      "version": "2026-01-23",
+      "transport": "rest",
+      "endpoint": "https://capture.example",
+      "spec": "https://ucp.dev/2026-01-23/specification/shopping",
+      "schema": "https://ucp.dev/2026-01-23/services/shopping/openapi.json"
+     }
+    ]
+   },
+   "capabilities": {
+    "dev.ucp.shopping.checkout": [
+     {
+      "version": "2026-01-23",
+      "spec": "https://ucp.dev/specification/checkout",
+      "schema": "https://ucp.dev/schemas/shopping/checkout.json"
+     }
+    ],
+    "dev.ucp.shopping.order": [
+     {
+      "version": "2026-01-23",
+      "spec": "https://ucp.dev/specification/order",
+      "schema": "https://ucp.dev/schemas/shopping/order.json"
+     }
+    ],
+    "dev.ucp.shopping.discount": [
+     {
+      "version": "2026-01-23",
+      "spec": "https://ucp.dev/specification/discount",
+      "schema": "https://ucp.dev/schemas/shopping/discount.json",
+      "extends": "dev.ucp.shopping.checkout"
+     }
+    ],
+    "dev.ucp.shopping.buyer_consent": [
+     {
+      "version": "2026-01-23",
+      "spec": "https://ucp.dev/specification/buyer-consent",
+      "schema": "https://ucp.dev/schemas/shopping/buyer_consent.json",
+      "extends": "dev.ucp.shopping.checkout"
+     }
+    ],
+    "dev.ucp.common.identity_linking": [
+     {
+      "version": "2026-01-23",
+      "spec": "https://ucp.dev/specification/identity-linking",
+      "schema": "https://ucp.dev/schemas/common/identity_linking.json"
+     }
+    ]
+   },
+   "payment_handlers": {
+    "dev.spck.tokenpay": [
+     {
+      "id": "spck_tokenpay",
+      "version": "2026-01-23",
+      "spec": "https://spck.dev/fixture/handlers/tokenpay",
+      "schema": "https://spck.dev/fixture/handlers/tokenpay/schema.json",
+      "available_instruments": [
+       {
+        "type": "card",
+        "constraints": {
+         "brands": [
+          "visa",
+          "mastercard"
+         ]
+        }
+       }
+      ]
+     }
+    ],
+    "dev.spck.giftpay": [
+     {
+      "id": "spck_giftpay",
+      "version": "2026-01-23",
+      "spec": "https://spck.dev/fixture/handlers/giftpay",
+      "schema": "https://spck.dev/fixture/handlers/giftpay/schema.json",
+      "available_instruments": [
+       {
+        "type": "card",
+        "constraints": {
+         "brands": [
+          "visa"
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "signing_keys": [
+    {
+     "kid": "spck-merchant-sig-2026",
+     "kty": "EC",
+     "crv": "P-256",
+     "x": "wGpBpP1SD5afKQ5C71FzfXCvuVtTyd2X8vPjuWQB3x8",
+     "y": "my0kKuw3z-dwaU81Ib9d2Se7bCT6gMrtCqBtPqTNtRo",
+     "use": "sig",
+     "alg": "ES256"
+    }
+   ]
+  }
+ },
+ "catalog": null
+}

@@ -1,0 +1,222 @@
+{
+  "_about": "JS preview id map (PLAN-v3 §2.18, D5-11, SITE-R-034) — ADD-ONLY, the single source of what the instant check (/api/conformance, /check) and the badge grade. Each preview id maps to its ENGINE twin(s) per spec version (the MCheck ids whose verdict the parity gate compares), the register requirement ids the row cites per version, whether the id is COUNTED in `summary`/the badge N/M (a SHOULD is report-only) and its stage (discovery = shallow/badge; catalog = the read-only live probes of the deep preview). functions/api/preview_ids.js is a byte-compared PROJECTION of this file (conformance/web/gen_preview_ids.py). At 2026-08-25 the engine's discovery.version / discovery.reverse_domain_names run unattributed (req_ids_map []; OVR-010 / OVR-001 are converting rows), so parity there is on the VERDICT only. Verified by conformance/ci/preview_parity.py against the frozen captures in conformance/web/preview_parity/captures/.",
+  "capture_host": "https://capture.example",
+  "preview": {
+    "discovery.version": {
+      "stage": "discovery",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "discovery.version"
+        ],
+        "2026-04-08": [
+          "profile.version_dated",
+          "discovery.version"
+        ],
+        "2026-01-23": [
+          "discovery.version"
+        ],
+        "2026-01-11": [
+          "discovery.version"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "OVR-010"
+        ],
+        "2026-04-08": [
+          "OVR-010"
+        ],
+        "2026-01-23": [
+          "DISC-013"
+        ],
+        "2026-01-11": [
+          "DISC-013"
+        ]
+      },
+      "note": "at 04-08 the attributed twin profile.version_dated is version-locked (versions=V0408) and cannot fire on a non-dated version — the field it grades is the one the scoping reads — so the unscoped discovery.version (req_ids_map 04-08: []) is listed too; decided twins must agree"
+    },
+    "discovery.content_type": {
+      "stage": "discovery",
+      "counted": false,
+      "engine": {},
+      "req_ids": {},
+      "note": "SHOULD (application/json) — report-only: rendered, never in the denominator; no engine MUST twin"
+    },
+    "discovery.capabilities_object": {
+      "stage": "discovery",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "discovery.reverse_domain_names"
+        ],
+        "2026-04-08": [
+          "profile.reverse_domain_names",
+          "discovery.reverse_domain_names"
+        ],
+        "2026-01-23": [
+          "discovery.reverse_domain_names"
+        ],
+        "2026-01-11": [
+          "discovery.reverse_domain_names"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "OVR-001"
+        ],
+        "2026-04-08": [
+          "OVR-001"
+        ],
+        "2026-01-23": [
+          "DISC-001"
+        ],
+        "2026-01-11": [
+          "DISC-001"
+        ]
+      },
+      "note": "was mis-cited DISC-001 at every version; DISC-001 is the reverse-domain rule only at 01-11/01-23 (OVR-001 at 04-08/08-25, where DISC-001 is the HTTPS rule). 2026-01-11 declares capabilities as an ARRAY of {name} entries (engine p_reverse_domain)."
+    },
+    "discovery.services_array": {
+      "stage": "discovery",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "discovery.rest_endpoint"
+        ],
+        "2026-04-08": [
+          "discovery.rest_endpoint"
+        ],
+        "2026-01-23": [
+          "discovery.rest_endpoint"
+        ],
+        "2026-01-11": [
+          "discovery.rest_endpoint"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "DISC-005"
+        ],
+        "2026-04-08": [
+          "DISC-005"
+        ],
+        "2026-01-23": [
+          "DISC-007"
+        ],
+        "2026-01-11": [
+          "DISC-007"
+        ]
+      },
+      "note": "was mis-cited DISC-007 at every version; the engine's own req_ids_map renumbers DISC-007 (01-era) to DISC-005 at 04-08/08-25 (PLAN-v3 says DISC-002, which is the no-redirect rule preview() enforces separately — the map follows the engine). 2026-01-11 services are an OBJECT with a `rest` member (engine p_rest_endpoint)."
+    },
+    "catalog.search_shape": {
+      "stage": "catalog",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "catalog.search_shape"
+        ],
+        "2026-04-08": [
+          "catalog.search_shape"
+        ],
+        "2026-01-23": [
+          "catalog.search_shape"
+        ],
+        "2026-01-11": [
+          "catalog.search_shape"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "CAT-012"
+        ],
+        "2026-04-08": [
+          "CAT-012"
+        ],
+        "2026-01-23": [
+          "CAT-012"
+        ],
+        "2026-01-11": [
+          "CAT-012"
+        ]
+      }
+    },
+    "catalog.empty_search": {
+      "stage": "catalog",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "catalog.empty_search"
+        ],
+        "2026-04-08": [
+          "catalog.empty_search"
+        ],
+        "2026-01-23": [
+          "catalog.empty_search"
+        ],
+        "2026-01-11": [
+          "catalog.empty_search"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "CAT-012"
+        ],
+        "2026-04-08": [
+          "CAT-012"
+        ],
+        "2026-01-23": [
+          "CAT-012"
+        ],
+        "2026-01-11": [
+          "CAT-012"
+        ]
+      }
+    },
+    "catalog.lookup_inputs": {
+      "stage": "catalog",
+      "counted": true,
+      "engine": {
+        "2026-08-25": [
+          "catalog.lookup_inputs"
+        ],
+        "2026-04-08": [
+          "catalog.lookup_inputs"
+        ],
+        "2026-01-23": [
+          "catalog.lookup_inputs"
+        ],
+        "2026-01-11": [
+          "catalog.lookup_inputs"
+        ]
+      },
+      "req_ids": {
+        "2026-08-25": [
+          "CAT-017",
+          "CAT-018"
+        ],
+        "2026-04-08": [
+          "CAT-017",
+          "CAT-018"
+        ],
+        "2026-01-23": [
+          "CAT-017",
+          "CAT-018"
+        ],
+        "2026-01-11": [
+          "CAT-017",
+          "CAT-018"
+        ]
+      }
+    },
+    "catalog.live_probes": {
+      "stage": "catalog",
+      "counted": false,
+      "marker": true,
+      "engine": {},
+      "req_ids": {},
+      "note": "status marker (`not-tested`) emitted when the store gates catalog reads behind authentication — never a verdict, never counted"
+    }
+  }
+}

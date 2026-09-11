@@ -163,7 +163,10 @@ async function run() {
       const b = el("span", "badge " + cls, c.status === "pass" ? "✓" : c.status === "deviation" ? "✗" : "·");
       row.appendChild(b);
       const body = el("div");
-      body.appendChild(el("div", "cid", c.id));
+      body.appendChild(el("div", "cid", c.id +
+        ((c.engine || []).length ? " → engine " + c.engine.join(", ") : "") +
+        ((c.req_ids || []).length ? " · " + c.req_ids.join(", ") : "") +
+        (c.counted === false ? " · report-only" : "")));
       body.appendChild(el("div", "req", c.requirement));
       if (c.status !== "pass") body.appendChild(el("div", c.status === "deviation" ? "obs" : "req", "observed: " + c.observed));
       row.appendChild(body);

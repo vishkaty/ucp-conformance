@@ -272,6 +272,10 @@ def gates(server, require_server=False):
         ("ap2-enforce", _py(SELF / "validate_ap2_enforce.py"),                      None, (2,)),
         ("site-checkdocs", _py(ROOT / "conformance" / "ci" / "site_gates.py", "checkdocs"), None, ()),
         ("web-unit",    _py(ROOT / "conformance" / "ci" / "web_gates.py", "unit"),    None, (2,)),
+        # D5-11: the JS preview is graded 1:1 against the engine on a frozen capture set
+        # (ephemeral loopback stubs + node; skip 2 without node); its selftest plants 3 divergences
+        ("preview-parity", _py(ROOT / "conformance" / "ci" / "preview_parity.py"), None, (2,)),
+        ("preview-parity-selftest", _py(ROOT / "conformance" / "ci" / "preview_parity.py", "--selftest"), None, (2,)),
         ("web-browser", _py(ROOT / "conformance" / "ci" / "web_gates.py", "browser"), "controlled", (2,)),
         # --- site-governance lane: the website held to the same red/green bar as the
         #     suite (TDD traceability, claims register, voice law, security, redirects,
