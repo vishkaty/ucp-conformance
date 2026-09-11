@@ -1188,7 +1188,7 @@ CHECKS = [
     MCheck("checkout.completed_immutable", ["CHK-012"], "MUST", completed_immutable_resp,
            p_rejected_4xx, ["status:200", "status:201"],
            capability="dev.ucp.shopping.order", needs=("product",),
-           cfg_needs=("complete_payment",), transport="rest",
+           cfg_needs=("complete_payment",), transport="rest", versions=V_0825,   # CHK-017 basis ruled `bullet` (D2-11a); attributed at 08-25 at W1 integration
            req_ids_map={"2026-04-08": ["CHK-017"], "2026-08-25": ["CHK-017"]}),
     MCheck("order.entity_shape", ["ORD-001", "ORD-002"], "MUST", order_get_resp, p_order_shape,
            ["status:404", "drop:ucp", "drop:checkout_id", "drop:permalink_url", "corrupt-json"],
@@ -1232,7 +1232,7 @@ CHECKS = [
             "drop:discounts.applied.0.code", "set:totals=[]",
             "set:discounts={\"applied\":[]}", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
-           cfg_needs=("discount",), transport="rest",
+           cfg_needs=("discount",), transport="rest", versions=V_0825,   # DSC-006 basis ruled `bullet` (D2-11a); attributed at 08-25 at W1 integration
            req_ids_map={"2026-04-08": ["DSC-006"], "2026-08-25": ["DSC-006"]}),
     MCheck("discount.applied_fields", ["DSC-012"], "MUST", disc_single_resp, p_disc_applied_fields,
            ["status:500", "drop:discounts.applied.0.title", "drop:discounts.applied.0.amount",

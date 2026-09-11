@@ -12255,10 +12255,10 @@
    "state": "converting",
    "no_further_work": false,
    "musts": 780,
-   "check": 99,
+   "check": 107,
    "exempt": 0,
-   "gap": 681,
-   "accounted_pct": 13,
+   "gap": 673,
+   "accounted_pct": 14,
    "roles": {
     "summary": {
      "merchant": 525,
@@ -12268,14 +12268,14 @@
     },
     "merchant": {
      "musts": 525,
-     "check": 97,
+     "check": 105,
      "exempt": 0,
-     "gap": 428,
+     "gap": 420,
      "gap_by_testability": {
       "manual": 52,
       "needs-oauth": 12,
-      "needs-receiver": 102,
-      "testable": 262
+      "needs-receiver": 98,
+      "testable": 258
      }
     },
     "agent": {
@@ -12294,15 +12294,15 @@
    "by_transport": {
     "rest": {
      "musts": 522,
-     "check": 82,
+     "check": 84,
      "exempt": 0,
-     "gap": 440
+     "gap": 438
     },
     "mcp": {
      "musts": 19,
-     "check": 0,
+     "check": 5,
      "exempt": 0,
-     "gap": 19
+     "gap": 14
     },
     "a2a": {
      "musts": 1,
@@ -12318,9 +12318,9 @@
     },
     "any": {
      "musts": 226,
-     "check": 17,
+     "check": 18,
      "exempt": 0,
-     "gap": 209
+     "gap": 208
     }
    },
    "surface": {
@@ -12375,20 +12375,20 @@
     "discovery-live": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 29,
+    "self-referenced": 37,
     "register-selfcheck": 13,
     "reference-impl": 25
    },
    "integrity": {
-    "target_facing": 61,
+    "target_facing": 69,
     "corpus": 13,
     "algorithm": 25
    },
    "gap_by_testability": {
     "manual": 131,
     "needs-oauth": 15,
-    "needs-receiver": 169,
-    "testable": 366
+    "needs-receiver": 165,
+    "testable": 362
    },
    "areas": [
     {
@@ -12437,20 +12437,20 @@
     },
     {
      "area": "checkout-lifecycle",
-     "check": 11,
-     "gap": 42,
+     "check": 12,
+     "gap": 41,
      "gap_manual": 3,
      "gap_needs-receiver": 8,
-     "gap_testable": 31,
+     "gap_testable": 30,
      "musts": 53
     },
     {
      "area": "discounts-consent",
-     "check": 7,
-     "gap": 21,
+     "check": 8,
+     "gap": 20,
      "gap_manual": 1,
      "gap_needs-receiver": 6,
-     "gap_testable": 14,
+     "gap_testable": 13,
      "musts": 28
     },
     {
@@ -12514,12 +12514,12 @@
     },
     {
      "area": "overview",
-     "check": 2,
-     "gap": 74,
+     "check": 3,
+     "gap": 73,
      "gap_manual": 14,
      "gap_needs-oauth": 1,
      "gap_needs-receiver": 31,
-     "gap_testable": 28,
+     "gap_testable": 27,
      "musts": 76
     },
     {
@@ -12572,8 +12572,9 @@
     },
     {
      "area": "replay-protection-payload-matching",
-     "gap": 3,
-     "gap_testable": 3,
+     "check": 1,
+     "gap": 2,
+     "gap_testable": 2,
      "musts": 3
     },
     {
@@ -12628,9 +12629,10 @@
     },
     {
      "area": "transports",
-     "gap": 17,
+     "check": 4,
+     "gap": 13,
      "gap_manual": 3,
-     "gap_needs-receiver": 8,
+     "gap_needs-receiver": 4,
      "gap_testable": 6,
      "musts": 17
     },
@@ -13830,12 +13832,16 @@
      "area": "checkout-lifecycle",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "bullet",
      "requirement": "After a checkout session reaches state completed it is considered immutable",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1028-L1029",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "CHK-018",
@@ -14931,12 +14937,16 @@
      "area": "discounts-consent",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "bullet",
      "requirement": "discounts.applied contains all active discounts (code-based + automatic); multiple valid codes are all applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "DSC-007",
@@ -17777,36 +17787,48 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "A conforming MCP checkout endpoint MUST implement JSON-RPC 2.0, provide all core checkout tools, return errors per core spec, return business outcomes as JSON-RPC result with UCP envelope and messages array, validate tool inputs against schemas, and support HTTP streaming",
      "source": "ucp:docs/specification/shopping/checkout/mcp.md#L804-L812",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "MCP-004",
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "MCP transport MUST expose UCP OpenRPC operations via JSON-RPC tools/call, mapping method->params.name and params->params.arguments",
      "source": "ucp:docs/specification/shopping/checkout/mcp.md#L824-L826",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "MCP-005",
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "A business implementing the MCP order binding MUST implement the `get_order` tool per the OpenRPC schema",
      "source": "ucp:docs/specification/shopping/order/mcp.md#L299-L300",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "MCP-006",
@@ -17933,12 +17955,16 @@
      "area": "transports",
      "keyword": "MUST",
      "testability": "needs-receiver",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "A conforming cart MCP transport implementation MUST implement JSON-RPC 2.0 correctly, provide all core cart tools, return errors per the Core Specification, return business outcomes as a JSON-RPC result with UCP envelope and messages array, validate tool inputs against UCP schemas, and support HTTP transport with streaming.",
      "source": "ucp:docs/specification/shopping/cart/mcp.md#L651-L659",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "NEG-001",
@@ -17951,7 +17977,8 @@
      "requirement": "When the platform's protocol version is unsupported, the business MUST return a version_unsupported error, mapped to HTTP 422 (REST).",
      "source": "ucp:docs/specification/overview/index.md#L1862,L3553",
      "covered_by": [
-      "merchant_checks_08_25_envelope.py"
+      "merchant_checks_08_25_envelope.py",
+      "merchant_checks_08_25_mcp.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -19102,12 +19129,16 @@
      "area": "overview",
      "keyword": "MUST",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": "sentence",
      "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (e.g. 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
      "source": "ucp:docs/specification/overview/index.md#L2083-L2085",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "OVR-061",
@@ -21011,12 +21042,16 @@
      "area": "replay-protection-payload-matching",
      "keyword": "MUST NOT",
      "testability": "testable",
-     "status": "gap",
+     "status": "check",
      "role": "business",
      "normative_basis": null,
      "requirement": "On a duplicate Idempotency-Key request whose payload does NOT match the original, the business MUST reject with 409 Conflict (REST) / -32000 (MCP) and MUST NOT execute the request",
      "source": "ucp:docs/specification/signatures.md#L834",
-     "covered_by": []
+     "covered_by": [
+      "merchant_checks_08_25_mcp.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "REPLAY-002",
