@@ -423,6 +423,12 @@ def gates(server, require_server=False):
         # governance names the id) run first.
         ("agent-attribution-guard", _py(ROOT / "conformance" / "agent" / "test_attribution_guard.py"), None, ()),
         ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
+        # CI-1 (decision 24): the lane hands THIS run's evidence to RECORD_DIR and governance
+        # reads it with --in-run; the tracked agent_run_evidence.json (bundled) is rewritten
+        # only by an explicit `run_agent.py --record` at release time. Kill-proof: make the
+        # lane record into the tracked file again -> this test reds (mtime/bytes) and the
+        # bundle diff reds on the next UTC-date rollover (CI run 34547382551).
+        ("agent-evidence-handoff", _py(ROOT / "conformance" / "agent" / "test_evidence_handoff.py"), None, ()),
         # R8/R14/S8a kill-proof (agent phase B, 08-25 kickoff): proves
         # reference_agent.extract_signing_keys reads the 08-25 top-level keys[] location
         # against a REAL frozen golden-0825 capture (not just our own sandbox), and that
