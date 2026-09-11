@@ -368,9 +368,60 @@ def selftest():
     bad += 0 if ok else 1
 
     bad += _selftest_roles()
+    bad += _selftest_normative_basis()
 
     print(f"\nverify_register selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
+
+
+def _selftest_normative_basis():
+    """D2-11a (PLAN-v3 §2.4 / A6, decision 29) kill-tests, hermetic. Every mandatory row
+    carries `normative_basis` in {sentence, table, bullet, pseudocode, schema, definition,
+    inferred} OR sits in the version's normative_basis_review_queue (the nokw review set,
+    D2-11b); `sentence` requires a MANDATORY keyword in the quote; `definition|inferred`
+    require a review_signoffs batch naming the (version, id); the mechanical fill
+    (requirements/tools/assign_normative_basis.py) classifies schema / sentence /
+    pseudocode and queues the rest."""
+    import importlib.util
+    bad = 0
+    V = "2026-08-25"
+    def case(name, ok, detail=""):
+        print(f"  {'✓' if ok else '✗'} basis: {name}" + ("" if ok else f"  <-- {detail}"))
+        return 0 if ok else 1
+    rows = [{"id": "ZZZ-101", "keyword": "MUST", "versions": [V], "quote": "The server MUST reply."},       # no basis, not queued
+            {"id": "ZZZ-102", "keyword": "MUST", "versions": [V], "quote": "Return 200.",
+             "normative_basis": "inferred"},                                                             # inferred, unsigned
+            {"id": "ZZZ-103", "keyword": "MUST", "versions": [V], "quote": "| Create | POST /x |",
+             "normative_basis": "sentence"},                                                             # sentence w/o keyword
+            {"id": "ZZZ-104", "keyword": "MUST", "versions": [V], "quote": "The server MUST reply.",
+             "normative_basis": "sentence"},                                                             # fine
+            {"id": "ZZZ-105", "keyword": "MUST", "versions": [V], "quote": "Return 200."},                # no basis, queued -> ok
+            {"id": "ZZZ-106", "keyword": "MUST", "versions": [V], "quote": "x", "normative_basis": "vibes"},  # bad enum
+            {"id": "ZZZ-107", "keyword": "MUST", "versions": [V], "quote": "Return 200.",
+             "normative_basis": "definition"},                                                           # definition, signed -> ok
+            {"id": "ZZZ-108", "keyword": "SHOULD", "versions": [V], "quote": "x"}]                        # SHOULD: optional
+    try:
+        errs = basis_errors(rows, V, queued_ids={"ZZZ-105"}, signed_ids={"ZZZ-107"})
+    except NameError as e:
+        errs = f"NameError: {e}"
+    ok = isinstance(errs, list) and all(any(i in e for e in errs) for i in ("ZZZ-101", "ZZZ-102", "ZZZ-103", "ZZZ-106")) \
+        and not any(i in e for e in errs for i in ("ZZZ-104", "ZZZ-105", "ZZZ-107", "ZZZ-108"))
+    bad += case("missing+unqueued / inferred-unsigned / sentence-without-keyword / bad enum FAIL; "
+                "sentence-with-keyword, queued, signed definition, SHOULD pass", ok, repr(errs)[:220])
+    tool = ROOT / "conformance" / "requirements" / "tools" / "assign_normative_basis.py"
+    if not tool.exists():
+        bad += case("assign_normative_basis fill fixture", False, f"{tool.relative_to(ROOT)} absent")
+    else:
+        spec = importlib.util.spec_from_file_location("assign_normative_basis", tool)
+        nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+        fx = [({"id": "F-1", "keyword": "MUST", "source": "ucp:source/schemas/x.json#L3", "quote": "\"required\": [\"id\"]"}, "schema"),
+              ({"id": "F-2", "keyword": "MUST", "source": "ucp:docs/specification/x.md#L3", "quote": "The server **MUST** reply."}, "sentence"),
+              ({"id": "F-3", "keyword": "MUST", "source": "ucp:docs/specification/x.md#L9", "quote": "if not key: return error()"}, "pseudocode"),
+              ({"id": "F-4", "keyword": "MUST", "source": "ucp:docs/specification/x.md#L12", "quote": "| Create | POST /x |"}, None)]
+        got = {r["id"]: nb.classify(r, fenced_lines={"docs/specification/x.md": {8, 9, 10}}) for r, _ in fx}
+        ok = all(got[r["id"]] == want for r, want in fx)
+        bad += case("fill fixture: schema / sentence / pseudocode (fenced line) / queue(None)", ok, repr(got)[:200])
+    return bad
 
 
 def _selftest_roles():
