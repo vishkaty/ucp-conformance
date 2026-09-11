@@ -797,37 +797,50 @@
        }
       },
       "schema": "https://ucp.dev/schemas/common/identity_linking.json",
+      "spec": "https://ucp.dev/specification/identity-linking",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.cart": [
      {
+      "schema": "https://ucp.dev/schemas/shopping/cart.json",
+      "spec": "https://ucp.dev/specification/cart",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.catalog.lookup": [
      {
+      "schema": "https://ucp.dev/schemas/shopping/lookup.json",
+      "spec": "https://ucp.dev/specification/lookup",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.catalog.search": [
      {
+      "schema": "https://ucp.dev/schemas/shopping/search.json",
+      "spec": "https://ucp.dev/specification/search",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.checkout": [
      {
+      "schema": "https://ucp.dev/schemas/shopping/checkout.json",
+      "spec": "https://ucp.dev/specification/checkout",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.discount": [
      {
       "extends": "dev.ucp.shopping.checkout",
+      "schema": "https://ucp.dev/schemas/shopping/discount.json",
+      "spec": "https://ucp.dev/specification/discount",
       "version": "<VOL>"
      }
     ],
     "dev.ucp.shopping.order": [
      {
+      "schema": "https://ucp.dev/schemas/shopping/order.json",
+      "spec": "https://ucp.dev/specification/order",
       "version": "<VOL>"
      }
     ]

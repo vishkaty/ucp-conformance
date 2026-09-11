@@ -1232,6 +1232,15 @@ def profile(base):
         capabilities = {n: [{k: v for k, v in _cap_meta(n, e).items() if k != "name"}]
                         for n, e in _CAPS_01_ERA}
     if VERSION == "2026-04-08":              # catalog/cart/MCP/A2A exist only in 04-08
+        # OVR-002 (overview.md#L82 @ a2d8bf0b: "The `spec` and `schema` fields are
+        # REQUIRED for all capabilities") + OVR-003 (origin = namespace authority):
+        # every 04-08 capability entry carries origin-matched spec/schema URLs, built
+        # by the same _cap_meta() the 01-era profile uses (AMB-012: capability.json
+        # requires them only on platform_schema; the register follows the prose).
+        capabilities = {n: [{k: v for k, v in _cap_meta(n, e).items() if k != "name"}]
+                        for n, e in (("dev.ucp.shopping.checkout", None),
+                                     ("dev.ucp.shopping.order", None),
+                                     ("dev.ucp.shopping.discount", "dev.ucp.shopping.checkout"))}
         services.append(
             {"version": VERSION, "transport": "mcp", "endpoint": base + "/ucp/mcp",
              "spec": f"https://ucp.dev/{VERSION}/specification/shopping",
@@ -1240,15 +1249,16 @@ def profile(base):
             {"version": VERSION, "transport": "a2a", "endpoint": base + "/ucp/a2a",
              "spec": f"https://ucp.dev/{VERSION}/specification/shopping"})
         capabilities.update({
-            "dev.ucp.shopping.catalog.search": cap,
-            "dev.ucp.shopping.catalog.lookup": cap,
-            "dev.ucp.shopping.cart": cap,
+            "dev.ucp.shopping.catalog.search": [{k: v for k, v in _cap_meta("dev.ucp.shopping.catalog.search").items() if k != "name"}],
+            "dev.ucp.shopping.catalog.lookup": [{k: v for k, v in _cap_meta("dev.ucp.shopping.catalog.lookup").items() if k != "name"}],
+            "dev.ucp.shopping.cart": [{k: v for k, v in _cap_meta("dev.ucp.shopping.cart").items() if k != "name"}],
             # identity-linking: the business declares its user-authenticated scopes
             # in config.scopes (identity_linking.json business_schema requires
             # config + config.scopes; keys are scope_tokens). 04-08 only — the
             # identity-linking rework and its IDL register ids are 2026-04-08.
             "dev.ucp.common.identity_linking": [
                 {"version": VERSION,
+                 "spec": "https://ucp.dev/specification/identity-linking",
                  "schema": "https://ucp.dev/schemas/common/identity_linking.json",
                  "config": {"scopes": IDENTITY_SCOPES}}],
         })
