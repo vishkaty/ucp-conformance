@@ -1,5 +1,5 @@
 {
- "_about": "Agent-lane RUN EVIDENCE (D5-04 / decision 10): {check_id: {sandbox_version: {date, spec_pin}}} written by run_agent.py on every green run; agent_matrix counts a check at a version only with an entry here no older than 30 days at the current spec pin. unrun_versions declares versions with no sandbox yet (agent_governance reds an undeclared unrun attribution).",
+ "_about": "Agent-lane RUN EVIDENCE (D5-04 / decision 10): {check_id: {sandbox_version: {date, spec_pin}}} written by `run_agent.py --record` (owner, release time \u2014 decision 24: run_suite's agent-lane hands in-run evidence to RECORD_DIR via --evidence-out and agent-governance reads it with --in-run, so a gate never rewrites this bundled file); agent_matrix counts a check at a version only with an entry here no older than 30 days at the current spec pin. unrun_versions declares versions with no sandbox yet (agent_governance reds an undeclared unrun attribution).",
  "unrun_versions": {
   "2026-08-25": {
    "reason": "no 2026-08-25 sandbox exists (sandbox.py serves 2026-04-08); the 40 checks whose versions list 2026-08-25 are suppressed to GAP until D3-11 lands the 08-25 sandbox and a green run writes evidence here (decision 10, CLOSED 2026-09-10)",

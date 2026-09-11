@@ -12,7 +12,10 @@ Five checks (all pass trivially at zero agent checks; they bite as coverage grow
   4. SIGN-OFF   — every agent CHECK id carries an adversarial-review sign-off in
                   agent_review_signoffs.json (coverage can't grow without review).
   7. EVIDENCE   — every (check, version) attribution is backed by fresh run evidence at the
-                  current spec pin (agent_run_evidence.json, written by run_agent.py), or the
+                  current spec pin — THIS run's evidence when run_suite hands it over
+                  (`--in-run FILE`, written by the agent-lane's `run_agent.py --evidence-out`;
+                  CI-1 / decision 24), else the tracked agent_run_evidence.json (rewritten
+                  only by an explicit `run_agent.py --record` at release time) — or the
                   version is a DECLARED unrun version with a review_by (D5-04 / decision 10:
                   08-25 is unrun until D3-11's sandbox exists). Kill-tested in
                   test_attribution_guard.py. The ONLY governance check for attribution
@@ -82,7 +85,7 @@ def _live_coverage():
     return out
 
 
-def run():
+def run(in_run=None):
     fails = []
     live = _live_coverage()
 
@@ -147,8 +150,10 @@ def run():
                 fails.append(f"agent SIGN-OFF: check {chk.id} covers {rid} with no recorded "
                              f"adversarial review — add it to agent_review_signoffs.json")
 
-    # 7. evidence: every attribution is backed by a fresh run at the current pin
-    evd = agent_matrix.load_evidence()
+    # 7. evidence: every attribution is backed by a fresh run at the current pin — the
+    #    in-run handoff when it exists (never rescued by the tracked file, exactly as
+    #    validate_battery_freshness treats --in-run), else the tracked file.
+    evd = agent_matrix.load_evidence(in_run if (in_run and os.path.exists(in_run)) else None)
     fails += evidence_failures(agent_checks.CHECKS, evd["evidence"], datetime.date.today(),
                                agent_matrix.spec_pins(), evd["unrun_versions"])
 
@@ -215,16 +220,24 @@ def _agent_copy_freshness():
     return out
 
 
-def main():
-    fails, live = run()
+def main(argv=None):
+    import argparse
+    ap = argparse.ArgumentParser(description="agent-axis governance gate")
+    ap.add_argument("--in-run", metavar="FILE",
+                    help="this run's evidence (run_suite agent-lane --evidence-out); wins when it "
+                         "exists, else the tracked agent_run_evidence.json is used")
+    args = ap.parse_args(argv)
+    in_run = args.in_run if (args.in_run and os.path.exists(args.in_run)) else None
+    source = f"in-run ({os.path.basename(args.in_run)})" if in_run else "tracked (agent_run_evidence.json)"
+    fails, live = run(in_run=in_run)
     if fails:
-        print("agent-governance: FAIL")
+        print(f"agent-governance: FAIL — evidence {source}")
         for f in fails:
             print(f"  x {f}")
         return 1
     tot = sum(d["check"] + d["exempt"] for d in live.values())
     print(f"agent-governance: PASS — coverage fresh + ratchet held + lock intact + all agent "
-          f"checks reviewed ({tot} accounted across {len(live)} versions).")
+          f"checks reviewed ({tot} accounted across {len(live)} versions) · evidence {source}.")
     return 0
 
 

@@ -415,14 +415,19 @@ def gates(server, require_server=False):
         # rule holds even when no golden is reachable and probe-hygiene itself skips.
         ("defect-register", _py(SELF / "validate_probe_hygiene.py", "--selftest"), None, ()),
         ("crypto-interop", _py(ROOT / "conformance" / "ci" / "crypto_interop.py"), None, ()),
-        ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py"),   None, ()),
-        # governance runs AFTER the lane (D5-04 / decision 24 in-run freshness): run_agent.py
-        # records this run's attribution evidence, and governance's EVIDENCE check then
-        # verifies every (check, version) attribution against it — fresh, at the current pin.
+        ("agent-lane",  _py(ROOT / "conformance" / "agent" / "run_agent.py",
+                            "--evidence-out", str(RECORD_DIR / "agent_run_evidence.json")), None, ()),
+        # governance runs AFTER the lane (D5-04 / decision 24 in-run freshness): the lane
+        # hands THIS run's attribution evidence to RECORD_DIR (never the tracked, bundled
+        # agent_run_evidence.json — CI-1: its dates rolled 09-10 -> 09-11 inside CI and the
+        # bundle diff went red), and governance's EVIDENCE check reads it with --in-run —
+        # fresh, at the current pin. The tracked file is refreshed only by the owner's
+        # `run_agent.py --record` on the release path.
         # Hermetic kill-tests for the guard itself (evidence-less / stale / other-pin → GAP;
         # governance names the id) run first.
         ("agent-attribution-guard", _py(ROOT / "conformance" / "agent" / "test_attribution_guard.py"), None, ()),
-        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py"), None, ()),
+        ("agent-governance", _py(ROOT / "conformance" / "agent" / "agent_governance.py",
+                                 "--in-run", str(RECORD_DIR / "agent_run_evidence.json")), None, ()),
         # CI-1 (decision 24): the lane hands THIS run's evidence to RECORD_DIR and governance
         # reads it with --in-run; the tracked agent_run_evidence.json (bundled) is rewritten
         # only by an explicit `run_agent.py --record` at release time. Kill-proof: make the

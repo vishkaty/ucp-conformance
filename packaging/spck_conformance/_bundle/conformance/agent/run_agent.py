@@ -53,8 +53,12 @@ def reference_gate():
 
 def write_run_evidence(results, sandbox_version, path=None):
     """Record this green run as attribution evidence (D5-04): for every SOUND check that
-    declares `sandbox_version`, {date, spec_pin} at that version. Preserves the file's
-    _about/unrun_versions; never writes from the pip bundle (site-packages is not a repo)."""
+    declares `sandbox_version`, {date, spec_pin} at that version. The document is always
+    SEEDED from the tracked file (its _about/unrun_versions declarations are preserved)
+    and written to `path` — the tracked file itself by default (`--record`, owner at
+    release time) or an in-run handoff file (`--evidence-out`, run_suite's agent-lane;
+    CI-1 / decision 24: a gate never rewrites a tracked, bundled file). Never writes
+    from the pip bundle (site-packages is not a repo)."""
     import agent_matrix
     path = path or agent_matrix.EVIDENCE
     if "_bundle" in HERE.replace("\\", "/"):
@@ -62,9 +66,11 @@ def write_run_evidence(results, sandbox_version, path=None):
     pin = agent_matrix.spec_pins().get(sandbox_version)
     if not pin:
         return None
-    doc = json.load(open(path)) if os.path.exists(path) else {}
+    doc = json.load(open(agent_matrix.EVIDENCE)) if os.path.exists(agent_matrix.EVIDENCE) else {}
     doc.setdefault("_about", "Agent-lane RUN EVIDENCE (D5-04 / decision 10): {check_id: {sandbox_version: {date, spec_pin}}} "
-                   "written by run_agent.py on every green run; agent_matrix counts a check at a version only with an "
+                   "written by `run_agent.py --record` (owner, release time — decision 24: run_suite's agent-lane hands "
+                   "in-run evidence to RECORD_DIR via --evidence-out and agent-governance reads it with --in-run, so a "
+                   "gate never rewrites this bundled file); agent_matrix counts a check at a version only with an "
                    "entry here no older than 30 days at the current spec pin. unrun_versions declares versions with no "
                    "sandbox yet (agent_governance reds an undeclared unrun attribution).")
     doc.setdefault("unrun_versions", {})
@@ -98,8 +104,15 @@ def sandbox_version_of(log):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--record", action="store_true",
+                    help="rewrite the TRACKED agent_run_evidence.json with this green run (owner, "
+                         "release time — decision 24; never done by a gate)")
+    ap.add_argument("--evidence-out", metavar="FILE",
+                    help="write this run's evidence to FILE (in-run handoff for run_suite's "
+                         "agent-lane -> agent-governance --in-run); the tracked file is untouched")
     ap.add_argument("--no-evidence", action="store_true",
-                    help="do not record this run in agent_run_evidence.json")
+                    help="deprecated no-op: a plain run records nothing (CI-1); use --record to "
+                         "rewrite the tracked file")
     args = ap.parse_args()
 
     # The agent lane is self-contained: it boots its own adversarial sandbox(es) in-process,
@@ -118,10 +131,10 @@ def main():
     results, unsound, ref_ops = reference_gate()
     ref_ops = ref_ops or len(log)
     evidence_path = None
-    if booted and not unsound and not args.no_evidence:
+    if booted and not unsound and (args.record or args.evidence_out):
         sv = sandbox_version_of(log)
         if sv:
-            evidence_path = write_run_evidence(results, sv)
+            evidence_path = write_run_evidence(results, sv, path=args.evidence_out or None)
 
     if args.json:
         print(json.dumps({"agent_checks": len(agent_checks.CHECKS), "reference_flow_ops": len(log),

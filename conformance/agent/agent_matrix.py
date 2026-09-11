@@ -45,7 +45,8 @@ from common.keywords import MANDATORY  # noqa: E402 — D2-01: one mandatory-key
 REQ = os.path.join(ROOT, "conformance", "requirements")
 EXEMPT = os.path.join(ROOT, "conformance", "coverage", "exemptions.json")
 AGENT_EXEMPT = os.path.join(HERE, "agent_exemptions.json")
-# RUN EVIDENCE (D5-04 / A12, decision 10): written by run_agent.py on every green run as
+# RUN EVIDENCE (D5-04 / A12, decision 10): written by `run_agent.py --record` (owner, release
+# time; a gate only hands in-run evidence to RECORD_DIR — CI-1 / decision 24) as
 # {check_id: {sandbox_version: {date, spec_pin}}}. A check is attributed at version V ONLY
 # with evidence at V no older than EVIDENCE_WINDOW_DAYS and at V's current spec pin —
 # extending an ACheck's `versions` list attributes nothing by itself (the 2026-09-01
