@@ -108,8 +108,11 @@ def evaluate(inp):
     out[9] = {"pass": sh.get("hits") is not None and bool(inp.get("rubric_sentence")),
               "evidence": f"SHOULD census hits {sh.get('hits')} · site sentence (registered CLAIM-RUB-016, MUST-class only) present {bool(inp.get('rubric_sentence'))}"}
     # 10 review
-    pend = [b.get("batch") for b in (inp.get("signoffs") or []) if b.get("kind") == "sample" or str(b.get("batch", "")).startswith("expiry-clock-seed")
-            if ((b.get("sample") or {}).get("human_review") or {}).get("status") != "recorded"]
+    # B3: the human-review block alone decides — a batch with an outstanding human sample is
+    # pending whatever its `kind` (the old `kind == "sample"` prefilter hid
+    # coverage-lock-2026-08-25-2026-09-11 and any batch without the field).
+    pend = [b.get("batch") for b in (inp.get("signoffs") or [])
+            if ((b.get("sample") or {}).get("human_review") or {}).get("status") not in (None, "recorded")]
     out[10] = {"pass": not pend, "evidence": f"sample batches with human review PENDING: {pend or 'none'}"}
     # 11 converting state
     gbt = e.get("gap_by_testability") or {}
