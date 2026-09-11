@@ -131,6 +131,35 @@ spec-grounded reason (unsound check / superseded / spec defect), recorded and re
 in [`conformance/coverage/retirements.json`](conformance/coverage/retirements.json). The
 full policy: [docs/TEST-INTEGRITY.md](docs/TEST-INTEGRITY.md).
 
+## Releasing (rc first — the sequence as executed for 0.4.0)
+
+Releases are cut from green `main` only, and a pre-release always goes first. Exactly as run
+for 0.4.0 (rc1 on 2026-09-10, final on 2026-09-11):
+
+1. `bash packaging/release_rc.sh --rc 1` bumps the version to `X.Y.Zrc1`, runs the release
+   guards and preflight, and prints the tag line. Commit the bump, then
+   `git tag vX.Y.Zrc1 && git push origin vX.Y.Zrc1`. `release.yml` re-runs
+   `packaging/release_guards.sh` (tag == pyproject == `__version__`; the tagged commit is an
+   ancestor of `main`; a completed-success `selftest` check-run exists for that SHA; a
+   CHANGELOG entry; the wheel bundles every spec version) and publishes the pre-release to
+   PyPI via OIDC trusted publishing.
+2. Clean-venv acceptance of the published rc against golden-0825 (`boot_golden_0825`, port
+   8197): `python3 -m venv /tmp/v && /tmp/v/bin/pip install spck-conformance==X.Y.Zrc1 &&
+   /tmp/v/bin/spck-conformance --server http://localhost:8197 --json` must report
+   `verdict.deviations == 0`.
+3. Record `acceptance: green <date> <sha> (…)` under the `## X.Y.Zrc1` heading in
+   `packaging/CHANGELOG.md` (add-only) and commit it.
+4. `bash packaging/release_rc.sh --final` — refused until step 3 is recorded — bumps to
+   `X.Y.Z`; commit, then `git tag vX.Y.Z && git push origin vX.Y.Z`; `release.yml` publishes
+   the final release under the same guards.
+5. Verify PyPI lists `X.Y.Z` as latest and that a clean `pip install spck-conformance`
+   resolves it with every spec version bundled.
+
+The check-run guard accepts *any* completed-success `selftest` run for the tagged SHA: the
+tag push itself starts a newer run, and that in-progress run must never mask the green one
+(`packaging/check_run_verdict.py`, kill-tested by `packaging/test_release_guards.sh`). The
+site deploy (`packaging/deploy.sh`, step 4) reads the history the same way.
+
 ## Links
 
 - **Web check:** https://spck.dev/check

@@ -20,6 +20,7 @@ scratch() {
   mkdir -p "$d/conformance/common" "$d/packaging/spck_conformance"
   cp "$ROOT"/conformance/common/*.py "$d/conformance/common/"
   cp "$ROOT/packaging/release_guards.sh" "$d/packaging/"
+  cp "$ROOT/packaging/check_run_verdict.py" "$d/packaging/" 2>/dev/null || true   # shared check-run reading (absent = red test)
   cp "$ROOT/packaging/pyproject.toml" "$d/packaging/"
   echo '__version__ = "0.4.0"' > "$d/packaging/spck_conformance/__init__.py"
   sed -i.bak 's/^version = .*/version = "0.4.0"/' "$d/packaging/pyproject.toml"

@@ -23,6 +23,7 @@ mkroot() {   # $1 = coverage content the STUB matrix regenerates; $2 = committed
   mkdir -p "$d/public" "$d/ops" "$d/packaging/spck_conformance/_bundle" "$d/conformance/coverage" \
            "$d/conformance/agent" "$d/conformance/web" "$d/conformance/ci" "$d/conformance/selfcheck" "$d/bin"
   cp "$DEPLOY" "$d/packaging/deploy.sh"
+  cp "$HERE/check_run_verdict.py" "$d/packaging/" 2>/dev/null || true   # the shared check-run reading (absent = red test)
   printf 'exit 0\n' > "$d/packaging/sync_bundle.sh"
   : > "$d/packaging/spck_conformance/_bundle/marker"
   printf '%s' "$2" > "$d/public/coverage.json"
