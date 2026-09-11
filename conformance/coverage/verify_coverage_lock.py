@@ -103,5 +103,38 @@ def main():
     return 0
 
 
+def selftest():
+    """B4 (W1 review V2): the completeness direction — published CHECK ⊋ locked CHECK — is
+    pure over (lock, published) so it can be driven on scratch data."""
+    bad = 0
+
+    def case(name, ok, detail=""):
+        nonlocal bad
+        print(f"  {'✓' if ok else '✗'} {name}" + ("" if ok else f"  <-- {detail}"))
+        bad += 0 if ok else 1
+
+    V = "2026-08-25"
+    try:
+        strict = completeness_failures({V: {"check": ["A-1"], "exempt": []}}, {V: {"A-1", "B-2"}})
+        equal = completeness_failures({V: {"check": ["A-1", "B-2"], "exempt": []}}, {V: {"A-1", "B-2"}})
+        subset = completeness_failures({V: {"check": ["A-1", "B-2"], "exempt": []}}, {V: {"A-1"}})
+        missing_v = completeness_failures({}, {V: {"A-1"}})
+    except NameError as e:
+        print(f"  ✗ completeness_failures absent: {e}")
+        print("\ncoverage-lock selftest: FAIL (1 case(s))")
+        return 1
+    case("published CHECK ⊋ locked CHECK reds and names the unlocked id",
+         len(strict) == 1 and "B-2" in strict[0] and V in strict[0], repr(strict))
+    case("published CHECK == locked CHECK is clean", equal == [], repr(equal))
+    case("published CHECK ⊊ locked CHECK is not this rule's business (the lock-holds "
+         "direction + retirements own it)", subset == [], repr(subset))
+    case("a version with no lock block at all reds", len(missing_v) == 1 and "A-1" in missing_v[0],
+         repr(missing_v))
+    print(f"\ncoverage-lock selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
+    return 1 if bad else 0
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv[1:]:
+        sys.exit(selftest())
     sys.exit(main())

@@ -167,6 +167,7 @@ def gates(server, require_server=False):
         # negative against over-firing, all independent of today's real findings.
         ("schema-census-killtest", _py(SELF / "validate_schema_census.py"),       None, ()),
         ("coverage-lock", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py"), None, ()),
+        ("coverage-lock-selftest", _py(ROOT / "conformance" / "coverage" / "verify_coverage_lock.py", "--selftest"), None, ()),
         ("review-signoff", _py(ROOT / "conformance" / "coverage" / "verify_review_signoffs.py"), None, ()),
         # P-2 expiry clocks (D2-04/D2-19): every register entry carries review_by +
         # spec_pin; expired / pin-drifted / unclocked entries red the build. Hermetic.
