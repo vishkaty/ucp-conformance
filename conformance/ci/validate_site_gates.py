@@ -8,6 +8,7 @@ touched), plants one defect, and asserts the gate reddens with the expected line
   D5-10  test_claims_scope_recurses      — a hand-authored page under public/<sub>/ is audited
   D5-01  test_docclaims_reds_on_stale_count — a stale count in functions/**/*.js reds docclaims
   D5-05  test_sync_site_claims_check_reds_on_drift / test_sync_never_rewrites_review_fields
+  D5-12  test_checkdocs_known_issues_drift  — a hand-edited cell on the generated known-issues page reds checkdocs + --check
 
 Run: python3 conformance/ci/validate_site_gates.py   (exit 0 pass · 1 fail). Stdlib only.
 """
@@ -123,8 +124,51 @@ def test_sync_never_rewrites_review_fields():
         return None
 
 
+def scratch_public_full(tmp):
+    """Copy the committed public/ INCLUDING the generated checks/ tree (checkdocs needs it)."""
+    dst = pathlib.Path(tmp) / "public"
+    shutil.copytree(ROOT / "public", dst, ignore=shutil.ignore_patterns("fonts"))
+    return dst
+
+
+def test_checkdocs_known_issues_drift():
+    """D5-12: the known-issues page is GENERATED from conformance/ci/known_issues.json and
+    byte-compared by `checkdocs` (and by `gen_known_issues.py --check`): a hand-edited cell
+    on public/known-issues.html must red both, naming the page."""
+    gen = ROOT / "conformance" / "web" / "gen_known_issues.py"
+    if not gen.exists():
+        return "conformance/web/gen_known_issues.py absent — no known-issues page/generator"
+    with tempfile.TemporaryDirectory() as tmp:
+        pub = scratch_public_full(tmp)
+        env = dict(os.environ, SPCK_PUBLIC=str(pub))
+        r = subprocess.run([sys.executable, str(gen), "--write"], cwd=str(ROOT), env=env,
+                           capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            return f"gen_known_issues.py --write failed on the scratch copy:\n{(r.stdout + r.stderr)[-400:]}"
+        page = pub / "known-issues.html"
+        if not page.exists():
+            return "generator wrote no public/known-issues.html"
+        html = page.read_text(encoding="utf-8")
+        if "KI-001" not in html:
+            return "generated page does not carry the first row id KI-001"
+        page.write_text(html.replace("KI-001", "KI-901", 1), encoding="utf-8")   # one hand-edited cell
+        rc, out = run_mode("checkdocs", pub)
+        if rc == 0:
+            return "checkdocs stayed GREEN with a hand-edited cell on known-issues.html (no known-issues byte-compare)"
+        if "known-issues" not in out:
+            return f"checkdocs went red but did not name known-issues:\n{out[-500:]}"
+        r = subprocess.run([sys.executable, str(gen), "--check"], cwd=str(ROOT), env=env,
+                           capture_output=True, text=True, timeout=300)
+        if r.returncode == 0:
+            return "gen_known_issues.py --check stayed GREEN with a hand-edited cell"
+        if "known-issues.html" not in r.stdout + r.stderr:
+            return f"--check went red without naming known-issues.html:\n{(r.stdout + r.stderr)[-400:]}"
+        return None
+
+
 TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count,
-         test_sync_site_claims_check_reds_on_drift, test_sync_never_rewrites_review_fields]
+         test_sync_site_claims_check_reds_on_drift, test_sync_never_rewrites_review_fields,
+         test_checkdocs_known_issues_drift]
 
 
 def main():
