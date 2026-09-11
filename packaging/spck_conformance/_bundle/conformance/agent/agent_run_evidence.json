@@ -10,266 +10,266 @@
  "evidence": {
   "agent.ap2_provides_mandates_on_complete": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.ap2_two_distinct_mandates": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.processes_auth_challenge": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.sends_bearer_token": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.extracts_challenge_scope": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.public_client_pkce_proof": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.no_client_secret": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.uses_advertised_auth_method": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.revokes_token_on_unlink": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.validates_iss": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.validates_issuer_match": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.verifies_business_signature": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.validates_oauth_state": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.sends_ucp_agent": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.follows_escalation": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.uses_pkce": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.request_signature_verifies": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.signs_core_components": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.signs_body_components": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.signs_idempotency_key": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.signs_ucp_agent_component": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.honors_available_instruments": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.uses_authorization_code_flow": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.requests_only_derived_scopes": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.omits_ucp_on_request": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.omits_response_only_fields": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.omits_checkout_id": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.uses_json_content_type": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.paginates_by_has_next_page": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.sends_valid_search_input": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.selected_option_names_unique": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.line_items_create_not_complete": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.omits_discounts_on_request": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.omits_buyer_on_complete": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.instrument_has_ids": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.credential_has_type": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.aborts_on_discovery_error": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.ignores_future_config": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.incremental_scope_only": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.no_iss_normalization": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.ignores_error_description": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.no_autocomplete_mismatched_totals": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.aborts_on_oidc_fallback_error": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   },
   "agent.owns_authz_request": {
    "2026-04-08": {
-    "date": "2026-09-10",
-    "spec_pin": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d"
+    "date": "2026-09-11",
+    "spec_pin": "a25a4a24e738b74c8fa83254448d0666e478f595"
    }
   }
  }
