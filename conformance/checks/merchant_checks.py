@@ -1536,13 +1536,25 @@ def all_checks():
     from tls_check_01_11_01_23 import CHECKS_TLS
     return out + CHECKS_TLS
 
+def version_locked(chk):
+    """True iff `chk.versions` names a PROPER subset of the reviewed versions (V_0825): the
+    check means something only there and is version-scoped away on every other served
+    version. A check attributed at EVERY reviewed version (the C4 conversions carry
+    versions=V_0825 so matrix.py can attribute them at 08-25) is unscoped — exactly like a
+    versions=None check it still runs on an UNREVIEWED served version (merchant.py answers
+    `support: unreviewed-version`, coverage null, and "deviations below are real").
+    W1 integration: D1-15's versions=V_0825 had silently scoped the 22 core checks away on
+    unreviewed versions; D5-11's preview-parity gate caught it."""
+    return bool(chk.versions) and not set(V_0825) <= set(chk.versions)
+
+
 def run_merchant_checks(ctx, checks=None):
     if checks is None:
         checks = all_checks()
     results, detail = [], []
     for chk in checks:
         rids = _rids(chk, ctx.version)   # register ids AT this server's spec version
-        if chk.versions and ctx.version not in chk.versions:
+        if chk.versions and ctx.version not in chk.versions and version_locked(chk):
             # this register id means something else (or nothing) at this server's
             # spec version — out of scope, never graded
             for rid in rids:
