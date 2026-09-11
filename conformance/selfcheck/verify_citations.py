@@ -45,8 +45,16 @@ REVIEWED_EQUIVALENT = {
                 "a delta) validates that invariant identically at each version, and is "
                 "reference-gated clean-pass + kill-safe on all three goldens. Verified "
                 "2026-07-03 (spec-truth sweep)."),
-    "CHK-025": ("over-strict against a legitimate async target; must branch before "
-                "any 08-25 execution"),
+    "CHK-025": ("Same rule, one added branch: 04-08 'Complete Checkout response is the "
+                "checkout object with the order field populated'; 08-25 keeps that "
+                "synchronous outcome (status completed + order populated with id and "
+                "permalink_url) and ADDS the accepted-for-async outcome (status "
+                "complete_in_progress, order absent). The predicate (p_completed -> "
+                "wire_shapes.completion_ok) takes exactly that branch only when "
+                "shapes_for(ctx.version)._async_completion is set, i.e. at 2026-08-25, and "
+                "stays strict-synchronous at 04-08; kills 'set:status=\"incomplete\"' and "
+                "'drop:order' at both versions. Re-read against checkout/index.md#L1094-L1099 "
+                "@ cd78fb38 2026-09-11 (D1-15)."),
 }
 
 

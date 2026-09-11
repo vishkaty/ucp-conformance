@@ -64,7 +64,6 @@
   "discount.items_discount_invariant": "version-scoped",
   "discount.items_discount_invariant_0408": "version-scoped",
   "discount.reflected_in_totals": "version-scoped",
-  "discount.rejected_via_messages": "needs-config",
   "discount.total_type_selection": "version-scoped",
   "discovery.capability_origin_binding_01_11": "version-scoped",
   "discovery.capability_origin_binding_01_23": "version-scoped",

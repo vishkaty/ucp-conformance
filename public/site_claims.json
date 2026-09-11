@@ -43,11 +43,11 @@
         "reference-impl": 0
       },
       "2026-08-25": {
-        "check": 77,
+        "check": 88,
         "live-wire": 0,
         "fixture-schema": 32,
         "fixture-crypto": 0,
-        "self-referenced": 7,
+        "self-referenced": 18,
         "register-selfcheck": 13,
         "reference-impl": 25
       }

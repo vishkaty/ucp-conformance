@@ -33,6 +33,13 @@ from wire_shapes import shapes_for, base_headers, ShapeUnsupported   # noqa: E40
 # `versions=(...)` is unaffected either way (its own tuple always wins over this
 # module fallback) — this marker only closes the gap for the versions=None majority.
 VERSIONS = ("2026-01-11", "2026-01-23", "2026-04-08")
+# D1-15 (C4-A): the core checks whose 2026-08-25 quote was RE-READ against the pinned
+# 08-25 register (identical sentence, relocated source, or — CHK-025 — a branch the
+# predicate already takes via wire_shapes.completion_ok) carry this explicit tuple:
+# attributed at 08-25 by matrix.py, graded on golden-0825 by the merchant-0825 gate
+# against its pinned skip population, per-id kills where a check cites two ids.
+# Not converted here: CHK-048 (D1-16a, with CHK-078/079), DSC-006 / CHK-017 (D2-11a nokw).
+V_0825 = VERSIONS + ("2026-08-25",)
 
 STATUS_ENUM = {"incomplete", "requires_escalation", "ready_for_complete",
                "complete_in_progress", "completed", "canceled"}
@@ -1066,7 +1073,7 @@ CHECKS = [
     # 2026-08-04).
     MCheck("discovery.rest_endpoint", ["DISC-007"], "MUST", profile_resp, p_rest_endpoint,
            ["drop:services", "set:services={}", "corrupt-json"], transport="rest",
-           req_ids_map={"2026-04-08": ["DISC-005"], "2026-08-25": ["DISC-005"]}),
+           req_ids_map={"2026-04-08": ["DISC-005"], "2026-08-25": ["DISC-005"]}, versions=V_0825),
     MCheck("discovery.reverse_domain_names", ["DISC-001"], "MUST", profile_resp, p_reverse_domain,
            ["drop:capabilities", "set:capabilities={}", "corrupt-json"],
            req_ids_map={"2026-04-08": [], "2026-08-25": []}),
@@ -1081,19 +1088,19 @@ CHECKS = [
     MCheck("checkout.create_valid", ["CHK-001"], "MUST", create_resp, p_create_ok,
            ["status:500", "drop:id", "set:status=\"bogus\"", "empty"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-018"], "2026-08-25": ["CHK-018"]}),
+           req_ids_map={"2026-04-08": ["CHK-018"], "2026-08-25": ["CHK-018"]}, versions=V_0825),
     MCheck("checkout.retrieve", ["CHK-002"], "MUST", retrieve_resp, p_get_ok,
            ["status:404", "drop:id", "drop:status", "empty", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-019"], "2026-08-25": ["CHK-019"]}),
+           req_ids_map={"2026-04-08": ["CHK-019"], "2026-08-25": ["CHK-019"]}, versions=V_0825),
     MCheck("checkout.response_fields", ["CHK-014"], "MUST", create_resp, p_checkout_fields,
            ["status:500", "drop:ucp", "drop:line_items", "drop:currency", "empty", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-034"], "2026-08-25": ["CHK-034"]}),
+           req_ids_map={"2026-04-08": ["CHK-034"], "2026-08-25": ["CHK-034"]}, versions=V_0825),
     MCheck("checkout.update", ["CHK-003"], "MUST", update_resp, p_update_ok,
            ["status:500", "drop:id", "drop:status", "empty", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-020"], "2026-08-25": ["CHK-020"]}),
+           req_ids_map={"2026-04-08": ["CHK-020"], "2026-08-25": ["CHK-020"]}, versions=V_0825),
     MCheck("checkout.update_requires_id", ["CHK-016"], "MUST", chk_missing_id_resp, p_4xx,
            ["status:200", "status:201", "status:204"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
@@ -1101,7 +1108,7 @@ CHECKS = [
     MCheck("checkout.create_requires_line_items", ["CHK-018"], "MUST", chk_missing_line_items_resp, p_4xx,
            ["status:200", "status:201"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-038"], "2026-08-25": ["CHK-038"]}),
+           req_ids_map={"2026-04-08": ["CHK-038"], "2026-08-25": ["CHK-038"]}, versions=V_0825),
     # NEG-015 ("platform version <= business version MUST be processed") is a
     # 2026-01-11/01-23 register row; the 2026-04-08 negotiation rows (NEG-001..005)
     # register only the ERROR mappings — the positive case has no 04-08 id. The
@@ -1146,11 +1153,11 @@ CHECKS = [
            req_ids_map={"2026-04-08": ["CHK-048"], "2026-08-25": ["CHK-048"]}),
     MCheck("fulfillment.method_shape", ["FUL-003"], "MUST", create_resp_ful, p_fulfillment_shape,
            ["drop:fulfillment", "drop:fulfillment.methods.0.type", "corrupt-json"],
-           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest", versions=V_0825),
     MCheck("fulfillment.option_shape", ["FUL-008"], "MUST", create_resp_ful, p_fulfil_options,
            ["status:500", "drop:fulfillment",
             "drop:fulfillment.methods.0.groups.0.options.0.title", "corrupt-json"],
-           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest", versions=V_0825),
     MCheck("fulfillment.single_group_default", ["FUL-026"], "MUST", ful_multi_item_resp,
            p_single_group_per_method,
            ["status:500", "empty", "corrupt-json",
@@ -1161,21 +1168,23 @@ CHECKS = [
             '"groups":[{"id":"g1","line_item_ids":["li_1"],"selected_option_id":"std"},'
             '{"id":"g2","line_item_ids":["li_2"],"selected_option_id":"std"}]}]}',
             "drop:fulfillment.methods.0.groups"],
-           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.fulfillment", needs=("product",), transport="rest", versions=V_0825),
     MCheck("checkout.cancel", ["CHK-005"], "MUST", cancel_resp, p_canceled,
            ["status:500", "set:status=\"incomplete\"", "drop:status", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", needs=("product",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-022"], "2026-08-25": ["CHK-022"]}),
+           req_ids_map={"2026-04-08": ["CHK-022"], "2026-08-25": ["CHK-022"]}, versions=V_0825),
     # --- data-dependent (config-gated) — merchant supplies the concrete inputs ---
     MCheck("checkout.complete_order", ["CHK-004", "CHK-008"], "MUST", complete_resp, p_completed,
            ["status:500", "set:status=\"incomplete\"", "drop:order", "drop:status"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("complete_payment",), transport="rest",
-           req_ids_map={"2026-04-08": ["CHK-021", "CHK-025"], "2026-08-25": ["CHK-021", "CHK-025"]}),
+           req_ids_map={"2026-04-08": ["CHK-021", "CHK-025"], "2026-08-25": ["CHK-021", "CHK-025"]}, versions=V_0825,
+           kills={"CHK-021": ["status:500", "drop:status"],            # the POST places the order
+                  "CHK-025": ['set:status="incomplete"', "drop:order"]}),
     MCheck("payment.no_credential_echo", ["PAY-009"], "MUST NOT", complete_resp, p_no_echo,
            ["set:order.leak=$CRED", "set:status=\"incomplete\"", "drop:status"],
            needs=("product",), cfg_needs=("complete_payment",), transport="rest",
-           req_ids_map={"2026-04-08": ["PAY-011"], "2026-08-25": ["PAY-011"]}),
+           req_ids_map={"2026-04-08": ["PAY-011"], "2026-08-25": ["PAY-011"]}, versions=V_0825),
     MCheck("checkout.completed_immutable", ["CHK-012"], "MUST", completed_immutable_resp,
            p_rejected_4xx, ["status:200", "status:201"],
            capability="dev.ucp.shopping.order", needs=("product",),
@@ -1185,13 +1194,13 @@ CHECKS = [
            ["status:404", "drop:ucp", "drop:checkout_id", "drop:permalink_url", "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("complete_payment",), transport="rest",
-           req_ids_map={"2026-04-08": ["ORD-001"], "2026-08-25": ["ORD-001"]}),
+           req_ids_map={"2026-04-08": ["ORD-001"], "2026-08-25": ["ORD-001"]}, versions=V_0825),
     MCheck("order.line_item_shape", ["ORD-004"], "MUST", order_get_resp, p_order_line_items,
            ["status:404", "set:line_items=[]", "drop:line_items.0.status",
             "drop:line_items.0.totals", "corrupt-json"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=("complete_payment",), transport="rest",
-           req_ids_map={"2026-04-08": ["ORD-005"], "2026-08-25": ["ORD-005"]}),
+           req_ids_map={"2026-04-08": ["ORD-005"], "2026-08-25": ["ORD-005"]}, versions=V_0825),
     # VAL-004/VAL-001: version-locked to the 01-era registers that pin their HTTP
     # statuses — see the VAL-002/003 comment above for the full 04-08 grounding.
     MCheck("validation.payment_failure", ["VAL-004"], "MUST", payment_fail_resp, p_402,
@@ -1230,7 +1239,7 @@ CHECKS = [
             "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest",
-           req_ids_map={"2026-04-08": ["DSC-023"], "2026-08-25": ["DSC-023"]}),
+           req_ids_map={"2026-04-08": ["DSC-023"], "2026-08-25": ["DSC-023"]}, versions=V_0825),
     MCheck("discount.multiple_accept_both", ["DSC-005"], "MUST", disc_multiple_resp, p_disc_multiple,
            ["status:500", "drop:discounts", "drop:discounts.applied",
             "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
@@ -1244,7 +1253,7 @@ CHECKS = [
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest",
-           req_ids_map={"2026-04-08": ["DSC-030"], "2026-08-25": ["DSC-030"]}),
+           req_ids_map={"2026-04-08": ["DSC-030"], "2026-08-25": ["DSC-030"]}, versions=V_0825),
     # --- catalog (capability-gated; product from config/auto-discovery) ---
     MCheck("catalog.search_shape", ["CAT-012"], "MUST", catalog_search_resp, p_catalog_search,
            ["status:500", "drop:products", "set:products=\"x\"",
@@ -1399,22 +1408,24 @@ CHECKS = [
     MCheck("cart.response_shape", ["CART-029"], "MUST", cart_create_resp, p_cart_shape,
            ["status:500", "drop:id", "drop:line_items", "drop:currency", "drop:totals",
             "corrupt-json"],
-           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest", versions=V_0825),
     MCheck("cart.line_item_shape", ["CART-031"], "MUST", cart_create_resp, p_cart_line_items,
            ["status:500", "set:line_items=[]", "drop:line_items.0.item",
             "drop:line_items.0.quantity", "drop:line_items.0.totals", "corrupt-json"],
-           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest", versions=V_0825),
     # --- totals invariants (prose-only, NOT schema-enforced) — run on the cart object ---
     MCheck("totals.subtotal_and_total", ["TOT-005", "TOT-006"], "MUST", cart_create_resp,
            p_totals_subtotal_total,
            ["status:500", "set:totals=[]", "set:totals=[{\"type\":\"total\",\"amount\":1}]",
             "set:totals=[{\"type\":\"subtotal\",\"amount\":1}]", "corrupt-json"],
-           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest", versions=V_0825,
+           kills={"TOT-005": ['set:totals=[{"type":"total","amount":1}]'],      # no subtotal entry
+                  "TOT-006": ['set:totals=[{"type":"subtotal","amount":1}]']}),
     MCheck("totals.additive_non_negative", ["TOT-015"], "MUST", cart_create_resp,
            p_totals_additive_nonneg,
            ["set:totals.0.amount=-1", "set:totals=[{\"type\":\"tax\",\"amount\":-5}]",
             "corrupt-json"],
-           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest"),
+           capability="dev.ucp.shopping.cart", needs=("product",), transport="rest", versions=V_0825),
     # NOTE: DSC-003 (case-insensitive discount codes) is NOT reference-gateable — the
     # Flower Shop golden rejects a lowercased code, so it doesn't satisfy that MUST. A
     # check for it would deviate on the known-good server, so it's deferred until a
@@ -1423,7 +1434,7 @@ CHECKS = [
            ["status:500", "set:discounts={\"applied\":[{\"code\":$DVALID}]}", "corrupt-json"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount",), transport="rest",
-           req_ids_map={"2026-04-08": ["DSC-004"], "2026-08-25": ["DSC-004"]}),
+           req_ids_map={"2026-04-08": ["DSC-004"], "2026-08-25": ["DSC-004"]}, versions=V_0825),
     MCheck("discount.rejected_via_messages", ["DSC-006"], "MUST", disc_reject_resp,
            p_disc_rejected_msg,
            ["status:500", "drop:messages", "set:messages=[]",
@@ -1432,7 +1443,7 @@ CHECKS = [
             "corrupt-json", "empty"],
            capability="dev.ucp.shopping.discount", needs=("product",),
            cfg_needs=("discount.rejected_messages",), transport="rest",
-           req_ids_map={"2026-04-08": ["DSC-007"], "2026-08-25": ["DSC-007"]}),
+           req_ids_map={"2026-04-08": ["DSC-007"], "2026-08-25": ["DSC-007"]}, versions=V_0825),
     MCheck("discount.unknown_code_rejected", ["DSC-007"], "MUST", disc_unknown_resp, p_disc_unknown,
            ["status:500", "drop:discounts", "drop:discounts.codes",
             "set:discounts={\"codes\":[$DINVALID],\"applied\":[{\"code\":$DINVALID,\"amount\":100}]}",

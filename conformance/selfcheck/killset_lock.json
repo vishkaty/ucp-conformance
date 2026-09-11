@@ -838,7 +838,7 @@
    "n_kills_floor": 4
   },
   "merchant_checks:checkout.complete_order": {
-   "hash": "95a05b2f2499314053b388ef04092fac4460e6cb21236502ff353c5fdf4aeceb",
+   "hash": "95714d1bd0bda48776fad629ec418f4f98dfa0f2861dfceb6dbd9fd4689dd827",
    "kind": "MCheck",
    "n_kills": 4,
    "n_kills_floor": 4
@@ -1048,7 +1048,7 @@
    "n_kills_floor": 3
   },
   "merchant_checks:totals.subtotal_and_total": {
-   "hash": "007583bffa103470204b150a1572ffb49fb698b53633addd673d2efe0d591514",
+   "hash": "d2e16f3fb8a165f6a82b43e9b10c4c8d8f89b214c788b1e15b6a8b9850283038",
    "kind": "MCheck",
    "n_kills": 5,
    "n_kills_floor": 5

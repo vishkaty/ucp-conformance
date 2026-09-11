@@ -274,7 +274,12 @@ CONTROLLED_CONFIG = {
 # mcp-only-0825 (D1-11): the Shopify-shaped MCP-only 08-25 profile fixture
 # (fixtures/profiles/mcp_only_0825.py) — no config: nothing REST-gradeable runs on it, and
 # its pinned population says so check by check (expected_skips_mcp_only_0825.json).
-GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG,
+# golden-0825's own config (D1-15): REF_CONFIG (same seed data) plus what OUR golden
+# implements beyond the official flower reference — D3-04 made it emit the rejected-code
+# warning (discount.md#L138-L141), so discount.rejected_via_messages (DSC-007) runs and
+# kill-tests here (armed `discount_reject_silent` -> red) instead of skipping needs-config.
+GOLDEN_0825_CONFIG = {**REF_CONFIG, "discount": {**REF_CONFIG["discount"], "rejected_messages": True}}
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": GOLDEN_0825_CONFIG,
            "mcp-only-0825": {}}
 
 def _write_record(path, golden, server, ctx, ok, broken, weak, ref_defects, skipped, per_id=None):
