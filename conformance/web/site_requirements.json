@@ -450,6 +450,21 @@
       ],
       "status": "active",
       "added": "2026-09-11"
+    },
+    {
+      "id": "SITE-R-035",
+      "requirement": "Discovery-live and the MUST-only scope statement (H5, decisions 4/8): the coverage page's 2026-08-25 evidence sentence is data-driven from coverage.json `versions[v].discovery_live {stores, as_of}` — with stores > 0 it renders the registered CLAIM-COV-007 form naming the store count and date, with stores == 0 or null it falls back to the W0 ceiling sentence (CLAIM-COV-002); the rubric carries CLAIM-RUB-016 (airtight = MUST / MUST NOT / REQUIRED / SHALL at pin cd78fb38; SHOULD-class obligations are censused report-only) with a link to the census; the State-of-UCP tracker renders the shape buckets (rest-keys / mcp-only / embedded-only) and `version_2026_08_25` from scan-summary.json only when the scan carries them; a capture older than 30 days never counts (conformance/ci/discovery_shapes.py, run_suite gate discovery-shapes) (PLAN-v3 §2.11, D5-13).",
+      "pages": [
+        "coverage.html",
+        "rubric.html",
+        "state-of-ucp.html"
+      ],
+      "tests": [
+        "gate:claims",
+        "web_unit:discovery-live"
+      ],
+      "status": "active",
+      "added": "2026-09-11"
     }
   ]
 }

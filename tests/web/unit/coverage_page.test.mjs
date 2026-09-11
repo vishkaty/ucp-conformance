@@ -103,3 +103,31 @@ test("legacy converting versions render the data-driven 'no further work planned
   clickTab(doc, "2026-08-25");                                  // current version: never the legacy line
   assert.ok(!doc.getElementById("summary").textContent.includes(c.text));
 });
+
+
+// ── D5-13 / SITE-R-035: the 08-25 evidence sentence is bound to discovery_live ──────────
+test("08-25 with discovery_live stores > 0 renders the registered CLAIM-COV-007 form (count + as_of), not the ceiling", async () => { // SITE-R-035
+  const c = claim("CLAIM-COV-007");
+  assert.ok(c && c.text, "CLAIM-COV-007 registered in public/site_claims.json");
+  const cov = JSON.parse(JSON.stringify(COV));
+  cov.versions["2026-08-25"].discovery_live = { stores: 3, as_of: "2026-09-10" };
+  const doc = await render(cov);
+  clickTab(doc, "2026-08-25");
+  const text = doc.getElementById("summary").textContent;
+  assert.ok(text.includes(c.text), `summary carries the registered discovery-live text\n${text}`);
+  assert.match(text, /\b3 independently-operated/);
+  assert.match(text, /as of 2026-09-10/);
+  assert.ok(!text.includes(claim("CLAIM-COV-002").text), "the W0 ceiling sentence retires when stores > 0");
+});
+
+test("08-25 with discovery_live null or stores 0 renders the W0 ceiling sentence (CLAIM-COV-002)", async () => { // SITE-R-035
+  for (const dl of [null, { stores: 0, as_of: null }]) {
+    const cov = JSON.parse(JSON.stringify(COV));
+    cov.versions["2026-08-25"].discovery_live = dl;
+    const doc = await render(cov);
+    clickTab(doc, "2026-08-25");
+    const text = doc.getElementById("summary").textContent;
+    assert.ok(text.includes(claim("CLAIM-COV-002").text), `fallback renders for discovery_live=${JSON.stringify(dl)}`);
+    assert.doesNotMatch(text, /independently-operated stores/);
+  }
+});
