@@ -261,7 +261,10 @@ CONTROLLED_CONFIG = {
 # golden-0825 (conformance/testbed/golden-0825, our own 2026-08-25 reference) is seeded
 # from the same flower_shop data, so REF_CONFIG grades it as-is; wire_shapes.py supplies
 # the 08-25 request delta (D1-01/D1-02). D1-10 pins its expected-skip population.
-GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG}
+# golden-0825-mcp (D3-10): the same golden through its MCP binding (:8195); its pinned
+# skip population is checks/expected_skips_golden_0825_mcp.json (gate mcp-check-0825).
+GOLDENS = {"flower": REF_CONFIG, "controlled": CONTROLLED_CONFIG, "golden-0825": REF_CONFIG,
+           "golden-0825-mcp": REF_CONFIG}
 
 def _skip_class(status):
     """The PLAN-v3 §2.3 skip vocabulary, from the runner's status string."""

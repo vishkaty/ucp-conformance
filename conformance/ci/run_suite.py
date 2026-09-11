@@ -58,6 +58,8 @@ PROXY = f"http://localhost:{PROXY_PORT}"
 GOLDEN_0825_PORT = 8197                 # conformance/ci/ports.json (D5-19): the gate golden
 GOLDEN_0825 = f"http://localhost:{GOLDEN_0825_PORT}"
 GOLDEN_0825_DIR = ROOT / "conformance" / "testbed" / "golden-0825"
+GOLDEN_0825_MCP_PORT = 8195             # conformance/ci/ports.json: mcp-golden (D3-10)
+GOLDEN_0825_MCP = f"http://localhost:{GOLDEN_0825_MCP_PORT}"
 
 def _py(path, *args):
     return [sys.executable, str(path), *args]
@@ -203,6 +205,17 @@ def gates(server, require_server=False):
         # destination_type_required_on_request -> omit mode red).
         ("probe-shape-0825", _py(SELF / "validate_probe_shape_0825.py", "--server", GOLDEN_0825),
          "golden-0825", (2,)),
+        # D3-10: the MCP conformance checks (merchant_checks_08_25_mcp.py via mcp_client.py)
+        # are sound on golden-0825's MCP binding (booted here on :8195 WITH the defects
+        # config so the gate can arm the 7 MCP-graded rows and prove each flips a named
+        # check), their skip population is pinned (expected_skips_golden_0825_mcp.json),
+        # and the run record joins the dormancy union.
+        ("mcp-check-0825", _py(SELF / "validate_mcp_checks.py", "--server", GOLDEN_0825_MCP,
+                               "--defects-state", str(RECORD_DIR / "golden_0825_mcp_defects_state.json"),
+                               "--expected-skips", str(CHK / "expected_skips_golden_0825_mcp.json"),
+                               *rec("golden-0825-mcp")),
+         "golden-0825-mcp", (2,)),
+        ("mcp-check-0825-selftest", _py(SELF / "validate_mcp_checks.py", "--selftest"), None, ()),
         ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
                                   "--in-run", str(RECORD_DIR / "battery_LAST_RUN.json")), None, ()),
         ("schema-01-11-01-23", _py(CHK / "schema_check_01_11_01_23.py"),        None, (2,)),
@@ -667,7 +680,8 @@ def main():
     # which fixtures to boot: everything (the historical default) unless --only
     # narrows the table, in which case only what the selected gates declare.
     needed = {g[2] for g in table if g[2]} if args.only else \
-        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy", "golden-0825"}
+        {"golden", "controlled", "controlled-01-23", "controlled-01-11", "proxy", "golden-0825",
+         "golden-0825-mcp"}
 
     up = server_up(args.server) if needed & {"golden", "proxy"} else False
     ctrl_proc = boot_controlled() if "controlled" in needed else None
@@ -682,16 +696,27 @@ def main():
     proxy_up = server_up(PROXY) if "proxy" in needed else False
     g0825 = boot_golden_0825() if "golden-0825" in needed else None
     g0825_up = server_up(GOLDEN_0825) if "golden-0825" in needed else False
+    # D3-10: a SECOND golden-0825 on :8195 with defects mode ON (hot-reload state file
+    # in RECORD_DIR) for mcp-check-0825's mutant proof; never the :8197 gate golden.
+    g0825_mcp = None
+    if "golden-0825-mcp" in needed:
+        RECORD_DIR.mkdir(parents=True, exist_ok=True)
+        g0825_mcp = boot_golden_0825(port=GOLDEN_0825_MCP_PORT, env={
+            "DEFECTS_CONFIG": str(GOLDEN_0825_DIR / "server" / "defects_config.json"),
+            "DEFECTS_STATE_FILE": str(RECORD_DIR / "golden_0825_mcp_defects_state.json")})
+    g0825_mcp_up = server_up(GOLDEN_0825_MCP) if "golden-0825-mcp" in needed else False
     print(f"golden server {args.server}: {'UP' if up else 'DOWN'}")
     print(f"controlled fixture {CONTROLLED}: {'UP' if ctrl_up else 'DOWN'}")
     print(f"controlled fixture (01-23) {CONTROLLED_0123}: {'UP' if ctrl0123_up else 'DOWN'}")
     print(f"controlled fixture (01-11) {CONTROLLED_0111}: {'UP' if ctrl0111_up else 'DOWN'}")
     print(f"mutation proxy {PROXY}: {'UP' if proxy_up else 'DOWN'}")
     print(f"golden-0825 {GOLDEN_0825}: {'UP' if g0825_up else 'DOWN'}")
+    print(f"golden-0825 (mcp, defects on) {GOLDEN_0825_MCP}: {'UP' if g0825_mcp_up else 'DOWN'}")
     print(f"run records: {RECORD_DIR}\n")
     avail = {"golden": up, "controlled": ctrl_up, "controlled-01-23": ctrl0123_up,
              "controlled-01-11": ctrl0111_up,
-             "proxy": proxy_up and up, "golden-0825": g0825_up}
+             "proxy": proxy_up and up, "golden-0825": g0825_up,
+             "golden-0825-mcp": g0825_mcp_up}
 
     results = []
     try:
@@ -720,6 +745,8 @@ def main():
                 proc.terminate()
         if g0825 is not None:
             g0825.stop()
+        if g0825_mcp is not None:
+            g0825_mcp.stop()
 
     print(f"{'gate':14} {'status':6} detail")
     print("-" * 72)

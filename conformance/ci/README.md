@@ -32,6 +32,7 @@ of gates that fail loudly if a check, the register, or the engine loses soundnes
 | `cli-summary` | the CLI denominator is capability/transport-aware from `_area_capabilities.json` (fail-closed); no coverage number for unreviewed/REST-less servers | — |
 | `killset-lock` / `killset-lock-selftest` | every kill set hashed in `killset_lock.json`; a silent shrink or drift is red, named | — |
 | `dormancy` | every merchant check runs on some golden or is named in `dormancy_exemptions.json` (floor 13; partial union is red) | the four goldens |
+| `mcp-check-0825` | the MCP conformance checks (`merchant_checks_08_25_mcp.py` via `mcp_client.py`) are sound on golden-0825's MCP binding (own defects-enabled boot on :8195), the skip population is pinned (`expected_skips_golden_0825_mcp.json`), and each of the 7 MCP-graded `defects_config.json` rows flips a named check; `mcp-check-0825-selftest` is its hermetic kill-test (planted content[]-reading client, §2.3 skip semantics) | own golden-0825 |
 | `battery-freshness` | the R11 golden-0825 mutant battery ran, recently, and passed (in-run in CI) | own golden-0825 |
 | `probe-shape-0825` | the CLI vs golden-0825 (booted on :8197) shows 0 deviations in both probe shapes, >= 29 checks run | own golden-0825 |
 | `package-bundle` | the pip bundle carries every module + data file the runner imports (isolated-interpreter import) | — |
