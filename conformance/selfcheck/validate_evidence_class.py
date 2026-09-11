@@ -139,6 +139,28 @@ def representative_checks():
         fails.append("profile_resp MCheck must be 'wire' (MerchantCtx is built from "
                      f"a live server) — got {evidence.acquisition(prof)}")
 
+    # D1-13 (A3): the two attribution-side classes for struct checks (struct_check_08_25):
+    #   register-selfcheck — the verdict is a fact about the PINNED CORPUS itself (the check
+    #                        is fed / reaches a `struct_check_08_25.CORPUS_DOCS` object:
+    #                        "capability.json requires schema on business_schema");
+    #   reference-impl     — OUR implementation of an algorithm the prose fixes, proven
+    #                        against our own fixtures (the permalink codec, unit_price…).
+    # Neither grades a target; a Row keeps its target-facing class.
+    import struct_check_08_25 as st
+    import golden_check_08_25 as gc
+    cap001 = _find(st.CHECKS, "capability.business_schema_requires_schema")
+    expect(cap001, "struct_check_08_25", "2026-08-25", {}, "register-selfcheck",
+           "struct check fed the vendored capability.json (CAP-001)")
+    codec = _find(st.CHECKS, "permalink.item_id_tilde_base64url_encoding")
+    expect(codec, "struct_check_08_25", "2026-08-25", {}, "reference-impl",
+           "struct check of our own permalink codec (PERM-005)")
+    row_schema = _find(gc.CHECKS, "TOT-014")
+    expect(row_schema, "golden_check_08_25", "2026-08-25", {}, "fixture-schema",
+           "oracle-judged golden Row unchanged by A3")
+    row_self = _find(gc.CHECKS, "FUL-030.omit-type")
+    expect(row_self, "golden_check_08_25", "2026-08-25", {}, "self-referenced",
+           "hand-predicate golden Row unchanged by A3 (target-facing, not corpus)")
+
     # Under the COMMITTED reach report, the mechanism must actually corroborate:
     # at least one wire check is live-wire (a reach layer that can never grant
     # live-wire proves nothing).
@@ -282,6 +304,27 @@ def classifier_kill_tests():
             != "fixture-schema":
         fails.append("KILL strongest(): rank order broken")
 
+    # D1-13 (A3) kill-tests: a struct check with a PLAIN predicate over plain fixtures must
+    # NOT classify register-selfcheck — the corpus class needs identity reach into
+    # struct_check_08_25.CORPUS_DOCS (fail-closed to reference-impl); feeding it a corpus
+    # object IS that reach (positive control); the two classes rank below every
+    # target-facing class.
+    import struct_check_08_25 as st
+    plain_struct = st.Check("k.struct_plain", ["ZZZ-020"], lambda x: x == 1, [(1,)], [(2,)])
+    expect(plain_struct, "synthetic", "2026-08-25", {}, "reference-impl",
+           "struct check with a plain predicate (must NOT be register-selfcheck)")
+    try:
+        corpus_obj = st.CORPUS_DOCS[0]
+        corpus_struct = st.Check("k.struct_corpus", ["ZZZ-021"], lambda doc: isinstance(doc, dict),
+                                 [(corpus_obj,)], [(None,)])
+        expect(corpus_struct, "synthetic", "2026-08-25", {}, "register-selfcheck",
+               "struct check fed a CORPUS_DOCS object (positive control)")
+    except AttributeError as e:
+        fails.append(f"KILL corpus reach: struct_check_08_25.CORPUS_DOCS missing ({e})")
+    if evidence.strongest(["reference-impl", "register-selfcheck"]) != "register-selfcheck" or \
+       evidence.strongest(["register-selfcheck", "self-referenced"]) != "self-referenced":
+        fails.append("KILL strongest(): A3 classes must rank corpus > algorithm, both below target-facing")
+
     # R4 (evidence_by_id cross-version aggregation): the SAME check object attributed
     # to TWO versions, with reach graded at only ONE of them, must classify live-wire
     # at that version and self-referenced at the sibling — proving the (id(chk),
@@ -323,6 +366,18 @@ def totals_invariants(export):
         if n_rows != d["check"]:
             fails.append(f"{ver}: {n_rows} check rows carry an evidence field, "
                          f"expected {d['check']}")
+        # D1-13: the integrity column partitions CHECK into target-facing / corpus /
+        # algorithm, and target-facing is exactly the four target classes.
+        integ = d.get("integrity")
+        if not isinstance(integ, dict) or set(integ) != {"target_facing", "corpus", "algorithm"}:
+            fails.append(f"{ver}: integrity {{target_facing, corpus, algorithm}} missing from the export (got {integ!r})")
+        else:
+            if sum(integ.values()) != d["check"]:
+                fails.append(f"{ver}: integrity sums to {sum(integ.values())} != CHECK {d['check']}")
+            tf = sum(ebd.get(c, 0) for c in ("live-wire", "fixture-schema", "fixture-crypto", "self-referenced"))
+            if integ["target_facing"] != tf or integ["corpus"] != ebd.get("register-selfcheck") \
+               or integ["algorithm"] != ebd.get("reference-impl"):
+                fails.append(f"{ver}: integrity {integ} disagrees with the breakdown {ebd}")
         floor = floors.get(ver)
         if floor is not None and d["check"] + d["exempt"] < floor:
             fails.append(f"{ver}: accounted {d['check'] + d['exempt']} fell below "
