@@ -1480,10 +1480,10 @@
    "n_kills_floor": 5
   },
   "merchant_checks_04_08_envelope:profile.spec_url_authority": {
-   "hash": "8343fa963768e11db8d10322416fa8292ac8530f6a49df878398b97699c39d4a",
+   "hash": "a44eaf6bfbf243aa85f75b2f9e53a27c8f124d6a9151ac28137084da81f0093b",
    "kind": "MCheck",
-   "n_kills": 3,
-   "n_kills_floor": 3
+   "n_kills": 5,
+   "n_kills_floor": 5
   },
   "merchant_checks_04_08_envelope:profile.version_dated": {
    "hash": "df6d206d42e086a9eb4682f9db44fd38b7590d1941b6666d83c5689f93ddb854",
