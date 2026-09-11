@@ -45,7 +45,8 @@
    "notes": "[2026-08-25] carried; reflowed only (\"P-256 (ES256)\" -> \"ES256 (ECDSA P-256)\", plus an added clarifying sentence \"This is the universal UCP baseline.\"). Same MUST obligation. The surrounding table now lists a third family (EdDSA/Ed25519, optional) alongside ECDSA P-256/P-384 -- see SIG-003 and the new (out-of-scope, not carried) EdDSA-optional clause at L98-101. Verification row; suite stubs request-signature so official_oracle=false.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; reflowed only (\"P-256 (ES256)\" -> \"ES256 (ECDSA P-256)\", plus an added clarifying sentence \"This is the universal UCP baseline.\"). Same MUST obligation. The surrounding table now lists a third family (EdDSA/Ed25519, optional) alongside EC"
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -69,7 +70,8 @@
    "notes": "[2026-08-25] carried; reflowed only (\"P-384 (ES384)\" -> \"ES384 (ECDSA P-384)\"). Same obligation.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; reflowed only (\"P-384 (ES384)\" -> \"ES384 (ECDSA P-384)\"). Same obligation."
    }
   },
   {
@@ -279,7 +281,8 @@
    "notes": "[2026-08-25] carried; identical substance, table column widths and footnote markup style changed cosmetically (\"Cond.*\" -> \"Cond. `*`\"; footnote line now starts with a leading bullet \"* `*`\" rather than a bare backslash-star). Conditional requirement: body present => Content-Digest required. New table also gained a `Signature-Agent` row (WBA-only, out of scope for this row).",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; identical substance, table column widths and footnote markup style changed cosmetically (\"Cond.*\" -> \"Cond. `*`\"; footnote line now starts with a leading bullet \"* `*`\" rather than a bare backslash-star). Conditional requirement: body pre"
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -351,7 +354,8 @@
    "notes": "[2026-08-25] carried; identical substance, footnote markup style changed (\"\\u2020 Required...\" -> \"* `†` Required...\"). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; identical substance, footnote markup style changed (\"\\u2020 Required...\" -> \"* `†` Required...\"). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Mercha"
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -375,7 +379,8 @@
    "notes": "[2026-08-25] carried; identical substance. Footnote symbol shifted from \\*** (2026-04-08) to **** (2026-08-25) purely because the new `signature-agent` conditional row was inserted ahead of it in the table, consuming the \\*** slot — not a content change. Idempotency-key signed for state-changing methods. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; identical substance. Footnote symbol shifted from \\*** (2026-04-08) to **** (2026-08-25) purely because the new `signature-agent` conditional row was inserted ahead of it in the table, consuming the \\*** slot — not a content change. Idemp"
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -399,7 +404,8 @@
    "notes": "[2026-08-25] carried verbatim (markup style only). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027).",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim (markup style only). Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tie"
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -423,7 +429,8 @@
    "notes": "[2026-08-25] carried verbatim (markup style only). New table also adds a WBA-only `signature-agent` conditional row (Cond. `***`, required if Signature-Agent header present) immediately after this one — a genuinely new component, out of scope for this carried row since it has no 2026-04-08 antecedent. Reclassified from testable: binds the REQUEST SIGNER (platform for API calls — client-bound; the merchant only for webhook requests). Merchant-side coverage needs the Phase-2 webhook/receiver harness (same tier as SIG-027). Covered 2026-08-04: the Phase-2 webhook capture harness now grades the merchant's own signed webhook deliveries (merchant_checks_04_08_events).",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim (markup style only). New table also adds a WBA-only `signature-agent` conditional row (Cond. `***`, required if Signature-Agent header present) immediately after this one — a genuinely new component, out of scope for this carried "
    },
    "role": "platform",
    "role_provenance": "agent-lock"
@@ -447,7 +454,8 @@
    "notes": "[2026-08-25] carried; now presented as one bullet in a two-bullet list (ECDSA / EdDSA) rather than a standalone paragraph, and pins the RFC section (§3.3.1) that was unspecified before. A new sibling bullet requires EdDSA (Ed25519) signatures to use RFC 8032 §5.1.6 encoding (64-byte R||S) -- new content, no 2026-04-08 antecedent, not carried by this row. Raw r||s not DER; verification row, suite stubs signature.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; now presented as one bullet in a two-bullet list (ECDSA / EdDSA) rather than a standalone paragraph, and pins the RFC section (§3.3.1) that was unspecified before. A new sibling bullet requires EdDSA (Ed25519) signatures to use RFC 8032 §"
    },
    "role": "both",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -495,7 +503,8 @@
    "notes": "[2026-08-25] carried; markup style only (\"Cond.*\" -> \"Cond. `*`\"). Response-signing behavior verified by the receiving party.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried; markup style only (\"Cond.*\" -> \"Cond. `*`\"). Response-signing behavior verified by the receiving party."
    },
    "role": "business",
    "role_provenance": "direction"
@@ -615,7 +624,8 @@
    "notes": "[2026-08-25] carried verbatim; now labeled \"**Requests:**\" and followed by one added sentence noting alternative auth mechanisms (API keys, OAuth, mTLS) may be used instead — additive, does not change this SHOULD.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim; now labeled \"**Requests:**\" and followed by one added sentence noting alternative auth mechanisms (API keys, OAuth, mTLS) may be used instead — additive, does not change this SHOULD."
    },
    "role": "platform",
    "role_provenance": "subject"
@@ -639,7 +649,8 @@
    "notes": "[2026-08-25] carried verbatim (added \"**Webhooks:**\" label only). Webhook-signing row; requires a receiver/webhook sender.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim (added \"**Webhooks:**\" label only). Webhook-signing row; requires a receiver/webhook sender."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -663,7 +674,8 @@
    "notes": "[2026-08-25] carried verbatim (added \"**Other responses:**\" label only). RECOMMENDED maps to SHOULD.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim (added \"**Other responses:**\" label only). RECOMMENDED maps to SHOULD."
    }
   },
   {
@@ -971,7 +983,8 @@
    "notes": "[2026-08-25] carried verbatim, identical numbered-list item (now item 4 under \"UCP-Agent parsing rules (default UCP regime)\"). Path constraint on business profile URLs. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] carried verbatim, identical numbered-list item (now item 4 under \"UCP-Agent parsing rules (default UCP regime)\"). Path constraint on business profile URLs. [added by completeness-2026-07-03] [completeness: not observable against the REST controlle"
    },
    "role": "both",
    "role_provenance": "review:role-adjudication-2026-09-11"

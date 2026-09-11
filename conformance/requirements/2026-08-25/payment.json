@@ -528,7 +528,8 @@
       "notes": "[2026-08-25] relocated: shopping/types/card_payment_instrument.json -> common/types/card_payment_instrument.json; required+const('card') unchanged (const now at L36, was L45). Note: the $defs sub-schema changed shape — old 'available_card_payment_instrument' with a constraints.brands array (minItems 1, uniqueItems) is gone; replaced by a $defs.constraint_target with a single 'brand' string member consumed via the new constraint_expression.json pattern (same restructuring as PAY-007's available_payment_instrument.json). Doesn't affect this row's own required/const assertion.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated: shopping/types/card_payment_instrument.json -> common/types/card_payment_instrument.json; required+const('card') unchanged (const now at L36, was L45). Note: the $defs sub-schema changed shape — old 'available_card_payment_instrument' w"
       },
       "role": "platform",
       "role_provenance": "agent-lock"

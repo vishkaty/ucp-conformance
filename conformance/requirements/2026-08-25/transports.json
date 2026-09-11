@@ -97,7 +97,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: the six-item conformance list is unchanged verbatim; only the relative link target for 'Core Specification' updated from overview.md to ../../overview/index.md as a mechanical consequence of the reorg (three extra path segments for the"
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -147,7 +148,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: order-mcp.md moved to docs/specification/shopping/order/mcp.md; requirement text unchanged. The OpenRPC schema link changed representation from an absolute URL (https://ucp.dev/services/shopping/mcp.openrpc.json) to the doc-site's inte"
    },
    "role": "business",
    "role_provenance": "subject"

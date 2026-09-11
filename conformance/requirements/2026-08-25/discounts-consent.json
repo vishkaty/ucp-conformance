@@ -571,7 +571,8 @@
       "notes": "Carried from 2026-04-08 DSC-024; schema unchanged, same line number in the 08-25 pin.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried from 2026-04-08 DSC-024; schema unchanged, same line number in the 08-25 pin."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -619,7 +620,8 @@
       "notes": "Carried from 2026-04-08 DSC-026; schema unchanged, same line number in the 08-25 pin.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried from 2026-04-08 DSC-026; schema unchanged, same line number in the 08-25 pin."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"

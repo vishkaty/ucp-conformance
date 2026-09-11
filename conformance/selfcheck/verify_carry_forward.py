@@ -50,6 +50,163 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
+# ------------------------------------------------------------------ pure evaluation
+def evaluate(cf, from_rows, to_rows, dead_term_hits):
+    """-> (counts, errors). `from_rows` / `to_rows` are the rows of the two versions,
+    `dead_term_hits` = {(id, term): hits in the `to` spec tree outside fences} for every
+    dead entry's search term (the caller does that I/O). Pure, hermetic."""
+    errs = []
+    from_v, to_v = cf.get("from"), cf.get("to")
+    entries = cf.get("entries", [])
+    from_by_id = {r["id"]: r for r in from_rows}
+    to_by_id = {r["id"]: r for r in to_rows}
+    # reverse direction (D2-15): rows the `from` version received by backport from `to`
+    backported = {i for i, r in from_by_id.items()
+                  if (r.get("lineage") or {}).get("disposition") == "backported"}
+    for i in sorted(backported):
+        src = (from_by_id[i].get("lineage") or {}).get("from")
+        if src != to_v:
+            errs.append(f"{i}: backported into {from_v} from {src!r}, expected {to_v}")
+        t = to_by_id.get(i)
+        if t is None:
+            errs.append(f"{i}: backported into {from_v} but no {to_v} row with that id exists")
+        elif norm(t.get("quote")) != norm(from_by_id[i].get("quote")):
+            errs.append(f"{i}: backported row's quote differs from its {to_v} source row (normalized)")
+    forward_ids = set(from_by_id) - backported
+    # 1. exactly once
+    seen = {}
+    for e in entries:
+        i, d = e.get("id"), e.get("disposition")
+        if d not in DISPOSITIONS:
+            errs.append(f"{i}: disposition {d!r} not in {DISPOSITIONS}")
+        if i in seen:
+            errs.append(f"{i}: listed twice in carry_forward.json")
+        seen[i] = e
+        if i not in forward_ids:
+            errs.append(f"{i}: entry has no {from_v} row (or the row is a backport)")
+    for i in sorted(forward_ids - set(seen)):
+        errs.append(f"{i}: {from_v} row has no carry_forward entry (carried / renamed / reworded / dead / merged / downgraded?)")
+    # 2. sums
+    counts = {d: 0 for d in DISPOSITIONS}
+    for e in entries:
+        if e.get("disposition") in counts:
+            counts[e["disposition"]] += 1
+    counts["total"] = len(forward_ids)
+    counts["backported"] = len(backported)
+    if sum(counts[d] for d in DISPOSITIONS) != counts["total"] and not any("no carry_forward entry" in x or "listed twice" in x for x in errs):
+        errs.append(f"dispositions sum {sum(counts[d] for d in DISPOSITIONS)} != {from_v} rows {counts['total']}")
+    # 3. forward lineage agreement
+    target_of = {}
+    for e in entries:
+        if e.get("disposition") in FORWARD:
+            target_of[e.get("to_id") or e["id"]] = e
+    drift_flagged = 0
+    for t in to_rows:
+        lin = t.get("lineage") or {}
+        if lin.get("from") == from_v and lin.get("disposition") != "backported":
+            e = target_of.get(t["id"])
+            if e is None:
+                errs.append(f"{t['id']}: {to_v} row carries lineage from {from_v} but no carried/renamed/reworded entry maps onto it")
+                continue
+            # 4. carried quote fidelity
+            if e["disposition"] == "carried":
+                src = from_by_id.get(e["id"])
+                if src is not None and norm(src.get("quote")) != norm(t.get("quote")):
+                    if not str(lin.get("drift_note", "")).strip():
+                        errs.append(f"{t['id']}: carried from {from_v} but the normalized quote differs and lineage has no drift_note")
+                    else:
+                        drift_flagged += 1
+        elif not lin and t["id"] in forward_ids and t["id"] not in target_of:
+            errs.append(f"{t['id']}: {to_v} row reuses a {from_v} id with no lineage and no entry mapping onto it")
+    counts["drift_flagged"] = drift_flagged
+    # 5. dead-proof
+    for e in entries:
+        if e.get("disposition") != "dead":
+            continue
+        terms = e.get("search_terms") or []
+        if not terms:
+            errs.append(f"{e['id']}: dead entry without search_terms (no mechanical dead-proof)")
+        for term in terms:
+            h = dead_term_hits.get((e["id"], term))
+            if h is None:
+                errs.append(f"{e['id']}: dead-proof term {term!r} was not scanned")
+            elif h:
+                errs.append(f"{e['id']}: dead entry but its search term {term!r} still has {h} hit(s) in the {to_v} spec tree")
+        if e["id"] in target_of:
+            errs.append(f"{e['id']}: dead entry but a {to_v} row still claims lineage from it")
+    # 6. merged targets exist
+    for e in entries:
+        if e.get("disposition") == "merged":
+            into = e.get("into")
+            for tgt in (into if isinstance(into, list) else [into]):
+                if tgt not in to_by_id:
+                    errs.append(f"{e['id']}: merged into {tgt!r} which is not a {to_v} row")
+    return counts, errs
+
+
+# ------------------------------------------------------------------ I/O
+def load_rows(ver):
+    rows = []
+    vdir = REQ_DIR / ver
+    for af in sorted(vdir.glob("*.json")):
+        if af.name.startswith("_"):
+            continue
+        d = json.loads(af.read_text())
+        rows += d.get("rows", []) if isinstance(d, dict) else []
+    return rows
+
+
+def term_hits(ver, term):
+    """Hits of `term` (normalized, emphasis-insensitive) in the vendored spec tree of
+    `ver` — docs/**/*.md outside code fences, plus source/**/*.json."""
+    base = VENDOR / VERSION_TREE.get(ver, "ucp")
+    nt = norm(term)
+    hits = 0
+    for f in sorted((base / "docs").rglob("*.md")):
+        in_fence = False
+        for raw in f.read_text(encoding="utf-8", errors="replace").splitlines():
+            st = raw.lstrip()
+            if st.startswith("```") or st.startswith("~~~"):
+                in_fence = not in_fence
+                continue
+            if not in_fence and nt in norm(raw):
+                hits += 1
+    for f in sorted((base / "source").rglob("*.json")):
+        if nt in norm(f.read_text(encoding="utf-8", errors="replace")):
+            hits += 1
+    return hits
+
+
+def run(cf_path):
+    cf = json.loads(pathlib.Path(cf_path).read_text())
+    from_rows, to_rows = load_rows(cf["from"]), load_rows(cf["to"])
+    hits = {}
+    for e in cf.get("entries", []):
+        if e.get("disposition") == "dead":
+            for term in e.get("search_terms") or []:
+                hits[(e["id"], term)] = term_hits(cf["to"], term)
+    return cf, evaluate(cf, from_rows, to_rows, hits)
+
+
+def main(argv):
+    files = [pathlib.Path(a) for a in argv] or sorted(REQ_DIR.glob("*/carry_forward.json"))
+    if not files:
+        print("carry-forward: no carry_forward.json under conformance/requirements/<ver>/ — nothing to verify")
+        return 1
+    rc = 0
+    for f in files:
+        cf, (c, errs) = run(f)
+        for e in errs:
+            print(f"  ✗ {e}")
+        line = (f"carry-forward {cf['from']}→{cf['to']}: {c['total']} = carried {c['carried']} · renamed {c['renamed']} "
+                f"· reworded {c['reworded']} · dead {c['dead']} · merged {c['merged']} · downgraded {c['downgraded']} "
+                f"· drift-flagged {c['drift_flagged']} (all noted)"
+                + (f" · backported {c['backported']} (reverse, {cf['to']}→{cf['from']})" if c['backported'] else ""))
+        print(f"{line} — {'PASS' if not errs else f'FAIL ({len(errs)})'}")
+        rc |= 1 if errs else 0
+    return rc
+
+
 # ------------------------------------------------------------------ selftest fixtures
 def _fixture():
     from_rows = [
@@ -110,7 +267,7 @@ def selftest():
         # a `to` row claims lineage from an id the entries call dead
         cf3 = dict(cf, entries=[dict(e, disposition="dead", search_terms=["x"]) if e["id"] == "A-004" else e
                                 for e in cf["entries"]])
-        _, errs = evaluate(cf3, fr, to, dict(hits, **{("A-004", "x"): 0}))
+        _, errs = evaluate(cf3, fr, to, {**hits, ("A-004", "x"): 0})
         bad += case("entry says dead but a `to` row carries lineage from it -> FAIL",
                     any("A-004" in e for e in errs), repr(errs)[:200])
         # merged into a row that does not exist

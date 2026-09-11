@@ -165,7 +165,8 @@
       "notes": "08-25: moved to shopping/order/index.md. Wording lightly expanded from 04-08's 'Quantities and amounts are signed\u2014negative for reductions...' to 'Quantities are signed step counts and amounts are signed\u2014negative for reductions...' (adds the 'step counts' clarification tied to the new quantity_unit/scale contract introduced elsewhere in 08-25). Same normative claim (signed, negative=reduction, positive=addition); treated as carried, not materially reworded. Oracle note (suite spec-2026-01-23, version skew) carried forward unverified against 08-25.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to shopping/order/index.md. Wording lightly expanded from 04-08's 'Quantities and amounts are signed\u2014negative for reductions...' to 'Quantities are signed step counts and amounts are signed\u2014negative for reductions...' (adds the 'step counts' clari"
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -333,7 +334,8 @@
       "notes": "08-25: moved to shopping/order/index.md. Scope table wording expanded ('Read access to the user's orders' now continues '\u2014 Get Order on resources owned by the authenticated user.') \u2014 same substance as the 04-08 parenthetical gloss, not a rename (scope identifiers dev.ucp.shopping.order:read / order:manage are unchanged). order:manage row similarly unchanged at index.md#L547. Scope docs now cross-reference common/identity-linking/index.md#scopes for extension rules.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to shopping/order/index.md. Scope table wording expanded ('Read access to the user's orders' now continues '\u2014 Get Order on resources owned by the authenticated user.') \u2014 same substance as the 04-08 parenthetical gloss, not a rename (scope identifi"
       }
     },
     {
@@ -644,7 +646,8 @@
       "notes": "08-25: moved to shopping/order/index.md; link path adjusted to '../../signatures.md' for the new nesting depth (same signatures.md document); requirement text unchanged.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to shopping/order/index.md; link path adjusted to '../../signatures.md' for the new nesting depth (same signatures.md document); requirement text unchanged."
       },
       "role": "business",
       "role_provenance": "subject"

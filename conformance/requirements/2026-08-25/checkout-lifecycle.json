@@ -427,7 +427,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); the in-table cross-reference link target changed from checkout.md#create-checkout to index.md#create-checkout to match the doc reorg -- the operation/verb/endpoint binding itself is unchanged. Oracle: test_create_checkout (returns 200/201 with checkout id).",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); the in-table cross-reference link target changed from checkout.md#create-checkout to index.md#create-checkout to match the doc reorg -- the operation/verb/endpoint b"
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -451,7 +452,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_get_checkout asserts 200.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_get_checkout asserts 200."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -475,7 +477,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Verb=PUT enforces full-replacement semantics. Oracle: test_update_checkout asserts 200.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Verb=PUT enforces full-replacement semantics. Oracle: test_update_checkout asserts 200."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -499,7 +502,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_complete_checkout asserts 200, status completed, and order present.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_complete_checkout asserts 200, status completed, and order present."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -523,7 +527,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_cancel_checkout asserts 200 and status canceled.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/rest.md (was checkout-rest.md); link target changed checkout.md -> index.md, binding unchanged. Oracle: test_cancel_checkout asserts 200 and status canceled."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -735,7 +740,8 @@
       "notes": "[2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged for the quoted fragments, but a new sentence 'No Action remains outstanding.' was inserted between them (tied to the new Actions machinery), so the quote joins two now-non-contiguous fragments with '...'. Defines the only status from which autonomous Complete is permitted (see lifecycle diagram: Complete edge originates at ready_for_complete). Keyword 'can' normalized to MAY. Permission, not enforceable on a single response.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to docs/specification/shopping/checkout/index.md (was checkout.md); wording unchanged for the quoted fragments, but a new sentence 'No Action remains outstanding.' was inserted between them (tied to the new Actions machinery), so the quo"
       },
       "role": "platform",
       "role_provenance": "subject"
@@ -880,7 +886,8 @@
       "notes": "[2026-08-25] schema file remains at the same path; only line numbers shifted (status L65-L77, currency L78-L82, totals L83-L87, messages L93-L100, links L101-L108, expires_at L117-L122, continue_url L123-L128, order L137-L141 -- all ucp_request:omit). The status field's illustrative description text changed one word: 'required action' (2026-04-08) -> 'required processing' (2026-08-25); this is a non-normative wording tweak to the description string used only as this row's anchor, not to the omit-on-request contract itself, so kept as carried. A new response-only field 'actions' (L88-L92, ucp_request:omit) was also added in 08-25 for the new Actions machinery -- not part of this row's original 8-field set, noted here for completeness. Annotation, not base-schema-enforced.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] schema file remains at the same path; only line numbers shifted (status L65-L77, currency L78-L82, totals L83-L87, messages L93-L100, links L101-L108, expires_at L117-L122, continue_url L123-L128, order L137-L141 -- all ucp_request:omit). The stat"
       },
       "_relabel_batch": "relabel-2026-09-10-D2-02 (decision 32: graded by a shipped agent CHECK at 2026-08-25; manual -> testable)",
       "role": "platform",

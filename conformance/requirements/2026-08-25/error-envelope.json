@@ -142,7 +142,8 @@
       "notes": "08-25: moved to common/types/message_error.json. Non-normative example changed from '$.items[1]' (04-08) to '$.line_items[0]' (08-25); JSONPath format requirement itself unchanged, still prose-only.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved to common/types/message_error.json. Non-normative example changed from '$.items[1]' (04-08) to '$.line_items[0]' (08-25); JSONPath format requirement itself unchanged, still prose-only."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -166,7 +167,8 @@
       "notes": "08-25: moved from shopping/types/error_code.json to common/types/error_code.json. Minor editorial wording vs 04-08 ('in specification'->'in capability specifications', comma dropped before 'and'); substance unchanged, freeform codes with non-normative standard examples.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved from shopping/types/error_code.json to common/types/error_code.json. Minor editorial wording vs 04-08 ('in specification'->'in capability specifications', comma dropped before 'and'); substance unchanged, freeform codes with non-normative standard"
       },
       "role": "spec-author",
       "role_provenance": "subject"
@@ -568,7 +570,8 @@
       "notes": "08-25: moved from shopping/types/warning_code.json to common/types/warning_code.json. examples[] grew from 4 to 5 items: NEW example 'payment_term_changed' added (full list now final_sale, prop65, fulfillment_changed, payment_term_changed, age_restricted) \u2014 non-normative examples, freeform-codes substance unchanged. Requirement text updated to list the new example. Minor editorial wording ('specs'->'capability specifications') also present.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved from shopping/types/warning_code.json to common/types/warning_code.json. examples[] grew from 4 to 5 items: NEW example 'payment_term_changed' added (full list now final_sale, prop65, fulfillment_changed, payment_term_changed, age_restricted) \u2014 no"
       },
       "role": "spec-author",
       "role_provenance": "subject"
@@ -640,7 +643,8 @@
       "notes": "08-25: moved from shopping/types/info_code.json to common/types/info_code.json. Minor editorial wording only ('capability specs'->'capability specifications'); examples unchanged.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 \u00a7Carried-rows-with-quote-drift, reviewed 2026-08-30): 08-25: moved from shopping/types/info_code.json to common/types/info_code.json. Minor editorial wording only ('capability specs'->'capability specifications'); examples unchanged."
       },
       "role": "spec-author",
       "role_provenance": "subject"

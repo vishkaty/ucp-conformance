@@ -403,7 +403,8 @@
       "notes": "Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite pinned to 2026-01-23 has no cart oracle. Un-exempted 2026-07-03 (adversarial-review F10): the quote's second clause — 'the provided resource replaces the existing cart state on the business side' — IS merchant-observable (PUT a smaller cart, GET shows replaced-not-merged state). The requester-bound first clause is satisfied by the suite's own probes. Needs fixture PUT /carts/{id} (wave-2 backlog). [2026-09-10 D2-02/A2] CART-036 (the same L213-L215 sentence registered a second time as a 'new row' in completeness-2026-08-31-w4) merged here; source widened from L214 to L213-L215 so the MUST keyword line is owned by this row.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: doc moved cart.md -> shopping/cart/index.md; text unchanged (MUST full-replacement sentence identical). Sender-side full-replacement obligation on PUT /carts/{id}; not enforceable by JSON-Schema. Quote spans the MUST sentence across L176-L177. Suite p"
       },
       "role": "platform",
       "role_provenance": "agent-lock"
@@ -757,7 +758,8 @@
       "notes": "Lineage: line_item.json quantity.minimum unchanged (still 1). NOTE: 2026-08-25 adds a new sibling constraint 'maximum': 9007199254740991 (L28) and a substantially expanded 'description' explaining sale-basis/quantity_unit semantics (measure-denominated items, each-basis default, mismatch handling) — additive, does not weaken or contradict the minimum:1 integer requirement this row tests. Schema-enforced: line_item.json quantity type integer with minimum:1. Suite pinned to 2026-01-23 has no cart oracle.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: line_item.json quantity.minimum unchanged (still 1). NOTE: 2026-08-25 adds a new sibling constraint 'maximum': 9007199254740991 (L28) and a substantially expanded 'description' explaining sale-basis/quantity_unit semantics (measure-denominated items, "
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"

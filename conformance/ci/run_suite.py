@@ -86,6 +86,12 @@ def gates(server, require_server=False):
         # ways, empty review queue, agent-side one-lane rule, area map as register data).
         ("roles-selftest", _py(ROOT / "conformance" / "requirements" / "tools" / "assign_roles.py", "--selftest"), None, ()),
         ("register-complete", _py(SELF / "verify_register_completeness.py"),     None, ()),
+        # D2-09 (A15): every 2026-04-08 row is accounted exactly once in 2026-08-25
+        # (carried/renamed/reworded/dead/merged/downgraded); carried quotes byte-fresh or
+        # drift-noted; dead rows dead-proven by search term; merged targets exist; the
+        # D2-15 backport (2026-08-25 -> 2026-04-08) checked in reverse. Hermetic.
+        ("carry-forward", _py(SELF / "verify_carry_forward.py"),                 None, ()),
+        ("carry-forward-selftest", _py(SELF / "verify_carry_forward.py", "--selftest"), None, ()),
         ("citations",   _py(SELF / "verify_citations.py"),                      None, ()),
         # R13: the completeness matcher's coverage decision (register-complete above)
         # must not silently regress to the pre-fix per-physical-line algorithm, which

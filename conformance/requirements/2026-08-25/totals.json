@@ -262,7 +262,8 @@
    "notes": "[2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema strictly-negative: source/schemas/common/types/total.json (relocated from shopping/types/, content unchanged apart from $id) if type in [discount, items_discount] then amount exclusiveMaximum:0.",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): [2026-08-25] relocated to shopping/checkout/index.md; wording unchanged. Schema strictly-negative: source/schemas/common/types/total.json (relocated from shopping/types/, content unchanged apart from $id) if type in [discount, items_discount] then amount exclu"
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"

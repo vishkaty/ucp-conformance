@@ -97,7 +97,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged (still item 4 of the '#### Business Requirements' negotiation list); relocated within overview/index.md."
    },
    "role": "business",
    "role_provenance": "subject"
@@ -147,7 +148,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim (this Identity Binding section is byte-identical to 2026-04-08); relocated within overview/index.md."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -222,7 +224,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim; relocated within overview/index.md (the surrounding Initial Service and Capability Discovery flow gained more numbered detail, but this closing statement is untouched)."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -247,7 +250,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim under '##### Pre-release Versions'. Enforced by ucp.json #/$defs/version pattern ^\\d{4}-\\d{2}-\\d{2}$."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -272,7 +276,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: this closing pair of sentences is unchanged verbatim. Note the preceding '#### Capability Versions' lead-in paragraph was substantially expanded (exact-version-equality rules, multi-version array semantics for dev.ucp.* vs third-party "
    },
    "role": "business",
    "role_provenance": "not-agent-bound"
@@ -297,7 +302,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim (step 3 of the '#### Business Requirements' negotiation list); relocated within overview/index.md."
    },
    "role": "business",
    "role_provenance": "not-agent-bound"
@@ -322,7 +328,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim under REST Transport (Core) conventions."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"
@@ -347,7 +354,8 @@
    "_completeness_batch": "completeness-2026-07-03",
    "lineage": {
     "from": "2026-04-08",
-    "disposition": "carried"
+    "disposition": "carried",
+    "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Carried into 2026-08-25: text unchanged verbatim under REST Transport (Core) conventions."
    },
    "role": "business",
    "role_provenance": "review:role-adjudication-2026-09-11"

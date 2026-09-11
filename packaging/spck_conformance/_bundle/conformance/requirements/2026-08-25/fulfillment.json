@@ -65,7 +65,8 @@
       "notes": "Lineage: fulfillment_method.json required array unchanged (id, type, line_item_ids), reformatted from single-line to multi-line array; same relative path.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: fulfillment_method.json required array unchanged (id, type, line_item_ids), reformatted from single-line to multi-line array; same relative path."
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11"
@@ -113,7 +114,8 @@
       "notes": "Lineage: fulfillment_method.json groups field description unchanged verbatim; same relative path, line anchor shifted.",
       "lineage": {
         "from": "2026-04-08",
-        "disposition": "carried"
+        "disposition": "carried",
+        "drift_note": "quote differs from 2026-04-08 after normalization (markup/reflow/relocation, P1 §Carried-rows-with-quote-drift, reviewed 2026-08-30): Lineage: fulfillment_method.json groups field description unchanged verbatim; same relative path, line anchor shifted."
       },
       "role": "platform",
       "role_provenance": "subject"
