@@ -22,3 +22,8 @@ tests/web/node_modules/
 tests/web/package-lock.json
 .claude/
 conformance/.vendor
+
+# D4-05: per-SDK-cut venvs for the pydantic third leg (conformance/ci/make_sdk_venvs.sh) + the zod feed's pinned package
+conformance/.sdk-venvs/
+conformance/ci/zod_feed/node_modules/
+conformance/ci/zod_feed/package-lock.json

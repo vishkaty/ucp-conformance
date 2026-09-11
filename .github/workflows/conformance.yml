@@ -92,6 +92,16 @@ jobs:
       - name: Per-version oracle manifest — builds match their commits and --version fingerprints
         run: python3 conformance/selfcheck/validate_schema_oracle_manifest.py
 
+      - name: Build the python-sdk venvs for the pydantic third leg (D4-05; tag 0.5.0 gated, main report-only)
+        # network installs (PyPI + git); a failure here makes dual-oracle-0825-pydantic an honest
+        # rc 2 skip, never a false green — so continue-on-error is safe for THIS step only.
+        run: bash conformance/ci/make_sdk_venvs.sh
+        continue-on-error: true
+
+      - name: Install the pinned js-sdk for the zod report-only leg (D4-05)
+        run: cd conformance/ci/zod_feed && npm install --no-audit --no-fund --package-lock=false
+        continue-on-error: true
+
       - name: Bring up the golden server
         run: |
           bash conformance/ci/serve_golden.sh

@@ -177,6 +177,15 @@ def gates(server, require_server=False):
         # recorded, STALE when the split stops being justified) and requires the tracked
         # oracle_verdict_diff.json (owner --record, decision 24) to be <= 14 d old and
         # cell-identical. Both rc 2 (honest skip) when a build is not materialized.
+        # D4-05 (B5b): the PYDANTIC third leg at 08-25 — the python-sdk generated models in
+        # two venvs (conformance/ci/make_sdk_venvs.sh): the PyPI tag cut (0.5.0) GATED through
+        # known_sdk_drops.json (self-expiring on pypi_ucp_sdk_gt), python-sdk main report-only,
+        # the js-sdk zod leg report-only (rows -> ops/feeds/zod_divergences.json when ops/ is
+        # mounted, else RECORD_DIR). rc 2 = venv not built (honest skip, never green).
+        ("dual-oracle-0825-pydantic", _py(SELF / "validate_dual_oracle.py", "--version", "2026-08-25", "--pydantic"),
+         None, (2,)),
+        ("dual-oracle-0825-pydantic-killtest", _py(SELF / "validate_dual_oracle.py", "--selftest", "--version", "2026-08-25", "--pydantic"),
+         None, (2,)),
         ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
