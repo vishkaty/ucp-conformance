@@ -46,3 +46,20 @@ def test_selftest_denylist_robots_rate_grader_evidence_and_no_socket():
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+def test_matrix_export_carries_the_discovery_live_slot():
+    """W1 integration: matrix.export_json()['versions']['2026-08-25']['discovery_live'] must be the
+    {stores, as_of} aggregate of conformance/coverage/discovery_reach.json (5 stores, 2026-09-11 —
+    the D4-08 smoke). D4-08's `_discovery_live_slot` read `HERE`, a name matrix.py never defined,
+    and its bare `except Exception: return None` hid the NameError — the slot was None on the
+    lane branch too, so D5-13's CLAIM-COV-007 sentence could never render."""
+    import json
+    sys.path.insert(0, str(HERE.parents[0] / "coverage"))
+    import matrix
+    reach = json.load(open(HERE.parents[0] / "coverage" / "discovery_reach.json"))
+    assert reach["stores"] >= 3
+    slot = matrix._discovery_live_slot("2026-08-25")
+    assert slot == {"stores": reach["stores"], "as_of": reach["as_of"]}, slot
+    assert matrix._discovery_live_slot("2026-04-08") is None
+    assert matrix.export_json()["versions"]["2026-08-25"]["discovery_live"] == slot
