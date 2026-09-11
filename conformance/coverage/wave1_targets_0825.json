@@ -34,10 +34,7 @@
   "TOT-006",
   "TOT-015"
  ],
- "blocked": {
-  "CHK-017": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill",
-  "DSC-006": "D2-11a: nokw basis (bullet/definition) unruled — attributed only after the basis fill"
- },
+ "blocked": {},
  "owner_tasks": [
   "D1-15",
   "D1-16a",
