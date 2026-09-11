@@ -239,9 +239,22 @@
       if (!order.length) order = ["live-wire", "fixture-schema", "fixture-crypto", "self-referenced"];
       var strongest = null;
       order.forEach(function (k) { if (strongest === null && (eb[k] || 0) > 0) strongest = k; });
-      var ceiling = el("div", "note",
-        "no independently-authored 08-25 implementation has been graded by this suite " +
-        "at write level; evidence for this version is at most " + (strongest || "none"));
+      // D5-13 (H5, decision 4): once the discovery-only sampler has graded real stores'
+      // /.well-known/ucp documents, the export carries discovery_live {stores, as_of} and the
+      // sentence becomes the registered CLAIM-COV-007 form (count + date, both from the
+      // export); with stores 0 / null the W0 ceiling sentence (CLAIM-COV-002) stays.
+      var dl = v.discovery_live;
+      var ceiling;
+      if (dl && (dl.stores || 0) > 0) {
+        ceiling = el("div", "note",
+          "discovery-live evidence: " + dl.stores + " independently-operated stores' /.well-known/ucp " +
+          "documents graded by this suite (as of " + (dl.as_of || "n/a") + ") — read-only discovery, " +
+          "never write paths; evidence for this version is at most " + (strongest || "none"));
+      } else {
+        ceiling = el("div", "note",
+          "no independently-authored 08-25 implementation has been graded by this suite " +
+          "at write level; evidence for this version is at most " + (strongest || "none"));
+      }
       ceiling.style.margin = "2px 0 8px";
       ceiling.style.fontStyle = "italic";
       card.appendChild(ceiling);

@@ -276,6 +276,26 @@ dependencies actually resolve to.</li>
   <p class="note">Several of these are already converging in the reference implementations as the ecosystem
 matures — so check against the current release, not an older snapshot.</p>
 
+  <div id="shapes" hidden>
+    <h3>Transport shapes among live endpoints</h3>
+    <p class="note" id="shapes-line"></p>
+  </div>
+  <script>
+    // D5-13 (H5): the shape buckets (rest with published keys / rest without keys / MCP-only /
+    // embedded-only) and the 2026-08-25 count render ONLY when scan-summary.json carries the
+    // keys the re-probe writes (conformance/ci/discovery_shapes.py aggregate_shapes); until the
+    // next owner-run scan the block stays hidden — nothing is typed by hand.
+    fetch("/state-of-ucp/scan-summary.json").then(function (r) { return r.json(); }).then(function (s) {
+      var keys = ["shape_rest_keys", "shape_rest_nokeys", "shape_mcp_only", "shape_embedded_only", "version_2026_08_25"];
+      if (!keys.every(function (k) { return typeof s[k] === "number"; })) return;
+      document.getElementById("shapes-line").textContent =
+        "Of the live, valid endpoints: " + s.shape_rest_keys + " serve REST and publish signing keys, " +
+        s.shape_rest_nokeys + " serve REST without keys, " + s.shape_mcp_only + " are MCP-only, " +
+        s.shape_embedded_only + " are embedded-only; " + s.version_2026_08_25 + " already advertise 2026-08-25.";
+      document.getElementById("shapes").hidden = false;
+    }).catch(function () {});
+  </script>
+
   <h2>8 · Known issues in the reference stack</h2>
   <p>Where the published artifacts around the spec — the SDKs, the samples, the official conformance suite,
 our own golden server — deviate from the pinned text, we keep a reproduction, a status per released cut and a
