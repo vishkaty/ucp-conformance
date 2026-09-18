@@ -256,7 +256,7 @@
       "component": "release tag v2026-04-08",
       "symptom": "The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -> a25a4a24, #813 loyalty backport: +19 register MUSTs, +common/loyalty.json). Our lock pinned a2d8bf0b until the D2-15 re-pin of 2026-09-11 (decision 3); a release tag moving after publication is the upstream fact recorded here.",
       "repro": {
-        "command": "GH_BIN=/Users/vishalkatyal/shn/tools/bin/gh python3 conformance/ci/sources_age.py --check",
+        "command": "python3 conformance/ci/sources_age.py --check",
         "expected": "tag v2026-04-08 == the locked commit (a25a4a24 since 2026-09-11)",
         "observed": "sources-age: OK \u2014 all 4 pinned spec tag(s) still carry their locked identity (tag object + dereferenced commit); before the re-pin: TAG MOVED v2026-04-08 -> a25a4a24 (acknowledged)"
       },
