@@ -1,0 +1,130 @@
+{
+ "_area": "identity-linking-provider-selection",
+ "_status": "proposed, not on upstream main; conditional on the merge of ucp PR for issue #667 Gap 2",
+ "_spec_commit": "e42d01776ef9b45ac92a72c903792a23cda92b84",
+ "_spec_branch": "vishkaty/ucp fix/identity-provider-selection (based on upstream main ef833ac220f1012f54f1039087022cb6042f2d71)",
+ "_note": "Quotes are verbatim from the branch commit named in _spec_commit, line numbers on that commit. Rows here feed nothing; see checks-pending/README.md for the promotion protocol. Related shipped rows at 2026-08-25: IDL-067 (fallback MUST), IDL-068 (self listing), IDL-070 (discovery MUST, reworded by IDL-P04), IDL-071 (business closed allowlist), IDL-073 (raw IdP token).",
+ "rows": [
+  {
+   "id": "IDL-P01",
+   "requirement": "For oauth2 entries, platforms MUST select an entry only when its auth_url is identical to a recognized issuer identifier, compared as character strings with no normalization.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L467-L472",
+   "quote": "`oauth2` entries, platforms **MUST** select an entry only when its\n`auth_url` is identical to a recognized issuer identifier, compared as\ncharacter strings with no normalization, as\n[RFC 8414 §3.3](https://datatracker.ietf.org/doc/html/rfc8414#section-3.3){ target=\"_blank\" }\nrequires for issuer identifiers (see `issuer` exactness in\n[Security Considerations](#security-considerations)). The",
+   "versions": [
+    "unreleased"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "role": "platform",
+   "role_provenance": "subject",
+   "normative_basis": "sentence",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "PROPOSED (ucp #667 Gap 2, PR from fork branch fix/identity-provider-selection). Generalizes IDL-068 from the self listed auth_url to the set of recognized issuers. Graded on the platform side by the pending reference test system.",
+   "pending_checks": [
+    "pending.idl.selects_only_recognized_issuer",
+    "pending.idl.exact_match_no_normalization"
+   ]
+  },
+  {
+   "id": "IDL-P02",
+   "requirement": "The subject_token presented in the Flow MUST have been issued by the IdP whose issuer identifier matched auth_url.",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L473-L474",
+   "quote": "`subject_token` presented in the [Flow](#flow) **MUST** have been\nissued by that IdP. Platforms **MUST NOT** run metadata discovery",
+   "versions": [
+    "unreleased"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "role": "platform",
+   "role_provenance": "subject",
+   "normative_basis": "sentence",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "PROPOSED (ucp #667 Gap 2). Closes the variant where a platform matches issuer A and exchanges a token from issuer B. Quote spans the sentence boundary into IDL-P03.",
+   "pending_checks": [
+    "pending.idl.selects_only_recognized_issuer"
+   ]
+  },
+  {
+   "id": "IDL-P03",
+   "requirement": "Platforms MUST NOT run metadata discovery against, authenticate to, or present a subject_token to any endpoint derived from an auth_url that fails the issuer anchoring check.",
+   "keyword": "MUST NOT",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L474-L476",
+   "quote": "issued by that IdP. Platforms **MUST NOT** run metadata discovery\nagainst, authenticate to, or present a `subject_token` to any endpoint\nderived from an `auth_url` that fails this check. The provider key is",
+   "versions": [
+    "unreleased"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "role": "platform",
+   "role_provenance": "subject",
+   "normative_basis": "sentence",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "PROPOSED (ucp #667 Gap 2). The hostile token endpoint log is the oracle: zero requests from the platform.",
+   "pending_checks": [
+    "pending.idl.never_presents_subject_token_to_unmatched_endpoint"
+   ]
+  },
+  {
+   "id": "IDL-P04",
+   "requirement": "For a selected oauth2 entry, platforms MUST discover the authorization server metadata from its auth_url (two tier hierarchy, auth_url treated as the issuer).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L440-L447",
+   "quote": "For a selected `oauth2` entry (see [Provider Selection](#provider-selection)),\nplatforms **MUST** discover the authorization server metadata from its\n`auth_url` using the same two-tier metadata hierarchy as\n[Discovery](#discovery) Step 2 (RFC 8414 primary with §3.1 path insertion,\nOIDC fallback on 404 only), treating `auth_url` as the issuer. The\nprotected-resource step does not apply — `auth_url` is already the IdP\nissuer — and the business validates the JWT grant's `iss` against it per\n[Business Token Issuance](#business-token-issuance).",
+   "versions": [
+    "unreleased"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "role": "platform",
+   "role_provenance": "subject",
+   "normative_basis": "sentence",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "PROPOSED (ucp #667 Gap 2). REWORDS IDL-070: the discovery MUST now applies to a selected entry only. On promotion IDL-070 is superseded by this row (same requirement id family, stricter scope).",
+   "pending_checks": [
+    "pending.idl.falls_back_when_nothing_matches"
+   ]
+  },
+  {
+   "id": "IDL-P05",
+   "requirement": "Platforms MUST apply the issuer anchoring rule in Provider Selection before any discovery or token exchange (Security Considerations restatement).",
+   "keyword": "MUST",
+   "source": "ucp:docs/specification/common/identity-linking/index.md#L1028-L1047",
+   "quote": "* **Issuer anchoring for provider selection.** In the\n  [Accelerated IdP Flow](#accelerated-idp-flow), `config.providers` is\n  input supplied by the business, while the `subject_token` the platform\n  exchanges is a bearer credential issued by its own IdP. Platforms\n  **MUST** apply the issuer anchoring rule in\n  [Provider Selection](#provider-selection) before any discovery from the\n  `auth_url` of an entry or any token exchange. Without it, a business that lists a familiar provider\n  key with an `auth_url` it controls leads a platform that matches on\n  the key to discover a token endpoint the business controls and present\n  its `subject_token` there, together with any client credential it uses at\n  the IdP token endpoint. As\n  [RFC 9700 §4.4.2](https://datatracker.ietf.org/doc/html/rfc9700#section-4.4.2){ target=\"_blank\" }\n  notes for mix-up, storing an authorization server URL is not sufficient,\n  since an attacker can pair a familiar URL with a token endpoint under\n  their own control.\n  This is the chaining path counterpart of the Mix-Up Attack above:\n  RFC 9207 binds the authorization response to the issuer the platform\n  chose; issuer anchoring binds provider selection to an issuer the\n  platform already recognizes, one layer earlier, before any code or\n  grant exists.",
+   "versions": [
+    "unreleased"
+   ],
+   "transport": [
+    "rest"
+   ],
+   "testability": "testable",
+   "role": "platform",
+   "role_provenance": "subject",
+   "normative_basis": "sentence",
+   "official_oracle": false,
+   "browser_capable": false,
+   "schema_enforced": false,
+   "notes": "PROPOSED (ucp #667 Gap 2). Security Considerations restatement of IDL-P01 and IDL-P03; on promotion this is a duplicate waiver candidate under verify_register_completeness, as the Mix-Up bullet is for RFC 9207.",
+   "pending_checks": [
+    "pending.idl.never_presents_subject_token_to_unmatched_endpoint"
+   ]
+  }
+ ]
+}

@@ -18,6 +18,12 @@ repo (`ops/analysis/deep-2026-09-09/TASKS-v3.md`); this page is the public shape
 | W2 | planned | Embedded-transport rows; OAuth/identity goldens; signed golden; webhook reference; emission checks; the 08-25 sandbox for the agent lane; normative-basis publication | W2-1..W2-10 |
 | W3 | planned | The long tail: remaining receiver rows, WBA-shape signatures, `1.0.0` (rc first) at DONE-2 | DONE-2 items 1–12 |
 
+## Pending upstream test systems (not counted anywhere)
+
+| Topic | Upstream | State | Next step |
+|---|---|---|---|
+| `conformance/checks-pending/idl_provider_selection/` | ucp #667 Gap 2, fork branch `fix/identity-provider-selection` (PR body prepared, not yet filed) | reference gate 9/9 green, kill tests and excision proofs red as required; register drafts `requirements-drafts/next/identity-linking-provider-selection.json` marked proposed | owner files the PR; on merge and tag, promote rows and port the checks into the agent lane per `checks-pending/README.md` |
+
 ## Standing rules that apply to every wave
 
 - **Honest counts go down before they go up** (decision 6): a drop in a public number ships in one
