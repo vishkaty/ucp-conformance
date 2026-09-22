@@ -1,4 +1,17 @@
-# awesome-ucp — create it (nobody has yet)
+# awesome-ucp
+
+> **Superseded 2026-09-22.** This page was written when no `awesome-ucp` list
+> existed. One does now: [Upsonic/awesome-ucp](https://github.com/Upsonic/awesome-ucp),
+> created 2026-01-12, 130 stars at the time of writing. The plan below to create the
+> canonical list is therefore retired, and the opening claim that nobody had made one
+> was already wrong when it was written.
+>
+> What is still open is narrower and worth stating honestly: that list was last pushed
+> 2026-02-06, so it does not yet carry anything from the 2026-04-08 or 2026-08-25
+> releases. Contributing an entry is a reasonable thing to do. Creating a rival list is
+> not, and would read as exactly the kind of move this page warned against.
+
+The original text follows, kept for the record.
 
 There's no `awesome-ucp` list. That's an opportunity: **creating the canonical
 community list is a credibility + SEO play** (it ranks for "UCP resources", it's linkable
