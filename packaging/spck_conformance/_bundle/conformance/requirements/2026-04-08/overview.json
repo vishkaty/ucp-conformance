@@ -42,8 +42,8 @@
       ],
       "notes": "Subject: business/platform profile; server-observable via /.well-known/ucp. Enforced by capability.json#/$defs/platform_schema required [spec,schema] (and service.json platform_schema requires spec + schema). No 2026-04-08 row covers this for capabilities (PAY-004 covers only payment handlers). Older versions: DISC-002. [added by completeness-2026-07-03] [completeness: not observable against the REST controlled fixture as-is; needs a signed-request/receiver scenario; tracked GAP.]",
       "_completeness_batch": "completeness-2026-07-03",
-      "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-correction-2026-09-22",
       "normative_basis": "sentence"
     },
     {

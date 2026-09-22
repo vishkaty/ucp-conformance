@@ -123,12 +123,18 @@ ADJUDICATIONS = os.path.join(REQ, "role_adjudications.json")
 
 def load_adjudications(path=ADJUDICATIONS):
     """{(version, id): (role, batch)} from role_adjudications.json (reviewed decisions;
-    applied with provenance `review:<batch>`). Missing file -> {}."""
+    applied with provenance `review:<batch>`). Missing file -> {}.
+
+    An entry MAY carry its own `batch`, which overrides the file-level one: a decision
+    superseded later must not stay attributed to the batch that got it wrong. The
+    file's `corrections` block defines every such batch (who corrected it, when, on
+    what authority, and the prior role) — see the 2026-09-22 fast-follow F1 batch."""
     if not os.path.exists(path):
         return {}
     d = json.load(open(path))
     batch = d.get("batch", "role-adjudication")
-    return {(e["version"], e["id"]): (e["role"], batch) for e in d.get("adjudications", [])}
+    return {(e["version"], e["id"]): (e["role"], e.get("batch") or batch)
+            for e in d.get("adjudications", [])}
 
 
 def assign(row, lock_ids, agent_extra, nab, cb, merchant_check_ids=frozenset(), adjudicated=None):
@@ -234,13 +240,19 @@ def run_version(ver, apply=False, mcheck=None, refresh=False):
             stats["rows"] += 1
             if r.get("role"):
                 stats["already"] += 1
-                # --refresh-adjudicated: a reviewed row follows a CHANGED adjudication
+                # --refresh-adjudicated: a reviewed row follows a CHANGED adjudication —
+                # a changed ROLE or a changed BATCH (an entry that names its own batch
+                # was corrected later, and the row must carry the correcting batch, not
+                # the one that got it wrong).
                 a = adj.get((ver, r["id"]))
-                if refresh and a and r["role"] != a[0]:          # an adjudication wins outright
+                want_prov = f"review:{a[1]}" if a else None
+                if refresh and a and (r["role"] != a[0]                  # adjudication wins outright
+                                      or r.get("role_provenance") != want_prov):
                     stats["refreshed"] = stats.get("refreshed", 0) + 1
-                    print(f"  refresh {ver} {r['id']}: {r['role']} -> {a[0]}")
+                    print(f"  refresh {ver} {r['id']}: {r['role']} -> {a[0]} "
+                          f"({r.get('role_provenance')} -> {want_prov})")
                     if apply:
-                        r["role"], r["role_provenance"] = a[0], f"review:{a[1]}"
+                        r["role"], r["role_provenance"] = a[0], want_prov
                         changed = True
                 continue
             role, prov, why = assign(r, lock_v, extra, nab, cb, mcheck, adj.get((ver, r["id"])))

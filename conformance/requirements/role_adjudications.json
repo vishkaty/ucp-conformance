@@ -1,5 +1,5 @@
 {
- "_about": "Role adjudications (D2-08 / PLAN-v3 §2.5, batch role-adjudication-2026-09-11): the rows assign_roles.py's seed+heuristic could not resolve (no actor and no message direction), the lock/subject conflicts, and the handler/host/spec-author rows (decision 27). Version-scoped — ids were renumbered at 2026-04-08. assign_roles.py applies these with role_provenance `review:role-adjudication-2026-09-11`; the batch's >=10% human sample is recorded in conformance/coverage/review_signoffs.json (decision 13; PENDING until the owner records it). `requirement` is a reading aid only (the register row is authoritative).",
+ "_about": "Role adjudications (D2-08 / PLAN-v3 §2.5, batch role-adjudication-2026-09-11): the rows assign_roles.py's seed+heuristic could not resolve (no actor and no message direction), the lock/subject conflicts, and the handler/host/spec-author rows (decision 27). Version-scoped — ids were renumbered at 2026-04-08. assign_roles.py applies these with role_provenance `review:role-adjudication-2026-09-11`; the batch's >=10% human sample is recorded in conformance/coverage/review_signoffs.json (decision 13; recorded 2026-09-22). `requirement` is a reading aid only (the register row is authoritative). CORRECTED 2026-09-22 (fast-follow F1): 8 of these 715 decisions are superseded — 2026-01-11 DISC-001/DISC-002, 2026-01-23 DISC-001/DISC-002, 2026-04-08 OVR-002, 2026-08-25 CNST-009/PAY-026/PAY-027 move from business|handler to `both`. The batch's recorded human sample (review_signoffs.json, recorded 2026-09-22) signs off the 68 confirmed rows and explicitly does NOT sign off these; each defect NARROWED a row and so withheld it from the agent lane, which is why the fix only ever widens. Every corrected entry carries a `corrected` block naming the date, the prior role and the authority; each corrected entry also carries its own `batch`, so the register row's role_provenance becomes review:role-adjudication-correction-2026-09-22 and no corrected row stays attributed to the batch that got it wrong; the `corrections` block below defines that batch. An entry-level `batch` overrides the file-level one in assign_roles.py's load_adjudications().",
  "batch": "role-adjudication-2026-09-11",
  "reviewer": "Wave 1 lane D2 (Claude Code session, 2026-09-11) — per-row read of requirement + quote at the pinned spec; human sample pending",
  "date": "2026-09-11",
@@ -119,16 +119,28 @@
   {
    "version": "2026-01-11",
    "id": "DISC-001",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane (2026-01-11: same id, identical requirement text as 2026-01-23)",
-   "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. Both profiles publish capability and service names: the Platform Profile at this pin (overview.md#L333-L367) lists `name` on every capability entry, and businesses MUST fetch and validate the platform profile (overview.md#L459-L461), while platforms MUST validate capability `spec` URI origins (overview.md#L452-L453). The reverse-domain pattern is on capability.json#/$defs/base.name (#L13), inherited by every variant, so there is no business-only enforcement to point at. The register already rows the identical clause as `both` at 2026-04-08 OVR-001 (whose notes read \"Older versions row this as DISC-001\").",
+   "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-01-11",
    "id": "DISC-002",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane (2026-01-11: same id, identical requirement text as 2026-01-23)",
-   "requirement": "The spec and schema fields are REQUIRED for all capabilities"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. The clause's subject is \"all capabilities\", and at this pin the single ucp.json#/$defs/discovery_profile (\"Full UCP metadata for /.well-known/ucp discovery\", #L20-L34) serves the business AND the platform profile and takes capability.json#/$defs/discovery, which requires [name, version, spec, schema] (#L45-L48) — so the schema constrains both profiles, not the business alone. The Platform Profile example (overview.md#L344-L366) carries `spec` and `schema` on every capability entry. Same clause as 2026-04-08 OVR-002.",
+   "requirement": "The spec and schema fields are REQUIRED for all capabilities",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-01-11",
@@ -889,16 +901,28 @@
   {
    "version": "2026-01-23",
    "id": "DISC-001",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",
-   "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. Same clause and same defect as 2026-01-11 DISC-001: the Platform Profile at this pin (overview.md#L347-L375) publishes capability and service names, platforms MUST validate capability `spec` URI origins (overview.md#L484-L485) and businesses MUST fetch and validate the platform profile (overview.md#L491), while the reverse-domain pattern sits on capability.json#/$defs/base.name (#L16), inherited by platform_schema, business_schema and response_schema alike. `both` matches 2026-04-08 OVR-001.",
+   "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-01-23",
    "id": "DISC-002",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",
-   "requirement": "The spec and schema fields are REQUIRED for all capabilities"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. Same clause as 2026-04-08 OVR-002 and the same defect: at this pin only capability.json#/$defs/platform_schema carries required [\"spec\",\"schema\"] (#L24-L28); business_schema adds no required (#L30-L34), so the only machine-enforced instance of this requirement is on the PLATFORM profile — the inverse of the response-side rationale this row carried. The Platform Profile example (overview.md#L354-L375) carries `spec` and `schema` on every service and capability entry.",
+   "requirement": "The spec and schema fields are REQUIRED for all capabilities",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-01-23",
@@ -2317,9 +2341,15 @@
   {
    "version": "2026-04-08",
    "id": "OVR-002",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",
-   "requirement": "Every advertised capability declaration MUST include spec and schema URL fields"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. The clause sits in Namespace Governance ahead of both profile sections and its subject is \"all capabilities\". Only capability.json#/$defs/platform_schema carries required [\"spec\",\"schema\"]; business_schema adds no required — so the one machine-enforced instance is the PLATFORM profile, the inverse of the response-side rationale this row carried, and the row's own notes already read \"Subject: business/platform profile\". The Platform Profile example (overview.md#L475-L529) carries `spec` and `schema` on every entry, and the next sentence at the same pin (overview.md#L90-L91) is an explicit \"Platform **MUST** validate this binding\".",
+   "requirement": "Every advertised capability declaration MUST include spec and schema URL fields",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-04-08",
@@ -3136,9 +3166,15 @@
   {
    "version": "2026-08-25",
    "id": "CNST-009",
-   "role": "business",
-   "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",
-   "requirement": "Businesses MUST advertise the complete set of consent options they support; when presenting a choice, platforms MUST use"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `business`. The registered requirement text itself carries two actors and two MUSTs — \"Businesses MUST advertise the complete set of consent options they support; when presenting a choice, platforms MUST use the advertised `description`, `links`, `granted` value, and purpose/segment grouping\" — verbatim at buyer-consent.md#L361-L365. No sibling row covers the platform half: CNST-010 is anchored at #L367 on the following sentence (\"Identifiers outside the `dev.ucp.consent.*` namespace are opaque handles\"), and no row in the 2026-08-25 register cites #L362-#L366. At `business` the platform obligation was graded in no agent-lane run at all.",
+   "requirement": "Businesses MUST advertise the complete set of consent options they support; when presenting a choice, platforms MUST use",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "business",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-08-25",
@@ -4326,16 +4362,28 @@
   {
    "version": "2026-08-25",
    "id": "PAY-026",
-   "role": "handler",
-   "reason": "obligation on the payment handler / tokenizer / identity provider, a third party neither lane grades on the wire — decision 27: merchant lane with reference-impl evidence from our stubs",
-   "requirement": "A token binding MUST include a type (the reverse-domain capability that owns the bound resource, e.g. dev.ucp.shopping.c"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `handler`. `binding` is a member of the tokenization REQUEST body, not a tokenizer-emitted object: openapi.json#L20 requires [\"credential\",\"binding\"] on /tokenize and #L140 requires [\"token\",\"binding\"] on /detokenize, and tokenization.md#L106 writes the obligation on the sender — \"The caller **MUST** send a non-empty string\". The caller is the Platform at /tokenize and the Business/PSP at /detokenize (tokenization.md#L86-L88), so the construct is produced by both parties and the Tokenizer is the receiver. Where the spec means the handler it writes \"A Tokenizer **MUST**\" (#L117-L126) — those are TOK-001..TOK-006, correctly `handler`. Same defect as PAY-027.",
+   "requirement": "A token binding MUST include a type (the reverse-domain capability that owns the bound resource, e.g. dev.ucp.shopping.c",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "handler",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-08-25",
    "id": "PAY-027",
-   "role": "handler",
-   "reason": "obligation on the payment handler / tokenizer / identity provider, a third party neither lane grades on the wire — decision 27: merchant lane with reference-impl evidence from our stubs",
-   "requirement": "A payment identity MUST include an access_token uniquely identifying the participant tokens are bound to"
+   "role": "both",
+   "reason": "binds both parties — each side emits and/or validates the same construct (profile, signature encoding, consent object, HTTPS, version selection); graded independently in both lanes [corrected 2026-09-22 — fast-follow F1, from the recorded human sample review of this batch (review_signoffs.json batch role-adjudication-2026-09-11, human_review recorded 2026-09-22): this row was NOT signed off; the batch over-narrowed it and so withheld it from the agent lane.] Was `handler`. `identity` is written by the tokenizer's CALLER, not by the tokenizer: tokenization.md#L110-L114 — \"Requests carry `identity` alongside `binding` ... `identity` is required when the caller acts on behalf of another participant\" — and it appears as a request-body property on both handler endpoints (openapi.json#L30-L33 /tokenize, #L150-L153 /detokenize), whose callers are the Platform and the Business/PSP respectively (tokenization.md#L86-L88). The register already roles the same construct in the agent lane: 2026-08-25 PAY-024 is `platform` (agent-lock) and 2026-01-11 PAY-018 — the companion `identity` row, confirmed by this batch's own human sample — is `platform`. The tokenizer's own obligations are TOK-001..TOK-006, correctly `handler`.",
+   "requirement": "A payment identity MUST include an access_token uniquely identifying the participant tokens are bound to",
+   "corrected": {
+    "on": "2026-09-22",
+    "from": "handler",
+    "by": "fast-follow F1 (ops/FAST-FOLLOW-2026-09-22.md) — the recorded human sample review of batch role-adjudication-2026-09-11, re-verified per row at the version's locked spec commit (conformance/SOURCES.lock.json)"
+   },
+   "batch": "role-adjudication-correction-2026-09-22"
   },
   {
    "version": "2026-08-25",
@@ -5008,6 +5056,34 @@
    "role": "business",
    "reason": "response-side shape or behaviour: the Business emits this object, computes this value or serves this endpoint; a Platform can only observe it — merchant lane",
    "requirement": "Price requires a non-negative integer amount and an ISO 4217 currency code"
+  }
+ ],
+ "corrections": [
+  {
+   "batch": "role-adjudication-correction-2026-09-22",
+   "supersedes": "role-adjudication-2026-09-11",
+   "date": "2026-09-22",
+   "reviewer": "Adversarial human-sample review of batch role-adjudication-2026-09-11 (delegated, 2026-09-21, no edit authority), accepted by the owner as fast-follow item F1 (ops/FAST-FOLLOW-2026-09-22.md); every corrected row re-verified against the cited clause read in context at the version's locked spec commit before the change.",
+   "authority": "conformance/coverage/review_signoffs.json -> signoffs[batch=role-adjudication-2026-09-11].sample.human_review (status recorded, 2026-09-22). That recorded note signs off the 68 confirmed rows, names these four sampled rows as NOT signed off, names the unsampled siblings that carry the same defect, and tracks the corrections and the denominator recomputation as follow-up. This batch IS that follow-up; it adds no coverage sign-off and so has no entry in review_signoffs.json, whose contract is CHECK-id review.",
+   "sample": {
+    "of": 8,
+    "reviewed": 8,
+    "fraction": "100%",
+    "method": "each row re-read at its version lock (2026-01-11 806a5b74, 2026-01-23 dcf7eac7, 2026-04-08 a25a4a24, 2026-08-25 cd78fb38 — conformance/SOURCES.lock.json), prose clause plus the schema or OpenAPI artefact that machine-enforces it"
+   },
+   "direction": "Every one of the 8 WIDENS a row from a single lane to both. 0 rows are narrowed and 0 rows leave a lane, so the merchant-lane denominator is unchanged and the agent-lane denominator grows: 47->49 (2026-01-11), 53->55 (2026-01-23), 134->135 (2026-04-08), 302->305 (2026-08-25); 536->544 overall. Agent-lane accounted totals are untouched (3 check+exempt at 2026-08-25, 58 at 2026-04-08), so every agent-lane percentage computed before this correction was optimistic in its denominator.",
+   "scope_note": "The four defects the sample found (2026-04-08 OVR-002, 2026-08-25 CNST-009, 2026-08-25 PAY-027, 2026-01-11 DISC-001) plus the four unsampled siblings carrying the identical defect (2026-01-23 DISC-001, 2026-01-11 DISC-002, 2026-01-23 DISC-002, 2026-08-25 PAY-026). F1 describes this as '4 defects plus 3 siblings' because the review lists the two DISC-002 rows in one bullet; it is 8 rows, and all 8 are named in the recorded sign-off note.",
+   "not_covered": "The 643 rows of batch role-adjudication-2026-09-11 that the sample never drew remain unreviewed; the sample's own estimate is roughly 40 mis-roled rows across 715 (95% CI 11 to 97), and the `host` role drew zero sample coverage. This batch corrects 8 known rows; it does not license the rest.",
+   "ids": [
+    "2026-01-11 DISC-001",
+    "2026-01-11 DISC-002",
+    "2026-01-23 DISC-001",
+    "2026-01-23 DISC-002",
+    "2026-04-08 OVR-002",
+    "2026-08-25 CNST-009",
+    "2026-08-25 PAY-026",
+    "2026-08-25 PAY-027"
+   ]
   }
  ]
 }

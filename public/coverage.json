@@ -28,8 +28,8 @@
    "roles": {
     "summary": {
      "merchant": 148,
-     "agent": 47,
-     "both": 26,
+     "agent": 49,
+     "both": 28,
      "other": 9
     },
     "merchant": {
@@ -43,10 +43,10 @@
      }
     },
     "agent": {
-     "musts": 47,
+     "musts": 49,
      "check": 0,
      "exempt": 0,
-     "gap": 47
+     "gap": 49
     },
     "other": {
      "musts": 9,
@@ -609,7 +609,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "check",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}",
      "source": "ucp:docs/specification/overview.md#L51",
@@ -626,7 +626,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "check",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "The spec and schema fields are REQUIRED for all capabilities",
      "source": "ucp:docs/specification/overview.md#L74",
@@ -2914,8 +2914,8 @@
    "roles": {
     "summary": {
      "merchant": 159,
-     "agent": 53,
-     "both": 33,
+     "agent": 55,
+     "both": 35,
      "other": 9
     },
     "merchant": {
@@ -2929,10 +2929,10 @@
      }
     },
     "agent": {
-     "musts": 53,
+     "musts": 55,
      "check": 0,
      "exempt": 0,
-     "gap": 53
+     "gap": 55
     },
     "other": {
      "musts": 9,
@@ -3565,7 +3565,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "check",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "All capability and service names MUST use the format {reverse-domain}.{service}.{capability}",
      "source": "ucp:docs/specification/overview.md#L51",
@@ -3582,7 +3582,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "check",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "The spec and schema fields are REQUIRED for all capabilities",
      "source": "ucp:docs/specification/overview.md#L74",
@@ -5966,8 +5966,8 @@
    "roles": {
     "summary": {
      "merchant": 312,
-     "agent": 134,
-     "both": 65,
+     "agent": 135,
+     "both": 66,
      "other": 4
     },
     "merchant": {
@@ -5981,10 +5981,10 @@
      }
     },
     "agent": {
-     "musts": 134,
+     "musts": 135,
      "check": 55,
      "exempt": 3,
-     "gap": 76
+     "gap": 77
     },
     "other": {
      "musts": 4,
@@ -10367,7 +10367,7 @@
      "keyword": "REQUIRED",
      "testability": "needs-receiver",
      "status": "check",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "Every advertised capability declaration MUST include spec and schema URL fields",
      "source": "ucp:docs/specification/overview.md#L82",
@@ -12275,8 +12275,8 @@
    "roles": {
     "summary": {
      "merchant": 526,
-     "agent": 302,
-     "both": 67,
+     "agent": 305,
+     "both": 70,
      "other": 19
     },
     "merchant": {
@@ -12292,10 +12292,10 @@
      }
     },
     "agent": {
-     "musts": 302,
+     "musts": 305,
      "check": 0,
      "exempt": 3,
-     "gap": 299
+     "gap": 302
     },
     "other": {
      "musts": 19,
@@ -14547,7 +14547,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "role": "business",
+     "role": "both",
      "normative_basis": "sentence",
      "requirement": "Businesses MUST advertise the complete set of consent options they support; when presenting a choice, platforms MUST use the advertised `description`, `links`, `granted` value, and purpose/segment grouping",
      "source": "ucp:docs/specification/shopping/extensions/buyer-consent.md#L361",
@@ -19888,7 +19888,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "role": "handler",
+     "role": "both",
      "normative_basis": "schema",
      "requirement": "A token binding MUST include a type (the reverse-domain capability that owns the bound resource, e.g. dev.ucp.shopping.checkout) and an id (opaque identifier of that resource within the owning capability), preventing token reuse across different resources",
      "source": "ucp:source/schemas/common/types/binding.json#L7",
@@ -19900,7 +19900,7 @@
      "keyword": "MUST",
      "testability": "testable",
      "status": "gap",
-     "role": "handler",
+     "role": "both",
      "normative_basis": "schema",
      "requirement": "A payment identity MUST include an access_token uniquely identifying the participant tokens are bound to",
      "source": "ucp:source/schemas/common/types/payment_identity.json#L7",
