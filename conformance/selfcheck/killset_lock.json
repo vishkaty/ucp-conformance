@@ -2,7 +2,7 @@
  "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
  "counts": {
   "ACheck": 44,
-  "MCheck": 249,
+  "MCheck": 250,
   "Row": 44,
   "engine": 89,
   "schema-tier": 81,
@@ -652,7 +652,7 @@
    "n_kills_floor": 1
   },
   "golden_check_08_25:ORD-020": {
-   "hash": "b87a6ab32288d9695b2b14da26b2f945cd18befa85d67d9f493fc23935c0c4e7",
+   "hash": "d88a4f578c8cb1ff1c3194ab93849f8f427a138393321b879dfd8fea2a73ec2c",
    "kind": "Row",
    "n_kills": 1,
    "n_kills_floor": 1
@@ -2085,6 +2085,12 @@
    "n_kills": 0,
    "n_kills_floor": 0
   },
+  "merchant_checks_08_25_envelope:discovery.profile_no_redirect_0825": {
+   "hash": "ac107ce82de00d101981cc863690ee8bdcb9f249d5f3750f4c38c30b28d0f756",
+   "kind": "MCheck",
+   "n_kills": 4,
+   "n_kills_floor": 4
+  },
   "merchant_checks_08_25_envelope:discovery.published_artifacts_cache_control": {
    "hash": "8832a62b2c634c3840327100d476b0483c4b865edb0fa5b5d62a1a0de3b8c1b2",
    "kind": "MCheck",
@@ -3022,7 +3028,7 @@
    "n_kills_floor": 1
   },
   "struct_check_08_25:discovery.dereference_no_redirect_follow": {
-   "hash": "fdc2c960d61538aae11c2d20862b1e67c607b02c8e4a0cf63cded3106d6af280",
+   "hash": "2a238bdbbda725697119da943e882d25b9ca0c4d75b5b384bdde9f0d6a78eaf2",
    "kind": "struct",
    "n_kills": 8,
    "n_kills_floor": 8
@@ -3262,7 +3268,7 @@
    "n_kills_floor": 2
   }
  },
- "generated": "2026-09-11",
+ "generated": "2026-09-22",
  "pins": {
   "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
   "reference_sample_server": "00333a80ebca3efd442d515b261a36e57de815d3",

@@ -14,6 +14,20 @@ Every id below was re-read against the pinned 08-25 register (SOURCES.lock cd78f
   NEG-001                  overview/index.md#L1862,L3553 — an unadvertised platform
                            version in UCP-Agent -> 422 version_unsupported (golden kill:
                            `negotiation_accept_any`)
+  DISC-002                 overview/index.md#L2239 — "Profile endpoints MUST NOT use
+                           redirects (3xx)": the HOSTING duty on the business (do not EMIT
+                           a 3xx), which is fetched here with redirects disabled. Added
+                           2026-09-22: the clause is unchanged at 08-25 (the register row's
+                           own notes: "relocated only; wording unchanged"), but the 04-08
+                           live grader (merchant_checks_04_08_discovery.
+                           discovery.profile_no_redirect) is version-locked to 04-08, so at
+                           08-25 the id had been left to struct_check_08_25's
+                           dereference_may_proceed — which implements the VERIFIER duty at
+                           #L2287 (DISC-007: do not FOLLOW a 3xx) and does no network I/O
+                           at all, so a profile endpoint that redirected passed untouched.
+                           Same fetch + predicate as the 04-08 check, re-scoped; DISC-002 is
+                           dropped from that struct check, which keeps #L2287 for DISC-007
+                           alone with its full 8-code negative set.
   DISC-003                 overview/index.md#L2240-L2242 — Cache-Control on the business's
                            published artifacts (its profile + any artifact it serves itself)
   CHK-048 item 2           checkout/rest.md#L1309-L1312 — same-key retry of Complete (CHK-078, the platform half, is agent-lane)
@@ -34,7 +48,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "ci"))
 from engine import Resp, fetch, CLEAN, DEVIATION                       # noqa: E402
 from merchant_checks import (MCheck, _hdr, _create_payload, _create_for_complete,   # noqa: E402
                              disc_reject_resp, _dinvalid)
-from merchant_checks_04_08_discovery import fetch_noredirect, _profile_url, _cache_control   # noqa: E402
+from merchant_checks_04_08_discovery import (fetch_noredirect, _profile_url, _cache_control,   # noqa: E402
+                                             f_profile_get, p_no_redirect)
 from wire_shapes import shapes_for                                    # noqa: E402
 import seq_invariants                                                 # noqa: E402
 
@@ -275,6 +290,17 @@ CHECKS_08_25_ENVELOPE = [
            p_version_unsupported_0825,
            ["status:400", "status:201", 'set:messages.0.code="unsupported_version"', "drop:messages",
             "corrupt-json"], needs=("product",), transport="rest", versions=V0825),
+    # DISC-002 @ 08-25: the profile endpoint MUST NOT EMIT a 3xx (overview/index.md#L2239,
+    # Profile Requirements > Hosting). Same fetch (redirects disabled) and same predicate
+    # as the 04-08 check this file already borrows its helpers from -- the clause is
+    # unchanged at 08-25, only relocated -- re-scoped to 08-25 because that check's
+    # `versions` is 04-08-locked (its sibling DISC/NEG ids name different requirements in
+    # the 01-era registers). The verifier-side companion at #L2287 (do not FOLLOW a 3xx)
+    # is DISC-007's own row and stays in struct_check_08_25.
+    MCheck("discovery.profile_no_redirect_0825", ["DISC-002"], "MUST NOT", f_profile_get,
+           p_no_redirect,
+           ["status:301", "status:302", "status:307", "status:308"],
+           transport="rest", versions=V0825),
     MCheck("discovery.published_artifacts_cache_control", ["DISC-003"], "MUST", published_artifacts_resp,
            p_published_artifacts_cache_control,
            ['set:artifacts.0.cache_control="private, max-age=300"', 'set:artifacts.0.cache_control="no-store"',

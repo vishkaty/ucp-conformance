@@ -12399,14 +12399,14 @@
     "discovery-live": 0,
     "fixture-schema": 32,
     "fixture-crypto": 0,
-    "self-referenced": 36,
+    "self-referenced": 37,
     "register-selfcheck": 13,
-    "reference-impl": 25
+    "reference-impl": 24
    },
    "integrity": {
-    "target_facing": 68,
+    "target_facing": 69,
     "corpus": 13,
-    "algorithm": 25
+    "algorithm": 24
    },
    "gap_by_testability": {
     "manual": 131,
@@ -14804,9 +14804,9 @@
      "requirement": "Profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them.",
      "source": "ucp:docs/specification/overview/index.md#L2239",
      "covered_by": [
-      "struct_check_08_25.py"
+      "merchant_checks_08_25_envelope.py"
      ],
-     "evidence": "reference-impl",
+     "evidence": "self-referenced",
      "reach": []
     },
     {
@@ -14960,7 +14960,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": "bullet",
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based + automatic); multiple valid codes are all applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
      "covered_by": [
@@ -21865,7 +21865,7 @@
      "testability": "testable",
      "status": "gap",
      "role": "business",
-     "normative_basis": "pseudocode",
+     "normative_basis": "definition",
      "requirement": "A submitted instrument set is valid only if there exists an assignment of each submitted instrument to exactly one instrument group such that the instrument's type is in the assigned group's `types` and every group's instrument count falls within its min/max",
      "source": "ucp:docs/specification/payment/extensions/split-payments.md#L95",
      "covered_by": []

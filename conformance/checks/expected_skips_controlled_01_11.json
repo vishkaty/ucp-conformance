@@ -60,6 +60,7 @@
   "discovery.profile_cache_control": "version-scoped",
   "discovery.profile_https": "version-scoped",
   "discovery.profile_no_redirect": "version-scoped",
+  "discovery.profile_no_redirect_0825": "version-scoped",
   "discovery.profile_schema": "version-scoped",
   "discovery.published_artifacts_cache_control": "version-scoped",
   "discovery.reject_http_profile_url": "version-scoped",
