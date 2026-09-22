@@ -623,8 +623,8 @@
         "from": "2026-04-08",
         "disposition": "reworded"
       },
-      "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-correction-2026-09-22",
       "normative_basis": "schema"
     },
     {
@@ -648,8 +648,8 @@
         "from": "2026-04-08",
         "disposition": "carried"
       },
-      "role": "handler",
-      "role_provenance": "review:role-adjudication-2026-09-11",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-correction-2026-09-22",
       "normative_basis": "schema"
     },
     {
