@@ -28,6 +28,7 @@
   "discovery.capability_spec_schema_01_23": "version-scoped",
   "discovery.mcp_transport_advertised": "version-scoped",
   "discovery.profile_https": "oracle-unavailable",
+  "discovery.profile_no_redirect_0825": "version-scoped",
   "discovery.published_artifacts_cache_control": "version-scoped",
   "discovery.spec_urls_resolvable": "version-scoped",
   "envelope.error_content_type_enum": "version-scoped",
