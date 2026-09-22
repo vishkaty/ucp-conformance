@@ -94,16 +94,27 @@ cart/checkout/order schema (no extension involved, unlike FUL-*/CNST-* above):
               (fixture calls POST /testing/simulate-shipping/{id} first so
               fulfillment.events[] is non-empty -- a bare create->complete
               order never populates one)
-  ORD-020     Order confirmation requires id and permalink_url
+  ORD-020     Order confirmation (checkout.order) requires id and
+              permalink_url -- graded on POST /checkout-sessions/{id}/complete,
+              NOT on GET /orders/{id} (see the row's own comment: the cited type
+              order_confirmation.json is $ref'd only from checkout.json:138;
+              corrected 2026-09-22 with the mutant order-confirmation-drop-
+              permalink, which this row alone claims)
 
-9 new mutants added to defects_config.json's "mutants" array this wave
+10 new mutants added to defects_config.json's "mutants" array
 (cart-line-item-drop-quantity, cart-quantity-below-minimum, cart-item-drop-price,
 order-drop-currency, order-drop-line-items, order-line-item-drop-status,
 order-quantity-drop-fulfilled, order-expectation-drop-method-type,
-order-event-drop-occurred-at); the other 6 rows above (CHK-033/034 x4,
-CART-029 x4, ORD-003/004/020) reuse the 21 mutants already in the battery
-catalog from R11/wave 2, previously exercised only by the report-only battery
-gate and now also load-bearing for a register row here.
+order-event-drop-occurred-at, and order-confirmation-drop-permalink added
+2026-09-22 for ORD-020); the other 5 rows above (CHK-033/034 x4, CART-029 x4,
+ORD-003/004) reuse the 21 mutants already in the battery catalog from
+R11/wave 2, previously exercised only by the report-only battery gate and now
+also load-bearing for a register row here. order-drop-permalink (GET
+/orders/{id}, order.json's own root required[]) stays in that catalog as
+battery-only evidence: no 08-25 register row claims order.permalink_url on the
+order entity -- ORD-003 (currency) and ORD-004 (line_items) are the only rows
+quoting order.json#L25 -- and deleting a firing, caught mutant to tidy the
+bookkeeping would be removing coverage, which docs/TEST-INTEGRITY.md forbids.
 
 Rows explicitly LEFT BLOCKED this wave (one-line reasons; never a vacuous check —
 see the module-level BLOCKED list at the bottom and the lane report for the
@@ -961,11 +972,18 @@ CHECKS = [
         _order_response_after_shipping,
         _oracle_root("schemas/shopping/order.json", "read"),
         "order-event-drop-occurred-at"),
+    # ORD-020's clause lives on order_confirmation.json (#L7), a type the 08-25 corpus
+    # $refs from exactly ONE place -- checkout.json:138, the `order` member of the
+    # checkout-completion response. order.json never references it, so this row is
+    # graded on POST /checkout-sessions/{id}/complete against checkout.json's `complete`
+    # op (the pair CHK-033 above already uses), never on GET /orders/{id} against
+    # order.json, whose own root required[] is ORD-003/ORD-004's array.
     Row("ORD-020", ["ORD-020"], "fixture-schema",
-        "Order confirmation requires id and permalink_url.",
-        _order_response,
-        _oracle_root("schemas/shopping/order.json", "read"),
-        "order-drop-permalink"),
+        "Order confirmation (the checkout-completion response's `order` member) "
+        "requires id and permalink_url.",
+        _complete_checkout_status,
+        _oracle_root("schemas/shopping/checkout.json", "complete"),
+        "order-confirmation-drop-permalink"),
 
     # P3 wave 4: discount (checkout_service.py's real code-based discount
     # engine) and totals (the same checkout wire response's totals[] array).

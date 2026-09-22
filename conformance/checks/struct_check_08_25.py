@@ -41,10 +41,14 @@ Areas converted (register: conformance/requirements/2026-08-25/):
   3. permalink.json — PERM-005, PERM-006, PERM-007, PERM-010, PERM-011, PERM-012 (the
      compact item-identifier encode/decode algorithm and the continue_to destination-
      preference validation algorithm; NEW capability at 08-25, no 04-08 equivalent).
-  4. discovery.json — DISC-002, DISC-004, DISC-007, DISC-008 (P3 wave 3: the
+  4. discovery.json — DISC-004, DISC-007, DISC-008 (P3 wave 3: the
      identity-resolution URL fetch-safety rules -- HTTPS-only, no-redirect-follow,
      and the SSRF/special-use-address guard -- each a pure algorithm over a URL/
-     status/IP string, no live golden or oracle needed).
+     status/IP string, no live golden or oracle needed). DISC-002 was here too
+     until 2026-09-22: its clause (#L2239) is the profile HOST's duty not to EMIT
+     a 3xx, which nothing in this file can observe, so it moved to the live
+     merchant check merchant_checks_08_25_envelope.discovery.profile_no_redirect_0825
+     (see the Area 4 check's own comment).
   5. catalog.json (P3 wave 4, 2026-09-01) — CAT-001, CAT-002, CAT-003, CAT-015,
      CAT-016, CAT-017, CAT-018, CAT-028, CAT-029, CAT-030, CAT-031, CAT-032,
      CAT-039..CAT-043: pagination/lookup/search required-field shapes read LIVE
@@ -486,14 +490,14 @@ PERMALINK_CHECKS = [
 
 
 # =====================================================================================
-# Area 4 — identity-resolution URL fetch-safety (DISC-002, DISC-004, DISC-007, DISC-008)
+# Area 4 — identity-resolution URL fetch-safety (DISC-004, DISC-007, DISC-008)
 # Source: docs/specification/overview/index.md#L2283-2299 @ cd78fb38 -- the numbered
 # fetch-safety rules list that binds "any URL dereferenced during identity resolution
 # -- the profile, and any jwks_uri or CIMD document a verifier follows": rule 1 (DISC-
 # 004's broadened HTTPS-only guard, carried-forward from the narrower 04-08 "profile
-# URLs" wording), rule 2 (DISC-002's unchanged "Profile endpoints MUST NOT use
-# redirects" + DISC-007's broadened verifier-side companion -- one algorithm, two
-# register rows, same PERM-011/012-style combine precedent above), and rule 7
+# URLs" wording), rule 2 (DISC-007's verifier-side "Implementations MUST NOT follow
+# redirects (3xx)" -- DISC-002's hosting-side clause at #L2239 is NOT this rule and is
+# graded live elsewhere, see the check's own comment), and rule 7
 # (DISC-008's SSRF / special-use-address guard). Structural residue beyond wave 1:
 # CAP-001..007 (wave 1) was the only capability-namespace area; these are the
 # remaining pure algorithms in discovery.json that need neither a live golden nor the
@@ -518,8 +522,8 @@ def dereference_url_scheme_ok(url):
 
 
 def dereference_may_proceed(status_code):
-    """DISC-002/DISC-007 (rule 2): a compliant implementation dereferencing a
-    profile/jwks_uri/CIMD URL during identity resolution MUST NOT follow a 3xx
+    """DISC-007 (rule 2, overview/index.md#L2287): a compliant implementation
+    dereferencing a profile/jwks_uri/CIMD URL during identity resolution MUST NOT follow a 3xx
     redirect -- it treats the response as a rejection instead of re-issuing the
     request against Location. Returns True iff the response status permits the
     implementation to proceed (use the response), False iff it MUST reject
@@ -558,16 +562,21 @@ DISCOVERY_FETCH_SAFETY_CHECKS = [
            ("ftp://business.example/x",),                   # not https
            ("business.example/.well-known/ucp",),           # no scheme at all
            ("",), (None,)]),
-    Check("discovery.dereference_no_redirect_follow", ["DISC-002", "DISC-007"],
+    # DISC-007 ONLY (2026-09-22). This predicate is the VERIFIER duty at #L2287
+    # ("Implementations MUST NOT follow redirects (3xx)") — rule 2 of the
+    # identity-resolution fetch-safety list, which is DISC-007's own cited clause. It used
+    # to carry DISC-002 as well, split from DISC-007 only by a partition of the 3xx
+    # literals (301/302 vs the rest), but that is not a subject distinction: DISC-002's
+    # clause at #L2239 is the HOSTING duty ("Profile endpoints MUST NOT use redirects
+    # (3xx)") — do not EMIT one — and nothing in this file ever touches the wire, so a
+    # profile endpoint that redirected passed untouched. DISC-002 is now graded live by
+    # merchant_checks_08_25_envelope.discovery.profile_no_redirect_0825 (profile fetched
+    # with redirects disabled), and DISC-007 keeps this check with its WHOLE 8-code
+    # negative set instead of the 6 it was credited with.
+    Check("discovery.dereference_no_redirect_follow", ["DISC-007"],
           dereference_may_proceed,
           [(200,), (404,), (500,), (299,), (400,)],           # non-3xx -> may proceed
-          [(300,), (301,), (302,), (303,), (304,), (307,), (308,), (399,)],   # 3xx -> MUST reject
-          # DISC-002 (profile endpoints: the permanent/temporary redirect pair a profile
-          # host would emit) and DISC-007 (any dereferenced URL: the rest of the 3xx class
-          # incl. 303/307/308 and the range edges) — same predicate, each id proven by
-          # its own cases (D1-12).
-          kills={"DISC-002": [(301,), (302,)],
-                 "DISC-007": [(300,), (303,), (304,), (307,), (308,), (399,)]}),
+          [(300,), (301,), (302,), (303,), (304,), (307,), (308,), (399,)]),  # 3xx -> MUST reject
     Check("discovery.dereference_target_not_special_use", ["DISC-008"],
           dereference_target_allowed,
           [("8.8.8.8",), ("1.1.1.1",), ("2001:4860:4860::8888",),
