@@ -348,6 +348,30 @@
    }
   },
   {
+   "name": "order-confirmation-drop-permalink",
+   "family": "check-conversion-p3-wave3",
+   "surface": "checkout",
+   "route": {
+    "method": "POST",
+    "path": "/checkout-sessions/{id}/complete"
+   },
+   "patch": [
+    {
+     "op": "drop",
+     "path": [
+      "order",
+      "permalink_url"
+     ]
+    }
+   ],
+   "violates": "shopping/types/order_confirmation.json required: [id, permalink_url] -- ORD-020. Reached ONLY through checkout.json:138's `order` member (the single $ref to this type in the 08-25 corpus); order.json never references it, so the order-surface mutant `order-drop-permalink` above proves order.json's own root required[], not this type.",
+   "oracle": {
+    "kind": "root",
+    "schema": "schemas/shopping/checkout.json",
+    "op": "complete"
+   }
+  },
+  {
    "name": "order-null-regression",
    "family": "per-surface-order",
    "surface": "order",

@@ -511,9 +511,11 @@ def _expected_skips_cases():
         # W1 integration (D1-11 x D3-10): D3-10's 11 MCP checks reach this fixture — the 9
         # product-driven ones pin `needs-product` (the fixture has no product config), while
         # discovery.mcp_transport_advertised and mcp.tools_list_core_checkout RUN (the fixture's
-        # advertised MCP endpoint answers tools/list) -> 4 run / 245 pinned.
-        case("(h) mcp-only-0825: exactly 4 checks run (unpinned), 245 pinned",
-             len(unpinned) == 4 and len(pop) == 245, f"run={unpinned} pinned={len(pop)}")
+        # advertised MCP endpoint answers tools/list) -> 4 run / 245 pinned. 246 since
+        # 2026-09-22: discovery.profile_no_redirect_0825 (DISC-002's live 08-25 grader) is a
+        # REST check, so it pins transport-not-declared on this MCP-only shape.
+        case("(h) mcp-only-0825: exactly 4 checks run (unpinned), 246 pinned",
+             len(unpinned) == 4 and len(pop) == 246, f"run={unpinned} pinned={len(pop)}")
         needs_product = sorted(cid for cid, cls in pop.items() if cls == "needs-product")
         case("(h) mcp-only-0825: the 9 product-driven MCP checks are pinned needs-product",
              len(needs_product) == 9 and all(cid.startswith("mcp.") for cid in needs_product),
