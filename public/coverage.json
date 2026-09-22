@@ -14960,7 +14960,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": "bullet",
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based + automatic); multiple valid codes are all applied",
      "source": "ucp:docs/specification/shopping/extensions/discount.md#L140",
      "covered_by": [
@@ -21865,7 +21865,7 @@
      "testability": "testable",
      "status": "gap",
      "role": "business",
-     "normative_basis": "pseudocode",
+     "normative_basis": "definition",
      "requirement": "A submitted instrument set is valid only if there exists an assignment of each submitted instrument to exactly one instrument group such that the instrument's type is in the assigned group's `types` and every group's instrument count falls within its min/max",
      "source": "ucp:docs/specification/payment/extensions/split-payments.md#L95",
      "covered_by": []
