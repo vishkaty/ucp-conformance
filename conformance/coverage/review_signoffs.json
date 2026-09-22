@@ -808,14 +808,15 @@
    "date": "2026-09-11",
    "reviewer": "Wave 1 lane D2 (Claude Code session, 2026-09-11) — anchors re-read at cd78fb38; the human sample below is the owner's review",
    "spec_reverified": true,
-   "notes": "normative_basis adjudications for the eight nokw rows the converters need (D2-11a, decision 29): SIG-001 inferred, SIG-009 inferred (D2-11b downgrade candidate), CAT-012 inferred, CAT-019 inferred, DSC-006 bullet, SPL-004 pseudocode, CHK-017 bullet, TDS-001 inferred — justifications in conformance/requirements/normative_basis_adjudications.json and on each row (normative_basis_justification). `ids` names the definition|inferred rulings the register gate requires a sign-off for. Sample = all eight (decision 13: max(10%, 10) capped at the batch size), PENDING until the owner records it.",
+   "notes": "normative_basis adjudications for the eight nokw rows the converters need (D2-11a, decision 29): SIG-001 inferred, SIG-009 inferred (D2-11b downgrade candidate), CAT-012 inferred, CAT-019 inferred, DSC-006 inferred (relabelled from bullet on 2026-09-22), SPL-004 definition (relabelled from pseudocode on 2026-09-22), CHK-017 bullet, TDS-001 inferred — justifications in conformance/requirements/normative_basis_adjudications.json and on each row (normative_basis_justification). `ids` names the definition|inferred rulings the register gate requires a sign-off for. Sample = all eight (decision 13: max(10%, 10) capped at the batch size), PENDING until the owner records it. [2026-09-22 correction, owner approved, from the adversarial review of this sample] DSC-006 and SPL-004 were filed under labels their own class tests do not meet: `bullet` is 'a list item under a keyword lead-in' and neither the `**Response behavior:**` lead-in at discount.md L138 nor any sibling carries an RFC 2119 keyword; `pseudocode` is 'every cited line sits inside a code fence' and split-payments.md L95 to L100 sit outside every fence (the first opens at L111). Both of those labels are gate free, so the honest labels `inferred` and `definition` bring the two rows back under the decision 29 sign-off. SPL-004 is added to ids[2026-08-25] for that reason; DSC-006 was already named at 2026-08-25 by coverage-check-0825-w1-2026-09-11. The adjudication justifications were rewritten to match the anchors. sample.human_review is untouched by this correction.",
    "ids": {
     "2026-08-25": [
      "SIG-001",
      "SIG-009",
      "CAT-012",
      "CAT-019",
-     "TDS-001"
+     "TDS-001",
+     "SPL-004"
     ]
    },
    "sample": {
