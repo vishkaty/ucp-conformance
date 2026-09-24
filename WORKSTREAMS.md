@@ -1,6 +1,16 @@
 # WORKSTREAMS — where the program is, wave by wave
 
-last-reviewed: 2026-09-11
+last-reviewed: 2026-09-23
+
+> **Status staleness note, 2026-09-23.** The wave table below has not been revised since
+> 2026-09-11, and the commit that last wrote this file is an ancestor of the point W1 was
+> working toward, so the W1 row states the position as it stood while the wave was still
+> running rather than as it stands now. Treat the W1 status as unconfirmed here and read
+> `ops/pending-upstream-actions.md` (top block) for what is true today. The `docs-steward`
+> gate checks that this file exists, tracks its decisions and carries a review date; it does
+> not and cannot check whether a status word is still accurate, which is why this note is
+> written by hand.
+
 
 The goal (unchanged): every normative MUST of every pinned UCP spec version — 2026-01-11,
 2026-01-23, 2026-04-08 and 2026-08-25, merchant and agent roles — is exactly one of CHECK
