@@ -19,8 +19,8 @@
       "browser_capable": true,
       "schema_enforced": true,
       "notes": "Reverse-domain naming. Enforced by ucp.json reverse_domain_name pattern on propertyNames of services/capabilities/payment_handlers (ucp.json#L14-L18, L60/L69/L78). Oracle: ProtocolTest.test_discovery validates handler group names via ReverseDomainName model; service/capability keys via BusinessSchema(**data).",
-      "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-correction-2026-09-22",
       "normative_basis": "sentence"
     },
     {
@@ -40,8 +40,8 @@
       "browser_capable": true,
       "schema_enforced": true,
       "notes": "Enforced for platform-level capabilities by capability.json platform_schema required [spec, schema] (capability.json#L27). NOTE 01-23 vs 04-08 delta: in ucp.json base entity (L23) only `version` is required; spec/schema are NOT required at the entity level, but capability.json platform_schema adds the [spec,schema] requirement. The conformance server is a Business, and business_schema does NOT require spec/schema, so official_oracle=false.",
-      "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11",
+      "role": "both",
+      "role_provenance": "review:role-adjudication-correction-2026-09-22",
       "normative_basis": "sentence"
     },
     {
