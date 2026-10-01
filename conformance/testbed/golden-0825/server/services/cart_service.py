@@ -165,15 +165,17 @@ class CartService:
     )
 
     # Save Idempotency Record
-    await db.save_idempotency_record(
+    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
+    # of the primary-key race get the winner's cached response, not a 500.
+    cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
       request_hash,
       201,
       response_body,
     )
-
-    await self.transactions_session.commit()
+    if cached is not None:
+      return Cart(**cached)
     return cart
 
   async def get_cart(self, cart_id: str) -> Cart:
@@ -250,15 +252,17 @@ class CartService:
     )
 
     # Save Idempotency Record
-    await db.save_idempotency_record(
+    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
+    # of the primary-key race get the winner's cached response, not a 500.
+    cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
       request_hash,
       200,
       response_body,
     )
-
-    await self.transactions_session.commit()
+    if cached is not None:
+      return Cart(**cached)
     return existing
 
   async def cancel_cart(
@@ -297,15 +301,17 @@ class CartService:
     )
 
     # Save Idempotency Record
-    await db.save_idempotency_record(
+    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
+    # of the primary-key race get the winner's cached response, not a 500.
+    cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
       request_hash,
       200,
       response_body,
     )
-
-    await self.transactions_session.commit()
+    if cached is not None:
+      return Cart(**cached)
     return cart
 
   async def _enrich_and_recalculate(self, cart: Cart) -> None:
