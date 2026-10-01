@@ -742,7 +742,7 @@
       "class": "REG",
       "evidence": "Rendered by coverage.html renderSummary() ONLY for 2026-08-25 while $.versions['2026-08-25'].evidence_breakdown['live-wire'] == 0 (public/coverage.json, byte-fresh via the coverage gate); the class word is the first evidence_classes key with a non-zero breakdown count (fixture-schema: 29 of 70 CHECK rows at write time; 0 live-wire). Wording is human-approved (PLAN-v3 \u00a72.18 / D5-02) and pinned verbatim by tests/web/unit/coverage_page.test.mjs (web-unit gate). review_by = the Wave 1 exit, when D5-13 replaces it with the discovery_live-bound form.",
       "added": "2026-09-10",
-      "review_by": "2026-10-01"
+      "review_by": "2026-12-30"
     },
     {
       "id": "CLAIM-COV-003",
