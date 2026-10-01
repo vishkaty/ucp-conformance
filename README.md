@@ -170,3 +170,5 @@ site deploy (`packaging/deploy.sh`, step 4) reads the history the same way.
 - **Awesome UCP** — a curated list of UCP resources: https://github.com/vishkaty/awesome-ucp
 
 MIT licensed.
+
+<!-- ci scope probe: root-level file only, delete with the probe branch -->
