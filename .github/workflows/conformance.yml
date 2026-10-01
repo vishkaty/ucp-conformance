@@ -15,9 +15,44 @@ on:
     # public/** is included because the `coverage` gate cross-checks the published
     # coverage.json and the site's advertised check counts against reality.
     # packaging/** is included because the bundle-drift step + package-agent gate validate it.
-    paths: ["conformance/**", "public/**", "tests/**", "functions/**", "packaging/**", ".github/workflows/conformance.yml"]
+    #
+    # KEEP IN STEP WITH `env.WATCHED_PATHS` BELOW, with ONE deliberate difference that
+    # the gate conformance/ci/validate_conformance_workflow.py knows about: `action.yml`
+    # appears HERE but NOT in WATCHED_PATHS. The two lists answer different questions.
+    # This one is "does the workflow start at all", and it must include action.yml so a
+    # push touching only the composite Action still runs the `action-selftest` job that
+    # exercises it. WATCHED_PATHS is "can this change affect the self-test SUITE", and
+    # the suite does not read action.yml, so listing it there would buy a 15-minute
+    # irrelevant suite run. GitHub forbids expressions in `on.*.paths`, so this list has
+    # to repeat the other one literally. Change one, change both, minus that one entry.
+    paths:
+      - "conformance/**"
+      - "public/**"
+      - "tests/**"
+      - "functions/**"
+      - "packaging/**"
+      - "docs/**"
+      - "ARCHITECTURE.md"
+      - "DECISIONS.md"
+      - "PRINCIPLES.md"
+      - "README.md"
+      - "WORKSTREAMS.md"
+      - "action.yml"
+      - ".github/**"
   pull_request:
-    paths: ["conformance/**", "public/**", "tests/**", "functions/**", "packaging/**", ".github/workflows/conformance.yml"]
+    # DELIBERATELY NO `paths:` FILTER — do not add one back.
+    # Branch protection on main requires the check `selftest` in strict mode. A paths
+    # filter here means a PR touching only root-level files matches nothing, so no run
+    # starts, so the required check never appears, so the PR is blocked for ever.
+    # Measured on PR #9. Opened 2026-09-24 on head b1546b09 (WORKSTREAMS.md only): 0
+    # pull_request runs, no `selftest` context, unmergeable for 7 days with no failing
+    # check to act on, and a manual workflow_dispatch (run #259) was the only way to make
+    # the check exist. Head b9642a87 touched conformance/testbed/, which the filter DOES
+    # match: 1 pull_request run (#260), green, merged.
+    # Scope is decided INSIDE the `selftest` job instead (see its first step), so the
+    # job always runs and always reports, and costs seconds when the change is
+    # irrelevant. A job-level `if:` would NOT work: a skipped job reports no check.
+    # conformance/ci/validate_conformance_workflow.py fails if this filter comes back.
   workflow_dispatch: {}
   schedule:
     # Weekly heartbeat (Mon 06:17 UTC): sources are pinned, so this catches
@@ -25,33 +60,164 @@ on:
     # "regularly tested and verified" promise even in quiet weeks.
     - cron: "17 6 * * 1"
 
+# ─────────────────────────────────────────────────────────────────────────────────────
+# THE watched-path list: ONE definition, read by the `scope` step of the `selftest` job
+# below to decide whether a pull request can affect the SUITE. The `push:` filter above
+# repeats it literally only because GitHub allows no expressions there, and adds
+# `action.yml`, which belongs to the workflow trigger but not to the suite.
+# Format: one path per line, no spaces. A trailing "/" means that directory and
+# everything under it; anything else is an exact file path.
+#
+# EVERYTHING A GATE READS BELONGS HERE. A missing path does not make the suite slower, it
+# makes the REQUIRED check green while the gate that reads the changed file never runs, and
+# the breakage then lands on main. That fails OPEN, which is worse than the deadlock this
+# scope step exists to fix, so this list is deliberately generous. FOUR registered gates
+# read outside conformance/ and packaging/, and every one of them was easy to miss:
+#   · validate_steward_docs.py opens ARCHITECTURE.md, PRINCIPLES.md, DECISIONS.md,
+#     WORKSTREAMS.md and docs/archive/ROADMAP.md (gate `docs-steward`: presence, one row
+#     per closed decision, a review stamp inside 90 days). PR #9 was such a change.
+#   · site_gates.py opens README.md and five docs/*.md (the docclaims gate holds every
+#     advertised count in them to the live product value).
+#   · validate_nightly_workflow.py opens .github/workflows/nightly.yml (gate
+#     `nightly-workflow-selftest`: required jobs, timeouts, registered non-sweep ports).
+#   · validate_ports_registry.py globs .github/workflows/*.yml, so release.yml too (gate
+#     `ports-registry`: every port literal registered and outside the sweep set).
+# The last two are why this entry is the whole `.github/` directory and not just this file.
+# Until 2026-10-01 a pull request touching only nightly.yml or release.yml short-circuited
+# the required check to green and then reddened main on the next push.
+# This is NOT a list to curate by hand. validate_conformance_workflow.py IMPORTS all four
+# gates and reads their own path tuples, Path constants and globs, failing if anything they
+# read is left uncovered here, so a gate that gains an input reds this workflow until the
+# input is listed. It also pins the push/watched drift and kill-tests every clause of both.
+# Run it after any edit here.
+# ─────────────────────────────────────────────────────────────────────────────────────
+env:
+  WATCHED_PATHS: |
+    conformance/
+    public/
+    tests/
+    functions/
+    packaging/
+    docs/
+    ARCHITECTURE.md
+    DECISIONS.md
+    PRINCIPLES.md
+    README.md
+    WORKSTREAMS.md
+    .github/
+
 jobs:
   selftest:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      # ── THE GATE DECISION ─────────────────────────────────────────────────────────
+      # This job must ALWAYS run and ALWAYS report, because branch protection on main
+      # requires the `selftest` context in strict mode; a filtered trigger (or a
+      # job-level `if:`) produces no check at all and blocks the PR for ever. So the
+      # job runs unconditionally, this first step decides whether the change can
+      # possibly affect the suite, and EVERY later step is conditional on its verdict:
+      # seconds when the change is irrelevant, the whole suite when it is not.
+      # Non-pull_request events (push, schedule, workflow_dispatch) are never
+      # short-circuited. On any doubt it fails SAFE to "relevant".
+      # Keep IDENTICAL to the twin step in the other job; the path list itself lives in
+      # exactly one place, `env.WATCHED_PATHS` at the top of this file.
+      - name: "Scope: can this change affect the self-test suite?"
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          say()    { echo "$1"; printf '%s\n\n' "$1" >> "$GITHUB_STEP_SUMMARY"; }
+          decide() { echo "relevant=$1" >> "$GITHUB_OUTPUT"; }
+
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            decide true
+            say "SCOPE: event '${{ github.event_name }}' is not a pull_request -> RELEVANT: the full self-test suite RUNS."
+            exit 0
+          fi
+
+          # The WHOLE pull request, diffed from the MERGE BASE against its base branch —
+          # which is exactly what this endpoint returns — and never just the tip commit,
+          # so a PR of several commits is judged on everything it changes.
+          # BOTH sides of a rename. For status=renamed the endpoint reports the NEW path in
+          # `filename` and the OLD one only in `previous_filename`, so reading `filename`
+          # alone makes a move OUT of a watched path invisible: `git mv ARCHITECTURE.md
+          # ARCH.md` would score NOT RELEVANT and then red docs-steward on main with
+          # "ARCHITECTURE.md: missing". Emitting both paths judges the move on either end.
+          if ! files="$(gh api --paginate \
+                "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+                --jq '.[] | .filename, (.previous_filename // empty)')"; then
+            echo "::warning::SCOPE: could not read this PR's changed files; failing safe."
+            decide true
+            say "SCOPE: changed-file list unavailable -> failing SAFE to RELEVANT: the full self-test suite RUNS."
+            exit 0
+          fi
+
+          watched="$RUNNER_TEMP/scope_watched.txt"
+          changed="$RUNNER_TEMP/scope_changed.txt"
+          hits="$RUNNER_TEMP/scope_hits.txt"
+          # Trim the ENDS only. `tr -d '[:blank:]'` would delete blanks INSIDE an entry, so a
+          # watched "docs/my dir/" silently became "docs/mydir/" and matched nothing, while
+          # validate_conformance_workflow.py reads the same list with .strip() and disagreed.
+          # No entry contains a blank today; the two readers now agree if one ever does.
+          printf '%s\n' "$WATCHED_PATHS" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' > "$watched" || true
+          printf '%s\n' "$files"                             | grep -v '^$' > "$changed" || true
+          : > "$hits"
+
+          while IFS= read -r f; do
+            while IFS= read -r pat; do
+              case "$pat" in
+                */) case "$f" in "$pat"*) printf '%s\n' "$f" >> "$hits" ;; esac ;;
+                *)  if [ "$f" = "$pat" ]; then printf '%s\n' "$f" >> "$hits"; fi ;;
+              esac
+            done < "$watched"
+          done < "$changed"
+
+          echo "Watched paths (env.WATCHED_PATHS, the single definition):"
+          sed 's/^/  * /' "$watched"
+          echo "Files changed by PR #${{ github.event.pull_request.number }} ($(grep -c '' "$changed") from the merge base):"
+          sed 's/^/  - /' "$changed"
+
+          if [ -s "$hits" ]; then
+            decide true
+            echo "Watched paths touched:"
+            sort -u "$hits" | sed 's/^/  + /'
+            say "SCOPE: RELEVANT -> the full self-test suite RUNS."
+          else
+            decide false
+            say "SCOPE: NOT RELEVANT -> the self-test suite is SHORT-CIRCUITED. This green check asserts only that the change cannot affect the suite; no gate was executed."
+          fi
+
       - uses: actions/checkout@v5
+        if: steps.scope.outputs.relevant == 'true'
 
       - uses: actions/setup-python@v6
+        if: steps.scope.outputs.relevant == 'true'
         with:
           python-version: "3.12"
 
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.relevant == 'true'
         with:
           node-version: "22"
 
       - name: Install uv
+        if: steps.scope.outputs.relevant == 'true'
         uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: false   # avoid the flaky cache-prune post-step (hangs then errors)
 
       - name: Set up Rust (for the ucp-schema oracle)
+        if: steps.scope.outputs.relevant == 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install the third-party crypto oracle (for the jws-interop gate)
+        if: steps.scope.outputs.relevant == 'true'
         run: python3 -m pip install cryptography
 
       - name: Install the independent schema referee (for the dual-oracle gate)
+        if: steps.scope.outputs.relevant == 'true'
         # An INDEPENDENT Python jsonschema engine (Draft 2020-12) that cross-checks the
         # Rust ucp-schema oracle on every schema check; verdict divergence alarms. Draft
         # 2020-12 $id resolution needs jsonschema>=4.26 + referencing. If this install
@@ -59,21 +225,25 @@ jobs:
         run: python3 -m pip install "jsonschema>=4.26" referencing
 
       - name: Install the pinned AP2 reference SDK (for the sdjwt-vs-reference gate)
+        if: steps.scope.outputs.relevant == 'true'
         # google-agentic-commerce/AP2 tracks a moving IETF draft, so we pin the exact
         # commit. The gate's reference-parity tier auto-skips if this install fails;
         # tier 1 (our independent codec on committed goldens) always runs.
         run: python3 -m pip install "git+https://github.com/google-agentic-commerce/AP2@e1ea56db72a6385bce3e5c1112b3a56ce60acb43" || echo "::warning::AP2 reference install failed — sdjwt-vs-reference runs tier 1 only"
 
       - name: Install web-test deps + headless Chromium (for the web-unit/web-browser gates)
+        if: steps.scope.outputs.relevant == 'true'
         run: |
           cd tests/web && npm i --no-audit --no-fund
           npx @puppeteer/browsers install chrome-headless-shell@stable --path "$HOME/.cache/puppeteer" | tail -1
           echo "CHROME_PATH=$(ls $HOME/.cache/puppeteer/chrome-headless-shell/*/chrome-headless-shell-linux64/chrome-headless-shell | tail -1)" >> "$GITHUB_ENV"
 
       - name: Fetch pinned upstream sources
+        if: steps.scope.outputs.relevant == 'true'
         run: bash conformance/ci/fetch_sources.sh
 
       - name: Cache the ucp-schema builds (one per layout — conformance/ci/oracle_manifest.json)
+        if: steps.scope.outputs.relevant == 'true'
         uses: actions/cache@v5
         with:
           path: |
@@ -84,25 +254,31 @@ jobs:
           key: ucp-schema-${{ runner.os }}-${{ hashFiles('conformance/SOURCES.lock.json', 'conformance/ci/oracle_manifest.json') }}
 
       - name: Build the ucp-schema oracle (pinned build, 2026-04-08 layout)
+        if: steps.scope.outputs.relevant == 'true'
         run: cargo build --release --manifest-path conformance/.vendor/ucp-schema/Cargo.toml
 
       - name: Build the per-version ucp-schema oracle (merged main b52518f5, 2026-08-25 layout — D4-04, decision 7b)
+        if: steps.scope.outputs.relevant == 'true'
         run: cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml
 
       - name: Per-version oracle manifest — builds match their commits and --version fingerprints
+        if: steps.scope.outputs.relevant == 'true'
         run: python3 conformance/selfcheck/validate_schema_oracle_manifest.py
 
       - name: Build the python-sdk venvs for the pydantic third leg (D4-05; tag 0.5.0 gated, main report-only)
+        if: steps.scope.outputs.relevant == 'true'
         # network installs (PyPI + git); a failure here makes dual-oracle-0825-pydantic an honest
         # rc 2 skip, never a false green — so continue-on-error is safe for THIS step only.
         run: bash conformance/ci/make_sdk_venvs.sh
         continue-on-error: true
 
       - name: Install the pinned js-sdk for the zod report-only leg (D4-05)
+        if: steps.scope.outputs.relevant == 'true'
         run: cd conformance/ci/zod_feed && npm install --no-audit --no-fund --package-lock=false
         continue-on-error: true
 
       - name: Bring up the golden server
+        if: steps.scope.outputs.relevant == 'true'
         run: |
           bash conformance/ci/serve_golden.sh
         env:
@@ -111,6 +287,7 @@ jobs:
           DB_DIR: /tmp/ucp_test
 
       - name: Bring up the Node.js reference (second differential target)
+        if: steps.scope.outputs.relevant == 'true'
         # Best-effort: a SECOND independent implementation (samples/rest/nodejs, a
         # Hono app on @ucp-js/sdk) for the differential/fixture-circularity gate.
         # continue-on-error so an environment hiccup here never reds the whole
@@ -124,6 +301,7 @@ jobs:
           SIM_SECRET: selfcheck-secret
 
       - name: Run the conformance self-test suite
+        if: steps.scope.outputs.relevant == 'true'
         run: |
           python3 conformance/ci/run_suite.py \
             --server http://localhost:8182 \
@@ -141,6 +319,7 @@ jobs:
           RUN_SUITE_RECORD_DIR: ${{ runner.temp }}/run_suite_records
 
       - name: Reach report drift check (B3 — decision 6 gated, never commits)
+        if: steps.scope.outputs.relevant == 'true'
         # Regenerates the differential reach report IN MEMORY against the live targets
         # (:8182 flower, :3000 node) and compares the GRADED statuses per (version:check,
         # target) with the committed conformance/coverage/reach_report.json. Drift = a
@@ -158,7 +337,7 @@ jobs:
         # report to RUN_SUITE_RECORD_DIR (the battery's --out; the tracked LAST_RUN.json is
         # never rewritten by a run — W1 D3 carry-over, the CI-1 class); the owner refreshes
         # the tracked file at release time from this artifact (or `--record` locally).
-        if: always()
+        if: always() && steps.scope.outputs.relevant == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: golden-0825-battery-LAST_RUN
@@ -166,24 +345,26 @@ jobs:
           if-no-files-found: warn
 
       - name: Tear down the Node.js reference
-        if: always()
+        if: always() && steps.scope.outputs.relevant == 'true'
         run: bash conformance/ci/stop_node_reference.sh
         env:
           NODE_PORT: "3000"
 
       - name: Tear down the golden server
-        if: always()
+        if: always() && steps.scope.outputs.relevant == 'true'
         run: bash conformance/ci/stop_golden.sh
         env:
           DB_DIR: /tmp/ucp_test
 
       - name: Verify the pip bundle is in sync with source
+        if: steps.scope.outputs.relevant == 'true'
         run: |
           bash packaging/sync_bundle.sh
           git diff --exit-code packaging/spck_conformance/_bundle \
             || { echo "::error::packaging bundle is stale — run packaging/sync_bundle.sh and commit"; exit 1; }
 
       - name: Verify the pip bundle is COMPLETE (every module the runner imports is shipped)
+        if: steps.scope.outputs.relevant == 'true'
         # The drift diff above proves copied files are current, never that a needed file
         # is copied (D1-05): this imports the runner from the bundle in an isolated
         # interpreter and diffs the bundle against merchant.py's transitive imports.
@@ -199,6 +380,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # NO scope short-circuit in this job, deliberately. It is not a required context,
+      # so it can never deadlock a pull request, and it is the ONLY job that exercises
+      # `action.yml`. Gating it on the watched-path list would mean an action.yml-only
+      # change merges with the composite Action never once executed. Measured on probe
+      # runs 266 to 271: this job takes 23 to 29 s in full and 6 s short-circuited, so
+      # gating it saved 17 to 23 s on a job that gates nothing, at the price of a 45-line
+      # copy of the other job's scope script that had to stay byte-identical by hand.
+      # Running it always is the cheaper side of that trade.
       - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v6

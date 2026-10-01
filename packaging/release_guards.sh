@@ -54,6 +54,17 @@ if [ -n "$TAG" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   # ANY completed-success `selftest` run for the SHA counts (packaging/check_run_verdict.py): the
   # tag push races the run it triggers; a newer in-progress run must never mask a green one.
   CONCL="$($GH api "repos/${RELEASE_REPO:-vishkaty/ucp-conformance}/commits/$SHA/check-runs?per_page=100" 2>/dev/null | python3 packaging/check_run_verdict.py selftest 2>/dev/null | tail -1)"
+  # A green `selftest` stopped proving the suite EXECUTED on 2026-10-01: the job short-circuits
+  # a pull request whose files cannot affect the suite and reports success having run no gate.
+  # Non-pull_request events are never short-circuited, so a tag also needs a successful
+  # push/schedule/dispatch run for the SHA. Same enforcement split as the check above: advisory
+  # locally, required under RELEASE_GUARDS_REQUIRE_CI (release.yml sets it).
+  RAN="$($GH api "repos/${RELEASE_REPO:-vishkaty/ucp-conformance}/actions/runs?head_sha=$SHA" 2>/dev/null | python3 packaging/check_run_verdict.py --suite-ran 2>/dev/null | tail -1)"
+  if [ "$CONCL" = "success" ] && [ "$RAN" != "ran" ] && [ "${RELEASE_GUARDS_REQUIRE_CI:-0}" = "1" ]; then
+    bad "selftest is green for ${SHA:0:7} but no non-pull_request run proves the suite EXECUTED (got '${RAN:-absent}') — a short-circuited pull-request green is not a releasable commit"
+  elif [ "$CONCL" = "success" ] && [ "$RAN" != "ran" ]; then
+    printf "  \033[33m!\033[0m selftest green for %s but the suite-executed proof could not be confirmed locally ('%s') — release.yml enforces it\n" "${SHA:0:7}" "${RAN:-absent}"
+  fi
   if [ "$CONCL" = "success" ]; then ok "a completed-success selftest check-run exists for ${SHA:0:7}"
   elif [ "${RELEASE_GUARDS_REQUIRE_CI:-0}" = "1" ]; then bad "no completed-success selftest check-run for ${SHA:0:7} (newest: '${CONCL:-absent}') — no release on a red or unverified commit"
   else printf "  \033[33m!\033[0m selftest check-run for %s could not be confirmed locally ('%s') — release.yml enforces it\n" "${SHA:0:7}" "${CONCL:-absent}"; fi

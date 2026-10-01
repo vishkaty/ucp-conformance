@@ -92,12 +92,25 @@ rm -rf "$D"
 ghstub() {   # $1 = dir; writes a stub gh that prints a planted history (newest first), honouring --jq via the real jq
   mkdir -p "$1/bin"; cat > "$1/bin/gh" <<'SH'
 #!/usr/bin/env bash
+# two endpoints: check-runs (GH_STUB_MODE) and actions/runs (GH_RUNS_MODE). GH_RUNS_MODE
+# defaults to a successful PUSH run, the shape a tag cut from a UI-merged main has, so every
+# case written before the 2026-10-01 short-circuit keeps its original meaning.
+IS_RUNS=0
+for a in "$@"; do case "$a" in *actions/runs*) IS_RUNS=1;; esac; done
+if [ "$IS_RUNS" = 1 ]; then
+  case "${GH_RUNS_MODE:-push-success}" in
+    pr-only) J='{"total_count":1,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"}]}';;
+    none)    J='{"total_count":0,"workflow_runs":[]}';;
+    *)       J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"success"}]}';;
+  esac
+else
 case "${GH_STUB_MODE:-success}" in
   inprogress-then-success) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"success"}]}';;
   inprogress-then-failure) J='{"total_count":2,"check_runs":[{"name":"selftest","status":"in_progress","conclusion":null},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
   other-job-only)          J='{"total_count":2,"check_runs":[{"name":"action-selftest","status":"completed","conclusion":"success"},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
   *)                       J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"success"}]}';;
 esac
+fi
 expr=""; prev=""; for a in "$@"; do [ "$prev" = "--jq" ] && expr="$a"; prev="$a"; done
 if [ -n "$expr" ]; then echo "$J" | jq -r "$expr"; else echo "$J"; fi
 SH
@@ -119,6 +132,17 @@ rm -rf "$D"
 D="$(rcscratch)"
 OUT="$(cd "$D" && GH_STUB_MODE=other-job-only RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
 if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "check-run"; then ok "green 'action-selftest' + failed 'selftest' -> guard exit 1 (name filter)"; else bad "another job's green run counted as selftest (rc=$RC):"; echo "$OUT" | tail -4; fi
+rm -rf "$D"
+# (F8, 2026-10-01) a green `selftest` whose only run is a pull_request run is not proof the
+# suite EXECUTED, because the job short-circuits irrelevant pull requests. Under REQUIRE_CI a
+# tag on such a SHA must be refused; without REQUIRE_CI it is a warning, as with the check above.
+D="$(rcscratch)"
+OUT="$(cd "$D" && GH_RUNS_MODE=pr-only RELEASE_GUARDS_TAG_ONLY=1 RELEASE_GUARDS_REQUIRE_CI=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "EXECUTED"; then ok "green selftest + pull_request-only runs -> guard exit 1 under REQUIRE_CI (suite never ran)"; else bad "a possibly short-circuited green accepted for a TAG (rc=$RC):"; echo "$OUT" | tail -4; fi
+rm -rf "$D"
+D="$(rcscratch)"
+OUT="$(cd "$D" && GH_RUNS_MODE=pr-only RELEASE_GUARDS_TAG_ONLY=1 DEPLOY_NO_FETCH=1 GH_BIN="$D/bin/gh" bash packaging/release_guards.sh v0.4.0rc1 2>&1)"; RC=$?
+if [ $RC -eq 0 ] && echo "$OUT" | grep -qi "could not be confirmed locally"; then ok "same history WITHOUT REQUIRE_CI -> advisory warning, exit 0 (release.yml enforces)"; else bad "the local-advisory half of the suite-executed guard is wrong (rc=$RC):"; echo "$OUT" | tail -4; fi
 rm -rf "$D"
 
 # missing CHANGELOG entry: a bump without an entry is refused
