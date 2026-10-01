@@ -98,7 +98,15 @@ MAIN="$(git rev-parse refs/remotes/origin/main 2>/dev/null || true)"
 # push that races a deploy triggers a newer in-progress run, which must never mask a green one.
 CONCLUSION="$($GH api "repos/$REPO/commits/$SHA/check-runs?per_page=100" 2>/dev/null | "$PY" packaging/check_run_verdict.py selftest 2>/dev/null | tail -1)"
 [ "$CONCLUSION" = "success" ] || refuse 4 "no completed-success \`selftest\` check-run for $SHA7 (newest: '${CONCLUSION:-absent}')"
-ok "HEAD $SHA7 == origin/main; a completed-success selftest check-run exists for $SHA7"
+# A green `selftest` no longer proves the suite EXECUTED. Since 2026-10-01 the job decides
+# scope inside itself and short-circuits a pull request whose files cannot affect the suite,
+# reporting success having run no gate. Non-pull_request events are never short-circuited, so
+# require a successful run for this SHA from a push, schedule or dispatch event. A UI merge
+# mints a new SHA and gets one; a command-line fast-forward of main to a branch head does not,
+# and that is the path this closes, because such a SHA can carry only a short-circuited green.
+RAN="$($GH api "repos/$REPO/actions/runs?head_sha=$SHA" 2>/dev/null | "$PY" packaging/check_run_verdict.py --suite-ran 2>/dev/null | tail -1)"
+[ "$RAN" = "ran" ] || refuse 4 "no non-pull_request \`selftest\` run proves the suite EXECUTED for $SHA7 (got '${RAN:-absent}') — a short-circuited pull-request green is not deployable evidence"
+ok "HEAD $SHA7 == origin/main; selftest green for $SHA7 AND a non-pull_request run proves the suite executed"
 
 # ── 5 preview ──────────────────────────────────────────────────────────────────
 step 5 "preview deploy (--branch=preview-$SHA7) + smoke"

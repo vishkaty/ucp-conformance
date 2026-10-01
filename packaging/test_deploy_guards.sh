@@ -50,9 +50,27 @@ PY
   # stub tools
   cat > "$d/bin/gh" <<'SH'
 #!/usr/bin/env bash
-# stub gh: `api …/check-runs [--jq EXPR]` -> a PLANTED check-run history for the SHA
-# (GH_STUB_MODE), newest first, in GitHub's JSON shape. A `--jq` expression is applied
-# with the real jq, so the stub is faithful to `gh api --jq` whichever way deploy.sh asks.
+# stub gh, two endpoints:
+#   `api …/check-runs [--jq EXPR]`            -> a PLANTED check-run history (GH_STUB_MODE)
+#   `api …/actions/runs?head_sha=… [--jq …]`  -> a PLANTED workflow-run list (GH_RUNS_MODE)
+# both newest first, in GitHub's JSON shape. A `--jq` expression is applied with the real jq,
+# so the stub is faithful to `gh api --jq` whichever way deploy.sh asks.
+# GH_RUNS_MODE defaults to a successful PUSH run, which is what a UI merge to main produces,
+# so every case written before the 2026-10-01 short-circuit keeps its original meaning.
+IS_RUNS=0
+for a in "$@"; do case "$a" in *actions/runs*) IS_RUNS=1;; esac; done
+if [ "$IS_RUNS" = 1 ]; then
+  case "${GH_RUNS_MODE:-push-success}" in
+    push-success) J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"success"}]}';;
+    # the hole this closes: main fast-forwarded to a branch head whose only green `selftest`
+    # came from a SHORT-CIRCUITED pull_request run, so the suite never ran for this SHA
+    pr-only)      J='{"total_count":1,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"}]}';;
+    pr-then-push) J='{"total_count":2,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"},{"event":"push","status":"completed","conclusion":"success"}]}';;
+    push-failure) J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"failure"}]}';;
+    none)         J='{"total_count":0,"workflow_runs":[]}';;
+    *) echo "stub gh: unknown GH_RUNS_MODE '$GH_RUNS_MODE'" >&2; exit 1;;
+  esac
+else
 case "${GH_STUB_MODE:-success}" in
   success)                 J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"success"}]}';;
   failure)                 J='{"total_count":1,"check_runs":[{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
@@ -61,6 +79,7 @@ case "${GH_STUB_MODE:-success}" in
   other-job-only)          J='{"total_count":2,"check_runs":[{"name":"action-selftest","status":"completed","conclusion":"success"},{"name":"selftest","status":"completed","conclusion":"failure"}]}';;
   *) echo "stub gh: unknown GH_STUB_MODE '$GH_STUB_MODE'" >&2; exit 1;;
 esac
+fi
 expr=""; prev=""
 for a in "$@"; do [ "$prev" = "--jq" ] && expr="$a"; prev="$a"; done
 if [ -n "$expr" ]; then echo "$J" | jq -r "$expr"; else echo "$J"; fi
@@ -120,6 +139,24 @@ expect_refusal "in-progress newest run + older FAILURE only (no green run)" "$D"
 # 3d. a green run under another job name never counts for `selftest`
 D="$(mkroot '{"v":1}' '{"v":1}')"
 expect_refusal "green 'action-selftest' + failed 'selftest' (name filter)" "$D" GH_STUB_MODE=other-job-only; rm -rf "$D"
+# 3e. (F8, 2026-10-01) a green `selftest` whose ONLY run is a pull_request run proves nothing:
+#     since the job short-circuits irrelevant pull requests, that green can mean no gate ran.
+#     Reachable when main is fast-forwarded on the command line to such a branch head.
+D="$(mkroot '{"v":1}' '{"v":1}')"
+expect_refusal "green selftest but pull_request-only runs (suite may never have executed)" "$D" GH_RUNS_MODE=pr-only; rm -rf "$D"
+# 3f. no workflow run at all for the SHA -> refused (fail closed, not fail open)
+D="$(mkroot '{"v":1}' '{"v":1}')"
+expect_refusal "green selftest but NO workflow run for the SHA" "$D" GH_RUNS_MODE=none; rm -rf "$D"
+# 3g. a FAILED push run with a green check-run is still not proof the suite passed
+D="$(mkroot '{"v":1}' '{"v":1}')"
+expect_refusal "green selftest but the only push run FAILED" "$D" GH_RUNS_MODE=push-failure; rm -rf "$D"
+# 3h. acceptance: a pull_request run PLUS a push run (the normal UI-merge shape) is accepted,
+#     so the new guard refuses the hole without refusing the everyday path
+D="$(mkroot '{"v":1}' '{"v":1}')"
+OUT="$(env GH_RUNS_MODE=pr-then-push bash -c "$(declare -f run_deploy); run_deploy '$D' --dry-run")"; RC=$?
+if [ $RC -eq 0 ]; then ok "pull_request run + push run (UI merge shape) -> accepted (exit 0)"
+else bad "the suite-executed guard refuses the normal UI-merge shape -> exit $RC (want 0):"; echo "$OUT" | grep -iE "suite|run" | sed 's/^/      /' >&2; fi
+rm -rf "$D"
 
 # 4. one-byte-stale coverage.json -> refused AT STEP 2
 D="$(mkroot '{"v":1}' '{"v":2}')"

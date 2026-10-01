@@ -38,7 +38,7 @@ on:
       - "README.md"
       - "WORKSTREAMS.md"
       - "action.yml"
-      - ".github/workflows/conformance.yml"
+      - ".github/**"
   pull_request:
     # DELIBERATELY NO `paths:` FILTER — do not add one back.
     # Branch protection on main requires the check `selftest` in strict mode. A paths
@@ -68,18 +68,28 @@ on:
 # Format: one path per line, no spaces. A trailing "/" means that directory and
 # everything under it; anything else is an exact file path.
 #
-# The root documents and docs/ are here because gates genuinely READ them, which is easy
-# to miss: ARCHITECTURE.md, PRINCIPLES.md, DECISIONS.md, WORKSTREAMS.md and
-# docs/archive/ROADMAP.md are opened by conformance/ci/validate_steward_docs.py (the
-# docs-steward gate asserts presence, one row per closed decision, and a review stamp
-# inside 90 days), and README.md plus four more docs/*.md are opened by
-# conformance/ci/site_gates.py (the docclaims gate holds every advertised count in them
-# to the live product value). A change to any of those can turn a gate red, so it must
-# never be short-circuited. PR #9 was exactly such a change, to WORKSTREAMS.md.
-# This is not a list to curate by hand: validate_conformance_workflow.py imports those
-# two gates and fails if anything they read is left uncovered here, so a gate that adds
-# a document reds this workflow until the document is listed. It also pins the push/
-# watched drift and kill-tests every clause. Run it after any edit here.
+# EVERYTHING A GATE READS BELONGS HERE. A missing path does not make the suite slower, it
+# makes the REQUIRED check green while the gate that reads the changed file never runs, and
+# the breakage then lands on main. That fails OPEN, which is worse than the deadlock this
+# scope step exists to fix, so this list is deliberately generous. FOUR registered gates
+# read outside conformance/ and packaging/, and every one of them was easy to miss:
+#   · validate_steward_docs.py opens ARCHITECTURE.md, PRINCIPLES.md, DECISIONS.md,
+#     WORKSTREAMS.md and docs/archive/ROADMAP.md (gate `docs-steward`: presence, one row
+#     per closed decision, a review stamp inside 90 days). PR #9 was such a change.
+#   · site_gates.py opens README.md and five docs/*.md (the docclaims gate holds every
+#     advertised count in them to the live product value).
+#   · validate_nightly_workflow.py opens .github/workflows/nightly.yml (gate
+#     `nightly-workflow-selftest`: required jobs, timeouts, registered non-sweep ports).
+#   · validate_ports_registry.py globs .github/workflows/*.yml, so release.yml too (gate
+#     `ports-registry`: every port literal registered and outside the sweep set).
+# The last two are why this entry is the whole `.github/` directory and not just this file.
+# Until 2026-10-01 a pull request touching only nightly.yml or release.yml short-circuited
+# the required check to green and then reddened main on the next push.
+# This is NOT a list to curate by hand. validate_conformance_workflow.py IMPORTS all four
+# gates and reads their own path tuples, Path constants and globs, failing if anything they
+# read is left uncovered here, so a gate that gains an input reds this workflow until the
+# input is listed. It also pins the push/watched drift and kill-tests every clause of both.
+# Run it after any edit here.
 # ─────────────────────────────────────────────────────────────────────────────────────
 env:
   WATCHED_PATHS: |
@@ -94,7 +104,7 @@ env:
     PRINCIPLES.md
     README.md
     WORKSTREAMS.md
-    .github/workflows/conformance.yml
+    .github/
 
 jobs:
   selftest:
@@ -130,9 +140,14 @@ jobs:
           # The WHOLE pull request, diffed from the MERGE BASE against its base branch —
           # which is exactly what this endpoint returns — and never just the tip commit,
           # so a PR of several commits is judged on everything it changes.
+          # BOTH sides of a rename. For status=renamed the endpoint reports the NEW path in
+          # `filename` and the OLD one only in `previous_filename`, so reading `filename`
+          # alone makes a move OUT of a watched path invisible: `git mv ARCHITECTURE.md
+          # ARCH.md` would score NOT RELEVANT and then red docs-steward on main with
+          # "ARCHITECTURE.md: missing". Emitting both paths judges the move on either end.
           if ! files="$(gh api --paginate \
                 "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
-                --jq '.[].filename')"; then
+                --jq '.[] | .filename, (.previous_filename // empty)')"; then
             echo "::warning::SCOPE: could not read this PR's changed files; failing safe."
             decide true
             say "SCOPE: changed-file list unavailable -> failing SAFE to RELEVANT: the full self-test suite RUNS."
@@ -142,7 +157,11 @@ jobs:
           watched="$RUNNER_TEMP/scope_watched.txt"
           changed="$RUNNER_TEMP/scope_changed.txt"
           hits="$RUNNER_TEMP/scope_hits.txt"
-          printf '%s\n' "$WATCHED_PATHS" | tr -d '[:blank:]' | grep -v '^$' > "$watched" || true
+          # Trim the ENDS only. `tr -d '[:blank:]'` would delete blanks INSIDE an entry, so a
+          # watched "docs/my dir/" silently became "docs/mydir/" and matched nothing, while
+          # validate_conformance_workflow.py reads the same list with .strip() and disagreed.
+          # No entry contains a blank today; the two readers now agree if one ever does.
+          printf '%s\n' "$WATCHED_PATHS" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' > "$watched" || true
           printf '%s\n' "$files"                             | grep -v '^$' > "$changed" || true
           : > "$hits"
 

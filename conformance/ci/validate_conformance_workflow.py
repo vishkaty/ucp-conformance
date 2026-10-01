@@ -10,9 +10,11 @@ WORKSTREAMS.md. That matched the `pull_request` paths filter nowhere, so NO pull
 run ever started, the required `selftest` context never appeared, and the pull request
 sat unmergeable for seven days with no failing check to act on. Forcing the suite by hand
 with a workflow_dispatch (run #259) was the only way to make a `selftest` check exist at
-all. The commit that finally unblocked it, b9642a87, touched
-conformance/testbed/golden-0825/battery/LAST_RUN.json, which the filter DOES match, so
-run #260 started on the pull_request event, went green, and the pull request merged.
+all, and that run reported 139 passed and 1 failed, the one failure being
+`oracle-verdict-diff`. Two further commits then went on the branch together, 84d7ec4f
+re-recording the oracle verdict diff and b9642a87 re-running the battery; BOTH touch
+conformance/, so either would have satisfied the filter, and the single pull_request run
+they produced, #260, went green and the pull request merged.
 Nothing about the first head was ever wrong; it was unreviewable by accident of its paths.
 
 This gate pins the shape that fixes that, so a later edit cannot quietly restore it:
@@ -43,6 +45,7 @@ fail-safe branch flipped to short-circuit -> red, a scope reference in action-se
 """
 import argparse
 import copy
+import glob
 import importlib
 import pathlib
 import sys
@@ -67,34 +70,66 @@ FAILSAFE = (
     ("is not a pull_request", "the non-pull_request fail-open branch"),
     ("failing SAFE to RELEVANT", "the unreadable-changed-file-list fail-safe branch"),
 )
-# Other gates that READ files outside conformance/ and packaging/. Their own module-level
-# lists are the source of truth, imported rather than copied, so a gate that adds a
-# document reds this workflow until env.WATCHED_PATHS covers it. Short-circuiting a file
-# one of these reads would let a change that reds a gate merge green.
+# Registered gates that READ files OUTSIDE conformance/ and packaging/. Their own
+# module-level definitions are the source of truth, imported rather than copied, so a gate
+# that gains an input reds this workflow until env.WATCHED_PATHS covers it. Short-circuiting
+# a file one of these reads lets a change that reds a gate merge green and break main.
+# The three shapes are all real, which is why this is not a single list of strings:
+#   "paths" a tuple of repo-relative paths · "path" one pathlib.Path, absolute under ROOT
+#   · "globs" a tuple of glob patterns, expanded against ROOT so the check is on real files.
 GATE_INPUT_SOURCES = (
-    ("validate_steward_docs", "DOCS"),
-    ("site_gates", "DOC_FILES"),
+    ("validate_steward_docs", "DOCS", "paths"),
+    ("site_gates", "DOC_FILES", "paths"),
+    ("validate_nightly_workflow", "NIGHTLY", "path"),
+    ("validate_ports_registry", "SCAN_GLOBS", "globs"),
 )
 
 
-def gated_inputs():
-    """(label, files) from the other gates' own definitions, plus import errors.
+def _resolve(kind, value):
+    """One gate's declared inputs -> repo-relative paths this workflow must watch."""
+    if kind == "paths":
+        return tuple(str(v) for v in value)
+    if kind == "path":
+        return (str(pathlib.Path(value).resolve().relative_to(ROOT)),)
+    if kind == "globs":
+        out = []
+        for pat in value:
+            out.extend(
+                str(pathlib.Path(p).resolve().relative_to(ROOT))
+                for p in glob.glob(str(ROOT / pat), recursive=True)
+                if pathlib.Path(p).is_file()
+            )
+        return tuple(sorted(set(out)))
+    raise ValueError(f"unknown gate-input kind {kind!r}")
 
-    An import failure is returned as a finding, never swallowed: a silently empty list
-    would make the coverage clause below vacuous, which is the one failure mode a gate
-    must not have.
+
+def gated_inputs():
+    """(label, files) from the other gates' own definitions, plus errors.
+
+    An import failure, an unreadable attribute or an EMPTY resolution is returned as a
+    finding, never swallowed. A silently empty list would make the coverage clause below
+    pass vacuously, which is the one failure mode a gate must not have.
     """
     pairs, errs = [], []
     if str(HERE) not in sys.path:
         sys.path.insert(0, str(HERE))
-    for mod, attr in GATE_INPUT_SOURCES:
+    for mod, attr, kind in GATE_INPUT_SOURCES:
+        label = f"{mod}.{attr}"
         try:
-            pairs.append((f"{mod}.{attr}", tuple(getattr(importlib.import_module(mod), attr))))
+            files = _resolve(kind, getattr(importlib.import_module(mod), attr))
         except Exception as exc:  # noqa: BLE001 - any failure here must be loud
             errs.append(
-                f"cannot read {mod}.{attr} ({type(exc).__name__}: {exc}): the watched-set "
+                f"cannot read {label} ({type(exc).__name__}: {exc}): the watched-set "
                 f"coverage check cannot run, so it would pass vacuously"
             )
+            continue
+        if not files:
+            errs.append(
+                f"{label} resolved to NO files: the watched-set coverage check would pass "
+                f"vacuously for that gate, so treat it as a failure rather than a clean run"
+            )
+            continue
+        pairs.append((label, files))
     return pairs, errs
 
 
@@ -240,6 +275,15 @@ def check(doc):
             "endpoint: that endpoint diffs from the MERGE BASE, and judging the tip commit "
             "alone misses files the branch changed earlier"
         )
+    # The jq fragment itself, not the bare word: the word also appears in the comment above
+    # it, and a clause that a comment can satisfy is a clause that cannot fail.
+    if "(.previous_filename // empty)" not in script:
+        f.append(
+            "the scope step does not emit `(.previous_filename // empty)` from its jq: for a "
+            "renamed file the endpoint reports only the NEW path in `filename`, so a move OUT "
+            "of a watched path scores NOT RELEVANT and the gate that reads the old path reds "
+            "main instead"
+        )
 
     for i, step in enumerate(steps[1:], start=1):
         if GUARD not in str(step.get("if") or ""):
@@ -348,9 +392,48 @@ def selftest():
     case("mutant: docs/ dropped from the watched set -> red",
          any("docs/archive/ROADMAP.md is read by" in x for x in check(m)))
 
+    # the two gates the FIRST version of this file could not see: a Path constant and a glob
+    m = copy.deepcopy(doc)
+    m["env"]["WATCHED_PATHS"] = "\n".join(
+        ln for ln in m["env"]["WATCHED_PATHS"].split("\n") if ln.strip() != ".github/")
+    red = check(m)
+    case("mutant: .github/ dropped -> red naming nightly.yml (validate_nightly_workflow.NIGHTLY)",
+         any(".github/workflows/nightly.yml is read by validate_nightly_workflow.NIGHTLY" in x
+             for x in red))
+    case("mutant: .github/ dropped -> red naming release.yml (validate_ports_registry.SCAN_GLOBS)",
+         any(".github/workflows/release.yml is read by validate_ports_registry.SCAN_GLOBS" in x
+             for x in red))
+
+    # narrowing .github/ to only this file is the exact pre-2026-10-01 hole
+    m = copy.deepcopy(doc)
+    m["env"]["WATCHED_PATHS"] = m["env"]["WATCHED_PATHS"].replace(
+        ".github/\n", ".github/workflows/conformance.yml\n")
+    case("mutant: .github/ narrowed back to just conformance.yml -> red",
+         any("nightly.yml is read by" in x for x in check(m)))
+
+    saved_src = GATE_INPUT_SOURCES
+    try:
+        globals()["GATE_INPUT_SOURCES"] = (("validate_ports_registry", "SCAN_GLOBS", "globs"),)
+        import validate_ports_registry as _vpr  # noqa: PLC0415 - mutation needs the module
+        saved_globs = _vpr.SCAN_GLOBS
+        try:
+            _vpr.SCAN_GLOBS = ("no/such/dir/*.py",)
+            case("mutant: a gate input list that resolves to nothing -> red (never vacuous)",
+                 any("resolved to NO files" in x for x in check(copy.deepcopy(doc))))
+        finally:
+            _vpr.SCAN_GLOBS = saved_globs
+    finally:
+        globals()["GATE_INPUT_SOURCES"] = saved_src
+
+    m = copy.deepcopy(doc)
+    s = m["jobs"][REQUIRED_JOB]["steps"][0]
+    s["run"] = s["run"].replace(".filename, (.previous_filename // empty)", ".filename")
+    case("mutant: scope reads only .filename, so a rename out of a watched path hides -> red",
+         any("previous_filename" in x for x in check(m)))
+
     saved = GATE_INPUT_SOURCES
     try:
-        globals()["GATE_INPUT_SOURCES"] = (("no_such_gate_module", "DOCS"),)
+        globals()["GATE_INPUT_SOURCES"] = (("no_such_gate_module", "DOCS", "paths"),)
         case("mutant: a gate input list that cannot be imported -> red (never vacuous)",
              any("would pass vacuously" in x for x in check(copy.deepcopy(doc))))
     finally:
