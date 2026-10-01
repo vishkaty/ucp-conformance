@@ -11,6 +11,11 @@ Source format:  "<repo>:<path>#L<n>"  |  "#L<n>-L<m>"  |  "#L<n>,L<m>"
 Repos map to conformance/.vendor/<repo>. Quotes may concatenate snippets with "...";
 each fragment is checked independently. Matching is whitespace/emphasis-insensitive.
 
+Locality: a quote must sit within +/-6 lines of a cited line (LINE_OFF, reported). For a
+row whose `normative_basis` is `definition` or `inferred` (REVIEW_BASES) the cited span
+must EQUAL the span the quote occupies (SPAN_OFF, a hard failure) — those are the rows
+whose MUST rests on a human sign-off re-reading that exact citation.
+
 Exit non-zero if any row fails. Usage: verify_register.py [version ...]
 """
 import json, re, sys, pathlib
@@ -47,11 +52,59 @@ def load_file(repo: str, path: str, ucp_dir: str = "ucp"):
         return None
     return f.read_text(encoding="utf-8", errors="replace").splitlines()
 
-def check_row(row, ucp_dir="ucp"):
+# Row statuses that FAIL the build. LINE_OFF is deliberately absent: it has always been an
+# ungated WARN, and a warning nobody has to clear is exactly how two wrong anchors survived
+# a machine pass (F5 G4). SPAN_OFF, its strict sibling for the rows where a human sign-off
+# is load bearing, gates.
+GATING_ROW_STATUSES = ("FILE_MISSING", "QUOTE_NOT_FOUND", "SPAN_OFF")
+LOCALITY_WINDOW = 6
+
+
+def quote_line_span(flines, quote):
+    """The (first, last) 1-based file line the quote's fragments actually OCCUPY, or None
+    when no fragment is long enough to locate.
+
+    Matching is line-boundary agnostic — the whole file is flattened to one normalized
+    string and a fragment covers every line its matched span overlaps — the same technique
+    (and for the same reason) as verify_register_completeness.covered_lines_for: a quote
+    whose "..." elision cuts mid-physical-line is still verbatim over the span it covers,
+    so physical line boundaries must not decide where it sits (R13)."""
+    parts, spans, pos = [], [], 0
+    for idx, raw in enumerate(flines, start=1):
+        nl = norm(raw)
+        if not nl:
+            continue
+        parts.append(nl)
+        spans.append((pos, pos + len(nl), idx))
+        pos += len(nl) + 1
+        parts.append(" ")
+    flat = "".join(parts)
+    occupied = set()
+    for frag in re.split(r"\.\.\.|…", quote):
+        nf = norm(frag)
+        if len(nf) < 8:
+            continue
+        start = 0
+        while True:
+            i = flat.find(nf, start)
+            if i == -1:
+                break
+            mstart, mend = i, i + len(nf)
+            for (lstart, lend, lineno) in spans:
+                if lstart < mend and lend > mstart:
+                    occupied.add(lineno)
+            start = i + 1
+    return (min(occupied), max(occupied)) if occupied else None
+
+
+def check_row(row, ucp_dir="ucp", flines=None):
+    """(status, detail) for one register row. `flines` injects the source file's lines
+    (hermetic tests); None loads the vendored file named by the row's `source`."""
     src = row.get("source", "")
     quote = row.get("quote", "")
     repo, path, lines = parse_source(src)
-    flines = load_file(repo, path, ucp_dir)
+    if flines is None:
+        flines = load_file(repo, path, ucp_dir)
     if flines is None:
         return ("FILE_MISSING", f"{repo}:{path}")
     nfile = norm("\n".join(flines))
@@ -60,13 +113,30 @@ def check_row(row, ucp_dir="ucp"):
     missing = [f.strip()[:60] for f in fragments if norm(f) not in nfile]
     if missing:
         return ("QUOTE_NOT_FOUND", "; ".join(missing))
-    # locality: warn if the first fragment isn't within +/-6 of any cited line
     if lines:
+        # F5 G4: for a row whose `normative_basis` is in REVIEW_BASES (`definition`,
+        # `inferred`) the citation is what an independent reviewer re-reads to decide
+        # whether a derived MUST is a MUST at all (decision 29) — there is no quoted
+        # RFC-2119 keyword doing that work — so the cited span must be the span the quote
+        # OCCUPIES, exactly. The +/-6 locality window is wide enough to swallow a wrong
+        # anchor whole and did: TDS-001 cited #L48 for a clause at L49-L52, SPL-004 cited
+        # #L95 for a quote running to L100. Strictness goes exactly where the human
+        # judgement is load bearing; every other row keeps the tolerance.
+        if row.get("normative_basis") in REVIEW_BASES:
+            span = quote_line_span(flines, quote)
+            cited = (min(lines), max(lines))
+            if span and span != cited:
+                return ("SPAN_OFF",
+                        f"quote occupies L{span[0]}-L{span[1]}, cited L{cited[0]}-L{cited[1]} "
+                        f"— a `{row.get('normative_basis')}` row must cite the exact span its "
+                        f"quote sits on (that citation is what the sign-off re-reads)")
+            return ("OK", "")
+        # locality: warn if the first fragment isn't within +/-LOCALITY_WINDOW of a cited line
         first = norm(fragments[0])
         hit_line = next((i + 1 for i in range(len(flines))
                          if first in norm(flines[max(0, i-1)] + " " + flines[i] +
                                           " " + (flines[i+1] if i+1 < len(flines) else ""))), None)
-        if hit_line and all(abs(hit_line - L) > 6 for L in lines):
+        if hit_line and all(abs(hit_line - L) > LOCALITY_WINDOW for L in lines):
             return ("LINE_OFF", f"quote near L{hit_line}, cited {lines}")
     return ("OK", "")
 
@@ -145,7 +215,8 @@ def basis_errors(rows, ver, queued_ids, signed_ids):
     """Every mandatory row at `ver` has `normative_basis` in BASES, or sits in the
     version's normative_basis_review_queue (D2-11b's set); `sentence` requires a
     MANDATORY keyword in the quote (emphasis stripped); `definition` / `inferred` need a
-    review_signoffs batch naming the (version, id) (decision 29: an inferred MUST is
+    review_signoffs batch that names the (version, id) AND declares it covers
+    normative_basis (decision 29: an inferred MUST is
     kept only with a written, signed-off justification)."""
     errs = []
     for r in _mandatory_at(rows, ver):
@@ -161,7 +232,11 @@ def basis_errors(rows, ver, queued_ids, signed_ids):
         if basis == "sentence" and not KW_IN_QUOTE.search((r.get("quote") or "").replace("**", "").replace("`", "")):
             errs.append(f"{rid}: normative_basis `sentence` but no mandatory keyword in the quote (table/bullet/inferred?)")
         if basis in REVIEW_BASES and rid not in signed_ids:
-            errs.append(f"{rid}: normative_basis `{basis}` without a review_signoffs batch naming it at {ver}")
+            errs.append(f"{rid}: normative_basis `{basis}` without a review_signoffs batch that "
+                        f"names it at {ver} AND declares `covers: [\"{BASIS_COVERAGE_TOKEN}\"]` "
+                        f"(decision 29: an inferred MUST is kept only with a written, signed-off "
+                        f"basis justification — a batch that did not undertake the basis "
+                        f"adjudication does not license it)")
     return errs
 
 
@@ -222,15 +297,45 @@ def _pin_for(ver):
         return None
 
 
-def _signed_basis_ids(ver):
-    """Ids named by any review_signoffs batch's `ids[ver]` (a batch with reviewer + date)."""
-    f = ROOT / "conformance" / "coverage" / "review_signoffs.json"
-    out = set()
+def _queued_basis_ids(ver):
+    """Ids sitting in requirements/<ver>/normative_basis_review_queue.json — the D2-11b
+    set, the only thing that makes a null `normative_basis` acceptable to this gate."""
+    f = REQ_DIR / ver / "normative_basis_review_queue.json"
     if not f.exists():
-        return out
-    for s in json.loads(f.read_text()).get("signoffs", []):
-        if s.get("reviewer") and s.get("date"):
-            out.update((s.get("ids") or {}).get(ver, []))
+        return set()
+    return {q.get("id") for q in json.loads(f.read_text()).get("queue", [])}
+
+
+# F5 G3: the coverage token a review_signoffs batch must DECLARE in `covers` before the
+# ids it names count as normative_basis sign-offs. REVIEW_BASES (`definition`, `inferred`)
+# is the one place where a human judgement, not a quoted RFC-2119 keyword, is what makes a
+# MUST a MUST (decision 29), so the sign-off that licenses it has to be a sign-off ABOUT
+# THE BASIS. Accepting any batch that carried a reviewer and a date and happened to name
+# the id is how DSC-006 counted as basis-signed by coverage-check-0825-w1-2026-09-11 — a
+# CHECK-conversion batch whose four re-derived properties are citation, kill, lane and
+# strictness, and which never undertook to adjudicate a normative basis. A batch that does
+# not declare this token does not cover basis, whatever else it reviewed.
+BASIS_COVERAGE_TOKEN = "normative_basis"
+
+
+def _signed_basis_ids(ver, doc=None):
+    """Ids named at `ver` by a review_signoffs batch that is valid (reviewer + date) AND
+    DECLARES `covers` containing BASIS_COVERAGE_TOKEN. `doc` is the loaded
+    review_signoffs document; None reads the committed file (pass a dict to prove the
+    rule hermetically)."""
+    if doc is None:
+        f = ROOT / "conformance" / "coverage" / "review_signoffs.json"
+        if not f.exists():
+            return set()
+        doc = json.loads(f.read_text())
+    out = set()
+    for s in doc.get("signoffs", []):
+        if not (s.get("reviewer") and s.get("date")):
+            continue
+        covers = s.get("covers") or []
+        if not isinstance(covers, list) or BASIS_COVERAGE_TOKEN not in covers:
+            continue
+        out.update((s.get("ids") or {}).get(ver, []))
     return out
 
 
@@ -396,7 +501,7 @@ def main(argv):
                 status, detail = check_row(row, ucp_dir)
                 if status == "OK":
                     ok += 1
-                elif status == "LINE_OFF":
+                elif status not in GATING_ROW_STATUSES:          # LINE_OFF: report only
                     warn += 1
                     print(f"  WARN  {row['id']:10} {status}: {detail}")
                 else:
@@ -431,7 +536,7 @@ def main(argv):
         # null only for queued rows.
         bqf = vdir / "normative_basis_review_queue.json"
         bqdoc = json.loads(bqf.read_text()) if bqf.exists() else {}
-        bqueue = {q.get("id") for q in bqdoc.get("queue", [])}
+        bqueue = _queued_basis_ids(ver)
         # B6: an expired / pin-drifted / unclocked queue confers no exemption — the clock
         # failure is reported AND the queued ids stop excusing a null normative_basis.
         qclock = basis_queue_clock_errors(bqdoc, ver, _pin_for(ver), date.today(),
@@ -485,6 +590,8 @@ def selftest():
 
     bad += _selftest_roles()
     bad += _selftest_normative_basis()
+    bad += _selftest_basis_signoff_declaration()
+    bad += _selftest_review_basis_span()
 
     print(f"\nverify_register selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
@@ -582,6 +689,181 @@ def _selftest_normative_basis():
                 "pin-only clock", real == [], repr(real)[:400])
     return bad
 
+
+
+def _selftest_basis_signoff_declaration():
+    """F5 G3 kill-tests, hermetic (synthetic sign-off documents, no file I/O).
+
+    `normative_basis` in REVIEW_BASES (`definition`, `inferred`) is the one place where a
+    HUMAN judgement, not a quoted keyword, is what makes a MUST a MUST (decision 29: an
+    inferred MUST is kept only with a written, signed-off justification). The sign-off that
+    licenses it must therefore be a sign-off ABOUT THE BASIS. Until this fix, any batch
+    carrying a reviewer and a date that happened to name the id counted — so DSC-006 was
+    treated as basis-signed by `coverage-check-0825-w1-2026-09-11`, a CHECK-conversion
+    batch whose four re-derived properties are citation, kill, lane and strictness, and
+    which never undertook to adjudicate a normative basis.
+
+    The naming batch must now DECLARE that it covers normative_basis (`covers` contains
+    "normative_basis"); a batch that does not declare it does not cover basis, whatever
+    else it reviewed."""
+    bad = 0
+    V = "2026-08-25"
+
+    def case(name, ok, detail=""):
+        print(f"  {'✓' if ok else '✗'} basis-signoff: {name}" + ("" if ok else f"  <-- {detail}"))
+        return 0 if ok else 1
+
+    doc = {"signoffs": [
+        # a batch that DECLARES basis coverage: its ids are basis sign-offs
+        {"batch": "basis-adjudication", "reviewer": "r", "date": "2026-09-11",
+         "covers": ["normative_basis"], "ids": {V: ["ZZZ-201"]}},
+        # a coverage batch: reviewer + date + names the id, but declares nothing — the
+        # exact shape that laundered DSC-006 and CHK-017 into "basis signed"
+        {"batch": "coverage-check-w1", "reviewer": "r", "date": "2026-09-11",
+         "ids": {V: ["ZZZ-202"]}},
+        # a batch that declares a DIFFERENT coverage: still not a basis sign-off
+        {"batch": "coverage-lock", "reviewer": "r", "date": "2026-09-11",
+         "covers": ["coverage_lock"], "ids": {V: ["ZZZ-203"]}},
+        # declares basis but carries no reviewer: not a valid sign-off at all
+        {"batch": "unsigned-basis", "date": "2026-09-11",
+         "covers": ["normative_basis"], "ids": {V: ["ZZZ-204"]}},
+        # declares basis, names the id at ANOTHER version only
+        {"batch": "basis-other-version", "reviewer": "r", "date": "2026-09-11",
+         "covers": ["normative_basis"], "ids": {"2026-04-08": ["ZZZ-205"]}},
+    ]}
+    try:
+        got = _signed_basis_ids(V, doc=doc)
+    except TypeError as e:
+        got = f"_signed_basis_ids has no `doc` parameter: {e}"
+    ok = (isinstance(got, set) and "ZZZ-201" in got
+          and not {"ZZZ-202", "ZZZ-203", "ZZZ-204", "ZZZ-205"} & got)
+    bad += case("only a batch DECLARING `covers: normative_basis` (with reviewer + date, at "
+                "this version) confers a basis sign-off; an undeclared coverage batch, a "
+                "batch declaring other coverage, an unsigned batch and another version's "
+                "batch each confer nothing", ok, repr(got)[:240])
+
+    # end-to-end through basis_errors: an `inferred` row named ONLY by an undeclared
+    # coverage batch must now FAIL, and the same row named by a declaring batch must pass
+    rows = [{"id": "ZZZ-202", "keyword": "MUST", "versions": [V], "quote": "Return 200.",
+             "normative_basis": "inferred"}]
+    try:
+        errs = basis_errors(rows, V, queued_ids=set(), signed_ids=_signed_basis_ids(V, doc=doc))
+        rows2 = [{**rows[0], "id": "ZZZ-201"}]
+        errs2 = basis_errors(rows2, V, queued_ids=set(), signed_ids=_signed_basis_ids(V, doc=doc))
+    except TypeError as e:
+        errs, errs2 = [f"TypeError: {e}"], ["TypeError"]
+    ok = (isinstance(errs, list) and any("ZZZ-202" in e for e in errs) and errs2 == [])
+    bad += case("an `inferred` row signed only by an undeclared batch FAILS the register "
+                "gate; the same row signed by a declaring batch passes",
+                ok, repr((errs, errs2))[:240])
+
+    # and the REAL committed data: every REVIEW_BASES row at every version must be named
+    # by a batch that DECLARES basis coverage (the gate's own data — this is the case that
+    # caught DSC-006 leaning on coverage-check-0825-w1-2026-09-11)
+    real = []
+    for v in VERSIONS:
+        vrows = load_version_rows(v)
+        try:
+            real += [e for e in basis_errors(vrows, v, queued_ids=_queued_basis_ids(v),
+                                             signed_ids=_signed_basis_ids(v))
+                     if "review_signoffs" in e]
+        except TypeError as e:
+            real.append(f"TypeError: {e}")
+    bad += case("every committed definition|inferred row is named by a batch that declares "
+                "it covers normative_basis", real == [], repr(real)[:400])
+    return bad
+
+
+def _selftest_review_basis_span():
+    """F5 G4 kill-tests, hermetic (synthetic file lines, no vendored I/O).
+
+    check_row's locality rule tolerated a quote sitting within +/-6 lines of ANY cited
+    line. That window is wide enough to swallow a wrong anchor whole, and it did: TDS-001
+    cited #L48 while its quoted clause sits at L49-L52, and SPL-004 cited #L95 for a quote
+    that runs to L100. Both rows are exactly the ones where a human sign-off, not a quoted
+    RFC-2119 keyword, is what makes the MUST a MUST (normative_basis in REVIEW_BASES), so
+    the citation a reviewer re-reads has to be the citation the quote is actually at.
+
+    For a REVIEW_BASES row the cited span must now equal the span the quote OCCUPIES,
+    exactly, and the mismatch is a hard failure (SPAN_OFF), not the ungated WARN that
+    LINE_OFF has always been. Every other row keeps the +/-6 tolerance: the strictness goes
+    exactly where the load-bearing human judgement is."""
+    bad = 0
+
+    def case(name, ok, detail=""):
+        print(f"  {'✓' if ok else '✗'} basis-span: {name}" + ("" if ok else f"  <-- {detail}"))
+        return 0 if ok else 1
+
+    # a synthetic file; the quoted sentence wraps L4-L6, and L1 is a decoy
+    flines = [
+        "# Three-D Secure Challenge",                                  # 1
+        "",                                                             # 2
+        "Platforms SHOULD surface the challenge inline.",                # 3
+        "The business **MUST** return a `challenge_url` whose origin",   # 4
+        "matches the issuer's registered origin, and **MUST NOT**",      # 5
+        "forward the shopper to any other host.",                        # 6
+        "",                                                             # 7
+        "See the error table below.",                                    # 8
+    ]
+    quote = ("The business **MUST** return a `challenge_url` whose origin\n"
+             "matches the issuer's registered origin, and **MUST NOT**\n"
+             "forward the shopper to any other host.")
+    try:
+        span = quote_line_span(flines, quote)
+    except NameError as e:
+        span = f"NameError: {e}"
+    bad += case("quote_line_span finds the span the quote actually occupies",
+                span == (4, 6), repr(span))
+
+    # the planted defect: the TDS-001 shape — an `inferred` row citing ONE line that sits
+    # just before the quote's real span, inside the old +/-6 window
+    wrong = {"id": "ZZZ-301", "keyword": "MUST", "normative_basis": "inferred",
+             "source": "ucp:docs/specification/x.md#L3", "quote": quote}
+    right = {**wrong, "id": "ZZZ-302", "source": "ucp:docs/specification/x.md#L4-L6"}
+    # the SPL-004 shape: the cite is the FIRST line of a multi-line quote, so it is inside
+    # the quote but does not name the span a reviewer must re-read
+    short = {**wrong, "id": "ZZZ-303", "source": "ucp:docs/specification/x.md#L4"}
+    # a row with a non-REVIEW_BASES basis keeps the tolerance: same 1-line-off cite passes
+    tolerated = {**wrong, "id": "ZZZ-304", "normative_basis": "sentence"}
+    try:
+        got = {r["id"]: check_row(r, flines=flines)[0]
+               for r in (wrong, right, short, tolerated)}
+    except TypeError as e:
+        got = f"check_row has no `flines` parameter: {e}"
+    ok = (isinstance(got, dict)
+          and got["ZZZ-301"] == "SPAN_OFF" and got["ZZZ-303"] == "SPAN_OFF"
+          and got["ZZZ-302"] == "OK" and got["ZZZ-304"] == "OK")
+    bad += case("REVIEW_BASES row whose cite is 1 line off, or names only the first line of "
+                "a multi-line quote, is SPAN_OFF; the exact span is OK; a `sentence` row "
+                "with the same off-by-one cite keeps the +/-6 tolerance", ok, repr(got)[:240])
+
+    # SPAN_OFF must GATE. LINE_OFF has always been an ungated WARN — a warning is how both
+    # wrong anchors survived — so prove the status is in the gate's failure set.
+    try:
+        gates = "SPAN_OFF" in GATING_ROW_STATUSES
+    except NameError as e:
+        gates = f"NameError: {e}"
+    bad += case("SPAN_OFF is a GATING status (not an ungated WARN like LINE_OFF)",
+                gates is True, repr(gates))
+
+    # and the REAL committed data: every REVIEW_BASES row's cite is exact
+    real = []
+    for v in VERSIONS:
+        ucp_dir = VERSION_TREE.get(v, "ucp")
+        for r in load_version_rows(v):
+            if r.get("normative_basis") not in REVIEW_BASES:
+                continue
+            if v not in (r.get("versions") or [v]):
+                continue
+            try:
+                st, detail = check_row(r, ucp_dir)
+            except TypeError as e:
+                st, detail = "TypeError", str(e)
+            if st != "OK":
+                real.append(f"{v} {r['id']}: {st}: {detail}")
+    bad += case("every committed definition|inferred row cites the exact span its quote "
+                "occupies", real == [], repr(real)[:400])
+    return bad
 
 def _selftest_roles():
     """D2-08 (PLAN-v3 §2.5 / A4) kill-tests, hermetic (synthetic rows, no vendored I/O).

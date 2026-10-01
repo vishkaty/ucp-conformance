@@ -8,7 +8,7 @@
    "id": "TDS-001",
    "requirement": "A Business SHOULD accept Complete Checkout, begin the payment attempt, and return `complete_in_progress` with the challenge Action; if it cannot accept completion before the challenge, it MUST return `incomplete` with a recoverable error Message whose `path` selects the challenge occurrence",
    "keyword": "MUST",
-   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L48",
+   "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L49-L52",
    "quote": "If the Business cannot\naccept completion before the challenge, it follows the core Checkout rule: it\nreturns `incomplete` with a recoverable error Message whose `path` selects the\nchallenge occurrence.",
    "versions": [
     "2026-08-25"
@@ -24,7 +24,7 @@
    "role": "business",
    "role_provenance": "subject",
    "normative_basis": "inferred",
-   "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] payment/extensions/actions/three-ds-challenge.md L48-L50: L48 is a SHOULD sentence ('A Business SHOULD accept Complete Checkout, begin the payment attempt, and return complete_in_progress\u2026'); the quoted clause is its 'If the Business cannot accept completion before the challenge, it follows the core Checkout rule: it returns incomplete with a recoverable error Message whose path selects the challenge occurrence.' MUST inferred by reference: 'follows the core Checkout rule' binds the Business to the core rule, which is a MUST in shopping/checkout/index.md (incomplete + recoverable error on an unmet requirement). Kept MUST (decision 29); the SHOULD half is not this row."
+   "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] payment/extensions/actions/three-ds-challenge.md L48-L50: L48 is a SHOULD sentence ('A Business SHOULD accept Complete Checkout, begin the payment attempt, and return complete_in_progress\u2026'); the quoted clause is its 'If the Business cannot accept completion before the challenge, it follows the core Checkout rule: it returns incomplete with a recoverable error Message whose path selects the challenge occurrence.' MUST inferred by reference: 'follows the core Checkout rule' binds the Business to the core rule, which is a MUST in shopping/checkout/index.md (incomplete + recoverable error on an unmet requirement). Kept MUST (decision 29); the SHOULD half is not this row. [2026-09-30 F5-G4] The `source` anchor is corrected from #L48 to #L49-L52 and this justification's 'L48-L50' with it: L48 is the SHOULD sentence this adjudication disclaims, and the quoted clause begins mid-L49 ('If the Business cannot') and ends at L52 ('challenge occurrence.'). The register gate now requires a definition|inferred row to cite the exact span its quote occupies, because that citation is what the decision 29 sign-off re-reads; the +/-6 locality window had hidden the off-by-one."
   },
   {
    "id": "TDS-002",

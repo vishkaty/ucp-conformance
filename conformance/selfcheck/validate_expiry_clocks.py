@@ -333,6 +333,121 @@ def selftest():
     case("(f'') seed batch with a recorded >=10% sample -> clean",
          not seed_batch_errors(seed_ok, today), seed_batch_errors(seed_ok, today))
 
+    # ---- F5 G5: a frozen sample.ids can be hollowed out by a register retirement
+    # seed_batch_errors checks `size == len(ids)` and `size >= ceil(0.10 * of)`, but `ids`
+    # is frozen text and nothing resolved the entries it names. D2-08 retired
+    # agent_lane_overrides.json (two registers, 42 clocked entries) and took two SAMPLED
+    # entries with it, so the re-readable sample fell from 34/336 (10.1%) to 32/336 (9.52%)
+    # — under its own 10% floor — while this gate stayed green, because 34 == len(ids) and
+    # 34 >= 34 both still held against entries that no longer exist.
+    # Every sample.ids entry must now RESOLVE against its register; one that does not is a
+    # failure naming the missing id, unless the batch carries a documented substitution.
+    try:
+        from verify_review_signoffs import sample_resolution_errors
+    except ImportError as e:
+        sample_resolution_errors = None
+        print(f"  ✗ (g) sample_resolution_errors not importable: {e}")
+        bad += 1
+    if sample_resolution_errors is not None:
+        LIVE = {"w.json waivers[1]", "w.json waivers[2]", "w.json waivers[3]",
+                "e.json AAA-001", "e.json AAA-002"}
+        resolver = LIVE.__contains__
+        base = {"batch": "seed-g", "reviewer": "x", "date": "2026-09-10",
+                "sample": {"seed": 1, "of": 30, "size": 3,
+                           "ids": ["w.json waivers[1]", "w.json waivers[2]", "e.json AAA-001"],
+                           "human_review": {"status": "recorded", "by": "o", "on": "2026-09-10"}}}
+        REASON = ("D2-08 retired the register this entry lived in; the stamped entries left "
+                  "the population with it.")
+
+        def smp(**kw):
+            return {**base, "sample": {**base["sample"], **kw}}
+
+        clean = sample_resolution_errors(base, resolver, today)
+        case("(g) every sampled entry resolves -> clean", clean == [], clean)
+
+        gone = smp(ids=["w.json waivers[1]", "agent_lane_overrides.json agent_extra[13]",
+                        "e.json AAA-001"])
+        e = sample_resolution_errors(gone, resolver, today)
+        case("(g') a sampled entry that no longer resolves -> red, NAMING the missing id",
+             bool(e) and any("agent_lane_overrides.json agent_extra[13]" in m for m in e), e)
+
+        subbed = smp(ids=gone["sample"]["ids"],
+                     substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                     "replaced_by": "w.json waivers[3]",
+                                     "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(subbed, resolver, today)
+        case("(g'') a documented substitution with a resolvable replacement -> clean", e == [], e)
+
+        live_sub = smp(substitutions=[{"retired": "w.json waivers[1]",
+                                       "replaced_by": "w.json waivers[3]",
+                                       "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(live_sub, resolver, today)
+        case("(g3) a substitution for an entry that STILL resolves -> red (a substitution "
+             "may not be pre-armed against a live entry)",
+             bool(e) and any("w.json waivers[1]" in m for m in e), e)
+
+        orphan = smp(ids=gone["sample"]["ids"],
+                     substitutions=[{"retired": "w.json waivers[99]",
+                                     "replaced_by": "w.json waivers[3]",
+                                     "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(orphan, resolver, today)
+        case("(g4) a substitution whose `retired` is not in sample.ids -> red",
+             bool(e) and any("waivers[99]" in m for m in e), e)
+
+        thin = smp(ids=gone["sample"]["ids"],
+                   substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                   "replaced_by": "w.json waivers[3]",
+                                   "reason": "gone", "on": "2026-09-30"}])
+        e = sample_resolution_errors(thin, resolver, today)
+        case("(g5) a substitution with a thin reason -> red", bool(e), e)
+
+        baddate = smp(ids=gone["sample"]["ids"],
+                      substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                      "replaced_by": "w.json waivers[3]",
+                                      "reason": REASON, "on": "last tuesday"}])
+        e = sample_resolution_errors(baddate, resolver, today)
+        case("(g6) a substitution with a non-ISO `on` -> red", bool(e), e)
+
+        # the FLOOR on the re-readable sample: this is the 9.52% case. 3 of 30 is exactly
+        # 10%; lose one entry with no replacement and no population accounting and the
+        # readable sample is 2/30 = 6.7%, under the floor, and must red.
+        withdrawn = smp(ids=gone["sample"]["ids"],
+                        substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                        "replaced_by": None,
+                                        "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(withdrawn, resolver, today)
+        case("(g7) an entry withdrawn with no replacement drops the re-readable sample "
+             "under its 10% floor -> red", bool(e) and any("floor" in m or "10%" in m for m in e), e)
+
+        # ...unless the retirement is accounted for on BOTH sides: the entries that left the
+        # stamped population with it shrink the denominator too (2/20 = 10%).
+        accounted = smp(ids=gone["sample"]["ids"],
+                        substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                        "replaced_by": None, "population_retired": 10,
+                                        "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(accounted, resolver, today)
+        case("(g8) ...unless `population_retired` accounts for the entries the retirement "
+             "took out of the denominator too -> clean", e == [], e)
+
+        # a `population_retired` alongside a replacement double-counts: red
+        both = smp(ids=gone["sample"]["ids"],
+                   substitutions=[{"retired": "agent_lane_overrides.json agent_extra[13]",
+                                   "replaced_by": "w.json waivers[3]", "population_retired": 10,
+                                   "reason": REASON, "on": "2026-09-30"}])
+        e = sample_resolution_errors(both, resolver, today)
+        case("(g9) `population_retired` together with a replacement -> red (the entry did "
+             "not leave the population; it was replaced)", bool(e), e)
+
+        # and the REAL committed sign-offs: every sampled entry of every batch resolves
+        import os as _os
+        real = []
+        _sf = _os.path.join(ROOT, "conformance", "coverage", "review_signoffs.json")
+        for s in json.load(open(_sf)).get("signoffs", []):
+            if isinstance(s.get("sample"), dict):
+                real += [f"{s.get('batch')}: {m}" for m in sample_resolution_errors(s, None)]
+        case("(g10) every sampled entry of every committed sign-off batch resolves against "
+             "its register", real == [], real[:6])
+
     # ---- D2-19: two-tier horizon (decision 23) + cliff detection
     regs2 = [{"name": "ki", "file": "k.json", "entries": "$.rows[*]", "scope": "version",
               "clock": "review_by"}]                                   # no register-level tier

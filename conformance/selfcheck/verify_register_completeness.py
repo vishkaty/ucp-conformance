@@ -16,8 +16,11 @@ ACCOUNTED, one of two ways:
      either by the row's quote sitting on that line or by a cited line within a
      small window.
   2. Explicitly WAIVED in register_completeness_waivers.json with a class + reason
-     (a duplicate restatement, a non-normative example/definition, or a prose MUST
-     that a schema row enforces structurally).
+     (a duplicate restatement whose `duplicate_of` RESOLVES to a register row at that
+     version, a non-normative example/definition, a prose MUST that a schema row
+     enforces structurally, an obligation binding an out-of-scope transport, or one
+     binding the AUTHORS of an ecosystem document — `spec-authoring`, which must name
+     the `authored_doc` class it binds).
 
 Any keyword occurrence that is neither covered nor waived FAILS the build — it is a
 normative clause with no test and no acknowledgement, exactly the silent gap this
@@ -49,8 +52,36 @@ from common.keywords import KW_RE  # noqa: E402 — D2-01: the shared longest-fi
 # drive today (the cart/embedded.md MessagePort host<->iframe duties). It REQUIRES a
 # `transport` so the surface export can say which transport the waived hits belong
 # to — never a bare "not our problem" class.
-VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced", "out-of-scope-transport"}
+# `spec-authoring` (F5 G1): a mandatory-keyword hit whose obligation binds the AUTHORS of
+# an ecosystem specification document — a capability transport definition, an extension
+# schema, a payment-handler specification — a party distinct from any implementation under
+# test, so conformance to it is established by document review and no runtime message can
+# prove or refute it. The class is NOT new to the project: conformance/coverage/
+# exemptions.json has adjudicated 12 register rows under it (DISC-006, DISC-009, DISC-010,
+# FUL-029, PAY-001/004/005/006/007/025/028/029) and coverage_gate.py's EXEMPT_CLASSES
+# carries it with that definition. Its absence here was the gap: an author-bound prose MUST
+# in an in-scope file had no honest label, so it was recorded as `non-normative` ("this
+# keyword is not a requirement at all"), a materially different and weaker claim that
+# carries no evidence requirement whatever.
+# It REQUIRES an `authored_doc` from VALID_AUTHORED_DOCS — the same evidentiary discipline
+# its siblings carry (`duplicate` names the row it restates, `schema-enforced` names the
+# enforcing schema row, `out-of-scope-transport` names the transport) — so the surface
+# export can say WHICH authoring party the waived hits belong to, never a bare
+# "binds someone else, not our problem".
+VALID_WAIVER_CLASSES = {"duplicate", "non-normative", "schema-enforced",
+                        "out-of-scope-transport", "spec-authoring"}
 VALID_TRANSPORTS = {"rest", "mcp", "a2a", "embedded"}
+# The closed vocabulary of ecosystem document classes a `spec-authoring` waiver may name,
+# derived from the obligations the 12 committed exemptions.json spec-authoring entries
+# actually bind — not invented here:
+#   transport-definition — a capability's OpenAPI/OpenRPC transport-definition document
+#                          published by the namespace authority (DISC-006, DISC-009)
+#   extension-schema     — an extension / composed JSON Schema document published by a
+#                          capability authority (DISC-010, FUL-029)
+#   handler-spec         — a payment-handler specification document, including the
+#                          credential schemas it defines (PAY-001/004/005/006/007/025/
+#                          028/029)
+VALID_AUTHORED_DOCS = {"transport-definition", "extension-schema", "handler-spec"}
 # scope exclusions are file-level and carry an extra reason class: a whole spec file
 # whose obligations are structurally outside what a server-endpoint checker can observe
 # (e.g. browser-embedded MessagePort UI) or are non-normative (narrative/examples/guides).
@@ -201,20 +232,81 @@ def load_waivers():
     return idx, data.get("waivers", []), scope_idx, data.get("scope_exclusions", [])
 
 
-def validate_waiver(w):
+ROW_ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
+
+
+def register_row_ids():
+    """{version: {row ids present at that version}} — the resolution target for
+    `duplicate_of` (F5 G2). Built from the same per-version register walk the coverage
+    accounting uses, honouring each row's `versions` scope, so an id that exists only at
+    another pin does not resolve here."""
+    out = {}
+    if not REQ_DIR.is_dir():
+        return out
+    for vdir in sorted(REQ_DIR.iterdir()):
+        if not vdir.is_dir() or vdir.name[:2] != "20":
+            continue
+        ver = vdir.name
+        ids = out.setdefault(ver, set())
+        for af in sorted(vdir.glob("*.json")):
+            for row in json.loads(af.read_text()).get("rows", []):
+                if ver in (row.get("versions") or [ver]):
+                    ids.add(row.get("id"))
+    return out
+
+
+_ROW_IDS_CACHE = None
+
+
+def validate_waiver(w, row_ids=None):
+    """Validate one waiver record. `row_ids` is {version: {row ids}} for resolving
+    `duplicate_of`; None means "load the committed register" (cached). Pass an explicit
+    dict to prove the rule hermetically."""
+    global _ROW_IDS_CACHE
+    if row_ids is None:
+        if _ROW_IDS_CACHE is None:
+            _ROW_IDS_CACHE = register_row_ids()
+        row_ids = _ROW_IDS_CACHE
     errs = []
     if w.get("class") not in VALID_WAIVER_CLASSES:
         errs.append(f"bad class {w.get('class')!r} (valid: {sorted(VALID_WAIVER_CLASSES)})")
     reason = (w.get("reason") or "").strip()
     if len(reason) < 30:
         errs.append("reason too thin (<30 chars) — say WHY it is not a missed MUST")
-    if w.get("class") == "duplicate" and not w.get("duplicate_of"):
-        errs.append("class 'duplicate' requires 'duplicate_of' (the row id it restates)")
+    if w.get("class") == "duplicate":
+        # F5 G2: HAVING a duplicate_of was never enough — nothing resolved the id it
+        # named, so a ghost pointer ('NEW:overview.md#L83', 'new_row@ucp:...#L110', a bare
+        # line cite) passed as a reconciliation while reconciling the hit against nothing.
+        # Resolve it against the register FOR THIS WAIVER'S OWN VERSION: the 2026-04-08
+        # renumbering means the same id can be a different requirement, or absent, at
+        # another pin, so a cross-version hit is not a hit. The failure names the id.
+        dof = w.get("duplicate_of")
+        if not dof:
+            errs.append("class 'duplicate' requires 'duplicate_of' (the row id it restates)")
+        else:
+            ver = w.get("version")
+            known = row_ids.get(ver) or set()
+            named = [tok for tok in re.split(r"[\s,;/]+", str(dof)) if ROW_ID_RE.match(tok)]
+            if not named:
+                errs.append(f"class 'duplicate' duplicate_of {dof!r} names no register row id "
+                            f"(expected e.g. 'OVR-003'; a line pointer, a 'NEW:' / 'new_row@' "
+                            f"placeholder or prose is not a resolvable pointer)")
+            else:
+                missing = [tok for tok in named if tok not in known]
+                if missing:
+                    errs.append(f"class 'duplicate' duplicate_of names {missing} which is not a "
+                                f"register row at {ver} (duplicate_of={dof!r}) — a duplicate of "
+                                f"a row that does not exist reconciles nothing; point it at the "
+                                f"real row id for this version")
     if w.get("class") == "schema-enforced" and not w.get("row_id"):
         errs.append("class 'schema-enforced' requires 'row_id' (the schema row that enforces it)")
     if w.get("class") == "out-of-scope-transport" and w.get("transport") not in VALID_TRANSPORTS:
         errs.append(f"class 'out-of-scope-transport' requires 'transport' in "
                     f"{sorted(VALID_TRANSPORTS)} (got {w.get('transport')!r})")
+    if w.get("class") == "spec-authoring" and w.get("authored_doc") not in VALID_AUTHORED_DOCS:
+        errs.append(f"class 'spec-authoring' requires 'authored_doc' in "
+                    f"{sorted(VALID_AUTHORED_DOCS)} — name WHICH ecosystem document class "
+                    f"the obligation binds (got {w.get('authored_doc')!r})")
     return errs
 
 
