@@ -10,7 +10,7 @@
       ],
       "class": "out-of-scope",
       "reason": "Embedded-Protocol (EP) binding for checkout: a browser host-page <-> iframe integration built on window.postMessage / MessagePort. Its obligations bind the host page and the embedded UI surface, not the server's HTTP/MCP API, and are not observable by pointing a conformance checker at a server URL. A different harness (a headless browser driving the EP handshake) would be required; out of scope for this server-endpoint suite.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-28",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -51,7 +51,7 @@
       ],
       "class": "out-of-scope",
       "reason": "Embedded-Protocol (EP) binding for cart: the browser host <-> iframe MessagePort UI protocol for embedded cart sessions. Same rationale as embedded-checkout \u2014 binds the host/embedded UI, not the server API, and is not observable from a server endpoint.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-28",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -92,7 +92,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "An explanatory guide to the tokenization flow. The normative tokenization contract is defined in the payment-handler schemas and the tokenization OpenAPI it links to; the guide's prose keywords restate or contextualize those, and are not an independent normative source for server conformance. NOTE (2026-08-30): the #736/#741 payment refactor's successor file, payment/tokenization.md, is DELIBERATELY NOT given an equivalent 2026-08-25 entry here \u2014 it grew from 4 to 21 MUST/MUST-NOT occurrences, adding real Tokenizer binding/verification obligations (e.g. 'A Tokenizer MUST verify a binding by exact equality...') that read as genuinely new, potentially server/role-observable normative surface, not mere restatement. Left to the 2026-08-25 census (report mode) for L2 extraction/adjudication rather than silently re-excluded.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-27",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -136,7 +136,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "A worked, illustrative example of a processor-tokenizer payment-handler configuration. Non-normative by spec convention; keywords narrate the example, not server obligations.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-27",
       "spec_pin": {
         "2026-04-08": "a25a4a24",
         "2026-01-23": "dcf7eac7"
@@ -178,7 +178,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "A worked, illustrative example of a business-tokenizer payment handler. Non-normative by spec convention; keywords narrate the example scenario, not independent server obligations.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-26",
       "spec_pin": "806a5b74",
       "clock_tier": "pin-only"
     },
@@ -211,7 +211,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "2026-08-25 successor of docs/specification/examples/platform-tokenizer-payment-handler.md (already scope-excluded for 04-08/01-23/01-11 as versions:\"*\", now stale for this path since the file moved under payment/examples/). A worked, illustrative example of a Platform-side tokenizer configuration; its 12 MUST/MUST NOT lines (mostly a per-example compliance table: 'Compliance (Receivers)', 'Secure transmission', 'Issued to participant', etc.) narrate this one scenario's design choices, not independent normative obligations. Non-normative by spec convention, matching the prior versions' treatment.",
-      "review_by": "2026-10-07",
+      "review_by": "2026-12-26",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
