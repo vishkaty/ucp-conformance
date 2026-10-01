@@ -47,6 +47,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 from verify_register_completeness import (   # noqa: E402
     covered_lines_for, scan_keywords, norm, parse_source, validate_waiver,
+    load_waivers,
 )
 
 VENDOR = ROOT / "conformance" / ".vendor" / "ucp-2026-08-25"
@@ -215,12 +216,113 @@ def check_waiver_class_transport():
     return failures
 
 
+
+def check_waiver_class_spec_authoring():
+    """F5 G1: the waiver vocabulary must carry `spec-authoring` — the class
+    conformance/coverage/exemptions.json already uses 12 times (DISC-006, DISC-009,
+    DISC-010, FUL-029, PAY-001/004/005/006/007/025/028/029) and coverage_gate.py
+    documents: the MUST binds AUTHORS of ecosystem specification documents (capability
+    transport definitions, extension schemas, payment-handler specs), a party distinct
+    from any implementation under test. Without the class, an author-bound prose MUST in
+    an in-scope file has nowhere honest to go and is laundered as `non-normative`
+    ("this keyword is not a requirement"), which carries NO evidence requirement at all.
+
+    The class therefore arrives with the same evidentiary discipline its siblings carry
+    (`duplicate` names the row it restates, `schema-enforced` names the enforcing schema
+    row, `out-of-scope-transport` names the transport): a `spec-authoring` waiver MUST
+    name `authored_doc` — WHICH class of ecosystem document the obligation binds, from
+    the closed vocabulary VALID_AUTHORED_DOCS, so the surface export can say which
+    authoring party the waived hits belong to and never a bare "not our problem"."""
+    failures = []
+    base = {"version": "2026-04-08", "file": "docs/specification/overview.md",
+            "line": 215, "reason": "x" * 40}
+    ok = validate_waiver({**base, "class": "spec-authoring",
+                          "authored_doc": "transport-definition"})
+    if ok:
+        failures.append(f"waiver_class_spec_authoring: a well-formed spec-authoring waiver "
+                        f"was rejected: {ok} — the class is missing from the vocabulary, so "
+                        f"author-bound MUSTs are forced into a false label")
+    bare = validate_waiver({**base, "class": "spec-authoring"})
+    if not any("authored_doc" in e for e in bare):
+        failures.append("waiver_class_spec_authoring: spec-authoring WITHOUT `authored_doc` "
+                        f"was accepted (errors: {bare}) — the class must name which ecosystem "
+                        f"document class it binds")
+    bad = validate_waiver({**base, "class": "spec-authoring", "authored_doc": "carrier-pigeon"})
+    if not any("authored_doc" in e for e in bad):
+        failures.append(f"waiver_class_spec_authoring: an unknown authored_doc value was "
+                        f"accepted (errors: {bad})")
+    # the evidence is required ONLY of this class: a duplicate waiver must not start
+    # demanding authored_doc (the fix may only add strictness where it belongs)
+    other = validate_waiver({**base, "class": "duplicate", "duplicate_of": "OVR-003"})
+    if any("authored_doc" in e for e in other):
+        failures.append(f"waiver_class_spec_authoring: authored_doc demanded of a non "
+                        f"spec-authoring class: {other}")
+    return failures
+
+
+def check_duplicate_of_resolves():
+    """F5 G2: `class: duplicate` is required to HAVE a `duplicate_of`, but nothing
+    resolved the id it names, so a GHOST pointer passed — "duplicate of a row that does
+    not exist" is not a reconciliation, it is an unaccounted MUST wearing a label. The
+    pointer must resolve against the register FOR THE WAIVER'S OWN VERSION (the 04-08
+    renumbering means the same id can be a different or absent requirement at another
+    version), and the failure must name the id.
+
+    Hermetic: `row_ids` is injected as {version: {ids}}, so this proves the rule, not
+    the current register contents. The committed-data case below proves the real file."""
+    failures = []
+    def vw(w, ids):
+        """validate_waiver with injected register ids; a TypeError means the parameter
+        does not exist yet — i.e. the gate cannot resolve duplicate_of at all."""
+        try:
+            return validate_waiver(w, row_ids=ids)
+        except TypeError as e:
+            return [f"validate_waiver has no row_ids parameter: {e}"]
+
+    V, W = "2026-04-08", "2026-01-23"
+    ids = {V: {"OVR-003", "MCP-004"}, W: {"MCP-003"}}
+    base = {"version": V, "file": "docs/specification/overview.md", "line": 90,
+            "reason": "x" * 40, "class": "duplicate"}
+    live = vw({**base, "duplicate_of": "OVR-003"}, ids)
+    if live:
+        failures.append(f"duplicate_of_resolves: a duplicate_of naming a real row at the "
+                        f"waiver's version was rejected: {live}")
+    ghost = vw({**base, "duplicate_of": "OVR-999"}, ids)
+    if not any("OVR-999" in e for e in ghost):
+        failures.append(f"duplicate_of_resolves: GHOST pointer 'OVR-999' accepted "
+                        f"(errors: {ghost}) — the gate must resolve duplicate_of and name "
+                        f"the id it could not find")
+    # right id, WRONG version: MCP-003 is a row at 2026-01-23, not at 2026-04-08
+    xver = vw({**base, "duplicate_of": "MCP-003"}, ids)
+    if not any("MCP-003" in e for e in xver):
+        failures.append(f"duplicate_of_resolves: an id that exists only at ANOTHER version "
+                        f"was accepted (errors: {xver}) — resolution must be version-scoped")
+    # a line pointer / NEW: placeholder names no row at all — the exact ghost shape the
+    # 2026-04-08 waivers carried ('NEW:overview.md#L83', 'new_row@ucp:...#L110')
+    for ptr in ("NEW:overview.md#L83", "new_row@ucp:docs/specification/ap2-mandates.md#L110",
+                "ucp:docs/specification/checkout-mcp.md#L804"):
+        e = vw({**base, "duplicate_of": ptr}, ids)
+        if not any(ptr in msg for msg in e):
+            failures.append(f"duplicate_of_resolves: placeholder pointer {ptr!r} accepted "
+                            f"(errors: {e}) — it names no register row")
+    # and the REAL committed waivers must every one resolve (the gate's own data)
+    real = []
+    for w in load_waivers()[1]:
+        real += [f"{w.get('version')} {w.get('file')}:{w.get('line')}: {e}"
+                 for e in validate_waiver(w) if "duplicate_of" in e]
+    if real:
+        failures.append(f"duplicate_of_resolves: {len(real)} committed waiver(s) carry an "
+                        f"unresolvable duplicate_of: {real[:6]}")
+    return failures
+
 def main():
     failures = []
     failures += check_known_cases()
     failures += check_synthetic_positive()
     failures += check_class_negative()
     failures += check_waiver_class_transport()
+    failures += check_waiver_class_spec_authoring()
+    failures += check_duplicate_of_resolves()
     if failures:
         print("COMPLETENESS-MATCHER GATE: FAIL")
         for f in failures:
@@ -234,6 +336,10 @@ def main():
           "by the frozen old algorithm")
     print("  class negative: unrelated line stays uncovered (no over-matching)")
     print("  waiver_class_transport: out-of-scope-transport requires a known `transport`")
+    print("  waiver_class_spec_authoring: spec-authoring is a valid class and requires a "
+          "known `authored_doc`")
+    print("  duplicate_of_resolves: duplicate_of resolves to a register row at the "
+          "waiver's own version; every committed waiver resolves")
     return 0
 
 
