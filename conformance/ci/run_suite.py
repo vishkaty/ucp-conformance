@@ -248,6 +248,12 @@ def gates(server, require_server=False):
         # D4-10: nightly.yml's contract (jobs, timeouts, registered non-sweep ports, no
         # continue-on-error on assertions, no discovery-live job, no ops/ write, artifacts).
         ("nightly-workflow-selftest", _py(ROOT / "conformance" / "ci" / "validate_nightly_workflow.py", "--selftest"), None, ()),
+        # F8: conformance.yml's contract. `selftest` is the required context under branch
+        # protection, so a paths filter on pull_request or a job-level if produces no check
+        # at all and blocks the pull request for ever (PR #9). Pins the no-filter trigger,
+        # the ungated scope step, the gate on every later step, the fail-open error paths,
+        # and the push-paths/WATCHED_PATHS drift. 13 mutants, each kill-proved.
+        ("conformance-workflow-selftest", _py(ROOT / "conformance" / "ci" / "validate_conformance_workflow.py", "--selftest"), None, ()),
         # D4-17: ops/tools/pull_feeds.py (nightly artifacts -> ops/feeds by gh GET, provenance,
         # --check drift, never git) — via ops_tool_gate: SKIP rc 2 when ops/ is not mounted.
         ("pull-feeds-selftest", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/pull_feeds.py", "--selftest"), None, (2,)),

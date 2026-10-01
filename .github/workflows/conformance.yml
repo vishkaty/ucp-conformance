@@ -16,20 +16,43 @@ on:
     # coverage.json and the site's advertised check counts against reality.
     # packaging/** is included because the bundle-drift step + package-agent gate validate it.
     #
-    # KEEP IN STEP WITH `env.WATCHED_PATHS` BELOW. That env var is the single definition
-    # of the watched set, used by the in-job scope decision; GitHub forbids expressions
-    # in `on.*.paths`, so this line has to repeat it literally. Change one, change both.
-    paths: ["conformance/**", "public/**", "tests/**", "functions/**", "packaging/**", ".github/workflows/conformance.yml"]
+    # KEEP IN STEP WITH `env.WATCHED_PATHS` BELOW, with ONE deliberate difference that
+    # the gate conformance/ci/validate_conformance_workflow.py knows about: `action.yml`
+    # appears HERE but NOT in WATCHED_PATHS. The two lists answer different questions.
+    # This one is "does the workflow start at all", and it must include action.yml so a
+    # push touching only the composite Action still runs the `action-selftest` job that
+    # exercises it. WATCHED_PATHS is "can this change affect the self-test SUITE", and
+    # the suite does not read action.yml, so listing it there would buy a 15-minute
+    # irrelevant suite run. GitHub forbids expressions in `on.*.paths`, so this list has
+    # to repeat the other one literally. Change one, change both, minus that one entry.
+    paths:
+      - "conformance/**"
+      - "public/**"
+      - "tests/**"
+      - "functions/**"
+      - "packaging/**"
+      - "docs/**"
+      - "ARCHITECTURE.md"
+      - "DECISIONS.md"
+      - "PRINCIPLES.md"
+      - "README.md"
+      - "WORKSTREAMS.md"
+      - "action.yml"
+      - ".github/workflows/conformance.yml"
   pull_request:
     # DELIBERATELY NO `paths:` FILTER — do not add one back.
     # Branch protection on main requires the check `selftest` in strict mode. A paths
     # filter here means a PR touching only root-level files matches nothing, so no run
     # starts, so the required check never appears, so the PR is blocked for ever.
-    # Observed on PR #9: head b1546b09 (WORKSTREAMS.md only) -> 0 pull_request runs,
-    # BLOCKED; head b9642a87 (same branch + conformance/** files) -> 1 run, CLEAN.
+    # Measured on PR #9. Opened 2026-09-24 on head b1546b09 (WORKSTREAMS.md only): 0
+    # pull_request runs, no `selftest` context, unmergeable for 7 days with no failing
+    # check to act on, and a manual workflow_dispatch (run #259) was the only way to make
+    # the check exist. Head b9642a87 touched conformance/testbed/, which the filter DOES
+    # match: 1 pull_request run (#260), green, merged.
     # Scope is decided INSIDE the `selftest` job instead (see its first step), so the
     # job always runs and always reports, and costs seconds when the change is
     # irrelevant. A job-level `if:` would NOT work: a skipped job reports no check.
+    # conformance/ci/validate_conformance_workflow.py fails if this filter comes back.
   workflow_dispatch: {}
   schedule:
     # Weekly heartbeat (Mon 06:17 UTC): sources are pinned, so this catches
@@ -38,11 +61,25 @@ on:
     - cron: "17 6 * * 1"
 
 # ─────────────────────────────────────────────────────────────────────────────────────
-# THE watched-path list: ONE definition, used by the `scope` step of both jobs below to
-# decide whether a pull request can affect the suite. The `push:` filter above repeats
-# it literally only because GitHub allows no expressions there — keep the two in step.
+# THE watched-path list: ONE definition, read by the `scope` step of the `selftest` job
+# below to decide whether a pull request can affect the SUITE. The `push:` filter above
+# repeats it literally only because GitHub allows no expressions there, and adds
+# `action.yml`, which belongs to the workflow trigger but not to the suite.
 # Format: one path per line, no spaces. A trailing "/" means that directory and
 # everything under it; anything else is an exact file path.
+#
+# The root documents and docs/ are here because gates genuinely READ them, which is easy
+# to miss: ARCHITECTURE.md, PRINCIPLES.md, DECISIONS.md, WORKSTREAMS.md and
+# docs/archive/ROADMAP.md are opened by conformance/ci/validate_steward_docs.py (the
+# docs-steward gate asserts presence, one row per closed decision, and a review stamp
+# inside 90 days), and README.md plus four more docs/*.md are opened by
+# conformance/ci/site_gates.py (the docclaims gate holds every advertised count in them
+# to the live product value). A change to any of those can turn a gate red, so it must
+# never be short-circuited. PR #9 was exactly such a change, to WORKSTREAMS.md.
+# This is not a list to curate by hand: validate_conformance_workflow.py imports those
+# two gates and fails if anything they read is left uncovered here, so a gate that adds
+# a document reds this workflow until the document is listed. It also pins the push/
+# watched drift and kill-tests every clause. Run it after any edit here.
 # ─────────────────────────────────────────────────────────────────────────────────────
 env:
   WATCHED_PATHS: |
@@ -51,6 +88,12 @@ env:
     tests/
     functions/
     packaging/
+    docs/
+    ARCHITECTURE.md
+    DECISIONS.md
+    PRINCIPLES.md
+    README.md
+    WORKSTREAMS.md
     .github/workflows/conformance.yml
 
 jobs:
@@ -318,95 +361,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # ── THE GATE DECISION ─────────────────────────────────────────────────────────
-      # This job must ALWAYS run and ALWAYS report, because branch protection on main
-      # requires the `selftest` context in strict mode; a filtered trigger (or a
-      # job-level `if:`) produces no check at all and blocks the PR for ever. So the
-      # job runs unconditionally, this first step decides whether the change can
-      # possibly affect the suite, and EVERY later step is conditional on its verdict:
-      # seconds when the change is irrelevant, the whole suite when it is not.
-      # Non-pull_request events (push, schedule, workflow_dispatch) are never
-      # short-circuited. On any doubt it fails SAFE to "relevant".
-      # Keep IDENTICAL to the twin step in the other job; the path list itself lives in
-      # exactly one place, `env.WATCHED_PATHS` at the top of this file.
-      - name: "Scope: can this change affect the self-test suite?"
-        id: scope
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          say()    { echo "$1"; printf '%s\n\n' "$1" >> "$GITHUB_STEP_SUMMARY"; }
-          decide() { echo "relevant=$1" >> "$GITHUB_OUTPUT"; }
-
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            decide true
-            say "SCOPE: event '${{ github.event_name }}' is not a pull_request -> RELEVANT: the full self-test suite RUNS."
-            exit 0
-          fi
-
-          # The WHOLE pull request, diffed from the MERGE BASE against its base branch —
-          # which is exactly what this endpoint returns — and never just the tip commit,
-          # so a PR of several commits is judged on everything it changes.
-          if ! files="$(gh api --paginate \
-                "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
-                --jq '.[].filename')"; then
-            echo "::warning::SCOPE: could not read this PR's changed files; failing safe."
-            decide true
-            say "SCOPE: changed-file list unavailable -> failing SAFE to RELEVANT: the full self-test suite RUNS."
-            exit 0
-          fi
-
-          watched="$RUNNER_TEMP/scope_watched.txt"
-          changed="$RUNNER_TEMP/scope_changed.txt"
-          hits="$RUNNER_TEMP/scope_hits.txt"
-          printf '%s\n' "$WATCHED_PATHS" | tr -d '[:blank:]' | grep -v '^$' > "$watched" || true
-          printf '%s\n' "$files"                             | grep -v '^$' > "$changed" || true
-          : > "$hits"
-
-          while IFS= read -r f; do
-            while IFS= read -r pat; do
-              case "$pat" in
-                */) case "$f" in "$pat"*) printf '%s\n' "$f" >> "$hits" ;; esac ;;
-                *)  if [ "$f" = "$pat" ]; then printf '%s\n' "$f" >> "$hits"; fi ;;
-              esac
-            done < "$watched"
-          done < "$changed"
-
-          echo "Watched paths (env.WATCHED_PATHS, the single definition):"
-          sed 's/^/  * /' "$watched"
-          echo "Files changed by PR #${{ github.event.pull_request.number }} ($(grep -c '' "$changed") from the merge base):"
-          sed 's/^/  - /' "$changed"
-
-          if [ -s "$hits" ]; then
-            decide true
-            echo "Watched paths touched:"
-            sort -u "$hits" | sed 's/^/  + /'
-            say "SCOPE: RELEVANT -> the full self-test suite RUNS."
-          else
-            decide false
-            say "SCOPE: NOT RELEVANT -> the self-test suite is SHORT-CIRCUITED. This green check asserts only that the change cannot affect the suite; no gate was executed."
-          fi
-
+      # NO scope short-circuit in this job, deliberately. It is not a required context,
+      # so it can never deadlock a pull request, and it is the ONLY job that exercises
+      # `action.yml`. Gating it on the watched-path list would mean an action.yml-only
+      # change merges with the composite Action never once executed. Measured on probe
+      # runs 266 to 271: this job takes 23 to 29 s in full and 6 s short-circuited, so
+      # gating it saved 17 to 23 s on a job that gates nothing, at the price of a 45-line
+      # copy of the other job's scope script that had to stay byte-identical by hand.
+      # Running it always is the cheaper side of that trade.
       - uses: actions/checkout@v5
-        if: steps.scope.outputs.relevant == 'true'
 
       - uses: actions/setup-python@v6
-        if: steps.scope.outputs.relevant == 'true'
         with:
           python-version: "3.12"
 
       - name: Install uv
-        if: steps.scope.outputs.relevant == 'true'
         uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: false
 
       - name: Fetch pinned upstream sources
-        if: steps.scope.outputs.relevant == 'true'
         run: bash conformance/ci/fetch_sources.sh
 
       - name: Bring up the golden server
-        if: steps.scope.outputs.relevant == 'true'
         run: bash conformance/ci/serve_golden.sh
         env:
           PORT: "8182"
@@ -414,12 +391,10 @@ jobs:
           DB_DIR: /tmp/ucp_action_test
 
       - name: Decide whether the PyPI twin is counted (mechanical expiry at 0.4.0)
-        if: steps.scope.outputs.relevant == 'true'
         id: mode
         run: python3 packaging/pypi_job_mode.py --github-output >> "$GITHUB_OUTPUT"
 
       - name: Action from its own checkout (source=checkout) — counted
-        if: steps.scope.outputs.relevant == 'true'
         uses: ./
         with:
           server: http://localhost:8182
@@ -427,7 +402,6 @@ jobs:
           junit: /tmp/action-checkout.xml
 
       - name: Action from PyPI (source=pypi) — report-only until pyproject >= 0.4.0
-        if: steps.scope.outputs.relevant == 'true'
         uses: ./
         continue-on-error: ${{ steps.mode.outputs.mode == 'report-only' }}
         with:
@@ -436,7 +410,7 @@ jobs:
           junit: /tmp/action-pypi.xml
 
       - name: Tear down the golden server
-        if: always() && steps.scope.outputs.relevant == 'true'
+        if: always()
         run: bash conformance/ci/stop_golden.sh
         env:
           DB_DIR: /tmp/ucp_action_test
