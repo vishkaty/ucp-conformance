@@ -12376,8 +12376,8 @@
      "not_recommended": 0,
      "rows": 70,
      "hit_lines": 270,
-     "hit_lines_under_a_row_quote": 85,
-     "uncovered": 185,
+     "hit_lines_under_a_row_quote": 84,
+     "uncovered": 186,
      "scope": "report-only (decision 8)"
     }
    },
@@ -21867,7 +21867,7 @@
      "role": "business",
      "normative_basis": "definition",
      "requirement": "A submitted instrument set is valid only if there exists an assignment of each submitted instrument to exactly one instrument group such that the instrument's type is in the assigned group's `types` and every group's instrument count falls within its min/max",
-     "source": "ucp:docs/specification/payment/extensions/split-payments.md#L95",
+     "source": "ucp:docs/specification/payment/extensions/split-payments.md#L95-L100",
      "covered_by": []
     },
     {
@@ -22047,7 +22047,7 @@
      "role": "business",
      "normative_basis": "inferred",
      "requirement": "A Business SHOULD accept Complete Checkout, begin the payment attempt, and return `complete_in_progress` with the challenge Action; if it cannot accept completion before the challenge, it MUST return `incomplete` with a recoverable error Message whose `path` selects the challenge occurrence",
-     "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L48",
+     "source": "ucp:docs/specification/payment/extensions/actions/three-ds-challenge.md#L49-L52",
      "covered_by": []
     },
     {
