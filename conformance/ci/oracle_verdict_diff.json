@@ -1,6 +1,6 @@
 {
  "_about": "verdict matrix of every ucp-schema build in oracle_manifest.json over every layout's dual-oracle corpus (oracle_verdict_diff.py --record; decision 24: rewritten only by an explicit --record, the owner commits it)",
- "ran_at": "2026-09-11T05:33:23+00:00",
+ "ran_at": "2026-10-01T00:33:48+00:00",
  "builds": {
   "0825-bin": {
    "commit": "b52518f501bfb3310f084c263d82c2647c184f1f",
