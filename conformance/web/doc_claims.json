@@ -18,16 +18,16 @@
       "text": "58 kill-rate-validated merchant checks",
       "evidence": "Historical statement under the heading 'Where we are (2026-07-02, post catalog grind)' — true at the 2026-07-02 commit that introduced it (git log -S); the live count is gated elsewhere. ROADMAP is archived under G2 in Wave 1 (D5-14), which retires this row. Archived 2026-09-11 under docs/archive/ (D5-14): the file stays in the docclaims scan so its dated headings remain registered rows until review_by.",
       "added": "2026-09-10",
-      "review_by": "2026-10-01"
+      "review_by": "2026-12-30"
     },
     {
       "id": "DOC-ROADMAP-002",
       "kind": "dated",
       "file": "docs/archive/ROADMAP.md",
       "text": "193 kill-rate-validated\nchecks across 3 controlled goldens + Flower Shop",
-      "evidence": "Historical statement under 'State of play (2026-07-03, …)' — true at the 2026-07-03 commit that introduced it (git log -S). Retired with D5-14 (ROADMAP archived). Archived 2026-09-11 under docs/archive/ (D5-14): the file stays in the docclaims scan so its dated headings remain registered rows until review_by.",
+      "evidence": "Historical statement at L77 under the heading 'Where we are (2026-07-02, post catalog grind)' (L51) — true at the 2026-07-03 commit that introduced it (git log -S). Retired with D5-14 (ROADMAP archived). Archived 2026-09-11 under docs/archive/ (D5-14): the file stays in the docclaims scan so its dated headings remain registered rows until review_by.",
       "added": "2026-09-10",
-      "review_by": "2026-10-01"
+      "review_by": "2026-12-30"
     },
     {
       "id": "DOC-ACTION-001",
