@@ -164,9 +164,9 @@ class CartService:
       response_body,
     )
 
-    # Save Idempotency Record
-    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
-    # of the primary-key race get the winner's cached response, not a 500.
+    # One commit that also resolves a CONCURRENT duplicate of this key: a loser
+    # of the primary-key race is answered with the winner's cached response,
+    # not a 500.
     cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
@@ -251,9 +251,9 @@ class CartService:
       response_body,
     )
 
-    # Save Idempotency Record
-    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
-    # of the primary-key race get the winner's cached response, not a 500.
+    # One commit that also resolves a CONCURRENT duplicate of this key: a loser
+    # of the primary-key race is answered with the winner's cached response,
+    # not a 500.
     cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
@@ -300,9 +300,9 @@ class CartService:
       mode="json", by_alias=True, exclude_none=True
     )
 
-    # Save Idempotency Record
-    # One commit that also resolves a CONCURRENT duplicate of this key: the losers
-    # of the primary-key race get the winner's cached response, not a 500.
+    # One commit that also resolves a CONCURRENT duplicate of this key: a loser
+    # of the primary-key race is answered with the winner's cached response,
+    # not a 500.
     cached = await db.commit_with_idempotency(
       self.transactions_session,
       idempotency_key,
