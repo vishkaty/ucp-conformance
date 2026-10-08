@@ -3,7 +3,7 @@
  "golden": "golden-0825-mcp",
  "version": "2026-08-25",
  "spec_pin": "cd78fb38",
- "review_by": "2026-10-09",
+ "review_by": "2026-11-05",
  "clock_tier": "moving",
  "expected_skips": {}
 }

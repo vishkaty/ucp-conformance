@@ -73,9 +73,9 @@
       "text": "0",
       "page": "index.html",
       "class": "REG",
-      "evidence": "'False greens' hero stat \u2014 kill-rate mechanics: a check that survives its targeted defect is flagged UNSAFE and blocks release (mutation_proxy_demo.py; validate_merchant_checks.py; run_agent.py reference gate)",
+      "evidence": "'Surviving mutants' hero stat -- the kill-rate result: every injected defect is caught, so no check survives its targeted mutant (mutation_proxy_demo.py; validate_merchant_checks.py; run_agent.py reference gate). Relabelled 2026-10-08 from 'False greens': that phrase also names a distinct property measured by a separate gate, a check that clean-passes a server implementing nothing, so an absolute 0 under that label claimed more than the kill-rate evidence supports. The six TLS checks carry no proxy mutants by construction and are kill-proven by selfcheck/validate_tls_check.py instead.",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-006",
@@ -84,7 +84,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; bumped three->four 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS (spec_pins now carries 4 entries, all backing real accounted MUSTs); 'four' should render from coverage.json:$.spec_pins key count",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-007",
@@ -93,7 +93,7 @@
       "class": "REG",
       "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-08-13) Count moved 227 -> 228 on 2026-09-11 (D5-16, decision 6) and 228 -> 249 at the W1 integration of the same day (D1-16a +10 envelope MChecks, D3-09/D3-10 +11 MCP MChecks; derived from conformance/ci/checkset_count.py, never hand-typed): the product count is the runtime check set (merchant_checks.all_checks(), conformance/ci/checkset_count.py) \u2014 the source regex had missed transport.https_tls13_minimum; pinned by coverage_gate copy-freshness + site-freshness + docclaims to that one helper. 249 -> 250 on 2026-09-22: +1 MCheck, discovery.profile_no_redirect_0825, DISC-002's live 2026-08-25 grader (the profile-endpoint no-redirect hosting duty had lost its live check in the 04-08 -> 08-25 move).",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-008",
@@ -102,7 +102,7 @@
       "class": "REG",
       "evidence": "conformance/coverage/coverage_gate.py freshness comparison + conformance/coverage/ratchet.json accounted-coverage floors",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-009",
@@ -111,7 +111,7 @@
       "class": "REG",
       "evidence": "WORKSTREAMS.md (link target exists \u2014 the public wave-by-wave plan that superseded docs/ROADMAP.md, archived under docs/archive/ on 2026-09-11 by D5-14; verified 2026-09-11)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-010",
@@ -120,7 +120,7 @@
       "class": "REG",
       "evidence": "https://ucp.dev \u2014 About-block attribution; the only context where 'Google's UCP team' is allowed by the voice rules (mark block data-attribution)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-011",
@@ -129,7 +129,7 @@
       "class": "REG",
       "evidence": "https://github.com/Universal-Commerce-Protocol/ucp \u2014 official conformance suite; re-verify the targeted spec version at each review (external fact, can drift)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-017",
@@ -138,7 +138,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/mutation_proxy_demo.py (incl. the deliberate noop-check canary proving the harness works)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-018",
@@ -147,7 +147,7 @@
       "class": "REG",
       "evidence": "conformance/ci/run_suite.py (proxy-demo/merchant/agent-demo gates) + .github/workflows self-testing CI",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-026",
@@ -156,7 +156,7 @@
       "class": "REG",
       "evidence": "Instant web check scope is discovery + profile + read-only catalog (functions/ + check.html copy); write paths run only in the CLI suite \u2014 this honesty line anchors the /check depth ladder",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-030",
@@ -165,7 +165,7 @@
       "class": "REG",
       "evidence": "'You can watch live' stat \u2014 public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite agent-demo gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-031",
@@ -174,7 +174,7 @@
       "class": "REG",
       "evidence": "'Proven to catch the bug' stat \u2014 conformance/agent/run_agent.py reference gate passes only when every agent check clean-passes AND kills its targeted defect (live-run 2026-07-09: PASS); conformance/agent/agent_coverage_lock.json",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-032",
@@ -183,7 +183,7 @@
       "class": "REG",
       "evidence": "conformance/agent/run_agent.py reference gate (clean-pass + kill per check, defect isolation)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-033",
@@ -192,16 +192,7 @@
       "class": "REG",
       "evidence": "public/agent-demo.json has exactly 6 cases (verified 2026-07-09); must stay in sync with the demo data",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
-    },
-    {
-      "id": "CLAIM-034",
-      "text": "42 checks",
-      "page": "agent.html",
-      "class": "REG",
-      "evidence": "Terminal-sample check count \u2014 gate-enforced by agent_governance.py regex 'ran \\d+ ops[^;<]*;\\s*(\\d+) checks?'. NOTE: the '8 ops' prefix in the same line is STALE (live run 2026-07-09 prints 'ran 11 ops') and is classed REWRITE in the audit \u2014 the gate deliberately does not pin the ops count",
-      "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-035",
@@ -210,7 +201,7 @@
       "class": "REG",
       "evidence": "Verbatim shape of the run_agent.py PASS line (live-verified 2026-07-09: 'PASS \u2014 every agent check clean-passes the reference agent and kills its targeted defect')",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-036",
@@ -219,7 +210,7 @@
       "class": "REG",
       "evidence": "conformance/agent/build_demo_data.py generates public/agent-demo.json from real harness runs (its _about says so)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-037",
@@ -228,7 +219,7 @@
       "class": "REG",
       "evidence": "build_demo_data.py + run_suite agent-demo gate: every demo case's catching check must still kill its defect on each CI run",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-038",
@@ -237,7 +228,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/verify_register_completeness.py + conformance/coverage/coverage_gate.py; public/coverage.json _about states the same contract and every row carries check/exempt/gap status",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-039",
@@ -246,7 +237,7 @@
       "class": "REG",
       "evidence": "clean-pass + 100% kill on a known-good reference: conformance/selfcheck/validate_merchant_checks.py + conformance/ci/differential.py (independent official Flower Shop sample) + conformance/SOURCES.lock.json pins",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-040",
@@ -255,7 +246,7 @@
       "class": "REG",
       "evidence": "conformance/coverage/exemptions.json + validate_exemptions() in coverage_gate.py (machine-checked against double-booking)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-CHK-001",
@@ -264,7 +255,7 @@
       "class": "REG",
       "evidence": "functions/api/conformance.js \u2014 instant-check scope is discovery + profile-structure checks + read-only catalog probes (catalogChecks() runs only search/lookup, 'the ONLY live checks safe to run anonymously online'); '30 seconds' is a UX estimate the claims gate excludes via its seconds allowlist",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-CHK-002",
@@ -273,7 +264,7 @@
       "class": "REG",
       "evidence": "functions/api/conformance.js \u2014 fetches /.well-known/ucp server-side, runs discovery/profile-structure checks; catalogChecks() runs read-only catalog search/lookup probes only when the profile declares dev.ucp.shopping.catalog.search",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-CHK-003",
@@ -282,7 +273,7 @@
       "class": "REG",
       "evidence": "Write-path safety instruction for the CLI depth-ladder rung: the full suite exercises checkout/cart/order write paths (conformance/checks/merchant_checks*.py; packaging/spck_conformance/), which must not be pointed at third-party stores \u2014 same honesty line as CLAIM-026",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-CHK-004",
@@ -291,7 +282,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/mutation_proxy_demo.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite 'proxy-demo' and 'merchant' gates fail the build when any check survives its injected defect",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-COV-001",
@@ -300,7 +291,7 @@
       "class": "REG",
       "evidence": "conformance/agent/agent_checks.py \u2014 agent-lane RFC 9421 request-signing checks (SIG-001 et al.; parses the Signature-Input covered components, verified by live import 2026-07-09). Merchant-side RFC 9421 signature checks also live in conformance/checks/merchant_checks_04_08_oauth.py. The number 9421 is a normative RFC reference on the coverage agent-lane blurb, not a product metric.",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-DOC-001",
@@ -309,7 +300,7 @@
       "class": "REG",
       "evidence": "conformance/checks/merchant.py capability scoping + not-tested reporting (carries guide.html CLAIM-045 to docs.html)",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-DOC-002",
@@ -318,7 +309,7 @@
       "class": "REG",
       "evidence": "conformance/.vendor/ucp-schema oracle anchoring + per-check register citations (conformance/checks/merchant.py req_id->source mapping); carries guide.html CLAIM-044 to docs.html",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-DOC-003",
@@ -327,7 +318,7 @@
       "class": "REG",
       "evidence": "conformance/agent/run_agent.py reference gate: every agent check clean-passes the reference agent AND kills its targeted defect (live-verified 2026-07-09); same evidence as agent.html CLAIM-032/CLAIM-035",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-DOC-004",
@@ -336,7 +327,7 @@
       "class": "REG",
       "evidence": "public/coverage.json:$.spec_pins (4 pins: 2026-01-11, 2026-01-23, 2026-04-08, 2026-08-25 \u2014 bumped 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS); version-date ids are excluded by the claims-gate date allowlist, listed here for freshness traceability; carries guide.html CLAIM-043",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-DOC-005",
@@ -345,7 +336,7 @@
       "class": "REG",
       "evidence": "action.yml (junit input; exit-code semantics fail the build on any MUST deviation); same evidence as index.html CLAIM-023",
       "added": "2026-07-09",
-      "review_by": "2026-10-09"
+      "review_by": "2026-11-05"
     },
     {
       "id": "CLAIM-RUB-001",
@@ -1215,6 +1206,17 @@
       "review_by": "2026-10-17",
       "retired": "2026-09-10",
       "reason": "copy rewritten since registration; the text is no longer on the page (2026-09-10 hygiene sweep, D5-05) \u2014 a future re-registration is a new row"
+    },
+    {
+      "id": "CLAIM-034",
+      "text": "42 checks",
+      "page": "agent.html",
+      "class": "REG",
+      "evidence": "Terminal-sample check count \u2014 gate-enforced by agent_governance.py regex 'ran \\d+ ops[^;<]*;\\s*(\\d+) checks?'. NOTE: the '8 ops' prefix in the same line is STALE (live run 2026-07-09 prints 'ran 11 ops') and is classed REWRITE in the audit \u2014 the gate deliberately does not pin the ops count",
+      "added": "2026-07-09",
+      "review_by": "2026-10-09",
+      "retired": "2026-10-08",
+      "reason": "The terminal-sample line this row registered is no longer on agent.html: the page carries no '<n> checks' copy at all, and the only '42' on it is inside a Cloudflare analytics token. Found during the 2026-10-09 clock re-read. The orphans gate had been accepting it because its fuzzy leg matched a bare step-number sentence '2'; that leg now requires a sentence long enough to carry the claim."
     }
   ]
 }
