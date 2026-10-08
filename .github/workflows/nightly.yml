@@ -28,6 +28,13 @@ jobs:
   crosscheck:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # official_crosscheck.py asks `gh api` whether the pull requests named in its
+      # self-expiring allowlist have merged. With no token gh exits non-zero,
+      # gh_pr_merged returns None, and an entry whose condition HAS fired stays live,
+      # so the run reports green with a real deviation still allowlisted. The gate
+      # nightly-workflow-selftest asserts this token is in scope.
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
