@@ -29,6 +29,8 @@ REQUIRED_JOBS = ("crosscheck", "seqfuzz", "oracles")
 GATE_SCRIPTS = ("official_crosscheck.py", "seqfuzz_gate.py", "validate_dual_oracle.py",
                 "oracle_verdict_diff.py", "validate_schema_oracle_manifest.py")
 # ports the nightly scripts bind by construction (official_crosscheck.py reads ports.json)
+# gates whose verdict depends on a `gh api` answer, so they need a token in Actions
+TOKEN_GATES = ("official_crosscheck.py",)
 SCRIPT_PORTS = {"official_crosscheck.py": ("nightly-golden-a", "nightly-golden-b", "official-mock-a", "official-mock-b")}
 
 
@@ -80,6 +82,15 @@ def check(doc, reg=None, by_port=None, sweep=None):
                 f.append(f"job {name!r}: a step writes under ops/ (not mounted in Actions; decision 24)")
             if s.get("continue-on-error") and any(g in run for g in GATE_SCRIPTS):
                 f.append(f"job {name!r}: continue-on-error on an assertion step ({run.strip()[:60]})")
+            # A gate whose verdict depends on `gh api` needs a token in Actions, or
+            # gh exits non-zero, the helper returns None, and a self-expiring allowlist
+            # silently fails OPEN: the run goes green with the deviation still allowlisted.
+            if any(g in run for g in TOKEN_GATES):
+                env = {**(doc.get("env") or {}), **(job.get("env") or {}), **(s.get("env") or {})}
+                if not ({"GH_TOKEN", "GITHUB_TOKEN"} & set(env)):
+                    f.append(f"job {name!r}: a step runs {next(g for g in TOKEN_GATES if g in run)} "
+                             f"but no GH_TOKEN or GITHUB_TOKEN is in scope, so its `gh api` "
+                             f"lookups cannot answer and its allowlist fails open")
             ports = literal_ports(run)
             for g, names in SCRIPT_PORTS.items():
                 if g in run:
