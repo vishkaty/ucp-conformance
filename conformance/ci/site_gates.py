@@ -361,8 +361,16 @@ def orphans():
         if pg != "*" and pg not in sents:
             fails.append(f"{cid}: page {pg!r} is not a hand-authored page under public/ — retire the row"); continue
         norm = re.sub(r"\s+", " ", text)
+        # The fuzzy leg is for a claim the page renders as a sentence rather than as
+        # verbatim copy. It must never accept a sentence too short to carry the claim:
+        # a bare step-number "2" once satisfied a "42 checks" claim whose copy had been
+        # removed from the page, so a stale row passed the gate meant to find it. A
+        # sentence shorter than half the claim cannot be the claim.
+        def can_carry(sent):
+            return len(re.sub(r"\s+", " ", sent).strip()) >= max(8, len(norm) // 2)
         found = any(norm in joined.get(t, "") for t in targets) or any(
-            _reg_match([{**e, "review_by": "9999-12-31"}], sent, t)[0] is not None
+            can_carry(sent)
+            and _reg_match([{**e, "review_by": "9999-12-31"}], sent, t)[0] is not None
             for t in targets for sent in sents.get(t, []))
         if not found:
             fails.append(f"{cid}: text not found on {pg} — {text[:70]!r}")
