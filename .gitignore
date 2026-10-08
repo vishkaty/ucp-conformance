@@ -31,3 +31,7 @@ conformance/ci/zod_feed/package-lock.json
 conformance/.crosscheck/
 # operator notes, per machine (also in the global git excludes)
 CLAUDE.local.md
+
+# CI artifact dirs written by nightly.yml and the crosscheck selftest; never committed
+nightly-out/
+.crosscheck-selftest-*/
