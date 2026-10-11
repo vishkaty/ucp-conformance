@@ -659,18 +659,18 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "A live tracker, refreshed every week or two, with the history charted below.",
-      "evidence": "Edition history: 2026-07-17 (git 5921b01), 2026-08-01 (git d1febdd), 2026-08-13 \u2014 15- and 12-day intervals; history/ snapshots + trends.json chart them. Cadence wording reviewed each edition. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d.",
+      "evidence": "Edition history: 2026-07-17 (git 5921b01), 2026-08-01 (git d1febdd), 2026-08-13 \u2014 15- and 12-day intervals; history/ snapshots + trends.json chart them. Cadence wording reviewed each edition. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner.",
       "added": "2026-08-13",
-      "review_by": "2026-10-10"
+      "review_by": "2026-11-10"
     },
     {
       "id": "SOU-020",
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "We were curious how much of UCP is genuinely deployed versus endorsed, so we set out to measure it layer by layer \u2014 and we keep measuring, every week or two, in the open.",
-      "evidence": "Same edition-history evidence as SOU-019; method published (scan-summary.json, adoption-facts.json, ops tools in repo). Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d.",
+      "evidence": "Same edition-history evidence as SOU-019; method published (scan-summary.json, adoption-facts.json, ops tools in repo). Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner.",
       "added": "2026-08-13",
-      "review_by": "2026-10-10"
+      "review_by": "2026-11-10"
     },
     {
       "id": "SOU-021",
@@ -712,19 +712,19 @@
       "id": "SOU-025",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "text": "All three download rates have accelerated sharply since mid-July \u2014 the weekly series in the trend charts above show the curve from each registry's own history API.",
-      "evidence": "Between the 2026-07-17 and 2026-08-13 editions: npm 9,239->16,750/mo (+81%), PyPI 2,916->7,121/mo (+144%), crates 1,979->2,909 lifetime (+47% in 4 weeks); weekly-series.json carries the week-by-week curve. Re-verified 2026-09-10 against the 2026-09-01 snapshot: npm 16,750->24,780/mo (+48% in 19 days), PyPI 7,121->8,839/mo (+24%), crates 2,909->3,975 lifetime (+37%) \u2014 still accelerating; reset review_by 30 d.",
+      "text": "The npm SDK has grown sharply since mid-July; the Python SDK rose through August and has since flattened, and the Rust schema crate keeps climbing steadily \u2014 the weekly series in the trend charts above show each curve from the registry's own history API.",
+      "evidence": "CORRECTED 2026-10-11. The previous wording claimed all three rates had accelerated sharply; re-measured against each registry API that is false for two of the three. npm 9,239/mo (07-17) -> 16,750 -> 24,780 -> 52,953 now: grown sharply. PyPI 2,916 -> 7,121 -> 8,839 -> 8,621 now: rose through August then flattened and is slightly down over the last month, and the weekly series reads 1651/2722/1827/1817/1923/1577. crates 1,979 -> 2,909 -> 3,975 -> 4,963 lifetime: steady, about a thousand a month, and a lifetime total cannot fall so it is weak evidence of a rate either way. The page sentence and the three data-live fallbacks were updated in the same change.",
       "added": "2026-08-13",
-      "review_by": "2026-10-10"
+      "review_by": "2026-11-10"
     },
     {
       "id": "SOU-026",
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "Each edition is point-in-time and reproducible against the same public sources; we refresh it every week or two, chart the history above, and note what changed.",
-      "evidence": "Snapshots + trends published under /state-of-ucp/history/; tools in ops/tools (refresh/scan/trends/series) are in the public repo; cadence per SOU-019. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d.",
+      "evidence": "Snapshots + trends published under /state-of-ucp/history/; tools in ops/tools (refresh/scan/trends/series) are in the public repo; cadence per SOU-019. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner.",
       "added": "2026-08-13",
-      "review_by": "2026-10-10"
+      "review_by": "2026-11-10"
     },
     {
       "id": "CLAIM-COV-002",
@@ -785,9 +785,9 @@
       "text": "The python reference now answers rejected requests, validation failures included, with the UCP envelope, JSON carrying code and content ( samples#196 , merged); the node twin is in review ( samples#192 ).",
       "page": "state-of-ucp/launch-2026-08-25.html",
       "class": "REG",
-      "evidence": "Point-in-time statement dated on the page (published 2026-08-27): samples#196 merged (python validation-error envelope, our PR); samples#192 (node twin) was open in review at publish \u2014 the page is a dated edition, statuses are as of that date. Re-verify #192's state at review_by and add a dated note if merged.",
+      "evidence": "Point-in-time statement dated on the page (published 2026-08-27): samples#196 merged (python validation-error envelope, our PR); samples#192 (node twin) was open in review at publish \u2014 the page is a dated edition, statuses are as of that date. Re-verify #192's state at review_by and add a dated note if merged. RE-READ 2026-10-11: samples#192 (the node twin) MERGED 2026-10-01T14:54:12Z. The page is a dated edition published 2026-08-27 and its statement was true then, so the sentence stands as published; this note records the later state, per the instruction in the previous evidence.",
       "added": "2026-09-10",
-      "review_by": "2026-10-10"
+      "review_by": "2026-11-10"
     },
     {
       "id": "LAU-006",
