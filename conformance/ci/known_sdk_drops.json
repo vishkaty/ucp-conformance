@@ -1,5 +1,5 @@
 {
-  "_about": "KNOWN constraint DROPS of the published python-sdk generated models (the pydantic third leg of the dual-oracle gate at 2026-08-25, D4-05 / B5b): payloads the REFEREE rejects under the pinned schemas but `ucp-sdk==<sdk.pypi_pin>` (the tag cut on PyPI) ACCEPTS. Each entry is one probe family from the L4 N24/N25 sweep, reproduced every run by validate_dual_oracle.py --version 2026-08-25 --pydantic against the tag venv (conformance/ci/make_sdk_venvs.sh); a tag-vs-referee disagreement NOT listed here fails the gate; an entry the tag no longer reproduces fails as STALE. EXPIRY: `expires_on.pypi_ucp_sdk_gt` — the entry EXPIRES (gate FAIL until re-derived) as soon as the tag venv resolves a ucp-sdk version GREATER than that string (the next PyPI cut carries main's #89/#91/#93/#96 fixes). Registered in conformance/coverage/expiry_registers.json (review_by 30 d, clock_tier moving, spec_pin cd78fb38). python-sdk main (sdk.main_commit) is a REPORT-ONLY leg: its disagreements print as REPORT lines and feed ledger rows, never a verdict. Nothing may be listed without `upstream`.",
+  "_about": "KNOWN constraint DROPS of the published python-sdk generated models (the pydantic third leg of the dual-oracle gate at 2026-08-25, D4-05 / B5b): payloads the REFEREE rejects under the pinned schemas but `ucp-sdk==<sdk.pypi_pin>` (the tag cut on PyPI) ACCEPTS. Each entry is one probe family from the L4 N24/N25 sweep, reproduced every run by validate_dual_oracle.py --version 2026-08-25 --pydantic against the tag venv (conformance/ci/make_sdk_venvs.sh); a tag-vs-referee disagreement NOT listed here fails the gate; an entry the tag no longer reproduces fails as STALE. EXPIRY: `expires_on.pypi_ucp_sdk_gt` — the entry EXPIRES (gate FAIL until re-derived) as soon as the tag venv resolves a ucp-sdk version GREATER than that string (the next PyPI cut carries main's #89/#91/#93/#96 fixes). Registered in conformance/coverage/expiry_registers.json (review_by 30 d, clock_tier moving, spec_pin cd78fb38). python-sdk main (sdk.main_commit) is a REPORT-ONLY leg: its disagreements print as REPORT lines and feed ledger rows, never a verdict. Nothing may be listed without `upstream`. RE-READ 2026-10-11: all four upstream fixes are merged (python-sdk #89 and #91 on 2026-09-01, #93 on 2026-09-01, #96 on 2026-09-04) but the published tag ucp-sdk 0.5.0 was cut 2026-08-27, BEFORE all of them, so every entry still reproduces against the tag and the pypi_ucp_sdk_gt 0.5.0 condition has correctly not fired; PyPI latest is 0.5.0. The nightly dual-oracle run of 2026-10-09 read 'acknowledged drops 7 / NEW 0 / stale 0 / expired 0'. The next cut above 0.5.0 expires all seven and they must be re-derived in the same change.",
   "sdk": {
     "pypi_pin": "0.5.0",
     "pypi_pin_note": "PyPI latest at 2026-09-11 (uploaded 2026-08-27) = tag v2026-08-25 = python-sdk b6f9b91c018f748a92166266004c8b625142cdfb (VERIFIED gh api git/ref/tags + pip index versions).",
@@ -18,7 +18,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -38,7 +38,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -58,7 +58,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -78,7 +78,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -98,7 +98,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -118,7 +118,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,
@@ -139,7 +139,7 @@
       "versions": [
         "2026-08-25"
       ],
-      "review_by": "2026-10-10",
+      "review_by": "2026-11-10",
       "spec_pin": "cd78fb38",
       "clock_tier": "moving",
       "tag_accepts": true,

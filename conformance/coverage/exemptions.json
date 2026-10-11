@@ -5,7 +5,7 @@
    "2026-04-08"
   ],
   "reason": "Prohibits a client-side ASSUMPTION (search.md L75): what a platform assumes about response size vs requested limit is internal reasoning state that appears in no protocol message in either direction.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -35,7 +35,7 @@
    "2026-04-08"
   ],
   "reason": "Binds platform rendering of disclosure-presentation catalog warnings (index.md L168): hiding or dismissing a notice happens in the platform's UI after the protocol exchange ends, leaving no wire trace the suite could observe.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -66,7 +66,7 @@
    "2026-01-23"
   ],
   "reason": "'Business MUST send a confirmation email after the checkout has been completed' (checkout.md Business responsibilities, L261@01-11 / L265@01-23) is dispatched on a channel the protocol does not define; no checkout response field evidences it, and a conformance run has no principled inbox oracle \u2014 non-receipt is indistinguishable from spam-filtering or asynchronous delay. [Scoped: at 2026-04-08 this id is the testable ucp_request:omit rule on checkout id, already covered by schema_check_04_08_lifecycle; the 04-08 twin of the email requirement is CHK-011.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -103,7 +103,7 @@
    "2026-04-08"
   ],
   "reason": "Prohibits the platform from AUTONOMOUSLY completing a checkout with mismatched totals (checkout.md L811): the business only ever sees a complete request, which carries no evidence of whether the platform verified totals or escalated for buyer review first.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -143,7 +143,7 @@
     "2026-01-23"
    ],
    "reason": "'Transport definitions MUST be thin: they declare method names and reference base schemas only' (overview.md L125-126) binds the AUTHORS of capability transport-definition documents (OpenAPI/OpenRPC) \u2014 the namespace authority publishing the capability, a party distinct from the business or platform under test; conformance is established by document review, same as the already-exempt DISC-009 (its 04-08 twin). [Scoped: at 2026-04-08 this id is the platform's profile-URI-in-every-request duty \u2014 a different, requester-bound requirement left to its own accounting.]",
-   "review_by": "2026-10-10",
+   "review_by": "2027-01-08",
    "spec_pin": {
     "2026-01-11": "806a5b74",
     "2026-01-23": "dcf7eac7"
@@ -177,12 +177,12 @@
  },
  "DISC-010": {
   "class": "spec-authoring",
-  "reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change).",
+  "reason": "Binds extension-schema AUTHORS (overview.md L193-195@01-11 / L199-201@01-23): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change).",
   "versions": [
    "2026-01-11",
    "2026-01-23"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -220,7 +220,7 @@
    "2026-01-23"
   ],
   "reason": "'Consent is declarative - the protocol communicates consent, it does not enforce it' and 'legal compliance remains the business's responsibility' (buyer-consent.md Security & Privacy Considerations, L131-133) assert a non-enforcement property of the protocol plus a LEGAL allocation of responsibility; whether a business actually meets its consent-law obligations is established by audit/regulation entirely outside any protocol message. [Scoped: at 2026-04-08 this id is the testable allocations-sum invariant, already covered by merchant_checks_04_08.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -253,7 +253,7 @@
    "2026-04-08"
   ],
   "reason": "Platform display duty from the Warning Presentation contract table (checkout.md L337, 'Display content: MUST / MUST'); whether content reached the buyer is a UI fact with no protocol-observable counterpart.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -283,7 +283,7 @@
    "2026-04-08"
   ],
   "reason": "Prohibits platform UI actions (hide/collapse/auto-dismiss, checkout.md L363); these occur after the protocol exchange ends and leave no trace observable from the business side.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -313,7 +313,7 @@
    "2026-04-08"
   ],
   "reason": "Platform display duty for notice warnings (checkout.md L346-348); rendering in a banner, tray, or toast is UI behavior on the platform side, outside the protocol surface a merchant conformance run can observe.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -351,7 +351,7 @@
    "2026-04-08"
   ],
   "reason": "'Sufficient for buyer decision if description is absent' is a human-adequacy judgment about label content; no mechanical predicate separates sufficient titles from insufficient ones.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7",
@@ -399,7 +399,7 @@
    "2026-01-23",
    "2026-04-08"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7",
@@ -439,7 +439,7 @@
    "2026-01-23"
   ],
   "reason": "'MCP Transport: Platforms MUST include a meta object containing request metadata' (overview.md L453-454) binds the REQUEST AUTHOR on the MCP binding: the business only receives whatever the platform sent, the spec mandates no business-side rejection of meta-less calls, and the tester \u2014 being the platform \u2014 simply includes meta. No merchant response can prove or refute a third-party platform's compliance. [Scoped: at 2026-04-08 this id is the profile_unreachable/HTTP 424 mapping, testable and covered by merchant_checks_04_08_discovery; not a row at 2026-01-11.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "dcf7eac7",
   "clock_tier": "pin-only"
  },
@@ -478,7 +478,7 @@
    "2026-01-23"
   ],
   "reason": "'Every payment handler specification MUST define the core elements below' (payment-handler-guide.md L52) binds AUTHORS of payment-handler specification documents \u2014 a party distinct from the business or platform under test; whether a third-party handler spec document defines identity/participants/credentials etc. is established by document review, and no runtime message reflects it. [Scoped: at 2026-04-08 this id is the testable payment_handlers-registry schema requirement, covered by the 04-08 payment checks; the 04-08 twin of this requirement is PAY-028.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -520,7 +520,7 @@
    "2026-01-23"
   ],
   "reason": "Binds authors of payment-handler credential schemas (payment-handler-guide.md): whether a token schema includes 'expiry, ttl, or similar' is a design requirement on a third-party specification document, with an open-ended naming clause ('or similar', 'or mechanism to refresh') that no fixed predicate can arbitrate without false-flagging conforming handlers. [Scoped: at 2026-04-08 this id is an unrelated MAY (available_instruments optionality); the 04-08 twin of this requirement is PAY-025.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -562,7 +562,7 @@
    "2026-01-23"
   ],
   "reason": "'Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites' (card_credential.json description): PCI DSS compliance is an organizational certification established by out-of-band audit \u2014 no protocol message carries it \u2014 and the transmission clause binds whichever channel actually carries a raw PAN (which conformant checkout traffic never does, per PAY-013); generic endpoint transport is separately accounted by the HTTPS/TLS rows. [Scoped: at 2026-04-08 this id is the handler_id-validation business obligation, a needs-receiver row left to its own accounting.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -595,7 +595,7 @@
    "2026-04-08"
   ],
   "reason": "'Every payment handler specification MUST define the core elements below' (payment-handler-guide.md L50) binds AUTHORS of payment-handler specification documents \u2014 identity, participants, prerequisites, declaration, instrument, credential, acquisition, processing and error mapping are properties of a third-party document established by review, with no runtime counterpart the suite can elicit from the business under test \u2014 the 04-08 twin of the exempt PAY-001@01-era. [Scoped: at 2026-01-11/2026-01-23 this id is the AP2 signature-coverage rule, a needs-receiver row left to its own accounting.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -625,7 +625,7 @@
    "2026-04-08"
   ],
   "reason": "Platform rendering-order duty (checkout.md L770): the order in which totals lines are painted exists only in the platform UI; the business cannot observe how its authoritative ordering was displayed.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -655,7 +655,7 @@
    "2026-04-08"
   ],
   "reason": "Binds the platform's autonomous-completion decision (checkout.md L811, same prohibition as CHK-055): the business cannot tell a totals-verified complete request from an unverified one \u2014 the payloads are identical.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -690,7 +690,7 @@
    "2026-01-23"
   ],
   "reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -731,8 +731,8 @@
    "2026-01-11",
    "2026-01-23"
   ],
-  "reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L330, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]",
-  "review_by": "2026-10-10",
+  "reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L326@01-11 / L330@01-23, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -774,7 +774,7 @@
     "2026-04-08"
    ],
    "reason": "'Platforms MUST authenticate token-endpoint requests using a method advertised in the business's token_endpoint_auth_methods_supported metadata' (identity-linking.md L98-100, RFC 8414) binds the PLATFORM's token-request authoring; token-endpoint auth-method selection is the platform's request behavior, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034.",
-   "review_by": "2026-10-10",
+   "review_by": "2027-01-07",
    "spec_pin": "a25a4a24",
    "clock_tier": "pin-only"
   }
@@ -805,7 +805,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST select the strongest token-endpoint auth method offered by the business compatible with the platform's deployment model' (identity-linking.md L119-120) binds the PLATFORM's negotiation behavior; method-strength selection is internal client logic, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -835,7 +835,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST implement the OAuth 2.0 Authorization Code flow as the account linking mechanism' (identity-linking.md L132-134) binds the PLATFORM's client implementation \u2014 a flow choice, not a merchant obligation. Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -865,7 +865,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST call the business's token revocation endpoint when a user initiates an unlink action on the platform side' (identity-linking.md L149-151; Security Considerations L617-618) binds the PLATFORM's action; the business-side revocation endpoint is IDL-027/028 (checked). Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -895,7 +895,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST request only the derived scope set (from config.scopes) and not a superset' (identity-linking.md L297-299) binds the PLATFORM's request authoring; the scope set it requests is not a merchant obligation. Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -925,7 +925,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST ignore unrecognized fields in a per-scope policy object' (identity-linking.md L358-359) binds the PLATFORM's parsing duty. Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -955,7 +955,7 @@
    "2026-04-08"
   ],
   "reason": "'When config.providers is absent (v1), platforms MUST fall back to direct OAuth 2.0 against the business domain via RFC 8414 discovery' (identity-linking.md L646-649) binds the PLATFORM's flow selection. Requester-bound per policy F2; precedent CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -985,7 +985,7 @@
    "2026-04-08"
   ],
   "reason": "'Platforms MUST check the messages array in responses before accessing order data' (order-rest.md L253) binds the PLATFORM's client-side consumption order \u2014 an internal read-ordering behavior with no wire-observable merchant obligation. Same subject-binding as CAT-008/CAT-034.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1014,8 +1014,8 @@
   "versions": [
    "2026-04-08"
   ],
-  "reason": "'The ucp envelope field is omitted on request bodies (ucp_request: omit)' (checkout.json L19) constrains the REQUEST author \u2014 the platform that sends checkout requests \u2014 to omit a response-only field; the spec places no duty on the business to reject requests that include it, so no merchant response reflects it and the tester itself omits it. Request-author-bound; same subject-binding as DISC-006/CART-024.",
-  "review_by": "2026-10-10",
+  "reason": "'The ucp envelope field is omitted on request bodies (ucp_request: omit)' (shopping/checkout.json L19-21, the `ucp_request: omit` annotation at L21) constrains the REQUEST author \u2014 the platform that sends checkout requests \u2014 to omit a response-only field; the spec places no duty on the business to reject requests that include it, so no merchant response reflects it and the tester itself omits it. Request-author-bound; same subject-binding as DISC-006/CART-024.",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1045,7 +1045,7 @@
   "versions": [
    "2026-04-08"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1075,7 +1075,7 @@
   "versions": [
    "2026-04-08"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1105,7 +1105,7 @@
   "versions": [
    "2026-04-08"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1135,7 +1135,7 @@
   "versions": [
    "2026-04-08"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1174,7 +1174,7 @@
    "2026-01-11",
    "2026-01-23"
   ],
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -1212,7 +1212,7 @@
    "2026-01-23"
   ],
   "reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Sensitive data such as payment credentials or PII MUST be handled according to PCI-DSS and GDPR guidelines \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": {
    "2026-01-11": "806a5b74",
    "2026-01-23": "dcf7eac7"
@@ -1253,7 +1253,7 @@
    "2026-01-23"
   ],
   "reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic  \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-07",
   "spec_pin": "dcf7eac7",
   "clock_tier": "pin-only"
  },
@@ -1283,9 +1283,9 @@
    "2026-04-08"
   ],
   "role": "business",
-  "reason": "party: the Business (overview.md L?? 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response'). observable: only against a target that declares a capability whose version is INCOMPATIBLE with the negotiated ucp.version and then serves a response; no golden or reference target declares such a capability, so the row cannot be graded today. why-not-now: re-classed 2026-09-11 (D2-08) from `client-bound` \u2014 that class asserted the row binds the platform, but the text binds the Business (role: business; it was also in the retired NOT_AGENT_BOUND list, so it sat in NEITHER lane); it stays EXEMPT so the 2026-04-08 coverage lock holds, in exactly one lane (merchant).",
+  "reason": "party: the Business (overview.md L1974 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response'). observable: only against a target that declares a capability whose version is INCOMPATIBLE with the negotiated ucp.version and then serves a response; no golden or reference target declares such a capability, so the row cannot be graded today. why-not-now: re-classed 2026-09-11 (D2-08) from `client-bound` \u2014 that class asserted the row binds the platform, but the text binds the Business (role: business; it was also in the retired NOT_AGENT_BOUND list, so it sat in NEITHER lane); it stays EXEMPT so the 2026-04-08 coverage lock holds, in exactly one lane (merchant).",
   "converts_when": "D3-03 (version projection golden serving a version-incompatible capability) or a D3-26-class host declaring one",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-08",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
@@ -1315,7 +1315,7 @@
    "2026-04-08"
   ],
   "reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The trusted platform provider must ensure that mandates are not created without explicit user consent from trusted, deterministic  \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement.",
-  "review_by": "2026-10-10",
+  "review_by": "2027-01-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
  },
