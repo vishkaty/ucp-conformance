@@ -689,7 +689,7 @@
    "2026-01-11",
    "2026-01-23"
   ],
-  "reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]",
+  "reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L409@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]",
   "review_by": "2027-01-08",
   "spec_pin": {
    "2026-01-11": "806a5b74",

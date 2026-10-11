@@ -1651,7 +1651,7 @@
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L408",
      "covered_by": [],
-     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L409@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
@@ -4655,7 +4655,7 @@
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L438",
      "covered_by": [],
-     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L409@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
