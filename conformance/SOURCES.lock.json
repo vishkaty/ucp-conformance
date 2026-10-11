@@ -72,8 +72,8 @@
   "reference_sample_server": {
     "repo": "Universal-Commerce-Protocol/samples",
     "ref": "main",
-    "commit": "00333a80ebca3efd442d515b261a36e57de815d3",
-    "commit_date": "2026-08-24T11:16:48Z",
+    "commit": "cdb291c452acf7f1253096b0e1ad7c45ecd4b5c7",
+    "commit_date": "2026-10-05T08:18:58Z",
     "note": "RE-PINNED 2026-08-24 from bd06e290: lands #196 (damaz91's consolidated fix for our #188/#189/#190/#191/#195 - cart+checkout omit-member exclusions incl. order, server-determined currency, attribution handling, RequestValidationError envelope) plus #193 (our node omit fix) already in the previous pin's lineage. All five surfaces re-probed on the wire at this head before pinning: fixed. This pin fires the self-expiry of 6 known_reference_defects + 2 known_fuzz_defects + 6 differential_allowlist entries per contract - deleted in the same commit. Golden env resolves ucp-sdk 0.4.6 from PyPI (carries python-sdk#83, our variant oneOf/anyOf/allOf ref-rewrite rescue, merged 2026-08-24T07:42Z, cut 12:02Z). Prior history preserved in git; see the 08-19 note for the previous pass.",
     "sdk_resolution": "This SHA DROPPED the server pyproject's [tool.uv.sources] ucp-sdk = { path = '../../../../python-sdk/', editable = true }. The server therefore resolves ucp-sdk from PyPI, NOT from our SHA-pinned vendored python-sdk. Left unmanaged that turns a pinned golden into a floating one, defeating the purpose of this lock, so the resolved PyPI version is recorded in reference_sdk.pypi_pin and asserted at boot."
   },

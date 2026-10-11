@@ -17,7 +17,8 @@ regresses upstream tomorrow.
 
   * ENFORCING : vendored reference booted with --require_signatures
     --allow_insecure_profile_urls, plus a loopback platform profile serving the
-    committed TEST public JWK ({"keys": [...]} per ucp#566). SIG-002 must
+    committed TEST public JWK (top-level ``signing_keys[]``, the 2026-04-08
+    profile-schema shape this golden declares). SIG-002 must
     CLEAN-pass (tampered ES256 signature rejected 401 signature_invalid, valid
     signature accepted) AND be kill_safe.
   * PERMISSIVE: same boot WITHOUT --require_signatures (the upstream default, and
@@ -67,10 +68,20 @@ TEST_JWK_PUBLIC = {k: v for k, v in TEST_JWK_PRIVATE.items() if k != "d"}
 
 
 class _ProfileHandler(http.server.BaseHTTPRequestHandler):
-    """Serve the platform profile document at every path (ucp#566 keys[] shape)."""
+    """Serve the platform profile document at every path.
+
+    The golden declares 2026-04-08, and at that pin
+    `source/discovery/profile_schema.json` `$defs/base` places `signing_keys`
+    as a TOP-LEVEL SIBLING of `ucp` (L67-73); it declares no `keys` property
+    anywhere. ucp#566 renames the field to a top-level `keys[]` only for
+    2026-08-25 and later, so the 08-25 shape is wrong for this golden.
+    """
 
     def do_GET(self):  # noqa: N802 (http.server API)
-        body = json.dumps({"keys": [TEST_JWK_PUBLIC]}).encode()
+        body = json.dumps(
+            {"ucp": {"version": "2026-04-08"},
+             "signing_keys": [TEST_JWK_PUBLIC]}
+        ).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
