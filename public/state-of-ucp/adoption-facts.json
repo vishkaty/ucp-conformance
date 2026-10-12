@@ -1,5 +1,5 @@
 {
- "_about": "Ecosystem adoption signals captured 2026-07-17 from public APIs and primary announcements. Each figure is a dated snapshot; sources inline. Part of the State of UCP Q3 2026 report.",
+ "_about": "Ecosystem adoption signals from public APIs and primary announcements. Each figure is a dated snapshot and they are NOT all the same date: the drift-prone fields (stars, npm, PyPI, crates) carry the `captured` date above, while the pinned counts and the named-brand endpoint-probe findings are preserved from their own earlier passes and change only when those passes re-run. Sources inline. Part of the State of UCP Q3 2026 report.",
  "captured": "2026-10-11",
  "github_stars_spec": 3413,
  "github_stars_samples": 240,
