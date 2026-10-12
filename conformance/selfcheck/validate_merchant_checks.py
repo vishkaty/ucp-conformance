@@ -675,6 +675,54 @@ def _graded_ids_in_report_case():
     return ok
 
 
+def _ungraded_deviation_case():
+    """A deviation on a check that grades NO row at this version must not cite one.
+
+    Four checks map a version to an empty list in req_ids_map, meaning the verdict
+    deliberately grades nothing there: run_merchant_checks appends zero results, so
+    the check cannot move the exit code. merchant._graded returned
+    `_rids(...) or chk.req_ids`, and the `or` made an empty graded list fall back to
+    the authored row, so the report cited DISC-013 at 2026-04-08 where no DISC-013
+    row exists, and JUnit emitted <failure message="MUST violated"> for a check the
+    run never graded. Eight check/version pairs: discovery.version,
+    discovery.reverse_domain_names, negotiation.compatible_version_processed and
+    discount.unknown_code_rejected, each at 2026-04-08 and 2026-08-25.
+    """
+    import sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.discovery": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks() if c.id == "discovery.version"), None)
+    if chk is None:
+        print("  ✗ ungraded: discovery.version not found"); return False
+    graded = list(merchant_checks._rids(chk, ctx.version))
+    if graded:
+        print(f"  ✗ ungraded: fixture no longer grades nothing at 2026-04-08 ({graded})")
+        return False
+    rendered = list(_mrep._graded(chk, ctx))
+    no_fallback = rendered == []
+    print(f"  {'✓' if no_fallback else '✗'} ungraded: _graded returns [] rather than the "
+          f"authored row (got {rendered}, authored {list(chk.req_ids)})")
+
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    cites_stale = any(x in xml for x in chk.req_ids)
+    has_failure = "<failure" in xml
+    print(f"  {'✓' if not cites_stale else '✗'} ungraded: JUnit does not cite the ungraded "
+          f"row {list(chk.req_ids)}")
+    print(f"  {'✓' if not has_failure else '✗'} ungraded: no <failure> for a check the run "
+          f"did not grade (it cannot move the exit code)")
+    return no_fallback and not cites_stale and not has_failure
+
+
 def _advisory_not_must_failure_case():
     """A SHOULD or MAY deviation must not be published as a MUST failure.
 
@@ -745,6 +793,7 @@ def selftest():
     ok &= _expected_skips_cases()
     ok &= _kill_safe_report_case()
     ok &= _graded_ids_in_report_case()
+    ok &= _ungraded_deviation_case()
     ok &= _advisory_not_must_failure_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1

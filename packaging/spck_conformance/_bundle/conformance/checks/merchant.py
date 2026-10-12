@@ -353,8 +353,14 @@ def _graded(chk, ctx):
     merchant_checks._rids. Rendering chk.req_ids instead cited the row the remap had
     moved away from, so a 2026-04-08 run named the 01-23-era requirement (and four
     checks cited ids with no row at that version, rendering a blank citation).
+
+    No fallback to chk.req_ids. req_ids_map may map a version to an EMPTY list,
+    which means the verdict grades nothing for this check there (run_merchant_checks
+    appends zero results, so it cannot move the exit code). An `or chk.req_ids`
+    fallback turned that into a citation of the authored row the run never graded,
+    for 8 check/version pairs, which is the defect this function exists to fix.
     """
-    return list(merchant_checks._rids(chk, getattr(ctx, "version", None)) or chk.req_ids)
+    return list(merchant_checks._rids(chk, getattr(ctx, "version", None)))
 
 
 def junit_xml(ctx, detail, meta):
@@ -371,7 +377,14 @@ def junit_xml(ctx, detail, meta):
             obs = d.get("observed") or {}
             evidence = (f"expected: {cites}\nobserved: HTTP {obs.get('status')} "
                         f"body: {obs.get('body')}")
-            if c.keyword in MANDATORY_KEYWORDS:
+            if not _graded(c, ctx):
+                # Nothing is graded for this check at this version, so it cannot
+                # move the exit code. Reporting it as a <failure> would contradict
+                # rc 0 exactly as the SHOULD case below did.
+                body = (f'\n      <system-out>no register row graded at '
+                        f'{_xml_escape(ctx.version)}: '
+                        f'{_xml_escape(evidence)}</system-out>\n    ')
+            elif c.keyword in MANDATORY_KEYWORDS:
                 n_fail += 1
                 body = (f'\n      <failure message="{_xml_escape(c.keyword)} violated: '
                         f'{_xml_escape(_graded(c, ctx))}">'
@@ -506,7 +519,8 @@ def main():
         # cc["deviations"] counts only mandatory rows (it is what sets rc), so the
         # header must not say "a MUST was violated" when the deviating checks are
         # SHOULD or MAY advisories that leave rc at 0.
-        n_adv = sum(1 for c, _ in devs if c.keyword not in MANDATORY_KEYWORDS)
+        n_adv = sum(1 for c, _ in devs
+                    if c.keyword not in MANDATORY_KEYWORDS or not _graded(c, ctx))
         headline = ("a MUST was violated" if cc["deviations"]
                     else "advisory only, the exit code is unaffected")
         adv = f", {n_adv} advisory" if n_adv else ""
@@ -514,6 +528,9 @@ def main():
               f"requirement(s)) — {headline}:")
         for c, d in devs:
             print(f"    {c.id}")
+            if not _graded(c, ctx):
+                print(f"        expected  no register row graded at {ctx.version}"
+                      f" (advisory, the exit code is unaffected)")
             for x in _citations(_graded(c, ctx), meta):
                 print(f"        expected  {x['id']}: {x['requirement']}")
                 print(f"        spec      {x['source']}")

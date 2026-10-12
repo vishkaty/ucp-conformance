@@ -361,7 +361,7 @@
       "text": "The report shows the requirement text, its citation into the pinned spec source, and the actual response observed",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. The deviation block is merchant.py L474-486 (expected / spec / observed); the earlier citation ~L381 no longer resolves. Until 2026-10-12 the citation printed chk.req_ids rather than the row graded at the server version, so 38 check/version pairs cited the remapped-away row; fixed. Observed bodies are excerpted to 500 characters by _excerpt.",
+      "evidence": "RE-READ 2026-10-12. The deviation block is the `if devs:` arm of merchant.py at L518, printing expected / spec / observed at L532-538; the earlier citation ~L381 no longer resolves. Until 2026-10-12 the citation printed chk.req_ids rather than the row graded at the server version, so 38 check/version pairs cited the remapped-away row; fixed. Observed bodies are excerpted to 500 characters by _excerpt.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -379,7 +379,7 @@
       "text": "Reported explicitly so absence of a failure is never mistaken for a pass",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "merchant.py prints the buckets explicitly at L487-495 (NOT TESTED, NOT APPLICABLE) and JUnit carries skipped for both classes. RE-READ 2026-10-12: the cli.py reference is packaging/spck_conformance/cli.py, not conformance/cli.py, and its docstring covers the profile-schema check reporting not-tested without the native ucp-schema rather than anything unreachable.",
+      "evidence": "merchant.py prints the buckets explicitly at L544 (NOT TESTED) and L549 (NOT APPLICABLE) and JUnit carries skipped for both classes. RE-READ 2026-10-12: the cli.py reference is packaging/spck_conformance/cli.py, not conformance/cli.py, and its docstring covers the profile-schema check reporting not-tested without the native ucp-schema rather than anything unreachable.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -388,7 +388,7 @@
       "text": "Only a MUST deviation fails the run; the handful of SHOULD and MAY checks that run are reported as advisories and never change the exit code",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. rc is 2 iff cc[\"deviations\"], now at merchant.py L479 (the earlier L320 is a config stub); verdict_gate routes SHOULD and MAY deviations to advisories. There are 2 SHOULD checks (IDL-043, ORD-025) and 1 MAY (ORD-014), so the sentence now says SHOULD and MAY. Until today JUnit wrote a SHOULD deviation as <failure message=\"MUST violated\"> and the text header claimed a MUST, so every consumer of the uploaded report disagreed with our own exit code; fixed and kill-tested.",
+      "evidence": "RE-READ 2026-10-12. rc is 2 iff cc[\"deviations\"], at the `rc = 2` site in merchant.py L492 (the earlier L320 is a config stub); verdict_gate routes SHOULD and MAY deviations to advisories. There are 2 SHOULD checks (IDL-043, ORD-025) and 1 MAY (ORD-014), so the sentence now says SHOULD and MAY. Until today JUnit wrote a SHOULD deviation as <failure message=\"MUST violated\"> and the text header claimed a MUST, so every consumer of the uploaded report disagreed with our own exit code; fixed and kill-tested.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -424,7 +424,7 @@
       "text": "A pass reflects only the checks that ran",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "merchant.py DISCLAIMER L287-288 carries the sentence verbatim; the VERDICT line prints validated and applicable MUST counts and the not-tested bucket is listed explicitly. RE-READ 2026-10-12: JUnit records skipped for the two skip classes, and since today emits <error> rather than nothing for inconclusive.",
+      "evidence": "the merchant.py DISCLAIMER constant at L282-283 carries the sentence verbatim; the VERDICT line prints validated and applicable MUST counts and the not-tested bucket is listed explicitly. RE-READ 2026-10-12: JUnit records skipped for the two skip classes, and since today emits <error> rather than nothing for inconclusive.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -433,7 +433,7 @@
       "text": "The report says how many applicable MUSTs were validated",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. The VERDICT line is now merchant.py L468-470, 'MUST ids: N passed, V violated, X not exercised of M applicable (x% covered)', with '(coverage: n/a)' when support is not supported; the earlier 'N/M applicable MUSTs (x%)' format is gone. JSON carries verdict.applicable_musts and musts_passed.",
+      "evidence": "RE-READ 2026-10-12. The VERDICT line is now merchant.py L512, 'MUST ids: N passed, V violated, X not exercised of M applicable (x% covered)', with '(coverage: n/a)' when support is not supported; the earlier 'N/M applicable MUSTs (x%)' format is gone. JSON carries verdict.applicable_musts and musts_passed.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -442,16 +442,16 @@
       "text": "exit 0 when no MUST deviation was observed, exit 2 on any MUST deviation, exit 1 when the target could not be tested at all",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-RUN 2026-10-12 against the booted golden, exit codes read directly: --server on the golden with no config exits 0; a connection-refused target exits 1; a MUST deviation exits 2. Two corrections the same day: exit 0 means no MUST deviation was OBSERVED, since an inconclusive MUST also leaves rc 0, and argparse usage errors (a missing --config file, an unknown flag) also exit 2, so the page now says so. The code is merchant.py L479; cli.py is packaging/spck_conformance/cli.py. The agent lane does not follow these codes (exit 1 means unsound), which is why RUB-001 now says merchant verdict.",
+      "evidence": "RE-RUN 2026-10-12 against the booted golden, exit codes read directly: --server on the golden with no config exits 0; a connection-refused target exits 1; a MUST deviation exits 2. Two corrections the same day: exit 0 means no MUST deviation was OBSERVED, since an inconclusive MUST also leaves rc 0, and argparse usage errors (a missing --config file, an unknown flag) also exit 2, so the page now says so. The code is the `rc = 2` site at merchant.py L492; cli.py is packaging/spck_conformance/cli.py. The agent lane does not follow these codes (exit 1 means unsound), which is why RUB-001 now says merchant verdict.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
     {
       "id": "CLAIM-RUB-013",
-      "text": "The JUnit report names every entry with its register check id; deviations carry the citation of the requirement graded at your spec version",
+      "text": "The JUnit report names every entry with its register check id; deviations carry the citation of the requirement graded at your spec version, or state that no register row is graded there",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-DERIVED 2026-10-12 from a real junit: 250 entries, every one named '<check> (IDS)'. The earlier 194 entries and 4 failures date from 2026-07-15 and no longer reproduce, because all 6 known_reference_defects self-expired at the 2026-08-24 re-pin, so the golden now deviates on nothing. Deviations carry the citation of the row graded at the server version from today (previously chk.req_ids, which cited the remapped-away row and rendered blank for 4 checks with no row at that version).",
+      "evidence": "RE-DERIVED 2026-10-12 from a real junit: 250 entries, every one named '<check> (IDS)'. The earlier 194 entries and 4 failures date from 2026-07-15 and no longer reproduce, because all 6 known_reference_defects self-expired at the 2026-08-24 re-pin, so the golden now deviates on nothing. Deviations carry the citation of the row graded at the server version from 2026-10-12. Previously chk.req_ids, which cited the remapped-away row. CORRECTED the same day: the first fix kept an `or chk.req_ids` fallback, so the 8 check/version pairs whose req_ids_map maps to an empty list (discovery.version, discovery.reverse_domain_names, negotiation.compatible_version_processed, discount.unknown_code_rejected at 2026-04-08 and 2026-08-25) still cited the authored row and emitted a MUST <failure> for a check the verdict grades nothing for. The fallback is gone; such a deviation now renders an explicit no-register-row-graded note and never a <failure>, which is why the sentence carries that second clause.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -460,7 +460,7 @@
       "text": "The run verdict is computed over the black-box-testable RFC-2119 MUST requirements applicable to your server, the capabilities it declares, graded over REST today",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "merchant.py L13-14 states the denominator and still resolves. RE-READ 2026-10-12, wording narrowed: applicable_musts (L218-235) is register rows with keyword MUST or MUST NOT AND testability testable AND transport in any plus rest, so MCP-only and embedded-only testable MUSTs drop out even when those transports are declared, and 84 MUST ids at 2026-04-08 are graded by checks yet sit outside the tally as needs-receiver. The page no longer claims the transports it actually declares.",
+      "evidence": "merchant.py L13-14 states the denominator and still resolves. RE-READ 2026-10-12, wording narrowed: applicable_musts (def at L217) is register rows with keyword MUST or MUST NOT AND testability testable AND transport in any plus rest, so MCP-only and embedded-only testable MUSTs drop out even when those transports are declared, and 84 MUST ids at 2026-04-08 are graded by checks yet sit outside the tally as needs-receiver. The page no longer claims the transports it actually declares.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
