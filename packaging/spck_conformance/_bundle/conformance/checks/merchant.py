@@ -343,30 +343,61 @@ def _xml_escape(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
             .replace('"', "&quot;"))
 
+
+MANDATORY_KEYWORDS = ("MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT")
+
+def _graded(chk, ctx):
+    """The requirement ids actually GRADED for this check at the server spec version.
+
+    A check may remap its ids per version through req_ids_map, and the verdict uses
+    merchant_checks._rids. Rendering chk.req_ids instead cited the row the remap had
+    moved away from, so a 2026-04-08 run named the 01-23-era requirement (and four
+    checks cited ids with no row at that version, rendering a blank citation).
+    """
+    return list(merchant_checks._rids(chk, getattr(ctx, "version", None)) or chk.req_ids)
+
+
 def junit_xml(ctx, detail, meta):
     """Render results as JUnit XML so any CI can consume the report as a test run.
     deviation -> <failure>; not-applicable/not-tested -> <skipped>; clean -> pass."""
-    cases, n_fail, n_skip = [], 0, 0
+    cases, n_fail, n_skip, n_err = [], 0, 0, 0
     for c, d in detail:
         st = str(d["status"])
         cites = "; ".join(f"{x['id']}: {x['requirement']} [{x['source']}]"
-                          for x in _citations(c.req_ids, meta))
-        name = f"{c.id} ({', '.join(c.req_ids)})"
+                          for x in _citations(_graded(c, ctx), meta))
+        name = f"{c.id} ({', '.join(_graded(c, ctx))})"
         body = ""
         if st == "deviation":
-            n_fail += 1
             obs = d.get("observed") or {}
             evidence = (f"expected: {cites}\nobserved: HTTP {obs.get('status')} "
                         f"body: {obs.get('body')}")
-            body = (f'\n      <failure message="MUST violated: {_xml_escape(c.req_ids)}">'
-                    f'{_xml_escape(evidence)}</failure>\n    ')
+            if c.keyword in MANDATORY_KEYWORDS:
+                n_fail += 1
+                body = (f'\n      <failure message="{_xml_escape(c.keyword)} violated: '
+                        f'{_xml_escape(_graded(c, ctx))}">'
+                        f'{_xml_escape(evidence)}</failure>\n    ')
+            else:
+                # A SHOULD or MAY deviation is an advisory: verdict_gate does not
+                # fail the run on it, so JUnit must not either, or every consumer
+                # of the uploaded report disagrees with our own exit code.
+                body = (f'\n      <system-out>{_xml_escape(c.keyword)} advisory: '
+                        f'{_xml_escape(evidence)}</system-out>\n    ')
+        elif st == "inconclusive":
+            # D1: a check that ran but could not be trusted (its injected mutant
+            # survived) is NOT a pass. <error> rather than <skipped>: it did run,
+            # and a consumer must not read silence as conformance.
+            n_err += 1
+            surv = d.get("survivors") or []
+            msg = f"inconclusive: not kill-safe (kills {d.get('kills')})"
+            body = (f'\n      <error message="{_xml_escape(msg)}">'
+                    f'{_xml_escape("surviving mutants: " + repr(surv))}</error>\n    ')
         elif st.startswith(("not-applicable", "not-tested")):
             n_skip += 1
             body = f'\n      <skipped message="{_xml_escape(st)}"/>\n    '
         cases.append(f'    <testcase classname="ucp.{_xml_escape(ctx.version)}" '
                      f'name="{_xml_escape(name)}">{body}</testcase>')
     suite = (f'  <testsuite name="ucp-merchant-conformance" tests="{len(detail)}" '
-             f'failures="{n_fail}" skipped="{n_skip}" '
+             f'failures="{n_fail}" errors="{n_err}" skipped="{n_skip}" '
              f'hostname="{_xml_escape(ctx.base)}">\n' + "\n".join(cases) + "\n  </testsuite>")
     return '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites>\n' + suite + "\n</testsuites>\n"
 
@@ -437,9 +468,9 @@ def main():
                       "applicable_musts": cc["inscope_musts"], "musts_passed": cc["musts_clean_pass"],
                       "deviations": cc["deviations"]}
     out["checks_summary"] = checks_summary(detail)
-    out["checks"] = [{"id": c.id, "req_ids": c.req_ids, "capability": c.capability,
+    out["checks"] = [{"id": c.id, "req_ids": _graded(c, ctx), "capability": c.capability,
                       "status": d["status"], "kill_safe": d["kill_safe"],
-                      "requirements": _citations(c.req_ids, meta),
+                      "requirements": _citations(_graded(c, ctx), meta),
                       # actionable evidence: what the server actually returned
                       "observed": d.get("observed")} for c, d in detail]
     out["disclaimer"] = DISCLAIMER
@@ -472,11 +503,18 @@ def main():
           f"· {len(napp)} not-applicable — one check may cover several MUST ids")
 
     if devs:
-        print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s), {cc['deviations']} MUST "
-              f"requirement(s)) — a MUST was violated:")
+        # cc["deviations"] counts only mandatory rows (it is what sets rc), so the
+        # header must not say "a MUST was violated" when the deviating checks are
+        # SHOULD or MAY advisories that leave rc at 0.
+        n_adv = sum(1 for c, _ in devs if c.keyword not in MANDATORY_KEYWORDS)
+        headline = ("a MUST was violated" if cc["deviations"]
+                    else "advisory only, the exit code is unaffected")
+        adv = f", {n_adv} advisory" if n_adv else ""
+        print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s){adv}, {cc['deviations']} MUST "
+              f"requirement(s)) — {headline}:")
         for c, d in devs:
             print(f"    {c.id}")
-            for x in _citations(c.req_ids, meta):
+            for x in _citations(_graded(c, ctx), meta):
                 print(f"        expected  {x['id']}: {x['requirement']}")
                 print(f"        spec      {x['source']}")
             obs = d.get("observed") or {}
