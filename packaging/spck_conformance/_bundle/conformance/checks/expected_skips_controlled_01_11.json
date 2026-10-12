@@ -3,7 +3,7 @@
  "golden": "controlled",
  "version": "2026-01-11",
  "spec_pin": "806a5b74",
- "review_by": "2026-10-11",
+ "review_by": "2026-11-09",
  "clock_tier": "moving",
  "expected_skips": {
   "a2a.checkout_in_datapart": "version-scoped",
