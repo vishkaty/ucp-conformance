@@ -43,17 +43,13 @@ echo "selftest: pre-cleaning harness ports ${PORTS[*]} ..." >&2
 free_ports
 rm -rf "$DB_DIR"
 
-# pip-bundle freshness (CI hard-fails on a stale bundle; locally we AUTO-SYNC so
-# the pending commit always carries a fresh bundle — an em-dash/ensure_ascii JSON
-# re-encode in a register/exemption edit can desync the copy, which run_suite's
-# gates never see because they read source, not the bundle). Non-fatal locally:
-# it corrects + stages, so "forgot to sync" can't reach a commit.
-if bash "$ROOT/packaging/sync_bundle.sh" >/dev/null 2>&1; then
-  if ! git -C "$ROOT" diff --quiet packaging/spck_conformance/_bundle 2>/dev/null; then
-    echo "selftest: pip bundle was stale vs source — re-synced + staged for commit" >&2
-    git -C "$ROOT" add packaging/spck_conformance/_bundle 2>/dev/null || true
-  fi
-fi
+# No bundle re-sync here, and no git command anywhere in this script (asserted by
+# case 18 of packaging/test_preflight_guards.sh). This used to sync the bundle and
+# `git add` it, so running the tests wrote to the index. Bundle staleness is caught
+# by packaging/validate_bundle.py, which names an unsynced module and exits 1, and
+# by preflight step 2, which regenerates and compares against HEAD. Run
+# `bash packaging/sync_bundle.sh` deliberately when a register or exemption edit
+# desyncs the copy.
 
 bash "$ROOT/conformance/ci/serve_golden.sh"
 
