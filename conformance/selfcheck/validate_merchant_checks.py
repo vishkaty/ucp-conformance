@@ -555,9 +555,16 @@ def _expected_skips_cases():
                                 product_id="p", config={}, profile={}, shopping_endpoint="http://x", base="http://x")
     def fetch(_ctx):
         return engine.Resp(200, {"Content-Type": "application/json"}, b'{"a": 1}')
-    unscoped = merchant_checks.MCheck("k.unscoped", ["ZZB-001"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+    # The predicate must actually READ the response, or `set:a=9` survives and the
+    # check is not kill_safe: these two exist to test VERSION SCOPING, and a status
+    # of clean-pass is the proxy for "it ran", so the fixture has to be sound or the
+    # proxy measures kill-safety instead. (Found when D1 stopped reporting a
+    # surviving-mutant check as clean-pass.)
+    def _p_a_is_1(r):
+        return CLEAN if (r.json or {}).get("a") == 1 else engine.DEVIATION
+    unscoped = merchant_checks.MCheck("k.unscoped", ["ZZB-001"], "MUST", fetch, _p_a_is_1, ["set:a=9"],
                                       versions=merchant_checks.V_0825)
-    locked = merchant_checks.MCheck("k.locked", ["ZZB-002"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+    locked = merchant_checks.MCheck("k.locked", ["ZZB-002"], "MUST", fetch, _p_a_is_1, ["set:a=9"],
                                     versions=("2026-04-08",))
     _, det = merchant_checks.run_merchant_checks(ctx_draft, [unscoped, locked])
     st = {c.id: d["status"] for c, d in det}
@@ -565,6 +572,64 @@ def _expected_skips_cases():
          st.get("k.unscoped") == "clean-pass", f"status={st.get('k.unscoped')!r}")
     case("(i) unreviewed version: a version-locked check is version-scoped away",
          str(st.get("k.locked", "")).startswith("not-applicable (spec draft out of scope)"), f"status={st.get('k.locked')!r}")
+    return ok
+
+
+def _kill_safe_report_case():
+    """A check whose injected mutant SURVIVES must not be REPORTED as a pass.
+
+    run_merchant_checks already downgrades the CheckResult to INCONCLUSIVE, so the
+    verdict, the exit code and the MUST tally were always right. But the runner
+    detail carried the RAW predicate result, and merchant.py reads detail["status"]
+    for the PASSED bucket, for checks_summary and for junit_xml, so a check that
+    killed none of its mutants was printed under "satisfied & kill-safe" and
+    emitted as a bare passing JUnit testcase. That is a false green on the one
+    property this suite is named for, and the reference gate below cannot see it:
+    it reds `weak` on a golden, so the hole only ever showed against a real
+    merchant.
+
+    Hermetic: a synthetic profile as the golden Resp (profile_resp reads
+    ctx.profile, never the network), a predicate that is always CLEAN, and one
+    declared mutation that cannot change it, so clean == CLEAN and kill_safe is
+    False.
+    """
+    import json as _json, sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    from engine import CLEAN as _CLEAN
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.checkout": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = merchant_checks.MCheck(
+        "selfcheck.survivor", ["ZZB-003"], "MUST",
+        merchant_checks.profile_resp, lambda r, c=None: _CLEAN,
+        ["hset:X-Nope=1"], transport="rest", versions=("2026-04-08",))
+    results, detail = merchant_checks.run_merchant_checks(ctx, checks=[chk])
+
+    ok = True
+    downgraded = bool(results) and results[0].status != CLEAN and not results[0].kill_safe
+    print(f"  {'✓' if downgraded else '✗'} kill_safe_report: verdict downgrades a "
+          f"surviving-mutant check (got {results and results[0].status!r}, "
+          f"kill_safe={results and results[0].kill_safe})")
+    ok &= downgraded
+
+    st = detail[0][1]["status"] if detail else None
+    not_passed = st != "clean-pass"
+    print(f"  {'✓' if not_passed else '✗'} kill_safe_report: runner detail does NOT "
+          f"report it as clean-pass (got {st!r}, kills={detail and detail[0][1].get('kills')})")
+    ok &= not_passed
+
+    xml = _mrep.junit_xml(ctx, detail, {})
+    case_lines = [l for l in xml.split("\n") if "<testcase" in l]
+    bare_pass = bool(case_lines) and case_lines[0].rstrip().endswith("></testcase>")
+    print(f"  {'✓' if not bare_pass else '✗'} kill_safe_report: JUnit does NOT emit it "
+          f"as a bare passing testcase")
+    ok &= not bare_pass
     return ok
 
 
@@ -592,6 +657,7 @@ def selftest():
     # defects, the check's own predicate + declared mutation list.
     ok &= _ovr002_case()
     ok &= _expected_skips_cases()
+    ok &= _kill_safe_report_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 

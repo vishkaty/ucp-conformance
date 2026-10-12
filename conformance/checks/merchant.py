@@ -346,7 +346,7 @@ def _xml_escape(s):
 def junit_xml(ctx, detail, meta):
     """Render results as JUnit XML so any CI can consume the report as a test run.
     deviation -> <failure>; not-applicable/not-tested -> <skipped>; clean -> pass."""
-    cases, n_fail, n_skip = [], 0, 0
+    cases, n_fail, n_skip, n_err = [], 0, 0, 0
     for c, d in detail:
         st = str(d["status"])
         cites = "; ".join(f"{x['id']}: {x['requirement']} [{x['source']}]"
@@ -360,13 +360,22 @@ def junit_xml(ctx, detail, meta):
                         f"body: {obs.get('body')}")
             body = (f'\n      <failure message="MUST violated: {_xml_escape(c.req_ids)}">'
                     f'{_xml_escape(evidence)}</failure>\n    ')
+        elif st == "inconclusive":
+            # D1: a check that ran but could not be trusted (its injected mutant
+            # survived) is NOT a pass. <error> rather than <skipped>: it did run,
+            # and a consumer must not read silence as conformance.
+            n_err += 1
+            surv = d.get("survivors") or []
+            msg = f"inconclusive: not kill-safe (kills {d.get('kills')})"
+            body = (f'\n      <error message="{_xml_escape(msg)}">'
+                    f'{_xml_escape("surviving mutants: " + repr(surv))}</error>\n    ')
         elif st.startswith(("not-applicable", "not-tested")):
             n_skip += 1
             body = f'\n      <skipped message="{_xml_escape(st)}"/>\n    '
         cases.append(f'    <testcase classname="ucp.{_xml_escape(ctx.version)}" '
                      f'name="{_xml_escape(name)}">{body}</testcase>')
     suite = (f'  <testsuite name="ucp-merchant-conformance" tests="{len(detail)}" '
-             f'failures="{n_fail}" skipped="{n_skip}" '
+             f'failures="{n_fail}" errors="{n_err}" skipped="{n_skip}" '
              f'hostname="{_xml_escape(ctx.base)}">\n' + "\n".join(cases) + "\n  </testsuite>")
     return '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites>\n' + suite + "\n</testsuites>\n"
 
