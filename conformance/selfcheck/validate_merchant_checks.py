@@ -723,6 +723,113 @@ def _ungraded_deviation_case():
     return no_fallback and not cites_stale and not has_failure
 
 
+def _blank_citation_case():
+    """A graded id the register does not carry HERE must say so, not render blank.
+
+    Three shapes of "no requirement to cite" exist, and the first fix only handled
+    one. (1) req_ids_map maps the version to an empty list: 8 pairs, the verdict
+    grades nothing, rc unaffected. (2) req_ids is empty outright:
+    discovery.mcp_transport_advertised at 2026-08-25, same consequence, and it is
+    reached only through all_checks(), not merchant_checks.CHECKS, which is why a
+    count taken from CHECKS said 8 instead of 9. (3) the graded id is real but has
+    NO register row at this version: 45 pairs, 23 at 2026-01-11, 21 at 2026-01-23
+    and discount.multiple_accept_both at 2026-08-25, which remaps to DSC-029, a row
+    carry_forward.json records as merged into DSC-006 on 2026-09-10. Shape 3 DOES
+    append results and rc goes to 2, so <failure> is correct there; what was wrong
+    is that the citation printed as `expected  DSC-029:` with nothing after it.
+    """
+    import sys as _sys, pathlib as _pathlib, io as _io, contextlib as _ctx
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    ok = True
+    prof = {"ucp": {"version": "2026-08-25",
+                    "capabilities": {"dev.ucp.shopping.discount": [
+                        {"version": "2026-08-25", "spec": "s", "schema": "x"}],
+                        "dev.ucp.discovery": [
+                        {"version": "2026-08-25", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-08-25", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    meta = _mrep.req_meta("2026-08-25")
+    allc = {c.id: c for c in merchant_checks.all_checks()}
+
+    # shape 3: real id, no row here -> honest text AND still a <failure> (rc is 2)
+    chk = allc.get("discount.multiple_accept_both")
+    graded = list(merchant_checks._rids(chk, "2026-08-25")) if chk else []
+    blank = [x for x in _mrep._citations(graded, meta) if x.get("unregistered")]
+    marked = bool(graded) and len(blank) == len(graded)
+    print(f"  {'✓' if marked else '✗'} blank_cite: {chk.id if chk else '?'} grades {graded} "
+          f"and every row is marked unregistered at 2026-08-25")
+    ok &= marked
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, meta)
+    says = "no register row at 2026-08-25" in xml
+    still_fails = "<failure" in xml
+    print(f"  {'✓' if says else '✗'} blank_cite: JUnit states the missing row rather "
+          f"than an empty requirement")
+    print(f"  {'✓' if still_fails else '✗'} blank_cite: still a <failure>, because this "
+          f"shape does move the exit code")
+    ok &= says and still_fails
+    buf = _io.StringIO()
+    with _ctx.redirect_stdout(buf):
+        _mrep.render_deviations(ctx, detail, {"deviations": 1}, meta)
+    txt = buf.getvalue()
+    text_says = "no register row at 2026-08-25" in txt
+    print(f"  {'✓' if text_says else '✗'} blank_cite: the TEXT block states it too "
+          f"(got {[l.strip() for l in txt.splitlines() if 'expected' in l][:1]})")
+    ok &= text_says
+
+    # shape 2: req_ids empty outright, reachable only via all_checks()
+    mcpc = allc.get("discovery.mcp_transport_advertised")
+    if mcpc is None:
+        print("  ✗ blank_cite: discovery.mcp_transport_advertised not in all_checks()")
+        return False
+    empty_shape = list(merchant_checks._rids(mcpc, "2026-08-25")) == []
+    print(f"  {'✓' if empty_shape else '✗'} blank_cite: discovery.mcp_transport_advertised "
+          f"grades nothing at 2026-08-25 (req_ids={list(mcpc.req_ids)})")
+    d2 = [(mcpc, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                  "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    x2 = _mrep.junit_xml(ctx, d2, meta)
+    no_fail = "<failure" not in x2
+    zero = 'failures="0"' in x2
+    print(f"  {'✓' if no_fail else '✗'} blank_cite: no <failure> for it")
+    print(f"  {'✓' if zero else '✗'} blank_cite: testsuite reports failures=\"0\" so the "
+          f"count agrees with the elements")
+    ok &= empty_shape and no_fail and zero
+
+    # the text header must call an ungraded deviation an advisory
+    buf2 = _io.StringIO()
+    with _ctx.redirect_stdout(buf2):
+        _mrep.render_deviations(ctx, d2, {"deviations": 0}, meta)
+    hdr = next((l for l in buf2.getvalue().splitlines() if "DEVIATIONS" in l), "")
+    adv = "1 advisory" in hdr and "exit code is unaffected" in hdr
+    print(f"  {'✓' if adv else '✗'} blank_cite: text header names it an advisory "
+          f"(got {hdr.strip()[:76]})")
+    note = "no register row graded at 2026-08-25" in buf2.getvalue()
+    print(f"  {'✓' if note else '✗'} blank_cite: the TEXT block carries the ungraded note, "
+          f"so a reader of stdout is told as much as a reader of the JUnit")
+
+    # Next steps must not contradict the block above it: rc is 0 here, but a check
+    # DID deviate, so claiming "0 deviations for the checks run" is false.
+    buf3 = _io.StringIO()
+    with _ctx.redirect_stdout(buf3):
+        _mrep.render_next_steps(ctx, d2, {"deviations": 0}, True)
+    ns = buf3.getvalue()
+    honest = "advisory deviation(s) above do not affect the exit code" in ns \
+             and "0 deviations for the checks run" not in ns
+    nm = next((l for l in x2.splitlines() if "<testcase" in l), "")
+    tidy = 'name="discovery.mcp_transport_advertised"' in nm
+    print(f"  {'✓' if tidy else '✗'} blank_cite: the JUnit entry is named by its check id "
+          f"with no empty parens (got {nm.strip()[:70]})")
+    ok2 = tidy
+    print(f"  {'✓' if honest else '✗'} blank_cite: Next steps does not claim 0 deviations "
+          f"on a run that reported an advisory one")
+    return ok and adv and note and honest and ok2
+
+
 def _advisory_not_must_failure_case():
     """A SHOULD or MAY deviation must not be published as a MUST failure.
 
@@ -794,6 +901,7 @@ def selftest():
     ok &= _kill_safe_report_case()
     ok &= _graded_ids_in_report_case()
     ok &= _ungraded_deviation_case()
+    ok &= _blank_citation_case()
     ok &= _advisory_not_must_failure_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1

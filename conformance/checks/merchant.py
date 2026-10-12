@@ -337,7 +337,31 @@ def req_meta(version):
     return meta
 
 def _citations(req_ids, meta):
-    return [{"id": rid, **meta.get(rid, {"requirement": "", "source": ""})} for rid in req_ids]
+    """Citation rows for the ids GRADED at this version.
+
+    An id the register does not carry HERE is marked `unregistered`. A per-version
+    remap can point at a row that was merged away (DSC-029 merged into DSC-006 on
+    2026-09-10, and 45 check/version pairs are in that state), and such a row used
+    to render as two empty strings, so the report printed `expected  DSC-029:` with
+    nothing after it and the reader could not tell a missing register row from a
+    requirement with no text. `requirement` and `source` stay empty so the
+    differential keyword matching is unchanged; the renderers key on the marker.
+    """
+    out = []
+    for rid in req_ids:
+        row = meta.get(rid)
+        if not (row or {}).get("requirement"):
+            out.append({"id": rid, "requirement": "", "source": "", "unregistered": True})
+        else:
+            out.append({"id": rid, **row})
+    return out
+
+
+def _cite_text(x, version):
+    """One citation rendered for a human: never silently blank."""
+    if x.get("unregistered"):
+        return f"{x['id']}: no register row at {version}"
+    return f"{x['id']}: {x['requirement']}"
 
 def _xml_escape(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -363,15 +387,44 @@ def _graded(chk, ctx):
     return list(merchant_checks._rids(chk, getattr(ctx, "version", None)))
 
 
+def render_deviations(ctx, devs, cc, meta):
+    """Print the DEVIATIONS block. A function rather than inline in main() so a
+    selfcheck can reach it: the text report had no test vehicle, which is how it
+    came to call a SHOULD advisory a MUST violation."""
+    # cc["deviations"] counts only mandatory rows (it is what sets rc), so the
+    # header must not say "a MUST was violated" when the deviating checks are
+    # SHOULD or MAY advisories, or grade nothing here, and leave rc at 0.
+    n_adv = sum(1 for c, _ in devs
+                if c.keyword not in MANDATORY_KEYWORDS or not _graded(c, ctx))
+    headline = ("a MUST was violated" if cc["deviations"]
+                else "advisory only, the exit code is unaffected")
+    adv = f", {n_adv} advisory" if n_adv else ""
+    print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s){adv}, {cc['deviations']} MUST "
+          f"requirement(s)) — {headline}:")
+    for c, d in devs:
+        print(f"    {c.id}")
+        if not _graded(c, ctx):
+            print(f"        expected  no register row graded at {ctx.version}"
+                  f" (advisory, the exit code is unaffected)")
+        for x in _citations(_graded(c, ctx), meta):
+            print(f"        expected  {_cite_text(x, ctx.version)}")
+            print(f"        spec      {x['source']}")
+        obs = d.get("observed") or {}
+        print(f"        observed  HTTP {obs.get('status')}  body: {obs.get('body')}")
+
+
 def junit_xml(ctx, detail, meta):
     """Render results as JUnit XML so any CI can consume the report as a test run.
     deviation -> <failure>; not-applicable/not-tested -> <skipped>; clean -> pass."""
     cases, n_fail, n_skip, n_err = [], 0, 0, 0
     for c, d in detail:
         st = str(d["status"])
-        cites = "; ".join(f"{x['id']}: {x['requirement']} [{x['source']}]"
+        cites = "; ".join(f"{_cite_text(x, ctx.version)} [{x['source']}]"
                           for x in _citations(_graded(c, ctx), meta))
-        name = f"{c.id} ({', '.join(_graded(c, ctx))})"
+        gr = _graded(c, ctx)
+        # no empty parens when nothing is graded here: the entry is still named by
+        # its register check id, which is what the published rubric claims.
+        name = f"{c.id} ({', '.join(gr)})" if gr else c.id
         body = ""
         if st == "deviation":
             obs = d.get("observed") or {}
@@ -413,6 +466,38 @@ def junit_xml(ctx, detail, meta):
              f'failures="{n_fail}" errors="{n_err}" skipped="{n_skip}" '
              f'hostname="{_xml_escape(ctx.base)}">\n' + "\n".join(cases) + "\n  </testsuite>")
     return '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites>\n' + suite + "\n</testsuites>\n"
+
+def render_next_steps(ctx, detail, cc, has_config):
+    """Print the Next steps block. Extracted from main() for the same reason as
+    render_deviations: it had no test vehicle, and it told a reader "0 deviations"
+    on a run whose own DEVIATIONS block had just listed advisory ones."""
+    n_pass = sum(1 for _, d in detail if d["status"] == "clean-pass")
+    n_dev = cc["deviations"]
+    n_dev_checks = sum(1 for _, d in detail if d["status"] == "deviation")
+    needed = set()
+    for c, d in detail:
+        st = str(d["status"])
+        if st.startswith("not-tested (needs config"):
+            needed.update(st.split("needs config:")[1].rstrip(")").strip().split(","))
+    print("\n  Next steps:")
+    if n_dev:
+        print(f"    • Fix the {n_dev_checks} deviating check(s) above ({n_dev} MUST "
+              f"requirement(s)) — each shows expected vs the observed response.")
+    if needed:
+        keys = ", ".join(sorted(k.strip() for k in needed if k.strip()))
+        hint = "--init to scaffold one" if not has_config else f"add: {keys}"
+        print(f"    • Unlock more checks by supplying config ({hint}).")
+    if ctx.product_id is None and "dev.ucp.shopping.checkout" in ctx.capabilities:
+        print(f"    • Set config.product_id to a real in-stock product to run the lifecycle checks.")
+    if not n_dev and n_dev_checks:
+        # rc is 0 because nothing mandatory and in-scope deviated, but checks DID
+        # deviate and were listed above. Saying "0 deviations" here contradicted
+        # the block the reader had just read.
+        print(f"    • {n_dev_checks} advisory deviation(s) above do not affect the "
+              f"exit code; review them, nothing is required.")
+    if not n_dev and not n_dev_checks and not needed:
+        print(f"    • Looking good — {n_pass} checks clean-pass, 0 deviations for the checks run.")
+
 
 def main():
     ap = argparse.ArgumentParser(
@@ -516,26 +601,7 @@ def main():
           f"· {len(napp)} not-applicable — one check may cover several MUST ids")
 
     if devs:
-        # cc["deviations"] counts only mandatory rows (it is what sets rc), so the
-        # header must not say "a MUST was violated" when the deviating checks are
-        # SHOULD or MAY advisories that leave rc at 0.
-        n_adv = sum(1 for c, _ in devs
-                    if c.keyword not in MANDATORY_KEYWORDS or not _graded(c, ctx))
-        headline = ("a MUST was violated" if cc["deviations"]
-                    else "advisory only, the exit code is unaffected")
-        adv = f", {n_adv} advisory" if n_adv else ""
-        print(f"\n  ✗ DEVIATIONS ({len(devs)} check(s){adv}, {cc['deviations']} MUST "
-              f"requirement(s)) — {headline}:")
-        for c, d in devs:
-            print(f"    {c.id}")
-            if not _graded(c, ctx):
-                print(f"        expected  no register row graded at {ctx.version}"
-                      f" (advisory, the exit code is unaffected)")
-            for x in _citations(_graded(c, ctx), meta):
-                print(f"        expected  {x['id']}: {x['requirement']}")
-                print(f"        spec      {x['source']}")
-            obs = d.get("observed") or {}
-            print(f"        observed  HTTP {obs.get('status')}  body: {obs.get('body')}")
+        render_deviations(ctx, devs, cc, meta)
     if passed:
         print(f"\n  ✓ PASSED ({len(passed)}) — satisfied & kill-safe:")
         for c, _ in passed:
@@ -555,27 +621,7 @@ def main():
     if args.junit:
         print(f"\n  JUnit report written to {args.junit}")
 
-    # ---- friendly next steps -------------------------------------------------
-    n_pass = sum(1 for _, d in detail if d["status"] == "clean-pass")
-    n_dev = cc["deviations"]
-    needed = set()
-    for c, d in detail:
-        st = str(d["status"])
-        if st.startswith("not-tested (needs config"):
-            needed.update(st.split("needs config:")[1].rstrip(")").strip().split(","))
-    print("\n  Next steps:")
-    if n_dev:
-        n_dev_checks = sum(1 for _, d in detail if d["status"] == "deviation")
-        print(f"    • Fix the {n_dev_checks} deviating check(s) above ({n_dev} MUST "
-              f"requirement(s)) — each shows expected vs the observed response.")
-    if needed:
-        keys = ", ".join(sorted(k.strip() for k in needed if k.strip()))
-        hint = "--init to scaffold one" if not args.config else f"add: {keys}"
-        print(f"    • Unlock more checks by supplying config ({hint}).")
-    if ctx.product_id is None and "dev.ucp.shopping.checkout" in ctx.capabilities:
-        print(f"    • Set config.product_id to a real in-stock product to run the lifecycle checks.")
-    if not n_dev and not needed:
-        print(f"    • Looking good — {n_pass} checks clean-pass, 0 deviations for the checks run.")
+    render_next_steps(ctx, detail, cc, bool(args.config))
     if not args.config:
         print(f"    • Tip: `spck-conformance --server {ctx.base} --init` scaffolds a config for this server.")
     print(f"\n  {DISCLAIMER}")
