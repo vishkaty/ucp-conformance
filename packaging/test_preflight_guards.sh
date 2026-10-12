@@ -59,7 +59,8 @@ rm -rf "$D"
 # artifact-freshness kill-tests (2026-10-12). The step is headed
 # "committed == generated", so it must compare the worktree against HEAD and it
 # must see additions. It compared against the INDEX, which made a regenerated
-# artifact that conformance/ci/selftest.sh had already staged read as fresh: on
+# artifact that conformance/ci/selftest.sh had already staged (it did so until
+# 2026-10-12, see case 18) read as fresh: on
 # the 2026-10-12 run it reported the pip bundle up to date while the committed
 # bundle was missing three fixes. Cases 8-14 exist because an adversarial pass
 # found six surviving mutants of the first version of this block.
@@ -87,7 +88,8 @@ fresh()  { if [ -n "${2:-}" ]; then ( cd "$1" && bash packaging/artifact_freshne
 
 echo "artifact-freshness kill-tests"
 
-# 5. the defect that bit us: regenerated, STAGED by selftest.sh, not committed
+# 5. the defect that bit us: regenerated and STAGED (by selftest.sh at the time),
+# not committed
 D="$(freshrepo)"
 printf 'new = 2\n' > "$D/packaging/spck_conformance/_bundle/conformance/checks/m.py"
 ( cd "$D" && git add packaging/spck_conformance/_bundle ) >/dev/null 2>&1
@@ -179,6 +181,18 @@ printf 'new = 2\n' > "$D/packaging/spck_conformance/_bundle/conformance/checks/m
 OUT="$( cd "$D" && bash packaging/artifact_freshness.sh --regenerte 2>&1 )"; RC=$?
 if [ $RC -ne 0 ] && echo "$OUT" | grep -qi "unknown option"; then ok "mistyped flag -> ✗ rejected"; else bad "mistyped flag accepted as a pathspec (rc=$RC):"; echo "$OUT" | tail -3; fi
 rm -rf "$D"
+
+# 18. the test runner must not WRITE git state. selftest.sh used to re-sync the
+# bundle and `git add` it, so running the tests mutated the index. That made
+# preflight step 2 compare a staged artifact against the index and call it fresh
+# (the 2026-10-12 false green), it never achieved its stated purpose because a
+# path-limited commit ignores the staged bundle, and it could manufacture drift by
+# copying unstaged source into a committed bundle. A tripwire, so a future edit
+# cannot quietly reintroduce it; the behavioural protection is cases 5, 6 and 12
+# plus packaging/validate_bundle.py, which names an unsynced module and exits 1.
+hits="$(grep -nE '(^|[^[:alnum:]_./-])git([[:space:]]|$)' "$ROOT/conformance/ci/selftest.sh" \
+        | grep -vE '^[0-9]+:[[:space:]]*#' || true)"
+if [ -z "$hits" ]; then ok "selftest.sh runs no git command (no index writes from a test run)"; else bad "selftest.sh writes or reads git state:"; echo "$hits" | sed 's/^/    /'; fi
 
 echo
 if [ $FAIL -eq 0 ]; then echo "release guards kill-tests: PASS"; exit 0; else echo "release guards kill-tests: FAIL"; exit 1; fi

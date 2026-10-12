@@ -43,10 +43,12 @@ if [ "$regen" = "1" ]; then
 fi
 
 # 1. content drift of tracked artifacts, against HEAD rather than the index.
-# conformance/ci/selftest.sh re-syncs the bundle and `git add`s it when it finds it
-# stale, and preflight runs that as step 1, so by the time this gate runs the drift
-# can already be staged. `git diff` with no commit compares against the index and
-# called it fresh, although it was absent from the commit a push would publish.
+# HEAD, not the index. conformance/ci/selftest.sh USED to re-sync the bundle and
+# `git add` it (removed 2026-10-12, asserted by case 18), and preflight runs that as
+# step 1, so the drift was already staged by the time this gate ran. `git diff` with
+# no commit compares against the index, so it called the artifact fresh although it
+# was absent from the commit a push would publish. HEAD stays the reference whatever
+# else might write to the index.
 if ! git diff --quiet HEAD -- "${PATHS[@]}" 2>/dev/null; then
   git --no-pager diff --stat HEAD -- "${PATHS[@]}" 2>/dev/null
   rc=1
