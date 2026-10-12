@@ -731,7 +731,7 @@
      "requirement": "Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition",
      "source": "ucp:docs/specification/overview.md#L192",
      "covered_by": [],
-     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
+     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195@01-11 / L199-201@01-23): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-011",
@@ -1651,7 +1651,7 @@
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L408",
      "covered_by": [],
-     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L409@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
@@ -2171,7 +2171,7 @@
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
      "covered_by": [],
-     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L330, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L326@01-11 / L330@01-23, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "ORD-019",
@@ -3688,7 +3688,7 @@
      "requirement": "Each extension schema MUST declare the types it introduces and how it modifies base types using allOf composition",
      "source": "ucp:docs/specification/overview.md#L199",
      "covered_by": [],
-     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
+     "exempt_reason": "Binds extension-schema AUTHORS (overview.md L193-195@01-11 / L199-201@01-23): being 'self-describing' via allOf composition is a property of ecosystem schema documents published by the capability authority, not of any implementation behavior the suite can elicit from a business. [2026-09-10 D2-04] scoped explicitly to ['2026-01-11', '2026-01-23'] (the versions it applied at unscoped; no numeric change)."
     },
     {
      "id": "DISC-011",
@@ -4655,7 +4655,7 @@
      "requirement": "Platforms MUST communicate their profile URI with each request to enable capability negotiation",
      "source": "ucp:docs/specification/overview.md#L438",
      "covered_by": [],
-     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L408@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'Platforms MUST communicate their profile URI with each request to enable capability negotiation' (overview.md L438-439@01-23 / L409@01-11) binds the PLATFORM's request authoring (the UCP-Agent header), not the business; the spec places no duty on the business to reject header-less requests, so no merchant response reflects it and the tester itself sends the header. Requester-bound per policy F2; precedent CHK-046/DISC-006@04-08. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "NEG-002",
@@ -5188,7 +5188,7 @@
      "requirement": "The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding",
      "source": "ucp:docs/specification/order.md#L330",
      "covered_by": [],
-     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L330, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "'The platform MUST respond quickly with a 2xx HTTP status code to acknowledge receipt of a webhook, then process events asynchronously after responding' (order.md L326@01-11 / L330@01-23, Platform Guidelines) binds the webhook RECEIVER (the platform), not the business under test; the receiver's acknowledgement/async behavior leaves no wire trace on the merchant. The 04-08 twin is ORD-032. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
     },
     {
      "id": "ORD-019",
@@ -7279,7 +7279,7 @@
      "requirement": "ucp envelope field is omitted on request bodies (ucp_request: omit)",
      "source": "ucp:source/schemas/shopping/checkout.json#L19",
      "covered_by": [],
-     "exempt_reason": "'The ucp envelope field is omitted on request bodies (ucp_request: omit)' (checkout.json L19) constrains the REQUEST author \u2014 the platform that sends checkout requests \u2014 to omit a response-only field; the spec places no duty on the business to reject requests that include it, so no merchant response reflects it and the tester itself omits it. Request-author-bound; same subject-binding as DISC-006/CART-024."
+     "exempt_reason": "'The ucp envelope field is omitted on request bodies (ucp_request: omit)' (shopping/checkout.json L19-21, the `ucp_request: omit` annotation at L21) constrains the REQUEST author \u2014 the platform that sends checkout requests \u2014 to omit a response-only field; the spec places no duty on the business to reject requests that include it, so no merchant response reflects it and the tester itself omits it. Request-author-bound; same subject-binding as DISC-006/CART-024."
     },
     {
      "id": "CHK-037",
@@ -10531,7 +10531,7 @@
      "requirement": "Businesses MUST include only capabilities compatible with the negotiated protocol version in their response; a capability depending on features introduced in a newer protocol version MUST NOT be included when processing at an older protocol version",
      "source": "ucp:docs/specification/overview.md#L1974",
      "covered_by": [],
-     "exempt_reason": "party: the Business (overview.md L?? 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response'). observable: only against a target that declares a capability whose version is INCOMPATIBLE with the negotiated ucp.version and then serves a response; no golden or reference target declares such a capability, so the row cannot be graded today. why-not-now: re-classed 2026-09-11 (D2-08) from `client-bound` \u2014 that class asserted the row binds the platform, but the text binds the Business (role: business; it was also in the retired NOT_AGENT_BOUND list, so it sat in NEITHER lane); it stays EXEMPT so the 2026-04-08 coverage lock holds, in exactly one lane (merchant)."
+     "exempt_reason": "party: the Business (overview.md L1974 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response'). observable: only against a target that declares a capability whose version is INCOMPATIBLE with the negotiated ucp.version and then serves a response; no golden or reference target declares such a capability, so the row cannot be graded today. why-not-now: re-classed 2026-09-11 (D2-08) from `client-bound` \u2014 that class asserted the row binds the platform, but the text binds the Business (role: business; it was also in the retired NOT_AGENT_BOUND list, so it sat in NEITHER lane); it stays EXEMPT so the 2026-04-08 coverage lock holds, in exactly one lane (merchant)."
     },
     {
      "id": "OVR-012",

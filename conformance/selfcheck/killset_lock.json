@@ -3268,10 +3268,10 @@
    "n_kills_floor": 2
   }
  },
- "generated": "2026-09-22",
+ "generated": "2026-10-09",
  "pins": {
   "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
-  "reference_sample_server": "00333a80ebca3efd442d515b261a36e57de815d3",
+  "reference_sample_server": "cdb291c452acf7f1253096b0e1ad7c45ecd4b5c7",
   "reference_sdk": "f54858e0cf1e8933cc0e9d89b380e2cd4a0b3f00",
   "schema_validator": "9b5c32066f0fe5f50918ec612ba43ad70e2547e3",
   "spec": {

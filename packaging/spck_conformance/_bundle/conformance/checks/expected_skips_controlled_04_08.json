@@ -3,7 +3,7 @@
  "golden": "controlled",
  "version": "2026-04-08",
  "spec_pin": "a25a4a24",
- "review_by": "2026-10-11",
+ "review_by": "2026-11-09",
  "clock_tier": "moving",
  "expected_skips": {
   "cart.https_tls13_minimum": "oracle-unavailable",

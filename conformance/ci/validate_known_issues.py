@@ -38,14 +38,43 @@ def _date(s):
         return None
 
 
-def ledger_row_ids(path=None):
-    """Row ids of ops/GAP-LEDGER-0825.md (`| G1 |`, `| R20 |`, `| S8d |`), or None if ops/
-    is not mounted (SPCK_LEDGER overrides the path for tests)."""
+def resolve_ledger(path=None):
+    """The ledger file, or None. SPCK_LEDGER (tests) -> ops/ -> ops/archive/*/.
+
+    The ledger was archived to ops/archive/<yyyy-mm>/ on 2026-09-18, so a lookup
+    pinned to ops/GAP-LEDGER-0825.md reported "ops/ not mounted" on a tree where
+    ops/ WAS mounted, and the cross-reference ran nowhere while reading green.
+    Searching the archive keeps the check live after an archival move.
+    """
     import os
-    path = pathlib.Path(path or os.environ.get("SPCK_LEDGER") or LEDGER)
-    if not path.exists():
+    if path:
+        p = pathlib.Path(path)
+        return p if p.exists() else None
+    env = os.environ.get("SPCK_LEDGER")
+    if env:
+        # An explicit override is honoured exactly and never silently replaced,
+        # the same contract sources_age.py gives GH_BIN, so a test can force absence.
+        p = pathlib.Path(env)
+        return p if p.exists() else None
+    for cand in [LEDGER] + sorted(
+            (ROOT / "ops" / "archive").glob("*/" + LEDGER.name), reverse=True):
+        if cand.exists():
+            return cand
+    return None
+
+
+def ops_mounted():
+    """Whether the private ops/ repo is present at all, as distinct from the ledger
+    file being absent from it. The two produce different skip reasons."""
+    return (ROOT / "ops").is_dir()
+
+
+def ledger_row_ids(path=None):
+    """Row ids of the ledger (`| G1 |`, `| R20 |`, `| S8d |`), or None when absent."""
+    found = resolve_ledger(path)
+    if found is None:
         return None
-    return set(re.findall(r"^\| ([GRS]\d+[a-e]?) \|", path.read_text(encoding="utf-8"), re.M))
+    return set(re.findall(r"^\| ([GRS]\d+[a-e]?) \|", found.read_text(encoding="utf-8"), re.M))
 
 
 def validate_doc(doc, today, ledger_ids):
@@ -144,7 +173,13 @@ def main():
     rows = doc.get("issues") or []
     stale = sum(1 for f in fails if ": stale" in f)
     refuted = sum(1 for r in rows if r.get("refuted") is not False)
-    xref = "ledger cross-ref OK" if ledger is not None else "ledger cross-ref SKIP (ops/ not mounted)"
+    if ledger is not None:
+        xref = "ledger cross-ref OK"
+    elif ops_mounted():
+        xref = ("ledger cross-ref SKIP (ops/ is mounted but no " + LEDGER.name
+                + " under ops/ or ops/archive/*/ — the check is dark, not clean)")
+    else:
+        xref = "ledger cross-ref SKIP (ops/ not mounted)"
     print(f"known-issues: {len(rows)} rows · {stale} stale · {refuted} refuted · {xref}"
           + ("" if not fails else f" · FAIL ({len(fails)} finding(s))"))
     if fails:
