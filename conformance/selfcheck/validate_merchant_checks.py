@@ -633,6 +633,92 @@ def _kill_safe_report_case():
     return ok
 
 
+def _graded_ids_in_report_case():
+    """The report must cite the requirement row GRADED at the server spec version.
+
+    A check can remap its ids per version through req_ids_map (38 check/version
+    pairs do). The verdict grades _rids(chk, version), but merchant.py rendered
+    c.req_ids, so a 2026-04-08 run named and cited the 01-23-era row. The worked
+    example: checkout.retrieve grades CHK-019 ("Get Checkout retrieves current
+    state") and printed CHK-002 ("businesses SHOULD provide continue_url"), a
+    different requirement of a different strength. Four such checks cite ids with
+    no row at that version at all, so their requirement and spec line render blank.
+    """
+    import sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.checkout": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks() if c.id == "checkout.retrieve"), None)
+    if chk is None:
+        print("  ✗ graded_ids: checkout.retrieve not found"); return False
+    graded = list(merchant_checks._rids(chk, ctx.version))
+    printed = list(chk.req_ids)
+    remapped = graded != printed
+    print(f"  {'✓' if remapped else '✗'} graded_ids: checkout.retrieve remaps at "
+          f"2026-04-08 (prints {printed}, grades {graded})")
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    line = next((l for l in xml.split("\n") if "<testcase" in l), "")
+    names_graded = all(g in line for g in graded)
+    names_stale = any(x in line for x in printed if x not in graded)
+    ok = remapped and names_graded and not names_stale
+    print(f"  {'✓' if names_graded and not names_stale else '✗'} graded_ids: JUnit names "
+          f"the graded row, not the remapped-away one (got {line.strip()[:72]})")
+    return ok
+
+
+def _advisory_not_must_failure_case():
+    """A SHOULD or MAY deviation must not be published as a MUST failure.
+
+    verdict_gate routes a non-mandatory deviation to advisories and the exit code
+    stays 0, but junit_xml and the text header keyed on status alone, so the same
+    result was written as <failure message="MUST violated: ..."> and printed under
+    "a MUST was violated". The Action uploads that JUnit, so every consumer failed
+    the job on something our own CLI calls advisory.
+    """
+    import re as _re, sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.order": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks()
+                if c.keyword in ("SHOULD", "MAY")), None)
+    if chk is None:
+        print("  ✗ advisory: no SHOULD/MAY check found"); return False
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    # The property is that NO <failure> element is emitted at all, not merely that
+    # the message avoids the word MUST: a <failure message="SHOULD violated"> still
+    # fails every JUnit consumer while our own exit code stays 0. (A first version of
+    # this case only matched the literal "MUST violated" and survived its own mutant.)
+    msg = _re.search(r'<failure message="([^"]*)"', xml)
+    ok = msg is None
+    print(f"  {'✓' if ok else '✗'} advisory: a {chk.keyword} deviation ({chk.id}) emits "
+          f"no <failure> element "
+          f"(junit said {msg.group(1) if msg else 'no failure element'!r})")
+    if ok:
+        advisory = "advisory" in xml and chk.keyword in xml
+        print(f"  {'✓' if advisory else '✗'} advisory: it is still reported, as a "
+              f"{chk.keyword} advisory in system-out")
+        ok &= advisory
+    return ok
+
+
 def selftest():
     """Hermetic structural cases (no server). D2-02 `unique_check_ids`: every MCheck
     id across the whole merchant check set must be unique — the reach report
@@ -658,6 +744,8 @@ def selftest():
     ok &= _ovr002_case()
     ok &= _expected_skips_cases()
     ok &= _kill_safe_report_case()
+    ok &= _graded_ids_in_report_case()
+    ok &= _advisory_not_must_failure_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
