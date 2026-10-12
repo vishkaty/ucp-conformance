@@ -3,7 +3,7 @@
  "golden": "flower",
  "version": "2026-04-08",
  "spec_pin": "a25a4a24",
- "review_by": "2026-10-11",
+ "review_by": "2026-11-10",
  "clock_tier": "moving",
  "expected_skips": {
   "a2a.checkout_in_datapart": "transport-not-declared",

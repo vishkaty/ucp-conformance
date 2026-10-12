@@ -821,18 +821,18 @@
       "text": "independently-operated stores' /.well-known/ucp documents graded by this suite",
       "page": "coverage.html",
       "class": "REG",
-      "evidence": "Rendered by coverage.html renderSummary() for 2026-08-25 ONLY when $.versions['2026-08-25'].discovery_live.stores > 0 (D4-08's sampler writes {stores, as_of} from discovery-capture/1 files within a 30-day window, >= 3 distinct domains for the discovery-live class \u2014 conformance/ci/discovery_shapes.py discovery_reach); the count and date render from the export, never typed; with stores 0/null the W0 ceiling sentence CLAIM-COV-002 renders instead. Pinned by tests/web/unit/coverage_page.test.mjs (SITE-R-035). Decision 4: discovery-only, read-only, owner's machine.",
+      "evidence": "Rendered by coverage.html renderSummary() for 2026-08-25 ONLY when $.versions['2026-08-25'].discovery_live.stores > 0 (D4-08's sampler writes {stores, as_of} from discovery-capture/1 files within a 30-day window, >= 3 distinct domains for the discovery-live class \u2014 conformance/ci/discovery_shapes.py discovery_reach); the count and date render from the export, never typed; with stores 0/null the W0 ceiling sentence CLAIM-COV-002 renders instead. Pinned by tests/web/unit/coverage_page.test.mjs (SITE-R-035). Decision 4: discovery-only, read-only, owner's machine. RE-READ 2026-10-11: the export carries discovery_live {stores 4, as_of 2026-09-11}, which is exactly 30 days old today, so the row still renders. discovery_shapes.py excludes a capture older than 30 days, so from 2026-10-12 the count falls to zero and coverage.html renders CLAIM-COV-002 instead, which is the designed fallback rather than a false claim. Keeping this row live past that date needs a fresh discovery sample, and re-running that sampler probes independent third-party stores, so it is an owner decision and is not taken here.",
       "added": "2026-09-11",
-      "review_by": "2026-10-11"
+      "review_by": "2026-11-10"
     },
     {
       "id": "CLAIM-RUB-016",
       "text": "Airtight means the MUST / MUST NOT / REQUIRED / SHALL obligations at spec pin cd78fb38; SHOULD-class obligations are censused report-only and never fail a run",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "Decision 8 (PLAN-v3 \u00a74, CLOSED 2026-09-10): publish the MUST-only sentence; the SHOULD census is report-only (D2-10 verify_should_census.py: 274 SHOULD/SHOULD NOT/RECOMMENDED hits at 2026-08-25 in the deep-analysis census of 2026-09-09; the number is deliberately NOT on the page until the export carries surface.should, then it binds data-live). Pin cd78fb38 = SOURCES.lock.json ucp 2026-08-25. Pinned by tests/web/unit/rubric_page.test.mjs (SITE-R-035).",
+      "evidence": "Decision 8 (PLAN-v3 \u00a74, CLOSED 2026-09-10): publish the MUST-only sentence; the SHOULD census is report-only (D2-10 verify_should_census.py: 274 SHOULD/SHOULD NOT/RECOMMENDED hits at 2026-08-25 in the deep-analysis census of 2026-09-09; the number is deliberately NOT on the page until the export carries surface.should, then it binds data-live). Pin cd78fb38 = SOURCES.lock.json ucp 2026-08-25. Pinned by tests/web/unit/rubric_page.test.mjs (SITE-R-035). RE-READ 2026-10-11: the pin is still cd78fb38 in SOURCES.lock.json and sources_age --check reports all four tag identities intact, so the MUST-only sentence still describes the pinned text; the SHOULD census remains report-only per Decision 8 and no number is on the page.",
       "added": "2026-09-11",
-      "review_by": "2026-10-11"
+      "review_by": "2026-11-10"
     },
     {
       "id": "KI-001",
