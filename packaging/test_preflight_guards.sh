@@ -10,6 +10,7 @@
 #   3. pypi report-only job expiry is MECHANICAL: pypi_job_mode.py says report-only below
 #      0.4.0 (incl. 0.4.0rc1) and counted at >= 0.4.0
 #   4. honest tree                                    -> release_guards.sh PASS
+#   5-7. artifact freshness: staged-but-uncommitted / unstaged / honest (see the block below)
 # Usage: bash packaging/test_preflight_guards.sh   (exit 0 pass · 1 fail)
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -52,6 +53,49 @@ done
 D="$(scratch)"; PKG="$(python3 -c "import tomllib;print(tomllib.load(open('$ROOT/packaging/pyproject.toml','rb'))['project']['version'])")"
 OUT="$(guards "$D" "v$PKG")"; RC=$?
 if [ $RC -eq 0 ]; then ok "honest tree at v$PKG -> guards PASS"; else bad "honest tree red (rc=$RC):"; echo "$OUT" | tail -6; fi
+rm -rf "$D"
+
+# ---------------------------------------------------------------------------
+# artifact-freshness kill-tests (D4, 2026-10-12). The step is headed
+# "committed == generated", so it must compare the worktree against HEAD. It
+# compared against the INDEX, which made a regenerated artifact that had been
+# staged but not committed read as fresh: on the 2026-10-12 run it reported the
+# pip bundle up to date while the committed bundle was missing three fixes.
+# ---------------------------------------------------------------------------
+freshrepo() {   # a scratch repo holding only the three generated paths
+  local d; d="$(mktemp -d)"
+  mkdir -p "$d/public" "$d/docs" "$d/packaging/spck_conformance/_bundle/conformance/checks"
+  printf '{"v":1}\n'  > "$d/public/coverage.json"
+  printf 'matrix v1\n' > "$d/docs/spec-coverage-matrix.md"
+  printf 'old = 1\n'   > "$d/packaging/spck_conformance/_bundle/conformance/checks/m.py"
+  cp "$ROOT/packaging/artifact_freshness.sh" "$d/packaging/"
+  ( cd "$d" && git init -q && git add -A \
+      && git -c user.name=t -c user.email=t@t commit -q -m generated ) >/dev/null 2>&1
+  echo "$d"
+}
+fresh() { ( cd "$1" && bash packaging/artifact_freshness.sh 2>&1 ); }
+
+echo "artifact-freshness kill-tests"
+
+# A. the defect that bit us: regenerated, STAGED, not committed -> must red
+D="$(freshrepo)"
+printf 'new = 2\n' > "$D/packaging/spck_conformance/_bundle/conformance/checks/m.py"
+( cd "$D" && git add packaging/spck_conformance/_bundle ) >/dev/null 2>&1
+OUT="$(fresh "$D")"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -q "m.py"; then ok "staged-but-uncommitted bundle -> freshness ✗ naming it"; else bad "STAGED stale bundle read as FRESH (rc=$RC) — the index was compared, not HEAD:"; echo "$OUT" | tail -3; fi
+rm -rf "$D"
+
+# B. unstaged drift still reds (the case the old comparison did catch)
+D="$(freshrepo)"
+printf 'matrix v2\n' > "$D/docs/spec-coverage-matrix.md"
+OUT="$(fresh "$D")"; RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -q "spec-coverage-matrix.md"; then ok "unstaged matrix drift -> freshness ✗ naming it"; else bad "unstaged drift not caught (rc=$RC):"; echo "$OUT" | tail -3; fi
+rm -rf "$D"
+
+# C. an honest tree passes, so the guard is not simply always-red
+D="$(freshrepo)"
+OUT="$(fresh "$D")"; RC=$?
+if [ $RC -eq 0 ]; then ok "honest tree -> freshness PASS"; else bad "honest tree red (rc=$RC):"; echo "$OUT" | tail -3; fi
 rm -rf "$D"
 
 echo
