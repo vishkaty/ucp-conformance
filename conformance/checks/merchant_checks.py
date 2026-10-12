@@ -1599,7 +1599,11 @@ def run_merchant_checks(ctx, checks=None):
         status = clean if kill_safe else (clean if clean == DEVIATION else INCONCLUSIVE)
         for rid in rids:
             results.append(CheckResult(rid, chk.keyword, status, kill_safe))
-        detail.append((chk, {"status": clean,
+        # D1: carry the DOWNGRADED status, not the raw predicate result. merchant.py
+        # reads detail["status"] for the PASSED bucket, checks_summary and junit_xml,
+        # so recording `clean` here reported a check whose mutant SURVIVED as a pass
+        # while the verdict correctly called it inconclusive.
+        detail.append((chk, {"status": status,
                              "kills": f"{len(chk.mutations)-len(survivors)}/{len(chk.mutations)}",
                              "kill_safe": kill_safe, "survivors": survivors,
                              # D1-12: which declared kill proved which register id (raw

@@ -36,12 +36,14 @@ fi
 
 # 2. Coverage artifacts + pip bundle must be committed-fresh (regenerate → no diff).
 step "Coverage + bundle freshness (committed == generated)"
-python3 conformance/coverage/matrix.py --json public/coverage.json --md docs/spec-coverage-matrix.md >/dev/null 2>&1 || true
-bash packaging/sync_bundle.sh >/dev/null 2>&1 || true
-if git diff --quiet -- public/coverage.json docs/spec-coverage-matrix.md packaging/spck_conformance/_bundle 2>/dev/null; then
+# regenerate + compare lives in packaging/artifact_freshness.sh so the comparison is
+# kill-tested (packaging/test_preflight_guards.sh cases 5-7). It anchors on HEAD: the
+# inline version compared the worktree against the INDEX, so a staged-but-uncommitted
+# artifact read as fresh.
+if bash packaging/artifact_freshness.sh --regenerate >/tmp/preflight_fresh.log 2>&1; then
   ok "coverage.json, spec-coverage-matrix.md, and the pip bundle are up to date"
 else
-  bad "regenerated artifacts differ from committed — commit these:"; git --no-pager diff --stat -- public/coverage.json docs/spec-coverage-matrix.md packaging/spck_conformance/_bundle 2>/dev/null | sed 's/^/    /'
+  bad "regenerated artifacts differ from COMMITTED — commit these:"; sed 's/^/    /' /tmp/preflight_fresh.log
 fi
 # the bundle must also be COMPLETE, not just current (D1-05 <- D5-06 pending item): every module
 # merchant.py transitively imports + every data file it reads ships, and it imports in isolation

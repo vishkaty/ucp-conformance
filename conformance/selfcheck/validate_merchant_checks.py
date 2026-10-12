@@ -555,9 +555,16 @@ def _expected_skips_cases():
                                 product_id="p", config={}, profile={}, shopping_endpoint="http://x", base="http://x")
     def fetch(_ctx):
         return engine.Resp(200, {"Content-Type": "application/json"}, b'{"a": 1}')
-    unscoped = merchant_checks.MCheck("k.unscoped", ["ZZB-001"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+    # The predicate must actually READ the response, or `set:a=9` survives and the
+    # check is not kill_safe: these two exist to test VERSION SCOPING, and a status
+    # of clean-pass is the proxy for "it ran", so the fixture has to be sound or the
+    # proxy measures kill-safety instead. (Found when D1 stopped reporting a
+    # surviving-mutant check as clean-pass.)
+    def _p_a_is_1(r):
+        return CLEAN if (r.json or {}).get("a") == 1 else engine.DEVIATION
+    unscoped = merchant_checks.MCheck("k.unscoped", ["ZZB-001"], "MUST", fetch, _p_a_is_1, ["set:a=9"],
                                       versions=merchant_checks.V_0825)
-    locked = merchant_checks.MCheck("k.locked", ["ZZB-002"], "MUST", fetch, lambda r: CLEAN, ["set:a=9"],
+    locked = merchant_checks.MCheck("k.locked", ["ZZB-002"], "MUST", fetch, _p_a_is_1, ["set:a=9"],
                                     versions=("2026-04-08",))
     _, det = merchant_checks.run_merchant_checks(ctx_draft, [unscoped, locked])
     st = {c.id: d["status"] for c, d in det}
@@ -565,6 +572,305 @@ def _expected_skips_cases():
          st.get("k.unscoped") == "clean-pass", f"status={st.get('k.unscoped')!r}")
     case("(i) unreviewed version: a version-locked check is version-scoped away",
          str(st.get("k.locked", "")).startswith("not-applicable (spec draft out of scope)"), f"status={st.get('k.locked')!r}")
+    return ok
+
+
+def _kill_safe_report_case():
+    """A check whose injected mutant SURVIVES must not be REPORTED as a pass.
+
+    run_merchant_checks already downgrades the CheckResult to INCONCLUSIVE, so the
+    verdict, the exit code and the MUST tally were always right. But the runner
+    detail carried the RAW predicate result, and merchant.py reads detail["status"]
+    for the PASSED bucket, for checks_summary and for junit_xml, so a check that
+    killed none of its mutants was printed under "satisfied & kill-safe" and
+    emitted as a bare passing JUnit testcase. That is a false green on the one
+    property this suite is named for, and the reference gate below cannot see it:
+    it reds `weak` on a golden, so the hole only ever showed against a real
+    merchant.
+
+    Hermetic: a synthetic profile as the golden Resp (profile_resp reads
+    ctx.profile, never the network), a predicate that is always CLEAN, and one
+    declared mutation that cannot change it, so clean == CLEAN and kill_safe is
+    False.
+    """
+    import json as _json, sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    from engine import CLEAN as _CLEAN
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.checkout": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = merchant_checks.MCheck(
+        "selfcheck.survivor", ["ZZB-003"], "MUST",
+        merchant_checks.profile_resp, lambda r, c=None: _CLEAN,
+        ["hset:X-Nope=1"], transport="rest", versions=("2026-04-08",))
+    results, detail = merchant_checks.run_merchant_checks(ctx, checks=[chk])
+
+    ok = True
+    downgraded = bool(results) and results[0].status != CLEAN and not results[0].kill_safe
+    print(f"  {'✓' if downgraded else '✗'} kill_safe_report: verdict downgrades a "
+          f"surviving-mutant check (got {results and results[0].status!r}, "
+          f"kill_safe={results and results[0].kill_safe})")
+    ok &= downgraded
+
+    st = detail[0][1]["status"] if detail else None
+    not_passed = st != "clean-pass"
+    print(f"  {'✓' if not_passed else '✗'} kill_safe_report: runner detail does NOT "
+          f"report it as clean-pass (got {st!r}, kills={detail and detail[0][1].get('kills')})")
+    ok &= not_passed
+
+    xml = _mrep.junit_xml(ctx, detail, {})
+    case_lines = [l for l in xml.split("\n") if "<testcase" in l]
+    bare_pass = bool(case_lines) and case_lines[0].rstrip().endswith("></testcase>")
+    print(f"  {'✓' if not bare_pass else '✗'} kill_safe_report: JUnit does NOT emit it "
+          f"as a bare passing testcase")
+    ok &= not bare_pass
+    return ok
+
+
+def _graded_ids_in_report_case():
+    """The report must cite the requirement row GRADED at the server spec version.
+
+    A check can remap its ids per version through req_ids_map (38 check/version
+    pairs do). The verdict grades _rids(chk, version), but merchant.py rendered
+    c.req_ids, so a 2026-04-08 run named and cited the 01-23-era row. The worked
+    example: checkout.retrieve grades CHK-019 ("Get Checkout retrieves current
+    state") and printed CHK-002 ("businesses SHOULD provide continue_url"), a
+    different requirement of a different strength. Four such checks cite ids with
+    no row at that version at all, so their requirement and spec line render blank.
+    """
+    import sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.checkout": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks() if c.id == "checkout.retrieve"), None)
+    if chk is None:
+        print("  ✗ graded_ids: checkout.retrieve not found"); return False
+    graded = list(merchant_checks._rids(chk, ctx.version))
+    printed = list(chk.req_ids)
+    remapped = graded != printed
+    print(f"  {'✓' if remapped else '✗'} graded_ids: checkout.retrieve remaps at "
+          f"2026-04-08 (prints {printed}, grades {graded})")
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    line = next((l for l in xml.split("\n") if "<testcase" in l), "")
+    names_graded = all(g in line for g in graded)
+    names_stale = any(x in line for x in printed if x not in graded)
+    ok = remapped and names_graded and not names_stale
+    print(f"  {'✓' if names_graded and not names_stale else '✗'} graded_ids: JUnit names "
+          f"the graded row, not the remapped-away one (got {line.strip()[:72]})")
+    return ok
+
+
+def _ungraded_deviation_case():
+    """A deviation on a check that grades NO row at this version must not cite one.
+
+    Four checks map a version to an empty list in req_ids_map, meaning the verdict
+    deliberately grades nothing there: run_merchant_checks appends zero results, so
+    the check cannot move the exit code. merchant._graded returned
+    `_rids(...) or chk.req_ids`, and the `or` made an empty graded list fall back to
+    the authored row, so the report cited DISC-013 at 2026-04-08 where no DISC-013
+    row exists, and JUnit emitted <failure message="MUST violated"> for a check the
+    run never graded. Eight check/version pairs: discovery.version,
+    discovery.reverse_domain_names, negotiation.compatible_version_processed and
+    discount.unknown_code_rejected, each at 2026-04-08 and 2026-08-25.
+    """
+    import sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.discovery": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks() if c.id == "discovery.version"), None)
+    if chk is None:
+        print("  ✗ ungraded: discovery.version not found"); return False
+    graded = list(merchant_checks._rids(chk, ctx.version))
+    if graded:
+        print(f"  ✗ ungraded: fixture no longer grades nothing at 2026-04-08 ({graded})")
+        return False
+    rendered = list(_mrep._graded(chk, ctx))
+    no_fallback = rendered == []
+    print(f"  {'✓' if no_fallback else '✗'} ungraded: _graded returns [] rather than the "
+          f"authored row (got {rendered}, authored {list(chk.req_ids)})")
+
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    cites_stale = any(x in xml for x in chk.req_ids)
+    has_failure = "<failure" in xml
+    print(f"  {'✓' if not cites_stale else '✗'} ungraded: JUnit does not cite the ungraded "
+          f"row {list(chk.req_ids)}")
+    print(f"  {'✓' if not has_failure else '✗'} ungraded: no <failure> for a check the run "
+          f"did not grade (it cannot move the exit code)")
+    return no_fallback and not cites_stale and not has_failure
+
+
+def _blank_citation_case():
+    """A graded id the register does not carry HERE must say so, not render blank.
+
+    Three shapes of "no requirement to cite" exist, and the first fix only handled
+    one. (1) req_ids_map maps the version to an empty list: 8 pairs, the verdict
+    grades nothing, rc unaffected. (2) req_ids is empty outright:
+    discovery.mcp_transport_advertised at 2026-08-25, same consequence, and it is
+    reached only through all_checks(), not merchant_checks.CHECKS, which is why a
+    count taken from CHECKS said 8 instead of 9. (3) the graded id is real but has
+    NO register row at this version: 45 pairs, 23 at 2026-01-11, 21 at 2026-01-23
+    and discount.multiple_accept_both at 2026-08-25, which remaps to DSC-029, a row
+    carry_forward.json records as merged into DSC-006 on 2026-09-10. Shape 3 DOES
+    append results and rc goes to 2, so <failure> is correct there; what was wrong
+    is that the citation printed as `expected  DSC-029:` with nothing after it.
+    """
+    import sys as _sys, pathlib as _pathlib, io as _io, contextlib as _ctx
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    ok = True
+    prof = {"ucp": {"version": "2026-08-25",
+                    "capabilities": {"dev.ucp.shopping.discount": [
+                        {"version": "2026-08-25", "spec": "s", "schema": "x"}],
+                        "dev.ucp.discovery": [
+                        {"version": "2026-08-25", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-08-25", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    meta = _mrep.req_meta("2026-08-25")
+    allc = {c.id: c for c in merchant_checks.all_checks()}
+
+    # shape 3: real id, no row here -> honest text AND still a <failure> (rc is 2)
+    chk = allc.get("discount.multiple_accept_both")
+    graded = list(merchant_checks._rids(chk, "2026-08-25")) if chk else []
+    blank = [x for x in _mrep._citations(graded, meta) if x.get("unregistered")]
+    marked = bool(graded) and len(blank) == len(graded)
+    print(f"  {'✓' if marked else '✗'} blank_cite: {chk.id if chk else '?'} grades {graded} "
+          f"and every row is marked unregistered at 2026-08-25")
+    ok &= marked
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, meta)
+    says = "no register row at 2026-08-25" in xml
+    still_fails = "<failure" in xml
+    print(f"  {'✓' if says else '✗'} blank_cite: JUnit states the missing row rather "
+          f"than an empty requirement")
+    print(f"  {'✓' if still_fails else '✗'} blank_cite: still a <failure>, because this "
+          f"shape does move the exit code")
+    ok &= says and still_fails
+    buf = _io.StringIO()
+    with _ctx.redirect_stdout(buf):
+        _mrep.render_deviations(ctx, detail, {"deviations": 1}, meta)
+    txt = buf.getvalue()
+    text_says = "no register row at 2026-08-25" in txt
+    print(f"  {'✓' if text_says else '✗'} blank_cite: the TEXT block states it too "
+          f"(got {[l.strip() for l in txt.splitlines() if 'expected' in l][:1]})")
+    ok &= text_says
+
+    # shape 2: req_ids empty outright, reachable only via all_checks()
+    mcpc = allc.get("discovery.mcp_transport_advertised")
+    if mcpc is None:
+        print("  ✗ blank_cite: discovery.mcp_transport_advertised not in all_checks()")
+        return False
+    empty_shape = list(merchant_checks._rids(mcpc, "2026-08-25")) == []
+    print(f"  {'✓' if empty_shape else '✗'} blank_cite: discovery.mcp_transport_advertised "
+          f"grades nothing at 2026-08-25 (req_ids={list(mcpc.req_ids)})")
+    d2 = [(mcpc, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                  "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    x2 = _mrep.junit_xml(ctx, d2, meta)
+    no_fail = "<failure" not in x2
+    zero = 'failures="0"' in x2
+    print(f"  {'✓' if no_fail else '✗'} blank_cite: no <failure> for it")
+    print(f"  {'✓' if zero else '✗'} blank_cite: testsuite reports failures=\"0\" so the "
+          f"count agrees with the elements")
+    ok &= empty_shape and no_fail and zero
+
+    # the text header must call an ungraded deviation an advisory
+    buf2 = _io.StringIO()
+    with _ctx.redirect_stdout(buf2):
+        _mrep.render_deviations(ctx, d2, {"deviations": 0}, meta)
+    hdr = next((l for l in buf2.getvalue().splitlines() if "DEVIATIONS" in l), "")
+    adv = "1 advisory" in hdr and "exit code is unaffected" in hdr
+    print(f"  {'✓' if adv else '✗'} blank_cite: text header names it an advisory "
+          f"(got {hdr.strip()[:76]})")
+    note = "no register row graded at 2026-08-25" in buf2.getvalue()
+    print(f"  {'✓' if note else '✗'} blank_cite: the TEXT block carries the ungraded note, "
+          f"so a reader of stdout is told as much as a reader of the JUnit")
+
+    # Next steps must not contradict the block above it: rc is 0 here, but a check
+    # DID deviate, so claiming "0 deviations for the checks run" is false.
+    buf3 = _io.StringIO()
+    with _ctx.redirect_stdout(buf3):
+        _mrep.render_next_steps(ctx, d2, {"deviations": 0}, True)
+    ns = buf3.getvalue()
+    honest = "advisory deviation(s) above do not affect the exit code" in ns \
+             and "0 deviations for the checks run" not in ns
+    nm = next((l for l in x2.splitlines() if "<testcase" in l), "")
+    tidy = 'name="discovery.mcp_transport_advertised"' in nm
+    print(f"  {'✓' if tidy else '✗'} blank_cite: the JUnit entry is named by its check id "
+          f"with no empty parens (got {nm.strip()[:70]})")
+    ok2 = tidy
+    print(f"  {'✓' if honest else '✗'} blank_cite: Next steps does not claim 0 deviations "
+          f"on a run that reported an advisory one")
+    return ok and adv and note and honest and ok2
+
+
+def _advisory_not_must_failure_case():
+    """A SHOULD or MAY deviation must not be published as a MUST failure.
+
+    verdict_gate routes a non-mandatory deviation to advisories and the exit code
+    stays 0, but junit_xml and the text header keyed on status alone, so the same
+    result was written as <failure message="MUST violated: ..."> and printed under
+    "a MUST was violated". The Action uploads that JUnit, so every consumer failed
+    the job on something our own CLI calls advisory.
+    """
+    import re as _re, sys as _sys, pathlib as _pathlib
+    _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / "checks"))
+    import merchant as _mrep
+
+    prof = {"ucp": {"version": "2026-04-08",
+                    "capabilities": {"dev.ucp.shopping.order": [
+                        {"version": "2026-04-08", "spec": "s", "schema": "x"}]},
+                    "services": {"dev.ucp.shopping": [
+                        {"version": "2026-04-08", "transport": "rest",
+                         "endpoint": "https://m.example/ucp"}]}}}
+    ctx = _mrep.MerchantCtx("https://m.example", prof, {})
+    chk = next((c for c in merchant_checks.all_checks()
+                if c.keyword in ("SHOULD", "MAY")), None)
+    if chk is None:
+        print("  ✗ advisory: no SHOULD/MAY check found"); return False
+    detail = [(chk, {"status": "deviation", "kills": "1/1", "kill_safe": True,
+                     "survivors": [], "observed": {"status": 200, "body": "{}"}})]
+    xml = _mrep.junit_xml(ctx, detail, {})
+    # The property is that NO <failure> element is emitted at all, not merely that
+    # the message avoids the word MUST: a <failure message="SHOULD violated"> still
+    # fails every JUnit consumer while our own exit code stays 0. (A first version of
+    # this case only matched the literal "MUST violated" and survived its own mutant.)
+    msg = _re.search(r'<failure message="([^"]*)"', xml)
+    ok = msg is None
+    print(f"  {'✓' if ok else '✗'} advisory: a {chk.keyword} deviation ({chk.id}) emits "
+          f"no <failure> element "
+          f"(junit said {msg.group(1) if msg else 'no failure element'!r})")
+    if ok:
+        advisory = "advisory" in xml and chk.keyword in xml
+        print(f"  {'✓' if advisory else '✗'} advisory: it is still reported, as a "
+              f"{chk.keyword} advisory in system-out")
+        ok &= advisory
     return ok
 
 
@@ -592,6 +898,11 @@ def selftest():
     # defects, the check's own predicate + declared mutation list.
     ok &= _ovr002_case()
     ok &= _expected_skips_cases()
+    ok &= _kill_safe_report_case()
+    ok &= _graded_ids_in_report_case()
+    ok &= _ungraded_deviation_case()
+    ok &= _blank_citation_case()
+    ok &= _advisory_not_must_failure_case()
     print(f"\nvalidate_merchant_checks selftest: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 
