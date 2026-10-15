@@ -227,7 +227,13 @@ def unregistered_clocks(registers, scan, clocks=("review_by",)):
     `evaluate` only ever sees files named in expiry_registers.json, so a clock added
     to the tree without a register is invisible: the gate prints `0 expired` while an
     expired date sits in the repo. conformance/ci/replay_mode.json was exactly that,
-    expired 2026-10-10 and unseen. This closes the class rather than the instance.
+    expired 2026-10-10 and unseen.
+
+    SCOPE, stated honestly: this sees only a clock at the ROOT of a file. The dominant
+    register shape is `$.x[*]`, so a clock nested inside entries is still invisible here.
+    It closes the instance and the root-level class, NOT the whole class. Widening it is
+    a separate change, because the files it would newly surface need per-file entry paths
+    and can cascade pin-drift findings.
     """
     covered = {reg["file"] for reg in registers}
     out = []

@@ -27,31 +27,32 @@ if [ -z "$LOG" ] || [ ! -f "$LOG" ]; then
   exit 2
 fi
 
-# run_suite prints "N passed · N failed · N skipped" (middle dots). Match on the words so
-# the separator can change without silently matching nothing.
-SUMMARY="$(grep -E '[0-9]+ passed .* [0-9]+ failed .* [0-9]+ skipped' "$LOG" | tail -1)"
-if [ -z "$SUMMARY" ]; then
+# run_suite prints exactly one "N passed · N failed · N skipped" line. Anchor the whole
+# line and require EXACTLY ONE match. An independent review defeated the earlier loose
+# version with four inputs that wrongly returned 0: two summaries (red then green, where
+# `tail -1` took the green one), a later line QUOTING a green summary, a red summary with
+# " 0 skipped" appearing again later on the same line (greedy last-occurrence), and a count
+# too large for the shell's integer test, where `[` errored to stderr and returned false.
+MATCHES="$(grep -cE '^[0-9]+ passed . [0-9]+ failed . [0-9]+ skipped$' "$LOG" 2>/dev/null || true)"
+if [ "${MATCHES:-0}" -eq 0 ]; then
   echo "selftest_summary: no 'N passed / N failed / N skipped' line in $LOG — refusing to read it as green" >&2
   exit 2
 fi
-
-num_before() { printf '%s' "$SUMMARY" | sed -nE "s/.*[^0-9]([0-9]+) $1.*/\\1/p"; }
-PASSED="$(num_before passed)"
-FAILED="$(num_before failed)"
-SKIPPED="$(num_before skipped)"
-
-if [ -z "$FAILED" ] || [ -z "$SKIPPED" ]; then
-  echo "selftest_summary: could not read the failed/skipped counts out of: $SUMMARY" >&2
+if [ "${MATCHES:-0}" -ne 1 ]; then
+  echo "selftest_summary: $MATCHES summary lines in $LOG — refusing to choose between them" >&2
   exit 2
 fi
+SUMMARY="$(grep -E '^[0-9]+ passed . [0-9]+ failed . [0-9]+ skipped$' "$LOG")"
+
+# Decide green on the LITERAL text, with no arithmetic, so no count can overflow the shell
+# integer test and no regex greediness can pick a later zero.
+case "$SUMMARY" in
+  *" 0 failed "*" 0 skipped") ;;                                  # the only green shape
+  *)
+    echo "$SUMMARY"
+    echo "selftest_summary: not green — a non-zero failed or skipped count (a skip is not a pass; a missing server or toolchain skips)" >&2
+    exit 1 ;;
+esac
 
 echo "$SUMMARY"
-if [ "$FAILED" -gt 0 ]; then
-  echo "selftest_summary: ${FAILED} gate(s) FAILED" >&2
-  exit 1
-fi
-if [ "$SKIPPED" -gt 0 ]; then
-  echo "selftest_summary: ${SKIPPED} gate(s) SKIPPED — a skip is not a pass (a missing server or toolchain skips)" >&2
-  exit 1
-fi
 exit 0

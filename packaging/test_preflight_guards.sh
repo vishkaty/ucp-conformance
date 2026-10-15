@@ -257,6 +257,50 @@ if grep -q 'selftest_summary.sh' "$ROOT/packaging/preflight.sh"; then
 else
   bad "preflight still decides the skip verdict inline, where a one-word edit switches it off"
 fi
+# 26-27. preflight STEP 1 ITSELF, behaviourally. The delegation grep above is satisfied by
+# a comment naming the file, so it cannot kill the five one-word mutants an independent
+# review found: `bash` -> `true` on the delegation line, pf_rc forced to 0, `-eq 0` -> `-ge 0`,
+# the delegation line deleted, and `bad` -> `ok` in the else branch (mutant P1 transplanted).
+# Each left the whole suite green. Running the step against a stub selftest.sh kills all five.
+pfroot(){ # $1 = the summary the stub selftest.sh prints
+  local d; d="$(mktemp -d)"
+  mkdir -p "$d/packaging" "$d/conformance/ci"
+  cp "$ROOT/packaging/preflight.sh" "$ROOT/packaging/selftest_summary.sh" "$d/packaging/"
+  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\nexit 0\n' "$1" > "$d/conformance/ci/selftest.sh"
+  printf '%s' "$d"
+}
+
+D="$(pfroot "146 passed · 0 failed · 0 skipped")"
+OUT="$(cd "$D" && PREFLIGHT_SELFTEST_LOG="$D/log" bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 0 ] && printf '%s' "$OUT" | grep -q '✓'; then
+  ok "preflight step 1 on a 0-skipped run -> exit 0 and a ✓"
+else
+  bad "preflight step 1 refused a clean run (rc=$RC):"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
+
+D="$(pfroot "140 passed · 0 failed · 6 skipped")"
+OUT="$(cd "$D" && PREFLIGHT_SELFTEST_LOG="$D/log" bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 1 ] && printf '%s' "$OUT" | grep -q '✗'; then
+  ok "preflight step 1 on a 6-skipped run -> exit 1 and a ✗"
+else
+  bad "preflight step 1 ACCEPTED a 6-skipped run (rc=$RC) — the refusal is off:"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
+
+# 28. the DEFAULT log path. Cases 26-27 both SET PREFLIGHT_SELFTEST_LOG, so the `:-` default
+# never evaluated and they passed while the real preflight was broken: a blanket replace had
+# rewritten the definition to SELFTEST_LOG="${PREFLIGHT_SELFTEST_LOG:-$SELFTEST_LOG}", which
+# is self-referential and unbound under set -u. A test that only drives the overridden branch
+# cannot see the one branch every real run takes.
+D="$(pfroot "146 passed · 0 failed · 0 skipped")"
+OUT="$(cd "$D" && env -u PREFLIGHT_SELFTEST_LOG bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 0 ] && ! printf '%s' "$OUT" | grep -qi 'unbound\|parameter not set'; then
+  ok "preflight step 1 works with no PREFLIGHT_SELFTEST_LOG set (the real path)"
+else
+  bad "preflight step 1 broke on its own default log path (rc=$RC):"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
 
 echo
 if [ $FAIL -eq 0 ]; then echo "release guards kill-tests: PASS"; exit 0; else echo "release guards kill-tests: FAIL"; exit 1; fi

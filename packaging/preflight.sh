@@ -16,6 +16,16 @@ cd "$ROOT"
 TAG="${1:-}"
 GUARDS_ONLY=0
 if [ "$TAG" = "--guards-only" ]; then GUARDS_ONLY=1; TAG="${2:-}"; fi   # release guards alone (fast; tests/CI)
+# --selftest-only runs step 1 and exits with its verdict. It exists so cases 26-27 of
+# packaging/test_preflight_guards.sh can test step 1 BEHAVIOURALLY against a stub
+# selftest.sh. An independent review showed five one-word mutants of this step (replacing
+# `bash` with `true`, forcing pf_rc=0, `-eq 0` to `-ge 0`, deleting the delegation line,
+# and `bad` to `ok`) that all left the guard suite green, because the only check was a grep
+# for the delegated filename, which a COMMENT satisfies. A grep cannot kill those; running
+# the step can. PREFLIGHT_SELFTEST_LOG lets the test point the log somewhere writable.
+SELFTEST_ONLY=0
+if [ "$TAG" = "--selftest-only" ]; then SELFTEST_ONLY=1; TAG="${2:-}"; fi
+SELFTEST_LOG="${PREFLIGHT_SELFTEST_LOG:-/tmp/preflight_selftest.log}"
 FAIL=0
 step(){ printf "\n\033[1m▶ %s\033[0m\n" "$1"; }
 ok(){   printf "  \033[32m✓\033[0m %s\n" "$1"; }
@@ -28,20 +38,24 @@ if [ $GUARDS_ONLY -eq 0 ]; then
 # 1. The full self-test: all gates (conformance + coverage/copy-freshness + responsive
 #    web + citation soundness + bundle drift). This is the single source of truth.
 step "Full self-test (all gates)"
-if bash conformance/ci/selftest.sh >/tmp/preflight_selftest.log 2>&1; then
+if bash conformance/ci/selftest.sh >"$SELFTEST_LOG" 2>&1; then
   # The verdict lives in packaging/selftest_summary.sh so it is a unit whose exit codes
   # can be asserted against crafted logs (cases 22-25 of packaging/test_preflight_guards.sh).
   # Deciding it inline here left a surviving mutant: `bad` -> `ok` switched the refusal off
   # while the source-grep cases stayed green. A skip is not a pass.
-  pf_summary="$(bash packaging/selftest_summary.sh /tmp/preflight_selftest.log 2>/tmp/preflight_summary.err)"
+  pf_summary="$(bash packaging/selftest_summary.sh "$SELFTEST_LOG" 2>/tmp/preflight_summary.err)"
   pf_rc=$?
   if [ $pf_rc -eq 0 ]; then
     ok "selftest GREEN — $pf_summary"
   else
-    bad "selftest not green — $(tr -d '\n' < /tmp/preflight_summary.err) ${pf_summary:+($pf_summary)} (see /tmp/preflight_selftest.log)"
+    bad "selftest not green — $(tr -d '\n' < /tmp/preflight_summary.err) ${pf_summary:+($pf_summary)} (see $SELFTEST_LOG)"
   fi
 else
-  bad "selftest RED — see /tmp/preflight_selftest.log (tail below)"; tail -6 /tmp/preflight_selftest.log
+  bad "selftest RED — see $SELFTEST_LOG (tail below)"; tail -6 "$SELFTEST_LOG"
+fi
+
+if [ $SELFTEST_ONLY -eq 1 ]; then
+  if [ $FAIL -eq 0 ]; then exit 0; else exit 1; fi
 fi
 
 # 2. Coverage artifacts + pip bundle must be committed-fresh (regenerate → no diff).
