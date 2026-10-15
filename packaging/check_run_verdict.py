@@ -26,6 +26,25 @@ import json
 import sys
 
 
+SUITE_WORKFLOW = ".github/workflows/conformance.yml"
+
+
+def _is_suite_run(r):
+    """Is this run the conformance suite's own workflow?
+
+    `actions/runs?head_sha=` returns EVERY workflow for the SHA: conformance-selftest,
+    nightly and release. Without this filter a green `nightly` satisfied the guard while
+    the suite itself had only a pull_request run, which the scope step may have
+    short-circuited -- exactly the evidence `--suite-ran` exists to reject. `path` is the
+    authoritative identity (a workflow can be renamed); `name` is a fallback only for an
+    API shape that omits the path.
+    """
+    path = r.get("path")
+    if isinstance(path, str) and path:
+        return path == SUITE_WORKFLOW
+    return r.get("name") == "conformance-selftest"
+
+
 def suite_ran(doc, job_unused=None):
     """Did the SUITE actually EXECUTE for this SHA, or only report?
 
@@ -37,16 +56,20 @@ def suite_ran(doc, job_unused=None):
 
     Non-pull_request events are never short-circuited (the scope step decides RELEVANT for
     push, schedule and workflow_dispatch unconditionally), so a successful run for this SHA
-    whose event is not `pull_request` is positive proof the suite ran. A UI merge mints a new
+    whose event is not `pull_request`, AND whose workflow is the suite's own
+    (.github/workflows/conformance.yml), is positive proof the suite ran. The workflow scope
+    matters: a green `nightly` for the same SHA is not evidence about the suite at all. A UI merge mints a new
     SHA and gets exactly such a push run; a command-line fast-forward of main to a branch head
     does not, which is the case this closes.
     """
     runs = doc.get("workflow_runs") if isinstance(doc, dict) else None
     if not isinstance(runs, list):
         return "absent"
-    mine = [r for r in runs if isinstance(r, dict)]
-    if not mine:
+    if not [r for r in runs if isinstance(r, dict)]:
         return "absent"
+    mine = [r for r in runs if isinstance(r, dict) and _is_suite_run(r)]
+    if not mine:
+        return "no-suite-run"
     if any(r.get("status") == "completed" and r.get("conclusion") == "success"
            and r.get("event") != "pull_request" for r in mine):
         return "ran"

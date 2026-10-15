@@ -99,9 +99,9 @@ IS_RUNS=0
 for a in "$@"; do case "$a" in *actions/runs*) IS_RUNS=1;; esac; done
 if [ "$IS_RUNS" = 1 ]; then
   case "${GH_RUNS_MODE:-push-success}" in
-    pr-only) J='{"total_count":1,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"}]}';;
+    pr-only) J='{"total_count":1,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"pull_request","status":"completed","conclusion":"success"}]}';;
     none)    J='{"total_count":0,"workflow_runs":[]}';;
-    *)       J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"success"}]}';;
+    *)       J='{"total_count":1,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"push","status":"completed","conclusion":"success"}]}';;
   esac
 else
 case "${GH_STUB_MODE:-success}" in

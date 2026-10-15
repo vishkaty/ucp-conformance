@@ -61,12 +61,12 @@ IS_RUNS=0
 for a in "$@"; do case "$a" in *actions/runs*) IS_RUNS=1;; esac; done
 if [ "$IS_RUNS" = 1 ]; then
   case "${GH_RUNS_MODE:-push-success}" in
-    push-success) J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"success"}]}';;
+    push-success) J='{"total_count":1,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"push","status":"completed","conclusion":"success"}]}';;
     # the hole this closes: main fast-forwarded to a branch head whose only green `selftest`
     # came from a SHORT-CIRCUITED pull_request run, so the suite never ran for this SHA
-    pr-only)      J='{"total_count":1,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"}]}';;
-    pr-then-push) J='{"total_count":2,"workflow_runs":[{"event":"pull_request","status":"completed","conclusion":"success"},{"event":"push","status":"completed","conclusion":"success"}]}';;
-    push-failure) J='{"total_count":1,"workflow_runs":[{"event":"push","status":"completed","conclusion":"failure"}]}';;
+    pr-only)      J='{"total_count":1,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"pull_request","status":"completed","conclusion":"success"}]}';;
+    pr-then-push) J='{"total_count":2,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"pull_request","status":"completed","conclusion":"success"},{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"push","status":"completed","conclusion":"success"}]}';;
+    push-failure) J='{"total_count":1,"workflow_runs":[{"path":".github/workflows/conformance.yml","name":"conformance-selftest","event":"push","status":"completed","conclusion":"failure"}]}';;
     none)         J='{"total_count":0,"workflow_runs":[]}';;
     *) echo "stub gh: unknown GH_RUNS_MODE '$GH_RUNS_MODE'" >&2; exit 1;;
   esac
@@ -183,9 +183,33 @@ grep -q "$SHA7" "$D/ops/DEPLOY_LOG.md" 2>/dev/null && ok "ops/DEPLOY_LOG.md reco
 rm -rf "$D"
 
 rm -f "$LAST_OUT"
+# ── --suite-ran must be scoped to the SUITE's workflow ───────────────────────
+# deploy.sh step 4 and release_guards.sh guard 1c ask "did the suite actually run"
+# by reading actions/runs?head_sha=<sha>, which returns EVERY workflow for that SHA:
+# conformance-selftest, nightly and release. The reading only required a
+# completed-success run whose event is not pull_request, so a green `nightly`
+# satisfied it while the suite itself had only a (possibly short-circuited)
+# pull_request run. Harmless only while the nightly is permanently red, which is not
+# a guarantee. These cases pin the scope. Nothing exercised --suite-ran before.
+sr(){ printf '%s' "$1" | python3 "$HERE/check_run_verdict.py" --suite-ran 2>/dev/null | tail -1; }
+CONF='"path":".github/workflows/conformance.yml","name":"conformance-selftest"'
+NIGHT='"path":".github/workflows/nightly.yml","name":"nightly"'
+
+v="$(sr '{"workflow_runs":[{'"$NIGHT"',"event":"schedule","status":"completed","conclusion":"success"}]}')"
+if [ "$v" != "ran" ]; then ok "a green nightly alone is not proof the suite ran (got '$v')"; else bad "a green nightly alone read as 'ran' — any non-PR workflow satisfies the guard"; fi
+
+v="$(sr '{"workflow_runs":[{'"$NIGHT"',"event":"schedule","status":"completed","conclusion":"success"},{'"$CONF"',"event":"pull_request","status":"completed","conclusion":"success"}]}')"
+if [ "$v" != "ran" ]; then ok "nightly green + suite only on pull_request is not proof (got '$v')"; else bad "nightly green masked a pull_request-only suite run — read as 'ran'"; fi
+
+v="$(sr '{"workflow_runs":[{'"$CONF"',"event":"push","status":"completed","conclusion":"success"}]}')"
+if [ "$v" = "ran" ]; then ok "a green push run of the suite workflow is proof it ran"; else bad "a green push run of conformance.yml was not accepted (got '$v')"; fi
+
+v="$(sr '{"workflow_runs":[{'"$CONF"',"event":"schedule","status":"completed","conclusion":"success"}]}')"
+if [ "$v" = "ran" ]; then ok "a green scheduled run of the suite workflow is proof it ran"; else bad "a green schedule run of conformance.yml was not accepted (got '$v')"; fi
+
 echo
 if [ $FAIL -eq 0 ]; then
-  echo "deploy guards: $REFUSED/7 refuse correctly · in-progress never masks green · order preview→main asserted · PASS"; exit 0
+  echo "deploy guards: $REFUSED refuse correctly · in-progress never masks green · order preview→main asserted · PASS"; exit 0
 else
-  echo "deploy guards: $REFUSED/7 refuse correctly · FAIL"; exit 1
+  echo "deploy guards: $REFUSED refuse correctly · FAIL"; exit 1
 fi
