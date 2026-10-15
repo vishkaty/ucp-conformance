@@ -478,63 +478,63 @@
       "text": "Every requirement is individually traceable at",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "public/checks/ = 318 per-requirement pages generated from coverage.json, each citing its pinned spec line (gen_check_docs.py + site-checkdocs gate)",
+      "evidence": "public/checks/ = 375 pages covering the 374 requirement rows with status=check, generated from coverage.json (re-counted 2026-10-13; the earlier figure of 318 predates the register growth), each citing its pinned spec line (gen_check_docs.py + site-checkdocs gate)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-003",
       "text": "Identity, cryptographic signatures and agent payments all arrived essentially at once",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Register area deltas at 2026-04-08: identity-linking 0->57, signatures 0->33, payment incl. ap2_mandate extension \u2014 all first appear in the v2026-04-08 tag (coverage.json per-version rows)",
+      "evidence": "Register area deltas at 2026-04-08, re-counted 2026-10-13 from coverage.json: identity-linking 11->57 (not 0->57 as first recorded; 11 IDL rows already existed at 2026-01-23), signatures 0->34 (not 33), payment incl. ap2_mandate extension \u2014 all first appear in the v2026-04-08 tag (coverage.json per-version rows)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-004",
       "text": "No agent surface beyond Google's own is confirmed by a primary source to consume UCP",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp names AI Mode, Gemini app, Business Agent as UCP consumers; no other vendor primary source found (ops/content/data/adoption-ecosystem-2026-08-13.json, agent research 2026-08-13)",
+      "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp names AI Mode, Gemini app, Business Agent as UCP consumers; no other vendor primary source found (public/state-of-ucp/history/2026-08-13.json, agent research 2026-08-13)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-005",
       "text": "Claims that other AI assistants consume UCP appear only in secondary marketing blogs",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Research sweep 2026-08-01: Perplexity/ChatGPT/Copilot UCP claims found only on SEO/agency blogs; no primary source from those vendors; OpenAI operates competing protocol (adoption-ecosystem-2026-08-01.json UNVERIFIED_flags)",
+      "evidence": "Research sweep 2026-08-01: Perplexity/ChatGPT/Copilot UCP claims found only on SEO/agency blogs; no primary source from those vendors; OpenAI operates competing protocol (public/state-of-ucp/history/2026-08-13.json UNVERIFIED_flags)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-006",
-      "text": "None served a real UCP profile \u2014 every one returned a 404, a redirect, or a bot wall.",
+      "text": "every one returned a 404, a redirect, or a bot wall",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Direct probe 2026-08-13 (re-verifying the 2026-08-01 probe) of etsy/target/walmart/wayfair/homedepot/bestbuy/sephora/chewy /.well-known/ucp with the survey UA: 404 (etsy, target, walmart, wayfair, homedepot), 301 redirect (bestbuy), 403 bot wall (sephora, chewy); none returned JSON with ucp/capabilities/services keys.",
+      "evidence": "Direct probe of the 8 named launch partners at /.well-known/ucp, discovery-only, no redirects followed, 10 s timeout, 1 req/s, robots parsed per our UA. 2026-08-13: 404 (etsy, target, walmart, wayfair, homedepot), 301 redirect (bestbuy), 403 bot wall (sephora, chewy); none returned a UCP profile. RE-PROBED 2026-10-13: chewy.com now returns 200 with a self-hosted profile declaring ucp.version 2026-01-23, a dev.ucp.shopping REST endpoint, supported_versions, and one signing_keys entry (EC P-256 ES256); it validates against the pinned conformance/.vendor/ucp-2026-01-23 profile_schema.json under jsonschema 4.26.0, and the control with ucp.version removed is rejected, so that check is not vacuous. bestbuy moved 301 to 404; the other six are unchanged. chewy is in the pinned HF population frame. The page states the aggregate; the brand is named here because all 8 are publicly announced launch partners, which is the existing practice for this row.",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-007",
       "text": "our own read-only probe on 2026-08-13",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Probe method: GET /.well-known/ucp, UA 'spck-state-of-ucp-survey/1.0' with contact, curl, aggregates derived solely from ops/content/data/hosting-fullscan-2026-08-13.json and published at state-of-ucp/scan-summary.json",
+      "evidence": "Probe method: GET /.well-known/ucp, UA from conformance/ci/probe_policy.json, which is 'spck-conformance-research/0.1 (+https://spck.dev/research; read-only discovery probe; contact vishal@katyal.ai)'; the earlier record of 'spck-state-of-ucp-survey/1.0' was never the string the tooling sent, curl, aggregates derived solely from public/state-of-ucp/history/scan-2026-08-13.json and published at state-of-ucp/scan-summary.json",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-008",
       "text": "% of endpoints on the platform default carry none of the frontier; the handful who deliberately adopted carry essentially all of it",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "scan 2026-08-13 (scan-summary.json + history/scan-2026-08-13.json): frontier caps (signing_keys/identity_linking/buyer_consent/ap2_mandate) appear only among the 15 non-platform endpoints; 2,942 uniform platform-default profiles carry none. Percentage itself is data-live bound to $.uniform_default_profile_pct.",
+      "evidence": "scan 2026-08-13 (scan-summary.json + history/scan-2026-08-13.json): frontier caps (signing_keys/identity_linking/buyer_consent/ap2_mandate) appear only among the 15 non-platform endpoints; 2,942 uniform platform-default profiles carry none. Percentage itself is data-live bound to $.uniform_default_profile_pct. LIMITATION RECORDED 2026-10-14: the signing_keys figure behind this row is not safe to read as a fact about the ecosystem. The scan classified a profile as publishing keys by testing ucp['keys'] and doc['keys'], but the field is signing_keys[] at 2026-04-08, which is 2951 of the 2957 live profiles in this frame; keys[] only arrives with ucp#566 at 2026-08-25. So it looked for a name almost nothing in its own population uses and reported 0. The one self-hosted profile probed by hand on 2026-10-13 publishes signing_keys and classified as false under the old logic and true under the fixed one (ops/tools/state_of_ucp_scan.py, with ops/tools/test_state_of_ucp_scan.py). Not re-measured: probe_policy.json caps a run at 50 stores a day, so re-scanning a 3037-domain frame is a 61 day rolling exercise. The platform-default half of this claim does not depend on the keys figure.",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-009",
@@ -543,7 +543,7 @@
       "class": "REG",
       "evidence": "cloud.google.com/blog AP2 announcement (Sept 2025) lists Mastercard/Amex/JCB/UnionPay/Adyen/PayPal/Coinbase+ as collaborators ('call for collaboration'); no card network claims live agentic card processing in any primary source; in-wild ap2_mandate = 2 endpoints (scan-summary.json)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-010",
@@ -552,7 +552,7 @@
       "class": "REG",
       "evidence": "Same Google Cloud AP2 post: x402 extension (Coinbase/Ethereum Foundation/MetaMask) described as production-ready; no other AP2 production claim found in primary sources (adoption-ecosystem-2026-08-13.json LAYER_payments_AP2)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-011",
@@ -561,7 +561,7 @@
       "class": "REG",
       "evidence": "scan 2026-08-13: 2,942/2,957 (99.5%) live endpoints route to *.myshopify.com with an identical default profile (uniform_default_profile in scan-summary.json); dataset population 3,037.",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-012",
@@ -570,7 +570,7 @@
       "class": "REG",
       "evidence": "RFC 9421 ecdsa-p256-sha256 signatures are the raw 64-octet r||s concatenation (RFC 9421 \u00a73.3.4 -> FIPS 186-4); enforced by our crypto-interop gate against openssl (conformance/selfcheck)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-013",
@@ -579,7 +579,7 @@
       "class": "REG",
       "evidence": "checkout-rest.md's canonical example answers a business-level failure with HTTP 200 + ucp.status error + typed messages[] (pinned spec); ecosystem divergence documented in the public discussion around the official suite's error-model handling (conformance repo, 2026-07)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-014",
@@ -588,7 +588,7 @@
       "class": "REG",
       "evidence": "Forward-looking editorial synthesis of sections 2-5; each premise sourced there (buyers=Google-only primary-confirmed; AP2 card cohort not live; frontier caps 0.1-0.4%)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-015",
@@ -597,7 +597,7 @@
       "class": "REG",
       "evidence": "coverage.json rows carry source 'ucp:<file>#L<line>' resolved against pinned tag SHAs; rendering at /checks; methodology at /docs (site-tdd + checkdocs gates)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-016",
@@ -606,7 +606,7 @@
       "class": "REG",
       "evidence": "HF API confirms dataset license cc-by-4.0, commit ee420129b462cf109a571f7102084b282679dd1b, file ucp-merchants-2026-04-02.csv (3,468 rows); attribution given inline as required",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-017",
@@ -615,7 +615,7 @@
       "class": "REG",
       "evidence": "Editorial rule (reputation doctrine, conformance/testbed/README.md posture): published artifacts carry aggregate counts only; per-domain results remain unpublished in ops/ (private)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "SOU-018",
@@ -624,7 +624,7 @@
       "class": "REG",
       "evidence": "Section heading summarizing the sourced partner lists cited immediately below it: co-developers Shopify/Etsy/Wayfair/Target/Walmart + 20+ endorsers (developers.googleblog.com launch post) and the AP2 cohort (cloud.google.com AP2 announcement)",
       "added": "2026-08-13",
-      "review_by": "2026-10-17"
+      "review_by": "2027-01-12"
     },
     {
       "id": "CLAIM-024",

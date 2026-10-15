@@ -127,7 +127,7 @@ clean calendar cut.</p>
   <div class="tablewrap"><table class="rt">
     <tr><th>Area</th><th class="num">Jan&nbsp;11</th><th class="num">Jan&nbsp;23</th><th class="num">Apr&nbsp;08</th><th>What it is</th></tr>
     <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/identity-linking.md#L34-L35" rel="noopener">identity-linking</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_identity_linking">57</b></td><td>OAuth account linking for agents</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">signatures</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_signatures">33</b></td><td>RFC 9421 request/response signing</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">signatures</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_signatures">34</b></td><td>RFC 9421 request/response signing</td></tr>
     <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/pagination.json#L42" rel="noopener">catalog</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_catalog">32</b></td><td>Product search &amp; lookup</td></tr>
     <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/message_error.json#L6" rel="noopener">error model</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_error_envelope">25</b></td><td>In-band structured errors</td></tr>
     <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/cart.md#L66" rel="noopener">cart</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_cart">14</b></td><td>Pre-checkout cart management</td></tr>
@@ -161,10 +161,13 @@ appear only in secondary marketing blogs; we found no primary source, so we don'
   <h2>3 · The sellers: one platform's provisioning, and a handful of real adopters</h2>
   <p data-attribution>We probed the <code>/.well-known/ucp</code> endpoint of
 <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_probed">8</span> named launch partners directly.
-<b>None served a real UCP profile</b> — every one returned a 404, a redirect, or a bot wall. That is not a
-failing: by design, these brands participate through Google's managed agent surfaces rather than hosting their
-own endpoints. It is a subtle point worth flagging, because it means the marquee names cannot be counted as live
-UCP endpoints — and many public tallies still count them.</p>
+On 2026-08-13 <b>none served a UCP profile</b>: every one returned a 404, a redirect, or a bot wall. A re-probe on
+2026-10-13 found <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_serving_ucp">1</span> of them
+serving one, a self-hosted profile declaring version 2026-01-23 with a REST service endpoint and its own P-256
+signing key, which validates against the pinned 2026-01-23 profile schema. The other seven are unchanged. Mostly
+these brands participate through Google's managed agent surfaces rather than hosting their own endpoints, so the
+marquee names cannot be counted as live UCP endpoints on the strength of an announcement, which many public
+tallies still do. One of them has now earned the count.</p>
   <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
 frame: the
 <a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
