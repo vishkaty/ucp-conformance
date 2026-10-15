@@ -29,7 +29,17 @@ if [ $GUARDS_ONLY -eq 0 ]; then
 #    web + citation soundness + bundle drift). This is the single source of truth.
 step "Full self-test (all gates)"
 if bash conformance/ci/selftest.sh >/tmp/preflight_selftest.log 2>&1; then
-  ok "selftest GREEN — $(grep -oE '[0-9]+ passed' /tmp/preflight_selftest.log | tail -1)"
+  # Report passed AND failed AND skipped. Greping only "N passed" hid 13 skipped
+  # server-backed gates behind "PREFLIGHT PASS — shippable". A skip is not a pass.
+  pf_summary="$(grep -E '[0-9]+ passed .* [0-9]+ skipped' /tmp/preflight_selftest.log | tail -1)"
+  pf_skipped="$(printf '%s' "$pf_summary" | sed -nE 's/.*[^0-9]([0-9]+) skipped.*/\1/p')"
+  if [ -z "$pf_summary" ]; then
+    bad "selftest printed no 'N passed - N failed - N skipped' summary; refusing to read it as green (see /tmp/preflight_selftest.log)"
+  elif [ "${pf_skipped:-0}" -gt 0 ]; then
+    bad "selftest SKIPPED ${pf_skipped} gate(s) — a skip is not a pass: $pf_summary (see /tmp/preflight_selftest.log)"
+  else
+    ok "selftest GREEN — $pf_summary"
+  fi
 else
   bad "selftest RED — see /tmp/preflight_selftest.log (tail below)"; tail -6 /tmp/preflight_selftest.log
 fi

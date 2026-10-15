@@ -7,7 +7,8 @@
   "citation": "ucp:docs/specification/signatures.md#L837-L845",
   "known_issue": "KI-009",
   "decision": 1,
-  "golden_pending": {"task": "D3-23", "until": "2026-10-15", "reason": "golden-0825 hashes parsed JSON (idem_hash_json_equal); byte-exact payload matching lands with D3-23"},
-  "review_by": "2026-10-10",
+  "golden_pending": {"task": "D3-23", "until": "2026-11-09", "reason": "golden-0825 hashes parsed JSON (idem_hash_json_equal); byte-exact payload matching lands with D3-23. Extended on 2026-10-15 (decision 1b, DECISIONS.md): D3-23 has not landed, and the cached I10 hits are a known gap in our own golden rather than spec violations, so letting the window lapse would red the seqfuzz gate on our own limitation instead of on a finding. Aligned to report_until (2026-11-09) so this window cannot outlive decision 1 itself."},
+  "review_by": "2026-11-05",
+  "version": "2026-08-25",
   "spec_pin": "cd78fb38"
 }

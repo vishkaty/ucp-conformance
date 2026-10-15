@@ -6,6 +6,15 @@
  },
  "registers": [
   {
+   "name": "replay_mode",
+   "file": "conformance/ci/replay_mode.json",
+   "entries": "$",
+   "scope": "version",
+   "clock": "review_by",
+   "clock_tier": "moving",
+   "_note": "D5-14: the REPLAY-002 mode switch and its golden_pending window. The file IS the entry (root clock). Registered 2026-10-15 after its review_by lapsed unseen on 2026-10-10 and no register walked it; validate_expiry_clocks.unregistered_clocks now reds any clock that no register walks."
+  },
+  {
    "name": "exemptions",
    "file": "conformance/coverage/exemptions.json",
    "entries": "$.*",

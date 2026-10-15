@@ -221,6 +221,43 @@ def _repo_loader(root=ROOT):
     return load
 
 
+def unregistered_clocks(registers, scan, clocks=("review_by",)):
+    """Files carrying an expiry clock that no register walks (D5-14).
+
+    `evaluate` only ever sees files named in expiry_registers.json, so a clock added
+    to the tree without a register is invisible: the gate prints `0 expired` while an
+    expired date sits in the repo. conformance/ci/replay_mode.json was exactly that,
+    expired 2026-10-10 and unseen. This closes the class rather than the instance.
+    """
+    covered = {reg["file"] for reg in registers}
+    out = []
+    for rel, doc in scan():
+        if not isinstance(doc, dict) or rel in covered:
+            continue
+        hit = next((c for c in clocks if c in doc), None)
+        if hit is not None:
+            out.append({"kind": "unregistered-clock", "entry": rel,
+                        "detail": f"carries {hit} {doc[hit]!r} but no register in "
+                                  f"expiry_registers.json walks it"})
+    return out
+
+
+def _repo_clock_scan(root=ROOT, subdir="conformance"):
+    def scan():
+        for dirpath, dirnames, filenames in os.walk(os.path.join(root, subdir)):
+            dirnames[:] = [d for d in dirnames if d not in (".vendor", "__pycache__")]
+            for fn in sorted(filenames):
+                if not fn.endswith(".json"):
+                    continue
+                full = os.path.join(dirpath, fn)
+                try:
+                    doc = json.load(open(full))
+                except Exception:               # noqa: BLE001 — unparseable is not a clock
+                    continue
+                yield os.path.relpath(full, root), doc
+    return scan
+
+
 def summarize(findings, n_entries, extra="", hist=None):
     c = {}
     for f in findings:
@@ -234,7 +271,8 @@ def summarize(findings, n_entries, extra="", hist=None):
             f" · {c.get('expired', 0)} expired · {c.get('pin-drift', 0)} pin-drift")
     if hist is not None:
         return line + f" · {c.get('missing-tier', 0)} missing-tier"
-    return line + f" · {c.get('missing-clock', 0)} missing-clock"
+    return (line + f" · {c.get('missing-clock', 0)} missing-clock"
+            + f" · {c.get('unregistered-clock', 0)} unregistered")
 
 
 def count_entries(registers, load):
@@ -258,6 +296,7 @@ def main(argv=None):
     regs = load_registers(a.registers)["registers"]
     load = _repo_loader()
     findings = evaluate(regs, load, lock_pins(a.lock), today)
+    findings += unregistered_clocks(regs, _repo_clock_scan())
     hard = [f for f in findings if f["kind"] != "expiring-soon"]
     for f in findings:
         mark = "!" if f["kind"] == "expiring-soon" else "✗"
@@ -481,6 +520,20 @@ def selftest():
          cliff_share(hist_c) == 0.6 and cliff_share(hist_c) > CLIFF_MAX_SHARE, cliff_share(hist_c))
     case("(j) staggered seed (max 10% same-day) -> cliff clean",
          cliff_share(hist_s) == 0.1 and cliff_share(hist_s) <= CLIFF_MAX_SHARE, cliff_share(hist_s))
+
+    # (l) D5-14: a clock in the tree that NO register walks is invisible to the gate
+    regs_l = [{"name": "waivers", "file": "conformance/ci/w.json", "entries": "$",
+               "scope": "version", "clock": "review_by", "clock_tier": "moving"}]
+
+    def scan_l():
+        return iter([("conformance/ci/w.json", {"review_by": "2026-09-09"}),      # registered
+                     ("conformance/ci/loose.json", {"review_by": "2026-09-09"}),  # NOT registered
+                     ("conformance/ci/nodate.json", {"mode": "enforce"})])        # no clock
+
+    fl = unregistered_clocks(regs_l, scan_l)
+    case("(l) unregistered review_by -> flagged once, by name",
+         [x["entry"] for x in fl] == ["conformance/ci/loose.json"], fl)
+    case("(l\') registered file and clockless file -> no finding", len(fl) == 1, fl)
 
     print(f"\nexpiry-clocks selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0

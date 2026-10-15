@@ -51,7 +51,16 @@ rm -rf "$DB_DIR"
 # `bash packaging/sync_bundle.sh` deliberately when a register or exemption edit
 # desyncs the copy.
 
-bash "$ROOT/conformance/ci/serve_golden.sh"
+# This script is `set -uo` (no -e) on purpose, so the trap always runs cleanup. That
+# means a failed boot would NOT stop the suite: run_suite would carry on against a dead
+# server and SKIP every server-backed gate, which reads as a pass. Check it explicitly
+# (case 19 of packaging/test_preflight_guards.sh).
+if ! bash "$ROOT/conformance/ci/serve_golden.sh"; then
+  echo "selftest: FATAL - the golden reference server did not come up. Refusing to run" >&2
+  echo "  the suite against a dead server: it would skip every server-backed gate and" >&2
+  echo "  report a pass. Fix the boot, then re-run." >&2
+  exit 1
+fi
 
 # Best-effort SECOND differential target: the Node.js reference (samples/rest/nodejs).
 # If it comes up, export UCP_NODEJS_URL so the differential gate exercises it too;
@@ -63,5 +72,10 @@ else
   echo "selftest: Node.js reference not up — differential runs the flower target only" >&2
 fi
 
-python3 "$ROOT/conformance/ci/run_suite.py" --server "http://localhost:$PORT" "$@"
+# --require-server matches what CI passes (.github/workflows/conformance.yml), so a
+# missing server OR a missing toolchain (uv, for golden-0825-unit) is a FAILURE here
+# too, never a skip. Without it a local run in a shell without uv on PATH reported
+# "128 passed - 5 failed - 13 skipped" and preflight called it green
+# (case 20 of packaging/test_preflight_guards.sh).
+python3 "$ROOT/conformance/ci/run_suite.py" --server "http://localhost:$PORT" --require-server "$@"
 # trap fires cleanup() on the way out with this exit code preserved
