@@ -199,9 +199,60 @@ def test_manifest_counts_all_checks_and_reds_on_duplicate():
     return None
 
 
+def _plant_claim(pub, evidence, cid="ZZZ-001", text="a planted repro claim"):
+    """Add one claim to the SCRATCH site_claims.json and return the file path."""
+    f = pub / "site_claims.json"
+    d = json.loads(f.read_text())
+    d["claims"].append({"id": cid, "text": text, "page": "*", "class": "REG",
+                        "evidence": evidence, "added": "2026-10-15",
+                        "review_by": "2027-01-12"})
+    f.write_text(json.dumps(d, indent=2))
+    return f
+
+
+def test_claims_reds_on_a_repro_command_that_cannot_run():
+    """A `repro:` clause is an instruction the reader is meant to execute. KI-001
+    shipped `conformance/ci/validate_dual_oracle.py`, which has never existed (the
+    file is under conformance/selfcheck/), so the one claim that tells a reader how
+    to reproduce an SDK finding could not be run by anyone.
+
+    The companion case below is the point of the narrow rule: an evidence string may
+    legitimately MENTION a path that does not exist, to say it was superseded or that
+    it is the wrong path. CLAIM-009 does exactly that about docs/ROADMAP.md, and
+    CLAIM-RUB-005 about conformance/cli.py. A blunt path-existence sweep reds both,
+    which is why this gate only checks the runnable part."""
+    with tempfile.TemporaryDirectory() as tmp:
+        pub = scratch_public(tmp)
+        _plant_claim(pub, "repro: python3 conformance/ci/no_such_tool.py --version 2026-08-25 "
+                          "-> expected: it runs; observed: it cannot")
+        rc, out = run_mode("claims", pub)
+        if rc == 0:
+            return "claims stayed GREEN with a repro command naming conformance/ci/no_such_tool.py"
+        if "no_such_tool.py" not in out:
+            return f"claims reddened but never named the dead repro path:\n{out[-600:]}"
+    return None
+
+
+def test_claims_tolerates_a_prose_mention_of_a_missing_path():
+    """The false-positive guard. A path named OUTSIDE a repro command, to record that
+    it was superseded or is the wrong path, must not red the gate."""
+    with tempfile.TemporaryDirectory() as tmp:
+        pub = scratch_public(tmp)
+        _plant_claim(pub, "WORKSTREAMS.md is the live plan; it superseded docs/GONE-FOREVER.md, "
+                          "archived on 2026-09-11. The cli.py reference is "
+                          "packaging/spck_conformance/cli.py, not conformance/also-gone.py.")
+        rc, out = run_mode("claims", pub)
+        if rc != 0 and ("GONE-FOREVER" in out or "also-gone" in out):
+            return ("claims reddened on a path that is only MENTIONED in prose, not run "
+                    f"(false positive):\n{out[-600:]}")
+    return None
+
+
 TESTS = [test_claims_scope_recurses, test_docclaims_reds_on_stale_count,
          test_sync_site_claims_check_reds_on_drift, test_sync_never_rewrites_review_fields,
-         test_checkdocs_known_issues_drift, test_manifest_counts_all_checks_and_reds_on_duplicate]
+         test_checkdocs_known_issues_drift, test_manifest_counts_all_checks_and_reds_on_duplicate,
+         test_claims_reds_on_a_repro_command_that_cannot_run,
+         test_claims_tolerates_a_prose_mention_of_a_missing_path]
 
 
 def main():
