@@ -124,18 +124,18 @@ requirements in our register went from
 nearly doubling in the latest release. Every requirement is individually traceable at
 <a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
   <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
-2026-05-22 after post-date cherry-picks, and the tag was later re-pointed again, to <code>a25a4a24</code> on
+2026-05-22 after post-date cherry-picks, and the tag was re-pointed again, to <code>a25a4a24</code> on
 2026-09-09 — "three releases in three months" describes the tagged artifacts, not a
 clean calendar cut.</p>
   <div class="tablewrap"><table class="rt">
     <tr><th>Area</th><th class="num">Jan&nbsp;11</th><th class="num">Jan&nbsp;23</th><th class="num">Apr&nbsp;08</th><th>What it is</th></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/identity-linking.md#L34-L35" rel="noopener">identity-linking</a></td><td class="num">11</td><td class="num">11</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_identity_linking">57</b></td><td>OAuth account linking for agents</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">signatures</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_signatures">34</b></td><td>RFC 9421 request/response signing</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/pagination.json#L42" rel="noopener">catalog</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_catalog">32</b></td><td>Product search &amp; lookup</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/shopping/types/message_error.json#L6" rel="noopener">error model</a></td><td class="num">8</td><td class="num">8</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_error_envelope">25</b></td><td>In-band structured errors</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/cart.md#L66" rel="noopener">cart</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_cart">14</b></td><td>Pre-checkout cart management</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/checkout.md#L770" rel="noopener">totals</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_totals">14</b></td><td>Money-math reconciliation rules</td></tr>
-    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/source/schemas/ucp.json#L150" rel="noopener">payment</a></td><td class="num">35</td><td class="num">37</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_payment">44</b></td><td>incl. the AP2 mandate extension</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/identity-linking.md#L34-L35" rel="noopener">identity-linking</a></td><td class="num">11</td><td class="num">11</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_identity_linking">57</b></td><td>OAuth account linking for agents</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/signatures.md#L42" rel="noopener">signatures</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_signatures">34</b></td><td>RFC 9421 request/response signing</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/source/schemas/shopping/types/pagination.json#L42" rel="noopener">catalog</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_catalog">32</b></td><td>Product search &amp; lookup</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/source/schemas/shopping/types/message_error.json#L6" rel="noopener">error model</a></td><td class="num">8</td><td class="num">8</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_error_envelope">25</b></td><td>In-band structured errors</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/cart.md#L66" rel="noopener">cart</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_cart">14</b></td><td>Pre-checkout cart management</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/checkout.md#L770" rel="noopener">totals</a></td><td class="num">0</td><td class="num">0</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_totals">14</b></td><td>Money-math reconciliation rules</td></tr>
+    <tr><td><a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/source/schemas/ucp.json#L150" rel="noopener">payment</a></td><td class="num">35</td><td class="num">37</td><td class="num"><b data-live="state-of-ucp/adoption-facts.json:$.musts_payment">44</b></td><td>incl. the AP2 mandate extension</td></tr>
   </table></div>
   <p>Identity, cryptographic signatures and agent payments all arrived essentially at once: UCP stopped being a
 checkout API and became a security-and-identity protocol. One hazard for anyone maintaining an implementation
@@ -165,7 +165,7 @@ pages</a> state that "UCP enables transactions (checkout and post-purchase actio
 Copilot)", and its <a href="https://about.ads.microsoft.com/en/blog/post/april-2026/win-across-all-three-eras-of-the-web" rel="noopener">2026-04-21
 post</a> describes "UCP-enabled checkout in chat for eligible sellers". Microsoft hedges too, in the same places: the
 generally-available piece is UCP-ready <em>feeds</em> in Merchant Center, which its own FAQ assigns to discovery
-rather than transactions, and that FAQ says Merchant Center "will support" UCP in the future tense.
+rather than transactions, and the same page says Merchant Center "will support" UCP, in the future tense.
 We have measured no UCP transaction on either surface, so both are vendor claims rather than verified behaviour.
 Claims that other assistants such as Perplexity or ChatGPT consume UCP still appear only in secondary marketing
 blogs, with no primary source, so we do not report those as fact.</p>
@@ -216,10 +216,10 @@ features of the spec live almost exclusively in that tiny deliberate tail.</p>
     <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
   </table></div>
   <p class="note"><b>Signing keys: a withdrawn figure.</b> The 2026-08-13 and 2026-08-01 scans both reported 0
-for this row, from the same defect. That run
+for this row, from the same defect. Those runs
 tested <code>keys[]</code> against a population that publishes <code>signing_keys[]</code>, the field having been
-renamed in ucp#566 (merged 2026-07-12, first released in the v2026-08-25 tag), so it could not see them. That
-figure is withdrawn and the row now shows the 2026-07-17 scan, which tested the right field. Under our probe
+renamed in ucp#566 (merged 2026-07-12, first released in the v2026-08-25 tag), so it could not see them. Both
+figures are withdrawn and the row now shows the 2026-07-17 scan, which tested the right field. Under our probe
 policy, at 50 stores a day, re-measuring the full frame takes about 61 days and will replace this row when it
 completes. Every other row in this table is from the 2026-08-13 scan.</p>
   <p>The <span data-live="state-of-ucp/scan-summary.json:$.uniform_default_profile_pct">99.5</span>% of endpoints
@@ -275,14 +275,16 @@ Provisioned ≠ adopted ≠ transacting.</li>
     <li><b>An endorsement is not a deployment.</b> The marquee brands mostly endorse and participate via
 managed surfaces; as of 2026-10-13 one of the eight we probe publishes its own discovery profile, and none of the
 eight has been observed transacting.</li>
-    <li><b>"Conformant" is three different questions.</b> Of the
+    <li><b>"Conformant" is four different questions.</b> Of the
 <span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> requirements, as we
 classify them at this tag:
 <span data-live="state-of-ucp/adoption-facts.json:$.testability_testable">202</span> are testable against a
 business server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_manual">90</span> are process or
-manual, <span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_receiver">89</span> need a receiving
-agent to observe, and <span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_oauth">4</span> need an
-OAuth provider. Those are the four classes our register itself uses, and they sum to the total. The agent side is
+manual, <span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_receiver">89</span> need a
+receiving-side harness, a webhook receiver or an MCP client, which our suite supplies, and
+<span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_oauth">4</span> need an OAuth provider. Those
+are four of the five testability classes our register defines, the fifth being untestable, which is empty at this
+tag, and they sum to the total. The agent side is
 the one almost no tooling measures: our dedicated agent-side register catalogues
 <span data-live="state-of-ucp/adoption-facts.json:$.agent_axis_obligations">105</span> platform obligations,
 public at <a href="/agent-coverage.json">agent-coverage.json</a>. The
@@ -294,7 +296,7 @@ with an instrument the merchant never offered — live on the agent side, measur
   <ol>
     <li><b>Discount signs.</b> In <code>2026-04-08</code>, discount amounts in <code>totals[]</code> are
 <em>negative</em> (schema-enforced) — the opposite of the earlier convention, and the most common money-math bug.</li>
-    <li><b>Signature encoding.</b> <a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d/docs/specification/signatures.md#L42" rel="noopener">RFC 9421
+    <li><b>Signature encoding.</b> <a href="https://github.com/Universal-Commerce-Protocol/ucp/blob/a25a4a24e738b74c8fa83254448d0666e478f595/docs/specification/signatures.md#L42" rel="noopener">RFC 9421
 requires fixed-width raw r‖s</a>; most crypto libraries emit ASN.1/DER by default. The 30-second check:
 base64-decode one signature — a conformant P-256 signature is exactly 64 bytes.</li>
     <li><b>The error model.</b> UCP's canonical failure posture is in-band (HTTP 200 with a
@@ -344,7 +346,7 @@ table, with the command to reproduce each row, is at <a href="/known-issues">spc
 
   <h2>9 · What to watch</h2>
   <p data-attribution>The through-line is a protocol whose ambition and endorsement are running well ahead of its deployment. What
-would close the gap: a measured UCP transaction on a buyer agent beyond Google's surfaces, Microsoft included; a card network going live on AP2;
+would close the gap: a measured UCP transaction on any buyer agent, Google's and Microsoft's included; a card network going live on AP2;
 non-platform merchants adopting the frontier features at any scale; and agent-side conformance becoming table
 stakes the moment real money moves through autonomous agents. The distance between "passes conformance" and
 "behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.
@@ -363,7 +365,7 @@ UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); meas
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a> and
 <a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
 crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
-2026-08-13. Where a claim is announced but not verifiably live, it is labeled as such. No merchant from the
+2026-10-11. Where a claim is announced but not verifiably live, it is labeled as such. No merchant from the
 population scan is named or graded; aggregates only, with the 8 publicly announced launch partners as the stated
 exception, recorded in site_claims.json and limited to whether each publishes a discovery document. Each edition is point-in-time and reproducible against the same public sources;
 we refresh it every couple of months, chart the history above, and note what changed. Corrections and additions are

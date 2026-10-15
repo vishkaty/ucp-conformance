@@ -140,7 +140,7 @@ labeled. Source of truth: <code>conformance/ci/known_issues.json</code> in the
 <div class="stats">
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">{sm["rows"]}</div><div class="l">issues tracked</div></div>
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">{sm["open_on_some_cut"]}</div><div class="l">open on a published cut</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">{sm["fixed_on_some_cut"]}</div><div class="l">fixed on an upstream main</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">{sm["fixed_on_some_cut"]}</div><div class="l">have a fix on some cut</div></div>
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">{sm["unfixed_everywhere"]}</div><div class="l">no fix anywhere yet</div></div>
 </div>
 <p class="note">By artifact: {by_art}. Spec pin <code data-live="known-issues.json:$.spec_pin_short">{esc(pin[:8])}</code>
