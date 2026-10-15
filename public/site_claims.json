@@ -487,7 +487,7 @@
       "text": "Identity, cryptographic signatures and agent payments all arrived essentially at once",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Register area deltas at 2026-04-08, re-counted 2026-10-13 from coverage.json: identity-linking 11->57 (not 0->57 as first recorded; 11 IDL rows already existed at 2026-01-23), signatures 0->34 (not 33), payment incl. ap2_mandate extension \u2014 all first appear in the v2026-04-08 tag (coverage.json per-version rows)",
+      "evidence": "Register area deltas at 2026-04-08, re-counted 2026-10-13 from coverage.json: identity-linking 11->57 (not 0->57 as first recorded; 11 IDL rows already existed at 2026-01-23), signatures 0->34 (not 33), payment incl. ap2_mandate extension \u2014 all first appear in the v2026-04-08 tag (coverage.json per-version rows). TABLE CORRECTED 2026-10-15: the section 1 table printed 0 for Jan 11 and Jan 23 on identity-linking while this evidence already recorded 11, and a sweep of every row in that table found the same defect on a SECOND row, error model, which printed 0 where the register carries 8. Cause for both: the table counted by the 2026-04-08 area name, and those areas were renamed between eras (discount-consent-identity -> identity-linking, errors-validation-security -> error-envelope), so a count keyed on the later name finds nothing in the earlier register. Control for the counting method: recomputing MUST, MUST NOT, REQUIRED and SHALL rows per prefix per version reproduces ALL SEVEN published 2026-04-08 figures exactly (identity-linking 57, signatures 34, catalog 32, error model 25, cart 14, totals 14, payment 44) and both published payment figures (35 at Jan 11, 37 at Jan 23), so the method is pinned by nine independent agreements before it was used to change two cells. signatures, catalog, cart and totals are genuinely 0 at both early tags.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
@@ -542,6 +542,15 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "evidence": "The identity-linking, buyer-consent and AP2-mandate rows bind to state-of-ucp/scan-summary.json, whose scan_date field is 2026-08-13. Only the signing-keys row binds to state-of-ucp/history/scan-2026-07-17.json, for the reason recorded in SOU-030.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-033",
+      "text": "discount-consent-identity and errors-validation-security",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "Area rename across spec eras, read from our own register at each pinned tag. At 2026-01-11 and 2026-01-23 the IDL- rows live in conformance/requirements/<ver>/discount-consent-identity.json (area discount-consent-identity, 13 rows, 11 of them MUST, 2 SHOULD) and the ERR- rows in errors-validation-security.json (area errors-validation-security, 9 rows, 8 MUST). At 2026-04-08 the same families live in identity-linking.json (area identity-linking, 62 rows, 57 MUST) and error-envelope.json (area error-envelope, 34 rows, 25 MUST). A count keyed on the 2026-04-08 area name therefore finds zero in the earlier eras, which is why an earlier edition of the section 1 table printed 0 for both rows. The ERR- rows at 2026-01-11 cite ucp:source/schemas/shopping/types/message_error.json, the same source the error-model row of the table links to, which is how the family was identified across the rename.",
       "added": "2026-10-15",
       "review_by": "2027-01-12"
     },
