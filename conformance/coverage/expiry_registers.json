@@ -12,7 +12,7 @@
    "scope": "version",
    "clock": "review_by",
    "clock_tier": "moving",
-   "_note": "D5-14: the REPLAY-002 mode switch and its golden_pending window. The file IS the entry (root clock). Registered 2026-10-15 after its review_by lapsed unseen on 2026-10-10 and no register walked it; validate_expiry_clocks.unregistered_clocks now reds any clock that no register walks."
+   "_note": "D5-14: the REPLAY-002 mode switch and its golden_pending window. KNOWN GAP, found 2026-10-15 by an independent review: validate_expiry_clocks.unregistered_clocks only sees a clock at the ROOT of a file, so it does not close the class. A prototype nested walk found three files carrying a review_by at depth 2 that NOTHING enforces (conformance/agent/agent_coverage_lock.json, conformance/agent/agent_run_evidence.json, conformance/selfcheck/dormancy_exemptions.json, all dated 2026-12-09; conformance/web/doc_claims.json is a fourth but site_gates.py does check its clock). Registering them needs a per-file entries path and can cascade spec_pin findings, so it is deliberately a separate branch rather than a late addition to this one. The file IS the entry (root clock). Registered 2026-10-15 after its review_by lapsed unseen on 2026-10-10 and no register walked it; validate_expiry_clocks.unregistered_clocks now reds any clock that no register walks."
   },
   {
    "name": "exemptions",

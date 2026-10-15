@@ -68,8 +68,9 @@ refreshed every couple of months, with the history charted below.</p>
     <p class="sub">We were curious how much of UCP is genuinely <em>deployed</em> versus endorsed, so we set out to
 measure it layer by layer — and we keep measuring, every couple of months, in the open. This is the fifth edition
 — the first ran 2026-07-17 — an independent, unofficial, data-backed read (not affiliated with or endorsed by the UCP
-maintainers). The registry, download and star figures are as of 2026-10-11; the endpoint probe behind the named-brand
-counts is a separate pass and is still the one run on 2026-08-13. Each number links to its exact source — the spec line it was counted from, the
+maintainers). The registry, download and star figures are as of 2026-10-11. The endpoint probe behind the
+named-brand counts is a separate pass: the population scan is the one run on 2026-08-13, and the 8 named launch
+partners were re-probed on 2026-10-13, which is the pass section 3 reports. Each number links to its exact source — the spec line it was counted from, the
 primary announcement, or the raw data we measured (published alongside this page) — and where the honest answer is
 "announced, not verifiably live," we say so. We are certainly missing things and would rather be corrected than
 confident: if you build on UCP and see it differently, please tell us. No merchant from the population scan is named or graded; the 8 publicly
@@ -123,7 +124,8 @@ requirements in our register went from
 nearly doubling in the latest release. Every requirement is individually traceable at
 <a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
   <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
-2026-05-22 after post-date cherry-picks — "three releases in three months" describes the tagged artifacts, not a
+2026-05-22 after post-date cherry-picks, and the tag was later re-pointed again, to <code>a25a4a24</code> on
+2026-09-09 — "three releases in three months" describes the tagged artifacts, not a
 clean calendar cut.</p>
   <div class="tablewrap"><table class="rt">
     <tr><th>Area</th><th class="num">Jan&nbsp;11</th><th class="num">Jan&nbsp;23</th><th class="num">Apr&nbsp;08</th><th>What it is</th></tr>
@@ -138,7 +140,7 @@ clean calendar cut.</p>
   <p>Identity, cryptographic signatures and agent payments all arrived essentially at once: UCP stopped being a
 checkout API and became a security-and-identity protocol. One hazard for anyone maintaining an implementation
 across versions: requirement IDs are renumbered between eras, so pinning by ID can silently change meaning. Areas are renamed too: the
-identity-linking and error-model obligations existed at Jan 11 and Jan 23 under the area names <code>discount-consent-identity</code> and <code>errors-validation-security</code>, which is why an earlier edition of this table counted them as zero. Counts are MUST, MUST NOT, REQUIRED and SHALL rows in our register at each pinned tag.</p>
+identity-linking and error-model obligations existed at Jan 11 and Jan 23 under the area names <code>discount-consent-identity</code> and <code>errors-validation-security</code>, which is why an earlier edition of this table counted them as zero. Counts are MUST, MUST NOT, REQUIRED and SHALL rows of each requirement family (IDL-, SIG-, ERR- and so on) in our register at each pinned tag, not of the area file, whose membership changed with the renames.</p>
   <p>That is the ambition. The rest of this page measures what has actually been <em>deployed</em> underneath it —
 layer by layer, because endorsement is not adoption.</p>
 
@@ -158,10 +160,12 @@ the Gemini app, and Business Agent
 (<a href="https://blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms/" rel="noopener">Google</a>).
 That same announcement frames the shopping side as still arriving: UCP "will soon power a new checkout feature" in
 AI Mode and the Gemini app, rather than generally available at launch. Microsoft is the second, on its own primary
-sources: its advertising pages state that "UCP enables transactions (checkout and post-purchase actions within AI
-experiences like Copilot)", and its 2026-04-21 post says support for UCP-ready feeds in Microsoft Merchant Center is
-"Generally available today for everyone in the U.S."
-(<a href="https://about.ads.microsoft.com/en/solutions/technology/agentic-commerce" rel="noopener">Microsoft</a>).
+sources: its <a href="https://about.ads.microsoft.com/en/solutions/technology/agentic-commerce" rel="noopener">advertising
+pages</a> state that "UCP enables transactions (checkout and post-purchase actions within AI experiences like
+Copilot)", and its <a href="https://about.ads.microsoft.com/en/blog/post/april-2026/win-across-all-three-eras-of-the-web" rel="noopener">2026-04-21
+post</a> describes "UCP-enabled checkout in chat for eligible sellers". Microsoft hedges too, in the same places: the
+generally-available piece is UCP-ready <em>feeds</em> in Merchant Center, which its own FAQ assigns to discovery
+rather than transactions, and that FAQ says Merchant Center "will support" UCP in the future tense.
 We have measured no UCP transaction on either surface, so both are vendor claims rather than verified behaviour.
 Claims that other assistants such as Perplexity or ChatGPT consume UCP still appear only in secondary marketing
 blogs, with no primary source, so we do not report those as fact.</p>
@@ -175,7 +179,8 @@ of them, at <code>www.chewy.com</code>, publishing a discovery profile: version 
 endpoint, and one signing key on curve P-256. The document validates against the pinned 2026-01-23 profile schema;
 that schema neither requires a key nor checks the curve, so the curve was confirmed separately by verifying the
 point lies on P-256. Our own population frame had already recorded that profile in April 2026, and our July and
-August probes met a bot wall at the same host, so what changed is what our probe could see rather than what the
+August probes could not read it there: the July scan recorded a non-JSON response for that domain and the
+August pass recorded a 403, so what changed is what our probe could see rather than what the
 merchant serves. The endpoint the profile declares was not exercised, because our probe policy is discovery only:
 a published discovery document is not a live endpoint, which is the distinction section 6 draws. The other seven
 are unchanged. Mostly these brands participate through Google's managed agent surfaces rather than hosting their
@@ -210,7 +215,8 @@ features of the spec live almost exclusively in that tiny deliberate tail.</p>
     <tr><td>buyer-consent capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_buyer_consent">4</b></td></tr>
     <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
   </table></div>
-  <p class="note"><b>Signing keys: a withdrawn figure.</b> The 2026-08-13 scan reported 0 for this row. That run
+  <p class="note"><b>Signing keys: a withdrawn figure.</b> The 2026-08-13 and 2026-08-01 scans both reported 0
+for this row, from the same defect. That run
 tested <code>keys[]</code> against a population that publishes <code>signing_keys[]</code>, the field having been
 renamed in ucp#566 (merged 2026-07-12, first released in the v2026-08-25 tag), so it could not see them. That
 figure is withdrawn and the row now shows the 2026-07-17 scan, which tested the right field. Under our probe
@@ -234,7 +240,7 @@ six-month-old protocol. The repositories you'd actually build on are far smaller
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_js_sdk">48</span>,
 <a href="https://github.com/Universal-Commerce-Protocol/conformance" rel="noopener">conformance</a>
 <span data-live="state-of-ucp/adoption-facts.json:$.github_stars_conformance">29</span> stars
-(captured 2026-08-13). Downstream use is smaller still — the Python SDK shows roughly
+(captured 2026-10-11). Downstream use is smaller still — the Python SDK shows roughly
 <span data-live="state-of-ucp/adoption-facts.json:$.python_sdk_dependents_approx">7</span> dependent
 repositories, and a code search for the AP2 mandate token returns single digits across all of GitHub.</p>
   <p>SDK downloads are modest but real, consistent with a young protocol: the official
@@ -271,12 +277,15 @@ managed surfaces; as of 2026-10-13 one of the eight we probe publishes its own d
 eight has been observed transacting.</li>
     <li><b>"Conformant" is three different questions.</b> Of the
 <span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> requirements, as we
-classify them: <span data-live="state-of-ucp/adoption-facts.json:$.testability_server">185</span> test a business
-server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_agent_bound">90</span> bind the buying
-agent (which almost no tooling measures — our dedicated agent-side register catalogues
+classify them at this tag:
+<span data-live="state-of-ucp/adoption-facts.json:$.testability_testable">202</span> are testable against a
+business server, <span data-live="state-of-ucp/adoption-facts.json:$.testability_manual">90</span> are process or
+manual, <span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_receiver">89</span> need a receiving
+agent to observe, and <span data-live="state-of-ucp/adoption-facts.json:$.testability_needs_oauth">4</span> need an
+OAuth provider. Those are the four classes our register itself uses, and they sum to the total. The agent side is
+the one almost no tooling measures: our dedicated agent-side register catalogues
 <span data-live="state-of-ucp/adoption-facts.json:$.agent_axis_obligations">105</span> platform obligations,
-public at <a href="/agent-coverage.json">agent-coverage.json</a>), and
-<span data-live="state-of-ucp/adoption-facts.json:$.testability_process">89</span> are process/manual. The
+public at <a href="/agent-coverage.json">agent-coverage.json</a>. The
 failures that will actually hurt users — an agent completing a checkout whose totals don't reconcile, or paying
 with an instrument the merchant never offered — live on the agent side, measured today by almost no one.</li>
   </ol>
@@ -328,14 +337,14 @@ our own golden server — deviate from the pinned text, we keep a reproduction, 
 ledger anchor for each one, re-verified within thirty days. <b data-live="known-issues.json:$.summary.rows">10</b>
 issues are tracked at spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>;
 <b data-live="known-issues.json:$.summary.open_on_some_cut">10</b> are still open on a published cut,
-<b data-live="known-issues.json:$.summary.fixed_on_some_cut">6</b> are fixed on an upstream main but not yet in a
+<b data-live="known-issues.json:$.summary.fixed_on_some_cut">6</b> have a fix on some cut but not yet in a
 release, and <b data-live="known-issues.json:$.summary.unfixed_everywhere">4</b> have no fix anywhere yet. Latest
 re-verification: <span data-live="known-issues.json:$.summary.latest_re_verified">2026-10-11</span>. The full
 table, with the command to reproduce each row, is at <a href="/known-issues">spck.dev/known-issues</a>.</p>
 
   <h2>9 · What to watch</h2>
   <p data-attribution>The through-line is a protocol whose ambition and endorsement are running well ahead of its deployment. What
-would close the gap: a second buyer-agent ecosystem beyond Google's surfaces; a card network going live on AP2;
+would close the gap: a measured UCP transaction on a buyer agent beyond Google's surfaces, Microsoft included; a card network going live on AP2;
 non-platform merchants adopting the frontier features at any scale; and agent-side conformance becoming table
 stakes the moment real money moves through autonomous agents. The distance between "passes conformance" and
 "behaves safely" — and between "endorsed" and "deployed" — is where the next year of this ecosystem gets decided.
@@ -345,7 +354,7 @@ and seeing something different from what we measured, tell us what we missed.</p
   <div class="provenance">
     <h3>Methodology &amp; provenance</h3>
     <p class="note">Spec counts: spck.dev's public register (<a href="/coverage.json">coverage.json</a>), pinned
-to release-tag commits (<code>2026-04-08</code> → <code>a2d8bf0…</code>); every requirement links to its spec
+to release-tag commits (<code>2026-04-08</code> → <code>a25a4a24…</code>, the tag position after the 2026-09-09 re-point, which is where our 2026-04-08 counts come from); every requirement links to its spec
 line; method at <a href="/docs">spck.dev/docs</a>.
       Where this page leans on our own conformance register, its evidence-class split is published too: of <span data-live="coverage.json:$.versions['2026-04-08'].check">277</span> checked requirements at v2026-04-08, <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['live-wire']">67</span> are kill-tested against independent reference servers and <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['self-referenced']">138</span> so far rest only on our own fixtures — the full split, drift-gated in CI, is at <a href="/coverage">spck.dev/coverage</a>.
       Live-endpoint data: population frame from the CC-BY-4.0

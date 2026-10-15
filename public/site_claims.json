@@ -519,6 +519,15 @@
       "review_by": "2027-01-12"
     },
     {
+      "id": "SOU-034",
+      "text": "The 2026-08-13 and 2026-08-01 scans both reported 0 for this row, from the same defect",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "public/state-of-ucp/history/scan-2026-08-13.json and scan-2026-08-01.json both carry signing_keys_present 0 and signing_keys_pct 0.0. Both runs used the same scanner logic: ops/tools/state_of_ucp_scan.py tested ucp['keys'] and doc['keys'] only, at ops b1a9476 (synced 2026-08-13) and already at e030e94 (2026-07-31, before the 2026-08-01 run), so the 2026-08-01 scan carries the identical defect. Both files are now annotated in place with a withdrawal note; the values are left unchanged as a record of what each edition reported, and history/trends.json carries the same note over its 11, 0, 0 series. The last correct-field measurement is scan-2026-07-17.json, 11 of 2974.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
       "id": "SOU-030",
       "text": "the field having been renamed in ucp#566",
       "page": "state-of-ucp.html",
@@ -646,7 +655,7 @@
     },
     {
       "id": "SOU-014",
-      "text": "What would close the gap: a second buyer-agent ecosystem beyond Google's surfaces; a card network going live",
+      "text": "What would close the gap: a measured UCP transaction on a buyer agent beyond Google's surfaces, Microsoft included",
       "page": "state-of-ucp.html",
       "class": "REG",
       "evidence": "Forward-looking editorial synthesis of sections 2-5; each premise sourced there (buyers=Google-only primary-confirmed; AP2 card cohort not live; frontier caps 0.1-0.4%)",
