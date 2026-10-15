@@ -33,7 +33,7 @@
   "pypi": "pypistats.org/api/packages/ucp-sdk/recent",
   "crates": "crates.io/api/v1/crates/ucp-schema",
   "registry": "ucpregistry.com/api/v1/merchants?status=verified (meta.total)",
-  "brands_probe": "direct GET /.well-known/ucp on 8 named launch partners, 2026-07-17",
+  "brands_probe": "direct GET /.well-known/ucp on 8 named launch partners at their www hosts; re-probed 2026-10-13, earlier probes 2026-07-17 and 2026-08-13. The apex hosts answer 301 to www under the probe policy, so the www host is the one measured.",
   "spec_counts": "spck.dev/coverage.json @ pinned release-tag SHAs"
  }
 }

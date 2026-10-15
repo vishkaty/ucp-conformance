@@ -493,19 +493,19 @@
     },
     {
       "id": "SOU-004",
-      "text": "No agent surface beyond Google's own is confirmed by a primary source to consume UCP",
+      "text": "Google's own surfaces came first: AI Mode in Search, the Gemini app, and Business Agent",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp names AI Mode, Gemini app, Business Agent as UCP consumers; no other vendor primary source found (public/state-of-ucp/history/2026-08-13.json, agent research 2026-08-13)",
+      "evidence": "developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp and blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms name AI Mode in Search, the Gemini app and Business Agent as UCP consumers. CORRECTED 2026-10-15: the earlier wording of this row claimed that no agent surface beyond Google was confirmed by a primary source. That was false, and was already false when the row was first published. Microsoft advertising pages at about.ads.microsoft.com/en/solutions/technology/agentic-commerce state: 'UCP is a complementary layer to Merchant Center feeds that turns product data into executable commerce actions' and 'Feeds primarily enable discovery (products showing up in AI responses), while UCP enables transactions (checkout and post-purchase actions within AI experiences like Copilot)'. The Microsoft Advertising post of 2026-04-21 states: 'Generally available today for everyone in the U.S., we are introducing support for UCP-ready feeds in Microsoft Merchant Center'. Both read 2026-10-15. We have measured no UCP transaction on either vendor surface, so this row records vendor claims and not verified behaviour. The earlier evidence pointed at public/state-of-ucp/history/2026-08-13.json for agent research; that file is a 1475-byte numbers snapshot containing none of the research tokens, so the pointer was wrong and is replaced by the primary URLs above.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
     {
       "id": "SOU-005",
-      "text": "Claims that other AI assistants consume UCP appear only in secondary marketing blogs",
+      "text": "other assistants such as Perplexity or ChatGPT consume UCP still appear only in secondary marketing",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Research sweep 2026-08-01: Perplexity/ChatGPT/Copilot UCP claims found only on SEO/agency blogs; no primary source from those vendors; OpenAI operates competing protocol (public/state-of-ucp/history/2026-08-13.json UNVERIFIED_flags)",
+      "evidence": "Research sweep 2026-08-01 found Perplexity and ChatGPT UCP claims only on SEO and agency blogs, with no primary source from either vendor; OpenAI operates a competing protocol. NARROWED 2026-10-15: Copilot was previously listed here as unsourced. That was wrong. Microsoft is the vendor and its own pages are a primary source, so Copilot has moved to SOU-004. This row now covers only Perplexity and ChatGPT. The earlier pointer to public/state-of-ucp/history/2026-08-13.json UNVERIFIED_flags did not resolve: that file is a 1475-byte numbers snapshot with no such key.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
@@ -514,8 +514,62 @@
       "text": "every one returned a 404, a redirect, or a bot wall",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Direct probe of the 8 named launch partners at /.well-known/ucp, discovery-only, no redirects followed, 10 s timeout, 1 req/s, robots parsed per our UA. 2026-08-13: 404 (etsy, target, walmart, wayfair, homedepot), 301 redirect (bestbuy), 403 bot wall (sephora, chewy); none returned a UCP profile. RE-PROBED 2026-10-13: chewy.com now returns 200 with a self-hosted profile declaring ucp.version 2026-01-23, a dev.ucp.shopping REST endpoint, supported_versions, and one signing_keys entry (EC P-256 ES256); it validates against the pinned conformance/.vendor/ucp-2026-01-23 profile_schema.json under jsonschema 4.26.0, and the control with ucp.version removed is rejected, so that check is not vacuous. bestbuy moved 301 to 404; the other six are unchanged. chewy is in the pinned HF population frame. The page states the aggregate; the brand is named here because all 8 are publicly announced launch partners, which is the existing practice for this row.",
+      "evidence": "Direct probe of the 8 named launch partners at /.well-known/ucp. METHOD BY DATE: the 2026-08-13 run used curl -sSL (redirects followed), 12 s timeout, 24 concurrent, UA 'spck.dev-tracker', no robots handling; the 2026-10-13 re-probe ran under conformance/ci/probe_policy.json (discovery only, no redirects followed, 10 s timeout, 1 req/s, 1 per store per day, robots honoured where served). probe_policy.json did not exist until 2026-09-11, so it cannot describe the August run. 2026-08-13 RESULT: 404 (etsy, target, walmart, wayfair, homedepot), 301 redirect (bestbuy), 403 bot wall (sephora, chewy); none returned a UCP profile TO OUR PROBE. 2026-10-13 RESULT, at the www hosts (https://www.<brand>/.well-known/ucp): www.chewy.com returns 200 with a discovery profile; bestbuy moved 301 to 404; the other six unchanged. The apex hosts all answer 301 to www under the policy tool, which is the bucket we count as not serving, so the www host is the one that serves the document and the evidence names it. WHAT CHANGED: chewy.com is row 114 of the pinned HF population frame (ucp-merchants-2026-04-02.csv) and was recorded there as verified, HTTP 200, version 2026-01-23, last_success 2026-04-01; our own 2026-07-17 full scan recorded a JSONDecodeError for that domain, an HTML bot wall to the then UA. So the profile predates our re-probe and what changed is what our probe could see, not necessarily what the merchant serves. ROBOTS CAVEAT: www.sephora.com/robots.txt answered 403 and the parser read the error page as having no rules, returning allow. Probing it is defensible under RFC 9309 section 2.3.1.3, which treats a 4xx robots.txt as unavailable, but nothing was parsed for that host, so 'robots parsed per our UA' is not literally true there. No robots group matching our UA token disallows /.well-known for any of the 8. NAMING: the page states the aggregate; the 8 are named here under the launch-partner exception recorded in SOU-017, and only their discovery-document status is recorded.",
       "added": "2026-08-13",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-030",
+      "text": "the field having been renamed in ucp#566",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "ucp#566 'feat!: promote keys[] to canonical profile signing key field' is MERGED, mergedAt 2026-07-12T17:09:08Z (gh pr view 566 --repo Universal-Commerce-Protocol/ucp). The vendored 2026-01-23 schema uses signing_keys; the vendored 2026-08-25 source/schemas/profile.json uses keys. The v2026-08-25 tag is the first release carrying the rename, which is why both dates appear. ops/tools/state_of_ucp_scan.py tested only keys[] against a population that is 2951 of 2957 at version 2026-04-08, so it could not see signing_keys[] and reported 0; it now tests both names (ops 953566d), so the next scan measures this correctly.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-031",
+      "text": "re-measuring the full frame takes about 61 days",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "state-of-ucp/scan-summary.json domains_probed = 3037. conformance/ci/probe_policy.json caps the probe at 50 stores per day, 1 per store per day and 1 request per second. 3037 divided by 50 is 60.74, so about 61 days of elapsed probing.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-032",
+      "text": "Every other row in this table is from the 2026-08-13 scan",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "The identity-linking, buyer-consent and AP2-mandate rows bind to state-of-ucp/scan-summary.json, whose scan_date field is 2026-08-13. Only the signing-keys row binds to state-of-ucp/history/scan-2026-07-17.json, for the reason recorded in SOU-030.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-027",
+      "text": "publishing a discovery profile: version 2026-01-23, a REST service endpoint",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "The 2026-10-13 capture of https://www.chewy.com/.well-known/ucp (3217 bytes) carries ucp.version '2026-01-23'; services['dev.ucp.shopping'][0] with transport 'rest' and endpoint https://www.chewy.com/api/ucp/v1; supported_versions; and signing_keys[0] with kty EC, crv P-256, alg ES256, use sig. The curve was verified independently of the schema by confirming the public point satisfies y^2 = x^3 - 3x + b mod p for the P-256 parameters, with x and y 32 bytes each. The apex chewy.com answers 301 to the www host under the same policy tool, so the www host is the one serving the document.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-028",
+      "text": "that schema neither requires a key nor checks the curve",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "Controls against the pinned conformance/.vendor/ucp-2026-01-23/source/discovery/profile_schema.json under jsonschema 4.26.0. The captured document is VALID and selects exactly one oneOf branch (business_profile passes, platform_profile fails on a required 'schema'). INVALID controls, so the check is not vacuous: ucp.version removed; ucp removed; an empty object; signing_keys[0].kid removed; an unknown transport value; a malformed version string; the REST endpoint removed. STILL VALID controls, which is the point of this claim: signing_keys renamed to keys; signing_keys removed entirely; crv changed from P-256 to P-384. The schema therefore validates the document, not the key, and the P-256 statement on this page rests on the on-curve check recorded in SOU-027 rather than on schema validation.",
+      "added": "2026-10-15",
+      "review_by": "2027-01-12"
+    },
+    {
+      "id": "SOU-029",
+      "text": "The endpoint the profile declares was not exercised",
+      "page": "state-of-ucp.html",
+      "class": "REG",
+      "evidence": "conformance/ci/probe_policy.json is discovery only: GET /.well-known/ucp, no redirects followed, 10 s timeout, 1 req/s, 1 per store per day, 50 per day, robots honoured, owner machine only, 90-day retention. The REST endpoint the profile declares (https://www.chewy.com/api/ucp/v1) was never requested, so no capability or transaction behaviour was observed for that merchant. This is the 'Provisioned, adopted and transacting are three different things' distinction stated in section 6 item 1 of this page.",
+      "added": "2026-10-15",
       "review_by": "2027-01-12"
     },
     {
@@ -523,7 +577,7 @@
       "text": "our own read-only probe on 2026-08-13",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Probe method: GET /.well-known/ucp, UA from conformance/ci/probe_policy.json, which is 'spck-conformance-research/0.1 (+https://spck.dev/research; read-only discovery probe; contact vishal@katyal.ai)'; the earlier record of 'spck-state-of-ucp-survey/1.0' was never the string the tooling sent, curl, aggregates derived solely from public/state-of-ucp/history/scan-2026-08-13.json and published at state-of-ucp/scan-summary.json",
+      "evidence": "Probe method, BY DATE. The 2026-08-13 scan ran ops/tools/state_of_ucp_scan.py as synced that day (ops b1a9476): GET /.well-known/ucp with UA 'spck.dev-tracker (+https://spck.dev; read-only conformance probe)', curl -sSL so redirects WERE followed, 12 s timeout, 24 concurrent, no robots handling. conformance/ci/probe_policy.json was created 2026-09-11 (public repo 03a3512) and its UA 'spck-conformance-research/0.1 (+https://spck.dev/research; read-only discovery probe; contact vishal@katyal.ai)' governs every probe since, including the 2026-10-13 re-probe; it cannot describe the August run, which predates it by a month. 'spck-state-of-ucp-survey/1.0' was never a string the tooling sent. Aggregates derived solely from public/state-of-ucp/history/scan-2026-08-13.json and published at state-of-ucp/scan-summary.json",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
@@ -532,16 +586,16 @@
       "text": "% of endpoints on the platform default carry none of the frontier; the handful who deliberately adopted carry essentially all of it",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "scan 2026-08-13 (scan-summary.json + history/scan-2026-08-13.json): frontier caps (signing_keys/identity_linking/buyer_consent/ap2_mandate) appear only among the 15 non-platform endpoints; 2,942 uniform platform-default profiles carry none. Percentage itself is data-live bound to $.uniform_default_profile_pct. LIMITATION RECORDED 2026-10-14: the signing_keys figure behind this row is not safe to read as a fact about the ecosystem. The scan classified a profile as publishing keys by testing ucp['keys'] and doc['keys'], but the field is signing_keys[] at 2026-04-08, which is 2951 of the 2957 live profiles in this frame; keys[] only arrives with ucp#566 at 2026-08-25. So it looked for a name almost nothing in its own population uses and reported 0. The one self-hosted profile probed by hand on 2026-10-13 publishes signing_keys and classified as false under the old logic and true under the fixed one (ops/tools/state_of_ucp_scan.py, with ops/tools/test_state_of_ucp_scan.py). Not re-measured: probe_policy.json caps a run at 50 stores a day, so re-scanning a 3037-domain frame is a 61 day rolling exercise. The platform-default half of this claim does not depend on the keys figure.",
+      "evidence": "scan 2026-08-13 (scan-summary.json + history/scan-2026-08-13.json): frontier caps (signing_keys/identity_linking/buyer_consent/ap2_mandate) appear only among the 15 non-platform endpoints; 2,942 uniform platform-default profiles carry none. Percentage itself is data-live bound to $.uniform_default_profile_pct. FIGURE WITHDRAWN 2026-10-15 (limitation first recorded 2026-10-14): the signing_keys figure behind this row was wrong, not merely uncertain, so it is no longer published. scan-summary.json now carries null for signing_keys_present and signing_keys_pct with a signing_keys_note, and the page row shows the last correct-field measurement instead: history/scan-2026-07-17.json, 11 of 2974 live valid endpoints, 0.4 per cent. The scan classified a profile as publishing keys by testing ucp['keys'] and doc['keys'], but the field is signing_keys[] at 2026-04-08, which is 2951 of the 2957 live profiles in this frame; keys[] arrives with ucp#566, merged 2026-07-12 and first released in the v2026-08-25 tag. So it looked for a name almost nothing in its own population uses and reported 0. The one self-hosted profile probed by hand on 2026-10-13 publishes signing_keys and classified as false under the old logic and true under the fixed one (ops/tools/state_of_ucp_scan.py, with ops/tools/test_state_of_ucp_scan.py). Not re-measured at the full frame: probe_policy.json caps a run at 50 stores a day, so re-scanning 3037 domains is about a 61 day rolling exercise. That is a reason not to publish a NEW number, not a reason to keep publishing a wrong one, which is why the August figure is withdrawn rather than caveated. The platform-default half of this claim does not depend on the keys figure.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
     {
       "id": "SOU-009",
-      "text": "AP2's card-network cohort is the deepest endorsement list of all \u2014 and the least deployed.",
+      "text": "AP2's card-network cohort is the deepest endorsement list of all, and the least deployed.",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "cloud.google.com/blog AP2 announcement (Sept 2025) lists Mastercard/Amex/JCB/UnionPay/Adyen/PayPal/Coinbase+ as collaborators ('call for collaboration'); no card network claims live agentic card processing in any primary source; in-wild ap2_mandate = 2 endpoints (scan-summary.json)",
+      "evidence": "cloud.google.com/blog AP2 announcement (Sept 2025) lists Mastercard, Amex, JCB, UnionPay, Adyen, PayPal and Coinbase among others as collaborators, framed as a call for collaboration. SCOPED 2026-10-15: this row previously asserted that no card network claims live agentic card processing in any primary source. That is an unscoped universal we cannot support and it is not what this row is about. The claim is now limited to AP2 itself: no card network has announced a live transaction on AP2. Card networks do announce live agentic payments on their own separate frameworks, which are not AP2 and are outside what this page measures; we make no claim about those either way. In the wild, ap2_mandate = 2 endpoints (scan-summary.json).",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
@@ -550,7 +604,7 @@
       "text": "The only production claim in the AP2 world is the x402 crypto extension",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Same Google Cloud AP2 post: x402 extension (Coinbase/Ethereum Foundation/MetaMask) described as production-ready; no other AP2 production claim found in primary sources (adoption-ecosystem-2026-08-13.json LAYER_payments_AP2)",
+      "evidence": "Same Google Cloud AP2 post: x402 extension (Coinbase/Ethereum Foundation/MetaMask) described as production-ready; no other AP2 production claim found in primary sources CORRECTED 2026-10-15: the earlier pointer, adoption-ecosystem-2026-08-13.json, has never existed in any repo or in git history. Primary sources instead: the PayPal developer post of 2025-09-16 speaks of future Payment Mandate pilots and makes no production claim; the AP2 README carries none; AP2 v0.2.0 released 2026-04-28; AP2 was donated to the FIDO Alliance on 2026-04-28.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },
@@ -610,10 +664,10 @@
     },
     {
       "id": "SOU-017",
-      "text": "No individual merchant is named or graded; aggregates only.",
+      "text": "No merchant from the population scan is named or graded",
       "page": "state-of-ucp.html",
       "class": "REG",
-      "evidence": "Editorial rule (reputation doctrine, conformance/testbed/README.md posture): published artifacts carry aggregate counts only; per-domain results remain unpublished in ops/ (private)",
+      "evidence": "Editorial rule (reputation doctrine, conformance/testbed/README.md posture): no public pass/fail dashboard names or grades third-party implementations. SCOPED 2026-10-15: the previous wording said no individual merchant is named at all, while public/site_claims.json is itself a published artifact (live at https://spck.dev/site_claims.json, HTTP 200) and has named the 8 launch partners with per-domain results since the first edition. The rule now reads as it is actually applied: no merchant from the 3,037-domain population scan is named or graded, and per-domain scan results stay in the private ops repo; the 8 publicly announced launch partners are the stated exception, because they announced themselves, and only whether each publishes a discovery document is recorded.",
       "added": "2026-08-13",
       "review_by": "2027-01-12"
     },

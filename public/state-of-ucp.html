@@ -72,7 +72,8 @@ maintainers). The registry, download and star figures are as of 2026-10-11; the 
 counts is a separate pass and is still the one run on 2026-08-13. Each number links to its exact source — the spec line it was counted from, the
 primary announcement, or the raw data we measured (published alongside this page) — and where the honest answer is
 "announced, not verifiably live," we say so. We are certainly missing things and would rather be corrected than
-confident: if you build on UCP and see it differently, please tell us. No individual merchant is named or graded.</p>
+confident: if you build on UCP and see it differently, please tell us. No merchant from the population scan is named or graded; the 8 publicly
+announced launch partners are the stated exception, and only their discovery-document status is recorded.</p>
   </header>
 
   <div class="provenance">
@@ -150,24 +151,35 @@ served <code>2026-01-23</code>) — a reminder that even the canonical implement
 release. The gap this page is about is not closing; the spec keeps opening new frontier ahead of the deployment
 underneath it.</p>
 
-  <h2>2 · The buyers: essentially one, so far</h2>
-  <p data-attribution>An agent protocol needs agents that buy. No agent surface beyond Google's own is confirmed by a primary
-source to consume UCP — AI Mode in Search, the Gemini app, and Business Agent
+  <h2>2 · The buyers: two vendors, neither verified by us</h2>
+  <p data-attribution>An agent protocol needs agents that buy. Google's own surfaces came first: AI Mode in Search,
+the Gemini app, and Business Agent
 (<a href="https://blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms/" rel="noopener">Google</a>).
-That same announcement frames the shopping side as still arriving — UCP "will soon power a new checkout feature" in
-AI Mode and the Gemini app — rather than generally available at launch. Claims that other AI assistants consume UCP
-appear only in secondary marketing blogs; we found no primary source, so we don't report them as fact.</p>
+That same announcement frames the shopping side as still arriving: UCP "will soon power a new checkout feature" in
+AI Mode and the Gemini app, rather than generally available at launch. Microsoft is the second, on its own primary
+sources: its advertising pages state that "UCP enables transactions (checkout and post-purchase actions within AI
+experiences like Copilot)", and its 2026-04-21 post says support for UCP-ready feeds in Microsoft Merchant Center is
+"Generally available today for everyone in the U.S."
+(<a href="https://about.ads.microsoft.com/en/solutions/technology/agentic-commerce" rel="noopener">Microsoft</a>).
+We have measured no UCP transaction on either surface, so both are vendor claims rather than verified behaviour.
+Claims that other assistants such as Perplexity or ChatGPT consume UCP still appear only in secondary marketing
+blogs, with no primary source, so we do not report those as fact.</p>
 
   <h2>3 · The sellers: one platform's provisioning, and a handful of real adopters</h2>
   <p data-attribution>We probed the <code>/.well-known/ucp</code> endpoint of
 <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_probed">8</span> named launch partners directly.
-On 2026-08-13 <b>none served a UCP profile</b>: every one returned a 404, a redirect, or a bot wall. A re-probe on
-2026-10-13 found <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_serving_ucp">1</span> of them
-serving one, a self-hosted profile declaring version 2026-01-23 with a REST service endpoint and its own P-256
-signing key, which validates against the pinned 2026-01-23 profile schema. The other seven are unchanged. Mostly
-these brands participate through Google's managed agent surfaces rather than hosting their own endpoints, so the
-marquee names cannot be counted as live UCP endpoints on the strength of an announcement, which many public
-tallies still do. One of them has now earned the count.</p>
+On 2026-08-13 <b>none served a UCP profile to our probe</b>: every one returned a 404, a redirect, or a bot wall. A
+re-probe on 2026-10-13 found <span data-live="state-of-ucp/adoption-facts.json:$.named_brands_serving_ucp">1</span>
+of them, at <code>www.chewy.com</code>, publishing a discovery profile: version 2026-01-23, a REST service
+endpoint, and one signing key on curve P-256. The document validates against the pinned 2026-01-23 profile schema;
+that schema neither requires a key nor checks the curve, so the curve was confirmed separately by verifying the
+point lies on P-256. Our own population frame had already recorded that profile in April 2026, and our July and
+August probes met a bot wall at the same host, so what changed is what our probe could see rather than what the
+merchant serves. The endpoint the profile declares was not exercised, because our probe policy is discovery only:
+a published discovery document is not a live endpoint, which is the distinction section 6 draws. The other seven
+are unchanged. Mostly these brands participate through Google's managed agent surfaces rather than hosting their
+own endpoints, so the marquee names cannot be counted as live UCP endpoints on the strength of an announcement,
+which many public tallies still do.</p>
   <p>The endpoints that <em>do</em> exist are overwhelmingly one platform's automatic provisioning. Population
 frame: the
 <a href="https://huggingface.co/datasets/UCPChecker/ucp-merchants/blob/ee420129b462cf109a571f7102084b282679dd1b/ucp-merchants-2026-04-02.csv" rel="noopener">UCPChecker/ucp-merchants dataset</a>
@@ -192,11 +204,17 @@ extending UCP beyond retail with custom capabilities. Here is the striking part:
 features of the spec live almost exclusively in that tiny deliberate tail.</p>
   <div class="tablewrap"><table class="rt">
     <tr><th>The spec's frontier</th><th class="num">Endpoints advertising it</th></tr>
-    <tr><td>RFC 9421 signing keys published</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.signing_keys_present">0</b> (<span data-live="state-of-ucp/scan-summary.json:$.signing_keys_pct">0.0</span>%)</td></tr>
+    <tr><td>RFC 9421 signing keys published</td><td class="num"><b data-live="state-of-ucp/history/scan-2026-07-17.json:$.signing_keys_present">11</b> (<span data-live="state-of-ucp/history/scan-2026-07-17.json:$.signing_keys_pct">0.4</span>%)</td></tr>
     <tr><td>identity-linking capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_identity_linking">4</b></td></tr>
     <tr><td>buyer-consent capability</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_buyer_consent">4</b></td></tr>
     <tr><td>AP2 payment mandates</td><td class="num"><b data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</b></td></tr>
   </table></div>
+  <p class="note"><b>Signing keys: a withdrawn figure.</b> The 2026-08-13 scan reported 0 for this row. That run
+tested <code>keys[]</code> against a population that publishes <code>signing_keys[]</code>, the field having been
+renamed in ucp#566 (merged 2026-07-12, first released in the v2026-08-25 tag), so it could not see them. That
+figure is withdrawn and the row now shows the 2026-07-17 scan, which tested the right field. Under our probe
+policy, at 50 stores a day, re-measuring the full frame takes about 61 days and will replace this row when it
+completes. Every other row in this table is from the 2026-08-13 scan.</p>
   <p>The <span data-live="state-of-ucp/scan-summary.json:$.uniform_default_profile_pct">99.5</span>% of endpoints
 on the platform default carry none of the frontier; the handful who deliberately adopted carry essentially all of
 it — one self-hosted retailer implements the entire stack, AP2 payment mandates included, by itself. The spec's
@@ -231,10 +249,11 @@ history API of its registry. Beyond the
 official org, roughly three dozen third-party repositories genuinely implement UCP — platform connectors, a
 community Java SDK, vendor demos: a real implementer base, but an early one.</p>
 
-  <h2>5 · The payments frontier is announced, not live</h2>
-  <p data-attribution>AP2's card-network cohort is the deepest endorsement list of all — and the least deployed. In the primary
-announcements, no card network is live for agentic card payments; AP2's launch framed itself as a call for
-collaboration. The only production claim in the AP2 world is the x402 crypto extension
+  <h2>5 · The AP2 payments frontier is announced, not live</h2>
+  <p data-attribution>AP2's card-network cohort is the deepest endorsement list of all, and the least deployed. No
+card network has announced a live transaction on AP2 itself; AP2's launch framed itself as a call for
+collaboration. Card networks do announce live agentic payments on their own separate frameworks, which are not AP2
+and are outside what this page measures. The only production claim in the AP2 world is the x402 crypto extension
 (<a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" rel="noopener">Google Cloud</a>)
 — crypto rails, not cards. That matches what we measured in the wild:
 <span data-live="state-of-ucp/scan-summary.json:$.cap_ap2_mandate">2</span> live endpoints advertise AP2
@@ -246,8 +265,9 @@ mandates, and the mandate token barely appears in public code at all.</p>
 <span data-live="state-of-ucp/scan-summary.json:$.uniform_default_profile_pct">99.5</span>% of "verified UCP
 merchants" are one platform auto-provisioning an endpoint; the store made no decision.
 Provisioned ≠ adopted ≠ transacting.</li>
-    <li><b>An endorsement is not a deployment.</b> The marquee brands endorse and participate via managed
-surfaces; they do not serve their own endpoints.</li>
+    <li><b>An endorsement is not a deployment.</b> The marquee brands mostly endorse and participate via
+managed surfaces; as of 2026-10-13 one of the eight we probe publishes its own discovery profile, and none of the
+eight has been observed transacting.</li>
     <li><b>"Conformant" is three different questions.</b> Of the
 <span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> requirements, as we
 classify them: <span data-live="state-of-ucp/adoption-facts.json:$.testability_server">185</span> test a business
@@ -333,8 +353,9 @@ UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); meas
 <a href="/state-of-ucp/scan-summary.json">scan-summary.json</a> and
 <a href="/state-of-ucp/adoption-facts.json">adoption-facts.json</a>. Ecosystem signals: GitHub, npm, PyPI,
 crates.io and ucpregistry.com public APIs plus the primary vendor announcements linked inline, captured
-2026-08-13. Where a claim is announced but not verifiably live, it is labeled as such. No individual merchant is
-named or graded; aggregates only. Each edition is point-in-time and reproducible against the same public sources;
+2026-08-13. Where a claim is announced but not verifiably live, it is labeled as such. No merchant from the
+population scan is named or graded; aggregates only, with the 8 publicly announced launch partners as the stated
+exception, recorded in site_claims.json and limited to whether each publishes a discovery document. Each edition is point-in-time and reproducible against the same public sources;
 we refresh it every couple of months, chart the history above, and note what changed. Corrections and additions are
 genuinely welcome
 — open an issue on <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">GitHub</a>.</p>

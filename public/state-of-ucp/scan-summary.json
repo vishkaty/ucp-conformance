@@ -13,8 +13,9 @@
  "non_platform_endpoints": 15,
  "uniform_default_profile": 2942,
  "uniform_default_profile_pct": 99.5,
- "signing_keys_present": 0,
- "signing_keys_pct": 0.0,
+ "signing_keys_present": null,
+ "signing_keys_note": "WITHDRAWN. This run tested keys[] against a population that publishes signing_keys[] (renamed in ucp#566, merged 2026-07-12, first released in v2026-08-25), so it could not see them. The last correct-field measurement is history/scan-2026-07-17.json: 11 of 2974 live valid endpoints, 0.4 per cent. ops/tools/state_of_ucp_scan.py now tests both field names, so the next scan measures this correctly.",
+ "signing_keys_pct": null,
  "cap_identity_linking": 4,
  "cap_buyer_consent": 4,
  "cap_ap2_mandate": 2
