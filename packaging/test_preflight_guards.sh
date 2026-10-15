@@ -194,5 +194,37 @@ hits="$(grep -nE '(^|[^[:alnum:]_./-])git([[:space:]]|$)' "$ROOT/conformance/ci/
         | grep -vE '^[0-9]+:[[:space:]]*#' || true)"
 if [ -z "$hits" ]; then ok "selftest.sh runs no git command (no index writes from a test run)"; else bad "selftest.sh writes or reads git state:"; echo "$hits" | sed 's/^/    /'; fi
 
+# 19-21. SKIP THEATRE. selftest.sh is `set -uo` (no -e), so a bare serve_golden.sh
+# call lets the suite carry on against a dead server, and run_suite SKIPs every
+# server-backed gate instead of failing. Locally that is 12 gates silently skipped
+# and preflight still printing "PREFLIGHT PASS — shippable", because step 1 greps
+# only "N passed" and never the skip count. CI does not have the hole: it passes
+# --require-server (conformance.yml), which also turns a missing `uv` toolchain into
+# a failure. These three keep the local gate honest, so "ran every CI job locally"
+# means the same thing in both places.
+sg="$(grep -nE 'serve_golden\.sh' "$ROOT/conformance/ci/selftest.sh" | grep -vE '^[0-9]+:[[:space:]]*#' || true)"
+if echo "$sg" | grep -qE '(^|:)[[:space:]]*(if|.*\|\||.*&&)' ; then
+  ok "selftest.sh checks serve_golden.sh's exit code"
+else
+  bad "selftest.sh calls serve_golden.sh unguarded on a set -uo script (a dead golden becomes 12 silent skips):"; echo "$sg" | sed 's/^/    /'
+fi
+
+rs="$(grep -nE 'run_suite\.py' "$ROOT/conformance/ci/selftest.sh" | grep -vE '^[0-9]+:[[:space:]]*#' || true)"
+if echo "$rs" | grep -q -- '--require-server'; then
+  ok "selftest.sh passes --require-server (same as CI)"
+else
+  bad "selftest.sh omits --require-server, so a down server or missing toolchain SKIPs instead of failing:"; echo "$rs" | sed 's/^/    /'
+fi
+
+# the requirement is behavioural: preflight must EXTRACT a skip count from the
+# selftest log and refuse the run when it is non-zero. Asserting the word appears on
+# the "GREEN" line itself was a proxy that the real fix does not satisfy.
+pf="$(sed -n '/Full self-test/,/^step /p' "$ROOT/packaging/preflight.sh")"
+if printf '%s' "$pf" | grep -qE '[0-9]+ skipped|skipped' && printf '%s' "$pf" | grep -qE 'skipped.*-gt 0|-gt 0.*skip|skipped.*\bbad\b'; then
+  ok "preflight extracts the skip count and reds a skipped run"
+else
+  bad "preflight's selftest step hides the skip count (a 13-skip run reads as a pass):"; printf '%s' "$pf" | grep -nE 'ok |bad |grep' | sed 's/^/    /'
+fi
+
 echo
 if [ $FAIL -eq 0 ]; then echo "release guards kill-tests: PASS"; exit 0; else echo "release guards kill-tests: FAIL"; exit 1; fi
