@@ -111,8 +111,23 @@ def discovery_reach(captures, today):
             "class_threshold_met": stores >= CLASS_MIN_DOMAINS}
 
 
+def _today():
+    """Today in UTC, because the value it is compared against is written in UTC.
+
+    discovery_reach() ages `fetched_at`, which conformance/ci/discovery_live.py writes as
+    datetime.datetime.now(datetime.timezone.utc).isoformat(). Comparing that against
+    datetime.date.today() made the age read a day short on any machine behind UTC, so the
+    30-day window could include a capture locally and exclude it in CI. Same defect, same
+    direction, as the one fixed in oracle_verdict_diff.py on 2026-10-16; found by an
+    independent review of that fix, which refuted my claim that it was the only instance.
+    Deliberately duplicated rather than cross-imported: two copies of a one-line function
+    is a smaller change than a new shared module in the import graph of two counted gates.
+    """
+    return datetime.datetime.now(datetime.timezone.utc).date()
+
+
 def check_dir(d, today=None):
-    today = today or datetime.date.today()
+    today = today or _today()
     caps = []
     # captures live directly in d or one level down under D4-08's YYYY-MM-DD directories
     for f in sorted(list(pathlib.Path(d).glob("*.json")) + list(pathlib.Path(d).glob("????-??-??/*.json"))):
@@ -203,6 +218,45 @@ def selftest():
     r3 = discovery_reach(fresh[:3] + [_cap("d.example", "2026-09-10", status=404), {"schema": "x"}], today)
     case("a non-200 capture counts nothing; a non-capture document is malformed",
          (r3["stores"], len(r3["malformed"])), (3, 1))
+    # the UTC wiring. discovery_reach() takes `today` as a required argument, so the only
+    # place the default lives is check_dir(); testing discovery_reach directly cannot reach
+    # it. This runs check_dir with `today` DEFAULTED in two zones whose local date disagrees
+    # with UTC at every hour (Niue trails UTC 00:00-10:59, Kiritimati leads 10:00-23:59), so
+    # a local-date default cannot survive. The driver is written to a FILE rather than passed
+    # to -c, because a `for` loop and a `with` block cannot be joined by semicolons on one
+    # line: as a -c one-liner it raised SyntaxError and the case failed for the wrong reason.
+    import os as _os, subprocess as _sp, pathlib as _pl, tempfile as _tf
+    _drv = _pl.Path(_tf.mkdtemp()) / "drv.py"
+    _drv.write_text(
+        "import sys, json, datetime, pathlib, tempfile, io, contextlib\n"
+        f"sys.path.insert(0, {str(_pl.Path(__file__).resolve().parent)!r})\n"
+        "import discovery_shapes as m\n"
+        "u = datetime.datetime.now(datetime.timezone.utc).date()\n"
+        "r = []\n"
+        "for days in (31, 29):\n"
+        "    d = pathlib.Path(tempfile.mkdtemp())\n"
+        "    stamp = (u - datetime.timedelta(days=days)).isoformat()\n"
+        "    (d / 'c.json').write_text(json.dumps(m._cap('x.example', stamp)))\n"
+        "    buf = io.StringIO()\n"
+        "    with contextlib.redirect_stdout(buf):\n"
+        "        m.check_dir(d)\n"
+        "    r.append('1 stale excluded' in buf.getvalue())\n"
+        "r.append(datetime.date.today().isoformat())\n"
+        "print(json.dumps(r))\n"
+    )
+    zres = {}
+    for tz in ("Pacific/Kiritimati", "Pacific/Niue"):
+        rr = _sp.run([sys.executable, str(_drv)], capture_output=True, text=True,
+                     env={**_os.environ, "TZ": tz})
+        try:
+            zres[tz] = json.loads(rr.stdout.strip())
+        except Exception:                      # noqa: BLE001 — a crash is a failing case
+            zres[tz] = ["crash", "crash", rr.stderr.strip()[-200:]]
+    case("utc-wiring: the two zones see different local dates (tzdata honoured)",
+         zres["Pacific/Kiritimati"][2] != zres["Pacific/Niue"][2], True)
+    case("utc-wiring: 31 days excluded and 29 days not, in BOTH zones, today defaulted",
+         all(v[0] is True and v[1] is False for v in zres.values()), True)
+
     print(f"discovery-shapes selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 

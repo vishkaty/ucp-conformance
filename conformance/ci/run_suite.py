@@ -267,6 +267,9 @@ def gates(server, require_server=False):
         ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
+        # the clock this gate enforces had no test, which let a UTC-versus-local defect sit
+        # in it until it failed CI on a tree that passed locally (2026-10-16)
+        ("oracle-verdict-diff-killtest", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--selftest"), None, ()),
         ("suite-04-08", _py(CHK / "run_04_08.py"),                              None, (2,)),
         ("merchant",    _py(SELF / "validate_merchant_checks.py", "--server", server, *rec("flower"),
                             *skips("flower")),
