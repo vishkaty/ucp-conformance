@@ -45,6 +45,15 @@ jobs:
           enable-cache: false
       - name: Fetch pinned upstream sources
         run: bash conformance/ci/fetch_sources.sh
+      # golden-0825 refuses to boot unless the 08-25 oracle matches oracle_manifest.json,
+      # and that oracle is a Rust build of conformance/.vendor/ucp-schema-0825. Without
+      # these two steps the golden-0825 crosscheck below fails on the boot guard with exit
+      # 2 on every run, which is what it did from 2026-10-12: the oracle was fine, this job
+      # just never built it. Mirrors the seqfuzz job. Pinned by the gate
+      # nightly-workflow-selftest (a job that boots golden-0825 must build the oracle).
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build the per-version ucp-schema oracle (boot guard for golden-0825)
+        run: cargo build --release --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml
       - name: Official suite vs flower-04-08 on :8382 (gated allowlist; mocks 8484/8485)
         run: python3 conformance/ci/official_crosscheck.py --golden flower-04-08 --suite-sha 016ecbc22240affdec4429a60d539bedd04ab51b --out-dir nightly-out/crosscheck
       - name: Official suite vs golden-0825 on :8398 (report-only)

@@ -54,8 +54,44 @@ def literal_ports(text):
     return {int(p) for p in re.findall(r"(?<![\d.])(?::|--port=|port[ =:]+)(\d{4,5})\b", text)}
 
 
+def _boots_golden_0825(step):
+    """Does this step bring up golden-0825? Reads `name` as well as `run`, because the
+    seqfuzz step names the golden in its title and only passes `--boot` on the command."""
+    blob = f"{step.get('run') or ''} {step.get('name') or ''}"
+    return "golden-0825" in blob
+
+
+def _builds_0825_oracle(job):
+    """Does this job build the pinned 2026-08-25 ucp-schema oracle?"""
+    return any("ucp-schema-0825" in (st.get("run") or "") and "cargo build" in (st.get("run") or "")
+               for st in steps_of(job))
+
+
+def _oracle_build_findings(doc):
+    """A job that boots golden-0825 without building the 08-25 oracle (D5-14).
+
+    golden-0825 refuses to boot unless the oracle matches conformance/ci/oracle_manifest.json,
+    and the oracle is a Rust build of conformance/.vendor/ucp-schema-0825. The nightly
+    crosscheck job had no Rust toolchain and no cargo build, so its golden-0825 step failed
+    on the boot guard with exit 2 on every run from 2026-10-12, while the seqfuzz and oracles
+    jobs in the SAME workflow build it and pass. The oracle was never broken; that job never
+    built it. The 08-25 crosscheck step therefore never produced a verdict in 33 runs.
+    """
+    out = []
+    for name, job in (doc.get("jobs") or {}).items():
+        if not isinstance(job, dict):
+            continue
+        boots = [st for st in steps_of(job) if _boots_golden_0825(st)]
+        if boots and not _builds_0825_oracle(job):
+            out.append(f"job '{name}' boots golden-0825 but never builds the 2026-08-25 oracle "
+                       f"(cargo build --manifest-path conformance/.vendor/ucp-schema-0825/Cargo.toml) "
+                       f"— the boot guard will refuse and the step can never produce a verdict")
+    return out
+
+
 def check(doc, reg=None, by_port=None, sweep=None):
     f = []
+    f += _oracle_build_findings(doc)
     if reg is None:
         reg, by_port, sweep = ports_registry()
     jobs = doc.get("jobs") or {}
@@ -139,6 +175,11 @@ def selftest():
     case("mutant: a job without timeout-minutes -> red", any("timeout-minutes" in x for x in check(m, reg, by_port, sweep)))
     m = copy.deepcopy(doc); m["jobs"]["seqfuzz"]["steps"] = [s for s in m["jobs"]["seqfuzz"]["steps"] if "upload-artifact" not in (s.get("uses") or "")]
     case("mutant: a job without an artifact upload -> red", any("upload-artifact" in x for x in check(m, reg, by_port, sweep)))
+    m = copy.deepcopy(doc)
+    m["jobs"]["seqfuzz"]["steps"] = [st for st in m["jobs"]["seqfuzz"]["steps"]
+                                     if "ucp-schema-0825" not in (st.get("run") or "")]
+    case("mutant: a golden-0825 job with the oracle build removed -> red",
+         any("never builds the 2026-08-25 oracle" in x for x in check(m, reg, by_port, sweep)))
     print("nightly-workflow selftest: " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 

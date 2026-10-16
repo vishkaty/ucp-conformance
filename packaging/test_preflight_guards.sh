@@ -219,12 +219,88 @@ fi
 # the requirement is behavioural: preflight must EXTRACT a skip count from the
 # selftest log and refuse the run when it is non-zero. Asserting the word appears on
 # the "GREEN" line itself was a proxy that the real fix does not satisfy.
-pf="$(sed -n '/Full self-test/,/^step /p' "$ROOT/packaging/preflight.sh")"
-if printf '%s' "$pf" | grep -qE '[0-9]+ skipped|skipped' && printf '%s' "$pf" | grep -qE 'skipped.*-gt 0|-gt 0.*skip|skipped.*\bbad\b'; then
-  ok "preflight extracts the skip count and reds a skipped run"
+# case 21 WAS a source grep over preflight step 1 asserting it "contains a skip check".
+# That tested an implementation detail, not the requirement, and an independent review
+# showed it could not kill the mutant that matters: `bad` -> `ok` keeps the grepped
+# pattern and switches the refusal off. The requirement is now asserted behaviourally by
+# cases 22-25 (exact exit codes from packaging/selftest_summary.sh against crafted logs)
+# plus the delegation check below, which together DO kill that mutant. Strictly stronger,
+# so the weaker grep is retired rather than kept as decoration.
+# 22-25. BEHAVIOURAL, not a source grep. Cases 19-21 assert that preflight's step 1
+# CONTAINS a skip check; they do not assert it REFUSES. A one-word edit from `bad` to
+# `ok` keeps that source pattern and switches the refusal off unseen, and cases 19-21
+# stay green. The verdict now lives in packaging/selftest_summary.sh, which is a pure
+# function of a log file, so these cases assert exit codes instead of text.
+SS="$ROOT/packaging/selftest_summary.sh"
+mklog(){ printf '%s\n' "boot ok" "$1" "GREEN" > "$2"; }
+
+L="$(mktemp)"; mklog "146 passed · 0 failed · 0 skipped" "$L"
+out="$(bash "$SS" "$L" 2>&1)"; rc=$?
+if [ $rc -eq 0 ]; then ok "summary 0 skipped -> accepted (rc 0)"; else bad "a clean 0-skipped summary was refused (rc=$rc): $out"; fi
+
+mklog "140 passed · 0 failed · 6 skipped" "$L"
+out="$(bash "$SS" "$L" 2>&1)"; rc=$?
+if [ $rc -eq 1 ]; then ok "summary 6 skipped -> REFUSED (rc 1)"; else bad "6 skipped gates: want rc 1, got rc=$rc: $out"; fi
+
+mklog "140 passed · 2 failed · 0 skipped" "$L"
+out="$(bash "$SS" "$L" 2>&1)"; rc=$?
+if [ $rc -eq 1 ]; then ok "summary 2 failed -> REFUSED (rc 1)"; else bad "2 failed gates: want rc 1, got rc=$rc: $out"; fi
+
+printf '%s\n' "boot ok" "no summary here" > "$L"
+out="$(bash "$SS" "$L" 2>&1)"; rc=$?
+if [ $rc -eq 2 ]; then ok "no summary line -> REFUSED (rc 2)"; else bad "no summary: want rc 2, got rc=$rc: $out"; fi
+rm -f "$L"
+
+# preflight must DELEGATE to it, so the refusal cannot be switched off in preflight itself
+if grep -q 'selftest_summary.sh' "$ROOT/packaging/preflight.sh"; then
+  ok "preflight delegates the verdict to selftest_summary.sh"
 else
-  bad "preflight's selftest step hides the skip count (a 13-skip run reads as a pass):"; printf '%s' "$pf" | grep -nE 'ok |bad |grep' | sed 's/^/    /'
+  bad "preflight still decides the skip verdict inline, where a one-word edit switches it off"
 fi
+# 26-27. preflight STEP 1 ITSELF, behaviourally. The delegation grep above is satisfied by
+# a comment naming the file, so it cannot kill the five one-word mutants an independent
+# review found: `bash` -> `true` on the delegation line, pf_rc forced to 0, `-eq 0` -> `-ge 0`,
+# the delegation line deleted, and `bad` -> `ok` in the else branch (mutant P1 transplanted).
+# Each left the whole suite green. Running the step against a stub selftest.sh kills all five.
+pfroot(){ # $1 = the summary the stub selftest.sh prints
+  local d; d="$(mktemp -d)"
+  mkdir -p "$d/packaging" "$d/conformance/ci"
+  cp "$ROOT/packaging/preflight.sh" "$ROOT/packaging/selftest_summary.sh" "$d/packaging/"
+  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\nexit 0\n' "$1" > "$d/conformance/ci/selftest.sh"
+  printf '%s' "$d"
+}
+
+D="$(pfroot "146 passed · 0 failed · 0 skipped")"
+OUT="$(cd "$D" && PREFLIGHT_SELFTEST_LOG="$D/log" bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 0 ] && printf '%s' "$OUT" | grep -q '✓'; then
+  ok "preflight step 1 on a 0-skipped run -> exit 0 and a ✓"
+else
+  bad "preflight step 1 refused a clean run (rc=$RC):"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
+
+D="$(pfroot "140 passed · 0 failed · 6 skipped")"
+OUT="$(cd "$D" && PREFLIGHT_SELFTEST_LOG="$D/log" bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 1 ] && printf '%s' "$OUT" | grep -q '✗'; then
+  ok "preflight step 1 on a 6-skipped run -> exit 1 and a ✗"
+else
+  bad "preflight step 1 ACCEPTED a 6-skipped run (rc=$RC) — the refusal is off:"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
+
+# 28. the DEFAULT log path. Cases 26-27 both SET PREFLIGHT_SELFTEST_LOG, so the `:-` default
+# never evaluated and they passed while the real preflight was broken: a blanket replace had
+# rewritten the definition to SELFTEST_LOG="${PREFLIGHT_SELFTEST_LOG:-$SELFTEST_LOG}", which
+# is self-referential and unbound under set -u. A test that only drives the overridden branch
+# cannot see the one branch every real run takes.
+D="$(pfroot "146 passed · 0 failed · 0 skipped")"
+OUT="$(cd "$D" && env -u PREFLIGHT_SELFTEST_LOG bash packaging/preflight.sh --selftest-only 2>&1)"; RC=$?
+if [ $RC -eq 0 ] && ! printf '%s' "$OUT" | grep -qi 'unbound\|parameter not set'; then
+  ok "preflight step 1 works with no PREFLIGHT_SELFTEST_LOG set (the real path)"
+else
+  bad "preflight step 1 broke on its own default log path (rc=$RC):"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
+fi
+rm -rf "$D"
 
 echo
 if [ $FAIL -eq 0 ]; then echo "release guards kill-tests: PASS"; exit 0; else echo "release guards kill-tests: FAIL"; exit 1; fi

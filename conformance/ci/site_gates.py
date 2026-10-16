@@ -380,6 +380,43 @@ def orphans():
     return 0 if not fails else 1
 
 
+REPRO_PATH = re.compile(
+    r"\b(?:public|ops|conformance|packaging|tests|api|bin|docs)/[\w./-]+\.(?:py|sh|json|md)\b")
+
+
+def dead_repro_paths(entries, exists=None):
+    """Repo paths inside a claim's `repro:` command that a reader could not run.
+
+    A `repro:` clause is an instruction someone is meant to execute, so every path in
+    it has to resolve. KI-001 shipped `conformance/ci/validate_dual_oracle.py`, which
+    has never existed (the file lives under conformance/selfcheck/), so the one claim
+    telling a reader how to reproduce an SDK finding could not be run by anyone.
+
+    Deliberately NARROW. An evidence string may legitimately NAME a path that is gone,
+    to record that it was superseded (CLAIM-009 about docs/ROADMAP.md) or that it is
+    the wrong path (CLAIM-RUB-005 about conformance/cli.py). A blunt existence sweep
+    over all evidence reds both of those, so only the runnable part is checked: the
+    text between `repro:` and the first `->`, the shape every repro row uses.
+
+    `ops/` is reported as not-publicly-runnable rather than as missing, because that
+    repo is private and absent in CI; keying on its presence would make this gate pass
+    locally and red in CI for the same input.
+    """
+    exists = exists or (lambda rel: (ROOT / rel).exists())
+    out = []
+    for e in entries or []:
+        m = re.search(r"repro:\s*(.*?)(?:->|$)", e.get("evidence", "") or "", re.S)
+        if not m:
+            continue
+        for pm in REPRO_PATH.finditer(m.group(1)):
+            rel = pm.group()
+            if rel.startswith("ops/"):
+                out.append((e.get("id"), rel, "is in the private ops repo, so no reader can run it"))
+            elif not exists(rel):
+                out.append((e.get("id"), rel, "does not exist"))
+    return out
+
+
 def claims(explain=False):
     entries = _load_claims()
     fails, out = [], []
@@ -391,6 +428,8 @@ def claims(explain=False):
                 if name not in table:
                     fails.append(f"site_claims.json {e.get('id')}: evidence cites run_suite gate "
                                  f"'{name}' which is not in run_suite's gate table")
+        for cid, rel, why in dead_repro_paths(entries):
+            fails.append(f"site_claims.json {cid}: `repro:` command names {rel}, which {why}")
 
     for path in pages():
         page = page_key(path)
