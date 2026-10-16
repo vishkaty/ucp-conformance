@@ -25,7 +25,23 @@ if [ "$TAG" = "--guards-only" ]; then GUARDS_ONLY=1; TAG="${2:-}"; fi   # releas
 # the step can. PREFLIGHT_SELFTEST_LOG lets the test point the log somewhere writable.
 SELFTEST_ONLY=0
 if [ "$TAG" = "--selftest-only" ]; then SELFTEST_ONLY=1; TAG="${2:-}"; fi
-SELFTEST_LOG="${PREFLIGHT_SELFTEST_LOG:-/tmp/preflight_selftest.log}"
+# EVERY diagnostic in this script is PER RUN, in one scratch directory. They used to be
+# fixed /tmp names, and several steps tell the operator "see /tmp/...", so those files have
+# to describe the run the operator just did. They did not. Case 28 below drives preflight on
+# its DEFAULT paths on purpose, with env -u, inside a guard suite that preflight itself runs,
+# so a nested run overwrote the logs of the run that had just produced them: a real preflight
+# reported 147 passed and the file on disk then read "146 passed", the canned stub line of
+# that suite. Two preflights in parallel destroyed each other the same way, on all of them.
+# A directory rather than seven suffixed names, because the defect is the shared name and not
+# any one file, and because one directory can be cleaned up as a unit. No suffix on the
+# template: macOS mktemp only substitutes TRAILING Xs, so "preflight.XXXXXX.log" would create
+# a file literally called that and silently reinstate one shared path.
+PF_TMP="${PREFLIGHT_TMPDIR:-}"
+if [ -z "$PF_TMP" ]; then
+  PF_TMP="$(mktemp -d "${TMPDIR:-/tmp}/preflight.XXXXXX")" || {
+    echo "preflight: FATAL - could not create a scratch directory" >&2; exit 1; }
+fi
+SELFTEST_LOG="${PREFLIGHT_SELFTEST_LOG:-$PF_TMP/selftest.log}"
 FAIL=0
 step(){ printf "\n\033[1m▶ %s\033[0m\n" "$1"; }
 ok(){   printf "  \033[32m✓\033[0m %s\n" "$1"; }
@@ -43,12 +59,12 @@ if bash conformance/ci/selftest.sh >"$SELFTEST_LOG" 2>&1; then
   # can be asserted against crafted logs (cases 22-25 of packaging/test_preflight_guards.sh).
   # Deciding it inline here left a surviving mutant: `bad` -> `ok` switched the refusal off
   # while the source-grep cases stayed green. A skip is not a pass.
-  pf_summary="$(bash packaging/selftest_summary.sh "$SELFTEST_LOG" 2>/tmp/preflight_summary.err)"
+  pf_summary="$(bash packaging/selftest_summary.sh "$SELFTEST_LOG" 2>$PF_TMP/summary.err)"
   pf_rc=$?
   if [ $pf_rc -eq 0 ]; then
     ok "selftest GREEN — $pf_summary"
   else
-    bad "selftest not green — $(tr -d '\n' < /tmp/preflight_summary.err) ${pf_summary:+($pf_summary)} (see $SELFTEST_LOG)"
+    bad "selftest not green — $(tr -d '\n' < $PF_TMP/summary.err) ${pf_summary:+($pf_summary)} (see $SELFTEST_LOG)"
   fi
 else
   bad "selftest RED — see $SELFTEST_LOG (tail below)"; tail -6 "$SELFTEST_LOG"
@@ -64,23 +80,23 @@ step "Coverage + bundle freshness (committed == generated)"
 # kill-tested (packaging/test_preflight_guards.sh cases 5-7). It anchors on HEAD: the
 # inline version compared the worktree against the INDEX, so a staged-but-uncommitted
 # artifact read as fresh.
-if bash packaging/artifact_freshness.sh --regenerate >/tmp/preflight_fresh.log 2>&1; then
+if bash packaging/artifact_freshness.sh --regenerate >$PF_TMP/fresh.log 2>&1; then
   ok "coverage.json, spec-coverage-matrix.md, and the pip bundle are up to date"
 else
-  bad "regenerated artifacts differ from COMMITTED — commit these:"; sed 's/^/    /' /tmp/preflight_fresh.log
+  bad "regenerated artifacts differ from COMMITTED — commit these:"; sed 's/^/    /' $PF_TMP/fresh.log
 fi
 # the bundle must also be COMPLETE, not just current (D1-05 <- D5-06 pending item): every module
 # merchant.py transitively imports + every data file it reads ships, and it imports in isolation
-if python3 packaging/validate_bundle.py >/tmp/preflight_bundle.log 2>&1; then
-  ok "$(tail -1 /tmp/preflight_bundle.log)"
+if python3 packaging/validate_bundle.py >$PF_TMP/bundle.log 2>&1; then
+  ok "$(tail -1 $PF_TMP/bundle.log)"
 else
-  bad "pip bundle INCOMPLETE — see /tmp/preflight_bundle.log"; tail -4 /tmp/preflight_bundle.log | sed 's/^/    /'
+  bad "pip bundle INCOMPLETE — see $PF_TMP/bundle.log"; tail -4 $PF_TMP/bundle.log | sed 's/^/    /'
 fi
 # the claims register's generated blocks (manifest + evidence split) are byte-synced with the engine (D5-05)
-if python3 conformance/web/sync_site_claims.py --check >/tmp/preflight_claims_sync.log 2>&1; then
+if python3 conformance/web/sync_site_claims.py --check >$PF_TMP/claims_sync.log 2>&1; then
   ok "site_claims.json manifest + evidence.per_version in sync with the engine"
 else
-  bad "site_claims.json generated blocks drifted — run: python3 conformance/web/sync_site_claims.py --write"; tail -5 /tmp/preflight_claims_sync.log | sed 's/^/    /'
+  bad "site_claims.json generated blocks drifted — run: python3 conformance/web/sync_site_claims.py --write"; tail -5 $PF_TMP/claims_sync.log | sed 's/^/    /'
 fi
 
 # 3. Working tree clean (nothing uncommitted that a push would miss).
@@ -127,8 +143,8 @@ bash packaging/release_guards.sh "$TAG" || FAIL=1
 
 # 4b. The guards must be ABLE to fail: hermetic kill-tests (scratch trees, repo untouched).
 step "Release guard kill-tests"
-bash packaging/test_preflight_guards.sh >/tmp/preflight_guard_tests.log 2>&1 && ok "release guards kill-tests PASS" || { bad "release guards kill-tests RED — see /tmp/preflight_guard_tests.log"; tail -4 /tmp/preflight_guard_tests.log; }
-bash packaging/test_release_guards.sh >/tmp/preflight_tagguard_tests.log 2>&1 && ok "release tag-guard kill-tests PASS" || { bad "release tag-guard kill-tests RED — see /tmp/preflight_tagguard_tests.log"; tail -4 /tmp/preflight_tagguard_tests.log; }
+bash packaging/test_preflight_guards.sh >$PF_TMP/guard_tests.log 2>&1 && ok "release guards kill-tests PASS" || { bad "release guards kill-tests RED — see $PF_TMP/guard_tests.log"; tail -4 $PF_TMP/guard_tests.log; }
+bash packaging/test_release_guards.sh >$PF_TMP/tagguard_tests.log 2>&1 && ok "release tag-guard kill-tests PASS" || { bad "release tag-guard kill-tests RED — see $PF_TMP/tagguard_tests.log"; tail -4 $PF_TMP/tagguard_tests.log; }
 
 echo
 if [ "$FAIL" -eq 0 ]; then
