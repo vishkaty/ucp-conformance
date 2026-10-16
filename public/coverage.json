@@ -12381,10 +12381,7 @@
      "scope": "report-only (decision 8)"
     }
    },
-   "discovery_live": {
-    "stores": 4,
-    "as_of": "2026-09-11"
-   },
+   "discovery_live": null,
    "evidence_classes": [
     "live-wire",
     "discovery-live",
