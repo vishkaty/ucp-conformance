@@ -262,11 +262,15 @@ fi
 # review found: `bash` -> `true` on the delegation line, pf_rc forced to 0, `-eq 0` -> `-ge 0`,
 # the delegation line deleted, and `bad` -> `ok` in the else branch (mutant P1 transplanted).
 # Each left the whole suite green. Running the step against a stub selftest.sh kills all five.
-pfroot(){ # $1 = the summary the stub selftest.sh prints
-  local d; d="$(mktemp -d)"
+pfroot(){ # $1 = the summary the stub selftest.sh prints, $2 = its exit code (default 0)
+  # A failed mktemp -d used to return "", and `cd ""` is a NO-OP in bash, so the nested
+  # preflight would run from the suite working directory and fire the REAL step 1: the full
+  # gate run, servers and all, from inside a hermetic kill-test. Fail loudly instead.
+  local d; d="$(mktemp -d)" || { echo "pfroot: mktemp -d failed" >&2; return 1; }
+  [ -n "$d" ] && [ -d "$d" ] || { echo "pfroot: mktemp -d gave no directory" >&2; return 1; }
   mkdir -p "$d/packaging" "$d/conformance/ci"
   cp "$ROOT/packaging/preflight.sh" "$ROOT/packaging/selftest_summary.sh" "$d/packaging/"
-  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\nexit 0\n' "$1" > "$d/conformance/ci/selftest.sh"
+  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "%s"\nexit %s\n' "$1" "${2:-0}" > "$d/conformance/ci/selftest.sh"
   printf '%s' "$d"
 }
 
@@ -301,6 +305,40 @@ else
   bad "preflight step 1 broke on its own default log path (rc=$RC):"; printf '%s' "$OUT" | tail -3 | sed 's/^/    /'
 fi
 rm -rf "$D"
+
+# 29. each run must get its OWN diagnostics. This is a PROPERTY, and the first version of
+# this case did not test it: it planted a sentinel at the one literal path /tmp/preflight_
+# selftest.log and required it to survive, which proves only that THAT NAME is unused. A
+# review killed it with two mutants the suite reported green on: a DIFFERENT fixed shared
+# name, and the original shared name with `>` changed to `>>`. Both are "one path shared by
+# every run", the defect itself. So assert the property instead: drive two default-path runs
+# whose stub selftest FAILS, which makes preflight print "see <path>", and require the two
+# paths to differ, to be neither of the legacy shared names, and each file to hold only its
+# own run. It touches no shared path at all, which also removes every way the old sentinel
+# version could damage the real file of an operator: no backup to orphan on an interrupt, no
+# symlink to follow, no directory to move a backup into, and no rm -f reachable when mktemp
+# fails.
+pf_run_log(){ # $1 = marker; echoes the log path preflight reported for that run
+  local d out; d="$(pfroot "$1" 1)" || return 1
+  out="$(cd "$d" && env -u PREFLIGHT_SELFTEST_LOG bash packaging/preflight.sh --selftest-only 2>&1)"
+  rm -rf "$d"
+  printf '%s' "$out" | sed -n 's/.*see \([^ )]*\).*/\1/p' | head -1
+}
+L29A="$(pf_run_log MARKER-RUN-A-29)"; L29B="$(pf_run_log MARKER-RUN-B-29)"
+s29_why=""
+[ -n "$L29A" ] && [ -n "$L29B" ] || s29_why="preflight printed no log path"
+[ "$L29A" != "$L29B" ] || s29_why="${s29_why:-both runs used the same path $L29A}"
+case "$L29A" in */preflight_selftest.log|*/preflight_selftest_shared.log)
+  s29_why="${s29_why:-run A used a legacy shared name $L29A}" ;; esac
+if [ -z "$s29_why" ]; then
+  grep -q MARKER-RUN-A-29 "$L29A" 2>/dev/null || s29_why="run A log lacks its own marker"
+  grep -q MARKER-RUN-B-29 "$L29A" 2>/dev/null && s29_why="${s29_why:-run A log also holds run B}"
+fi
+if [ -z "$s29_why" ]; then
+  ok "each preflight run gets its own diagnostics ($(basename "$(dirname "$L29A")") vs $(basename "$(dirname "$L29B")"))"
+else
+  bad "preflight diagnostics are SHARED between runs: $s29_why. On a failure the operator is sent to a log describing a different run"
+fi
 
 echo
 if [ $FAIL -eq 0 ]; then echo "release guards kill-tests: PASS"; exit 0; else echo "release guards kill-tests: FAIL"; exit 1; fi
