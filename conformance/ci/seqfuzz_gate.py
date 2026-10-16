@@ -479,10 +479,31 @@ def selftest():
     now = si.resolve_mode("user_facing", today=until, mode=rm) == "report"
     past = si.resolve_mode("user_facing", today=until + day, mode=rm) == "enforce"
     gg = si.resolve_mode("golden_gates", mode=rm) == "enforce"
-    rmok = before and now and past and gg
+    # The VALUE axis too, not only the date axis: probe synthetic documents whose values
+    # DIFFER from the committed file. Deriving every expectation from load_replay_mode()
+    # only ever confirms the two values the file happens to hold, and a resolve_mode that
+    # ignored the document entirely would still pass. Flipping user_facing to enforce once
+    # F3-f is answered is an edit to this document, so the document is the thing under test.
+    syn = {"user_facing": "enforce", "golden_gates": "report", "report_until": "2026-12-31",
+           "golden_pending": {"task": "D3-23", "until": "2026-12-31"}}
+    split = {"user_facing": "report", "golden_gates": "enforce", "report_until": "2027-06-30",
+             "golden_pending": {"task": "D3-23", "until": "2026-01-01"}}
+    probe = datetime.date(2026, 12, 1)
+    reads = (si.resolve_mode("user_facing", today=probe, mode=syn) == "enforce"
+             and si.resolve_mode("golden_gates", today=probe, mode=syn) == "report"
+             and si.resolve_mode("user_facing", today=probe, mode=split) == "report")
+    # `golden_pending` carries its own clock, moved by decision 1c alongside report_until.
+    # Nothing probed it, so the PENDING D3-23 exemption could not be shown to lapse.
+    gpu = datetime.date.fromisoformat(rm["golden_pending"]["until"])
+    pend = (pending_task(rm, today=gpu) == rm["golden_pending"]["task"]
+            and pending_task(rm, today=gpu + day) is None
+            and pending_task({}, today=gpu) is None)
+    rmok = before and now and past and gg and reads and pend
     print(f"  {'✓' if rmok else '✗'} replay_mode.json: golden_gates=enforce, user_facing=report through "
-          f"{rm['report_until']} inclusive, enforce from {until + day} (self-expiring)"
-          + ("" if rmok else f" — before={before} on={now} after={past} golden_gates={gg}"))
+          f"{rm['report_until']} inclusive, enforce from {until + day} (self-expiring); "
+          f"PENDING {rm['golden_pending']['task']} lapses after {rm['golden_pending']['until']}"
+          + ("" if rmok else f" — before={before} on={now} after={past} golden_gates={gg} "
+                             f"reads-document={reads} pending-clock={pend}"))
     ok = ok and rmok
     print(f"{caught}/4 planted violations caught · {'control quiet' if quiet else 'control NOISY'} · {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
