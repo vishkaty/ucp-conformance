@@ -169,6 +169,15 @@ def check_tracked(mat, tracked=TRACKED, today=None):
     if not pathlib.Path(tracked).exists():
         return [f"tracked {tracked.name} missing — run oracle_verdict_diff.py --record"]
     d = json.loads(pathlib.Path(tracked).read_text())
+    # KNOWN DIVERGENCE, found 2026-10-16: ran_at is written in UTC (see --record below)
+    # but compared against the LOCAL date here, so on a machine behind UTC the age reads a
+    # day short and this gate can pass locally while the same tree fails in CI. That is
+    # exactly what happened on the d3e0085 merge: local --check rc 0 at 2026-10-15 21:08
+    # EDT, CI rc 1 at 2026-10-16 01:07 UTC, "STALE: 15 days old (> 14)". The fix is to
+    # compare UTC to UTC, and the same pattern is in seven other gates
+    # (discovery_live, discovery_shapes, official_crosscheck, preview_parity, site_gates,
+    # seq_invariants, seqfuzz_gate), so it is a class and gets its own branch with a test:
+    # check_tracked already takes `today`, so it is directly testable.
     today = today or datetime.date.today()
     try:
         ran = datetime.date.fromisoformat(d["ran_at"][:10])
