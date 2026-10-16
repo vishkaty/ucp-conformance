@@ -174,6 +174,10 @@ def gates(server, require_server=False):
         ("expiry-clocks", _py(SELF / "validate_expiry_clocks.py"),                None, ()),
         ("expiry-clocks-selftest", _py(SELF / "validate_expiry_clocks.py", "--selftest"), None, ()),
         ("coverage",    _py(ROOT / "conformance" / "coverage" / "coverage_gate.py"), None, ()),
+        # The kill-tests BELOW were defined and never executed. coverage_gate.selftest holds
+        # invariant 3 and the exemption-honesty checks, which are what the published coverage
+        # number rests on, so an unrun kill-test there is the worst case in the table.
+        ("coverage-selftest", _py(ROOT / "conformance" / "coverage" / "coverage_gate.py", "--selftest"), None, ()),
         # D1-14 (PLAN-v3 §2.3): every committed wave target file — the ids a wave COMMITTED
         # to convert — reads all CHECK at its version; mid-wave an id may be excused only
         # by a `blocked` entry naming a task id (--allow-blocked here; the wave-close
@@ -310,6 +314,7 @@ def gates(server, require_server=False):
         # without --require-server an empty record set skips honestly (rc 2).
         ("dormancy",    _py(SELF / "validate_dormancy.py", "--records", str(RECORD_DIR),
                             *(["--require-server"] if require_server else [])), None, (2,)),
+        ("dormancy-selftest", _py(SELF / "validate_dormancy.py", "--selftest"), None, ()),
         # D1-12 (B2a): every (check, register id) attribution at 2026-08-25 has >= 1 DEDICATED
         # kill — a multi-id check must say which mutation/mutant/negative proves which id
         # (`kills=`), and the run records above (merchant-0825, golden-check-08-25,
@@ -342,6 +347,7 @@ def gates(server, require_server=False):
         ("mcp-check-0825-selftest", _py(SELF / "validate_mcp_checks.py", "--selftest"), None, ()),
         ("battery-freshness", _py(SELF / "validate_battery_freshness.py",
                                   "--in-run", str(BATTERY_IN_RUN)), None, ()),
+        ("battery-freshness-selftest", _py(SELF / "validate_battery_freshness.py", "--selftest"), None, ()),
         # W1 D3 carry-over: the battery's --out/--record split (the CI-1 class) — a battery
         # run never rewrites the tracked LAST_RUN.json; hermetic writer + wiring cases.
         ("battery-record-split", _py(SELF / "test_battery_record_split.py"), None, ()),
@@ -500,6 +506,7 @@ def gates(server, require_server=False):
         # D5-14 (G2): the five steward docs exist, each `last-reviewed:` <= 90 days, DECISIONS.md tracks
         # every PLAN-v3 decision 1-34 + 4b; hermetic
         ("docs-steward", _py(ROOT / "conformance" / "ci" / "validate_steward_docs.py"), None, ()),
+        ("docs-steward-selftest", _py(ROOT / "conformance" / "ci" / "validate_steward_docs.py", "--selftest"), None, ()),
         # D5-13 (H5): discovery-live shape bucketing + the 30-day capture window (pure; ops' scanner
         # and D4-08's sampler call the same module); selftest plants a stale capture
         ("discovery-shapes", _py(ROOT / "conformance" / "ci" / "discovery_shapes.py", "--selftest"), None, ()),
