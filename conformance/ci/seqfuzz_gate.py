@@ -469,12 +469,21 @@ def selftest():
     print(f"  {'✓' if rmode else '✗'} I10 in report mode: {rep.reports.get('I10', 0)} REPORT line(s), "
           f"{rep.violations.get('I10', 0)} violation(s)")
     ok = ok and rmode
-    past = si.resolve_mode("user_facing", today=datetime.date(2026, 11, 10)) == "enforce"
-    now = si.resolve_mode("user_facing", today=datetime.date(2026, 9, 11)) == "report"
-    gg = si.resolve_mode("golden_gates") == "enforce"
-    print(f"  {'✓' if past and now and gg else '✗'} replay_mode.json: golden_gates=enforce, user_facing=report until "
-          f"{si.load_replay_mode()['report_until']}, then enforce (self-expiring)")
-    ok = ok and past and now and gg
+    # Window-relative, never literal dates: decision 1c moved `report_until` and a
+    # hardcoded probe inverted this gate (PR 35). Probing the BOUNDARY also catches an
+    # off-by-one in resolve_mode, which two arbitrary interior dates could not.
+    rm = si.load_replay_mode()
+    until = datetime.date.fromisoformat(rm["report_until"])
+    day = datetime.timedelta(days=1)
+    before = si.resolve_mode("user_facing", today=until - day, mode=rm) == "report"
+    now = si.resolve_mode("user_facing", today=until, mode=rm) == "report"
+    past = si.resolve_mode("user_facing", today=until + day, mode=rm) == "enforce"
+    gg = si.resolve_mode("golden_gates", mode=rm) == "enforce"
+    rmok = before and now and past and gg
+    print(f"  {'✓' if rmok else '✗'} replay_mode.json: golden_gates=enforce, user_facing=report through "
+          f"{rm['report_until']} inclusive, enforce from {until + day} (self-expiring)"
+          + ("" if rmok else f" — before={before} on={now} after={past} golden_gates={gg}"))
+    ok = ok and rmok
     print(f"{caught}/4 planted violations caught · {'control quiet' if quiet else 'control NOISY'} · {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 

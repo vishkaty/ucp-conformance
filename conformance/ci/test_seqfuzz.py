@@ -2,7 +2,7 @@
 """D4-07 (E3) — stateful sequence fuzz gate: conformance/ci/seq_invariants.py (I1..I9 + I10
 `replay_reserialized`, THE single implementation of REPLAY-002 that D1-16b's Row and D3-23's
 mutant import), conformance/ci/replay_mode.json (decision 1: `enforce` in golden gates, `report`
-in user-facing runs until F3-f is answered or 2026-11-09), seqfuzz_gate.py (--selftest with
+in user-facing runs until F3-f is answered or `report_until` passes), seqfuzz_gate.py (--selftest with
 planted stubs; --boot disposable golden on a free port + mktemp DB_DIR; --races N).
 
 Failing-first: neither module exists (ModuleNotFoundError) and the gate script is absent.
@@ -34,9 +34,14 @@ def test_replay_mode_resolves_per_context_and_self_expires():
     import seq_invariants as si
     mode = si.load_replay_mode()
     assert mode["golden_gates"] == "enforce" and mode["user_facing"] == "report"
-    assert si.resolve_mode("golden_gates", today=datetime.date(2026, 9, 11)) == "enforce"
-    assert si.resolve_mode("user_facing", today=datetime.date(2026, 9, 11)) == "report"
-    assert si.resolve_mode("user_facing", today=datetime.date(2026, 11, 10)) == "enforce"   # past report_until
+    # Boundary-relative, never literal dates: the literal that used to stand here
+    # encoded the old report_until and inverted when decision 1c moved the window.
+    until = datetime.date.fromisoformat(mode["report_until"])
+    day = datetime.timedelta(days=1)
+    assert si.resolve_mode("golden_gates", today=until + day) == "enforce"   # never self-expires
+    assert si.resolve_mode("user_facing", today=until - day) == "report"
+    assert si.resolve_mode("user_facing", today=until) == "report"           # inclusive
+    assert si.resolve_mode("user_facing", today=until + day) == "enforce"    # self-expires
 
 
 def test_selftest_catches_the_four_planted_violations_and_control_is_quiet():
