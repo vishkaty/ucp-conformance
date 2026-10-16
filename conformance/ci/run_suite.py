@@ -268,6 +268,12 @@ def gates(server, require_server=False):
         # network without a live owner attestation. The guard is only real if it runs —
         # four cases, both nets kill-proved. SKIP rc 2 when ops/ is not mounted.
         ("sampler-attestation-guard", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/test_run_sampler_guard.py"), None, (2,)),
+        # The register's own hygiene test: it asserts ZERO malformed TRIGGER lines and was
+        # RED for weeks while wired to nothing. Six lines used spec kinds the parser never
+        # had (two DEADLINE, four historical) and one mapped AP2 to the wrong org, so the
+        # hourly evaluation carried 6 malformed and 1 EVAL ERROR that nobody saw, because the
+        # only thing that would have said so was a test no gate ran. SKIP rc 2 without ops/.
+        ("trigger-watch-unit", _py(ROOT / "conformance" / "ci" / "ops_tool_gate.py", "tools/test_trigger_watch.py"), None, (2,)),
         ("oracle-manifest", _py(SELF / "validate_schema_oracle_manifest.py"),          None, (2,)),
         ("oracle-manifest-selftest", _py(SELF / "validate_schema_oracle_manifest.py", "--selftest"), None, ()),
         ("oracle-verdict-diff", _py(ROOT / "conformance" / "ci" / "oracle_verdict_diff.py", "--check"), None, (2,)),
