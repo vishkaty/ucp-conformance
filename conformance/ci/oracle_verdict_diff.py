@@ -37,6 +37,36 @@ sys.path.insert(0, str(ROOT / "conformance" / "checks"))
 
 TRACKED = HERE / "oracle_verdict_diff.json"
 STALE_DAYS = 14
+
+
+def _today():
+    """Today in UTC, because `ran_at` is written in UTC.
+
+    Comparing a UTC timestamp against `datetime.date.today()` (local) makes the age read a
+    day short on any machine behind UTC, so this gate could pass locally and fail in CI for
+    the identical tree. That happened on 2026-10-16: rc 0 at 21:08 EDT, rc 1 at 01:07 UTC
+    with "STALE: 15 days old (> 14)", and the failure was unreproducible on the owner's
+    machine. CI runs in UTC, and "run every applicable CI job locally" has to mean the same
+    thing in both places. Pinned by --selftest
+    cases (a), (a') and (a''), the last of which re-invokes in UTC+14 and UTC-11 so a
+    local-date regression dies at any hour, not only while the two dates happen to differ.
+
+    SCOPE, surveyed 2026-10-16 and CORRECTED after an independent review refuted my first
+    claim that this was the only instance. conformance/ci/discovery_shapes.py was a second
+    one, fixed in the same change: discovery_reach ages `fetched_at`, which discovery_live
+    writes in UTC, against check_dir's locally-defaulted today. Other gates compare a local
+    date against a hand-written date LITERAL (official_crosscheck or_date,
+    seqfuzz_gate golden_pending.until, site_gates, seq_invariants, discovery_shapes,
+    preview_parity, and roughly fifteen more by the reviewer's census, so "six" was an
+    undercount): not a wrong comparison, but local and CI still disagree about "today"
+    between local midnight and UTC midnight, so a window boundary can flip in CI and not
+    locally. discovery_live compares local dates against locally-named capture directories
+    and is internally consistent. Converting the literal class to UTC is worth doing as one
+    deliberate change with its own tests, not as a late addition here.
+    """
+    return datetime.datetime.now(datetime.timezone.utc).date()
+
+
 LAYOUTS = ("2026-04-08", "2026-08-25")
 KINDS = ("valid", "invalid", "crash", "rc2")
 
@@ -169,16 +199,7 @@ def check_tracked(mat, tracked=TRACKED, today=None):
     if not pathlib.Path(tracked).exists():
         return [f"tracked {tracked.name} missing — run oracle_verdict_diff.py --record"]
     d = json.loads(pathlib.Path(tracked).read_text())
-    # KNOWN DIVERGENCE, found 2026-10-16: ran_at is written in UTC (see --record below)
-    # but compared against the LOCAL date here, so on a machine behind UTC the age reads a
-    # day short and this gate can pass locally while the same tree fails in CI. That is
-    # exactly what happened on the d3e0085 merge: local --check rc 0 at 2026-10-15 21:08
-    # EDT, CI rc 1 at 2026-10-16 01:07 UTC, "STALE: 15 days old (> 14)". The fix is to
-    # compare UTC to UTC, and the same pattern is in seven other gates
-    # (discovery_live, discovery_shapes, official_crosscheck, preview_parity, site_gates,
-    # seq_invariants, seqfuzz_gate), so it is a class and gets its own branch with a test:
-    # check_tracked already takes `today`, so it is directly testable.
-    today = today or datetime.date.today()
+    today = today or _today()
     try:
         ran = datetime.date.fromisoformat(d["ran_at"][:10])
     except Exception:  # noqa: BLE001
@@ -192,11 +213,116 @@ def check_tracked(mat, tracked=TRACKED, today=None):
     return f
 
 
+def selftest():
+    """Hermetic kill-tests for the staleness clock. No oracle build, no network.
+
+    Exists because this gate had no test, which is why a UTC-versus-local defect lived in
+    it: `ran_at` is written in UTC and was compared against the LOCAL date, so on a machine
+    behind UTC the age read a day short. On 2026-10-16 that made the gate pass locally
+    (rc 0, 21:08 EDT) and fail in CI (rc 1, 01:07 UTC, "STALE: 15 days old"), so the defect
+    was unreproducible on the owner's machine.
+    """
+    bad = 0
+
+    def case(label, cond, detail=""):
+        nonlocal bad
+        print(f"  {'✓' if cond else '✗'} {label}" + ("" if cond else f"  <-- {detail}"))
+        bad += 0 if cond else 1
+
+    # (a) the default `today` must be the UTC date, not the local one. On any machine
+    # behind UTC these differ for part of each day, which is exactly the window that hid
+    # the defect.
+    want = datetime.datetime.now(datetime.timezone.utc).date()
+    got = _today()
+    case("(a) the default today is the UTC date", got == want, f"got {got}, UTC is {want}")
+    case("(a') and it is NOT silently the local date when they differ",
+         not (datetime.date.today() != want and got == datetime.date.today()),
+         f"local {datetime.date.today()} leaked in while UTC is {want}")
+
+    # (a'') TZ invariance. Cases (a) and (a') only discriminate while the local and UTC
+    # dates differ, which is a few hours a day, so a local-date mutant would survive them
+    # for most of the day. Re-invoking in two extreme zones pins it at any hour: UTC+14 and
+    # UTC-11 are on different calendar dates almost always, so date.today() differs between
+    # them while a UTC-based _today() cannot.
+    import os, subprocess
+    code = ("import sys; sys.path.insert(0, %r); "
+            "import oracle_verdict_diff as m; print(m._today().isoformat())" % str(HERE))
+    outs = {}
+    for tz in ("Pacific/Kiritimati", "Pacific/Niue"):
+        r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                           env={**os.environ, "TZ": tz})
+        outs[tz] = r.stdout.strip()
+    case("(a'') _today() is the same date in UTC+14 and UTC-11",
+         outs["Pacific/Kiritimati"] == outs["Pacific/Niue"] and outs["Pacific/Niue"] != "",
+         outs)
+
+    # (b) the staleness boundary, injected so it does not depend on the clock
+    ran = "2026-10-01T00:33:48+00:00"
+    doc = {"ran_at": ran, "cells": {}}
+    import tempfile
+    tmp = pathlib.Path(tempfile.mkdtemp()) / "oracle_verdict_diff.json"
+    tmp.write_text(json.dumps(doc))
+
+    def mk(d):
+        return check_tracked({}, tmp, today=d)
+    at14 = mk(datetime.date(2026, 10, 15))
+    at15 = mk(datetime.date(2026, 10, 16))
+    case("(b) 14 days old is not stale", not any("STALE" in x for x in at14), at14)
+    case("(b') 15 days old IS stale", any("STALE" in x for x in at15), at15)
+    case("(b'') and the finding names the age and the window",
+         any("15 days old (> 14)" in x for x in at15), at15)
+
+    # (c) THE WIRING. Cases (a*) test _today() alone and (b*) inject `today`, so reverting
+    # the one production line (`today or _today()` back to `today or date.today()`) left
+    # this selftest green: the gate could not catch the regression it was written for. An
+    # independent review found that as mutant M5. This case omits `today` so the default
+    # path runs, in two zones whose local date disagrees with UTC at every hour of the day
+    # (Niue trails UTC 00:00-10:59, Kiritimati leads 10:00-23:59), so at least one zone
+    # always exposes a local-date default.
+    drv = (
+        "import sys, json, datetime, pathlib, tempfile; sys.path.insert(0, %r); "
+        "import oracle_verdict_diff as m; "
+        "u = datetime.datetime.now(datetime.timezone.utc).date(); "
+        "out = []; "
+        "t = pathlib.Path(tempfile.mkdtemp()); "
+        "f15 = t / 'a.json'; f15.write_text(json.dumps({'ran_at': (u - datetime.timedelta(days=15)).isoformat() + 'T00:00:00+00:00', 'cells': {}})); "
+        "f14 = t / 'b.json'; f14.write_text(json.dumps({'ran_at': (u - datetime.timedelta(days=14)).isoformat() + 'T00:00:00+00:00', 'cells': {}})); "
+        "out.append(any('STALE' in x for x in m.check_tracked({}, f15))); "
+        "out.append(any('STALE' in x for x in m.check_tracked({}, f14))); "
+        "out.append(datetime.date.today().isoformat()); "
+        "print(json.dumps(out))"
+    ) % str(HERE)
+    wired = {}
+    for tz in ("Pacific/Kiritimati", "Pacific/Niue"):
+        r = subprocess.run([sys.executable, "-c", drv], capture_output=True, text=True,
+                           env={**os.environ, "TZ": tz})
+        try:
+            wired[tz] = json.loads(r.stdout.strip())
+        except Exception:                      # noqa: BLE001 — a crash is a failing case
+            wired[tz] = ["crash", r.stderr[-200:], ""]
+    case("(c) 15 days old is STALE in both zones with `today` defaulted",
+         all(w[0] is True for w in wired.values()), wired)
+    case("(c') 14 days old is NOT stale in either zone with `today` defaulted",
+         all(w[1] is False for w in wired.values()), wired)
+    # positive control: if the two zones report the SAME local date, TZ was not honoured or
+    # tzdata is absent, and (a'')/(c) would pass vacuously. Fail loudly instead.
+    case("(c'') the two zones really do see different local dates (tzdata honoured)",
+         wired["Pacific/Kiritimati"][2] != wired["Pacific/Niue"][2] != "",
+         {k: v[2] for k, v in wired.items()})
+
+    print(f"\noracle-verdict-diff selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
+    return 1 if bad else 0
+
+
+
 def main():
     ap = argparse.ArgumentParser(description="both oracle builds x both layouts (D4-04)")
     ap.add_argument("--record", action="store_true", help="write the tracked JSON (owner-committed)")
     ap.add_argument("--check", action="store_true", help="gate: live cells + tracked file freshness/identity")
+    ap.add_argument("--selftest", action="store_true", help="hermetic kill-tests for the staleness clock")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
     import schema_oracle as so
     import validate_dual_oracle as vdo
     manifest = so.load_manifest()
