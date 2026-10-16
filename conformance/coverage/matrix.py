@@ -525,20 +525,35 @@ def _census_for(ver, completeness):
     return {"mode": mode, "unaccounted": pv.get("missed", 0), "gate_from": gate_from}
 
 
-def _discovery_live_slot(version):
+def _discovery_live_slot(version, path=None, today=None):
     """D4-08 (decision 4): the public aggregate of the discovery-live sampler — {stores, as_of}
     from conformance/coverage/discovery_reach.json (written by discovery_live.py --grade
     --record on the owner's machine; never domains). None until captures exist; 08-25 only
     (the sampled profiles are graded against the 2026-08-25 rows)."""
     if version != "2026-08-25":
         return None
-    path = os.path.join(CONF, "coverage", "discovery_reach.json")   # W1 integration: was `HERE` (undefined here)
+    path = path or os.path.join(CONF, "coverage", "discovery_reach.json")   # W1 integration: was `HERE` (undefined here)
     if not os.path.exists(path):
         return None
     d = json.load(open(path))          # a malformed record is a loud failure, never a silent None
     if not d.get("stores"):
         return None
-    return {"stores": d["stores"], "as_of": d.get("as_of")}
+    # The SAME window the evidence classifier applies (evidence.DISCOVERY_LIVE_MAX_AGE_DAYS).
+    # Without it this slot rendered CLAIM-COV-007 from a sample that evidence.py had already
+    # excluded, so the page claimed independently operated stores while the evidence
+    # breakdown for that class read 0. A stale sample now yields None, which is what the
+    # page already treats as "fall back to the CLAIM-COV-002 ceiling sentence".
+    import datetime
+    as_of = d.get("as_of")
+    if not as_of:
+        return None
+    try:
+        age = ((today or datetime.date.today()) - datetime.date.fromisoformat(as_of)).days
+    except (TypeError, ValueError):
+        return None
+    if age < 0 or age > evidence.DISCOVERY_LIVE_MAX_AGE_DAYS:
+        return None
+    return {"stores": d["stores"], "as_of": as_of}
 
 
 def export_json():
@@ -905,6 +920,43 @@ def main():
     print("\nMATRIX GATE: OK" if a.require else "\n(report only; pass --require to enforce)")
 
 
+def test_discovery_live_window():
+    """The display slot must apply the SAME 30 day window as the evidence classifier.
+
+    It did not, and the consequence was a false sentence on the public page: on
+    2026-10-16 the export carried versions["2026-08-25"].discovery_live
+    {stores: 4, as_of: "2026-09-11"}, 35 days old, so coverage.html rendered
+    CLAIM-COV-007 about independently operated stores while
+    evidence_breakdown["discovery-live"] was already 0 because evidence.py had
+    correctly excluded the same sample. Two code paths, one published rule, and
+    only one of them enforced it. The fallback to CLAIM-COV-002 is keyed on
+    stores being 0 or null, so staleness alone never reached it.
+    Hermetic: a temp record and an injected today, no repo state."""
+    import datetime, tempfile
+    bad = 0
+    cases = [
+        (0,  True,  "a sample captured today counts"),
+        (29, True,  "inside the window counts"),
+        (30, True,  "the window is inclusive at its edge"),
+        (31, False, "one day past the window must not render"),
+        (35, False, "the 2026-10-16 situation must not render"),
+    ]
+    today = datetime.date(2026, 10, 16)
+    for age, want_slot, why in cases:
+        as_of = (today - datetime.timedelta(days=age)).isoformat()
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+            json.dump({"stores": 4, "as_of": as_of}, fh)
+            p = fh.name
+        got = _discovery_live_slot("2026-08-25", path=p, today=today)
+        os.unlink(p)
+        ok = (got is not None) == want_slot
+        print(f"  {'OK' if ok else 'XX'} discovery_live slot at {age}d -> "
+              f"{'a slot' if got else 'None'}: {why}"
+              + ("" if ok else f"  <-- expected {'a slot' if want_slot else 'None'}"))
+        bad += 0 if ok else 1
+    return bad
+
+
 def selftest():
     """Kill-tests for `_version_state` (PLAN-0825 §E's publication state machine).
 
@@ -943,6 +995,7 @@ def selftest():
         bad += 0 if ok else 1
 
     bad += test_mandatory_filter()
+    bad += test_discovery_live_window()
     bad += test_roles_partition()
 
     # production sanity: today every pinned+registered version must classify

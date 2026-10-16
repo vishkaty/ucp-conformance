@@ -377,6 +377,14 @@ def _discovery_row(chk, discovery_reach):
     return best
 
 
+# The published rule for the discovery-live evidence class, named once because the
+# display slot in matrix.py has to apply the SAME rule. It did not: on 2026-10-16 the
+# page rendered CLAIM-COV-007 from a 35 day old sample while this classifier had
+# already excluded it, so evidence_breakdown read 0 and the sentence read 4 stores.
+DISCOVERY_LIVE_MAX_AGE_DAYS = 30
+DISCOVERY_LIVE_MIN_DOMAINS = 3
+
+
 def _discovery_live(row):
     import datetime
     if not row or not row.get("latest"):
@@ -385,7 +393,7 @@ def _discovery_live(row):
         age = (datetime.date.today() - datetime.date.fromisoformat(row["latest"])).days
     except ValueError:
         return False
-    return int(row.get("domains", 0)) >= 3 and age <= 30
+    return int(row.get("domains", 0)) >= DISCOVERY_LIVE_MIN_DOMAINS and age <= DISCOVERY_LIVE_MAX_AGE_DAYS
 
 
 def classify_check(chk, module_stem, version, reach=None, discovery_reach=None):
