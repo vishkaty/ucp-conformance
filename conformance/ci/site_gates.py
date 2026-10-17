@@ -455,6 +455,16 @@ def claims(explain=False):
             if n and isinstance(val, (int, float)) and float(n.group()) != float(val):
                 fails.append(f"{page}:{ln}: data-live fallback '{n.group()}' != live "
                              f"value {val} ({spec})")
+            # A STRING live value was resolved but never compared, so a stale string
+            # fallback published whatever it liked. Found live on 2026-10-16:
+            # state-of-ucp.html carried latest_re_verified 2026-10-11 while the live value
+            # had moved to 2026-10-16, and no gate could see it. The fallback is what a
+            # reader sees before the script runs, and what every crawler sees, so it has to
+            # agree with the data it claims to mirror.
+            elif _string_fallback_mismatch(val, text):
+                fails.append(f"{page}:{ln}: data-live string fallback does not contain the "
+                             f"live value {val!r} ({spec}); the fallback reads "
+                             f"{text.strip()[:60]!r}")
 
         # R-008 — claim candidates in visible text
         seen = set()
@@ -887,6 +897,78 @@ def _known_issues_failures(today=None):
     return fails
 
 
+def _string_fallback_mismatch(val, text):
+    """True when a STRING data-live value disagrees with the fallback a reader sees.
+
+    Only int and float values were ever compared, so a string binding resolved and was
+    then ignored. Found live on 2026-10-16: state-of-ucp.html published
+    latest_re_verified 2026-10-11 while the live value had moved to 2026-10-16, with no
+    gate able to see it. The fallback is what renders before any script runs and what a
+    crawler reads, so it has to agree with the data it claims to mirror. An empty chunk
+    is not a mismatch (the element is script-filled and the raw R-007 sweep covers it)."""
+    return isinstance(val, str) and bool(val) and bool(text.strip()) and val not in text
+
+
+def _rel(p):
+    """Path relative to ROOT when it is under it, else as given (selftest scratch dirs)."""
+    try:
+        return p.relative_to(ROOT)
+    except ValueError:
+        return p
+
+
+def _official_suite_version_failures(src=None, pub=None):
+    """The version the official suite targets is an EXTERNAL fact that moves when upstream
+    moves and we re-pin. CLAIM-011 named 2026-01-23 on the landing page for three months
+    after upstream moved it to 2026-04-08, while our own KI-007 cited the new value, so the
+    site contradicted itself. Nothing compared the two: the claims gate excludes bare dates
+    and "suite" is not a claim noun, so only an unexpired review_by stood behind it, and four
+    re-pins passed without re-reading it.
+
+    So read the VENDORED suite at the pinned commit (fetch_sources.sh puts it there, and CI
+    runs that before the gates) rather than any copy of the value, and require every page
+    that names the target version to agree. Matching nothing is a FAILURE, not a pass: a
+    pattern that quietly stops matching is the disease this check exists to cure."""
+    src = pathlib.Path(src) if src else (
+        ROOT / "conformance" / ".vendor" / "conformance" / "integration_test_utils.py")
+    pub = pathlib.Path(pub) if pub else PUB
+    if not src.exists():
+        return [f"vendored official suite missing at {_rel(src)}; run "
+                f"conformance/ci/fetch_sources.sh (this gate reads the real pinned file, "
+                f"never a copy of it, so it cannot run without the vendor tree)"]
+    m = re.search(r"""^DEFAULT_UCP_VERSION\s*=\s*["']([0-9]{4}-[0-9]{2}-[0-9]{2})["']""",
+                  src.read_text(encoding="utf-8", errors="replace"), re.M)
+    if not m:
+        return [f"{_rel(src)}: no DEFAULT_UCP_VERSION assignment found; upstream "
+                f"renamed or moved it, so this gate can no longer verify the published claim"]
+    want, fails, seen = m.group(1), [], 0
+    pages = sorted(pub.glob("*.html"))
+    pat = re.compile(r"[Oo]fficial\s+[Cc]onformance\s+[Ss]uite.{0,240}?"
+                     r"targets\s+v?([0-9]{4}-[0-9]{2}-[0-9]{2})", re.S)
+    for page in pages:
+        txt = page.read_text(encoding="utf-8", errors="replace")
+        for mm in pat.finditer(txt):
+            seen += 1
+            if mm.group(1) != want:
+                ln = txt[:mm.start()].count("\n") + 1
+                fails.append(f"{page.name}:{ln}: says the official suite targets "
+                             f"{mm.group(1)} but the pinned suite has DEFAULT_UCP_VERSION "
+                             f"{want} ({_rel(src)}:{m.string[:m.start()].count(chr(10)) + 1})")
+    # Matching nothing across REAL pages is a failure, not a pass: a pattern that quietly
+    # stops matching is how CLAIM-011 stayed wrong for three months. But a public/ holding
+    # no HTML at all is a different situation: the selftest points SPCK_PUBLIC at a
+    # JSON-only scratch dir, and there nothing is published that could be wrong. Guard on
+    # "pages exist but none states it", so the silence check keeps its teeth on the real
+    # tree (15+ pages) without firing on a scratch export. A public/ with zero HTML pages
+    # is a failure every other site gate reports far more loudly than this one could.
+    if pages and not seen:
+        fails.append("no page states the version the official conformance suite targets, so "
+                     "this check matched nothing; either the claim was reworded (fix the "
+                     "pattern) or it was removed (retire this check) - a silent pattern is "
+                     "not a pass")
+    return fails
+
+
 def freshness():
     state_fails = _state_failures(_coverage_versions())
     for sf in state_fails:
@@ -912,6 +994,13 @@ def freshness():
         print(f"  x known-issues: {kf}")
     if ki_fails:
         print(f"site-freshness: FAIL — {len(ki_fails)} published known-issue row(s) stale or refuted (see above)")
+        return 1
+    os_fails = _official_suite_version_failures()
+    for of in os_fails:
+        print(f"  x official-suite: {of}")
+    if os_fails:
+        print(f"site-freshness: FAIL — {len(os_fails)} published statement(s) about the "
+              f"official suite target version disagree with the pinned suite (see above)")
         return 1
     if not manifest:
         print(f"site-freshness: FAIL — claims register missing manifest "
@@ -1160,6 +1249,70 @@ def selftest():
     run_claims_variant(
         "evidence names no gate at all → GREEN",
         "public/coverage.json, regenerated by matrix.py", want_red=False)
+
+    # ── data-live string fallbacks (the gap that published a stale date) ─────
+    for label, val, text, want in (
+        ("string fallback matches -> clean",        "2026-10-16", "re-verified 2026-10-16.", False),
+        ("string fallback stale -> mismatch",       "2026-10-16", "re-verified 2026-10-11.", True),
+        ("script-filled empty chunk -> not a flag", "2026-10-16", "   ",                     False),
+        ("numeric value -> left to the numeric arm", 250,         "250 checks",              False),
+        ("empty live value -> not a flag",          "",           "anything",                False),
+    ):
+        got = _string_fallback_mismatch(val, text)
+        ok = got is want
+        bad += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'BAD'} string-fallback: {label}")
+
+    # ── official-suite target version (CLAIM-011) ────────────────────────────
+    # Exercised with CONSTRUCTED inputs rather than the committed tree, so these cases
+    # keep testing the real branches no matter what the page or the pin later say. The
+    # last case is the one that matters most: a pattern matching nothing must be a
+    # FAILURE, because a guard that quietly stops matching is how CLAIM-011 stayed
+    # wrong on the landing page for three months.
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as _td:
+        _d = pathlib.Path(_td)
+        _src = _d / "integration_test_utils.py"
+        _src.write_text('X = 1\nDEFAULT_UCP_VERSION = "2026-04-08"\n')
+        _pub = _d / "pub"; _pub.mkdir()
+        _page = _pub / "index.html"
+        osv = _official_suite_version_failures
+
+        _page.write_text("<p>Official Conformance Suite: a Python test suite "
+                         "(targets v2026-04-08)</p>")
+        for label, got, want_red, must_say in (
+            ("agreeing page -> clean", osv(_src, _pub), False, None),
+            (None, None, None, None),
+        )[:1]:
+            ok = (len(got) == 0) if not want_red else bool(got)
+            bad += 0 if ok else 1
+            print(f"  {'OK ' if ok else 'BAD'} official-suite: {label} ({len(got)} failure(s))")
+
+        _page.write_text("<p>Official Conformance Suite: a Python test suite "
+                         "(targets v2026-01-23)</p>")
+        got = osv(_src, _pub)
+        ok = len(got) == 1 and "2026-01-23" in got[0] and "2026-04-08" in got[0]
+        bad += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'BAD'} official-suite: disagreeing page -> red naming both values")
+
+        _page.write_text("<p>Official Conformance Suite: a Python test suite.</p>")
+        got = osv(_src, _pub)
+        ok = len(got) == 1 and "matched nothing" in got[0]
+        bad += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'BAD'} official-suite: claim absent -> red on silence, not a pass")
+
+        _page.write_text("<p>Official Conformance Suite: a Python test suite "
+                         "(targets v2026-04-08)</p>")
+        got = osv(_d / "nope.py", _pub)
+        ok = len(got) == 1 and "vendored official suite missing" in got[0]
+        bad += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'BAD'} official-suite: vendor tree absent -> red, never skipped")
+
+        _src2 = _d / "renamed.py"; _src2.write_text("DEFAULT_SPEC = \"2026-04-08\"\n")
+        got = osv(_src2, _pub)
+        ok = len(got) == 1 and "no DEFAULT_UCP_VERSION" in got[0]
+        bad += 0 if ok else 1
+        print(f"  {'OK ' if ok else 'BAD'} official-suite: upstream renamed the constant -> red")
 
     print(f"\nsite_gates selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
