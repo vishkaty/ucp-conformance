@@ -332,8 +332,7 @@ def main():
                  # the landing-page hero stat: <div class="stat-num">47</div>...Kill-rate-validated
                  re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Kill-rate-validated'),
                  # two-sided reframe (2026-07): the merchant-side hero stat + the "which side" band
-                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Merchant-side checks'),
-                 re.compile(r"(\d+)\+? checks, from the browser")]
+                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Merchant-side checks')]
     #    D5-01: the Pages functions (functions/**/*.js — the /api/conformance docstring
     #    advertised a stale "37") and conformance/ci/README.md are copy too.
     copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [

@@ -87,15 +87,6 @@
       "review_by": "2026-11-05"
     },
     {
-      "id": "CLAIM-007",
-      "text": "250 checks, from the browser or your CI",
-      "page": "index.html",
-      "class": "REG",
-      "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-08-13) Count moved 227 -> 228 on 2026-09-11 (D5-16, decision 6) and 228 -> 249 at the W1 integration of the same day (D1-16a +10 envelope MChecks, D3-09/D3-10 +11 MCP MChecks; derived from conformance/ci/checkset_count.py, never hand-typed): the product count is the runtime check set (merchant_checks.all_checks(), conformance/ci/checkset_count.py) \u2014 the source regex had missed transport.https_tls13_minimum; pinned by coverage_gate copy-freshness + site-freshness + docclaims to that one helper. 249 -> 250 on 2026-09-22: +1 MCheck, discovery.profile_no_redirect_0825, DISC-002's live 2026-08-25 grader (the profile-endpoint no-redirect hosting duty had lost its live check in the 04-08 -> 08-25 move).",
-      "added": "2026-07-09",
-      "review_by": "2026-11-05"
-    },
-    {
       "id": "CLAIM-008",
       "text": "regenerated with every change and enforced by CI (stale data or a coverage regression fails the build)",
       "page": "index.html",
@@ -758,7 +749,7 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "Weekly series are rebuilt every edition from each registry's own daily-download history API (npm, PyPI, crates.io), so every point is a primary-source measurement \u2014 never interpolated from our snapshots.",
-      "evidence": "ops/tools/state_of_ucp_series.py: api.npmjs.org/downloads/range, pypistats.org overall (no mirrors), crates.io per-version daily; selftested bucketing; output weekly-series.json cites source per series.",
+      "evidence": "Each series in public/state-of-ucp/history/weekly-series.json carries its own `source` field naming the registry history API it was built from (api.npmjs.org daily range; pypistats.org daily overall, no mirrors, about a 180 day window; crates.io daily version downloads, about a 90 day window), and the file `_about` states the same rule. Each series begins at its API retention limit rather than earlier, which is what rebuilding from the API looks like: npm reaches back to 2026-01-04 while PyPI starts 2026-04-12 and crates 2026-07-19. Weeks are ISO Monday to Sunday labelled by the Sunday and the current partial week of a rate series is omitted. CORRECTED 2026-10-16: the proof formerly cited ops/tools/state_of_ucp_series.py, which is in a separate private repository that a reader cannot open, the same defect SOU-026 corrected; the public artifacts above are the evidence. AND THE CLAIM HAD A COUNTEREXAMPLE, now fixed and guarded. weekly-series.json has only two commits in its history, 2026-08-13 and 2026-10-11. The commit that published the 2026-09-01 edition (adba9f4) touched adoption-facts.json, the 2026-09-01 edition file and trends.json but NOT the series, which still read generated 2026-08-13. So for the forty days to 2026-10-11 this sentence asserted a per-edition rebuild while the published series was one edition stale. The sentence is true of the current file and of every series in it, and it is no longer only an intention: site_gates freshness now requires weekly-series.json $.generated to equal the newest published history/YYYY-MM-DD.json, so publishing an edition without rebuilding the series reds the gate. Five selftest cases cover it, the first of which is the reconstructed 2026-09-01 state and reds on it. Still outstanding and tracked separately: no step in the refresh pipeline calls the series builder, so the rebuild remains a manual step that this gate catches rather than prevents.",
       "added": "2026-08-13",
       "review_by": "2026-11-13"
     },
@@ -905,6 +896,15 @@
       "evidence": "Decision 8 (PLAN-v3 \u00a74, CLOSED 2026-09-10): publish the MUST-only sentence; the SHOULD census is report-only (D2-10 verify_should_census.py: 274 SHOULD/SHOULD NOT/RECOMMENDED hits at 2026-08-25 in the deep-analysis census of 2026-09-09; the number is deliberately NOT on the page until the export carries surface.should, then it binds data-live). Pin cd78fb38 = SOURCES.lock.json ucp 2026-08-25. Pinned by tests/web/unit/rubric_page.test.mjs (SITE-R-035). RE-READ 2026-10-11: the pin is still cd78fb38 in SOURCES.lock.json and sources_age --check reports all four tag identities intact, so the MUST-only sentence still describes the pinned text; the SHOULD census remains report-only per Decision 8 and no number is on the page.",
       "added": "2026-09-11",
       "review_by": "2026-11-10"
+    },
+    {
+      "id": "CLAIM-046",
+      "text": "checks from the CLI or your CI, and a read-only preview in the browser",
+      "page": "index.html",
+      "class": "REG",
+      "evidence": "Replaces CLAIM-007, which said 250 checks from the browser or your CI and so overstated the browser surface by about eighty times. The count is no longer typed: it is bound with data-live to site_claims.json $.manifest.merchant_checks, which sync_site_claims.py derives from merchant_checks.all_checks() via conformance/ci/checkset_count.py, and the claims gate reds when the rendered fallback disagrees with the live value (kill tested 2026-10-16 by planting 251). The two surfaces are now named for what each does. CLI and CI run the full registered check set. The browser runs a read-only preview: measured 2026-10-16 by executing functions/api/conformance.js, runPreviewChecks emits 4 rows of which 3 count, and catalogChecks adds at most 3 counted rows, so at most 7 rendered and 6 counted, typically 3. The word preview rather than a second number is deliberate: the 30 second figure considered for this sentence is a UX estimate (see CLAIM-CHK-001) and the backend has four sequential 10 second timeouts, so a worst case nearer 40 seconds would have put a fresh unmeasured number on the landing page to fix an overstatement. check.html CLAIM-CHK-001 and CLAIM-CHK-002 carry the preview wording for that page. The count also remains pinned independently on this page by coverage_gate claim_res against the 250 kill-rate-validated checks sentence in the hero, so retiring the from-the-browser regex leaves no gap.",
+      "added": "2026-10-16",
+      "review_by": "2026-11-15"
     },
     {
       "id": "KI-001",
@@ -1289,6 +1289,17 @@
       "review_by": "2026-10-09",
       "retired": "2026-10-08",
       "reason": "The terminal-sample line this row registered is no longer on agent.html: the page carries no '<n> checks' copy at all, and the only '42' on it is inside a Cloudflare analytics token. Found during the 2026-10-09 clock re-read. The orphans gate had been accepting it because its fuzzy leg matched a bare step-number sentence '2'; that leg now requires a sentence long enough to carry the claim."
+    },
+    {
+      "id": "CLAIM-007",
+      "text": "250 checks, from the browser or your CI",
+      "page": "index.html",
+      "class": "REG",
+      "evidence": "coverage_gate.py copy-freshness regex '(\\d+)\\+? checks, from the browser' pins this to the real MCheck count (196: +3 AP2 enforce/key-resolution MChecks, verified 2026-08-13) Count moved 227 -> 228 on 2026-09-11 (D5-16, decision 6) and 228 -> 249 at the W1 integration of the same day (D1-16a +10 envelope MChecks, D3-09/D3-10 +11 MCP MChecks; derived from conformance/ci/checkset_count.py, never hand-typed): the product count is the runtime check set (merchant_checks.all_checks(), conformance/ci/checkset_count.py) \u2014 the source regex had missed transport.https_tls13_minimum; pinned by coverage_gate copy-freshness + site-freshness + docclaims to that one helper. 249 -> 250 on 2026-09-22: +1 MCheck, discovery.profile_no_redirect_0825, DISC-002's live 2026-08-25 grader (the profile-endpoint no-redirect hosting duty had lost its live check in the 04-08 -> 08-25 move).",
+      "added": "2026-07-09",
+      "review_by": "2026-11-05",
+      "retired": "2026-10-16",
+      "reason": "Copy rewritten because the claim was an overstatement. The sentence said 250 checks from the browser or your CI, which reads as 250 in the browser. Measured 2026-10-16 by executing functions/api/conformance.js: runPreviewChecks emits 4 rows of which 3 are counted (discovery.content_type is a SHOULD and is report only), and catalogChecks adds at most 3 counted rows or one uncounted not-tested marker when the store gates reads behind auth, so the browser surface is at most 7 rendered rows, 6 counted, and typically 3 counted. Not 250. check.html itself already said the instant check is a preview and the CLI is the full test, so the landing page was the only surface conflating the two. Replaced by CLAIM-046, whose count is bound live rather than typed."
     }
   ]
 }
