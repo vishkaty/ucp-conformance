@@ -64,7 +64,7 @@
       "text": "Independent, open, two-sided \u2014 and honest about its evidence: every check is proven to catch the bug it\u2019s for, the suite is graded against two reference servers we didn\u2019t author plus the official schema oracle, and we publish exactly what vouches for each check \u2014 including the ones only our own fixtures back so far.",
       "page": "index.html",
       "class": "REG",
-      "evidence": "verdict_gate.py (no-false-green) + kill-rate harness; independent targets = conformance/ci/differential_targets.json (flower golden 5237750, node reference) + the official ucp-schema oracle; the published per-check split lives in $.evidence and is drift-gated by validate_evidence_class.py (run_suite gate evidence-class)",
+      "evidence": "verdict_gate.py (no-false-green) + kill-rate harness; independent targets = conformance/ci/differential_targets.json (the flower-shop golden at the `reference_sample_server` pin in conformance/SOURCES.lock.json, plus the node reference). CORRECTED 2026-10-16: this cited a bare SHA 5237750 that is not an object in this repository and was superseded by later re-pins, so naming the lock entry rather than a frozen prefix keeps it true across re-pins. + the official ucp-schema oracle; the published per-check split lives in $.evidence and is drift-gated by validate_evidence_class.py (run_suite gate evidence-class)",
       "added": "2026-08-11",
       "review_by": "2026-11-11"
     },
@@ -352,7 +352,7 @@
       "text": "The report shows the requirement text, its citation into the pinned spec source, and the actual response observed",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. The deviation block is the `if devs:` arm of merchant.py at L518, printing expected / spec / observed at L532-538; the earlier citation ~L381 no longer resolves. Until 2026-10-12 the citation printed chk.req_ids rather than the row graded at the server version, so 38 check/version pairs cited the remapped-away row; fixed. Observed bodies are excerpted to 500 characters by _excerpt.",
+      "evidence": "RE-READ 2026-10-12. The deviation block is the `if devs:` arm of merchant.py, which calls `render_deviations`; that function prints the `expected  ` and `observed  HTTP` lines. Until 2026-10-12 the citation printed chk.req_ids rather than the row graded at the server version, so 38 check/version pairs cited the remapped-away row; fixed. Observed bodies are excerpted to 500 characters by _excerpt. CITATIONS 2026-10-16: line numbers in this row are replaced with code anchors. Every L-number here had gone stale, several within hours of being written because merchant.py moved the same day, and a stale line citation misleads a reader checking our work while nothing fails. An anchor names a token that grep finds wherever the code moves to.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -370,7 +370,7 @@
       "text": "Reported explicitly so absence of a failure is never mistaken for a pass",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "merchant.py prints the buckets explicitly at L544 (NOT TESTED) and L549 (NOT APPLICABLE) and JUnit carries skipped for both classes. RE-READ 2026-10-12: the cli.py reference is packaging/spck_conformance/cli.py, not conformance/cli.py, and its docstring covers the profile-schema check reporting not-tested without the native ucp-schema rather than anything unreachable.",
+      "evidence": "merchant.py prints the buckets explicitly at its `NOT TESTED (` and `NOT APPLICABLE (` print sites and JUnit carries skipped for both classes. RE-READ 2026-10-12: the cli.py reference is packaging/spck_conformance/cli.py, not conformance/cli.py, and its docstring covers the profile-schema check reporting not-tested without the native ucp-schema rather than anything unreachable. CITATIONS 2026-10-16: line numbers in this row are replaced with code anchors. Every L-number here had gone stale, several within hours of being written because merchant.py moved the same day, and a stale line citation misleads a reader checking our work while nothing fails. An anchor names a token that grep finds wherever the code moves to.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -379,7 +379,7 @@
       "text": "Only a MUST deviation fails the run; the handful of SHOULD and MAY checks that run are reported as advisories and never change the exit code",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. rc is 2 iff cc[\"deviations\"], at the `rc = 2` site in merchant.py L492 (the earlier L320 is a config stub); verdict_gate routes SHOULD and MAY deviations to advisories. There are 2 SHOULD checks (IDL-043, ORD-025) and 1 MAY (ORD-014), so the sentence now says SHOULD and MAY. Until today JUnit wrote a SHOULD deviation as <failure message=\"MUST violated\"> and the text header claimed a MUST, so every consumer of the uploaded report disagreed with our own exit code; fixed and kill-tested.",
+      "evidence": "RE-READ 2026-10-12. rc is 2 iff cc[\"deviations\"], at the `rc = 2 if cc[\"deviations\"]` site in merchant.py; verdict_gate routes SHOULD and MAY deviations to advisories. There are 2 SHOULD checks (IDL-043, ORD-025) and 1 MAY (ORD-014), so the sentence now says SHOULD and MAY. Until today JUnit wrote a SHOULD deviation as <failure message=\"MUST violated\"> and the text header claimed a MUST, so every consumer of the uploaded report disagreed with our own exit code; fixed and kill-tested. CITATIONS 2026-10-16: line numbers in this row are replaced with code anchors. Every L-number here had gone stale, several within hours of being written because merchant.py moved the same day, and a stale line citation misleads a reader checking our work while nothing fails. An anchor names a token that grep finds wherever the code moves to.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -424,7 +424,7 @@
       "text": "The report says how many applicable MUSTs were validated",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-READ 2026-10-12. The VERDICT line is now merchant.py L512, 'MUST ids: N passed, V violated, X not exercised of M applicable (x% covered)', with '(coverage: n/a)' when support is not supported; the earlier 'N/M applicable MUSTs (x%)' format is gone. JSON carries verdict.applicable_musts and musts_passed.",
+      "evidence": "RE-READ 2026-10-12. The VERDICT line is the merchant.py `MUST ids:` print site, 'MUST ids: N passed, V violated, X not exercised of M applicable (x% covered)', with '(coverage: n/a)' when support is not supported; the earlier 'N/M applicable MUSTs (x%)' format is gone. JSON carries verdict.applicable_musts and musts_passed. CITATIONS 2026-10-16: line numbers in this row are replaced with code anchors. Every L-number here had gone stale, several within hours of being written because merchant.py moved the same day, and a stale line citation misleads a reader checking our work while nothing fails. An anchor names a token that grep finds wherever the code moves to.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -433,7 +433,7 @@
       "text": "exit 0 when no MUST deviation was observed, exit 2 on any MUST deviation, exit 1 when the target could not be tested at all",
       "page": "rubric.html",
       "class": "REG",
-      "evidence": "RE-RUN 2026-10-12 against the booted golden, exit codes read directly: --server on the golden with no config exits 0; a connection-refused target exits 1; a MUST deviation exits 2. Two corrections the same day: exit 0 means no MUST deviation was OBSERVED, since an inconclusive MUST also leaves rc 0, and argparse usage errors (a missing --config file, an unknown flag) also exit 2, so the page now says so. The code is the `rc = 2` site at merchant.py L492; cli.py is packaging/spck_conformance/cli.py. The agent lane does not follow these codes (exit 1 means unsound), which is why RUB-001 now says merchant verdict.",
+      "evidence": "RE-RUN 2026-10-12 against the booted golden, exit codes read directly: --server on the golden with no config exits 0; a connection-refused target exits 1; a MUST deviation exits 2. Two corrections the same day: exit 0 means no MUST deviation was OBSERVED, since an inconclusive MUST also leaves rc 0, and argparse usage errors (a missing --config file, an unknown flag) also exit 2, so the page now says so. The code is the `rc = 2 if cc[\"deviations\"]` site in merchant.py; cli.py is packaging/spck_conformance/cli.py. The agent lane does not follow these codes (exit 1 means unsound), which is why RUB-001 now says merchant verdict. CITATIONS 2026-10-16: line numbers in this row are replaced with code anchors. Every L-number here had gone stale, several within hours of being written because merchant.py moved the same day, and a stale line citation misleads a reader checking our work while nothing fails. An anchor names a token that grep finds wherever the code moves to.",
       "added": "2026-07-15",
       "review_by": "2027-01-10"
     },
@@ -731,7 +731,7 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "We were curious how much of UCP is genuinely deployed versus endorsed, so we set out to measure it layer by layer \u2014 and we keep measuring, every couple of months, in the open.",
-      "evidence": "Same edition-history evidence as SOU-019; method published (scan-summary.json, adoption-facts.json, ops tools in repo). Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner. DECISION 2026-10-11 (owner): the tracker cadence is every couple of months, not every week or two. The wording is changed to match rather than the cadence, because the record does not support the old promise: editions 2026-07-17, 08-01, 08-13, 09-01 and 10-11 give gaps of 15, 12, 19 and 40 days, so the new wording is true of every edition so far with headroom the old one never had. ops/tools/state_of_ucp_refresh.py is updated to match.",
+      "evidence": "Same edition-history evidence as SOU-019; method published (scan-summary.json, adoption-facts.json, the probe policy at conformance/ci/probe_policy.json, and every edition snapshot under /state-of-ucp/history/). CORRECTED 2026-10-16: this formerly said the ops tools are in the repo. They are not: ops/ is a separate private repository, gitignored here, so a reader cannot open them. The sources are public and the editions reproducible from them, which is what this row supports; the scripts are not published. Same correction SOU-026 already carries. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner. DECISION 2026-10-11 (owner): the tracker cadence is every couple of months, not every week or two. The wording is changed to match rather than the cadence, because the record does not support the old promise: editions 2026-07-17, 08-01, 08-13, 09-01 and 10-11 give gaps of 15, 12, 19 and 40 days, so the new wording is true of every edition so far with headroom the old one never had. ops/tools/state_of_ucp_refresh.py is updated to match.",
       "added": "2026-08-13",
       "review_by": "2026-11-10"
     },
@@ -758,7 +758,7 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "Per-edition series are the things only we measure (our full endpoint probes, and counts we verify by hand each edition); each point is one real measurement on the date shown. Where a past edition kept a stale value after a failed fetch, that point is excluded rather than plotted",
-      "evidence": "trends.json builder (ops/tools/state_of_ucp_trends.py) excludes kept_stale-annotated fields; history/2026-08-01.json carries the annotation + derivation note for stars/pypi.",
+      "evidence": "the published trends.json excludes kept_stale-annotated fields, and history/2026-08-01.json carries the annotation + derivation note for stars/pypi.",
       "added": "2026-08-13",
       "review_by": "2026-11-13"
     },
@@ -767,7 +767,7 @@
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "GitHub star history is per-edition only: the stargazer-timestamp API is not accessible for this org, so we chart only the counts we verified ourselves.",
-      "evidence": "Verified 2026-08-13: repos/Universal-Commerce-Protocol/ucp/stargazers answers 404 authenticated and 401 anonymous (Accept: application/vnd.github.star+json); noted in state_of_ucp_series.py.",
+      "evidence": "Verified 2026-08-13: repos/Universal-Commerce-Protocol/ucp/stargazers answers 404 authenticated and 401 anonymous (Accept: application/vnd.github.star+json). CORRECTED 2026-10-16: the proof formerly pointed at a script in the private ops repository; the check above is reproducible by anyone against the GitHub API.",
       "added": "2026-08-13",
       "review_by": "2026-11-13"
     },

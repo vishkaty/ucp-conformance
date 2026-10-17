@@ -7,7 +7,7 @@
       "must_match": "message = `preview \\$\\{passed\\}/\\$\\{total\\}`",
       "must_not_match": "message = \"conformant\"",
       "text": "preview N/M",
-      "evidence": "tests/web/unit/badge.test.mjs 'preview badge message never contains conformant' (web-unit gate) renders an all-clean and a deviating stub profile through functions/api/badge.js and asserts the word never appears; N/M = passed/total of runPreviewChecks (4 structural checks until D5-11's id map)",
+      "evidence": "tests/web/unit/badge.test.mjs 'preview badge message never contains conformant' (web-unit gate) renders an all-clean and a deviating stub profile through functions/api/badge.js and asserts the word never appears; N/M = passed/total of runPreviewChecks. CORRECTED 2026-10-16: this said 4 structural checks until D5-11's id map, and that id map has landed, so the number is no longer fixed here. badge.js documents the real rule at its own print site: M is the COUNTED discovery-stage ids of conformance/web/preview_parity.json, which is the source of truth rather than a count copied into this row",
       "added": "2026-09-10",
       "review_by": "2026-12-09"
     },
