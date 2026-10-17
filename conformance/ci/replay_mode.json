@@ -2,13 +2,13 @@
   "_about": "REPLAY-002 mode switch (decision 1, CLOSED 2026-09-10; PLAN-v3 SS 2.10). signatures.md#L837-L845 at v2026-08-25 (cd78fb38) says a duplicate-key request's payload is matched by the SHA-256 of the RAW BODY BYTES, so a byte-different but JSON-equal retry MUST get 409 (REPLAY-001/002). `conformance/ci/seq_invariants.I10 replay_reserialized` is THE single implementation (D1-16b's Row and D3-23's mutant import it) and reads its mode from this file per context: `golden_gates` (sig-0825, seqfuzz, D1-16b Rows) ENFORCE; `user_facing` (CLI / Action runs) REPORT — the citation + KI-009 link printed, never a deviation — until F3-f (the spec question) is answered or `report_until` passes, then `enforce` (seq_invariants.resolve_mode self-expires it). `golden_pending`: golden-0825 today hashes the PARSED body (services/checkout_service.py _compute_hash, sort_keys) so a re-serialized replay is CACHED; D3-23 (W2) makes it byte-exact. Until D3-23 lands (and never past `until`), the seqfuzz gate counts I10 hits on OUR golden as `PENDING D3-23` — printed, dated, not silent; after `until` they count as violations.",
   "golden_gates": "enforce",
   "user_facing": "report",
-  "report_until": "2026-11-09",
-  "reason": "F3-f pending (spec question: byte fidelity vs semantically identical retries); KI-009",
+  "report_until": "2026-12-31",
+  "reason": "F3-f pending (spec question: byte fidelity vs semantically identical retries); KI-009. Decision 1c, 2026-10-16: extended from 2026-11-09 to 2026-12-31 and TIED TO THE ucp#782 OUTCOME rather than to a bare calendar count. The original 60 days was a guess at how long a spec question takes to answer; ucp#782 and ucp#664 argue upstream that raw-byte matching is unworkable over MCP and neither has a maintainer reply, so flipping user_facing to enforce on 11-09 would grade our own users against a rule we are publicly contesting. The existing #782 trigger is the re-examination point. D3-23 is decided on its own merits, separately from this clock.",
   "citation": "ucp:docs/specification/signatures.md#L837-L845",
   "known_issue": "KI-009",
   "decision": 1,
-  "golden_pending": {"task": "D3-23", "until": "2026-11-09", "reason": "golden-0825 hashes parsed JSON (idem_hash_json_equal); byte-exact payload matching lands with D3-23. Extended on 2026-10-15 (decision 1b, DECISIONS.md): D3-23 has not landed, and the cached I10 hits are a known gap in our own golden rather than spec violations, so letting the window lapse would red the seqfuzz gate on our own limitation instead of on a finding. Aligned to report_until (2026-11-09) so this window cannot outlive decision 1 itself."},
-  "review_by": "2026-11-05",
+  "golden_pending": {"task": "D3-23", "until": "2026-12-31", "reason": "golden-0825 hashes parsed JSON (idem_hash_json_equal); byte-exact payload matching lands with D3-23. Extended on 2026-10-15 (decision 1b, DECISIONS.md): D3-23 has not landed, and the cached I10 hits are a known gap in our own golden rather than spec violations, so letting the window lapse would red the seqfuzz gate on our own limitation instead of on a finding. Aligned to report_until so this window cannot outlive decision 1 itself; moved with it to 2026-12-31 under decision 1c, because 1b reasoning holds unchanged: letting it lapse reds the seqfuzz gate on a known gap in OUR golden (it hashes parsed JSON) rather than on a finding, and a red gate that is not a finding is what teaches a reader to skip the line."},
+  "review_by": "2026-11-14",
   "version": "2026-08-25",
   "spec_pin": "cd78fb38"
 }
