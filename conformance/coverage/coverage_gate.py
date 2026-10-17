@@ -140,6 +140,45 @@ def lane_rule_failures(export):
     return fails
 
 
+# ── copy-freshness patterns, module level so the selftest can check they still match ──
+# A copy regex is a guard only while it matches something. When the prose moves to a
+# data-live binding or is reworded, the regex silently stops guarding and the gate still
+# reports PASS, because the sweep iterates finditer and an empty iterator is not a failure.
+# That ambiguity is how a wrong version string stayed on the landing page for three months,
+# so the patterns get their own liveness check in selftest().
+CLAIM_RES = [re.compile(r"(\d+)\+? kill-rate-validated checks?")]
+LW_RE = re.compile(r"(\d+)\+? checks? kill-tested against independent servers?")
+# Patterns kept although they match nothing, each with a stated reason. Empty is healthy.
+DEFENSIVE_UNMATCHED = {}
+
+
+def copy_file_set():
+    """Every file the copy-freshness sweep covers. D5-01: the Pages functions
+    (functions/**/*.js, where the /api/conformance docstring once advertised a stale 37)
+    and conformance/ci/README.md are copy too."""
+    return glob.glob(os.path.join(ROOT, "public", "*.html")) + [
+        os.path.join(ROOT, "README.md"),
+        os.path.join(ROOT, "docs", "archive", "ROADMAP.md"),
+        os.path.join(ROOT, "packaging", "README.md"),
+        os.path.join(ROOT, "conformance", "ci", "README.md")] + \
+        glob.glob(os.path.join(ROOT, "functions", "**", "*.js"), recursive=True)
+
+
+def unmatched_copy_patterns():
+    """Copy-freshness patterns that match nothing in the files they sweep."""
+    text = []
+    for f in copy_file_set():
+        if os.path.exists(f):
+            with open(f, encoding="utf-8", errors="replace") as fh:
+                text.append(fh.read())
+    blob = "\n".join(text)
+    dead = []
+    for cre in CLAIM_RES + [LW_RE]:
+        if not cre.search(blob) and cre.pattern not in DEFENSIVE_UNMATCHED:
+            dead.append(cre.pattern)
+    return dead
+
+
 def validate_exemptions(exempt, must_ids, covered):
     """Invariant-3 validator (pure — also driven by --selftest injections).
 
@@ -275,6 +314,13 @@ def selftest():
                 and matrix.exempt_reason_at(lst, "AAA-003", V2) == "y")
     print(f"  {'✓' if sem_list else '✗'} matrix.exempt_at/exempt_reason_at list semantics")
     bad += 0 if sem_list else 1
+    # ── copy-pattern liveness: a regex that matches nothing guards nothing ──
+    dead = unmatched_copy_patterns()
+    bad += 0 if not dead else 1
+    print(f"  {'ok ' if not dead else 'BAD'} copy-pattern liveness: every copy-freshness "
+          f"pattern still matches something ({len(dead)} dead)")
+    for d in dead:
+        print(f"        dead: {d}")
     print(f"\ncoverage gate selftest: {'PASS' if not bad else f'FAIL ({bad} case(s))'}")
     return 1 if bad else 0
 
@@ -327,20 +373,8 @@ def main():
     actual, dup_ids = merchant_check_count()
     for d in dup_ids:
         failures.append(f"duplicate merchant check id {d!r} in the runtime check set")
-    claim_res = [re.compile(r"(\d+)\+? kill-rate-validated checks?"),
-                 re.compile(r"(\d+)\+? checks across"),
-                 # the landing-page hero stat: <div class="stat-num">47</div>...Kill-rate-validated
-                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Kill-rate-validated'),
-                 # two-sided reframe (2026-07): the merchant-side hero stat + the "which side" band
-                 re.compile(r'stat-num">(\d+)\+?</div><div class="stat-label">Merchant-side checks')]
-    #    D5-01: the Pages functions (functions/**/*.js — the /api/conformance docstring
-    #    advertised a stale "37") and conformance/ci/README.md are copy too.
-    copy_files = glob.glob(os.path.join(ROOT, "public", "*.html")) + [
-        os.path.join(ROOT, "README.md"),
-        os.path.join(ROOT, "docs", "archive", "ROADMAP.md"),
-        os.path.join(ROOT, "packaging", "README.md"),
-        os.path.join(ROOT, "conformance", "ci", "README.md")] + \
-        glob.glob(os.path.join(ROOT, "functions", "**", "*.js"), recursive=True)
+    claim_res = CLAIM_RES
+    copy_files = copy_file_set()
     for page in copy_files:
         if not os.path.exists(page):
             continue
@@ -367,7 +401,7 @@ def main():
         sc = json.load(open(sc_path))
         live_wire = ((sc.get("evidence") or {}).get("per_version") or {}) \
             .get(matrix.CURRENT_SITE_VERSION, {}).get("live-wire")
-    lw_re = re.compile(r"(\d+)\+? checks? kill-tested against independent servers?")
+    lw_re = LW_RE
     lw_bad = False
     for page in copy_files:
         if not os.path.exists(page):
