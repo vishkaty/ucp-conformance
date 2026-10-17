@@ -56,11 +56,11 @@ labeled. Source of truth: <code>conformance/ci/known_issues.json</code> in the
 <div class="stats">
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">10</div><div class="l">issues tracked</div></div>
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">10</div><div class="l">open on a published cut</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">6</div><div class="l">have a fix on some cut</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">4</div><div class="l">no fix anywhere yet</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">7</div><div class="l">have a fix on some cut</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">3</div><div class="l">no fix anywhere yet</div></div>
 </div>
 <p class="note">By artifact: golden-0825 1 · js-sdk 2 · official-conformance 1 · python-sdk 1 · samples-node 1 · samples-python 1 · ucp-schema 1 · ucp-spec 2. Spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>
-(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-10-11</span>.
+(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-10-16</span>.
 Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <article class="ki" id="KI-001">
 <h2><a class="rid" href="#KI-001">KI-001</a> <span class="chip">python-sdk</span> <span class="comp">generated pydantic models (schema constraints)</span></h2>
@@ -87,9 +87,9 @@ Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <p class="symptom">UcpDiscoveryProfileSchema models `capabilities` as an ARRAY; the spec (2026-04-08 and 2026-08-25) defines a record keyed by reverse-domain capability name whose values are arrays.</p>
 <dl class="meta">
 <dt>Reproduce</dt><dd><code class="cmd">node -e &quot;const s=require(&#x27;@ucp-js/sdk&#x27;);console.log(JSON.stringify(s.UcpDiscoveryProfileSchema.shape.ucp.shape.capabilities._def.typeName))&quot;</code><div class="eo"><span class="k">expected</span> ZodRecord (object keyed by capability name)</div><div class="eo"><span class="k">observed</span> ZodArray at 0.5.1 (re-run 2026-10-11 against the published package: capabilities typeName ZodArray; spec_generated.js:1560 reads `capabilities: z.array(CapabilityDiscoverySchema)`)</div></dd>
-<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">npm 0.5.1</span></li><li><span class="st st-open">open</span> <span class="cut">main 44c448d</span></li></ul></dd>
-<dt>Filed</dt><dd>not yet filed</dd>
-<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-10-11 · review by 2026-12-08 · ledger row G5</dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">npm 0.5.1</span> <span class="ev">— The npm dist-tag latest is still 0.5.1, published 2026-09-02, which predates the 2026-09-23 fix, so the published package cannot carry it. Checked against the registry on 2026-10-16: the version list ends 0.5.0, 0.5.1 with no release since. The ZodArray observation in the repro was last executed 2026-10-11 against that same published version.</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main 6f7a6da7</span> <span class="ev">— js-sdk#73 (ours) merged 2026-09-23T15:09:13Z and closed js-sdk#72 (ours) one second later. Verified at main 6f7a6da7 on 2026-10-16: UcpDiscoveryProfileSchema.ucp is UcpSchema (spec_generated.ts:3606) and UcpSchema.capabilities is z.record(z.string(), z.array(CapabilityResponseSchema)) with a reverse-domain key refinement (:2738), so the exact path the repro walks now resolves to a record rather than an array.</span></li></ul></dd>
+<dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/js-sdk/issues/72" rel="noopener">Universal-Commerce-Protocol/js-sdk/issues/72</a></li><li><a href="https://github.com/Universal-Commerce-Protocol/js-sdk/pull/73" rel="noopener">Universal-Commerce-Protocol/js-sdk/pull/73</a></li></ul></dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-10-16 · review by 2026-12-08 · ledger row G5</dd>
 </dl>
 </article>
 <article class="ki" id="KI-004">
@@ -97,9 +97,9 @@ Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <p class="symptom">Crate 1.4.1 and the pinned 9b5c3206 crash (exit 134) on 08-25 def-selection patterns (#45/#46 class); the post-#66 head b52518f5 fixes the crash but regresses --schema-local-base (base segment doubled; A/B proven, old Valid / head rc 2).</p>
 <dl class="meta">
 <dt>Reproduce</dt><dd><code class="cmd">echo &#x27;{&quot;handler_id&quot;:&quot;h&quot;,&quot;type&quot;:&quot;card&quot;}&#x27; &gt; inst.json &amp;&amp; conformance/.vendor/ucp-schema/target/release/ucp-schema validate inst.json --op create --schema conformance/.vendor/ucp-2026-08-25/source/schemas/common/types/payment_instrument.json --def selected_payment_instrument</code><div class="eo"><span class="k">expected</span> a validation verdict</div><div class="eo"><span class="k">observed</span> exit 134 with a stack overflow abort in the main thread, on both the installed 1.4.1 and the vendored pinned build, re-run 2026-10-11 with the recipe recorded in ucp-schema#45. An earlier re-read of this row probed payment_split_payments.json --def dev.ucp.shopping.checkout, which is not the crash pattern and exits 1 with a clean validation error, and wrongly recorded the row as not reproducing</div></dd>
-<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">crate 1.4.1</span></li><li><span class="st st-open">open</span> <span class="cut">9b5c3206 (pinned)</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main b52518f5</span> <span class="ev">— ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there is open (ledger G6, #72 pending)</span></li></ul></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">crate 1.4.1</span></li><li><span class="st st-open">open</span> <span class="cut">9b5c3206 (pinned)</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">main b52518f5</span> <span class="ev">— ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there was open at that head (ledger G6). CORRECTED 2026-10-16: this row said &#x27;#72 pending&#x27;, but ucp-schema#72 MERGED 2026-10-07T11:35:32Z, four days before the 2026-10-11 re-verification that did not catch it. Whether that merge clears the --schema-local-base regression at current main is NOT re-verified here; it needs the A/B recipe re-run against a fresh build, and no claim either way is published until it is.</span></li></ul></dd>
 <dt>Filed</dt><dd><ul class="filed"><li><a href="https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/70" rel="noopener">Universal-Commerce-Protocol/ucp-schema/issues/70</a></li></ul></dd>
-<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-10-11 · review by 2026-12-08 · ledger row G6</dd>
+<dt>Provenance</dt><dd>origin theirs · confidence high · re-verified 2026-10-16 · review by 2026-12-08 · ledger row G6</dd>
 </dl>
 </article>
 <article class="ki" id="KI-005">
