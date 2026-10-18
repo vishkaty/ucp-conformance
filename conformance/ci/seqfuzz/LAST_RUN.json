@@ -1,40 +1,35 @@
 {
- "ran_at": "2026-09-11T06:03:26+00:00",
- "ran_at_epoch": 1789106606.2843678,
- "golden_sha": "5acf579d5d3e",
- "seconds": 120.4,
- "seed": 20260911,
+ "ran_at": "2026-10-18T03:51:45+00:00",
+ "ran_at_epoch": 1792295505.464152,
+ "golden_sha": "05351cfbdd44",
+ "seconds": 120.2,
+ "seed": 20261018,
  "context": "golden_gates",
- "sequences": 4751,
- "requests": 27818,
- "violations": {
-  "races": 1
- },
- "examples": {
-  "races": "{\"same_bytes\": {\"n\": 8, \"status_2xx\": 1, \"distinct_ids\": 1, \"statuses\": {\"500\": 7, \"201\": 1}}, \"mismatch\": {\"n\": 8, \"status_2xx\": 1, \"status_409\": 0, \"statuses\": {\"500\": 7, \"201\": 1}}, \"lost_response_retry\": {\"status\": [200, 200], \"same_order_id\": true}, \"fresh_key_after_ready\": {\"status\": 200, \"completed\": true}, \"ok\": false}"
- },
+ "sequences": 4943,
+ "requests": 28987,
+ "violations": {},
+ "examples": {},
  "reports": {},
  "pending": {
   "task": "D3-23",
-  "I10": 2776
+  "I10": 3041
  },
  "stopped": null,
  "races": {
   "same_bytes": {
    "n": 8,
-   "status_2xx": 1,
+   "status_2xx": 8,
    "distinct_ids": 1,
    "statuses": {
-    "500": 7,
-    "201": 1
+    "201": 8
    }
   },
   "mismatch": {
    "n": 8,
    "status_2xx": 1,
-   "status_409": 0,
+   "status_409": 7,
    "statuses": {
-    "500": 7,
+    "409": 7,
     "201": 1
    }
   },
@@ -49,10 +44,10 @@
    "status": 200,
    "completed": true
   },
-  "ok": false
+  "ok": true
  },
  "invariants_mode": {
   "I10": "enforce"
  },
- "summary": "1 violations / 9 invariants (I10 enforce: 2776 re-serialized replays cached PENDING D3-23) / 27818 requests / 4751 sequences / races: same-bytes 1/8 one id, mismatch 1x2xx+0x409 (RACE FAIL)"
+ "summary": "0 violations / 9 invariants (I10 enforce: 3041 re-serialized replays cached PENDING D3-23) / 28987 requests / 4943 sequences / races: same-bytes 8/8 one id, mismatch 1x2xx+7x409"
 }
