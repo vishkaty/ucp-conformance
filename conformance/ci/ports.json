@@ -331,5 +331,14 @@
   ],
   "sweep": false,
   "note": "NEVER bound: the registered loopback redirect_uri in the OAuth fixture config (IDL-021 ignores the port at match time); listed so nobody binds it"
+ },
+ "seqfuzz-golden-0825": {
+  "port": 20825,
+  "owner_task": "D4-07",
+  "used_by": [
+   "conformance/ci/seqfuzz_gate.py"
+  ],
+  "sweep": true,
+  "note": "The disposable golden-0825 that seqfuzz_gate --boot runs. Deliberately OUTSIDE every common ephemeral range (macOS 49152+, Linux 32768+): the kernel cannot pick such a port as a SOURCE port, so the TCP self-connect that produced every recorded I8 transport drop is impossible by construction. Binding port 0 here put it inside that range and made the collision reachable at about 1 in 16384 requests."
  }
 }

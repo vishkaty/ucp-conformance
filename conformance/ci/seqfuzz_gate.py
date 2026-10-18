@@ -385,9 +385,41 @@ def summary_line(run, races):
 # ---------------------------------------------------------------------------
 # disposable golden
 # ---------------------------------------------------------------------------
+# SEQFUZZ_PORT is registered in conformance/ci/ports.json as `seqfuzz-golden-0825`, and it
+# sits OUTSIDE every common ephemeral range (macOS 49152-65535, Linux 32768-60999). That is
+# the whole protection: the kernel can never choose a port outside its ephemeral range as a
+# SOURCE port, so the self-connect that produced every recorded I8 drop is impossible by
+# construction rather than improbable. Binding port 0, as this did before, put the
+# disposable golden INSIDE the ephemeral range and made the collision reachable. The
+# registry exists so one name owns one port (PLAN-v3 2.18, D5-19), which is also why this
+# is a fixed port rather than a random pick from a range.
+SEQFUZZ_PORT = 20825
+
+
+def base_url(port):
+    """The loopback address as a LITERAL, never the name `localhost`.
+
+    `localhost` resolves to ::1 before 127.0.0.1 on macOS, while the golden binds
+    0.0.0.0 (IPv4 only), so every request first attempted a v6 connection to a port with
+    no listener. With the golden also sitting in the ephemeral range, the kernel could
+    choose that same port as the SOURCE port, and ::1:P -> ::1:P completes a simultaneous
+    open with itself: the client reads back its own request line and http.client raises
+    BadStatusLine carrying it. That is the text in every I8 drop we have recorded, at
+    1/16384 against a measured 1 in 14k to 22k over 171,895 requests."""
+    return f"http://127.0.0.1:{port}"
+
+
 def free_port():
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0)); return s.getsockname()[1]
+    """The registered seqfuzz port, checked bindable so a stale listener fails loudly here
+    rather than as a confusing boot error twenty lines later."""
+    try:
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", SEQFUZZ_PORT))
+    except OSError as e:
+        raise RuntimeError(
+            f"registered seqfuzz port {SEQFUZZ_PORT} is not bindable ({e}). Another run may "
+            f"still hold it; conformance/ci/stop_golden.sh frees it.") from e
+    return SEQFUZZ_PORT
 
 
 class Disposable:
@@ -402,7 +434,7 @@ class Disposable:
         r = subprocess.run([str(GOLDEN_DIR / "serve_golden_0825.sh")], env=self.env, capture_output=True, text=True, timeout=240)
         if r.returncode != 0:
             raise RuntimeError(f"golden boot failed on :{self.port}: {(r.stderr or r.stdout).strip().splitlines()[-1:]}")
-        return f"http://localhost:{self.port}"
+        return base_url(self.port)
 
     def __exit__(self, *a):
         subprocess.run([str(GOLDEN_DIR / "stop_golden_0825.sh")], env=self.env, capture_output=True, text=True, timeout=60)

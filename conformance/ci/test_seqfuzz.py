@@ -100,3 +100,38 @@ def test_i9_triad_contract_for_the_envelope_mchecks():
     assert si.terminal_rejected(409, env)[0] and not si.terminal_rejected(200, first)[0] and not si.terminal_rejected(404, {})[0]
     for name in ("replay_cached", "mismatch_409", "terminal_rejected"):
         assert name in si.I9_ANCHORS and si.I9_ANCHORS[name], name
+
+
+def test_loopback_is_literal_and_port_is_outside_the_ephemeral_range():
+    """A self-connect produced every I8 transport drop we have ever recorded.
+
+    `free_port()` bound to port 0, so the disposable golden landed INSIDE the ephemeral
+    range; the base URL said `localhost`, which resolves to ::1 first on this machine; and
+    uvicorn binds 0.0.0.0, so nothing listens on [::1]:P. The kernel was therefore free to
+    pick P as the SOURCE port for that v6 attempt, and a connect from ::1:P to ::1:P
+    completes a simultaneous open with itself. The client then reads back its own request
+    line, which is exactly the recorded BadStatusLine text. Rate 1/16384 against a measured
+    1 in 14k to 22k. Both halves are pinned here: the literal address removes the v6
+    attempt, and the port range removes the collision even if someone restores `localhost`."""
+    import seqfuzz_gate as gate
+    port = gate.SEQFUZZ_PORT
+    assert gate.base_url(port) == f"http://127.0.0.1:{port}", gate.base_url(port)
+    assert "localhost" not in gate.base_url(port)
+    # Outside every common ephemeral range is the protection, not randomness: a port the
+    # kernel cannot choose as a SOURCE port cannot be self-connected to.
+    assert not (49152 <= port <= 65535), f"{port} is inside the macOS ephemeral range"
+    assert not (32768 <= port <= 60999), f"{port} is inside the Linux ephemeral range"
+    assert gate.free_port() == port
+
+
+def test_a_transport_drop_counts_once_not_twice():
+    """One BadStatusLine drop used to raise TWO violations: I8 for the transport failure and
+    I9 because the same-bytes replay 'answered 0 but the original was 200'. Measured on the
+    2026-10-18 re-record: same request, same checkout id, same -> 0. A response that never
+    arrived cannot be graded for replay semantics, so a transport failure is I8 only."""
+    import seq_invariants as si
+    step = {"op": "replay_same", "status": 0, "transport_error": "BadStatusLine",
+            "prev_status": 200, "same_bytes": True, "method": "PUT",
+            "path": "/checkout-sessions/x"}
+    ids = [iid for iid, _ in si.check(step)]
+    assert ids == ["I8"], ids

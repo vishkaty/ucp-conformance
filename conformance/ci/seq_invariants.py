@@ -206,6 +206,15 @@ def check(step, mode="enforce"):
         msg = fn(step, mode) if iid == "I10" else fn(step)
         if msg:
             out.append((iid, msg))
+    # A response that never arrived cannot be graded for replay or state semantics. One
+    # BadStatusLine drop used to raise TWO violations, I8 for the transport failure and I9
+    # because the same-bytes replay "answered 0 but the original was 200", on the same
+    # request and the same id. Report the transport failure alone so one drop is one
+    # violation; the drop itself is a harness self-connect, fixed in seqfuzz_gate.base_url.
+    if int(step.get("status", 0)) == 0 or step.get("timed_out"):
+        i8 = [row for row in out if row[0] == "I8"]
+        if i8:
+            return i8
     return out
 
 
