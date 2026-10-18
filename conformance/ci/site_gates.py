@@ -1133,9 +1133,15 @@ def selftest():
     real_cov = json.load(open(PUB / "coverage.json"))
     versions = real_cov["versions"]
     if not versions:
-        print("site_gates selftest: SKIP — public/coverage.json has no versions "
-              "at all to exercise the state-consistency kill-tests against")
-        return 0
+        # A kill-test gate that cannot run is a FAILURE, not a pass. This branch used to
+        # return 0, so the whole battery could go quiet and nothing anywhere would show it.
+        # The docstring above records the 2026-08-25 conversion flip where exactly that
+        # happened to a discovery-based variant, which is why the variants are now
+        # self-constructing; this return is the other half of that fix.
+        print("site_gates selftest: FAIL — public/coverage.json has no versions at all, so "
+              "the state-consistency kill-tests cannot be exercised. A kill-test that cannot "
+              "run proves nothing, so this is a failure rather than a skip.")
+        return 1
     # subject_ver: any real, stable version key — its REAL check/exempt/state don't
     # matter, since variants 1 and 3 below overwrite them in the scratch copy only.
     # Deterministic (not "whichever happens to be zero today") so the test doesn't
@@ -1149,10 +1155,11 @@ def selftest():
         else next((v for v, d in versions.items()
                   if d.get("check") or d.get("exempt")), None)
     if live_ver is None:
-        print("site_gates selftest: SKIP — need at least one live (real CHECK/"
-              "EXEMPT) version in public/coverage.json to exercise the "
-              "state-consistency kill-tests")
-        return 0
+        print("site_gates selftest: FAIL — no live (real CHECK/EXEMPT) version in "
+              "public/coverage.json, so the state-consistency kill-tests cannot be "
+              "exercised. A kill-test that cannot run proves nothing, so this is a failure "
+              "rather than a skip.")
+        return 1
     # a version key GUARANTEED to never be a real spec version (never collides with
     # common.spec_versions.VERSIONS, today or after any future landing) — used ONLY
     # by the agent-widening variant below, planted into agent-coverage.json alone,

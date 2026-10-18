@@ -156,6 +156,47 @@ def _selftest():
         fails.append(f"staleness must be scoped to probed targets only — "
                      f"got used={used} stale={stale}")
 
+    # ── verdict-on-zero-evidence kill-tests (Q11) ───────────────────────────
+    # `server_up` answering is not the same as obtaining a report. That gap let the gate
+    # print PASS and return 0 with no report at all, asserting the fixture-circularity
+    # invariant on zero evidence. These three cases pin the whole outcome space: a clean
+    # probe passes, no reachable target is an honest SKIP, and reachable-but-every-probe-
+    # failed is a FAILURE rather than either of the other two.
+    import io as _io, contextlib as _cl
+    _CLEAN = {"spec_version": "2026-04-08",
+              "checks": [{"id": "X-001", "status": "clean-pass"}]}
+    _real_up, _real_cli, _real_argv = server_up, run_cli, sys.argv
+
+    def _verdict(up, cli, argv):
+        globals()["server_up"], globals()["run_cli"] = up, cli
+        sys.argv = argv
+        _b = _io.StringIO()
+        try:
+            with _cl.redirect_stdout(_b):
+                _rc = main()
+        except SystemExit as _e:
+            _rc = _e.code
+        return _rc, _b.getvalue()
+
+    _named = ['differential.py', '--server', 'http://probe.invalid',
+              '--target-name', 'flower-shop-official-sample']
+    try:
+        for _label, _up, _cli, _argv, _want_rc, _want_word in (
+            ("a clean probe passes", lambda u: True, lambda s, c=None: _CLEAN, _named, 0, "PASS"),
+            ("no reachable target is an honest SKIP", lambda u: False,
+             lambda s, c=None: _CLEAN, ['differential.py'], 2, "SKIP"),
+            ("reachable but no report obtained is a FAILURE", lambda u: True,
+             lambda s, c=None: (_ for _ in ()).throw(RuntimeError("probe exploded")),
+             _named, 1, "FAIL"),
+        ):
+            _rc, _out = _verdict(_up, _cli, _argv)
+            if _rc != _want_rc or f"differential gate: {_want_word}" not in _out:
+                fails.append(f"{_label}: expected rc {_want_rc} and a {_want_word} verdict, "
+                             f"got rc {_rc}")
+    finally:
+        globals()["server_up"], globals()["run_cli"] = _real_up, _real_cli
+        sys.argv = _real_argv
+
     if fails:
         print("differential self-expiry selftest: FAIL")
         for f in fails:
@@ -247,6 +288,27 @@ def main():
     _used, stale = classify_allowlist(set(allow), matched, probed)
     failed = False
 
+    # A gate that obtained NO report proved nothing, and must not say PASS. Reachability is
+    # not a probe: `server_up` can answer while `run_cli` then raises, and that path only
+    # printed a `!` line and continued, so with every CLI run failing the gate fell through
+    # to the PASS below and asserted the fixture-circularity invariant on zero evidence.
+    # Distinguished from the no-target case above, which is an honest SKIP at rc 2: here a
+    # target WAS reachable, so a failure to obtain its report is a broken probe, not an
+    # absent one.
+    if not probed:
+        print(f"\ndifferential gate: FAIL — {len(reachable)} target(s) answered as reachable "
+              f"but NO report was obtained from any of them, so the fixture-circularity "
+              f"invariant was not tested. See the `!` line(s) above for why each probe "
+              f"failed. A gate with zero evidence does not pass.")
+        return 1
+
+    # Name the registered targets that were NOT probed this run, so a one-target run is
+    # visible in the log rather than implied by a verdict that reads the same either way.
+    unprobed = [t["name"] for t in targets if t["name"] not in probed]
+    if unprobed:
+        print(f"  note: {len(probed)} of {len(targets)} registered target(s) probed; "
+              f"not probed this run: {', '.join(sorted(unprobed))}")
+
     if findings:
         print("\ndifferential gate: FAIL — our checks flag an independently-conformant target "
               "(our check may encode a fixture-specific misreading; or the target has a real "
@@ -268,9 +330,10 @@ def main():
     if failed:
         return 1
 
-    print("\ndifferential gate: PASS — no check false-flags an independently-authored "
-          "conformant target (fixture-circularity invariant holds); every allowlisted "
-          "deviation still occurs (no stale exception).")
+    print(f"\ndifferential gate: PASS — no check false-flags an independently-authored "
+          f"conformant target (fixture-circularity invariant holds across "
+          f"{len(probed)} probed target(s): {', '.join(sorted(probed))}); every allowlisted "
+          f"deviation still occurs (no stale exception).")
     return 0
 
 
