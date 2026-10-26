@@ -276,29 +276,43 @@
     {
       "id": "KI-008",
       "artifact": "ucp-spec",
-      "component": "release tag v2026-04-08",
-      "symptom": "The v2026-04-08 tag was re-pointed on 2026-09-09 (tag object ebac9d15 -> a25a4a24, #813 loyalty backport: +19 register MUSTs, +common/loyalty.json). Our lock pinned a2d8bf0b until the D2-15 re-pin of 2026-09-11 (decision 3); a release tag moving after publication is the upstream fact recorded here.",
+      "component": "release tags v2026-04-08 and v2026-08-25",
+      "symptom": "Release tags move after publication. v2026-04-08 was re-pointed 2026-09-09 (ucp#813, to a25a4a24) and again by 2026-10-26 (tag object 48127e78, to 9c9d6fce: four backports ending ucp#935); v2026-08-25 moved from cd78fb38 to 87dd4b1f (tag object 1c225995: five backports ending ucp#941).",
       "repro": {
         "command": "python3 conformance/ci/sources_age.py --check",
-        "expected": "tag v2026-04-08 == the locked commit (a25a4a24 since 2026-09-11)",
-        "observed": "sources-age: OK \u2014 all 4 pinned spec tag(s) still carry their locked identity (tag object + dereferenced commit); before the re-pin: TAG MOVED v2026-04-08 -> a25a4a24 (acknowledged)"
+        "expected": "tag v2026-04-08 == the locked commit a25a4a24 and tag v2026-08-25 == the locked commit cd78fb38",
+        "observed": "2026-10-26 before acknowledgement: sources-age: FAIL \u2014 TAG MOVED v2026-04-08: locked a25a4a24 \u2192 9c9d6fce (tag object 48127e78, tagger 2026-04-13) and TAG MOVED v2026-08-25: locked cd78fb38 \u2192 87dd4b1f (tag object 1c225995, tagger 2026-08-25), rc 1. After both moves were acknowledged in conformance/ci/known_tag_moves.json the same day the check reads OK, rc 0, naming both as acknowledged. History: before the 2026-09-11 re-pin the check read TAG MOVED v2026-04-08 -> a25a4a24; from then until this week it read OK on all four tags"
       },
       "status_by_cut": [
         {
-          "cut": "ucp tag v2026-04-08 @ a25a4a24",
+          "cut": "ucp tag v2026-04-08 @ a25a4a24 (2026-09-09 to 2026-10-22)",
           "status": "open"
         },
         {
           "cut": "spck SOURCES.lock 2026-04-08 @ a25a4a24 (re-pinned 2026-09-11)",
           "status": "fixed",
           "evidence": "D2-15 (2026-09-11): SOURCES.lock.json 2026-04-08 commit a2d8bf0b -> a25a4a24, tag_move_observed -> tag_move_resolved; known_tag_moves.json entry retired; sources_age.py --check -> OK, no TAG MOVED; register 1875/1875 verified at the new pin; ledger R20"
+        },
+        {
+          "cut": "ucp tag v2026-04-08 @ 9c9d6fce (tag object 48127e78, observed 2026-10-26)",
+          "status": "open"
+        },
+        {
+          "cut": "ucp tag v2026-08-25 @ 87dd4b1f (tag object 1c225995, observed 2026-10-26)",
+          "status": "open"
+        },
+        {
+          "cut": "spck SOURCES.lock 2026-04-08 @ a25a4a24 and 2026-08-25 @ cd78fb38 (moves acknowledged 2026-10-26, not re-pinned)",
+          "status": "open"
         }
       ],
       "origin": "theirs",
       "filed": [
-        "https://github.com/Universal-Commerce-Protocol/ucp/pull/813"
+        "https://github.com/Universal-Commerce-Protocol/ucp/pull/813",
+        "https://github.com/Universal-Commerce-Protocol/ucp/pull/935",
+        "https://github.com/Universal-Commerce-Protocol/ucp/pull/941"
       ],
-      "re_verified": "2026-10-11",
+      "re_verified": "2026-10-26",
       "confidence": "high",
       "ledger_row": "R20",
       "review_by": "2026-12-08",
