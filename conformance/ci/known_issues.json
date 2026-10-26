@@ -1,6 +1,6 @@
 {
  "_about": "spck.dev KNOWN ISSUES — the single source (PLAN-v3 §2.13, D5-07): every known upstream/program defect we publish, with a reproduction, per-cut status, origin, ledger anchor and clocks. Validated by conformance/ci/validate_known_issues.py (run_suite gate known-issues; ledger cross-ref when ops/ is mounted). Rendered by D5-12's generator in Wave 1; `refuted` rows never exist here (S8d stays in the ledger only). Per-cut status is re-verified by D4-05/D4-06 runs, never hand-edited.",
- "generated": "2026-09-10",
+ "generated": "2026-10-26",
  "spec_pin": "cd78fb38e819de77d9b527d110476eccb876f1bd",
  "issues": [
   {
@@ -144,7 +144,7 @@
    "repro": {
     "command": "cd conformance/.vendor/samples/rest/python/server && uv run pytest -q",
     "expected": "all tests OK",
-    "observed": "all tests OK at the current pin cdb291c4 (279 passed, 12 subtests, no 500s and no checkout_service reference); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at both the old and the new pin"
+    "observed": "all tests OK at the current pin e7c9c124 (359 passed, 12 subtests, no 500s and no checkout_service reference; 279 passed at the previous pin cdb291c4, the difference being the tests the fourteen intervening merges added); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at every pin since"
    },
    "status_by_cut": [
     {
@@ -164,6 +164,11 @@
      "cut": "samples cdb291c4 (pinned 2026-10-11)",
      "status": "fixed",
      "evidence": "samples#220 merged 2026-10-01 as 667e7212; at this pin the server suite is 279 passed with no 500s and the official crosscheck reads 77 tests 77 pass 0 fail, up from 75/2"
+    },
+    {
+     "cut": "samples e7c9c124 (pinned 2026-10-26)",
+     "status": "fixed",
+     "evidence": "re-run 2026-10-26 at the re-pin: the server suite is 359 passed with no 500s and the official crosscheck (suite 016ecbc2, ucp-sdk 0.4.6, golden flower-04-08) reads 77 tests 77 pass 0 fail 0 skip, allowlisted 0, expired 0"
     }
    ],
    "origin": "shared",
@@ -171,7 +176,7 @@
     "https://github.com/Universal-Commerce-Protocol/samples/issues/218",
     "https://github.com/Universal-Commerce-Protocol/samples/pull/220"
    ],
-   "re_verified": "2026-10-11",
+   "re_verified": "2026-10-26",
    "confidence": "high",
    "ledger_row": "G10",
    "review_by": "2026-12-08",
@@ -185,7 +190,7 @@
    "repro": {
     "command": "cd conformance/.vendor/samples/rest/nodejs && npm run build && npm start",
     "expected": "server listens",
-    "observed": "re-run 2026-10-11 at pin cdb291c4: npm run build exits 0 and emits dist/src/index.js but no dist/index.js, so npm start throws; node dist/src/index.js fails ERR_MODULE_NOT_FOUND on dist/src/api/checkout. 39 extensionless relative imports across 13 emitted files (was 37)"
+    "observed": "re-run 2026-10-26 at pin e7c9c124, same result as 2026-10-11 at cdb291c4: npm run build exits 0 and emits dist/src/index.js but no dist/index.js, so npm start fails with Cannot find module dist/index.js; node dist/src/index.js fails ERR_MODULE_NOT_FOUND on dist/src/api/checkout. 39 extensionless relative from-specifiers across 13 emitted files, counted over dist/src/**/*.js (dist/test adds 56 more across 15 files; the earlier figures used the same dist/src scope)"
    },
    "status_by_cut": [
     {
@@ -195,13 +200,17 @@
     {
      "cut": "samples cdb291c4",
      "status": "open"
+    },
+    {
+     "cut": "samples e7c9c124 (pinned 2026-10-26)",
+     "status": "open"
     }
    ],
    "origin": "theirs",
    "filed": [
     "https://github.com/Universal-Commerce-Protocol/samples/issues/58"
    ],
-   "re_verified": "2026-10-11",
+   "re_verified": "2026-10-26",
    "confidence": "high",
    "ledger_row": "R21",
    "review_by": "2026-12-08",
