@@ -2,7 +2,7 @@
  "_about": "Kill-set lock (D1-06): per-check sha256 of every kill set, keyed module_stem:check_id. Regenerate DELIBERATELY with gen_killset_lock.py in the same commit as a check change; a shrink needs shrink_notes[key] with a review_by date. validate_killset_lock.py reds any drift.",
  "counts": {
   "ACheck": 44,
-  "MCheck": 250,
+  "MCheck": 256,
   "Row": 44,
   "engine": 89,
   "schema-tier": 81,
@@ -1533,6 +1533,12 @@
    "n_kills": 5,
    "n_kills_floor": 5
   },
+  "merchant_checks_04_08_events:signature.idempotency_concurrent_single_result": {
+   "hash": "d81929954a1219548e92317c875f5b884f22958fe9429ac34747f0343244db80",
+   "kind": "MCheck",
+   "n_kills": 6,
+   "n_kills_floor": 6
+  },
   "merchant_checks_04_08_events:signature.idempotency_replay_cached": {
    "hash": "fd100d75f790df0c035fc298a273d902db37ee47011bfe1b040eadd09f95c1d3",
    "kind": "MCheck",
@@ -1545,6 +1551,30 @@
    "n_kills": 4,
    "n_kills_floor": 4
   },
+  "merchant_checks_04_08_events:signature.signer_profile_bad_coordinate_401": {
+   "hash": "3373b7d486af0041c8504914e9bd9dce0304287a4070f5074e9964e9465a8165",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_events:signature.signer_profile_nonobject_key_422": {
+   "hash": "48f8cc176b37d54e115c3589baa5f8cd812a00fa23f0b1e63526f90ce7e5372a",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_events:signature.signer_profile_unhashable_kid_401": {
+   "hash": "9f56fc1e6a1703c9f0471288c35ade824ad1e538b016fa37436c71474577704e",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
+  "merchant_checks_04_08_events:signature.signer_profile_url_malformed_400": {
+   "hash": "8b17ab726b3fc4c4c0e14824e70f82421a5b0bc8280d9e56e5b3f19c69a7e8ca",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
+  },
   "merchant_checks_04_08_events:webhook.idempotency_key_signed": {
    "hash": "2759cf894efccf2a44758a95d939732aab025246dfeba31d5476df5de66e1f32",
    "kind": "MCheck",
@@ -1556,6 +1586,12 @@
    "kind": "MCheck",
    "n_kills": 8,
    "n_kills_floor": 8
+  },
+  "merchant_checks_04_08_events:webhook.platform_webhook_url_validated": {
+   "hash": "6f3307e13b32fe617acdd3d0fcc187874697743a4fc651110aa5b0fde8625db7",
+   "kind": "MCheck",
+   "n_kills": 7,
+   "n_kills_floor": 7
   },
   "merchant_checks_04_08_events:webhook.query_component_signed": {
    "hash": "0f405f5605faaccd173075cb49b26498f1fee761270d1de9230eba3d00090ed9",
@@ -3268,7 +3304,7 @@
    "n_kills_floor": 2
   }
  },
- "generated": "2026-10-26",
+ "generated": "2026-10-27",
  "pins": {
   "ap2_reference": "e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
   "reference_sample_server": "e7c9c124864108cbb35e5102beeac9cbef80a154",

@@ -628,17 +628,6 @@
     {
       "version": "2026-04-08",
       "file": "docs/specification/overview.md",
-      "line": 635,
-      "class": "duplicate",
-      "reason": "'Profile Resolution: businesses MUST fetch and validate the platform profile unless already cached' is the business obligation whose server-observable outcomes are already rowed: invalid_profile_url (NEG-005), profile_unreachable (NEG-003), profile_malformed (NEG-004).",
-      "duplicate_of": "NEG-005",
-      "review_by": "2026-12-07",
-      "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
-    },
-    {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
       "line": 637,
       "class": "duplicate",
       "reason": "'Capability Intersection: Businesses MUST compute the intersection of platform and business capabilities' is the negotiation computation whose observable output is the response's ucp.capabilities, captured by the new L950 row (and the empty-intersection error case by NEG-002). Older versions rowed it as NEG-010. [2026-09-30 F5-G2] duplicate_of was the pre-row placeholder 'NEW:overview.md#L950'; the row it anticipated now exists as OVR-005 at 2026-04-08 with that exact source, so the pointer is resolved to the row id. The completeness gate now resolves duplicate_of against the register at the waiver's own version.",

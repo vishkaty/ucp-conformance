@@ -415,14 +415,18 @@ def p_response_verifies(r, ctx):
     return CLEAN if ecdsa_p256_verify(base, sig, Q) else DEVIATION
 
 # ---- SIG-002: the merchant VERIFIES ES256-signed requests ----------------------
-def _signed_headers(ctx, method, path, raw_body, d, kid, tamper=False):
+def _signed_headers(ctx, method, path, raw_body, d, kid, tamper=False, profile_url=None):
     """RFC 9421 request signature headers per the spec's signed-component table
     (@method/@authority/@path always; ucp-agent, idempotency-key, content-digest,
-    content-type because this request carries them; no query -> no @query)."""
+    content-type because this request carries them; no query -> no @query).
+    `profile_url` overrides the UCP-Agent profile (config signature.platform_profile_url,
+    else the suite default) so a probe can name a deliberately malformed signer
+    profile (the samples#263 class in merchant_checks_04_08_events)."""
     u = urlsplit(ctx.shopping_endpoint)
     digest = ("sha-256=:" + base64.b64encode(hashlib.sha256(raw_body).digest()).decode()
               + ":")
-    profile_url = ((ctx.config.get("signature") or {}).get("platform_profile_url")
+    profile_url = (profile_url
+                   or (ctx.config.get("signature") or {}).get("platform_profile_url")
                    or "https://spck.dev/agent")
     agent = f'profile="{profile_url}"'
     idem = str(uuid.uuid4())

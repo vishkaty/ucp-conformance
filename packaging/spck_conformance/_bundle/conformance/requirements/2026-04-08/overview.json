@@ -309,6 +309,32 @@
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11",
       "normative_basis": "sentence"
+    },
+    {
+      "id": "OVR-058",
+      "keyword": "MUST",
+      "requirement": "Negotiation Protocol, Business Requirements item 1 (Profile Resolution): upon receiving a request with a platform profile URI, businesses MUST fetch and validate the platform profile unless already cached.",
+      "quote": "1. **Profile Resolution**: Upon receiving a request with a platform profile\n    URI, businesses **MUST** fetch and validate the platform profile unless\n    already cached.",
+      "source": "ucp:docs/specification/overview.md#L634-L636",
+      "testability": "needs-receiver",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-04-08"
+      ],
+      "notes": "Added 2026-10-27 as the Phase 5 regression watch for samples#264 (the Node reference stores, echoes and delivers to a profile webhook_url that violates order.json $defs/platform_schema; python gates it since samples#257). The business-side VALIDATE duty: its wire-observable outcome is that a schema-violating platform value is never acted on, either rejected (422 profile_malformed, the NEG-004 mapping) or dropped. Graded by webhook.platform_webhook_url_validated under the webhooks.simulate loopback-fetch convention. Supersedes the completeness waiver at overview.md L635 (which pointed at NEG-005). Same id as the 2026-08-25 row (backported, see lineage).",
+      "role": "business",
+      "role_provenance": "backported",
+      "normative_basis": "sentence",
+      "lineage": {
+        "from": "2026-08-25",
+        "disposition": "backported",
+        "drift_note": "Backported id-preserving from 2026-08-25 OVR-058 (D2-15 mechanism). The 04-08 quote is the three-line sentence at overview.md L634-L636; the 08-25 quote's third line continues into the next sentence ('Because businesses negotiate by capability name and serve'), which does not exist at 2026-04-08."
+      }
     }
   ],
   "notes": ""
