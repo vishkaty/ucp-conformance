@@ -1457,6 +1457,33 @@
      "due": "2026-09-18"
     }
    }
+  },
+  {
+   "batch": "phase5-watch-samples-263-264-265-2026-10-27",
+   "date": "2026-10-27",
+   "reviewer": "Claude Code session, 2026-10-27, machine-assisted adversarial re-verification of the one CHECK id the Phase 5 regression watches added at 2026-04-08; the human sample is the owner's review and is PENDING",
+   "spec_reverified": true,
+   "notes": "OVR-058 backported id-preserving to 2026-04-08 from the 2026-08-25 row (D2-15 mechanism, lineage.backported with a drift_note for the trailing clause the 08-25 quote carries). Re-verified at spec pin a25a4a24 (v2026-04-08): (a) CITATION, overview.md L634-L636 is the three-line sentence of Business Requirements item 1 and the register quote-check passes 1876/1876; (b) KILL, the citing check webhook.platform_webhook_url_validated is a single-id MCheck locked in killset_lock.json with 7 declared mutants, all killed on the Python golden and the controlled fixture; (c) LANE, role business (not-agent-bound, as the 08-25 twin), merchant lane; (d) STRICTNESS, the check grades only that a platform value violating order.json platform_schema is never acted on: it accepts both a 422 profile_malformed rejection (the NEG-004 mapping) and a dropped member, and deviates on a raw echo, a non-URL string, a delivery to the coerced target, or a 5xx. Evidence class: live-wire at 2026-04-08 (clean-pass on the Flower Shop golden, deviation on the Node reference at samples e7c9c124, the samples#264 defect, allowlisted self-expiring). The completeness waiver at overview.md L635 that pointed at NEG-005 was retired by this row.",
+   "ids": {
+    "2026-04-08": [
+     "OVR-058"
+    ]
+   },
+   "per_id": {
+    "OVR-058": {
+     "anchor": "ucp:docs/specification/overview.md#L634-L636",
+     "role": "business",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "transport": [
+      "rest"
+     ],
+     "normative_basis": "sentence",
+     "graded_by": [
+      "merchant_checks_04_08_events:webhook.platform_webhook_url_validated [MCheck, killset_lock locked; single-id check, whole declared kill set (7 mutants) is this id's]"
+     ]
+    }
+   }
   }
  ]
 }

@@ -166,9 +166,20 @@ def _selftest():
     _CLEAN = {"spec_version": "2026-04-08",
               "checks": [{"id": "X-001", "status": "clean-pass"}]}
     _real_up, _real_cli, _real_argv = server_up, run_cli, sys.argv
+    _real_allow, _real_targets = load_allowlist, load_targets
 
     def _verdict(up, cli, argv):
+        # HERMETIC against the repo's real state: the verdict cases stub the network
+        # and the CLI, so they must also stub the ALLOWLIST and the env-var targets.
+        # With the real ones in play, a non-empty allowlist (the Node entries for
+        # samples#264/#265, 2026-10-27) plus UCP_NODEJS_URL in the environment made
+        # the "clean probe" case probe the Node target through the stubbed CLEAN CLI,
+        # classify every real entry STALE, and fail the case for reasons that have
+        # nothing to do with the verdict logic it tests.
         globals()["server_up"], globals()["run_cli"] = up, cli
+        globals()["load_allowlist"] = lambda: ({}, [])
+        globals()["load_targets"] = lambda s, c, n=None: (
+            [{"name": n or s, "server": s, "config": c}] if s else [])
         sys.argv = argv
         _b = _io.StringIO()
         try:
@@ -176,6 +187,8 @@ def _selftest():
                 _rc = main()
         except SystemExit as _e:
             _rc = _e.code
+        finally:
+            globals()["load_allowlist"], globals()["load_targets"] = _real_allow, _real_targets
         return _rc, _b.getvalue()
 
     _named = ['differential.py', '--server', 'http://probe.invalid',
