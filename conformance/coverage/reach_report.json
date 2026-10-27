@@ -1,8 +1,8 @@
 {
  "_about": "Differential REACH REPORT \u2014 for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json \u2014 servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) \u2014 the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run \u2014 never a wholesale overwrite (see this script's module docstring) \u2014 regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh); CI runs `--check` and FAILS on graded-status drift (D4-02), the owner commits regenerated labels under decision 6.",
- "generated": "2026-09-10",
+ "generated": "2026-10-27",
  "spec_pins": {
-  "2026-04-08": "a2d8bf0b8f5a6fc790f677899c2c7da0684fe33d",
+  "2026-04-08": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
   "2026-01-11": "806a5b74d3a5a918206844ea980450233b38664e",
   "2026-08-25": "cd78fb38e819de77d9b527d110476eccb876f1bd"
@@ -11,15 +11,15 @@
   "flower-shop-official-sample": {
    "server": "http://localhost:8182",
    "spec_version": "2026-04-08",
-   "generated": "2026-09-10",
-   "merchant_checks_run": 228,
+   "generated": "2026-10-27",
+   "merchant_checks_run": 256,
    "engine_wire_checks": 50
   },
   "nodejs-reference-sample": {
    "server": "http://localhost:3000",
    "spec_version": "2026-04-08",
-   "generated": "2026-09-10",
-   "merchant_checks_run": 228,
+   "generated": "2026-10-27",
+   "merchant_checks_run": 256,
    "engine_wire_checks": 50
   }
  },
@@ -1581,6 +1581,15 @@
    },
    "version": "2026-04-08"
   },
+  "2026-04-08:merchant_checks_04_08_events:signature.idempotency_concurrent_single_result": {
+   "check": "signature.idempotency_concurrent_single_result",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
+  },
   "2026-04-08:merchant_checks_04_08_events:signature.idempotency_replay_cached": {
    "check": "signature.idempotency_replay_cached",
    "module": "merchant_checks_04_08_events",
@@ -1599,6 +1608,42 @@
    },
    "version": "2026-04-08"
   },
+  "2026-04-08:merchant_checks_04_08_events:signature.signer_profile_bad_coordinate_401": {
+   "check": "signature.signer_profile_bad_coordinate_401",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)"
+   }
+  },
+  "2026-04-08:merchant_checks_04_08_events:signature.signer_profile_nonobject_key_422": {
+   "check": "signature.signer_profile_nonobject_key_422",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)"
+   }
+  },
+  "2026-04-08:merchant_checks_04_08_events:signature.signer_profile_unhashable_kid_401": {
+   "check": "signature.signer_profile_unhashable_kid_401",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)"
+   }
+  },
+  "2026-04-08:merchant_checks_04_08_events:signature.signer_profile_url_malformed_400": {
+   "check": "signature.signer_profile_url_malformed_400",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)",
+    "nodejs-reference-sample": "not-tested (needs config: signature.request_private_jwk,signature.resolves_signer_profile)"
+   }
+  },
   "2026-04-08:merchant_checks_04_08_events:webhook.idempotency_key_signed": {
    "check": "webhook.idempotency_key_signed",
    "module": "merchant_checks_04_08_events",
@@ -1616,6 +1661,15 @@
     "nodejs-reference-sample": "clean-pass"
    },
    "version": "2026-04-08"
+  },
+  "2026-04-08:merchant_checks_04_08_events:webhook.platform_webhook_url_validated": {
+   "check": "webhook.platform_webhook_url_validated",
+   "module": "merchant_checks_04_08_events",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "clean-pass",
+    "nodejs-reference-sample": "deviation"
+   }
   },
   "2026-04-08:merchant_checks_04_08_events:webhook.query_component_signed": {
    "check": "webhook.query_component_signed",
@@ -2408,6 +2462,204 @@
     "nodejs-reference-sample": "not-applicable"
    },
    "version": "2026-04-08"
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:discovery.profile_no_redirect_0825": {
+   "check": "discovery.profile_no_redirect_0825",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:discovery.published_artifacts_cache_control": {
+   "check": "discovery.published_artifacts_cache_control",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.error_content_type_enum": {
+   "check": "envelope.error_content_type_enum",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.error_message_fields": {
+   "check": "envelope.error_message_fields",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.error_severity_enum": {
+   "check": "envelope.error_severity_enum",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.error_type_const": {
+   "check": "envelope.error_type_const",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.message_kinds_discriminated": {
+   "check": "envelope.message_kinds_discriminated",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.warning_message_fields": {
+   "check": "envelope.warning_message_fields",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:envelope.warning_type_const": {
+   "check": "envelope.warning_type_const",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:idempotency.replay_cached": {
+   "check": "idempotency.replay_cached",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_envelope:negotiation.version_unsupported_422_0825": {
+   "check": "negotiation.version_unsupported_422_0825",
+   "module": "merchant_checks_08_25_envelope",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:discovery.mcp_transport_advertised": {
+   "check": "discovery.mcp_transport_advertised",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.business_outcome_as_result": {
+   "check": "mcp.business_outcome_as_result",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.cart_via_tools_call": {
+   "check": "mcp.cart_via_tools_call",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.checkout_structured_content": {
+   "check": "mcp.checkout_structured_content",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.error_http_status": {
+   "check": "mcp.error_http_status",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.get_order_tool_0825": {
+   "check": "mcp.get_order_tool_0825",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.id_in_payload_rejected": {
+   "check": "mcp.id_in_payload_rejected",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.idempotency_conflict_32000": {
+   "check": "mcp.idempotency_conflict_32000",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.meta_required_32602": {
+   "check": "mcp.meta_required_32602",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.negotiation_error_32001": {
+   "check": "mcp.negotiation_error_32001",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
+  },
+  "2026-04-08:merchant_checks_08_25_mcp:mcp.tools_list_core_checkout": {
+   "check": "mcp.tools_list_core_checkout",
+   "module": "merchant_checks_08_25_mcp",
+   "version": "2026-04-08",
+   "targets": {
+    "flower-shop-official-sample": "not-applicable (spec 2026-04-08 out of scope)",
+    "nodejs-reference-sample": "not-applicable (spec 2026-04-08 out of scope)"
+   }
   },
   "2026-04-08:tls_check_01_11_01_23:transport.https_tls13_minimum": {
    "check": "transport.https_tls13_minimum",

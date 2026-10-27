@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>spck.dev — Your UCP checkout passes conformance. Does it actually work?</title>
-<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec — and it shows its evidence. Two independent reference servers, the official schema oracle, an enforced kill rate, and a published evidence-class split over every requirement: 67 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 250 kill-rate-validated checks, CLI + CI + web, multi-version support.">
+<meta name="description" content="Open source tool to test any UCP (Universal Commerce Protocol) server against the official spec — and it shows its evidence. Two independent reference servers, the official schema oracle, an enforced kill rate, and a published evidence-class split over every requirement: 68 checks kill-tested against independent servers, the rest labeled by exactly what vouches for them. 256 kill-rate-validated checks, CLI + CI + web, multi-version support.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://spck.dev/">
 <meta property="og:title" content="spck.dev — a UCP conformance suite you can trust">
@@ -77,12 +77,12 @@ section.alt{background:var(--surface)}
       <a class="btn-secondary" href="/agent">Test your agent →</a>
     </div>
     <div class="stats">
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08'].check">277</span></div><div class="stat-label">Checked requirements (v2026-04-08)</div></div>
-      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">67</span></div><div class="stat-label">Kill-tested against independent servers</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08'].check">278</span></div><div class="stat-label">Checked requirements (v2026-04-08)</div></div>
+      <div class="stat"><div class="stat-num"><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">68</span></div><div class="stat-label">Kill-tested against independent servers</div></div>
       <div class="stat"><div class="stat-num">0</div><div class="stat-label">Surviving mutants</div></div>
     </div>
     <p class="hero-cov">Every normative <strong>MUST</strong> across four spec versions is accounted for — a proven check, a documented exemption, or a tracked gap.
-      And the checks themselves are classed by proof: <strong><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">67</span> live-wire</strong> (kill-tested against an independently-authored server — 24%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-schema']">68</span> graded by the official ucp-schema oracle (25%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-crypto']">4</span> crypto self-tests, and <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['self-referenced']">138</span> (50%) backed so far only by our own fixtures — a split we publish because you should know it before you trust a green.
+      And the checks themselves are classed by proof: <strong><span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['live-wire']">68</span> live-wire</strong> (kill-tested against an independently-authored server — 24%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-schema']">68</span> graded by the official ucp-schema oracle (25%), <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['fixture-crypto']">4</span> crypto self-tests, and <span data-live="site_claims.json:$.evidence.per_version['2026-04-08']['self-referenced']">138</span> (50%) backed so far only by our own fixtures — a split we publish because you should know it before you trust a green.
       <a href="#coverage-live">See the live coverage ↓</a></p>
   </div>
 </div>
@@ -108,7 +108,7 @@ section.alt{background:var(--surface)}
       <a href="/check" style="display:block;text-decoration:none;border:1px solid var(--border);border-radius:14px;padding:26px;background:linear-gradient(135deg,#ffffff,#f5f7f6);transition:all .15s" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">The sell side</div>
         <div style="font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-0.4px;margin-bottom:8px">Merchant platforms</div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you: <span data-live="site_claims.json:$.manifest.merchant_checks">250</span> checks from the CLI or your CI, and a read-only preview in the browser.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px">You expose a UCP agentic interface over your catalog, cart, payments &amp; checkout orchestration. We verify AI shopping agents can actually discover and buy from you: <span data-live="site_claims.json:$.manifest.merchant_checks">256</span> checks from the CLI or your CI, and a read-only preview in the browser.</p>
         <span style="font-size:13px;font-weight:700;color:var(--primary)">Check your store →</span>
       </a>
       <a href="/agent" style="display:block;text-decoration:none;border:1px solid var(--primary);border-radius:14px;padding:26px;background:linear-gradient(135deg,#ffffff,#ecfdf5);transition:all .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">

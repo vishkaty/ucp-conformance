@@ -5958,21 +5958,21 @@
   "2026-04-08": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 385,
-   "check": 277,
+   "musts": 386,
+   "check": 278,
    "exempt": 100,
    "gap": 8,
    "accounted_pct": 98,
    "roles": {
     "summary": {
-     "merchant": 312,
+     "merchant": 313,
      "agent": 135,
      "both": 66,
      "other": 4
     },
     "merchant": {
-     "musts": 312,
-     "check": 277,
+     "musts": 313,
+     "check": 278,
      "exempt": 28,
      "gap": 7,
      "gap_by_testability": {
@@ -5999,8 +5999,8 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 361,
-     "check": 271,
+     "musts": 362,
+     "check": 272,
      "exempt": 82,
      "gap": 8
     },
@@ -6033,10 +6033,10 @@
     "prose": {
      "pin": "a25a4a24",
      "mandatory_hits": 495,
-     "covered_by_rows": 252,
+     "covered_by_rows": 253,
      "scope_excluded": 173,
      "waived": {
-      "duplicate": 41,
+      "duplicate": 40,
       "non-normative": 28,
       "schema-enforced": 1
      },
@@ -6076,7 +6076,7 @@
     "reference-impl"
    ],
    "evidence_breakdown": {
-    "live-wire": 67,
+    "live-wire": 68,
     "discovery-live": 0,
     "fixture-schema": 68,
     "fixture-crypto": 4,
@@ -6085,7 +6085,7 @@
     "reference-impl": 0
    },
    "integrity": {
-    "target_facing": 277,
+    "target_facing": 278,
     "corpus": 0,
     "algorithm": 0
    },
@@ -6163,11 +6163,11 @@
     },
     {
      "area": "overview",
-     "check": 10,
+     "check": 11,
      "exempt": 2,
      "gap": 2,
      "gap_manual": 2,
-     "musts": 14
+     "musts": 15
     },
     {
      "area": "payment",
@@ -9908,7 +9908,8 @@
      "requirement": "A fetched profile that is not valid JSON or violates schema maps to profile_malformed, HTTP 422.",
      "source": "ucp:docs/specification/overview.md#L698",
      "covered_by": [
-      "merchant_checks_04_08_discovery.py"
+      "merchant_checks_04_08_discovery.py",
+      "merchant_checks_04_08_events.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -9924,7 +9925,8 @@
      "requirement": "A request whose platform profile URL is malformed, MISSING, or unresolvable is rejected with invalid_profile_url (REST 400 / MCP -32001)",
      "source": "ucp:docs/specification/overview.md#L696",
      "covered_by": [
-      "merchant_checks_04_08_discovery.py"
+      "merchant_checks_04_08_discovery.py",
+      "merchant_checks_04_08_events.py"
      ],
      "evidence": "self-referenced",
      "reach": []
@@ -10572,6 +10574,25 @@
      "requirement": "In the REST transport (core), implementations MUST use standard HTTP status codes (e.g., 200, 201, 400, 401, 500).",
      "source": "ucp:docs/specification/overview.md#L1587",
      "covered_by": []
+    },
+    {
+     "id": "OVR-058",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "needs-receiver",
+     "status": "check",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Negotiation Protocol, Business Requirements item 1 (Profile Resolution): upon receiving a request with a platform profile URI, businesses MUST fetch and validate the platform profile unless already cached.",
+     "source": "ucp:docs/specification/overview.md#L634-L636",
+     "covered_by": [
+      "merchant_checks_04_08_events.py"
+     ],
+     "evidence": "live-wire",
+     "reach": [
+      "flower-shop-official-sample",
+      "nodejs-reference-sample"
+     ]
     },
     {
      "id": "PAY-001",

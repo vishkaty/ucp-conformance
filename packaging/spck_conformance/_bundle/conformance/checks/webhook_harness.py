@@ -167,12 +167,22 @@ class Harness0408:
     """Receiver + platform-profile servers for 2026-04-08 order-event webhooks.
     `capabilities` narrows the served platform profile's capability set (the
     OVR-005/OVR-012 negotiation scenarios); default keeps checkout + order."""
-    def __init__(self, fail_first=0, capabilities=None):
+    def __init__(self, fail_first=0, capabilities=None, profile_webhook_url=None):
         self.recv = ThreadingHTTPServer(("127.0.0.1", 0), _Receiver0408)
         self.recv.events = []
         self.recv.fail_remaining = fail_first
         self.webhook_url = (f"http://127.0.0.1:{self.recv.server_address[1]}"
                             "/webhooks/ucp/orders?channel=spck-harness")
+        # profile_webhook_url: what the served platform profile PUBLISHES as the
+        # order config.webhook_url. Default: the receiver URL. A callable receives
+        # the receiver URL and returns the value to publish (any JSON type), so a
+        # check can serve a value that VIOLATES order.json $defs/platform_schema
+        # (an array naming the receiver, an integer) while the receiver stays live
+        # to observe whether the business delivers to a coerced target anyway
+        # (OVR-058, the samples#264 class). The receiver itself is unaffected.
+        published = (profile_webhook_url(self.webhook_url) if callable(profile_webhook_url)
+                     else (self.webhook_url if profile_webhook_url is None
+                           else profile_webhook_url))
         self.prof = ThreadingHTTPServer(("127.0.0.1", 0), _Profile0408)
         # served WRAPPED in the {"ucp": ...} envelope: profile documents on the
         # wire carry it (the merchant's own /.well-known/ucp, the official
@@ -182,8 +192,8 @@ class Harness0408:
         # call WITHOUT the capabilities kw when unset: gates monkeypatch
         # platform_profile_0408 with single-argument stubs (webhook-reference)
         self.prof.profile = json.dumps(
-            {"ucp": (platform_profile_0408(self.webhook_url) if capabilities is None
-                     else platform_profile_0408(self.webhook_url,
+            {"ucp": (platform_profile_0408(published) if capabilities is None
+                     else platform_profile_0408(published,
                                                 capabilities=capabilities))})
         self._threads = []
     def __enter__(self):

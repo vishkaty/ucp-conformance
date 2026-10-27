@@ -1,6 +1,6 @@
 {
  "_about": "dormancy_exemptions.json (D1-07): the merchant-check ids that NO golden in the four-gate union (flower 8182, controlled 04-08/01-23/01-11) exercises. `floor` is the exact expected dormant count \u2014 validate_dormancy.py reds above it (a new dormant check) AND below it (lower the floor deliberately). `exemptions` name the run_suite gate that kill-tests the id by name, with a review_by; `never_kill_tested` is the honest, visible debt until a gate names each id (D3-21 for ap2, tls-check for the tls variants).",
- "floor": 13,
+ "floor": 17,
  "exemptions": {
   "transport.https_tls13_minimum": {
    "gate": "tls-check",
@@ -21,6 +21,26 @@
    "gate": "order-auth-check",
    "review_by": "2026-12-09",
    "note": "validate_order_auth_check.py"
+  },
+  "signature.signer_profile_url_malformed_400": {
+   "gate": "sig002-reference",
+   "review_by": "2026-12-09",
+   "note": "samples#263 watch (Phase 5, 2026-10-27): needs signature.resolves_signer_profile, which only the sig002-reference gate's enforcing boot of the real reference declares (the controlled fixture bakes its keys in and never fetches a signer profile); graded there as a pin-keyed tripwire at e7c9c124, clean-pass + kill_safe at any other samples pin"
+  },
+  "signature.signer_profile_nonobject_key_422": {
+   "gate": "sig002-reference",
+   "review_by": "2026-12-09",
+   "note": "samples#263 watch (Phase 5, 2026-10-27): needs signature.resolves_signer_profile, which only the sig002-reference gate's enforcing boot of the real reference declares (the controlled fixture bakes its keys in and never fetches a signer profile); graded there as a pin-keyed tripwire at e7c9c124, clean-pass + kill_safe at any other samples pin"
+  },
+  "signature.signer_profile_unhashable_kid_401": {
+   "gate": "sig002-reference",
+   "review_by": "2026-12-09",
+   "note": "samples#263 watch (Phase 5, 2026-10-27): needs signature.resolves_signer_profile, which only the sig002-reference gate's enforcing boot of the real reference declares (the controlled fixture bakes its keys in and never fetches a signer profile); graded there as a pin-keyed tripwire at e7c9c124, clean-pass + kill_safe at any other samples pin"
+  },
+  "signature.signer_profile_bad_coordinate_401": {
+   "gate": "sig002-reference",
+   "review_by": "2026-12-09",
+   "note": "samples#263 watch (Phase 5, 2026-10-27): needs signature.resolves_signer_profile, which only the sig002-reference gate's enforcing boot of the real reference declares (the controlled fixture bakes its keys in and never fetches a signer profile); graded there as a pin-keyed tripwire at e7c9c124, clean-pass + kill_safe at any other samples pin"
   }
  },
  "never_kill_tested": [
