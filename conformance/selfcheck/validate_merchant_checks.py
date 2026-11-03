@@ -513,9 +513,12 @@ def _expected_skips_cases():
         # discovery.mcp_transport_advertised and mcp.tools_list_core_checkout RUN (the fixture's
         # advertised MCP endpoint answers tools/list) -> 4 run / 245 pinned. 246 since
         # 2026-09-22: discovery.profile_no_redirect_0825 (DISC-002's live 08-25 grader) is a
-        # REST check, so it pins transport-not-declared on this MCP-only shape.
-        case("(h) mcp-only-0825: exactly 4 checks run (unpinned), 246 pinned",
-             len(unpinned) == 4 and len(pop) == 246, f"run={unpinned} pinned={len(pop)}")
+        # REST check, so it pins transport-not-declared on this MCP-only shape. 248 since
+        # 2026-10-27: the two 04-08-locked Phase 5 watches (webhook.platform_webhook_url_
+        # validated, signature.idempotency_concurrent_single_result) pin version-scoped here;
+        # 252 the same day with the four samples#263 signer-profile watches (also 04-08-locked).
+        case("(h) mcp-only-0825: exactly 4 checks run (unpinned), 252 pinned",
+             len(unpinned) == 4 and len(pop) == 252, f"run={unpinned} pinned={len(pop)}")
         needs_product = sorted(cid for cid, cls in pop.items() if cls == "needs-product")
         case("(h) mcp-only-0825: the 9 product-driven MCP checks are pinned needs-product",
              len(needs_product) == 9 and all(cid.startswith("mcp.") for cid in needs_product),

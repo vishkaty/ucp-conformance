@@ -1710,6 +1710,46 @@ class IntegrationTest(absltest.TestCase):
       self.assertEqual(len(line_items), 1)
       self.assertIsInstance(line_items[0].get("id"), str)
 
+  def test_create_tolerates_a_profile_webhook_url_that_violates_the_schema(
+    self,
+  ) -> None:
+    """A platform profile value that violates order.json platform_schema is not
+    the agent's request fault and not a server fault.
+
+    extract_webhook_url returned str() of whatever the profile published and
+    the route fed it to PlatformSchema, whose webhook_url is a URL type, so a
+    one-element ARRAY (the shape a JavaScript URL coercion would deliver to,
+    samples#264) raised at response construction and the create answered 422
+    invalid_request: the wrong code for a profile fault (overview.md maps a
+    profile that violates schema to profile_malformed, 422). The function
+    treats every other profile problem as "no webhook", so a malformed value is
+    dropped the same way, with a log line (the samples#257 posture), and the
+    checkout carries no platform member. Watched on the wire by the suite's
+    webhook.platform_webhook_url_validated (OVR-058).
+    """
+    profile = {
+      "ucp": {
+        "version": "2026-08-25",
+        "capabilities": {
+          "dev.ucp.shopping.order": [
+            {
+              "name": "dev.ucp.shopping.order",
+              "config": {"webhook_url": ["http://127.0.0.1:1/xts-hook-2030"]},
+            }
+          ]
+        },
+      }
+    }
+    with self.client, respx.mock:
+      respx.get("https://agent.example/profile").respond(200, json=profile)
+      response = self.client.post(
+        "/checkout-sessions",
+        headers=self._get_headers(idempotency_key="hook-xts-1", request_id="hook-xts-1"),
+        json={"line_items": [{"item": {"id": "rose"}, "quantity": 1}]},
+      )
+      self.assertEqual(response.status_code, 201, response.text)
+      self.assertNotIn("platform", response.json())
+
   def test_create_checkout_with_attribution(self) -> None:
     """A checkout create carrying attribution returns 201 and persists."""
     attribution_data = {

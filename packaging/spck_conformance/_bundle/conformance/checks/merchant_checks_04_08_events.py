@@ -34,6 +34,20 @@ Two conversion tracks for the needs-receiver tier:
     RESPONSES, so this is directly observable on a signed create response
     (config-gated on `signature.responses`, like the wave-1 response checks).
 
+  * PHASE 5 REGRESSION WATCHES on the reference implementations (2026-10-27):
+    webhook.platform_webhook_url_validated (OVR-058, samples#264: a platform
+    profile whose order config.webhook_url violates order.json
+    $defs/platform_schema must never become the delivery target, nor be echoed
+    raw) and signature.idempotency_concurrent_single_result (SIG-025,
+    samples#245/#265: N concurrent creates under ONE Idempotency-Key, with the
+    agent-profile fetch held open by a barrier so every handler sits in the
+    read-execute-store window at once, must yield ONE stored checkout). Both are
+    gated on `webhooks.simulate` because both rely on its item 3, the loopback
+    platform-profile fetch convention. Both run on the Python golden and the
+    controlled fixture (clean-pass + kill_safe) and on the Node reference through
+    the differential gate, where each deviation is a self-expiring allowlist
+    entry until the upstream fix is merged and re-pinned.
+
 Version-locked: signatures.md and the 04-08 order-events register rows are new at
 2026-04-08 (the 01-era ORD-026.. ids do not exist; the 01-era webhook rows
 ORD-012.. describe a DIFFERENT wire format — event_type envelope + detached-JWT
@@ -43,13 +57,18 @@ NOTE: imported lazily by merchant_checks.all_checks() — do not import this mod
 before merchant_checks (it pulls MCheck/_hdr/_create_payload from there, and the
 RFC 9421 parsing/crypto helpers from merchant_checks_04_08_signatures).
 """
-import sys, pathlib, json, uuid, base64, hashlib
+import sys, pathlib, json, uuid, base64, hashlib, threading, time
+from concurrent.futures import ThreadPoolExecutor
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from engine import Resp, fetch, CLEAN, DEVIATION, INCONCLUSIVE          # noqa: E402
 from merchant_checks import MCheck, _hdr, _create_payload               # noqa: E402
 from merchant_checks_04_08_signatures import (                          # noqa: E402
     ecdsa_p256_verify, parse_signature_input, parse_signature,
-    _digest_value, _jwk_point, _profile_keys, _b64u_dec, _matched, _signed_headers)
+    _digest_value, _jwk_point, _profile_keys, _b64u_dec, _matched, _signed_headers,
+    _ec_mul, _EC_G)
+from webhook_harness import platform_profile_0408                       # noqa: E402
 
 V0408 = ("2026-04-08",)
 
@@ -126,6 +145,126 @@ def _err_codes(r):
         if isinstance(m, dict) and isinstance(m.get("code"), str):
             codes.add(m["code"])
     return codes
+
+# ---- samples#263 class: a MALFORMED SIGNER PROFILE must map to the spec code -------
+# The verifier resolves the signer's keys from the UCP-Agent profile URL. Four
+# places on that path let the standard library, httpx and idna raise past the
+# SignatureError mapping, so a malformed profile URL or a malformed published key
+# answered a bare 500 text/plain (python reference at samples e7c9c124; fix open as
+# samples#263). Spec at v2026-04-08 (a25a4a24): signatures.md Error Handling L561
+# `invalid_profile_url` 400; overview.md Error Codes L698 `profile_malformed` 422;
+# signatures.md L553/L388 `key_not_found` 401; L552/L405 `signature_invalid` 401.
+# Config-gated on signature.request_private_jwk AND signature.resolves_signer_profile
+# (the merchant resolves signer profiles from UCP-Agent and will fetch a plain-HTTP
+# loopback one for this test; the controlled fixture bakes its keys in and never
+# fetches, so it omits the key and these skip). Graded on the real reference by
+# validate_sig002_reference.py, which pins the defect as a tripwire at the samples
+# pin that carries it and requires clean-pass + kill_safe at any other pin.
+class _SignerProfile:
+    """An ephemeral loopback server publishing ONE signer-profile document (any JSON)
+    at every path; `url` is what UCP-Agent names."""
+    class _H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            body = self.server.doc
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+    def __init__(self, doc):
+        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), self._H)
+        self.srv.doc = json.dumps(doc).encode()
+        self.url = f"http://127.0.0.1:{self.srv.server_address[1]}/signer-profile.json"
+    def __enter__(self):
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+        return self
+    def __exit__(self, *a):
+        self.srv.shutdown()
+        self.srv.server_close()
+
+def _test_public_jwk(ctx):
+    """The PUBLIC JWK of config signature.request_private_jwk (kid, x, y), derived
+    from d so a served profile can publish real key material with ONE member
+    deliberately malformed."""
+    key = _sig_key(ctx)
+    if key is None:
+        return None
+    d, kid = key
+    x, y = _ec_mul(d, _EC_G)
+    b64u = lambda n: base64.urlsafe_b64encode(n.to_bytes(32, "big")).decode().rstrip("=")
+    return {"kid": kid, "kty": "EC", "crv": "P-256", "x": b64u(x), "y": b64u(y)}
+
+def _signed_create_naming(ctx, profile_url):
+    """A correctly ES256-signed create (correct Content-Digest, every required
+    component covered) whose UCP-Agent names `profile_url` as the signer profile."""
+    key = _sig_key(ctx)
+    if key is None:
+        return Resp(0, {}, b'{"probe":"signature.request_private_jwk has no valid d"}')
+    d, kid = key
+    payload = _create_payload(ctx)
+    raw = json.dumps(payload).encode()       # engine.fetch serializes identically
+    hdrs = _signed_headers(ctx, "POST", "/checkout-sessions", raw, d, kid,
+                           profile_url=profile_url)
+    return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload, hdrs)
+
+def sigprofile_bad_url_resp(ctx):
+    """UCP-Agent names a profile URL urlsplit itself rejects (`https://[::1`): the
+    URL check precedes every fetch, so no key material is involved."""
+    return _signed_create_naming(ctx, "https://[::1")
+
+def sigprofile_nonobject_entry_resp(ctx):
+    """The served profile's signing_keys[] holds a NON-OBJECT entry and nothing
+    else: no usable key is published (overview.md: violates schema -> profile_malformed)."""
+    with _SignerProfile({"ucp": {"version": "2026-04-08"}, "signing_keys": [42]}) as sp:
+        return _signed_create_naming(ctx, sp.url)
+
+def sigprofile_unhashable_kid_resp(ctx):
+    """The served profile publishes the test key with a `kid` that is an ARRAY: a
+    key the lookup cannot use is skipped, so the signature's keyid resolves to no
+    key (signatures.md verify_rest_request: key_not_found)."""
+    pub = _test_public_jwk(ctx)
+    if pub is None:
+        return Resp(0, {}, b'{"probe":"signature.request_private_jwk has no valid d"}')
+    pub["kid"] = [pub["kid"]]
+    with _SignerProfile({"ucp": {"version": "2026-04-08"}, "signing_keys": [pub]}) as sp:
+        return _signed_create_naming(ctx, sp.url)
+
+def sigprofile_bad_coordinate_resp(ctx):
+    """The served profile publishes the test key under the right kid with the `x`
+    coordinate as an INTEGER: the key is found but its material is malformed, so
+    verification fails (signatures.md verify_rest_request: signature_invalid)."""
+    pub = _test_public_jwk(ctx)
+    if pub is None:
+        return Resp(0, {}, b'{"probe":"signature.request_private_jwk has no valid d"}')
+    pub["x"] = 12345
+    with _SignerProfile({"ucp": {"version": "2026-04-08"}, "signing_keys": [pub]}) as sp:
+        return _signed_create_naming(ctx, sp.url)
+
+def _mapped(r, status, code):
+    return CLEAN if r.status == status and code in _err_codes(r) else DEVIATION
+
+def p_sigprofile_invalid_url(r):
+    """NEG-005@04-08 (overview.md L696; signatures.md L561): a malformed signer
+    profile URL -> HTTP 400 invalid_profile_url. A 5xx is the samples#263 defect."""
+    return _mapped(r, 400, "invalid_profile_url")
+
+def p_sigprofile_malformed(r):
+    """NEG-004@04-08 (overview.md L698): a fetched profile that violates the schema
+    and publishes nothing usable -> HTTP 422 profile_malformed."""
+    return _mapped(r, 422, "profile_malformed")
+
+def p_sigprofile_key_not_found(r):
+    """SIG-033/SIG-037@04-08 (signatures.md L553, L387-388): the keyid resolves to
+    no usable published key -> HTTP 401 key_not_found."""
+    return _mapped(r, 401, "key_not_found")
+
+def p_sigprofile_signature_invalid(r):
+    """SIG-032/SIG-036@04-08 (signatures.md L552, L404-405): the published key's
+    material is malformed so verification cannot succeed -> HTTP 401
+    signature_invalid."""
+    return _mapped(r, 401, "signature_invalid")
+
 
 def p_sig_missing(r):
     return CLEAN if r.status == 401 and "signature_missing" in _err_codes(r) \
@@ -520,6 +659,150 @@ _WH_SI_NO_AGENT = json.dumps(
     'sig1=("@method" "@authority" "@path" "@query" "idempotency-key" '
     '"content-digest" "content-type");keyid="k1"')
 
+# ---- OVR-058: a schema-violating platform webhook_url is never acted on ---------
+def wh_schema_violating_profile_flow(ctx):
+    """The platform profile names, as its order config.webhook_url, a ONE-ELEMENT
+    ARRAY containing the live receiver URL (violates order.json
+    $defs/platform_schema `type: string`). create -> (complete -> wait) with that
+    profile; returns the create status/code, the echoed `platform` member and the
+    deliveries the receiver captured. The array is the probe value because it is
+    the one shape a `new URL()`/`fetch` coercion makes DELIVERABLE: a business that
+    skips validation not only echoes it raw but delivers to the coerced target,
+    which the receiver observes (samples#264; the typeof guard in that fix is the
+    only line that catches it)."""
+    from webhook_harness import Harness0408
+
+    def hd(h):
+        d = _hdr()
+        d["UCP-Agent"] = f'profile="{h.profile_url}"'
+        return d
+
+    with Harness0408(profile_webhook_url=lambda url: [url]) as h:
+        p = _create_payload(ctx, with_fulfillment=True)
+        opt = ctx.config.get("fulfillment_option_id")
+        if opt:
+            p["fulfillment"]["methods"][0]["groups"][0]["selected_option_id"] = opt
+        r = fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", p, hd(h))
+        j = r.json if isinstance(r.json, dict) else {}
+        codes = [m.get("code") for m in (j.get("messages") or []) if isinstance(m, dict)]
+        rec = {"create_status": r.status,
+               "create_code": j.get("code") or (codes[0] if codes else None),
+               "platform": j.get("platform"), "events": [], "complete_status": None}
+        cid = j.get("id")
+        if r.status == 201 and cid:
+            c = fetch(ctx.shopping_endpoint, f"/checkout-sessions/{cid}/complete",
+                      "POST", ctx.config.get("complete_payment"), hd(h))
+            rec["complete_status"] = c.status
+            rec["events"] = h.wait_events(n=1, timeout=_wh_wait(ctx))
+    return Resp(200, {"Content-Type": "application/json"}, json.dumps(rec).encode())
+
+def p_platform_webhook_url_validated(r):
+    """OVR-058: the business validates the platform profile it fetched. A profile
+    whose order config.webhook_url violates platform_schema is either REJECTED
+    (422 profile_malformed, the overview.md Error Codes mapping NEG-004 pins) or
+    DROPPED (the posture both references adopt: samples#257 python, samples#264
+    nodejs); in neither case is the value acted on. Deviation: the create crashes
+    or refuses in any other shape, the raw non-string value is echoed back under
+    platform.webhook_url, an echoed string is not an http(s) URL, or an order
+    event is DELIVERED to the coerced target."""
+    j = r.json if isinstance(r.json, dict) else None
+    if j is None:
+        return DEVIATION
+    st = j.get("create_status")
+    if st == 422 and j.get("create_code") == "profile_malformed":
+        return CLEAN                        # rejected the schema-violating profile
+    if st != 201:
+        return DEVIATION                    # 5xx crash, or an unmapped refusal
+    plat = j.get("platform")
+    if isinstance(plat, dict) and "webhook_url" in plat:
+        wu = plat["webhook_url"]
+        if not isinstance(wu, str):
+            return DEVIATION                # the raw schema-violating value, echoed
+        u = urlsplit(wu)
+        if u.scheme not in ("http", "https") or not u.netloc:
+            return DEVIATION                # a string, but not a webhook target
+    ev = j.get("events")
+    if not isinstance(ev, list):
+        return DEVIATION
+    return DEVIATION if ev else CLEAN       # delivered to the coerced target
+
+# ---- SIG-025 under CONCURRENCY: one Idempotency-Key, N simultaneous creates -------
+class _BarrierProfile(BaseHTTPRequestHandler):
+    """Serves the platform profile only once `n` fetches have ARRIVED (or `hold`
+    seconds elapsed): every concurrent create is parked inside its own
+    read-execute-store window at the same moment, so the race is reproduced by
+    construction rather than by timing. A business that single-flights or caches
+    the fetch still parks every handler on the one fetch, and the hold timeout
+    releases it; the measurement is then still valid (fewer fetches, same window)."""
+    def log_message(self, *a): pass
+    def do_GET(self):
+        srv = self.server
+        with srv.cv:
+            srv.arrived += 1
+            srv.cv.notify_all()
+            deadline = time.monotonic() + srv.hold
+            while srv.arrived < srv.n and time.monotonic() < deadline:
+                srv.cv.wait(timeout=0.05)
+        body = json.dumps({"ucp": platform_profile_0408("http://127.0.0.1:1/never")}).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+_IDEM_RACERS = 8
+
+def idem_concurrent_resp(ctx):
+    """N identical creates (same body bytes, same Idempotency-Key) issued at once
+    from N threads, each naming a barrier-served platform profile in UCP-Agent (the
+    `webhooks.simulate` loopback-fetch convention). Returns every status and the
+    checkout id each response named, so the predicate can prove the key names ONE
+    stored result (samples#245 python, samples#265 nodejs: read, await the profile
+    fetch, then INSERT OR REPLACE, so every racer stored its own checkout)."""
+    n = _IDEM_RACERS
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _BarrierProfile)
+    srv.cv, srv.arrived, srv.n, srv.hold = threading.Condition(), 0, n, 5.0
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/profiles/platform-profile.json"
+    key = str(uuid.uuid4())
+    payload = _create_payload(ctx)           # reused verbatim: identical body bytes
+
+    def one(_):
+        h = _hdr(key)
+        h["UCP-Agent"] = f'profile="{url}"'
+        return fetch(ctx.shopping_endpoint, "/checkout-sessions", "POST", payload, h)
+    try:
+        with ThreadPoolExecutor(max_workers=n) as ex:
+            rs = list(ex.map(one, range(n)))
+    finally:
+        srv.shutdown()
+        srv.server_close()
+    body = {"n": n, "fetches_arrived": srv.arrived,
+            "statuses": [r.status for r in rs],
+            "ids": [(r.json or {}).get("id") if isinstance(r.json, dict) else None
+                    for r in rs]}
+    return Resp(200, {"Content-Type": "application/json"}, json.dumps(body).encode())
+
+def p_idem_concurrent_single_result(r):
+    """SIG-025 ("On duplicate: return cached response, do not re-execute"), with
+    the duplicates arriving TOGETHER: every racer is answered 2xx with the SAME
+    checkout id (the one stored result). Deviation: more than one id (each racer
+    executed and stored its own), a 409 on an identical payload (a duplicate is a
+    cached-response case, never a conflict), a 5xx, or a transport failure."""
+    j = r.json if isinstance(r.json, dict) else None
+    if j is None:
+        return DEVIATION
+    n, sts, ids = j.get("n"), j.get("statuses"), j.get("ids")
+    if not (isinstance(n, int) and isinstance(sts, list) and isinstance(ids, list)):
+        return DEVIATION
+    if len(sts) != n or len(ids) != n or n < 2:
+        return DEVIATION
+    if any(s not in (200, 201) for s in sts):
+        return DEVIATION                    # 409 on identical bodies, 5xx, status 0
+    if any(not isinstance(i, str) or not i for i in ids):
+        return DEVIATION
+    return CLEAN if len(set(ids)) == 1 else DEVIATION
+
 _WH_GATES = ("webhooks.simulate", "complete_payment")
 # The SIGNING cluster (ORD-026/027/028, SIG-014/015/017/027 — order.md "Webhook
 # Signature Verification") and delivery RETRY (ORD-031) are gated on their own
@@ -563,6 +846,41 @@ CHECKS_04_08_EVENTS = [
            capability="dev.ucp.shopping.checkout", needs=("product",),
            cfg_needs=("signature.request_private_jwk",), transport="rest",
            versions=V0408),
+    # --- samples#263 class (Phase 5 watch, 2026-10-27): malformed SIGNER PROFILE ->
+    #     the spec code, never a bare 500. The reference's envelope carries the code
+    #     at messages[0].code (error_response.json), which is where the kills bite.
+    MCheck("signature.signer_profile_url_malformed_400", ["NEG-005"], "MUST",
+           sigprofile_bad_url_resp, p_sigprofile_invalid_url,
+           ["status:500", "status:201", "status:422",
+            "set:messages.0.code=\"profile_unreachable\"", "drop:messages",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.request_private_jwk", "signature.resolves_signer_profile"), transport="rest", versions=V0408),
+    MCheck("signature.signer_profile_nonobject_key_422", ["NEG-004"], "MUST",
+           sigprofile_nonobject_entry_resp, p_sigprofile_malformed,
+           ["status:500", "status:201", "status:401",
+            "set:messages.0.code=\"key_not_found\"", "drop:messages",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.request_private_jwk", "signature.resolves_signer_profile"), transport="rest", versions=V0408),
+    MCheck("signature.signer_profile_unhashable_kid_401", ["SIG-033", "SIG-037"], "MUST",
+           sigprofile_unhashable_kid_resp, p_sigprofile_key_not_found,
+           ["status:500", "status:201", "status:400",
+            "set:messages.0.code=\"signature_invalid\"", "drop:messages",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.request_private_jwk", "signature.resolves_signer_profile"), transport="rest", versions=V0408,
+           kills={"SIG-033": ["status:500", "status:201", "set:messages.0.code=\"signature_invalid\""],
+                  "SIG-037": ["status:400", "drop:messages", "corrupt-json", "empty"]}),
+    MCheck("signature.signer_profile_bad_coordinate_401", ["SIG-032", "SIG-036"], "MUST",
+           sigprofile_bad_coordinate_resp, p_sigprofile_signature_invalid,
+           ["status:500", "status:201", "status:400",
+            "set:messages.0.code=\"key_not_found\"", "drop:messages",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("signature.request_private_jwk", "signature.resolves_signer_profile"), transport="rest", versions=V0408,
+           kills={"SIG-032": ["status:500", "status:201", "set:messages.0.code=\"key_not_found\""],
+                  "SIG-036": ["status:400", "drop:messages", "corrupt-json", "empty"]}),
     # --- duplicate idempotency key -> cached response (server-side, directly
     #     probe-able; 04-08-locked: SIG ids exist only in the 04-08 register).
     #     CHK-048/CART-026 bundle the same cached-result rule with a >=24h
@@ -665,4 +983,34 @@ CHECKS_04_08_EVENTS = [
            ["set:events=[]", "drop:events.1", "corrupt-json", "empty"],
            capability="dev.ucp.shopping.order", needs=("product",),
            cfg_needs=_WH_RETRY, transport="rest", versions=V0408),
+    # --- Phase 5 regression watches (2026-10-27) ---
+    # samples#264: the Node reference stores, echoes and DELIVERS TO whatever the
+    # platform profile publishes as webhook_url (an array coerces to a deliverable
+    # string; a data: URL "succeeds" without leaving the process). Python gates it
+    # since samples#257; the controlled fixture drops a non-string. On the Node
+    # target this DEVIATES at pin e7c9c124 and is a self-expiring entry in
+    # differential_allowlist.json until the fix merges and the samples pin moves.
+    MCheck("webhook.platform_webhook_url_validated", ["OVR-058"], "MUST",
+           wh_schema_violating_profile_flow, p_platform_webhook_url_validated,
+           ["set:create_status=500",
+            "set:platform={\"webhook_url\":[\"http://127.0.0.1:1/hook\"]}",
+            "set:platform={\"webhook_url\":42}",
+            "set:platform={\"webhook_url\":\"xts-not-a-url-2030\"}",
+            "set:events=[{\"path\":\"/webhooks/ucp/orders\"}]",
+            "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.order", needs=("product",),
+           cfg_needs=_WH_GATES, transport="rest", versions=V0408),
+    # samples#245 (python, merged) / samples#265 (nodejs, open): concurrent creates
+    # under one key each persisted a checkout. The barrier profile makes the window
+    # deterministic (every handler parked at its profile await before any write).
+    # Our own controlled fixture had the same read-execute-store shape and was
+    # fixed alongside this check (fixtures/merchant/server.py create_checkout).
+    MCheck("signature.idempotency_concurrent_single_result", ["SIG-025"], "MUST",
+           idem_concurrent_resp, p_idem_concurrent_single_result,
+           ["set:ids=[\"chk_a\",\"chk_b\",\"chk_a\",\"chk_a\",\"chk_a\",\"chk_a\",\"chk_a\",\"chk_a\"]",
+            "set:statuses=[500,201,201,201,201,201,201,201]",
+            "set:statuses=[201,409,409,409,409,409,409,409]",
+            "drop:ids", "corrupt-json", "empty"],
+           capability="dev.ucp.shopping.checkout", needs=("product",),
+           cfg_needs=("webhooks.simulate",), transport="rest", versions=V0408),
 ]

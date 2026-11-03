@@ -120,7 +120,7 @@ launched with Mastercard, Amex, JCB, UnionPay, Adyen, PayPal, Coinbase and more
 requirements in our register went from
 <span data-live="coverage.json:$.versions['2026-01-11'].musts">178</span> to
 <span data-live="coverage.json:$.versions['2026-01-23'].musts">188</span> to
-<span data-live="coverage.json:$.versions['2026-04-08'].musts">385</span> —
+<span data-live="coverage.json:$.versions['2026-04-08'].musts">386</span> —
 nearly doubling in the latest release. Every requirement is individually traceable at
 <a href="/checks">spck.dev/checks</a>, each linking to the exact spec line it comes from.</p>
   <p class="note">Precision note: the artifact tagged <code>v2026-04-08</code> was finalized in a commit dated
@@ -342,7 +342,7 @@ issues are tracked at spec pin <code data-live="known-issues.json:$.spec_pin_sho
 <b data-live="known-issues.json:$.summary.open_on_some_cut">10</b> are still open on a published cut,
 <b data-live="known-issues.json:$.summary.fixed_on_some_cut">7</b> have a fix on some cut but not yet in a
 release, and <b data-live="known-issues.json:$.summary.unfixed_everywhere">3</b> have no fix anywhere yet. Latest
-re-verification: <span data-live="known-issues.json:$.summary.latest_re_verified">2026-10-16</span>. The full
+re-verification: <span data-live="known-issues.json:$.summary.latest_re_verified">2026-10-26</span>. The full
 table, with the command to reproduce each row, is at <a href="/known-issues">spck.dev/known-issues</a>.</p>
 
   <h2>9 · What to watch</h2>
@@ -359,7 +359,7 @@ and seeing something different from what we measured, tell us what we missed.</p
     <p class="note">Spec counts: spck.dev's public register (<a href="/coverage.json">coverage.json</a>), pinned
 to release-tag commits (<code>2026-04-08</code> → <code>a25a4a24…</code>, the tag position after the 2026-09-09 re-point, which is where our 2026-04-08 counts come from); every requirement links to its spec
 line; method at <a href="/docs">spck.dev/docs</a>.
-      Where this page leans on our own conformance register, its evidence-class split is published too: of <span data-live="coverage.json:$.versions['2026-04-08'].check">277</span> checked requirements at v2026-04-08, <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['live-wire']">67</span> are kill-tested against independent reference servers and <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['self-referenced']">138</span> so far rest only on our own fixtures — the full split, drift-gated in CI, is at <a href="/coverage">spck.dev/coverage</a>.
+      Where this page leans on our own conformance register, its evidence-class split is published too: of <span data-live="coverage.json:$.versions['2026-04-08'].check">278</span> checked requirements at v2026-04-08, <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['live-wire']">68</span> are kill-tested against independent reference servers and <span data-live="coverage.json:$.versions['2026-04-08'].evidence_breakdown['self-referenced']">138</span> so far rest only on our own fixtures — the full split, drift-gated in CI, is at <a href="/coverage">spck.dev/coverage</a>.
       Live-endpoint data: population frame from the CC-BY-4.0
 UCPChecker/ucp-merchants dataset (attribution: UCPChecker on Hugging Face); measurements are our own read-only
 <code>/.well-known/ucp</code> probe of 2026-08-13; aggregates at

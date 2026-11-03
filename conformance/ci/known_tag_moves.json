@@ -1,6 +1,35 @@
 {
   "_about": "Acknowledged upstream TAG MOVES (D2-17, RV2 constitution item 1; PLAN-v3 §2.8). sources_age.py --check compares every pinned spec tag's live identity (tag object sha + dereferenced commit) with SOURCES.lock.json; a move that matches an UNEXPIRED entry here on (tag, from, to, tag_object) prints 'acknowledged (decision N, review_by ...)' and keeps rc 0 — fail-noisy, not fail-blocking. A different `to`/`tag_object` is a NEW move and reds preflight; an entry past its review_by is as good as absent. Entries carry the expiry clock (expiry_registers.json: clock_tier moving = 30 d, decision 23; spec_pin = the lock's commit for `version`, so the re-pin that resolves the move also drifts this entry out). D2-15 (decision 3, W1) re-pins 2026-04-08 to a25a4a24 and retires the entry below.",
-  "moves": [],
+  "moves": [
+    {
+      "tag": "v2026-04-08",
+      "repo": "Universal-Commerce-Protocol/ucp",
+      "version": "2026-04-08",
+      "from": "a25a4a24",
+      "to": "9c9d6fce",
+      "tag_object": "48127e78",
+      "observed": "2026-10-26",
+      "decision": 3,
+      "reason": "second re-point of v2026-04-08 after publication: the tag object was recreated as 48127e78 (tagger date kept at 2026-04-13) naming 9c9d6fce, the head of release/2026-04-08, which is four commits past the pinned a25a4a24: ucp#828 (permalink capability backport), ucp#829 (Web Bot Auth interop, signatures.md +467 lines), ucp#885 (backports of #370, #485, #494) and ucp#935 (media variants, merged 2026-10-22). Observed 2026-10-26 by sources_age --check. The pinned artifact stays a25a4a24; the register, expected skip populations and coverage numbers are measured there. A re-pin is a separate owner decision (decision 3 precedent): it needs the quote re-verification of every 2026-04-08 row, the register-completeness accounting of the new MUSTs in permalink.md and signatures.md, and the expiry re-stamp of every pin-only entry at that version.",
+      "review_by": "2026-11-19",
+      "spec_pin": "a25a4a24",
+      "clock_tier": "moving"
+    },
+    {
+      "tag": "v2026-08-25",
+      "repo": "Universal-Commerce-Protocol/ucp",
+      "version": "2026-08-25",
+      "from": "cd78fb38",
+      "to": "87dd4b1f",
+      "tag_object": "1c225995",
+      "observed": "2026-10-26",
+      "decision": 3,
+      "reason": "first re-point of v2026-08-25 after publication: the tag was a lightweight tag on cd78fb38 and is now an annotated tag object 1c225995 (tagger date 2026-08-25) naming 87dd4b1f, the head of release/2026-08-25, five commits past the pin: ucp#838 (backport of #823), ucp#878 (schema table type links), ucp#886 (getting started guide), ucp#871 (cart_id omit on complete_checkout requests, a schema change in source/schemas/shopping/cart.json) and ucp#941 (media variants, merged 2026-10-22). Observed 2026-10-26 by sources_age --check. The pinned artifact stays cd78fb38, which is the spec_pin every known_issues row and the rubric page name. A re-pin is a separate owner decision: ucp#871 changes a request annotation the 2026-08-25 register and golden-0825 wire shapes depend on, so it needs the same sweep as the 2026-04-08 move plus the golden-0825 cart_id probe.",
+      "review_by": "2026-11-21",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "moving"
+    }
+  ],
   "_retired": [
     {
       "tag": "v2026-04-08",

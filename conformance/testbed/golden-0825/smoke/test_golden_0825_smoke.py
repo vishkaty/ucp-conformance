@@ -499,7 +499,13 @@ def test_leaf_differential(golden_server):
 # in the W0-d3 landing note). Any change to the 04-08 population, to the leaf's
 # advertised capabilities, or to the differential config must re-pin this
 # deliberately; a silently shrinking population is a red test, not a pass.
-LEAF_DIFFERENTIAL_RUN_COUNT = 46
+# 46 -> 48 on 2026-10-27: the two Phase 5 watches webhook.platform_webhook_url_
+# validated (OVR-058, after this golden learned to drop a profile webhook_url that
+# violates platform_schema instead of answering 422 invalid_request) and
+# signature.idempotency_concurrent_single_result (SIG-025) clean-pass on the leaf;
+# the four signer-profile watches are not-tested here (needs config). Measured:
+# 48 clean-pass, 0 deviations, 158 not-applicable, 50 not-tested of 256.
+LEAF_DIFFERENTIAL_RUN_COUNT = 48
 
 
 # ---------------------------------------------------------------------------

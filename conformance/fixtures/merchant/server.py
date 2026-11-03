@@ -1623,6 +1623,13 @@ IDEM_RETENTION_SECONDS = 48 * 3600
 # SIG-024: "On storage failure — Fail closed (reject request with 503)."
 # /testing/idempotency/outage arms a simulated storage outage.
 IDEM_OUTAGE = False
+# SIG-025 under CONCURRENCY (the samples#245 / samples#265 class, found in THIS fixture
+# by signature.idempotency_concurrent_single_result on 2026-10-27: eight concurrent
+# creates under one key each stored a checkout). A key is CLAIMED here, under _LOCK,
+# before its request executes; concurrent duplicates wait on the owner's Event and then
+# replay the stored result. The loopback profile fetch inside the create path is the
+# window that made the old read-execute-store shape race.
+IDEM_PENDING = {}   # idempotency-key -> threading.Event, set when the owner is done
 _LOCK = threading.Lock()
 
 def _idem_lookup(key):
@@ -2055,8 +2062,18 @@ def create_checkout(body, headers=None):
                              "idempotency storage is unavailable; the request was "
                              "rejected rather than processed without deduplication")
     fp = json.dumps(body, sort_keys=True)
-    with _LOCK:
-        prev = _idem_lookup(key) if key else None
+    if not key:
+        return _create_checkout_execute(body, headers, cart_conv, None, fp)
+    # First writer wins (SIG-025 with the duplicates arriving TOGETHER): claim the key
+    # under _LOCK before executing; a concurrent duplicate waits for the owner and
+    # replays its stored result (or 409s on a different body) instead of executing.
+    while True:
+        with _LOCK:
+            prev = _idem_lookup(key)
+            owner = prev is None and key not in IDEM_PENDING
+            if owner:
+                IDEM_PENDING[key] = threading.Event()
+            pending = IDEM_PENDING.get(key)
         if prev is not None:
             prev_fp, prev_status, prev_payload = prev
             if prev_fp != fp:
@@ -2065,6 +2082,20 @@ def create_checkout(body, headers=None):
                                      "idempotency-key conflict: same key with a "
                                      "different body")
             return prev_status, prev_payload           # replay the original result
+        if owner:
+            break
+        pending.wait(timeout=10.0)       # owner stores (or gives up), then we re-read
+    try:
+        return _create_checkout_execute(body, headers, cart_conv, key, fp)
+    finally:
+        with _LOCK:
+            ev = IDEM_PENDING.pop(key, None)
+        if ev is not None:
+            ev.set()
+
+def _create_checkout_execute(body, headers, cart_conv, key, fp):
+    """The create itself, after the idempotency claim; stores the 201 result under
+    `key` (when given) with the body fingerprint `fp`."""
     # CHK-051/CHK-053 (2026-04-08 two-layer model): unavailable merchandise is a
     # BUSINESS OUTCOME, never a protocol 4xx. A KNOWN item with zero stock is
     # unavailable; when EVERY requested line is unavailable no resource can be

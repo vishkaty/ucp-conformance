@@ -64,6 +64,10 @@ test("04-08 tab carries the tag re-point footnote (CLAIM-COV-003) from the pinne
   assert.match(text, /a25a4a24/);                 // the re-pinned 04-08 commit (D2-15, decision 3), rendered from spec_pins
   assert.doesNotMatch(text, /re-pointed/);     // the tag-move clause retired with the re-pin
   assert.match(text, /ucp#813/);
+  // 2026-10-26: the tag moved AGAIN (release/2026-04-08 head 9c9d6fce, ucp#935); the footnote
+  // must say so until a re-pin resolves it, so the page cannot claim the tag still names our pin
+  assert.match(text, /9c9d6fce/);
+  assert.match(text, /ucp#935/);
   clickTab(doc, "2026-08-25");
   assert.ok(!doc.getElementById("summary").textContent.includes(c.text), "footnote is 04-08 only");
 });

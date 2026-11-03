@@ -268,13 +268,17 @@
       card.appendChild(ceiling);
     }
     // Lock-note footnote (CLAIM-COV-003, D5-02 / decision 3; re-worded at the W1 re-pin,
-    // D2-15): the 04-08 numbers are measured at the pinned commit, which IS the commit the
-    // upstream v2026-04-08 tag has pointed to since 2026-09-09 (ucp#813). The SHA renders
-    // from spec_pins (never typed here).
+    // D2-15, and again 2026-10-26): the 04-08 numbers are measured at the pinned commit,
+    // which the upstream v2026-04-08 tag named from 2026-09-09 (ucp#813) until it was
+    // re-pointed again to 9c9d6fce (release/2026-04-08 head, ucp#935). The move is
+    // acknowledged in conformance/ci/known_tag_moves.json; the re-pin is a separate owner
+    // decision, so the page must not say the tag still names our pin. The SHA renders
+    // from spec_pins (never typed here); the current tag target is typed and is pinned by
+    // tests/web/unit/coverage_page.test.mjs.
     if (VER === "2026-04-08" && DATA.spec_pins && DATA.spec_pins[VER]) {
       var lock = el("div", "note",
         "measured at commit " + String(DATA.spec_pins[VER]).slice(0, 8) +
-        ", which the v2026-04-08 tag has pointed to since 2026-09-09 (ucp#813)");
+        ", which the v2026-04-08 tag named from 2026-09-09 (ucp#813); by 2026-10-26 the tag names 9c9d6fce (ucp#935, merged 2026-10-22), a move acknowledged in known_tag_moves.json and not yet re-pinned");
       lock.style.margin = "2px 0 8px";
       lock.style.fontStyle = "italic";
       card.appendChild(lock);
