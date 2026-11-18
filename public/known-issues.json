@@ -193,7 +193,7 @@
       "repro": {
         "command": "cd conformance/.vendor/samples/rest/python/server && uv run pytest -q",
         "expected": "all tests OK",
-        "observed": "all tests OK at the current pin e7c9c124 (359 passed, 12 subtests, no 500s and no checkout_service reference; 279 passed at the previous pin cdb291c4, the difference being the tests the fourteen intervening merges added); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at every pin since"
+        "observed": "all tests OK at the current pin 52319dff (389 passed, 12 subtests, no 500s and no checkout_service reference; 359 at the previous pin e7c9c124 and 279 at cdb291c4, the differences being the tests the intervening merges added); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at every pin since"
       },
       "status_by_cut": [
         {

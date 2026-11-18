@@ -988,8 +988,9 @@ CHECKS_04_08_EVENTS = [
     # platform profile publishes as webhook_url (an array coerces to a deliverable
     # string; a data: URL "succeeds" without leaving the process). Python gates it
     # since samples#257; the controlled fixture drops a non-string. On the Node
-    # target this DEVIATES at pin e7c9c124 and is a self-expiring entry in
-    # differential_allowlist.json until the fix merges and the samples pin moves.
+    # target this DEVIATED at pin e7c9c124. samples#264 merged as 52319dff, the pin
+    # moved past it on 2026-11-17, and the differential allowlist entry self-expired
+    # RED and was deleted; the deletion is recorded in that file _expiry_log.
     MCheck("webhook.platform_webhook_url_validated", ["OVR-058"], "MUST",
            wh_schema_violating_profile_flow, p_platform_webhook_url_validated,
            ["set:create_status=500",
