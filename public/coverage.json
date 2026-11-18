@@ -98,8 +98,9 @@
      "covered_by_rows": 96,
      "scope_excluded": 90,
      "waived": {
-      "duplicate": 6,
-      "non-normative": 9
+      "duplicate": 7,
+      "non-normative": 6,
+      "spec-authoring": 2
      },
      "missed": 0,
      "census_mode": "gate"
@@ -2984,8 +2985,8 @@
      "covered_by_rows": 97,
      "scope_excluded": 92,
      "waived": {
-      "duplicate": 7,
-      "non-normative": 8
+      "duplicate": 8,
+      "non-normative": 7
      },
      "missed": 0,
      "census_mode": "gate"
@@ -6036,9 +6037,10 @@
      "covered_by_rows": 253,
      "scope_excluded": 173,
      "waived": {
-      "duplicate": 40,
-      "non-normative": 28,
-      "schema-enforced": 1
+      "duplicate": 43,
+      "non-normative": 19,
+      "schema-enforced": 1,
+      "spec-authoring": 6
      },
      "missed": 0,
      "census_mode": "gate"
@@ -12373,9 +12375,10 @@
      "scope_excluded": 142,
      "waived": {
       "duplicate": 27,
-      "non-normative": 8,
+      "non-normative": 7,
       "out-of-scope-transport": 27,
-      "schema-enforced": 1
+      "schema-enforced": 1,
+      "spec-authoring": 1
      },
      "missed": 0,
      "census_mode": "gate"
