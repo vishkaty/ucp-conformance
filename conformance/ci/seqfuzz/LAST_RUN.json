@@ -1,18 +1,18 @@
 {
- "ran_at": "2026-10-18T03:51:45+00:00",
- "ran_at_epoch": 1792295505.464152,
- "golden_sha": "05351cfbdd44",
- "seconds": 120.2,
- "seed": 20261018,
+ "ran_at": "2026-11-18T03:46:21+00:00",
+ "ran_at_epoch": 1794973581.383594,
+ "golden_sha": "df95a40967b6",
+ "seconds": 120.3,
+ "seed": 1794973460,
  "context": "golden_gates",
- "sequences": 4943,
- "requests": 28987,
+ "sequences": 4937,
+ "requests": 28994,
  "violations": {},
  "examples": {},
  "reports": {},
  "pending": {
   "task": "D3-23",
-  "I10": 3041
+  "I10": 2939
  },
  "stopped": null,
  "races": {
@@ -29,8 +29,8 @@
    "status_2xx": 1,
    "status_409": 7,
    "statuses": {
-    "409": 7,
-    "201": 1
+    "201": 1,
+    "409": 7
    }
   },
   "lost_response_retry": {
@@ -49,5 +49,5 @@
  "invariants_mode": {
   "I10": "enforce"
  },
- "summary": "0 violations / 9 invariants (I10 enforce: 3041 re-serialized replays cached PENDING D3-23) / 28987 requests / 4943 sequences / races: same-bytes 8/8 one id, mismatch 1x2xx+7x409"
+ "summary": "0 violations / 9 invariants (I10 enforce: 2939 re-serialized replays cached PENDING D3-23) / 28994 requests / 4937 sequences / races: same-bytes 8/8 one id, mismatch 1x2xx+7x409"
 }
