@@ -242,9 +242,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
-     "source": "ucp:docs/specification/checkout-rest.md#L48",
+     "source": "ucp:docs/specification/checkout-rest.md#L46",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -258,9 +258,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
-     "source": "ucp:docs/specification/checkout-rest.md#L49",
+     "source": "ucp:docs/specification/checkout-rest.md#L47",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -274,9 +274,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
-     "source": "ucp:docs/specification/checkout-rest.md#L50",
+     "source": "ucp:docs/specification/checkout-rest.md#L48",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py"
@@ -291,9 +291,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
-     "source": "ucp:docs/specification/checkout-rest.md#L51",
+     "source": "ucp:docs/specification/checkout-rest.md#L49",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -307,9 +307,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
-     "source": "ucp:docs/specification/checkout-rest.md#L52",
+     "source": "ucp:docs/specification/checkout-rest.md#L50",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -339,9 +339,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
-     "source": "ucp:docs/specification/checkout-rest.md#L188",
+     "source": "ucp:docs/specification/checkout-rest.md#L188-L189",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -355,9 +355,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
-     "source": "ucp:docs/specification/checkout.md#L329",
+     "source": "ucp:docs/specification/checkout.md#L324-L327",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -371,9 +371,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "After a checkout session reaches the state completed it is considered immutable",
-     "source": "ucp:docs/specification/checkout.md#L273",
+     "source": "ucp:docs/specification/checkout.md#L269-L270",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py"
@@ -420,9 +420,9 @@
      "testability": "needs-receiver",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
-     "source": "ucp:docs/specification/checkout.md#L57",
+     "source": "ucp:docs/specification/checkout.md#L53-L55",
      "covered_by": []
     },
     {
@@ -786,9 +786,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
-     "source": "ucp:docs/specification/discount.md#L125",
+     "source": "ucp:docs/specification/discount.md#L124",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -802,9 +802,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Sending an empty codes array clears all discount codes.",
-     "source": "ucp:docs/specification/discount.md#L126",
+     "source": "ucp:docs/specification/discount.md#L125",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -818,9 +818,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Discount codes are matched case-insensitively by the business.",
-     "source": "ucp:docs/specification/discount.md#L127",
+     "source": "ucp:docs/specification/discount.md#L126",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -834,9 +834,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based and automatic) in the response.",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L130",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -853,7 +853,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "When multiple valid discount codes are submitted, all are applied (accept-both) and appear in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L130",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -868,9 +868,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
-     "source": "ucp:docs/specification/discount.md#L137",
+     "source": "ucp:docs/specification/discount.md#L136-L137",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -885,9 +885,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L314",
+     "source": "ucp:docs/specification/discount.md#L313-L314",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -902,9 +902,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platform action and cannot be removed by the platform.",
-     "source": "ucp:docs/specification/discount.md#L175",
+     "source": "ucp:docs/specification/discount.md#L174",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -918,9 +918,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L132",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -983,9 +983,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
-     "source": "ucp:docs/specification/discount.md#L117",
+     "source": "ucp:docs/specification/discount.md#L116",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -999,9 +999,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
-     "source": "ucp:docs/specification/discount.md#L205",
+     "source": "ucp:docs/specification/discount.md#L204-L205",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1015,9 +1015,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
-     "source": "ucp:docs/specification/discount.md#L199",
+     "source": "ucp:docs/specification/discount.md#L198-L199",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -1031,9 +1031,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
-     "source": "ucp:docs/specification/buyer-consent.md#L29",
+     "source": "ucp:docs/specification/buyer-consent.md#L29-L30",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1063,9 +1063,9 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Consent is declarative: the protocol communicates consent but does not enforce it, and legal compliance remains the business's responsibility.",
-     "source": "ucp:docs/specification/buyer-consent.md#L132",
+     "source": "ucp:docs/specification/buyer-consent.md#L131",
      "covered_by": [],
      "exempt_reason": "'Consent is declarative - the protocol communicates consent, it does not enforce it' and 'legal compliance remains the business's responsibility' (buyer-consent.md Security & Privacy Considerations, L131-133) assert a non-enforcement property of the protocol plus a LEGAL allocation of responsibility; whether a business actually meets its consent-law obligations is established by audit/regulation entirely outside any protocol message. [Scoped: at 2026-04-08 this id is the testable allocations-sum invariant, already covered by merchant_checks_04_08.]"
     },
@@ -1267,7 +1267,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
      "covered_by": [
@@ -1322,7 +1322,7 @@
      "testability": "manual",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].total is the required price in minor units and may be null if not yet available",
      "source": "ucp:docs/specification/fulfillment.md#L172",
      "covered_by": []
@@ -1543,9 +1543,9 @@
      "testability": "needs-oauth",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
-     "source": "ucp:docs/specification/identity-linking.md#L129",
+     "source": "ucp:docs/specification/identity-linking.md#L129-L130",
      "covered_by": [
       "merchant_checks_01_11_01_23_oauth.py"
      ],
@@ -1559,9 +1559,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
-     "source": "ucp:docs/specification/checkout-rest.md#L1292",
+     "source": "ucp:docs/specification/checkout-rest.md#L1293",
      "covered_by": [
       "merchant_checks_01_11_01_23_receiver.py"
      ],
@@ -1575,9 +1575,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return the cached result for duplicate keys",
-     "source": "ucp:docs/specification/checkout-rest.md#L1293",
+     "source": "ucp:docs/specification/checkout-rest.md#L1294",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -1591,9 +1591,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return 409 Conflict if the key is reused with different parameters",
-     "source": "ucp:docs/specification/checkout-rest.md#L1294",
+     "source": "ucp:docs/specification/checkout-rest.md#L1295",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -1607,9 +1607,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
-     "source": "ucp:docs/specification/checkout-rest.md#L1311",
+     "source": "ucp:docs/specification/checkout-rest.md#L1312",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1919,7 +1919,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
-     "source": "ucp:docs/specification/order.md#L24",
+     "source": "ucp:docs/specification/order.md#L25-L26",
      "covered_by": [
       "area_order.py",
       "merchant_checks.py"
@@ -2181,9 +2181,9 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
-     "source": "ucp:docs/specification/order.md#L314",
+     "source": "ucp:docs/specification/order.md#L310",
      "covered_by": [],
      "exempt_reason": "order.md 'Verification (Platform)' step 6, at L310 at 806a5b74 and L314 at dcf7eac7: 'If verification fails, reject the webhook with an appropriate error response.' The step is the procedure of the PLATFORM receiver for a business-signed webhook; the merchant under test never observes whether a third-party receiver rejected it. The sentence carries no RFC 2119 keyword: the row sits in the 2026-01-23 normative_basis review queue with a null normative_basis, so the MUST on the register row is an inference awaiting adjudication, and the earlier wording of this exemption quoted an 'it MUST reject' the pinned text does not contain. The business half (signing_keys publication, Request-Signature) is checked elsewhere; the 2026-04-08 twin is the exempt ORD-033. Scoped: at 2026-04-08 and 2026-08-25 this id is the fulfillment_event required-fields row, covered by a schema check. RE-READ 2026-11-17."
     },
@@ -2321,9 +2321,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
-     "source": "ucp:docs/specification/overview.md#L560",
+     "source": "ucp:docs/specification/overview.md#L561",
      "covered_by": [
       "schema_check_01_11_01_23.py"
      ],
@@ -3128,7 +3128,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
      "source": "ucp:docs/specification/checkout-rest.md#L48",
      "covered_by": [
@@ -3145,7 +3145,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L49",
      "covered_by": [
@@ -3162,7 +3162,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L50",
      "covered_by": [
@@ -3179,7 +3179,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
      "source": "ucp:docs/specification/checkout-rest.md#L51",
      "covered_by": [
@@ -3196,7 +3196,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
      "source": "ucp:docs/specification/checkout-rest.md#L52",
      "covered_by": [
@@ -3229,9 +3229,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
-     "source": "ucp:docs/specification/checkout-rest.md#L172",
+     "source": "ucp:docs/specification/checkout-rest.md#L174-L175",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -3245,9 +3245,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
-     "source": "ucp:docs/specification/checkout.md#L329",
+     "source": "ucp:docs/specification/checkout.md#L328-L331",
      "covered_by": [
       "merchant_checks.py",
       "v2026_01_23.py"
@@ -3262,9 +3262,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "After a checkout session reaches the state completed it is considered immutable",
-     "source": "ucp:docs/specification/checkout.md#L273",
+     "source": "ucp:docs/specification/checkout.md#L273-L274",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py",
@@ -3312,9 +3312,9 @@
      "testability": "needs-receiver",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
-     "source": "ucp:docs/specification/checkout.md#L57",
+     "source": "ucp:docs/specification/checkout.md#L57-L59",
      "covered_by": []
     },
     {
@@ -3744,7 +3744,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
      "source": "ucp:docs/specification/discount.md#L125",
      "covered_by": [
@@ -3760,7 +3760,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Sending an empty codes array clears all discount codes.",
      "source": "ucp:docs/specification/discount.md#L126",
      "covered_by": [
@@ -3776,7 +3776,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Discount codes are matched case-insensitively by the business.",
      "source": "ucp:docs/specification/discount.md#L127",
      "covered_by": [
@@ -3792,7 +3792,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based and automatic) in the response.",
      "source": "ucp:docs/specification/discount.md#L131",
      "covered_by": [
@@ -3826,9 +3826,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
-     "source": "ucp:docs/specification/discount.md#L137",
+     "source": "ucp:docs/specification/discount.md#L137-L138",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3843,9 +3843,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L314",
+     "source": "ucp:docs/specification/discount.md#L314-L315",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3860,7 +3860,7 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platform action and cannot be removed by the platform.",
      "source": "ucp:docs/specification/discount.md#L175",
      "covered_by": [
@@ -3876,9 +3876,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L133",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3957,7 +3957,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
      "source": "ucp:docs/specification/discount.md#L117",
      "covered_by": [
@@ -3973,9 +3973,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
-     "source": "ucp:docs/specification/discount.md#L205",
+     "source": "ucp:docs/specification/discount.md#L205-L206",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -3989,9 +3989,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
-     "source": "ucp:docs/specification/discount.md#L199",
+     "source": "ucp:docs/specification/discount.md#L199-L200",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -4005,9 +4005,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
-     "source": "ucp:docs/specification/buyer-consent.md#L29",
+     "source": "ucp:docs/specification/buyer-consent.md#L29-L30",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -4053,7 +4053,7 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Consent is declarative: the protocol communicates consent but does not enforce it, and legal compliance remains the business's responsibility.",
      "source": "ucp:docs/specification/buyer-consent.md#L132",
      "covered_by": [],
@@ -4258,7 +4258,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
      "covered_by": [
@@ -4313,7 +4313,7 @@
      "testability": "manual",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].total is the required price in minor units and may be null if not yet available",
      "source": "ucp:docs/specification/fulfillment.md#L172",
      "covered_by": []
@@ -4534,9 +4534,9 @@
      "testability": "needs-oauth",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
-     "source": "ucp:docs/specification/identity-linking.md#L129",
+     "source": "ucp:docs/specification/identity-linking.md#L129-L130",
      "covered_by": [
       "merchant_checks_01_11_01_23_oauth.py"
      ],
@@ -4550,7 +4550,7 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
      "source": "ucp:docs/specification/checkout-rest.md#L1217",
      "covered_by": [
@@ -4566,7 +4566,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return the cached result for duplicate keys",
      "source": "ucp:docs/specification/checkout-rest.md#L1218",
      "covered_by": [
@@ -4582,7 +4582,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return 409 Conflict if the key is reused with different parameters",
      "source": "ucp:docs/specification/checkout-rest.md#L1219",
      "covered_by": [
@@ -4599,7 +4599,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
      "source": "ucp:docs/specification/checkout-rest.md#L1236",
      "covered_by": [
@@ -4936,7 +4936,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
-     "source": "ucp:docs/specification/order.md#L24",
+     "source": "ucp:docs/specification/order.md#L25-L26",
      "covered_by": [
       "area_order.py",
       "merchant_checks.py"
@@ -5198,7 +5198,7 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
      "covered_by": [],
@@ -5354,7 +5354,7 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
      "source": "ucp:docs/specification/overview.md#L602",
      "covered_by": [

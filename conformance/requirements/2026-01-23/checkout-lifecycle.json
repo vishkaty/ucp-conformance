@@ -21,7 +21,9 @@
       "schema_enforced": false,
       "notes": "Operation/verb/endpoint binding from the REST operations table; keyword normalized to MUST. Oracle: CheckoutLifecycleTest.test_create_checkout asserts 200/201 with a checkout id.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L48: the Create Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Create Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
     },
     {
       "id": "CHK-002",
@@ -41,7 +43,9 @@
       "schema_enforced": false,
       "notes": "Verb/endpoint binding. Oracle: CheckoutLifecycleTest.test_get_checkout asserts 200 and returns the same id.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L49: the Get Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to GET /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Get Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
     },
     {
       "id": "CHK-003",
@@ -61,7 +65,9 @@
       "schema_enforced": false,
       "notes": "Verb=PUT enforces full-replacement semantics. Oracle: CheckoutLifecycleTest.test_update_checkout asserts 200.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L50: the Update Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to PUT /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Update Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
     },
     {
       "id": "CHK-004",
@@ -81,7 +87,9 @@
       "schema_enforced": false,
       "notes": "Oracle: CheckoutLifecycleTest.test_complete_checkout asserts 200, status 'completed', and order present.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L51: the Complete Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/complete. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Complete Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
     },
     {
       "id": "CHK-005",
@@ -101,7 +109,9 @@
       "schema_enforced": false,
       "notes": "Oracle: CheckoutLifecycleTest.test_cancel_checkout asserts 200 and status 'canceled'.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L52: the Cancel Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/cancel. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Cancel Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
     },
     {
       "id": "CHK-006",
@@ -128,7 +138,7 @@
       "id": "CHK-007",
       "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/checkout-rest.md#L172",
+      "source": "ucp:docs/specification/checkout-rest.md#L174-L175",
       "quote": "Each PUT replaces the entire session,\nso clients must include all previously set fields they wish to retain.",
       "versions": [
         "2026-01-23"
@@ -142,13 +152,15 @@
       "schema_enforced": false,
       "notes": "Lower-case 'must' in prose; normative. Reinforces CHK-006 full-replacement semantics.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L174 to L175 (the register cited L172, a blank line; corrected to the span the quote occupies): Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain. The must is lower case, outside the all caps keyword class the suite accounts by (common/keywords.py), which is why the mechanical classifier queued the row. `inferred`: the sentence is directive, it introduces the Update Buyer Info example in the Update Checkout section, and the replacement rule it states is the one checkout.md L318 gives for Update Checkout with a keyword (CHK-006, the platform is REQUIRED to send the entire checkout resource); a business that merges instead of replacing, or a platform that omits fields it wishes to retain, produces a session state the specification says does not occur. Kept MUST (decision 29) for both roles the row names."
     },
     {
       "id": "CHK-008",
       "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/checkout.md#L329",
+      "source": "ucp:docs/specification/checkout.md#L328-L331",
       "quote": "The response of this\ncall is the checkout object with the `order` field populated in it. The returned\n`order` provides necessary identifiers, such as `id` and `permalink_url`,\nthat can be used to reference the full state of the placed order.",
       "versions": [
         "2026-01-23"
@@ -162,7 +174,9 @@
       "schema_enforced": false,
       "notes": "Descriptive 'is' normalized to MUST. order is not in base required[]; presence-on-complete is conditional, so schema_enforced=false. Oracle: CheckoutLifecycleTest.test_complete_checkout asserts order, order.id, order.permalink_url present.",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout.md L328 to L331 (the register cited L329, the second line of the sentence; corrected to the span the quote occupies): The response of this call is the checkout object with the order field populated in it. The returned order provides necessary identifiers, such as id and permalink_url, that can be used to reference the full state of the placed order. `definition`: the sentence defines the response of Complete Checkout; order is not in the required list of checkout.json, so the obligation to populate it on completion rests on this sentence alone, and a completion response without order leaves the platform no handle on the placed order. The identifiers are schema facts once order is present (order.json L26 requires id and permalink_url), so the such as in the quote carries nothing the row relies on. Kept MUST (decision 29); the downgrade flag of the class is not exercised, the official CheckoutLifecycleTest asserts order, order.id and order.permalink_url on completion."
     },
     {
       "id": "CHK-009",
@@ -224,7 +238,7 @@
       "id": "CHK-012",
       "requirement": "After a checkout session reaches the state completed it is considered immutable",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/checkout.md#L273",
+      "source": "ucp:docs/specification/checkout.md#L273-L274",
       "quote": "* After a checkout session reaches the state \"completed\", it is considered\n    immutable.",
       "versions": [
         "2026-01-23"
@@ -238,7 +252,9 @@
       "schema_enforced": false,
       "notes": "Stated descriptively (no MUST keyword) but normative; keyword normalized to MUST. State-transition legality is prose-only, not schema-enforced. Oracle: CheckoutLifecycleTest.test_cannot_update_completed_checkout / test_cannot_cancel_completed_checkout / test_complete_is_idempotent assert non-200 on mutating a completed checkout.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout.md L273 to L274 (the register cited L273 alone; corrected to the span the quote occupies): the last item of the Business list (L263) under Guidelines (L242), After a checkout session reaches the state completed, it is considered immutable. NOT `bullet`: that class is a list item under a keyword lead in, and the lead in here is the bare label Business with no keyword; the siblings (L265 to L272) each carry their own MUST or SHOULD, which shows the author keyworded items one by one and left this one in the indicative. `definition`: the item defines the completed state as immutable, a property of the state machine rather than an instruction to a party, and the MUST that follows completion (confirmation email, L265) presupposes a session that no longer changes. Kept MUST (decision 29): the official CheckoutLifecycleTest asserts that update, cancel and a second complete on a completed session do not return 200, so the property is graded as conduct. The downgrade flag of the class records that the author chose no keyword here while keywording every sibling. The same text at 2026-08-25 is CHK-017, labelled bullet in the 2026-09-11 batch, a justification the 2026-09-22 human review found did not survive a reading of its anchor; this entry does not repeat that label."
     },
     {
       "id": "CHK-013",
@@ -286,7 +302,7 @@
       "id": "CHK-015",
       "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/checkout.md#L57",
+      "source": "ucp:docs/specification/checkout.md#L57-L59",
       "quote": "The checkout `status` field indicates the current phase of the session and\ndetermines what action is required next. The business sets the status; the\nplatform receives messages indicating what's needed to progress.",
       "versions": [
         "2026-01-23"
@@ -300,7 +316,9 @@
       "schema_enforced": false,
       "notes": "Defines status semantics and authority (business-set). Keyword normalized to MUST from descriptive prose.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout.md L57 to L59 (the register cited L57 alone; corrected to the span the quote occupies): The checkout status field indicates the current phase of the session and determines what action is required next. The business sets the status; the platform receives messages indicating what is needed to progress. `definition`: the paragraph defines the meaning of status and which party owns it; status is in the required list of checkout.json, so the only conduct the row adds to the schema is that the business and not the platform sets it, which the response shape already fixes. Kept MUST (decision 29) with the downgrade flag of the class live: the row restates field semantics and could fold into the schema row that requires status."
     },
     {
       "id": "CHK-016",
@@ -1088,7 +1106,9 @@
       "schema_enforced": false,
       "notes": "24-hour retention window is not directly assertable in the test suite (no time-travel); the official tests only validate same-session duplicate behavior. needs-receiver.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "bullet",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L1217: item 1 of the numbered list, Store the key with the operation result for at least 24 hours, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
     },
     {
       "id": "IDM-003",
@@ -1108,7 +1128,9 @@
       "schema_enforced": false,
       "notes": "Oracle: IdempotencyTest.test_idempotency_create / test_idempotency_update / test_idempotency_complete / test_idempotency_cancel send the same request twice with the same key and assert response2.status_code == response1.status_code and response2.json() == response1.json() (identical cached body).",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "bullet",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L1218: item 2 of the numbered list, Return the cached result for duplicate keys, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
     },
     {
       "id": "IDM-004",
@@ -1128,7 +1150,9 @@
       "schema_enforced": false,
       "notes": "Oracle: IdempotencyTest.test_idempotency_create reuses the key with currency='EUR' and asserts 409; test_idempotency_update reuses with a changed line_items quantity and asserts 409; test_idempotency_complete reuses with a changed credential token and asserts 409. (test_idempotency_cancel has no body, so no conflict case.)",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "bullet",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L1219: item 3 of the numbered list, Return 409 Conflict if the key is reused with different parameters, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
     },
     {
       "id": "IDM-005",
@@ -1148,7 +1172,9 @@
       "schema_enforced": false,
       "notes": "Defines the 409 status semantics referenced by the Idempotency-Key rules (IDM-004) and by terminal-state conflicts. Keyword normalized to MUST from the status-code table. Oracle: IdempotencyTest 409 assertions; also CheckoutLifecycleTest terminal-state non-200 assertions.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] checkout-rest.md L1236: the 409 Conflict row of the Status Codes table under the lead in at L1225 to L1226, UCP uses standard HTTP status codes to indicate the success or failure of an API request. NOT `table` in the house sense: the columns are Status Code and Description, there is no Required or Cond. column. `definition`: the row defines what 409 means in this binding; the only UCP specific conduct behind it, returning 409 when an Idempotency-Key is reused with different parameters, is IDM-004 (L1219, a bullet under a MUST lead in), and the official IdempotencyTest assertions that grade this id grade that conduct. Kept MUST (decision 29) as the definition IDM-004 relies on: a business that signals the key reuse conflict with any other status has not returned the conflict code this row defines. The downgrade flag of the class is live: the row carries no conduct of its own beyond IDM-004, and folding it into IDM-004 with a superseded retirement record is the cleaner end state, which the owner decides."
     }
   ],
   "notes": [
