@@ -1262,7 +1262,7 @@
   "versions": [
    "2026-04-08"
   ],
-  "reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it, and the tester itself omits checkout.id. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17.",
+  "reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17.",
   "review_by": "2027-02-02",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"

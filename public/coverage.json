@@ -9781,7 +9781,7 @@
      "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
      "source": "ucp:docs/specification/checkout-mcp.md#L120",
      "covered_by": [],
-     "exempt_reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it, and the tester itself omits checkout.id. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
+     "exempt_reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
     },
     {
      "id": "MCP-003",
