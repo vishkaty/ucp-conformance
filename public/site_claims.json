@@ -691,21 +691,21 @@
     },
     {
       "id": "CLAIM-024",
-      "text": "And a pass tells you how it was earned: every check carries a published",
+      "text": "And a pass tells you how it was earned: every check carries one of seven published",
       "page": "index.html",
       "class": "REG",
-      "evidence": "Evidence classes derived mechanically by conformance/coverage/evidence.py (never hand-labeled) from how each check runs + the recorded reach_report.json run against both independent targets; published split drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class, kill-tested with 3 planted mislabels)",
+      "evidence": "Evidence classes derived mechanically by conformance/coverage/evidence.py (never hand-labeled) from how each check runs + the recorded reach_report.json run against both independent targets; published split drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class, kill-tested with 3 planted mislabels) CORRECTED 2026-11-18: the sentence said a published evidence class and named four; it now says one of seven and names the range, because the export defines seven.",
       "added": "2026-08-11",
-      "review_by": "2026-11-11"
+      "review_by": "2026-12-19"
     },
     {
       "id": "CLAIM-025",
-      "text": "live-wire (kill-tested against an independently-authored server), official ucp-schema oracle, crypto self-test, or self-referenced (only our own fixture vouches for it)",
+      "text": "live-wire (kill-tested against an independently-authored server), discovery-live, official ucp-schema oracle, crypto self-test, register-selfcheck, reference-impl, and self-referenced (only our own fixture vouches for it)",
       "page": "coverage.html",
       "class": "REG",
-      "evidence": "The four evidence classes as defined in public/coverage.json $.evidence_classes, derived by conformance/coverage/evidence.py and drift-gated by validate_evidence_class.py; independent targets registered in conformance/ci/differential_targets.json",
+      "evidence": "The seven evidence classes as defined in public/coverage.json $.evidence_classes (live-wire, discovery-live, fixture-schema, fixture-crypto, self-referenced, register-selfcheck, reference-impl), derived by conformance/coverage/evidence.py and drift-gated by validate_evidence_class.py; independent targets registered in conformance/ci/differential_targets.json. CORRECTED 2026-11-18: this note and both published sentences said FOUR classes and named a closed list of four, while the export has defined seven since D1-13 added register-selfcheck and reference-impl and D4-08 added discovery-live; at 2026-08-25 the page legend already rendered 37 of 106 checks in the two classes the sentences omitted.",
       "added": "2026-08-11",
-      "review_by": "2026-11-11"
+      "review_by": "2026-12-19"
     },
     {
       "id": "CLAIM-COV-006",

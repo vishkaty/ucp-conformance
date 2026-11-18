@@ -128,7 +128,7 @@ section.alt{background:var(--surface)}
     <div class="section-title">Why you can trust a pass</div>
     <div class="trust-box">
       A checker that can't catch bugs is worse than none. So every check is kill-rate tested — we inject the exact defect it should catch, and if it still passes, it's blocked from release. Checks cite a verbatim spec clause, and <strong>the whole suite self-validates in CI</strong> and goes red if any check loses its ability to catch defects. So when it flags a deviation, it is real and spec-cited — something you can act on, not noise.
-      And a pass tells you how it was earned: every check carries a published evidence class — live-wire (kill-tested against a server we didn’t author), official-oracle, crypto self-test, or self-referenced (only our own fixture vouches for it) — derived mechanically from how the check runs and drift-gated in CI, so the split you read always matches a fresh derivation.
+      And a pass tells you how it was earned: every check carries one of seven published evidence classes, from live-wire (kill-tested against a server we did not author) and the official ucp-schema oracle down to self-referenced (only our own fixture vouches for it) — each derived mechanically from how the check runs and drift-gated in CI, so the split you read always matches a fresh derivation.
     </div>
     <div class="section-label">Transparency</div>
     <div class="section-title" style="font-size:22px">Live spec coverage</div>
