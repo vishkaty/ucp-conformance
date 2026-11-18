@@ -1,8 +1,8 @@
 {
- "_about": "normative_basis adjudications (D2-11a / PLAN-v3 §2.4 A6, decision 29; batch normative-basis-adjudication-2026-09-11): the nokw rows the W1/W2 converters need ruled before they convert (D1-15, D1-18, D3-17, D3-20, D3-23, D5-11 — RV1 #12). assign_normative_basis.py applies these as normative_basis + normative_basis_justification; definition|inferred rows are named in the review_signoffs.json batch of the same name (>=10% human sample PENDING for the owner, decision 13). The remaining queued rows are D2-11b's.",
- "batch": "normative-basis-adjudication-2026-09-11",
- "date": "2026-09-11",
- "reviewer": "Wave 1 lane D2 (Claude Code session, 2026-09-11) — each anchor re-read in the vendored 2026-08-25 tree at cd78fb38",
+ "_about": "normative_basis adjudications (D2-11a / PLAN-v3 §2.4 A6, decision 29; batch normative-basis-adjudication-2026-09-11): the nokw rows the W1/W2 converters need ruled before they convert (D1-15, D1-18, D3-17, D3-20, D3-23, D5-11 — RV1 #12). assign_normative_basis.py applies these as normative_basis + normative_basis_justification; definition|inferred rows are named in the review_signoffs.json batch of the same name (>=10% human sample PENDING for the owner, decision 13). The remaining queued rows are D2-11b's. [2026-11-18, batch normative-basis-adjudication-2026-11-18, D2-11b] The 33 rows queued at 2026-01-11 and at 2026-01-23 (identical ids) are ruled below, one entry per version, each anchor re read at 806a5b74 and at dcf7eac7 with the exact span recomputed by verify_register.quote_line_span. The first eight entries were applied under the 2026-09-11 batch (reviewer: Wave 1 lane D2, each anchor re read in the vendored 2026-08-25 tree at cd78fb38) and keep that stamp on their rows, because assign_normative_basis.py skips a row whose basis already matches; the top level batch, date and reviewer now name the 2026-11-18 batch, which is the stamp the new entries receive and the batch review_signoffs.json names for their definition and inferred rows. Two rulings (DSC-005, ORD-001) apply only to the requirement text rewritten in the same change; their entries say so. 2026-11-18 SUBSET: the DSC-005 and ORD-001 rulings from this batch are deliberately NOT applied, because each needs the register requirement rewritten first and that is a decision for the owner; both rows stay queued at both 01 versions.",
+ "batch": "normative-basis-adjudication-2026-11-18",
+ "date": "2026-11-18",
+ "reviewer": "machine assisted adversarial re read, 2026-11-18, each anchor re read in the vendored 2026-01-11 tree at 806a5b74 and the vendored 2026-01-23 tree at dcf7eac7; the human sample is recorded in the review_signoffs.json batch of the same name",
  "adjudications": [
   {
    "version": "2026-08-25",
@@ -51,6 +51,378 @@
    "id": "TDS-001",
    "basis": "inferred",
    "justification": "payment/extensions/actions/three-ds-challenge.md L48-L50: L48 is a SHOULD sentence ('A Business SHOULD accept Complete Checkout, begin the payment attempt, and return complete_in_progress…'); the quoted clause is its 'If the Business cannot accept completion before the challenge, it follows the core Checkout rule: it returns incomplete with a recoverable error Message whose path selects the challenge occurrence.' MUST inferred by reference: 'follows the core Checkout rule' binds the Business to the core rule, which is a MUST in shopping/checkout/index.md (incomplete + recoverable error on an unmet requirement). Kept MUST (decision 29); the SHOULD half is not this row."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-001",
+   "basis": "definition",
+   "justification": "checkout-rest.md L46 (the register cited L48; corrected to the line the quote occupies at this pin): the Create Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L278, table L282 to L286) to a verb and path is stated, so the row defines the REST binding of Create Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-002",
+   "basis": "definition",
+   "justification": "checkout-rest.md L47 (the register cited L49; corrected to the line the quote occupies at this pin): the Get Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to GET /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L278, table L282 to L286) to a verb and path is stated, so the row defines the REST binding of Get Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-003",
+   "basis": "definition",
+   "justification": "checkout-rest.md L48 (the register cited L50; corrected to the line the quote occupies at this pin): the Update Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to PUT /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L278, table L282 to L286) to a verb and path is stated, so the row defines the REST binding of Update Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-004",
+   "basis": "definition",
+   "justification": "checkout-rest.md L49 (the register cited L51; corrected to the line the quote occupies at this pin): the Complete Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/complete. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L278, table L282 to L286) to a verb and path is stated, so the row defines the REST binding of Complete Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-005",
+   "basis": "definition",
+   "justification": "checkout-rest.md L50 (the register cited L52; corrected to the line the quote occupies at this pin): the Cancel Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/cancel. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L278, table L282 to L286) to a verb and path is stated, so the row defines the REST binding of Cancel Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-007",
+   "basis": "inferred",
+   "justification": "checkout-rest.md L188 to L189 (the register cited L188 alone; corrected to the span the quote occupies): Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain. The must is lower case, outside the all caps keyword class the suite accounts by (common/keywords.py), which is why the mechanical classifier queued the row. `inferred`: the sentence is directive, it introduces the Update Buyer Info example in the Update Checkout section, and the replacement rule it states is the one checkout.md L318 gives for Update Checkout with a keyword (CHK-006, the platform is REQUIRED to send the entire checkout resource); a business that merges instead of replacing, or a platform that omits fields it wishes to retain, produces a session state the specification says does not occur. Kept MUST (decision 29) for both roles the row names."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-008",
+   "basis": "definition",
+   "justification": "checkout.md L324 to L327 (the register cited L329, which is inside the following MAY sentence; corrected to the span the quote occupies): The response of this call is the checkout object with the order field populated in it. The returned order provides necessary identifiers, such as id and permalink_url, that can be used to reference the full state of the placed order. `definition`: the sentence defines the response of Complete Checkout; order is not in the required list of checkout.json, so the obligation to populate it on completion rests on this sentence alone, and a completion response without order leaves the platform no handle on the placed order. The identifiers are schema facts once order is present (order.json L26 requires id and permalink_url), so the such as in the quote carries nothing the row relies on. Kept MUST (decision 29); the downgrade flag of the class is not exercised, the official CheckoutLifecycleTest asserts order, order.id and order.permalink_url on completion."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-012",
+   "basis": "definition",
+   "justification": "checkout.md L269 to L270 (the register cited L273, a blank line under the next heading; corrected to the span the quote occupies): the last item of the Business list (L259) under Guidelines (L238), After a checkout session reaches the state completed, it is considered immutable. NOT `bullet`: that class is a list item under a keyword lead in, and the lead in here is the bare label Business with no keyword; the siblings (L261 to L268) each carry their own MUST or SHOULD, which shows the author keyworded items one by one and left this one in the indicative. `definition`: the item defines the completed state as immutable, a property of the state machine rather than an instruction to a party, and the MUST that follows completion (confirmation email, L261) presupposes a session that no longer changes. Kept MUST (decision 29): the official CheckoutLifecycleTest asserts that update, cancel and a second complete on a completed session do not return 200, so the property is graded as conduct. The downgrade flag of the class records that the author chose no keyword here while keywording every sibling. The same text at 2026-08-25 is CHK-017, labelled bullet in the 2026-09-11 batch, a justification the 2026-09-22 human review found did not survive a reading of its anchor; this entry does not repeat that label."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "CHK-015",
+   "basis": "definition",
+   "justification": "checkout.md L53 to L55 (the register cited L57, the opening fence of the status diagram; corrected to the span the quote occupies): The checkout status field indicates the current phase of the session and determines what action is required next. The business sets the status; the platform receives messages indicating what is needed to progress. `definition`: the paragraph defines the meaning of status and which party owns it; status is in the required list of checkout.json, so the only conduct the row adds to the schema is that the business and not the platform sets it, which the response shape already fixes. Kept MUST (decision 29) with the downgrade flag of the class live: the row restates field semantics and could fold into the schema row that requires status."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "IDM-002",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1293 (the register cited L1292; corrected to the line the quote occupies): item 1 of the numbered list, Store the key with the operation result for at least 24 hours, under the lead in at L1291 to L1292, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "IDM-003",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1294 (the register cited L1293; corrected to the line the quote occupies): item 2 of the numbered list, Return the cached result for duplicate keys, under the lead in at L1291 to L1292, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "IDM-004",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1295 (the register cited L1294; corrected to the line the quote occupies): item 3 of the numbered list, Return 409 Conflict if the key is reused with different parameters, under the lead in at L1291 to L1292, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "IDM-005",
+   "basis": "definition",
+   "justification": "checkout-rest.md L1312 (the register cited L1311, the 404 row; corrected): the 409 Conflict row of the Status Codes table under the lead in at L1301 to L1302, UCP uses standard HTTP status codes to indicate the success or failure of an API request. NOT `table` in the house sense: the columns are Status Code and Description, there is no Required or Cond. column. `definition`: the row defines what 409 means in this binding; the only UCP specific conduct behind it, returning 409 when an Idempotency-Key is reused with different parameters, is IDM-004 (L1295, a bullet under a MUST lead in), and the official IdempotencyTest assertions that grade this id grade that conduct. Kept MUST (decision 29) as the definition IDM-004 relies on: a business that signals the key reuse conflict with any other status has not returned the conflict code this row defines. The downgrade flag of the class is live: the row carries no conduct of its own beyond IDM-004, and folding it into IDM-004 with a superseded retirement record is the cleaner end state, which the owner decides."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-001",
+   "basis": "inferred",
+   "justification": "discount.md L124 (the register cited L125; corrected to the line the quote occupies): item 1 of the Request behavior list (lead in L122), Replacement semantics: Submitting discounts.codes replaces any previously submitted codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Replaces previously submitted codes, so a business that merges a new submission into earlier codes prices a cart the platform did not submit. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-002",
+   "basis": "inferred",
+   "justification": "discount.md L125 (the register cited L126; corrected to the line the quote occupies): item 2 of the Request behavior list (lead in L122), Clear codes: Send empty array codes: [] to remove all discount codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Send empty array to clear, so a business that leaves codes applied after an empty submission prices a cart the platform cleared. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-003",
+   "basis": "inferred",
+   "justification": "discount.md L126 (the register cited L127; corrected to the line the quote occupies): item 3 of the Request behavior list (lead in L122), Case-insensitive: Codes are matched case-insensitively by business. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Case-insensitive, so a business that rejects a valid code on letter case alone contradicts the match rule the schema repeats. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-004",
+   "basis": "inferred",
+   "justification": "discount.md L130 (the register cited L131; corrected): the first item of the Response behavior list (lead in L128), discounts.applied contains all active discounts (code-based + automatic). The same sentence in the same list is DSC-006 at 2026-08-25, which the 2026-09-22 human review relabelled from bullet to inferred (owner approved) because no RFC 2119 keyword appears in the lead in or in any item; this entry follows that ruling. `inferred`: the item states the response contract in the indicative and the schema description of applied (discount.json L80) repeats it, Discounts successfully applied (code-based and automatic), so a response that omits an active discount from applied misreports the priced cart. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-006",
+   "basis": "inferred",
+   "justification": "discount.md L136 to L137 (the register cited L137 alone; corrected to the span the quote occupies): When a submitted discount code cannot be applied, businesses communicate this via the messages[] array, the lead in sentence of the Rejected Codes section that introduces the JSON example. `inferred`: the sentence states business conduct in the indicative; the Response behavior item at L131, Rejected codes communicated via messages[] (see below), and the Overview bullet at L31 say the same, and the section then defines the error codes the message carries (L158 to L167), so a business that drops a code silently gives the platform no way to tell the user a discount was not honoured. Kept MUST (decision 29). The 2026-04-08 twin is DSC-007 there."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-007",
+   "basis": "inferred",
+   "justification": "discount.md L313 to L314 (the register cited L314 alone; corrected to the span the quote occupies): The code still appears in discounts.codes (echoed back) but not in discounts.applied. The sentence sits in the Examples section (L208, under Rejected discount code at L310) as the general statement the example illustrates. `inferred`: the second clause follows from DSC-004, applied holds active discounts and a rejected code is not one, and that is the clause the official oracle grades (test_multiple_discounts_one_rejected asserts the rejected code absent from applied). The first clause, the echo of the code in discounts.codes, rests on this example narrative alone: discount.json L71 to L75 describes codes as input and nothing requires a business to echo it, so the echo is not graded and the requirement text must not be read as requiring it. Kept MUST (decision 29) for the clause that is graded."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-010",
+   "basis": "inferred",
+   "justification": "discount.md L174 (the register cited L175; corrected): the first item of the Automatic Discounts list under the lead in at L171 to L172, Businesses may apply discounts automatically based on cart contents, customer segment, or promotional rules (lower case may, no keyword), Appear in discounts.applied with automatic: true and no code field. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the shape of an automatic discount in the indicative and the schema fixes both halves, automatic is a boolean defaulting to false and code is Omitted for automatic discounts (discount.json L31 to L33 and L44 to L47); the obligation is conditional, a business need not apply automatic discounts, but one it applies must be reported this way or the platform cannot tell it from a code it never submitted. The requirement text also carries items 2 and 3 of the list (L175 to L176, applied without platform action, cannot be removed by the platform), which the quote does not cover; they are platform facing and not graded. Kept MUST (decision 29) for the quoted item."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-011",
+   "basis": "inferred",
+   "justification": "discount.md L132 (the register cited L131; corrected to the line the quote occupies): the third item of the Response behavior list, Discount amounts reflected in totals[] and line_items[].discount. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the response contract in the indicative and the Impact on Line Items and Totals section (L181 to L182, table L193 to L196) fixes where each discount type is reflected, so an applied discount that leaves totals unchanged misprices the cart. The requirement text reads as the test the row is graded by (a fixed amount code lowers the total and surfaces code and amount); the quoted sentence is the requirement and the test is its instance. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-016",
+   "basis": "inferred",
+   "justification": "discount.md L116 (the register cited L117; corrected): Invariant: Sum of allocations[].amount equals applied_discount.amount. `inferred`: the sentence carries no keyword but is labelled Invariant, a condition the author states must always hold, and the schema description of allocations repeats it (discount.json L62, Sum of allocation amounts equals total amount); a response that breaks it misstates where a discount went. The relation is not expressible in JSON Schema, so this prose is its only home. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-017",
+   "basis": "definition",
+   "justification": "discount.md L204 to L205 (the register cited L205 alone; corrected to the span the quote occupies): Amount convention: All discount amounts are positive integers in minor currency units. `definition`: the sentence defines the encoding of every discount amount; the schema already enforces integer with minimum 0 on applied_discount.amount and allocation.amount (discount.json L39 to L41 and L18 to L20), so the prose adds only that zero is not a discount amount. The next sentence of the paragraph (L205 to L206, display discount types as subtractive) is presentation guidance to platforms, not business conduct, and is carried in the requirement text without being graded. Kept MUST (decision 29) for the quoted sentence; the downgrade flag of the class points at the display clause, which should leave the requirement text."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-018",
+   "basis": "inferred",
+   "justification": "discount.md L198 to L199 (the register cited L199 alone; corrected to the span the quote occupies): Invariant: totals[type=items_discount].amount equals sum(line_items[].discount). `inferred`: labelled Invariant, a condition the author states must always hold, and the table at L193 to L196 fixes that a line item discount is reflected in both line_items[].discount and items_discount, so a response that breaks the sum misstates what was discounted. Cross field, not expressible in JSON Schema. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-019",
+   "basis": "definition",
+   "justification": "buyer-consent.md L29 to L30 (the register cited L29 alone; corrected to the span the quote occupies): When this extension is supported, the buyer object in checkout is extended with a consent field containing boolean consent states. `definition`: the sentence defines the shape the extension adds, conditional on the extension being supported; buyer_consent.json types each of the four consent states boolean, so the shape is schema enforced once the extension is advertised, and L32 to L33 (This extension can be included in create_checkout and update_checkout operations) is permissive, so the operations named in the requirement text are where the shape may appear, not an obligation to appear. Kept MUST (decision 29) as the conditional shape rule the official test_buyer_consent grades."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "DSC-022",
+   "basis": "definition",
+   "justification": "buyer-consent.md L131 (the register cited L132, the next item; corrected): item 1 of the Security & Privacy Considerations list, Consent is declarative, The protocol communicates consent, it does not enforce it; the requirement text also folds in item 2 (L132, Legal compliance remains the responsibility of the business). `definition`: both items state a property of the protocol and an allocation of legal responsibility; neither names conduct a message could exhibit, and the id is already accounted EXEMPT at both 01 versions as out-of-band-legal for exactly that reason, so no coverage claim rests on it. The row stays at MUST pending the owner decision on retirement because the register keyword vocabulary has no class for a statement that binds nobody; the downgrade flag of the class is live and retirement is the honest end state."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "IDL-013",
+   "basis": "inferred",
+   "justification": "identity-linking.md L129 to L130 (the register cited L129 alone; corrected to the span the quote occupies): A scope covering a capability must grant access to all operations associated to the capability. The must is lower case, outside the all caps keyword class, so the mechanical classifier queued the row. `inferred`: the sentence is directive and the next sentence (L130 to L131) enumerates what it requires of ucp:scopes:checkout_session, Get, Create, Update, Delete, Cancel, Complete, matching the scope table at L120 to L127; an authorization server that grants the capability scope but refuses one of its operations contradicts the mapping. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "FUL-009",
+   "basis": "table",
+   "justification": "fulfillment.md L170: the title row of the Human-Readable Fields table (header L168, columns Location, Field, Required, Purpose) with Required = Yes. `table`: a Yes cell in a column headed Required, the house class exactly. Kept MUST; presence is schema enforced (fulfillment_option required list) and the adequacy judgement, distinguishes from siblings, is FUL-010 territory as the row notes record."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "FUL-017",
+   "basis": "table",
+   "justification": "fulfillment.md L172: the total row of the Human-Readable Fields table (header L168) with Required = Yes. `table`: a Yes cell in a column headed Required, the house class exactly. The row notes already record that fulfillment.json names the field totals (an array, required) while this prose names total (scalar minor units, may be null); the basis of the prose requirement is this table cell regardless, and the divergence is a register note and an upstream question, not a basis question. Kept MUST."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "ORD-019",
+   "basis": "inferred",
+   "justification": "order.md L310 (the register cited L314, the Key Rotation paragraph; corrected): step 6 of the Verification (Platform) procedure, If verification fails, reject the webhook with an appropriate error response. NOT `bullet`: the lead in is the bare label Verification (Platform) at L303 with no keyword. `inferred`: the procedure implements the MUST at L292 to L293, Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity, and a verifier that accepts a payload whose signature failed has not verified it, so the rejection step is the content of that MUST. The subject is the platform, as the row notes record, while the row role reads business; that is a lane question for the role register, not a basis question. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-11",
+   "id": "PAY-010",
+   "basis": "definition",
+   "justification": "overview.md L561 (the register cited L560, the Opaque Credentials item; corrected): item 3 of the Credential Flow & PCI Scope list under the lead in at L557, To minimize compliance overhead (PCI-DSS), Handler ID Routing: The handler_id in the payload ensures the business knows exactly which payment credential provider key to use for decryption/charging, preventing key confusion attacks. NOT `bullet`: the lead in carries no keyword; item 1 (L559) carries its own MUST NOT, which shows the author keyworded items one by one and left this one descriptive. `definition`: the item defines the purpose of handler_id; the conduct it points at, validating handler_id against the advertised handler set, is stated only as item 1 of Security Best Practices (L874, under the label For Businesses at L872) without a keyword, and the register carries no row for it at the 01 versions. Presence of handler_id is PAY-008 (schema). Kept MUST (decision 29) as the routing rule that PAY-008 presence serves; the downgrade flag of the class is live, the official test that grades this id sends a valid handler_id and succeeds, which exercises presence and not routing, and the owner decides whether the row stays or is replaced by the L874 item."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-001",
+   "basis": "definition",
+   "justification": "checkout-rest.md L48: the Create Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Create Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-002",
+   "basis": "definition",
+   "justification": "checkout-rest.md L49: the Get Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to GET /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Get Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-003",
+   "basis": "definition",
+   "justification": "checkout-rest.md L50: the Update Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to PUT /checkout-sessions/{id}. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Update Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-004",
+   "basis": "definition",
+   "justification": "checkout-rest.md L51: the Complete Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/complete. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Complete Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-005",
+   "basis": "definition",
+   "justification": "checkout-rest.md L52: the Cancel Checkout row of the Operations table, columns Operation, Method, Endpoint, Description, binding the operation to POST /checkout-sessions/{id}/cancel. NOT `table` in the house sense: that class is a Yes or MUST cell in a column headed Required or Cond., and this table has no such column. NOT `bullet`: no lead in sentence precedes the table, only the heading Operations. `definition`: the document opens at L19 to L20 with This document specifies the REST binding for the Checkout Capability, and this table is the only place the binding of each logical operation (checkout.md L282, table L286 to L290) to a verb and path is stated, so the row defines the REST binding of Cancel Checkout; a business that advertises the checkout capability over REST and serves the operation at another verb or path has not implemented the binding. Kept MUST (decision 29), conditional on the capability being advertised over REST. The downgrade flag of the class is held only on the question whether every one of the five operations is required of every business, which the pinned text neither states nor waives; the official suite exercises all five."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-007",
+   "basis": "inferred",
+   "justification": "checkout-rest.md L174 to L175 (the register cited L172, a blank line; corrected to the span the quote occupies): Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain. The must is lower case, outside the all caps keyword class the suite accounts by (common/keywords.py), which is why the mechanical classifier queued the row. `inferred`: the sentence is directive, it introduces the Update Buyer Info example in the Update Checkout section, and the replacement rule it states is the one checkout.md L318 gives for Update Checkout with a keyword (CHK-006, the platform is REQUIRED to send the entire checkout resource); a business that merges instead of replacing, or a platform that omits fields it wishes to retain, produces a session state the specification says does not occur. Kept MUST (decision 29) for both roles the row names."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-008",
+   "basis": "definition",
+   "justification": "checkout.md L328 to L331 (the register cited L329, the second line of the sentence; corrected to the span the quote occupies): The response of this call is the checkout object with the order field populated in it. The returned order provides necessary identifiers, such as id and permalink_url, that can be used to reference the full state of the placed order. `definition`: the sentence defines the response of Complete Checkout; order is not in the required list of checkout.json, so the obligation to populate it on completion rests on this sentence alone, and a completion response without order leaves the platform no handle on the placed order. The identifiers are schema facts once order is present (order.json L26 requires id and permalink_url), so the such as in the quote carries nothing the row relies on. Kept MUST (decision 29); the downgrade flag of the class is not exercised, the official CheckoutLifecycleTest asserts order, order.id and order.permalink_url on completion."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-012",
+   "basis": "definition",
+   "justification": "checkout.md L273 to L274 (the register cited L273 alone; corrected to the span the quote occupies): the last item of the Business list (L263) under Guidelines (L242), After a checkout session reaches the state completed, it is considered immutable. NOT `bullet`: that class is a list item under a keyword lead in, and the lead in here is the bare label Business with no keyword; the siblings (L265 to L272) each carry their own MUST or SHOULD, which shows the author keyworded items one by one and left this one in the indicative. `definition`: the item defines the completed state as immutable, a property of the state machine rather than an instruction to a party, and the MUST that follows completion (confirmation email, L265) presupposes a session that no longer changes. Kept MUST (decision 29): the official CheckoutLifecycleTest asserts that update, cancel and a second complete on a completed session do not return 200, so the property is graded as conduct. The downgrade flag of the class records that the author chose no keyword here while keywording every sibling. The same text at 2026-08-25 is CHK-017, labelled bullet in the 2026-09-11 batch, a justification the 2026-09-22 human review found did not survive a reading of its anchor; this entry does not repeat that label."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "CHK-015",
+   "basis": "definition",
+   "justification": "checkout.md L57 to L59 (the register cited L57 alone; corrected to the span the quote occupies): The checkout status field indicates the current phase of the session and determines what action is required next. The business sets the status; the platform receives messages indicating what is needed to progress. `definition`: the paragraph defines the meaning of status and which party owns it; status is in the required list of checkout.json, so the only conduct the row adds to the schema is that the business and not the platform sets it, which the response shape already fixes. Kept MUST (decision 29) with the downgrade flag of the class live: the row restates field semantics and could fold into the schema row that requires status."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "IDM-002",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1217: item 1 of the numbered list, Store the key with the operation result for at least 24 hours, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "IDM-003",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1218: item 2 of the numbered list, Return the cached result for duplicate keys, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "IDM-004",
+   "basis": "bullet",
+   "justification": "checkout-rest.md L1219: item 3 of the numbered list, Return 409 Conflict if the key is reused with different parameters, under the lead in at L1215 to L1216, Operations that modify state SHOULD support idempotency. When provided, the server MUST:. `bullet`: a list item under a keyword lead in; the MUST in the lead in governs each numbered item, and the SHOULD in the same lead in is why the row is conditional on a key being provided. Kept MUST; bullet is not a review basis, so decision 29 sign off is not required."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "IDM-005",
+   "basis": "definition",
+   "justification": "checkout-rest.md L1236: the 409 Conflict row of the Status Codes table under the lead in at L1225 to L1226, UCP uses standard HTTP status codes to indicate the success or failure of an API request. NOT `table` in the house sense: the columns are Status Code and Description, there is no Required or Cond. column. `definition`: the row defines what 409 means in this binding; the only UCP specific conduct behind it, returning 409 when an Idempotency-Key is reused with different parameters, is IDM-004 (L1219, a bullet under a MUST lead in), and the official IdempotencyTest assertions that grade this id grade that conduct. Kept MUST (decision 29) as the definition IDM-004 relies on: a business that signals the key reuse conflict with any other status has not returned the conflict code this row defines. The downgrade flag of the class is live: the row carries no conduct of its own beyond IDM-004, and folding it into IDM-004 with a superseded retirement record is the cleaner end state, which the owner decides."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-001",
+   "basis": "inferred",
+   "justification": "discount.md L125: item 1 of the Request behavior list (lead in L123), Replacement semantics: Submitting discounts.codes replaces any previously submitted codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Replaces previously submitted codes, so a business that merges a new submission into earlier codes prices a cart the platform did not submit. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-002",
+   "basis": "inferred",
+   "justification": "discount.md L126: item 2 of the Request behavior list (lead in L123), Clear codes: Send empty array codes: [] to remove all discount codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Send empty array to clear, so a business that leaves codes applied after an empty submission prices a cart the platform cleared. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-003",
+   "basis": "inferred",
+   "justification": "discount.md L127: item 3 of the Request behavior list (lead in L123), Case-insensitive: Codes are matched case-insensitively by business. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Case-insensitive, so a business that rejects a valid code on letter case alone contradicts the match rule the schema repeats. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-004",
+   "basis": "inferred",
+   "justification": "discount.md L131: the first item of the Response behavior list (lead in L129), discounts.applied contains all active discounts (code-based + automatic). The same sentence in the same list is DSC-006 at 2026-08-25, which the 2026-09-22 human review relabelled from bullet to inferred (owner approved) because no RFC 2119 keyword appears in the lead in or in any item; this entry follows that ruling. `inferred`: the item states the response contract in the indicative and the schema description of applied (discount.json L80) repeats it, Discounts successfully applied (code-based and automatic), so a response that omits an active discount from applied misreports the priced cart. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-006",
+   "basis": "inferred",
+   "justification": "discount.md L137 to L138 (the register cited L137 alone; corrected to the span the quote occupies): When a submitted discount code cannot be applied, businesses communicate this via the messages[] array, the lead in sentence of the Rejected Codes section that introduces the JSON example. `inferred`: the sentence states business conduct in the indicative; the Response behavior item at L132, Rejected codes communicated via messages[] (see below), and the Overview bullet at L31 say the same, and the section then defines the error codes the message carries (L159 to L168), so a business that drops a code silently gives the platform no way to tell the user a discount was not honoured. Kept MUST (decision 29). The 2026-04-08 twin is DSC-007 there."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-007",
+   "basis": "inferred",
+   "justification": "discount.md L314 to L315 (the register cited L314 alone; corrected to the span the quote occupies): The code still appears in discounts.codes (echoed back) but not in discounts.applied. The sentence sits in the Examples section (L209, under Rejected discount code at L311) as the general statement the example illustrates. `inferred`: the second clause follows from DSC-004, applied holds active discounts and a rejected code is not one, and that is the clause the official oracle grades (test_multiple_discounts_one_rejected asserts the rejected code absent from applied). The first clause, the echo of the code in discounts.codes, rests on this example narrative alone: discount.json L71 to L75 describes codes as input and nothing requires a business to echo it, so the echo is not graded and the requirement text must not be read as requiring it. Kept MUST (decision 29) for the clause that is graded."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-010",
+   "basis": "inferred",
+   "justification": "discount.md L175: the first item of the Automatic Discounts list under the lead in at L172 to L173, Businesses may apply discounts automatically based on cart contents, customer segment, or promotional rules (lower case may, no keyword), Appear in discounts.applied with automatic: true and no code field. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the shape of an automatic discount in the indicative and the schema fixes both halves, automatic is a boolean defaulting to false and code is Omitted for automatic discounts (discount.json L31 to L33 and L44 to L47); the obligation is conditional, a business need not apply automatic discounts, but one it applies must be reported this way or the platform cannot tell it from a code it never submitted. The requirement text also carries items 2 and 3 of the list (L176 to L177, applied without platform action, cannot be removed by the platform), which the quote does not cover; they are platform facing and not graded. Kept MUST (decision 29) for the quoted item."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-011",
+   "basis": "inferred",
+   "justification": "discount.md L133 (the register cited L131; corrected to the line the quote occupies): the third item of the Response behavior list, Discount amounts reflected in totals[] and line_items[].discount. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the response contract in the indicative and the Impact on Line Items and Totals section (L182 to L183, table L194 to L197) fixes where each discount type is reflected, so an applied discount that leaves totals unchanged misprices the cart. The requirement text reads as the test the row is graded by (a fixed amount code lowers the total and surfaces code and amount); the quoted sentence is the requirement and the test is its instance. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-016",
+   "basis": "inferred",
+   "justification": "discount.md L117: Invariant: Sum of allocations[].amount equals applied_discount.amount. `inferred`: the sentence carries no keyword but is labelled Invariant, a condition the author states must always hold, and the schema description of allocations repeats it (discount.json L62, Sum of allocation amounts equals total amount); a response that breaks it misstates where a discount went. The relation is not expressible in JSON Schema, so this prose is its only home. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-017",
+   "basis": "definition",
+   "justification": "discount.md L205 to L206 (the register cited L205 alone; corrected to the span the quote occupies): Amount convention: All discount amounts are positive integers in minor currency units. `definition`: the sentence defines the encoding of every discount amount; the schema already enforces integer with minimum 0 on applied_discount.amount and allocation.amount (discount.json L39 to L41 and L18 to L20), so the prose adds only that zero is not a discount amount. The next sentence of the paragraph (L206 to L207, display discount types as subtractive) is presentation guidance to platforms, not business conduct, and is carried in the requirement text without being graded. Kept MUST (decision 29) for the quoted sentence; the downgrade flag of the class points at the display clause, which should leave the requirement text."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-018",
+   "basis": "inferred",
+   "justification": "discount.md L199 to L200 (the register cited L199 alone; corrected to the span the quote occupies): Invariant: totals[type=items_discount].amount equals sum(line_items[].discount). `inferred`: labelled Invariant, a condition the author states must always hold, and the table at L194 to L197 fixes that a line item discount is reflected in both line_items[].discount and items_discount, so a response that breaks the sum misstates what was discounted. Cross field, not expressible in JSON Schema. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-019",
+   "basis": "definition",
+   "justification": "buyer-consent.md L29 to L30 (the register cited L29 alone; corrected to the span the quote occupies): When this extension is supported, the buyer object in checkout is extended with a consent field containing boolean consent states. `definition`: the sentence defines the shape the extension adds, conditional on the extension being supported; buyer_consent.json types each of the four consent states boolean, so the shape is schema enforced once the extension is advertised, and L32 to L33 (This extension can be included in create_checkout and update_checkout operations) is permissive, so the operations named in the requirement text are where the shape may appear, not an obligation to appear. Kept MUST (decision 29) as the conditional shape rule the official test_buyer_consent grades."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "DSC-022",
+   "basis": "definition",
+   "justification": "buyer-consent.md L132: item 1 of the Security & Privacy Considerations list, Consent is declarative, The protocol communicates consent, it does not enforce it; the requirement text also folds in item 2 (L133, Legal compliance remains the responsibility of the business). `definition`: both items state a property of the protocol and an allocation of legal responsibility; neither names conduct a message could exhibit, and the id is already accounted EXEMPT at both 01 versions as out-of-band-legal for exactly that reason, so no coverage claim rests on it. The row stays at MUST pending the owner decision on retirement because the register keyword vocabulary has no class for a statement that binds nobody; the downgrade flag of the class is live and retirement is the honest end state."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "IDL-013",
+   "basis": "inferred",
+   "justification": "identity-linking.md L129 to L130 (the register cited L129 alone; corrected to the span the quote occupies): A scope covering a capability must grant access to all operations associated to the capability. The must is lower case, outside the all caps keyword class, so the mechanical classifier queued the row. `inferred`: the sentence is directive and the next sentence (L130 to L131) enumerates what it requires of ucp:scopes:checkout_session, Get, Create, Update, Delete, Cancel, Complete, matching the scope table at L120 to L127; an authorization server that grants the capability scope but refuses one of its operations contradicts the mapping. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "FUL-009",
+   "basis": "table",
+   "justification": "fulfillment.md L170: the title row of the Human-Readable Fields table (header L168, columns Location, Field, Required, Purpose) with Required = Yes. `table`: a Yes cell in a column headed Required, the house class exactly. Kept MUST; presence is schema enforced (fulfillment_option required list) and the adequacy judgement, distinguishes from siblings, is FUL-010 territory as the row notes record."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "FUL-017",
+   "basis": "table",
+   "justification": "fulfillment.md L172: the total row of the Human-Readable Fields table (header L168) with Required = Yes. `table`: a Yes cell in a column headed Required, the house class exactly. The row notes already record that fulfillment.json names the field totals (an array, required) while this prose names total (scalar minor units, may be null); the basis of the prose requirement is this table cell regardless, and the divergence is a register note and an upstream question, not a basis question. Kept MUST."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "ORD-019",
+   "basis": "inferred",
+   "justification": "order.md L314: step 6 of the Verification (Platform) procedure, If verification fails, reject the webhook with an appropriate error response. NOT `bullet`: the lead in is the bare label Verification (Platform) at L307 with no keyword. `inferred`: the procedure implements the MUST at L296 to L297, Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity, and a verifier that accepts a payload whose signature failed has not verified it, so the rejection step is the content of that MUST. The subject is the platform, as the row notes record, while the row role reads business; that is a lane question for the role register, not a basis question. Kept MUST (decision 29)."
+  },
+  {
+   "version": "2026-01-23",
+   "id": "PAY-010",
+   "basis": "definition",
+   "justification": "overview.md L602: item 3 of the Credential Flow & PCI Scope list under the lead in at L598, To minimize compliance overhead (PCI-DSS), Handler ID Routing: The handler_id in the payload ensures the business knows exactly which payment credential provider key to use for decryption/charging, preventing key confusion attacks. NOT `bullet`: the lead in carries no keyword; item 1 (L600) carries its own MUST NOT, which shows the author keyworded items one by one and left this one descriptive. `definition`: the item defines the purpose of handler_id; the conduct it points at, validating handler_id against the advertised handler set, is stated only as item 1 of Security Best Practices (L955, under the label For Businesses at L953) without a keyword, and the register carries no row for it at the 01 versions. Presence of handler_id is PAY-008 (schema). Kept MUST (decision 29) as the routing rule that PAY-008 presence serves; the downgrade flag of the class is live, the official test that grades this id sends a valid handler_id and succeeds, which exercises presence and not routing, and the owner decides whether the row stays or is replaced by the L955 item."
   }
  ]
 }
