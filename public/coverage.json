@@ -500,7 +500,7 @@
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
      "covered_by": [],
-     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
+     "exempt_reason": "'MUST use continue_url when checkout status is requires_escalation' (checkout.md Platform guidelines, L254 at 806a5b74, L258 at dcf7eac7) binds the PLATFORM: handing off to the business UI is the action of the request author and leaves no trace in any message the suite can elicit from the merchant. The business half (MUST provide continue_url on requires_escalation) is checked by CHK-025 and CHK-038 at 01-era. The 2026-04-08 twin is the exempt CHK-008. Scoped: the id is not a mandatory row at 2026-04-08 or 2026-08-25. RE-READ 2026-11-17."
     },
     {
      "id": "CHK-035",
@@ -2185,7 +2185,7 @@
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
      "covered_by": [],
-     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "order.md 'Verification (Platform)' step 6, at L310 at 806a5b74 and L314 at dcf7eac7: 'If verification fails, reject the webhook with an appropriate error response.' The step is the procedure of the PLATFORM receiver for a business-signed webhook; the merchant under test never observes whether a third-party receiver rejected it. The sentence carries no RFC 2119 keyword: the row sits in the 2026-01-23 normative_basis review queue with a null normative_basis, so the MUST on the register row is an inference awaiting adjudication, and the earlier wording of this exemption quoted an 'it MUST reject' the pinned text does not contain. The business half (signing_keys publication, Request-Signature) is checked elsewhere; the 2026-04-08 twin is the exempt ORD-033. Scoped: at 2026-04-08 and 2026-08-25 this id is the fulfillment_event required-fields row, covered by a schema check. RE-READ 2026-11-17."
     },
     {
      "id": "OVR-001",
@@ -2673,7 +2673,7 @@
      "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile.",
      "source": "ucp:docs/specification/ap2-mandates.md#L97",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "Two platform-bound AP2 duties share this id, and this exemption covers both. At 2026-01-11, ap2-mandates.md L96-98: under the trusted platform provider model the platform MUST provide at least one key in the top-level signing_keys array of its own profile; the merchant suite never fetches a platform profile. At 2026-04-08, ap2-mandates.md L110-111: the platform MUST verify the signature of the business before presenting the checkout to the user, which happens after the response has left the business. Neither surfaces in any message the suite can elicit from the merchant. Same subject-binding as PAY-032 and the other client-bound PAY rows. Scoped: at 2026-01-23 this id is the checkout_mandate-required schema rule, covered by schema_check_01_23. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-037",
@@ -3456,7 +3456,7 @@
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
      "covered_by": [],
-     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
+     "exempt_reason": "'MUST use continue_url when checkout status is requires_escalation' (checkout.md Platform guidelines, L254 at 806a5b74, L258 at dcf7eac7) binds the PLATFORM: handing off to the business UI is the action of the request author and leaves no trace in any message the suite can elicit from the merchant. The business half (MUST provide continue_url on requires_escalation) is checked by CHK-025 and CHK-038 at 01-era. The 2026-04-08 twin is the exempt CHK-008. Scoped: the id is not a mandatory row at 2026-04-08 or 2026-08-25. RE-READ 2026-11-17."
     },
     {
      "id": "CHK-035",
@@ -5202,7 +5202,7 @@
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
      "covered_by": [],
-     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "order.md 'Verification (Platform)' step 6, at L310 at 806a5b74 and L314 at dcf7eac7: 'If verification fails, reject the webhook with an appropriate error response.' The step is the procedure of the PLATFORM receiver for a business-signed webhook; the merchant under test never observes whether a third-party receiver rejected it. The sentence carries no RFC 2119 keyword: the row sits in the 2026-01-23 normative_basis review queue with a null normative_basis, so the MUST on the register row is an inference awaiting adjudication, and the earlier wording of this exemption quoted an 'it MUST reject' the pinned text does not contain. The business half (signing_keys publication, Request-Signature) is checked elsewhere; the 2026-04-08 twin is the exempt ORD-033. Scoped: at 2026-04-08 and 2026-08-25 this id is the fulfillment_event required-fields row, covered by a schema check. RE-READ 2026-11-17."
     },
     {
      "id": "OVR-001",
@@ -9781,7 +9781,7 @@
      "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
      "source": "ucp:docs/specification/checkout-mcp.md#L120",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` pa \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it, and the tester itself omits checkout.id. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
     },
     {
      "id": "MCP-003",
@@ -11047,7 +11047,7 @@
      "requirement": "Platforms must provide cryptographically signed mandates during the complete operation proving user authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L31",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Platforms must provide cryptographically signed mandates during the complete operation proving user authorization. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "'Platforms MUST provide cryptographically signed proofs (Mandates) during the complete operation, proving the user explicitly authorized the specific checkout state and funds transfer' (ap2-mandates.md L31-33) binds the PLATFORM as author of the complete request. The business-side counterpart, that the business MUST NOT accept a complete_checkout lacking ap2.checkout_mandate (ap2-mandates.md L108-109), is registered and accounted separately. No merchant response evidences whether a platform produced a mandate. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-033",
@@ -11105,7 +11105,7 @@
      "requirement": "The platform must verify the business's signature before presenting the checkout to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L110",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "Two platform-bound AP2 duties share this id, and this exemption covers both. At 2026-01-11, ap2-mandates.md L96-98: under the trusted platform provider model the platform MUST provide at least one key in the top-level signing_keys array of its own profile; the merchant suite never fetches a platform profile. At 2026-04-08, ap2-mandates.md L110-111: the platform MUST verify the signature of the business before presenting the checkout to the user, which happens after the response has left the business. Neither surfaces in any message the suite can elicit from the merchant. Same subject-binding as PAY-032 and the other client-bound PAY rows. Scoped: at 2026-01-23 this id is the checkout_mandate-required schema rule, covered by schema_check_01_23. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-037",
