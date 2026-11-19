@@ -5983,9 +5983,9 @@
     },
     "agent": {
      "musts": 137,
-     "check": 0,
+     "check": 55,
      "exempt": 3,
-     "gap": 134
+     "gap": 79
     },
     "other": {
      "musts": 4,
