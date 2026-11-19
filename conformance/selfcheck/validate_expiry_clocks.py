@@ -58,6 +58,21 @@ def lock_pins(path=LOCK):
     return {v: (i.get("commit") or "")[:8] for v, i in d.get("spec", {}).get("versions", {}).items()}
 
 
+def note_only(e, need=None):
+    """True when `e` is commentary rather than a clocked claim: every key `_`-prefixed
+    (a `_note` object, or a RETIRED entry replaced in place by a tombstone), or, when
+    `need` is given, an object lacking that key. The retire-in-place rule exists because
+    review_signoffs.json sample ids name register_completeness_waivers.json BY LIST
+    INDEX: dd84fb4 deleted waivers[38] on 2026-10-27 and silently re-pointed 13 sampled
+    ids at entries no human had read. Shared with verify_register_completeness so one
+    definition decides what a tombstone is."""
+    if not isinstance(e, dict):
+        return False
+    if all(k.startswith("_") for k in e):
+        return True
+    return bool(need) and need not in e
+
+
 def iter_entries(reg, doc):
     """Yield (path, entry) for one register's entry-path over its loaded document.
     Paths:  `$.*`        every value of an id-keyed dict, `_`-prefixed keys skipped;
@@ -73,11 +88,7 @@ def iter_entries(reg, doc):
     need = reg.get("entry_requires")
 
     def is_note(e):
-        if not isinstance(e, dict):
-            return False
-        if all(k.startswith("_") for k in e):
-            return True
-        return bool(need) and need not in e
+        return note_only(e, need)
     if spec == "$":
         if not is_note(doc):
             yield "$", doc
@@ -349,6 +360,25 @@ def selftest():
     case("(c) no clock hands -> missing-clock", by.get("w.json waivers[2]") == ["missing-clock"], by)
     case("(d) clock: none register -> no finding", "r.json retirements[0]" not in by, by)
     case("clean entry -> no finding", "w.json waivers[3]" not in by, by)
+    # (m) a RETIRED entry replaced IN PLACE by a note-only tombstone is commentary, not a
+    # clocked claim: no finding, and it still OCCUPIES its index so no later sample id
+    # shifts (dd84fb4 deleted waivers[38] on 2026-10-27 and re-pointed 13 sampled ids).
+    # The skip is narrow on purpose: one live key and it is a claim again.
+    regs_m = [{"name": "tomb", "file": "t.json", "entries": "$.waivers[*]", "scope": "version",
+               "clock": "review_by", "clock_tier": "pin-only"}]
+    docs_m = {"t.json": {"waivers": [
+        {"_retired": "2026-04-08 overview.md:307", "_on": "2026-11-19", "_why": "rowed"},  # tombstone
+        {"version": "2026-08-25", "review_by": "2027-01-10", "spec_pin": "cd78fb38"},      # live, clean
+        {"_retired": "x", "line": 5}]}}                                                    # smuggler
+    paths_m = [p for p, _ in iter_entries(regs_m[0], docs_m["t.json"])]
+    fm = evaluate(regs_m, docs_m.get, pins, today)
+    by_m = {x["entry"] for x in fm}
+    case("(m) note-only tombstone is skipped but KEEPS its index",
+         paths_m == ["waivers[1]", "waivers[2]"], paths_m)
+    case("(m) a skipped tombstone raises no finding",
+         "t.json waivers[0]" not in by_m, sorted(by_m))
+    case("(m) an entry with one live key is NOT commentary (missing-clock)",
+         "t.json waivers[2]" in by_m, sorted(by_m))
     # (k) D1-10: a root-clocked register (`entries: "$"`) is ONE entry — expired reds, clean is quiet
     regs_k = [{"name": "expected_skips.x", "file": "x.json", "entries": "$", "scope": "version",
                "clock": "review_by", "clock_tier": "moving"}]
