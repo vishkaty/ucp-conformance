@@ -5959,22 +5959,22 @@
   "2026-04-08": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 386,
-   "check": 278,
-   "exempt": 100,
+   "musts": 390,
+   "check": 279,
+   "exempt": 103,
    "gap": 8,
    "accounted_pct": 98,
    "roles": {
     "summary": {
-     "merchant": 313,
-     "agent": 135,
-     "both": 66,
+     "merchant": 316,
+     "agent": 137,
+     "both": 67,
      "other": 4
     },
     "merchant": {
-     "musts": 313,
-     "check": 278,
-     "exempt": 28,
+     "musts": 316,
+     "check": 279,
+     "exempt": 30,
      "gap": 7,
      "gap_by_testability": {
       "manual": 6,
@@ -5982,10 +5982,10 @@
      }
     },
     "agent": {
-     "musts": 135,
-     "check": 55,
+     "musts": 137,
+     "check": 0,
      "exempt": 3,
-     "gap": 77
+     "gap": 134
     },
     "other": {
      "musts": 4,
@@ -6000,15 +6000,15 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 362,
+     "musts": 364,
      "check": 272,
-     "exempt": 82,
+     "exempt": 84,
      "gap": 8
     },
     "mcp": {
-     "musts": 6,
-     "check": 5,
-     "exempt": 1,
+     "musts": 8,
+     "check": 6,
+     "exempt": 2,
      "gap": 0
     },
     "a2a": {
@@ -6034,11 +6034,11 @@
     "prose": {
      "pin": "a25a4a24",
      "mandatory_hits": 495,
-     "covered_by_rows": 253,
+     "covered_by_rows": 257,
      "scope_excluded": 173,
      "waived": {
-      "duplicate": 43,
-      "non-normative": 19,
+      "duplicate": 40,
+      "non-normative": 18,
       "schema-enforced": 1,
       "spec-authoring": 6
      },
@@ -6082,12 +6082,12 @@
     "discovery-live": 0,
     "fixture-schema": 68,
     "fixture-crypto": 4,
-    "self-referenced": 138,
+    "self-referenced": 139,
     "register-selfcheck": 0,
     "reference-impl": 0
    },
    "integrity": {
-    "target_facing": 278,
+    "target_facing": 279,
     "corpus": 0,
     "algorithm": 0
    },
@@ -6165,11 +6165,11 @@
     },
     {
      "area": "overview",
-     "check": 11,
-     "exempt": 2,
+     "check": 12,
+     "exempt": 5,
      "gap": 2,
      "gap_manual": 2,
-     "musts": 15
+     "musts": 19
     },
     {
      "area": "payment",
@@ -10578,6 +10578,32 @@
      "covered_by": []
     },
     {
+     "id": "OVR-037",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "role": "both",
+     "normative_basis": "sentence",
+     "requirement": "If an extension schema declares `requires`, platforms and businesses MUST verify that the negotiated protocol version and capability versions satisfy its declared constraints during schema resolution; incompatible extensions are excluded from the active capability set.",
+     "source": "ucp:docs/specification/overview.md#L306-L309",
+     "covered_by": [],
+     "exempt_reason": "party: platforms AND businesses (overview.md L306-L309 'If `requires` is present, platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution'). observable on the merchant axis: only against a target that declares an extension whose `requires` constraints are NOT satisfied at the negotiated ucp.version, so that the active capability set of the response provably excludes it; no golden or reference target at 2026-04-08 declares such an extension, which is the same gap OVR-011 records for version-incompatible capabilities. why-not-now: rowed 2026-11-19 in place of a false `duplicate` waiver that pointed at OVR-011, a different obligation (2026-08-25 rows OVR-011 and OVR-037 separately). The platform half is the business of the agent lane and is not exempted here."
+    },
+    {
+     "id": "OVR-057",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "role": "platform",
+     "normative_basis": "sentence",
+     "requirement": "Negotiation Protocol, Platform Requirements item 4 (Schema Resolution): platforms MUST fetch and compose schemas for negotiated capabilities before making requests.",
+     "source": "ucp:docs/specification/overview.md#L629-L630",
+     "covered_by": [],
+     "exempt_reason": "Binds the platform (overview.md L629-L630, Negotiation Protocol, Platform Requirements item 4): fetching and composing schemas happens BEFORE requests are made; the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas. The same adjudication NEG-008 carries for the identical sentence at 2026-01-11 and 2026-01-23. Rowed 2026-11-19 in place of a false `non-normative` waiver, which claimed the sentence is internal platform behaviour while the identical sentence is a register row at three other versions."
+    },
+    {
      "id": "OVR-058",
      "area": "overview",
      "keyword": "MUST",
@@ -10595,6 +10621,35 @@
       "flower-shop-official-sample",
       "nodejs-reference-sample"
      ]
+    },
+    {
+     "id": "OVR-060",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (for example 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
+     "source": "ucp:docs/specification/overview.md#L915-L917",
+     "covered_by": [],
+     "exempt_reason": "party: the MCP server of the Business (overview.md L915-L917 'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error'). observable: only against a 2026-04-08 target that serves a JSON-RPC error under its corresponding HTTP status. No such target exists today: the pinned flower shop golden advertises no mcp transport at 2026-04-08, and the /ucp/mcp endpoint of the controlled fixture returns every JSON-RPC error under HTTP 200 (conformance/fixtures/merchant/server.py sends 200 around mcp_dispatch, which maps all failures to -32602), so a check here would deviate on our own fixture rather than grade a merchant. why-not-now: the 2026-08-25 twin IS checked, by mcp.error_http_status against golden-0825; bringing that to 2026-04-08 is fixture work plus a new MCheck with its kill set, coverage lock, sign-off and expected_skips populations, which is its own lane. Rowed 2026-11-19 in place of a false `duplicate` waiver that claimed MCP is outside the 2026-04-08 surface, while MCP-001 to MCP-006 are rows at that version."
+    },
+    {
+     "id": "OVR-067",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "check",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "UCP MCP servers MUST return the UCP response payload in structuredContent; MCP tool responses use a dual-output pattern for backward compatibility.",
+     "source": "ucp:docs/specification/overview.md#L1620",
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-001",
@@ -12290,28 +12345,28 @@
   "2026-08-25": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 780,
+   "musts": 781,
    "check": 106,
    "exempt": 0,
-   "gap": 674,
+   "gap": 675,
    "accounted_pct": 14,
    "roles": {
     "summary": {
-     "merchant": 526,
+     "merchant": 527,
      "agent": 305,
      "both": 70,
      "other": 19
     },
     "merchant": {
-     "musts": 526,
+     "musts": 527,
      "check": 106,
      "exempt": 0,
-     "gap": 420,
+     "gap": 421,
      "gap_by_testability": {
       "manual": 52,
       "needs-oauth": 12,
       "needs-receiver": 98,
-      "testable": 258
+      "testable": 259
      }
     },
     "agent": {
@@ -12337,10 +12392,10 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 522,
+     "musts": 523,
      "check": 83,
      "exempt": 0,
-     "gap": 439
+     "gap": 440
     },
     "mcp": {
      "musts": 19,
@@ -12371,12 +12426,12 @@
     "prose": {
      "pin": "cd78fb38",
      "mandatory_hits": 922,
-     "covered_by_rows": 717,
-     "scope_excluded": 142,
+     "covered_by_rows": 718,
+     "scope_excluded": 79,
      "waived": {
       "duplicate": 27,
       "non-normative": 7,
-      "out-of-scope-transport": 27,
+      "out-of-scope-transport": 89,
       "schema-enforced": 1,
       "spec-authoring": 1
      },
@@ -12433,7 +12488,7 @@
     "manual": 131,
     "needs-oauth": 15,
     "needs-receiver": 165,
-    "testable": 363
+    "testable": 364
    },
    "areas": [
     {
@@ -12483,11 +12538,11 @@
     {
      "area": "checkout-lifecycle",
      "check": 11,
-     "gap": 42,
+     "gap": 43,
      "gap_manual": 3,
      "gap_needs-receiver": 8,
-     "gap_testable": 31,
-     "musts": 53
+     "gap_testable": 32,
+     "musts": 54
     },
     {
      "area": "discounts-consent",
@@ -14468,6 +14523,18 @@
      "normative_basis": "sentence",
      "requirement": "When HTTP Message Signatures are used, checkout REST requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1419-L1421",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-081",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Businesses MUST include an embedded service binding with config.delegate in checkout responses, to indicate ECP (Embedded Checkout Protocol) availability and the allowed delegations for a specific session.",
+     "source": "ucp:docs/specification/shopping/checkout/embedded.md#L125-L127",
      "covered_by": []
     },
     {

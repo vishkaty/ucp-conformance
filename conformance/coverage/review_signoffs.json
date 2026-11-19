@@ -895,7 +895,15 @@
      "by": "Vishal Katyal (accepted; delegated adversarial sample review, not a personal re-read of every sampled entry)",
      "on": "2026-09-22",
      "due": "2026-09-18"
-    }
+    },
+    "substitutions": [
+     {
+      "retired": "register_completeness_waivers.json waivers[31]",
+      "replaced_by": "exemptions.json OVR-011",
+      "reason": "waivers[31], the 2026-04-08 overview.md L307 entry, was retired on 2026-11-19 because its reason was false: it called the sentence a duplicate of OVR-011, and at 2026-08-25 the register carries OVR-011 and OVR-037 as separate rows with different sources, roles and quotes. The sentence is now register row OVR-037 at 2026-04-08, EXEMPT needs-target-capability. The entry is a note-only tombstone keeping its index, so the sampled id no longer resolves. Replaced by the OVR-011 exemption, which is the entry that waiver pointed at and which was re-read at a25a4a24 in its place: overview.md L1974 reads 'Businesses MUST include only capabilities compatible with the negotiated protocol version in their response', verbatim as the exemption reason quotes it, and the class needs-target-capability, role business, version 2026-04-08 and pin a25a4a24 all still hold.",
+      "on": "2026-11-19"
+     }
+    ]
    }
   },
   {
@@ -1574,6 +1582,18 @@
      "by": "Vishal Katyal",
      "due": "2026-12-02"
     }
+   }
+  },
+  {
+   "batch": "ovr-067-0408-attribution-2026-11-19",
+   "date": "2026-11-19",
+   "reviewer": "machine assisted re read, 2026-11-19, of OVR-067 at 2026-04-08 against overview.md L1620 in the vendored tree at a25a4a24 and of mcp.checkout_via_tools_call in conformance/checks/merchant_checks.py; shaped as the single id attribution batches b3-ovr002-attribution-2026-09-10 and phase5-watch-samples-263-264-265-2026-10-27, which carry no sample because for one id these notes ARE the review",
+   "spec_reverified": true,
+   "notes": "One id, OVR-067 at 2026-04-08, newly rowed in place of a false completeness waiver. (a) CITATION: overview.md#L1620 at a25a4a24 reads '- **MUST** return the UCP response payload in `structuredContent`', quoted verbatim and confirmed by the register gate at the exact span; identical to the 2026-08-25 OVR-067 quote, so the row is backported id preserving with lineage.backported. (b) KILL: the citing check is mcp.checkout_via_tools_call, locked in selfcheck/killset_lock.json, whose predicate p_mcp_result_envelope returns DEVIATION unless result.structuredContent is a dict carrying ucp, and whose declared mutations already include drop:result.structuredContent and drop:result.structuredContent.ucp. The killset lock hash does not move, because req_ids are not hashed; gen_killset_lock --check reports 0 drift at 256 MCheck before and after. So this check ALREADY graded the sentence and only the attribution was missing. (c) LANE: role business, merchant lane, and the citing check is a merchant MCheck. (d) STRICTNESS: the predicate asserts only that a successful tools/call carries the UCP object under result.structuredContent; it never asserts the payload shape, which is the business of CHK-034. Evidence class is self referenced: at 2026-04-08 the only MCP target is the controlled fixture, because the pinned flower shop golden advertises no mcp transport at this version. This batch exists because waivers[42] claimed the sentence was a duplicate of CHK-034 under the false premise that MCP is outside the 2026-04-08 surface, while MCP-001 to MCP-006 are rows at that version.",
+   "ids": {
+    "2026-04-08": [
+     "OVR-067"
+    ]
    }
   }
  ]

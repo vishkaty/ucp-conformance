@@ -1546,5 +1546,39 @@
   "review_by": "2026-12-09",
   "spec_pin": "a25a4a24",
   "clock_tier": "pin-only"
+ },
+ "OVR-037": {
+  "class": "needs-target-capability",
+  "versions": [
+   "2026-04-08"
+  ],
+  "role": "both",
+  "reason": "party: platforms AND businesses (overview.md L306-L309 'If `requires` is present, platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution'). observable on the merchant axis: only against a target that declares an extension whose `requires` constraints are NOT satisfied at the negotiated ucp.version, so that the active capability set of the response provably excludes it; no golden or reference target at 2026-04-08 declares such an extension, which is the same gap OVR-011 records for version-incompatible capabilities. why-not-now: rowed 2026-11-19 in place of a false `duplicate` waiver that pointed at OVR-011, a different obligation (2026-08-25 rows OVR-011 and OVR-037 separately). The platform half is the business of the agent lane and is not exempted here.",
+  "converts_when": "D3-03 (version projection golden serving an extension whose `requires` excludes it at the negotiated version) or a D3-26-class host declaring one; the same trigger as OVR-011",
+  "review_by": "2027-02-17",
+  "spec_pin": "a25a4a24",
+  "clock_tier": "pin-only"
+ },
+ "OVR-057": {
+  "class": "client-bound",
+  "versions": [
+   "2026-04-08"
+  ],
+  "reason": "Binds the platform (overview.md L629-L630, Negotiation Protocol, Platform Requirements item 4): fetching and composing schemas happens BEFORE requests are made; the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas. The same adjudication NEG-008 carries for the identical sentence at 2026-01-11 and 2026-01-23. Rowed 2026-11-19 in place of a false `non-normative` waiver, which claimed the sentence is internal platform behaviour while the identical sentence is a register row at three other versions.",
+  "review_by": "2027-02-17",
+  "spec_pin": "a25a4a24",
+  "clock_tier": "pin-only"
+ },
+ "OVR-060": {
+  "class": "needs-target-capability",
+  "versions": [
+   "2026-04-08"
+  ],
+  "role": "business",
+  "reason": "party: the MCP server of the Business (overview.md L915-L917 'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error'). observable: only against a 2026-04-08 target that serves a JSON-RPC error under its corresponding HTTP status. No such target exists today: the pinned flower shop golden advertises no mcp transport at 2026-04-08, and the /ucp/mcp endpoint of the controlled fixture returns every JSON-RPC error under HTTP 200 (conformance/fixtures/merchant/server.py sends 200 around mcp_dispatch, which maps all failures to -32602), so a check here would deviate on our own fixture rather than grade a merchant. why-not-now: the 2026-08-25 twin IS checked, by mcp.error_http_status against golden-0825; bringing that to 2026-04-08 is fixture work plus a new MCheck with its kill set, coverage lock, sign-off and expected_skips populations, which is its own lane. Rowed 2026-11-19 in place of a false `duplicate` waiver that claimed MCP is outside the 2026-04-08 surface, while MCP-001 to MCP-006 are rows at that version.",
+  "converts_when": "conformance/fixtures/merchant/server.py maps MCP negotiation and protocol errors to their REST status (version_unsupported to 422 with JSON-RPC -32001, the mcp.error_http_status shape) AND a 2026-04-08 MCheck citing OVR-060 lands with it; or a 2026-04-08 golden that declares transport mcp",
+  "review_by": "2027-02-17",
+  "spec_pin": "a25a4a24",
+  "clock_tier": "pin-only"
  }
 }

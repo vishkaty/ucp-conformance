@@ -238,7 +238,7 @@
       "versions": [
         "2026-04-08"
       ],
-      "notes": "Subject: business; observable in ucp.capabilities but requires multi-protocol-version fixtures to exercise -> manual. Covers worklist L1974 + L1976; also the target for the extension-`requires` version verification (L307) and capability-version validation (L2011). Distinct from operation-relevance (new L950 row). [added by completeness-2026-07-03]",
+      "notes": "Subject: business; observable in ucp.capabilities but requires multi-protocol-version fixtures to exercise -> manual. Covers worklist L1974 + L1976; also the target for capability-version validation (L2011); the extension-`requires` verification at L306-L309 is NOT covered here and is its own row OVR-037 at this version from 2026-11-19, matching how 2026-08-25 rows the two separately. Distinct from operation-relevance (new L950 row). [added by completeness-2026-07-03]",
       "_completeness_batch": "completeness-2026-07-03",
       "role": "business",
       "role_provenance": "not-agent-bound",
@@ -311,6 +311,57 @@
       "normative_basis": "sentence"
     },
     {
+      "id": "OVR-037",
+      "keyword": "MUST",
+      "requirement": "If an extension schema declares `requires`, platforms and businesses MUST verify that the negotiated protocol version and capability versions satisfy its declared constraints during schema resolution; incompatible extensions are excluded from the active capability set.",
+      "quote": "If `requires` is present, platforms and\nbusinesses **MUST** verify the negotiated protocol version and\ncapability versions satisfy the declared constraints during schema\nresolution.",
+      "source": "ucp:docs/specification/overview.md#L306-L309",
+      "testability": "manual",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-04-08"
+      ],
+      "notes": "Backported id-preserving from 2026-08-25 OVR-037 (D2-15 mechanism, as OVR-058). Until 2026-11-19 this sentence was waived at 2026-04-08 as a duplicate of OVR-011; at 2026-08-25 the register carries OVR-011 and OVR-037 as SEPARATE rows with different sources, roles and quotes (business vs both), so by the register own judgement they are distinct obligations and the duplicate claim was false. L306-L309 is a verification duty on platforms AND businesses during schema resolution; OVR-011 is a construction duty on businesses about which capabilities a response may include. The waiver is retired in place (waivers[31] tombstone) and the stale sentence in the OVR-011 notes that also claimed L307 is corrected in the same change. Observable on the business axis only against a target declaring an extension whose `requires` excludes it at the negotiated version; no golden or fixture declares one, so this row is EXEMPT needs-target-capability with the same converts_when as OVR-011, and testability mirrors OVR-011 (manual) rather than the needs-receiver label of the 2026-08-25 twin, because at 2026-04-08 what is missing is the target, not a receiver.",
+      "role": "both",
+      "role_provenance": "backported",
+      "normative_basis": "sentence",
+      "lineage": {
+        "from": "2026-08-25",
+        "disposition": "backported",
+        "drift_note": "Backported id-preserving from 2026-08-25 OVR-037 (D2-15 mechanism). The 2026-04-08 sentence reads 'verify the negotiated protocol version and capability versions satisfy the declared constraints'; the 2026-08-25 sentence reads 'verify that the selected `ucp.version` and capability versions satisfy the declared constraints'. Same obligation, reworded at 2026-08-25 (overview/index.md#L1209-L1211); quoted verbatim at each pin."
+      }
+    },
+    {
+      "id": "OVR-057",
+      "keyword": "MUST",
+      "requirement": "Negotiation Protocol, Platform Requirements item 4 (Schema Resolution): platforms MUST fetch and compose schemas for negotiated capabilities before making requests.",
+      "quote": "4. **Schema Resolution**: Platforms **MUST** fetch and compose schemas for\n    negotiated capabilities before making requests.",
+      "source": "ucp:docs/specification/overview.md#L629-L630",
+      "testability": "manual",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-04-08"
+      ],
+      "notes": "Backported id-preserving from 2026-08-25 OVR-057 (D2-15 mechanism, as OVR-058); the quote is identical at both pins. Until 2026-11-19 this sentence was waived at 2026-04-08 as `non-normative`, on the reason that it is internal platform behaviour and not server observable. The identical sentence is a register row at three other versions, NEG-008 at 2026-01-11 and 2026-01-23 and OVR-057 at 2026-08-25, so that label was false and the waiver is retired in place (waivers[37] tombstone). Platform bound: on the merchant axis it is EXEMPT client-bound with the NEG-008 reason, and testability is manual as NEG-008 rather than the needs-receiver label of the 2026-08-25 twin, because what is missing here is not a receiver.",
+      "role": "platform",
+      "role_provenance": "backported",
+      "normative_basis": "sentence",
+      "lineage": {
+        "from": "2026-08-25",
+        "disposition": "backported"
+      }
+    },
+    {
       "id": "OVR-058",
       "keyword": "MUST",
       "requirement": "Negotiation Protocol, Business Requirements item 1 (Profile Resolution): upon receiving a request with a platform profile URI, businesses MUST fetch and validate the platform profile unless already cached.",
@@ -334,6 +385,56 @@
         "from": "2026-08-25",
         "disposition": "backported",
         "drift_note": "Backported id-preserving from 2026-08-25 OVR-058 (D2-15 mechanism). The 04-08 quote is the three-line sentence at overview.md L634-L636; the 08-25 quote's third line continues into the next sentence ('Because businesses negotiate by capability name and serve'), which does not exist at 2026-04-08."
+      }
+    },
+    {
+      "id": "OVR-060",
+      "keyword": "MUST",
+      "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (for example 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
+      "quote": "    When using Streamable HTTP transport, servers **MUST** return the\n    corresponding HTTP status code (e.g., `429` for rate limit) alongside\n    the JSON-RPC error. The HTTP status code is the primary signal for",
+      "source": "ucp:docs/specification/overview.md#L915-L917",
+      "testability": "testable",
+      "transport": [
+        "mcp"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-04-08"
+      ],
+      "notes": "Backported id-preserving from 2026-08-25 OVR-060 (D2-15 mechanism, as OVR-058); the quote is identical at both pins. Until 2026-11-19 this sentence was waived at 2026-04-08 as a duplicate of CHK-050 under the reason that MCP transport is outside the REST conformance surface; the 2026-04-08 register carries MCP-001 to MCP-006 with transport mcp, so MCP is in scope at this version, the reason was false and the waiver is retired in place (waivers[39] tombstone). Testable: the 2026-08-25 twin is graded by mcp.error_http_status. NOT graded at 2026-04-08 because no target the suite drives serves it: the pinned flower shop sample advertises rest only at this version and the controlled fixture answers every JSON-RPC error under HTTP 200 (fixtures/merchant/server.py, mcp_dispatch). EXEMPT needs-target-capability until that fixture work and a 2026-04-08 twin of mcp.error_http_status land together, which is its own lane.",
+      "role": "business",
+      "role_provenance": "backported",
+      "normative_basis": "sentence",
+      "lineage": {
+        "from": "2026-08-25",
+        "disposition": "backported"
+      }
+    },
+    {
+      "id": "OVR-067",
+      "keyword": "MUST",
+      "requirement": "UCP MCP servers MUST return the UCP response payload in structuredContent; MCP tool responses use a dual-output pattern for backward compatibility.",
+      "quote": "- **MUST** return the UCP response payload in `structuredContent`",
+      "source": "ucp:docs/specification/overview.md#L1620",
+      "testability": "testable",
+      "transport": [
+        "mcp"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": false,
+      "versions": [
+        "2026-04-08"
+      ],
+      "notes": "Backported id-preserving from 2026-08-25 OVR-067 (D2-15 mechanism, as OVR-058); the quote is identical at both pins. Until 2026-11-19 this sentence was waived at 2026-04-08 as a duplicate of CHK-034, a checkout.json required[] row with nothing to do with structuredContent, under the same false reason that MCP is outside the 2026-04-08 surface; retired in place (waivers[42] tombstone). Graded at this version by mcp.checkout_via_tools_call (merchant_checks.py), whose predicate p_mcp_result_envelope requires result.structuredContent to carry the ucp object and whose declared mutations include drop:result.structuredContent and drop:result.structuredContent.ucp. Evidence class self-referenced: at 2026-04-08 the only MCP target is the controlled fixture, because the pinned golden advertises no mcp transport.",
+      "role": "business",
+      "role_provenance": "backported",
+      "normative_basis": "sentence",
+      "lineage": {
+        "from": "2026-08-25",
+        "disposition": "backported"
       }
     }
   ],

@@ -36,12 +36,12 @@
         "reference-impl": 0
       },
       "2026-04-08": {
-        "check": 278,
+        "check": 279,
         "live-wire": 68,
         "discovery-live": 0,
         "fixture-schema": 68,
         "fixture-crypto": 4,
-        "self-referenced": 138,
+        "self-referenced": 139,
         "register-selfcheck": 0,
         "reference-impl": 0
       },
