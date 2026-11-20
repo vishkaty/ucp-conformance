@@ -32,6 +32,9 @@ Usage:
   verify_register_completeness.py --json      # machine-readable summary
 """
 import json, re, sys, pathlib
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from validate_expiry_clocks import note_only  # noqa: E402  (one tombstone rule)
 from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -214,22 +217,32 @@ def covered_lines_for(rows, flines):
     return covered
 
 
-def load_waivers():
-    if not WAIVERS.exists():
+def load_waivers(path=None):
+    """(waiver index, waiver list, scope index, scope list) from the waiver register.
+    `path` reads a different file, so the matcher gate can prove the rules hermetically.
+
+    A RETIRED entry stays in place as a note-only tombstone so list indexes never shift
+    (review_signoffs.json sample ids name this register by index), and is inert here
+    exactly as it is to validate_expiry_clocks.iter_entries. One definition, imported,
+    so the two gates cannot disagree about what a tombstone is."""
+    path = WAIVERS if path is None else pathlib.Path(path)
+    if not path.exists():
         return {}, [], {}, []
-    data = json.loads(WAIVERS.read_text())
+    data = json.loads(path.read_text())
+    waivers = [w for w in data.get("waivers", []) if not note_only(w)]
+    scope_exclusions = [x for x in data.get("scope_exclusions", []) if not note_only(x)]
     idx = {}
-    for w in data.get("waivers", []):
+    for w in waivers:
         key = (w["version"], w["file"], int(w["line"]))
         idx[key] = w
     # scope exclusions: (version, file) -> exclusion record; "versions": "*" means all
     scope_idx = {}
-    for sx in data.get("scope_exclusions", []):
+    for sx in scope_exclusions:
         vers = sx.get("versions")
         vlist = list(VERSION_TREE) if vers in ("*", None) else vers
         for v in vlist:
             scope_idx[(v, sx["file"])] = sx
-    return idx, data.get("waivers", []), scope_idx, data.get("scope_exclusions", [])
+    return idx, waivers, scope_idx, scope_exclusions
 
 
 ROW_ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")

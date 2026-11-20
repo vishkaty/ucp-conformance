@@ -50,7 +50,11 @@ CAPS6 = ("dev.ucp.shopping.buyer_consent", "dev.ucp.shopping.cart", "dev.ucp.sho
          "dev.ucp.shopping.discount", "dev.ucp.shopping.fulfillment", "dev.ucp.shopping.order")
 CAPS_0123 = ("dev.ucp.shopping.checkout", "dev.ucp.shopping.fulfillment",
              "dev.ucp.shopping.discount", "dev.ucp.shopping.order")
-PIN_0825_6CAPS = 255        # pinned 2026-09-10 (D1-03 first run: 248); re-pinned at the W0 integration
+PIN_0825_6CAPS = 256        # pinned 2026-09-10 (D1-03 first run: 248); re-pinned at the W0
+                            # integration, and again 2026-11-19 (255 -> 256) when CHK-081 rowed
+                            # the one server observable MUST in shopping/checkout/embedded.md,
+                            # which the whole-file scope exclusion had hidden. A pin that moves
+                            # with real coverage growth, never to make a gate quiet.
                             # merge the same day: D2-01 made 10 REQUIRED/SHALL rows mandatory
                             # (CHK-008/036/037/046, DISC-006, ORD-015, PAY-009/010/017, TOT-010) and
                             # D2-02 merged 3 away (CART-036, DSC-029, PAY-018) -> 248 + 10 - 3 = 255.

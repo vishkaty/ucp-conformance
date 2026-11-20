@@ -1799,6 +1799,28 @@
       "role": "platform",
       "role_provenance": "review:role-adjudication-2026-09-11",
       "normative_basis": "sentence"
+    },
+    {
+      "id": "CHK-081",
+      "keyword": "MUST",
+      "requirement": "Businesses MUST include an embedded service binding with config.delegate in checkout responses, to indicate ECP (Embedded Checkout Protocol) availability and the allowed delegations for a specific session.",
+      "quote": "Service-level discovery declares that a business supports ECP, but does not\nguarantee that every checkout session will enable it. Businesses **MUST** include\nan embedded service binding with `config.delegate` in checkout responses to",
+      "source": "ucp:docs/specification/shopping/checkout/embedded.md#L125-L127",
+      "testability": "testable",
+      "transport": [
+        "rest"
+      ],
+      "schema_enforced": false,
+      "official_oracle": false,
+      "browser_capable": true,
+      "versions": [
+        "2026-08-25"
+      ],
+      "notes": "NEW at 2026-08-25, added 2026-11-19 by the expiry re-read of scope_exclusions[1]. shopping/checkout/embedded.md is the Embedded Checkout Protocol binding: apart from this one sentence it is a browser host page to iframe postMessage and MessagePort contract, now waived per line as out-of-scope-transport with transport embedded, which is exactly the treatment shopping/cart/embedded.md already receives alongside CART-034. THIS sentence is a requirement on the checkout REST or MCP response body itself, the embedded service binding under ucp.services with config.delegate, per checkout session, so it is server observable and testable with no browser harness. It is the checkout twin of CART-034 (cart/embedded.md#L84-L86), which differs only in naming ECaP rather than ECP and in how it words the per-session clause. Until 2026-11-19 the whole file was scope excluded, which hid this MUST: no register row at any of the four versions cited the file. Lands as a testable GAP, like CART-034 before its check, and the 2026-08-25 state stays converting.",
+      "_completeness_batch": "completeness-2026-11-19-expiry-five",
+      "role": "business",
+      "role_provenance": "subject",
+      "normative_basis": "sentence"
     }
   ],
   "notes": [

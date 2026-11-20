@@ -1,6 +1,6 @@
 {
  "_about": "Differential REACH REPORT \u2014 for each (spec VERSION, WIRE-probing check) pair, which independent targets (ci/differential_targets.json \u2014 servers we did not author) actually GRADED it, at THAT version, in the recorded run, with the runner's own status. clean-pass/deviation = graded on the wire; every other status names why it did not reach that target. Keys are 'version:module_stem:check_id' (evidence.reach_key) \u2014 the version axis is load-bearing: a check graded against a target serving version V corroborates V only, never a sibling version the same check object also happens to be attributed to (R4). Consumed by coverage/evidence.py: a (version, check) pair with no graded independent target is classified self-referenced (the fixture-circularity class we flag upstream, conformance#79). Committed data, MERGED per (target, served-version) slice on each run \u2014 never a wholesale overwrite (see this script's module docstring) \u2014 regenerate with gen_reach_report.py after booting the targets (serve_golden.sh / serve_node_reference.sh); CI runs `--check` and FAILS on graded-status drift (D4-02), the owner commits regenerated labels under decision 6.",
- "generated": "2026-10-27",
+ "generated": "2026-11-11",
  "spec_pins": {
   "2026-04-08": "a25a4a24e738b74c8fa83254448d0666e478f595",
   "2026-01-23": "dcf7eac71fc370dcc8768fcdbc5aa737037cca05",
@@ -18,7 +18,7 @@
   "nodejs-reference-sample": {
    "server": "http://localhost:3000",
    "spec_version": "2026-04-08",
-   "generated": "2026-10-27",
+   "generated": "2026-11-11",
    "merchant_checks_run": 256,
    "engine_wire_checks": 50
   }
@@ -1668,7 +1668,7 @@
    "version": "2026-04-08",
    "targets": {
     "flower-shop-official-sample": "clean-pass",
-    "nodejs-reference-sample": "deviation"
+    "nodejs-reference-sample": "clean-pass"
    }
   },
   "2026-04-08:merchant_checks_04_08_events:webhook.query_component_signed": {

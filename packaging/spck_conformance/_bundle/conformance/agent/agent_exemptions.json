@@ -13,9 +13,9 @@
     "clock_tier": "pin-only"
   },
   "IDL-039": {
-    "reason": "L358-359 'Platforms MUST ignore unrecognized fields in a per-scope policy object'. The reference agent never consumes per-scope policy objects (min_acr/max_token_age/require_mfa/claims), so it satisfies this vacuously; the only violation is aborting/rejecting on the unknown key, which manifests as a generic failure-to-proceed already caught by the flow-completion checks. No diagonal, independently-gradable kill_mutation exists. (Distinct from IDL-057 = config-LEVEL unknown fields, which IS checked.)",
-    "source": "identity-linking.md#L358-L359",
-    "review_by": "2026-11-08",
+    "reason": "'Platforms MUST ignore unrecognized fields.' closes the Per-Scope Policy and Metadata paragraph (identity-linking.md L358-359 at 2026-04-08; common/identity-linking/index.md L748-749 at 2026-08-25, verbatim at both), so the unrecognized fields in question are those of a per-scope policy object. The reference agent reads only the KEYS of config.scopes (reference_agent.py L252, list(cfg.get('scopes').keys())) and never the per-scope value objects (min_acr, max_token_age, require_mfa, claims), so it satisfies this vacuously; the only violation is aborting or rejecting on the unknown key, which manifests as a generic failure to proceed already caught by the flow checks. No diagonal, independently gradable kill_mutation exists. Distinct from IDL-057, the config LEVEL unknown fields (reference_agent.py L253 unknown_config_fields), which IS checked by agent.ignores_future_config at 2026-04-08 and deliberately BLOCKED at 2026-08-25 (agent_checks.py L898-910: providers became a spec defined field). RE-READ 2026-11-17 at all four pins.",
+    "source": "identity-linking.md#L358-L359 (2026-04-08); common/identity-linking/index.md#L748-L749 (2026-08-25); absent at 2026-01-11 and 2026-01-23 (162 line file, no Per-Scope Policy section; IDL-039 is not in the agent denominator at those versions)",
+    "review_by": "2027-01-28",
     "spec_pin": {
       "2026-01-11": "806a5b74",
       "2026-01-23": "dcf7eac7",

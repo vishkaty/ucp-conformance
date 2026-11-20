@@ -36,12 +36,12 @@
         "reference-impl": 0
       },
       "2026-04-08": {
-        "check": 278,
+        "check": 279,
         "live-wire": 68,
         "discovery-live": 0,
         "fixture-schema": 68,
         "fixture-crypto": 4,
-        "self-referenced": 138,
+        "self-referenced": 139,
         "register-selfcheck": 0,
         "reference-impl": 0
       },
@@ -66,7 +66,7 @@
       "class": "REG",
       "evidence": "verdict_gate.py (no-false-green) + kill-rate harness; independent targets = conformance/ci/differential_targets.json (the flower-shop golden at the `reference_sample_server` pin in conformance/SOURCES.lock.json, plus the node reference). CORRECTED 2026-10-16: this cited a bare SHA 5237750 that is not an object in this repository and was superseded by later re-pins, so naming the lock entry rather than a frozen prefix keeps it true across re-pins. + the official ucp-schema oracle; the published per-check split lives in $.evidence and is drift-gated by validate_evidence_class.py (run_suite gate evidence-class)",
       "added": "2026-08-11",
-      "review_by": "2026-11-11"
+      "review_by": "2026-12-19"
     },
     {
       "id": "CLAIM-004",
@@ -75,7 +75,7 @@
       "class": "REG",
       "evidence": "'Surviving mutants' hero stat -- the kill-rate result: every injected defect is caught, so no check survives its targeted mutant (mutation_proxy_demo.py; validate_merchant_checks.py; run_agent.py reference gate). Relabelled 2026-10-08 from 'False greens': that phrase also names a distinct property measured by a separate gate, a check that clean-passes a server implementing nothing, so an absolute 0 under that label claimed more than the kill-rate evidence supports. The six TLS checks carry no proxy mutants by construction and are kill-proven by selfcheck/validate_tls_check.py instead.",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-006",
@@ -84,7 +84,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/verify_register_completeness.py (denominator complete) + conformance/coverage/coverage_gate.py; every public/coverage.json row carries status check/exempt/gap; bumped three->four 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS (spec_pins now carries 4 entries, all backing real accounted MUSTs); 'four' should render from coverage.json:$.spec_pins key count",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-008",
@@ -93,7 +93,7 @@
       "class": "REG",
       "evidence": "conformance/coverage/coverage_gate.py freshness comparison + conformance/coverage/ratchet.json accounted-coverage floors",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-009",
@@ -102,7 +102,7 @@
       "class": "REG",
       "evidence": "WORKSTREAMS.md (link target exists \u2014 the public wave-by-wave plan that superseded docs/ROADMAP.md, archived under docs/archive/ on 2026-09-11 by D5-14; verified 2026-09-11)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-010",
@@ -111,7 +111,7 @@
       "class": "REG",
       "evidence": "https://ucp.dev \u2014 About-block attribution; the only context where 'Google's UCP team' is allowed by the voice rules (mark block data-attribution)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-011",
@@ -120,7 +120,7 @@
       "class": "REG",
       "evidence": "https://github.com/Universal-Commerce-Protocol/conformance, the official conformance suite, pinned as reference `official_conformance_suite` in conformance/SOURCES.lock.json. The targeted version is read from DEFAULT_UCP_VERSION in integration_test_utils.py at the pinned commit. CORRECTED 2026-10-16: this sentence said v2026-01-23 and had been false since upstream commit 1d7f7105 on 2026-07-13 moved the suite to 2026-04-08, so it was wrong on the landing page for about three months while our own KI-007 row cited the new value from the same file and line, meaning the site contradicted itself. The row already said to re-verify this at each review because it is an external fact that can drift, and four re-pins passed without anyone doing so, which is why the clock is no longer the control: site_gates freshness now reads the vendored suite at the pinned commit and reds when any page disagrees with it, and reds too when no page states it at all, so the pattern cannot quietly stop matching. Kill tested three ways on 2026-10-16: the old version planted back on the page reds, a different DEFAULT_UCP_VERSION planted in the vendored file reds against the corrected page, and deleting the sentence reds on silence. The second of those is the one that proves the gate reads the real pinned source rather than a copy of the value. Also corrected here: the evidence formerly linked the ucp spec repository rather than the conformance repository that holds the suite.",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2026-12-18"
     },
     {
       "id": "CLAIM-017",
@@ -129,7 +129,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/mutation_proxy_demo.py (incl. the deliberate noop-check canary proving the harness works)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-018",
@@ -138,7 +138,7 @@
       "class": "REG",
       "evidence": "conformance/ci/run_suite.py (proxy-demo/merchant/agent-demo gates) + .github/workflows self-testing CI",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-27"
     },
     {
       "id": "CLAIM-026",
@@ -147,7 +147,7 @@
       "class": "REG",
       "evidence": "Instant web check scope is discovery + profile + read-only catalog (functions/ + check.html copy); write paths run only in the CLI suite \u2014 this honesty line anchors the /check depth ladder",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-28"
     },
     {
       "id": "CLAIM-030",
@@ -156,7 +156,7 @@
       "class": "REG",
       "evidence": "'You can watch live' stat \u2014 public/agent-demo.json:$.cases length = 6 (verified 2026-07-09); run_suite agent-demo gate keeps each case's catching check killing its defect; recommend data-live bind to agent-demo.json cases length",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-031",
@@ -165,7 +165,7 @@
       "class": "REG",
       "evidence": "'Proven to catch the bug' stat \u2014 conformance/agent/run_agent.py reference gate passes only when every agent check clean-passes AND kills its targeted defect (live-run 2026-07-09: PASS); conformance/agent/agent_coverage_lock.json",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-032",
@@ -174,7 +174,7 @@
       "class": "REG",
       "evidence": "conformance/agent/run_agent.py reference gate (clean-pass + kill per check, defect isolation)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-033",
@@ -183,16 +183,16 @@
       "class": "REG",
       "evidence": "public/agent-demo.json has exactly 6 cases (verified 2026-07-09); must stay in sync with the demo data",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-035",
       "text": "every check passes a correct agent and catches its bug",
       "page": "agent.html",
       "class": "REG",
-      "evidence": "Verbatim shape of the run_agent.py PASS line (live-verified 2026-07-09: 'PASS \u2014 every agent check clean-passes the reference agent and kills its targeted defect')",
+      "evidence": "Verbatim shape of the run_agent.py PASS line (live-verified 2026-07-09: 'PASS \u2014 every agent check clean-passes the reference agent and kills its targeted defect') RE-READ 2026-11-17: run_agent.py ran today, 12 ops, 44 agent checks, and the verbatim line now begins 'agent lane: PASS - every agent check clean-passes the reference agent and kills its targeted defect.', so the quoted text gains the 'agent lane:' prefix added upstream of this evidence.",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-036",
@@ -201,7 +201,7 @@
       "class": "REG",
       "evidence": "conformance/agent/build_demo_data.py generates public/agent-demo.json from real harness runs (its _about says so)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-037",
@@ -210,7 +210,7 @@
       "class": "REG",
       "evidence": "build_demo_data.py + run_suite agent-demo gate: every demo case's catching check must still kill its defect on each CI run",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-038",
@@ -219,7 +219,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/verify_register_completeness.py + conformance/coverage/coverage_gate.py; public/coverage.json _about states the same contract and every row carries check/exempt/gap status",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-039",
@@ -228,7 +228,7 @@
       "class": "REG",
       "evidence": "clean-pass + 100% kill on a known-good reference: conformance/selfcheck/validate_merchant_checks.py + conformance/ci/differential.py (independent official Flower Shop sample) + conformance/SOURCES.lock.json pins",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-040",
@@ -237,7 +237,7 @@
       "class": "REG",
       "evidence": "conformance/coverage/exemptions.json + validate_exemptions() in coverage_gate.py (machine-checked against double-booking)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-CHK-001",
@@ -246,7 +246,7 @@
       "class": "REG",
       "evidence": "functions/api/conformance.js \u2014 instant-check scope is discovery + profile-structure checks + read-only catalog probes (catalogChecks() runs only search/lookup, 'the ONLY live checks safe to run anonymously online'); '30 seconds' is a UX estimate the claims gate excludes via its seconds allowlist",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-28"
     },
     {
       "id": "CLAIM-CHK-002",
@@ -255,7 +255,7 @@
       "class": "REG",
       "evidence": "functions/api/conformance.js \u2014 fetches /.well-known/ucp server-side, runs discovery/profile-structure checks; catalogChecks() runs read-only catalog search/lookup probes only when the profile declares dev.ucp.shopping.catalog.search",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-28"
     },
     {
       "id": "CLAIM-CHK-003",
@@ -264,7 +264,7 @@
       "class": "REG",
       "evidence": "Write-path safety instruction for the CLI depth-ladder rung: the full suite exercises checkout/cart/order write paths (conformance/checks/merchant_checks*.py; packaging/spck_conformance/), which must not be pointed at third-party stores \u2014 same honesty line as CLAIM-026",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-28"
     },
     {
       "id": "CLAIM-CHK-004",
@@ -273,7 +273,7 @@
       "class": "REG",
       "evidence": "conformance/selfcheck/mutation_proxy_demo.py + conformance/selfcheck/validate_merchant_checks.py \u2014 run_suite 'proxy-demo' and 'merchant' gates fail the build when any check survives its injected defect",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-28"
     },
     {
       "id": "CLAIM-COV-001",
@@ -282,7 +282,7 @@
       "class": "REG",
       "evidence": "conformance/agent/agent_checks.py \u2014 agent-lane RFC 9421 request-signing checks (SIG-001 et al.; parses the Signature-Input covered components, verified by live import 2026-07-09). Merchant-side RFC 9421 signature checks also live in conformance/checks/merchant_checks_04_08_oauth.py. The number 9421 is a normative RFC reference on the coverage agent-lane blurb, not a product metric.",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-DOC-001",
@@ -291,7 +291,7 @@
       "class": "REG",
       "evidence": "conformance/checks/merchant.py capability scoping + not-tested reporting (carries guide.html CLAIM-045 to docs.html)",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-DOC-002",
@@ -300,16 +300,16 @@
       "class": "REG",
       "evidence": "conformance/.vendor/ucp-schema oracle anchoring + per-check register citations (conformance/checks/merchant.py req_id->source mapping); carries guide.html CLAIM-044 to docs.html",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-DOC-003",
       "text": "Each agent check passes a correct agent and catches a broken one.",
       "page": "docs.html",
       "class": "REG",
-      "evidence": "conformance/agent/run_agent.py reference gate: every agent check clean-passes the reference agent AND kills its targeted defect (live-verified 2026-07-09); same evidence as agent.html CLAIM-032/CLAIM-035",
+      "evidence": "conformance/agent/run_agent.py reference gate: every agent check clean-passes the reference agent AND kills its targeted defect (live-verified 2026-07-09); same evidence as agent.html CLAIM-032/CLAIM-035 RE-READ 2026-11-17: the quoted PASS line now carries the 'agent lane:' prefix; live run today reports 44 agent checks over 12 reference operations.",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-20"
     },
     {
       "id": "CLAIM-DOC-004",
@@ -318,7 +318,7 @@
       "class": "REG",
       "evidence": "public/coverage.json:$.spec_pins (4 pins: 2026-01-11, 2026-01-23, 2026-04-08, 2026-08-25 \u2014 bumped 2026-08-31 when 2026-08-25 graduated REGISTER_ONLY_VERSIONS); version-date ids are excluded by the claims-gate date allowlist, listed here for freshness traceability; carries guide.html CLAIM-043",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-DOC-005",
@@ -327,7 +327,7 @@
       "class": "REG",
       "evidence": "action.yml (junit input; exit-code semantics fail the build on any MUST deviation); same evidence as index.html CLAIM-023",
       "added": "2026-07-09",
-      "review_by": "2026-11-05"
+      "review_by": "2027-01-29"
     },
     {
       "id": "CLAIM-RUB-001",
@@ -691,30 +691,30 @@
     },
     {
       "id": "CLAIM-024",
-      "text": "And a pass tells you how it was earned: every check carries a published",
+      "text": "And a pass tells you how it was earned: every check carries one of seven published",
       "page": "index.html",
       "class": "REG",
-      "evidence": "Evidence classes derived mechanically by conformance/coverage/evidence.py (never hand-labeled) from how each check runs + the recorded reach_report.json run against both independent targets; published split drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class, kill-tested with 3 planted mislabels)",
+      "evidence": "Evidence classes derived mechanically by conformance/coverage/evidence.py (never hand-labeled) from how each check runs + the recorded reach_report.json run against both independent targets; published split drift-gated by conformance/selfcheck/validate_evidence_class.py (run_suite gate evidence-class, kill-tested with 3 planted mislabels) CORRECTED 2026-11-18: the sentence said a published evidence class and named four; it now says one of seven and names the range, because the export defines seven.",
       "added": "2026-08-11",
-      "review_by": "2026-11-11"
+      "review_by": "2026-12-19"
     },
     {
       "id": "CLAIM-025",
-      "text": "live-wire (kill-tested against an independently-authored server), official ucp-schema oracle, crypto self-test, or self-referenced (only our own fixture vouches for it)",
+      "text": "live-wire (kill-tested against an independently-authored server), discovery-live, official ucp-schema oracle, crypto self-test, register-selfcheck, reference-impl, and self-referenced (only our own fixture vouches for it)",
       "page": "coverage.html",
       "class": "REG",
-      "evidence": "The four evidence classes as defined in public/coverage.json $.evidence_classes, derived by conformance/coverage/evidence.py and drift-gated by validate_evidence_class.py; independent targets registered in conformance/ci/differential_targets.json",
+      "evidence": "The seven evidence classes as defined in public/coverage.json $.evidence_classes (live-wire, discovery-live, fixture-schema, fixture-crypto, self-referenced, register-selfcheck, reference-impl), derived by conformance/coverage/evidence.py and drift-gated by validate_evidence_class.py; independent targets registered in conformance/ci/differential_targets.json. CORRECTED 2026-11-18: this note and both published sentences said FOUR classes and named a closed list of four, while the export has defined seven since D1-13 added register-selfcheck and reference-impl and D4-08 added discovery-live; at 2026-08-25 the page legend already rendered 37 of 106 checks in the two classes the sentences omitted.",
       "added": "2026-08-11",
-      "review_by": "2026-11-11"
+      "review_by": "2026-12-19"
     },
     {
       "id": "CLAIM-COV-006",
       "text": "are derived mechanically from how each check actually runs \u2014 never hand-labeled \u2014 backed by a recorded run against both independent reference targets, and the published split is drift-gated in CI; the self-referenced class is the fixture-circularity we also flag upstream (conformance#79).",
       "page": "coverage.html",
       "class": "REG",
-      "evidence": "conformance/coverage/evidence.py (transitive fetch_fn/predicate introspection) + conformance/coverage/reach_report.json (real run vs flower golden + node reference) + validate_evidence_class.py gate; upstream issue Universal-Commerce-Protocol/conformance#79 names the fixture-circularity class",
+      "evidence": "conformance/coverage/evidence.py (transitive fetch_fn/predicate introspection) + conformance/coverage/reach_report.json (real run vs flower golden + node reference) + validate_evidence_class.py gate; upstream issue Universal-Commerce-Protocol/conformance#79 names the fixture-circularity class RE-READ 2026-11-17: correction, conformance#79 is OUR PULL REQUEST (vishkaty, merged 2026-08-12) decoupling the known-customer and free-shipping tests from flower-shop sample literals, not an upstream issue. It is the upstream flag of the fixture-circularity class, which is what $.evidence_classes['self-referenced'] already says.",
       "added": "2026-08-11",
-      "review_by": "2026-11-11",
+      "review_by": "2026-12-19",
       "_renamed_from": "CLAIM-026 (duplicate id with the 2026-07-09 check.html row; re-id'd 2026-09-10 hygiene sweep \u2014 text/evidence/review_by untouched)"
     },
     {
@@ -724,7 +724,7 @@
       "text": "A live tracker, refreshed every couple of months, with the history charted below.",
       "evidence": "Edition history: 2026-07-17 (git 5921b01), 2026-08-01 (git d1febdd), 2026-08-13 \u2014 15- and 12-day intervals; history/ snapshots + trends.json chart them. Cadence wording reviewed each edition. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner. DECISION 2026-10-11 (owner): the tracker cadence is every couple of months, not every week or two. The wording is changed to match rather than the cadence, because the record does not support the old promise: editions 2026-07-17, 08-01, 08-13, 09-01 and 10-11 give gaps of 15, 12, 19 and 40 days, so the new wording is true of every edition so far with headroom the old one never had. ops/tools/state_of_ucp_refresh.py is updated to match.",
       "added": "2026-08-13",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-15"
     },
     {
       "id": "SOU-020",
@@ -733,7 +733,7 @@
       "text": "We were curious how much of UCP is genuinely deployed versus endorsed, so we set out to measure it layer by layer \u2014 and we keep measuring, every couple of months, in the open.",
       "evidence": "Same edition-history evidence as SOU-019; method published (scan-summary.json, adoption-facts.json, the probe policy at conformance/ci/probe_policy.json, and every edition snapshot under /state-of-ucp/history/). CORRECTED 2026-10-16: this formerly said the ops tools are in the repo. They are not: ops/ is a separate private repository, gitignored here, so a reader cannot open them. The sources are public and the editions reproducible from them, which is what this row supports; the scripts are not published. Same correction SOU-026 already carries. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner. DECISION 2026-10-11 (owner): the tracker cadence is every couple of months, not every week or two. The wording is changed to match rather than the cadence, because the record does not support the old promise: editions 2026-07-17, 08-01, 08-13, 09-01 and 10-11 give gaps of 15, 12, 19 and 40 days, so the new wording is true of every edition so far with headroom the old one never had. ops/tools/state_of_ucp_refresh.py is updated to match.",
       "added": "2026-08-13",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-15"
     },
     {
       "id": "SOU-021",
@@ -742,7 +742,7 @@
       "text": "This is the fifth edition \u2014 the first ran 2026-07-17",
       "evidence": "git: 5921b01 published the opening edition with captured=2026-07-17 (history/2026-07-17.json); d1febdd the second (2026-08-01); this commit the third. CORRECTED 2026-10-11: the page said third edition while five exist under public/state-of-ucp/history/ (2026-07-17, 08-01, 08-13, 09-01, 10-11). The count was left behind when the 10-11 edition was published, which is the same miss that left the data-as-of line on the page reading 2026-08-13.",
       "added": "2026-08-13",
-      "review_by": "2026-11-13"
+      "review_by": "2026-12-15"
     },
     {
       "id": "SOU-022",
@@ -751,7 +751,7 @@
       "text": "Weekly series are rebuilt every edition from each registry's own daily-download history API (npm, PyPI, crates.io), so every point is a primary-source measurement \u2014 never interpolated from our snapshots.",
       "evidence": "Each series in public/state-of-ucp/history/weekly-series.json carries its own `source` field naming the registry history API it was built from (api.npmjs.org daily range; pypistats.org daily overall, no mirrors, about a 180 day window; crates.io daily version downloads, about a 90 day window), and the file `_about` states the same rule. Each series begins at its API retention limit rather than earlier, which is what rebuilding from the API looks like: npm reaches back to 2026-01-04 while PyPI starts 2026-04-12 and crates 2026-07-19. Weeks are ISO Monday to Sunday labelled by the Sunday and the current partial week of a rate series is omitted. CORRECTED 2026-10-16: the proof formerly cited ops/tools/state_of_ucp_series.py, which is in a separate private repository that a reader cannot open, the same defect SOU-026 corrected; the public artifacts above are the evidence. AND THE CLAIM HAD A COUNTEREXAMPLE, now fixed and guarded. weekly-series.json has only two commits in its history, 2026-08-13 and 2026-10-11. The commit that published the 2026-09-01 edition (adba9f4) touched adoption-facts.json, the 2026-09-01 edition file and trends.json but NOT the series, which still read generated 2026-08-13. So for the forty days to 2026-10-11 this sentence asserted a per-edition rebuild while the published series was one edition stale. The sentence is true of the current file and of every series in it, and it is no longer only an intention: site_gates freshness now requires weekly-series.json $.generated to equal the newest published history/YYYY-MM-DD.json, so publishing an edition without rebuilding the series reds the gate. Five selftest cases cover it, the first of which is the reconstructed 2026-09-01 state and reds on it. Still outstanding and tracked separately: no step in the refresh pipeline calls the series builder, so the rebuild remains a manual step that this gate catches rather than prevents.",
       "added": "2026-08-13",
-      "review_by": "2026-11-13"
+      "review_by": "2026-12-16"
     },
     {
       "id": "SOU-023",
@@ -760,7 +760,7 @@
       "text": "Per-edition series are the things only we measure (our full endpoint probes, and counts we verify by hand each edition); each point is one real measurement on the date shown. Where a past edition kept a stale value after a failed fetch, that point is excluded rather than plotted",
       "evidence": "the published trends.json excludes kept_stale-annotated fields, and history/2026-08-01.json carries the annotation + derivation note for stars/pypi.",
       "added": "2026-08-13",
-      "review_by": "2026-11-13"
+      "review_by": "2026-12-16"
     },
     {
       "id": "SOU-024",
@@ -769,16 +769,16 @@
       "text": "GitHub star history is per-edition only: the stargazer-timestamp API is not accessible for this org, so we chart only the counts we verified ourselves.",
       "evidence": "Verified 2026-08-13: repos/Universal-Commerce-Protocol/ucp/stargazers answers 404 authenticated and 401 anonymous (Accept: application/vnd.github.star+json). CORRECTED 2026-10-16: the proof formerly pointed at a script in the private ops repository; the check above is reproducible by anyone against the GitHub API.",
       "added": "2026-08-13",
-      "review_by": "2026-11-13"
+      "review_by": "2026-12-16"
     },
     {
       "id": "SOU-025",
       "page": "state-of-ucp.html",
       "class": "REG",
       "text": "The npm SDK has grown sharply since mid-July; the Python SDK rose through August and has since flattened, and the Rust schema crate keeps climbing steadily. The weekly series in the trend charts above show each curve from the history API of its registry.",
-      "evidence": "CORRECTED 2026-10-11. The previous wording claimed all three rates had accelerated sharply; re-measured against each registry API that is false for two of the three. npm 9,239/mo (07-17) -> 16,750 -> 24,780 -> 52,953 now: grown sharply. PyPI 2,916 -> 7,121 -> 8,839 -> 8,621 now: rose through August then flattened and is slightly down over the last month, and the weekly series reads 1651/2722/1827/1817/1923/1577. crates 1,979 -> 2,909 -> 3,975 -> 4,963 lifetime: steady, about a thousand a month, and a lifetime total cannot fall so it is weak evidence of a rate either way. The page sentence and the three data-live fallbacks were updated in the same change.",
+      "evidence": "CORRECTED 2026-10-11. The previous wording claimed all three rates had accelerated sharply; re-measured against each registry API that is false for two of the three. npm 9,239/mo (07-17) -> 16,750 -> 24,780 -> 52,953 now: grown sharply. PyPI 2,916 -> 7,121 -> 8,839 -> 8,621 now: rose through August then flattened and is slightly down over the last month, and the weekly series reads 1651/2722/1827/1817/1923/1577. crates 1,979 -> 2,909 -> 3,975 -> 4,963 lifetime: steady, about a thousand a month, and a lifetime total cannot fall so it is weak evidence of a rate either way. The page sentence and the three data-live fallbacks were updated in the same change. RE-READ 2026-11-17: the sentence is dated to the 2026-10-11 edition on the page and remains true as published, but the live registry data has since moved against it. Measured today: PyPI weekly 4177, 2740, 3692, 2484 and 4190 from 2026-10-18 to 11-15, which is 14656 over the 30 days to 11-16 against 8621 at the edition, so the Python flattening has reversed; npm 69952 over 30 days against 52953; crates lifetime 6144 against 4963. The sentence needs rewriting together with rebuilt charts at edition 6, not before.",
       "added": "2026-08-13",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-16"
     },
     {
       "id": "SOU-026",
@@ -787,7 +787,7 @@
       "text": "Each edition is point-in-time and reproducible against the same public sources; we refresh it every couple of months, chart the history above, and note what changed.",
       "evidence": "Snapshots + trends published under /state-of-ucp/history/; CORRECTED 2026-10-16: an earlier version of this sentence said the tools in ops/tools (refresh, scan, trends, series) are in the public repo. They are not. ops/ is a separate private repository, gitignored here, and the public tree carries no state_of_ucp tooling, so a reader cannot open them. What IS public and reproducible: the population frame (the CC-BY-4.0 UCPChecker/ucp-merchants dataset at a pinned revision), the probe policy at conformance/ci/probe_policy.json, every edition snapshot and the trend series under /state-of-ucp/history/, and the aggregates at /state-of-ucp/scan-summary.json. The claim this row supports is that the SOURCES are public and the editions are reproducible from them, not that our scripts are published; cadence per SOU-019. Re-verified 2026-09-10: editions 2026-07-17, 08-01, 08-13, 09-01 (public/state-of-ucp/history/; intervals 15/12/19 days); next edition due by 2026-09-15 to keep 'every week or two' honest \u2014 reset review_by 30 d. RE-READ 2026-10-11: the tracker had NOT been refreshed since the 2026-09-01 edition, a 40-day gap against prior intervals of 15/12/19 days, so this wording was false for roughly three weeks; the 'next edition due by 2026-09-15' note in the previous re-read was missed. A new edition (history/2026-10-11.json) and a rebuilt weekly-series were published today, which makes the statement true again as of this date. NOTE FOR THE NEXT REVIEWER: ops/tools/state_of_ucp_refresh.py describes the tracker as MONTHLY in its own docstring, so 'every week or two' is a promise the record does not support; the wording-versus-cadence decision is open and belongs to the owner. DECISION 2026-10-11 (owner): the tracker cadence is every couple of months, not every week or two. The wording is changed to match rather than the cadence, because the record does not support the old promise: editions 2026-07-17, 08-01, 08-13, 09-01 and 10-11 give gaps of 15, 12, 19 and 40 days, so the new wording is true of every edition so far with headroom the old one never had. ops/tools/state_of_ucp_refresh.py is updated to match.",
       "added": "2026-08-13",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-15"
     },
     {
       "id": "CLAIM-COV-002",
@@ -850,7 +850,7 @@
       "class": "REG",
       "evidence": "Point-in-time statement dated on the page (published 2026-08-27): samples#196 merged (python validation-error envelope, our PR); samples#192 (node twin) was open in review at publish \u2014 the page is a dated edition, statuses are as of that date. Re-verify #192's state at review_by and add a dated note if merged. RE-READ 2026-10-11: samples#192 (the node twin) MERGED 2026-10-01T14:54:12Z. The page is a dated edition published 2026-08-27 and its statement was true then, so the sentence stands as published; this note records the later state, per the instruction in the previous evidence.",
       "added": "2026-09-10",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-18"
     },
     {
       "id": "LAU-006",
@@ -886,7 +886,7 @@
       "class": "REG",
       "evidence": "Rendered by coverage.html renderSummary() for 2026-08-25 ONLY when $.versions['2026-08-25'].discovery_live.stores > 0 (D4-08's sampler writes {stores, as_of} from discovery-capture/1 files within a 30-day window, >= 3 distinct domains for the discovery-live class \u2014 conformance/ci/discovery_shapes.py discovery_reach); the count and date render from the export, never typed; with stores 0/null the W0 ceiling sentence CLAIM-COV-002 renders instead. Pinned by tests/web/unit/coverage_page.test.mjs (SITE-R-035). Decision 4: discovery-only, read-only, owner's machine. RE-READ 2026-10-11: the export carries discovery_live {stores 4, as_of 2026-09-11}, which is exactly 30 days old today, so the row still renders. discovery_shapes.py excludes a capture older than 30 days, so from 2026-10-12 the count falls to zero and coverage.html renders CLAIM-COV-002 instead, which is the designed fallback rather than a false claim. Keeping this row live past that date needs a fresh discovery sample, and re-running that sampler probes independent third-party stores, so it is an owner decision and is not taken here. CORRECTED 2026-10-16: this sentence was FALSE on the live page. The export carried discovery_live {stores: 4, as_of: 2026-09-11}, 35 days old, so the COV-007 form rendered while evidence_breakdown[\"discovery-live\"] was already 0, because evidence.py applies the 30-day window and matrix.py _discovery_live_slot did not. Two code paths, one published rule, one of them enforcing it. The note that the page falls back to CLAIM-COV-002 when the sample goes stale was wrong: that fallback is keyed on stores being 0 or null, so staleness alone never reached it. Fixed by naming the rule once (evidence.DISCOVERY_LIVE_MAX_AGE_DAYS) and applying it in the slot, so a stale sample yields null and the ceiling sentence returns. Held by five cases in the wired matrix.py --selftest (0, 29 and 30 days render; 31 and 35 do not), kill-tested against dropping the ceiling and against widening the window to 40 days.",
       "added": "2026-09-11",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-18"
     },
     {
       "id": "CLAIM-RUB-016",
@@ -895,7 +895,7 @@
       "class": "REG",
       "evidence": "Decision 8 (PLAN-v3 \u00a74, CLOSED 2026-09-10): publish the MUST-only sentence; the SHOULD census is report-only (D2-10 verify_should_census.py: 274 SHOULD/SHOULD NOT/RECOMMENDED hits at 2026-08-25 in the deep-analysis census of 2026-09-09; the number is deliberately NOT on the page until the export carries surface.should, then it binds data-live). Pin cd78fb38 = SOURCES.lock.json ucp 2026-08-25. Pinned by tests/web/unit/rubric_page.test.mjs (SITE-R-035). RE-READ 2026-10-11: the pin is still cd78fb38 in SOURCES.lock.json and sources_age --check reports all four tag identities intact, so the MUST-only sentence still describes the pinned text; the SHOULD census remains report-only per Decision 8 and no number is on the page. RE-READ 2026-10-26: the lock still pins cd78fb38 and the sentence names that pin, so it stands. But the statement above that all four tag identities were intact described 2026-10-11 only: sources_age --check now reports TAG MOVED v2026-08-25 cd78fb38 -> 87dd4b1f (release/2026-08-25 head, five backports ending ucp#941 media variants merged 2026-10-22, including ucp#871 which changes a cart_id request annotation) and v2026-04-08 a25a4a24 -> 9c9d6fce, both acknowledged in conformance/ci/known_tag_moves.json on 2026-10-26 (review_by 2026-11-21 and 2026-11-19). A spec re-pin is an owner decision; until it happens the airtight claim is about cd78fb38, which is the pin the sentence names.",
       "added": "2026-09-11",
-      "review_by": "2026-11-10"
+      "review_by": "2026-12-18"
     },
     {
       "id": "CLAIM-046",
@@ -904,24 +904,24 @@
       "class": "REG",
       "evidence": "Replaces CLAIM-007, which said 250 checks from the browser or your CI and so overstated the browser surface by about eighty times. The count is no longer typed: it is bound with data-live to site_claims.json $.manifest.merchant_checks, which sync_site_claims.py derives from merchant_checks.all_checks() via conformance/ci/checkset_count.py, and the claims gate reds when the rendered fallback disagrees with the live value (kill tested 2026-10-16 by planting 251). The two surfaces are now named for what each does. CLI and CI run the full registered check set. The browser runs a read-only preview: measured 2026-10-16 by executing functions/api/conformance.js, runPreviewChecks emits 4 rows of which 3 count, and catalogChecks adds at most 3 counted rows, so at most 7 rendered and 6 counted, typically 3. The word preview rather than a second number is deliberate: the 30 second figure considered for this sentence is a UX estimate (see CLAIM-CHK-001) and the backend has four sequential 10 second timeouts, so a worst case nearer 40 seconds would have put a fresh unmeasured number on the landing page to fix an overstatement. check.html CLAIM-CHK-001 and CLAIM-CHK-002 carry the preview wording for that page. The count also remains pinned independently on this page by coverage_gate claim_res against the 250 kill-rate-validated checks sentence in the hero, so retiring the from-the-browser regex leaves no gap.",
       "added": "2026-10-16",
-      "review_by": "2026-11-15"
+      "review_by": "2027-01-28"
     },
     {
       "id": "KI-001",
       "text": "ucp-sdk 0.5.0 drops four constraint families the pinned 08-25 schemas carry: JWK conditional rules (5), C62 scale, the maxProperties family, discriminator array-retyping. Every published cut predates the fixes.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: conformance/.sdk-venvs/ucp-sdk-tag/bin/python conformance/selfcheck/validate_dual_oracle.py --version 2026-08-25 --pydantic -> expected: each pinned constraint rejects its negative payload; observed: the older named probe, conformance/selfcheck/sdk_constraints_probe.py, does NOT run against 0.5.0: it imports ucp_sdk.models.schemas.shopping.types.context, which moved to common.types.context when ucp#741 moved the shared types out of shopping. The gate above is what measures this every run; the 2026-10-09 nightly read pydantic-tag 0.5.0 agree 13, acknowledged drops 7, NEW 0, stale 0, expired 0. All four upstream fixes merged 2026-09-01 and 09-04 but the 0.5.0 tag was cut 2026-08-27, before them, so the tag still drops. See known_sdk_drops.json. status: PyPI ucp-sdk 0.5.0 (tag v2026-08-25, b6f9b91c): open; main 836b0228: fixed (python-sdk#89 #91 #93 merged (836b0228); ledger G1). filed: https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89, https://github.com/Universal-Commerce-Protocol/python-sdk/pull/91, https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93. ledger row G1 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-11; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: python3 conformance/selfcheck/validate_dual_oracle.py --version 2026-08-25 --pydantic -> expected: each pinned constraint rejects its negative payload; observed: Re-run 2026-11-17: 'pydantic-tag 0.5.0: agree 13, acknowledged drops 7, NEW 0, stale 0, expired 0', PASS; python-sdk main shows one report-only divergence. PyPI latest is still ucp-sdk 0.5.0. The command published here previously invoked conformance/.sdk-venvs/ucp-sdk-tag/bin/python, which exits 2 with 'referee unavailable' because that venv has no jsonschema; the script resolves the tag venv itself, so plain python3 is the working form.. status: PyPI ucp-sdk 0.5.0 (tag v2026-08-25, b6f9b91c): open; main 836b0228: fixed (python-sdk#89 #91 #93 merged (836b0228); ledger G1). filed: https://github.com/Universal-Commerce-Protocol/python-sdk/pull/89, https://github.com/Universal-Commerce-Protocol/python-sdk/pull/91, https://github.com/Universal-Commerce-Protocol/python-sdk/pull/93. ledger row G1 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
       "id": "KI-002",
-      "text": "npm @ucp-js/sdk 0.5.1 ships the extends-stub twin of the merged #55 fix (maxProperties / extends / declarations): generated compatibility discovery schemas are incomplete at the published cut.",
+      "text": "npm @ucp-js/sdk 0.5.1 ships the discovery projection with the extends stub that #55 replaced on the response schema: CapabilityDiscoverySchema.extends is an unconstrained optional string, so a conformant array is rejected and any string accepted. CapabilityResponseSchema rejects it.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: npm view @ucp-js/sdk version && grep -n extends node_modules/@ucp-js/sdk/dist/schemas/*.d.ts -> expected: generated declarations carry the extends/maxProperties members; observed: 0.5.1 lacks them; main has them. status: npm 0.5.1: open; main 99572ca8: fixed (js-sdk#63 merged 2026-09-07 (99572ca8); ledger G3). filed: https://github.com/Universal-Commerce-Protocol/js-sdk/pull/55, https://github.com/Universal-Commerce-Protocol/js-sdk/pull/63. ledger row G3 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-11; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: npm install @ucp-js/sdk@0.5.1 && npm view @ucp-js/sdk version && node -e 'const s=require(\"@ucp-js/sdk\");const b={name:\"dev.ucp.shopping.checkout\",version:\"2026-08-25\",spec:\"https://ucp.dev/specification/checkout\",schema:\"https://ucp.dev/schemas/shopping/checkout.json\"};console.log(s.CapabilityDiscoverySchema.safeParse({...b,extends:[\"dev.ucp.shopping.checkout\"]}).success,s.CapabilityDiscoverySchema.safeParse({...b,extends:\"NOT A REVERSE DOMAIN\"}).success)' -> expected: true false; observed: false true at npm 0.5.1, re-run 2026-11-17; CapabilityResponseSchema rejects the same bogus string, so only the discovery leg is unfixed. The command published here previously grepped dist/schemas/*.d.ts, a path the package does not contain (dist holds cjs, esm, index.d.ts and src).. status: npm 0.5.1: open; main 99572ca8: fixed (js-sdk#63 merged 2026-09-07 (99572ca8); ledger G3); tag v0.5.2 (6f7a6da7, 2026-10-05, not on npm): fixed (npm view @ucp-js/sdk@0.5.2 returns E404, so the fix is unreleased.); main 3a86b3a7 (package.json 0.6.0, unpublished): fixed (Fix present on main; no npm cut carries it.). filed: https://github.com/Universal-Commerce-Protocol/js-sdk/pull/55, https://github.com/Universal-Commerce-Protocol/js-sdk/pull/63. ledger row G3 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
@@ -929,17 +929,17 @@
       "text": "UcpDiscoveryProfileSchema models `capabilities` as an ARRAY; the spec (2026-04-08 and 2026-08-25) defines a record keyed by reverse-domain capability name whose values are arrays.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: node -e \"const s=require('@ucp-js/sdk');console.log(JSON.stringify(s.UcpDiscoveryProfileSchema.shape.ucp.shape.capabilities._def.typeName))\" -> expected: ZodRecord (object keyed by capability name); observed: ZodArray at 0.5.1 (re-run 2026-10-11 against the published package: capabilities typeName ZodArray; spec_generated.js:1560 reads `capabilities: z.array(CapabilityDiscoverySchema)`). status: npm 0.5.1: open (The npm dist-tag latest is still 0.5.1, published 2026-09-02, which predates the 2026-09-23 fix, so the published package cannot carry it. Checked against the registry on 2026-10-16: the version list ends 0.5.0, 0.5.1 with no release since. The ZodArray observation in the repro was last executed 2026-10-11 against that same published version.); main 6f7a6da7: fixed (js-sdk#73 (ours) merged 2026-09-23T15:09:13Z and closed js-sdk#72 (ours) one second later. Verified at main 6f7a6da7 on 2026-10-16: UcpDiscoveryProfileSchema.ucp is UcpSchema (spec_generated.ts:3606) and UcpSchema.capabilities is z.record(z.string(), z.array(CapabilityResponseSchema)) with a reverse-domain key refinement (:2738), so the exact path the repro walks now resolves to a record rather than an array.). filed: https://github.com/Universal-Commerce-Protocol/js-sdk/issues/72, https://github.com/Universal-Commerce-Protocol/js-sdk/pull/73. ledger row G5 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-16; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: npm install @ucp-js/sdk@0.5.1 && node -e \"const s=require('@ucp-js/sdk');console.log(JSON.stringify(s.UcpDiscoveryProfileSchema.shape.ucp.shape.capabilities._def.typeName))\" -> expected: ZodRecord (object keyed by capability name); observed: Re-run 2026-11-17 at npm 0.5.1: typeName is ZodArray, so the defect reproduces on the published cut; this supersedes the 2026-10-11 execution noted in the open cut.. status: npm 0.5.1: open (The npm dist-tag latest is still 0.5.1, published 2026-09-02, which predates the 2026-09-23 fix, so the published package cannot carry it. Checked against the registry on 2026-10-16: the version list ends 0.5.0, 0.5.1 with no release since. The ZodArray observation in the repro was last executed 2026-10-11 against that same published version.); main 6f7a6da7: fixed (js-sdk#73 (ours) merged 2026-09-23T15:09:13Z and closed js-sdk#72 (ours) one second later. Verified at main 6f7a6da7 on 2026-10-16: UcpDiscoveryProfileSchema.ucp is UcpSchema (spec_generated.ts:3606) and UcpSchema.capabilities is z.record(z.string(), z.array(CapabilityResponseSchema)) with a reverse-domain key refinement (:2738), so the exact path the repro walks now resolves to a record rather than an array.); tag v0.5.2 (6f7a6da7, 2026-10-05): fixed (Same commit as the verified main cut; npm view @ucp-js/sdk@0.5.2 returns E404, so it is not published.). filed: https://github.com/Universal-Commerce-Protocol/js-sdk/issues/72, https://github.com/Universal-Commerce-Protocol/js-sdk/pull/73. ledger row G5 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
       "id": "KI-004",
-      "text": "Crate 1.4.1 and the pinned 9b5c3206 crash (exit 134) on 08-25 def-selection patterns (#45/#46 class); the post-#66 head b52518f5 fixes the crash but regresses --schema-local-base (base segment doubled; A/B proven, old Valid / head rc 2).",
+      "text": "Crate 1.4.1 and the pinned build crash (exit 134) on 2026-08-25 def-selection patterns (#45 and #46 class). The post-#66 head b52518f5 fixes the crash but regresses --schema-local-base, doubling a path segment. Crate 2.0.0, published 2026-11-17, clears both; our pin has not moved.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: echo '{\"handler_id\":\"h\",\"type\":\"card\"}' > inst.json && conformance/.vendor/ucp-schema/target/release/ucp-schema validate inst.json --op create --schema conformance/.vendor/ucp-2026-08-25/source/schemas/common/types/payment_instrument.json --def selected_payment_instrument -> expected: a validation verdict; observed: exit 134 with a stack overflow abort in the main thread, on both the installed 1.4.1 and the vendored pinned build, re-run 2026-10-11 with the recipe recorded in ucp-schema#45. An earlier re-read of this row probed payment_split_payments.json --def dev.ucp.shopping.checkout, which is not the crash pattern and exits 1 with a clean validation error, and wrongly recorded the row as not reproducing. status: crate 1.4.1: open; 9b5c3206 (pinned): open; main b52518f5: fixed (ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there was open at that head (ledger G6). CORRECTED 2026-10-16: this row said '#72 pending', but ucp-schema#72 MERGED 2026-10-07T11:35:32Z, four days before the 2026-10-11 re-verification that did not catch it. Whether that merge clears the --schema-local-base regression at current main is NOT re-verified here; it needs the A/B recipe re-run against a fresh build, and no claim either way is published until it is.). filed: https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/70. ledger row G6 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-16; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: echo '{\"handler_id\":\"h\",\"type\":\"card\"}' > inst.json && conformance/.vendor/ucp-schema/target/release/ucp-schema validate inst.json --op create --schema conformance/.vendor/ucp-2026-08-25/source/schemas/common/types/payment_instrument.json --def selected_payment_instrument -> expected: a validation verdict; observed: A/B measured 2026-11-17 across four builds. Def-selection recipe: pinned vendored build exit 134 stack overflow, crate 1.4.1 exit 134, crate 2.0.0 exit 1 with a real verdict naming id as a required property. Local-base recipe, validating a signing key against source/discovery/profile_schema.json, which exists at the 2026-04-08 pin only with --def signing_key --op read: pinned build exit 0 Valid, the b52518f5 build exit 2 'bundling refs' on a doubled schemas segment, crate 1.4.1 exit 0 Valid, crate 2.0.0 exit 0 Valid.. status: crate 1.4.1: open; 9b5c3206 (pinned): open; main b52518f5: fixed (ucp-schema#66 merged (b52518f5) fixes the crash; the --schema-local-base regression there was open at that head (ledger G6). CORRECTED 2026-10-16: this row said '#72 pending', but ucp-schema#72 MERGED 2026-10-07T11:35:32Z, four days before the 2026-10-11 re-verification that did not catch it. Whether that merge clears the --schema-local-base regression at current main is NOT re-verified here; it needs the A/B recipe re-run against a fresh build, and no claim either way is published until it is.); crate 2.0.0 (crates.io 2026-11-17, release v2.0.0 at 66d78e24): fixed (Clears both recipes, A/B measured 2026-11-17.). filed: https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/70, https://github.com/Universal-Commerce-Protocol/ucp-schema/issues/71, https://github.com/Universal-Commerce-Protocol/ucp-schema/pull/72. ledger row G6 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
@@ -947,26 +947,26 @@
       "text": "Fresh-run CI breaks (117/257 at the former pin 00333a80; 2 OrderTest 500s at 01755bcc): a helper builds a bare ShippingDestination and checkout_service.py:532 raises. Fixed upstream by samples#220, merged 2026-10-01 as 667e7212.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: cd conformance/.vendor/samples/rest/python/server && uv run pytest -q -> expected: all tests OK; observed: all tests OK at the current pin e7c9c124 (359 passed, 12 subtests, no 500s and no checkout_service reference; 279 passed at the previous pin cdb291c4, the difference being the tests the fourteen intervening merges added); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at every pin since. status: samples 00333a80 (pinned): open; samples 01755bcc: open; conformance#96 (helpers): fixed (conformance#96 merged (FanouZeng-TT) for the helper half; samples#220 open for the service half; ledger G10); samples cdb291c4 (pinned 2026-10-11): fixed (samples#220 merged 2026-10-01 as 667e7212; at this pin the server suite is 279 passed with no 500s and the official crosscheck reads 77 tests 77 pass 0 fail, up from 75/2); samples e7c9c124 (pinned 2026-10-26): fixed (re-run 2026-10-26 at the re-pin: the server suite is 359 passed with no 500s and the official crosscheck (suite 016ecbc2, ucp-sdk 0.4.6, golden flower-04-08) reads 77 tests 77 pass 0 fail 0 skip, allowlisted 0, expired 0). filed: https://github.com/Universal-Commerce-Protocol/samples/issues/218, https://github.com/Universal-Commerce-Protocol/samples/pull/220. ledger row G10 (private gap ledger, not published), origin shared, confidence high, re-verified 2026-10-26; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: cd conformance/.vendor/samples/rest/python/server && uv run pytest -q -> expected: all tests OK; observed: all tests OK at the current pin 52319dff (389 passed, 12 subtests, no 500s and no checkout_service reference; 359 at the previous pin e7c9c124 and 279 at cdb291c4, the differences being the tests the intervening merges added); the former path rest/python is not a uv project root and never was; only rest/python/server carries a pyproject, at every pin since. status: samples 00333a80 (pinned): open; samples 01755bcc: open; conformance#96 (helpers): fixed (conformance#96 merged (FanouZeng-TT) for the helper half; samples#220 open for the service half; ledger G10); samples cdb291c4 (pinned 2026-10-11): fixed (samples#220 merged 2026-10-01 as 667e7212; at this pin the server suite is 279 passed with no 500s and the official crosscheck reads 77 tests 77 pass 0 fail, up from 75/2); samples e7c9c124 (pinned 2026-10-26): fixed (re-run 2026-10-26 at the re-pin: the server suite is 359 passed with no 500s and the official crosscheck (suite 016ecbc2, ucp-sdk 0.4.6, golden flower-04-08) reads 77 tests 77 pass 0 fail 0 skip, allowlisted 0, expired 0); samples 52319dff (pinned 2026-11-17): fixed (uv run pytest -q in rest/python/server reads 389 passed, 12 subtests, no 500s, against 359 at e7c9c124.). filed: https://github.com/Universal-Commerce-Protocol/samples/issues/218, https://github.com/Universal-Commerce-Protocol/samples/pull/220. ledger row G10 (private gap ledger, not published), origin shared, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
       "id": "KI-006",
-      "text": "`npm start` runs dist/index.js, which tsc never emits (the entry lands at dist/src/index.js); running that directly fails ERR_MODULE_NOT_FOUND on extensionless relative imports, because package.json sets type module while tsconfig sets moduleResolution bundler. samples#58 closed 2026-04 unfixed.",
+      "text": "`npm start` runs dist/index.js, which tsc never emits (the entry lands at dist/src/index.js); running that directly fails ERR_MODULE_NOT_FOUND on extensionless relative imports, because package.json sets type module while tsconfig sets moduleResolution bundler. samples#58 closed 2026-07-22 unfixed.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: cd conformance/.vendor/samples/rest/nodejs && npm run build && npm start -> expected: server listens; observed: re-run 2026-10-26 at pin e7c9c124, same result as 2026-10-11 at cdb291c4: npm run build exits 0 and emits dist/src/index.js but no dist/index.js, so npm start fails with Cannot find module dist/index.js; node dist/src/index.js fails ERR_MODULE_NOT_FOUND on dist/src/api/checkout. 39 extensionless relative from-specifiers across 13 emitted files, counted over dist/src/**/*.js (dist/test adds 56 more across 15 files; the earlier figures used the same dist/src scope). status: samples 01755bcc: open; samples cdb291c4: open; samples e7c9c124 (pinned 2026-10-26): open. filed: https://github.com/Universal-Commerce-Protocol/samples/issues/58. ledger row R21 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-26; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: cd conformance/.vendor/samples/rest/nodejs && npm run build && npm start -> expected: server listens; observed: re-run 2026-10-26 at pin e7c9c124, same result as 2026-10-11 at cdb291c4: npm run build exits 0 and emits dist/src/index.js but no dist/index.js, so npm start fails with Cannot find module dist/index.js; node dist/src/index.js fails ERR_MODULE_NOT_FOUND on dist/src/api/checkout. 39 extensionless relative from-specifiers across 13 emitted files, counted over dist/src/**/*.js (dist/test adds 56 more across 15 files; the earlier figures used the same dist/src scope). status: samples 01755bcc: open; samples cdb291c4: open; samples e7c9c124 (pinned 2026-10-26): open; samples 52319dff (pinned 2026-11-17): open (npm ci and npm run build exit 0 emitting dist/src/index.js and no dist/index.js; npm start fails Cannot find module dist/index.js; 39 extensionless relative specifiers across 13 files, unchanged.). filed: https://github.com/Universal-Commerce-Protocol/samples/issues/58. ledger row R21 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
       "id": "KI-007",
-      "text": "The official conformance suite has zero 2026-08-25 coverage: DEFAULT_UCP_VERSION=\"2026-04-08\" (integration_test_utils.py:59), ucp-sdk==0.4.4 pin, HEAD predates the release.",
+      "text": "The official conformance suite has zero 2026-08-25 coverage: DEFAULT_UCP_VERSION is 2026-04-08 at the pinned cut (integration_test_utils.py:59) and still 2026-04-08 at main, where the constant moved to framework/constants.py:23; the pinned cut pins ucp-sdk==0.4.4 and main pins 0.4.6.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: grep -n DEFAULT_UCP_VERSION conformance/.vendor/conformance/integration_test_utils.py -> expected: a 2026-08-25 default or matrix; observed: \"2026-04-08\" only. status: conformance 016ecbc: open; conformance fdbdafd (pinned): open. filed: https://github.com/Universal-Commerce-Protocol/conformance/pull/104. ledger row S4 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-11; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: grep -n DEFAULT_UCP_VERSION conformance/.vendor/conformance/integration_test_utils.py -> expected: a 2026-08-25 default or matrix; observed: Re-read 2026-11-17. At main 0642adfb the only 2026-08-25 occurrences are framework/discovery.py and common/payments/ap2_test.py. The filed link was labelled pull/104, but 104 is an issue, and the earlier clause that the head predates the release is no longer true of main.. status: conformance 016ecbc: open; conformance fdbdafd (pinned): open; conformance main 0642adfb (2026-11-13): open (The RFC 520 restructure (#120, #121, #122) moved the constant but added no 2026-08-25 lane.). filed: https://github.com/Universal-Commerce-Protocol/conformance/issues/104. ledger row S4 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
@@ -974,8 +974,8 @@
       "text": "Release tags move after publication. v2026-04-08 was re-pointed 2026-09-09 (ucp#813, to a25a4a24) and again by 2026-10-26 (tag object 48127e78, to 9c9d6fce: four backports ending ucp#935); v2026-08-25 moved from cd78fb38 to 87dd4b1f (tag object 1c225995: five backports ending ucp#941).",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: python3 conformance/ci/sources_age.py --check -> expected: tag v2026-04-08 == the locked commit a25a4a24 and tag v2026-08-25 == the locked commit cd78fb38; observed: 2026-10-26 before acknowledgement: sources-age: FAIL \u2014 TAG MOVED v2026-04-08: locked a25a4a24 \u2192 9c9d6fce (tag object 48127e78, tagger 2026-04-13) and TAG MOVED v2026-08-25: locked cd78fb38 \u2192 87dd4b1f (tag object 1c225995, tagger 2026-08-25), rc 1. After both moves were acknowledged in conformance/ci/known_tag_moves.json the same day the check reads OK, rc 0, naming both as acknowledged. History: before the 2026-09-11 re-pin the check read TAG MOVED v2026-04-08 -> a25a4a24; from then until this week it read OK on all four tags. status: ucp tag v2026-04-08 @ a25a4a24 (2026-09-09 to 2026-10-22): open; spck SOURCES.lock 2026-04-08 @ a25a4a24 (re-pinned 2026-09-11): fixed (D2-15 (2026-09-11): SOURCES.lock.json 2026-04-08 commit a2d8bf0b -> a25a4a24, tag_move_observed -> tag_move_resolved; known_tag_moves.json entry retired; sources_age.py --check -> OK, no TAG MOVED; register 1875/1875 verified at the new pin; ledger R20); ucp tag v2026-04-08 @ 9c9d6fce (tag object 48127e78, observed 2026-10-26): open; ucp tag v2026-08-25 @ 87dd4b1f (tag object 1c225995, observed 2026-10-26): open; spck SOURCES.lock 2026-04-08 @ a25a4a24 and 2026-08-25 @ cd78fb38 (moves acknowledged 2026-10-26, not re-pinned): open. filed: https://github.com/Universal-Commerce-Protocol/ucp/pull/813, https://github.com/Universal-Commerce-Protocol/ucp/pull/935, https://github.com/Universal-Commerce-Protocol/ucp/pull/941. ledger row R20 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-10-26; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: python3 conformance/ci/sources_age.py --check -> expected: tag v2026-04-08 == the locked commit a25a4a24 and tag v2026-08-25 == the locked commit cd78fb38; observed: 2026-10-26 before acknowledgement: sources-age: FAIL \u2014 TAG MOVED v2026-04-08: locked a25a4a24 \u2192 9c9d6fce (tag object 48127e78, tagger 2026-04-13) and TAG MOVED v2026-08-25: locked cd78fb38 \u2192 87dd4b1f (tag object 1c225995, tagger 2026-08-25), rc 1. After both moves were acknowledged in conformance/ci/known_tag_moves.json the same day the check reads OK, rc 0, naming both as acknowledged. History: before the 2026-09-11 re-pin the check read TAG MOVED v2026-04-08 -> a25a4a24; from then until this week it read OK on all four tags [2026-11-19 re-verification, measured not assumed] Ran the command again today: rc 0, and it names both moves as acknowledged with review_by 2026-12-12. Both tags still point exactly where this row records: v2026-04-08 tag object 48127e78 dereferences to commit 9c9d6fce and v2026-08-25 tag object 1c225995 to 87dd4b1f, read from the upstream refs today. So no THIRD move has happened and the symptom above is still accurate. The row stays open because the tags remain off the locked commits; what makes the check read OK is the acknowledgement, not a fix upstream.. status: ucp tag v2026-04-08 @ a25a4a24 (2026-09-09 to 2026-10-22): open; spck SOURCES.lock 2026-04-08 @ a25a4a24 (re-pinned 2026-09-11): fixed (D2-15 (2026-09-11): SOURCES.lock.json 2026-04-08 commit a2d8bf0b -> a25a4a24, tag_move_observed -> tag_move_resolved; known_tag_moves.json entry retired; sources_age.py --check -> OK, no TAG MOVED; register 1875/1875 verified at the new pin; ledger R20); ucp tag v2026-04-08 @ 9c9d6fce (tag object 48127e78, observed 2026-10-26): open; ucp tag v2026-08-25 @ 87dd4b1f (tag object 1c225995, observed 2026-10-26): open; spck SOURCES.lock 2026-04-08 @ a25a4a24 and 2026-08-25 @ cd78fb38 (moves acknowledged 2026-10-26, not re-pinned): open. filed: https://github.com/Universal-Commerce-Protocol/ucp/pull/813, https://github.com/Universal-Commerce-Protocol/ucp/pull/935, https://github.com/Universal-Commerce-Protocol/ucp/pull/941. ledger row R20 (private gap ledger, not published), origin theirs, confidence high, re-verified 2026-11-19; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
@@ -983,8 +983,8 @@
       "text": "REPLAY-002 requires byte-identical replay detection but the released text leaves canonicalisation vs raw-byte comparison ambiguous; golden-0825 implements the literal reading (seq_invariants I10 enforce; report mode for user-facing runs until F3-f is answered).",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: python3 conformance/ci/seqfuzz_gate.py -> expected: one unambiguous comparison rule; observed: the former command named a --only flag that golden_check_08_25.py does not define, so it selected nothing and ran the whole module. The real implementation is conformance/ci/seq_invariants.py I10 replay_reserialized, whose mode comes from conformance/ci/replay_mode.json. Latest measurement: 2776 I10 hits over 27818 requests and 4751 sequences, counted as PENDING D3-23 because golden-0825 still hashes the parsed body (checkout_service.py _compute_hash, sort_keys) while the spec matches raw body bytes. status: ucp cd78fb38 (pinned 2026-08-25): open. filed: https://github.com/Universal-Commerce-Protocol/ucp/pull/782. ledger row G13 (private gap ledger, not published), origin shared, confidence medium, re-verified 2026-10-11; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: python3 conformance/ci/seqfuzz_gate.py -> expected: one unambiguous comparison rule; observed: Re-measured 2026-11-17 from the seqfuzz run recorded at 2026-11-18T03:46Z against golden df95a409: 2939 I10 hits over 28994 requests and 4937 sequences, 0 violations. The I10 implementation and replay_mode.json are unchanged. ucp#782 is open at head 427de8e3, mergeable blocked, newest comment 2026-11-13 carrying Mercado Pago implementation evidence with no maintainer reply.. status: ucp cd78fb38 (pinned 2026-08-25): open. filed: https://github.com/Universal-Commerce-Protocol/ucp/pull/782. ledger row G13 (private gap ledger, not published), origin shared, confidence medium, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     },
     {
@@ -992,8 +992,8 @@
       "text": "golden-0825 answers an unknown route with FastAPI's `{\"detail\":\"Not Found\"}` 404 instead of the UCP error envelope, and accepts unadvertised versions; fixed by C3 (D3-04) in Wave 0.",
       "page": "known-issues.html",
       "class": "REG",
-      "evidence": "repro: PORT=8194 DB_DIR=$(mktemp -d) conformance/testbed/golden-0825/serve_golden_0825.sh && curl -s localhost:8194/nope -> expected: UCP error envelope 404; observed: 404 with the UCP envelope as of 2026-10-11: {\"ucp\":{\"version\":\"2026-08-25\",\"status\":\"error\"},\"messages\":[{\"type\":\"error\",\"code\":\"not_found\",\"content\":\"Not Found\",\"severity\":\"unrecoverable\"}]}. It answered FastAPI {\"detail\":\"Not Found\"} before C3 (D3-04). status: golden-0825 @ f9cc470: open; golden-0825 @ faedb2b: fixed (re-probed 2026-10-11: GET /nope returns 404 with the UCP envelope {ucp:{version 2026-08-25, status error}, messages:[{type error, code not_found, severity unrecoverable}]}, not FastAPI detail Not Found. Fixed by C3 (D3-04) in Wave 0 as the symptom records). filed: not yet filed. ledger row R23 (private gap ledger, not published), origin ours, confidence high, re-verified 2026-10-11; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
-      "added": "2026-10-26",
+      "evidence": "repro: PORT=8194 DB_DIR=$(mktemp -d) conformance/testbed/golden-0825/serve_golden_0825.sh && curl -s localhost:8194/nope -> expected: UCP error envelope 404; observed: Re-run 2026-11-17 against golden-0825 at df95a40 on port 8194: GET /nope answers http 404 with the UCP envelope carrying code not_found and severity unrecoverable, so the envelope half is fixed. The 'accepts unadvertised versions' clause in the symptom has no reproduction in this row and is not evidenced by this run.. status: golden-0825 @ f9cc470: open; golden-0825 @ faedb2b: fixed (re-probed 2026-10-11: GET /nope returns 404 with the UCP envelope {ucp:{version 2026-08-25, status error}, messages:[{type error, code not_found, severity unrecoverable}]}, not FastAPI detail Not Found. Fixed by C3 (D3-04) in Wave 0 as the symptom records); golden-0825 at df95a40 (2026-11-17): fixed (Unknown route answers the UCP error envelope with http 404.). filed: not yet filed. ledger row R23 (private gap ledger, not published), origin ours, confidence high, re-verified 2026-11-17; row validated by the run_suite 'known-issues' gate; this claim is GENERATED by conformance/web/gen_known_issues.py from conformance/ci/known_issues.json",
+      "added": "2026-11-17",
       "review_by": "2026-12-08"
     }
   ],

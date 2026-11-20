@@ -1362,11 +1362,17 @@ CHECKS = [
     # whose structuredContent carries the UCP object. (We assert the TRANSPORT envelope,
     # not the checkout-response shape — id/status are covered by the REST checkout checks
     # and are legitimately absent from an error result e.g. all-out-of-stock.)
-    MCheck("mcp.checkout_via_tools_call", ["MCP-003", "MCP-004"], "MUST",
+    MCheck("mcp.checkout_via_tools_call", ["MCP-003", "MCP-004", "OVR-067"], "MUST",
            mcp_checkout_raw, p_mcp_result_envelope,
            ["set:jsonrpc=\"1.0\"", "drop:jsonrpc", "drop:result.structuredContent",
             "drop:result.structuredContent.ucp", "set:result={}", "status:500", "corrupt-json"],
            capability="dev.ucp.shopping.checkout", transport="mcp", versions=["2026-04-08"]),
+    # OVR-067 (added 2026-11-19): overview.md L1620 says a UCP MCP server MUST return the
+    # UCP response payload in `structuredContent`. That is the exact field
+    # p_mcp_result_envelope requires (a dict carrying `ucp`) and the exact field
+    # drop:result.structuredContent and drop:result.structuredContent.ucp kill, so this
+    # check already graded the sentence; only the attribution was missing. Rowed at
+    # 2026-04-08 in place of a false `duplicate` waiver (see register OVR-067 notes).
     # MCP-003: JSON-RPC 2.0 conformance — an unknown METHOD yields a JSON-RPC error
     # object (-32601 method-not-found), never a result.
     MCheck("mcp.error_conformance", ["MCP-003"], "MUST",

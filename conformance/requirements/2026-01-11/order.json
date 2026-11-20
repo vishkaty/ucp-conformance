@@ -6,7 +6,7 @@
       "id": "ORD-001",
       "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/order.md#L24",
+      "source": "ucp:docs/specification/order.md#L25-L26",
       "quote": "It provides a complete record of what was purchased, how\nit will be delivered, and what has happened since order placement.",
       "versions": [
         "2026-01-11"
@@ -380,7 +380,7 @@
       "id": "ORD-019",
       "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/order.md#L314",
+      "source": "ucp:docs/specification/order.md#L310",
       "quote": "If verification fails, reject the webhook with an appropriate error response.",
       "versions": [
         "2026-01-11"
@@ -394,7 +394,9 @@
       "schema_enforced": false,
       "notes": "Verification (Platform) steps, docs L307-314. The signer key is selected by 'kid' from the business's signing_keys published at /.well-known/ucp; rejecting on signature mismatch is the anti-spoof control. Receiver-dependent; not asserted by webhook_test.py. Reclassified 2026-07-03 (webhook/events area): the quoted step is the PLATFORM's verification procedure (order.md 'Verification (Platform)' step 6: the receiver rejects a bad webhook) — receiver-side conduct, not a business obligation observable on the merchant under test. Candidate for a documented client/platform-side exemption in Phase 4.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] order.md L310 (the register cited L314, the Key Rotation paragraph; corrected): step 6 of the Verification (Platform) procedure, If verification fails, reject the webhook with an appropriate error response. NOT `bullet`: the lead in is the bare label Verification (Platform) at L303 with no keyword. `inferred`: the procedure implements the MUST at L292 to L293, Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity, and a verifier that accepts a payload whose signature failed has not verified it, so the rejection step is the content of that MUST. The subject is the platform, as the row notes record, while the row role reads business; that is a lane question for the role register, not a basis question. Kept MUST (decision 29)."
     }
   ],
   "notes": [

@@ -98,8 +98,9 @@
      "covered_by_rows": 96,
      "scope_excluded": 90,
      "waived": {
-      "duplicate": 6,
-      "non-normative": 9
+      "duplicate": 7,
+      "non-normative": 6,
+      "spec-authoring": 2
      },
      "missed": 0,
      "census_mode": "gate"
@@ -241,9 +242,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
-     "source": "ucp:docs/specification/checkout-rest.md#L48",
+     "source": "ucp:docs/specification/checkout-rest.md#L46",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -257,9 +258,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
-     "source": "ucp:docs/specification/checkout-rest.md#L49",
+     "source": "ucp:docs/specification/checkout-rest.md#L47",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -273,9 +274,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
-     "source": "ucp:docs/specification/checkout-rest.md#L50",
+     "source": "ucp:docs/specification/checkout-rest.md#L48",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py"
@@ -290,9 +291,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
-     "source": "ucp:docs/specification/checkout-rest.md#L51",
+     "source": "ucp:docs/specification/checkout-rest.md#L49",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -306,9 +307,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
-     "source": "ucp:docs/specification/checkout-rest.md#L52",
+     "source": "ucp:docs/specification/checkout-rest.md#L50",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -338,9 +339,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
-     "source": "ucp:docs/specification/checkout-rest.md#L188",
+     "source": "ucp:docs/specification/checkout-rest.md#L188-L189",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -354,9 +355,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
-     "source": "ucp:docs/specification/checkout.md#L329",
+     "source": "ucp:docs/specification/checkout.md#L324-L327",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -370,9 +371,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "After a checkout session reaches the state completed it is considered immutable",
-     "source": "ucp:docs/specification/checkout.md#L273",
+     "source": "ucp:docs/specification/checkout.md#L269-L270",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py"
@@ -419,9 +420,9 @@
      "testability": "needs-receiver",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
-     "source": "ucp:docs/specification/checkout.md#L57",
+     "source": "ucp:docs/specification/checkout.md#L53-L55",
      "covered_by": []
     },
     {
@@ -499,7 +500,7 @@
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
      "covered_by": [],
-     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
+     "exempt_reason": "'MUST use continue_url when checkout status is requires_escalation' (checkout.md Platform guidelines, L254 at 806a5b74, L258 at dcf7eac7) binds the PLATFORM: handing off to the business UI is the action of the request author and leaves no trace in any message the suite can elicit from the merchant. The business half (MUST provide continue_url on requires_escalation) is checked by CHK-025 and CHK-038 at 01-era. The 2026-04-08 twin is the exempt CHK-008. Scoped: the id is not a mandatory row at 2026-04-08 or 2026-08-25. RE-READ 2026-11-17."
     },
     {
      "id": "CHK-035",
@@ -785,9 +786,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
-     "source": "ucp:docs/specification/discount.md#L125",
+     "source": "ucp:docs/specification/discount.md#L124",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -801,9 +802,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Sending an empty codes array clears all discount codes.",
-     "source": "ucp:docs/specification/discount.md#L126",
+     "source": "ucp:docs/specification/discount.md#L125",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -817,9 +818,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Discount codes are matched case-insensitively by the business.",
-     "source": "ucp:docs/specification/discount.md#L127",
+     "source": "ucp:docs/specification/discount.md#L126",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -833,9 +834,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based and automatic) in the response.",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L130",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -852,7 +853,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "When multiple valid discount codes are submitted, all are applied (accept-both) and appear in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L130",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -867,9 +868,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
-     "source": "ucp:docs/specification/discount.md#L137",
+     "source": "ucp:docs/specification/discount.md#L136-L137",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -884,9 +885,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L314",
+     "source": "ucp:docs/specification/discount.md#L313-L314",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -901,9 +902,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platform action and cannot be removed by the platform.",
-     "source": "ucp:docs/specification/discount.md#L175",
+     "source": "ucp:docs/specification/discount.md#L174",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -917,9 +918,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L132",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -982,9 +983,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
-     "source": "ucp:docs/specification/discount.md#L117",
+     "source": "ucp:docs/specification/discount.md#L116",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -998,9 +999,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
-     "source": "ucp:docs/specification/discount.md#L205",
+     "source": "ucp:docs/specification/discount.md#L204-L205",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1014,9 +1015,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
-     "source": "ucp:docs/specification/discount.md#L199",
+     "source": "ucp:docs/specification/discount.md#L198-L199",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -1030,9 +1031,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
-     "source": "ucp:docs/specification/buyer-consent.md#L29",
+     "source": "ucp:docs/specification/buyer-consent.md#L29-L30",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1062,9 +1063,9 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Consent is declarative: the protocol communicates consent but does not enforce it, and legal compliance remains the business's responsibility.",
-     "source": "ucp:docs/specification/buyer-consent.md#L132",
+     "source": "ucp:docs/specification/buyer-consent.md#L131",
      "covered_by": [],
      "exempt_reason": "'Consent is declarative - the protocol communicates consent, it does not enforce it' and 'legal compliance remains the business's responsibility' (buyer-consent.md Security & Privacy Considerations, L131-133) assert a non-enforcement property of the protocol plus a LEGAL allocation of responsibility; whether a business actually meets its consent-law obligations is established by audit/regulation entirely outside any protocol message. [Scoped: at 2026-04-08 this id is the testable allocations-sum invariant, already covered by merchant_checks_04_08.]"
     },
@@ -1266,7 +1267,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
      "covered_by": [
@@ -1321,7 +1322,7 @@
      "testability": "manual",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].total is the required price in minor units and may be null if not yet available",
      "source": "ucp:docs/specification/fulfillment.md#L172",
      "covered_by": []
@@ -1542,9 +1543,9 @@
      "testability": "needs-oauth",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
-     "source": "ucp:docs/specification/identity-linking.md#L129",
+     "source": "ucp:docs/specification/identity-linking.md#L129-L130",
      "covered_by": [
       "merchant_checks_01_11_01_23_oauth.py"
      ],
@@ -1558,9 +1559,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
-     "source": "ucp:docs/specification/checkout-rest.md#L1292",
+     "source": "ucp:docs/specification/checkout-rest.md#L1293",
      "covered_by": [
       "merchant_checks_01_11_01_23_receiver.py"
      ],
@@ -1574,9 +1575,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return the cached result for duplicate keys",
-     "source": "ucp:docs/specification/checkout-rest.md#L1293",
+     "source": "ucp:docs/specification/checkout-rest.md#L1294",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -1590,9 +1591,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return 409 Conflict if the key is reused with different parameters",
-     "source": "ucp:docs/specification/checkout-rest.md#L1294",
+     "source": "ucp:docs/specification/checkout-rest.md#L1295",
      "covered_by": [
       "merchant_checks.py"
      ],
@@ -1606,9 +1607,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
-     "source": "ucp:docs/specification/checkout-rest.md#L1311",
+     "source": "ucp:docs/specification/checkout-rest.md#L1312",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -1918,7 +1919,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
-     "source": "ucp:docs/specification/order.md#L24",
+     "source": "ucp:docs/specification/order.md#L25-L26",
      "covered_by": [
       "area_order.py",
       "merchant_checks.py"
@@ -2180,11 +2181,11 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
-     "source": "ucp:docs/specification/order.md#L314",
+     "source": "ucp:docs/specification/order.md#L310",
      "covered_by": [],
-     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "order.md 'Verification (Platform)' step 6, at L310 at 806a5b74 and L314 at dcf7eac7: 'If verification fails, reject the webhook with an appropriate error response.' The step is the procedure of the PLATFORM receiver for a business-signed webhook; the merchant under test never observes whether a third-party receiver rejected it. The sentence carries no RFC 2119 keyword: the row sits in the 2026-01-23 normative_basis review queue with a null normative_basis, so the MUST on the register row is an inference awaiting adjudication, and the earlier wording of this exemption quoted an 'it MUST reject' the pinned text does not contain. The business half (signing_keys publication, Request-Signature) is checked elsewhere; the 2026-04-08 twin is the exempt ORD-033. Scoped: at 2026-04-08 and 2026-08-25 this id is the fulfillment_event required-fields row, covered by a schema check. RE-READ 2026-11-17."
     },
     {
      "id": "OVR-001",
@@ -2320,9 +2321,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
-     "source": "ucp:docs/specification/overview.md#L560",
+     "source": "ucp:docs/specification/overview.md#L561",
      "covered_by": [
       "schema_check_01_11_01_23.py"
      ],
@@ -2672,7 +2673,7 @@
      "requirement": "A platform in the trusted-platform-provider model must publish at least one key in the top-level signing_keys array of its profile.",
      "source": "ucp:docs/specification/ap2-mandates.md#L97",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "Two platform-bound AP2 duties share this id, and this exemption covers both. At 2026-01-11, ap2-mandates.md L96-98: under the trusted platform provider model the platform MUST provide at least one key in the top-level signing_keys array of its own profile; the merchant suite never fetches a platform profile. At 2026-04-08, ap2-mandates.md L110-111: the platform MUST verify the signature of the business before presenting the checkout to the user, which happens after the response has left the business. Neither surfaces in any message the suite can elicit from the merchant. Same subject-binding as PAY-032 and the other client-bound PAY rows. Scoped: at 2026-01-23 this id is the checkout_mandate-required schema rule, covered by schema_check_01_23. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-037",
@@ -2984,8 +2985,8 @@
      "covered_by_rows": 97,
      "scope_excluded": 92,
      "waived": {
-      "duplicate": 7,
-      "non-normative": 8
+      "duplicate": 8,
+      "non-normative": 7
      },
      "missed": 0,
      "census_mode": "gate"
@@ -3127,7 +3128,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Create Checkout initiates a new checkout session via POST /checkout-sessions",
      "source": "ucp:docs/specification/checkout-rest.md#L48",
      "covered_by": [
@@ -3144,7 +3145,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Get Checkout retrieves current state via GET /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L49",
      "covered_by": [
@@ -3161,7 +3162,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Update Checkout updates a session via PUT /checkout-sessions/{id}",
      "source": "ucp:docs/specification/checkout-rest.md#L50",
      "covered_by": [
@@ -3178,7 +3179,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout places the order via POST /checkout-sessions/{id}/complete",
      "source": "ucp:docs/specification/checkout-rest.md#L51",
      "covered_by": [
@@ -3195,7 +3196,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Cancel Checkout cancels a session via POST /checkout-sessions/{id}/cancel",
      "source": "ucp:docs/specification/checkout-rest.md#L52",
      "covered_by": [
@@ -3228,9 +3229,9 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Each PUT replaces the entire session, so clients must include all previously set fields they wish to retain",
-     "source": "ucp:docs/specification/checkout-rest.md#L172",
+     "source": "ucp:docs/specification/checkout-rest.md#L174-L175",
      "covered_by": [
       "area_lifecycle2.py"
      ],
@@ -3244,9 +3245,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Complete Checkout response is the checkout object with the order field populated (order provides id and permalink_url)",
-     "source": "ucp:docs/specification/checkout.md#L329",
+     "source": "ucp:docs/specification/checkout.md#L328-L331",
      "covered_by": [
       "merchant_checks.py",
       "v2026_01_23.py"
@@ -3261,9 +3262,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "After a checkout session reaches the state completed it is considered immutable",
-     "source": "ucp:docs/specification/checkout.md#L273",
+     "source": "ucp:docs/specification/checkout.md#L273-L274",
      "covered_by": [
       "area_lifecycle2.py",
       "merchant_checks.py",
@@ -3311,9 +3312,9 @@
      "testability": "needs-receiver",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Checkout status indicates the current phase and required action; the business sets the status",
-     "source": "ucp:docs/specification/checkout.md#L57",
+     "source": "ucp:docs/specification/checkout.md#L57-L59",
      "covered_by": []
     },
     {
@@ -3455,7 +3456,7 @@
      "requirement": "Platform MUST use continue_url when checkout status is requires_escalation (Platform guideline)",
      "source": "ucp:docs/specification/checkout.md#L258",
      "covered_by": [],
-     "exempt_reason": "Platform-side behavior MUST: on canceled the platform starts a new session if needed; the business duty (canceled is terminal/immutable) is checked by the cancel/immutability checks."
+     "exempt_reason": "'MUST use continue_url when checkout status is requires_escalation' (checkout.md Platform guidelines, L254 at 806a5b74, L258 at dcf7eac7) binds the PLATFORM: handing off to the business UI is the action of the request author and leaves no trace in any message the suite can elicit from the merchant. The business half (MUST provide continue_url on requires_escalation) is checked by CHK-025 and CHK-038 at 01-era. The 2026-04-08 twin is the exempt CHK-008. Scoped: the id is not a mandatory row at 2026-04-08 or 2026-08-25. RE-READ 2026-11-17."
     },
     {
      "id": "CHK-035",
@@ -3743,7 +3744,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Submitting discounts.codes replaces any previously submitted codes (replacement semantics).",
      "source": "ucp:docs/specification/discount.md#L125",
      "covered_by": [
@@ -3759,7 +3760,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Sending an empty codes array clears all discount codes.",
      "source": "ucp:docs/specification/discount.md#L126",
      "covered_by": [
@@ -3775,7 +3776,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Discount codes are matched case-insensitively by the business.",
      "source": "ucp:docs/specification/discount.md#L127",
      "covered_by": [
@@ -3791,7 +3792,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "discounts.applied contains all active discounts (code-based and automatic) in the response.",
      "source": "ucp:docs/specification/discount.md#L131",
      "covered_by": [
@@ -3825,9 +3826,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
-     "source": "ucp:docs/specification/discount.md#L137",
+     "source": "ucp:docs/specification/discount.md#L137-L138",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3842,9 +3843,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
-     "source": "ucp:docs/specification/discount.md#L314",
+     "source": "ucp:docs/specification/discount.md#L314-L315",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3859,7 +3860,7 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "Automatic discounts appear in discounts.applied with automatic: true and no code field; they are applied without platform action and cannot be removed by the platform.",
      "source": "ucp:docs/specification/discount.md#L175",
      "covered_by": [
@@ -3875,9 +3876,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
-     "source": "ucp:docs/specification/discount.md#L131",
+     "source": "ucp:docs/specification/discount.md#L133",
      "covered_by": [
       "area_discount.py",
       "merchant_checks.py"
@@ -3956,7 +3957,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "The sum of allocations[].amount must equal the applied_discount.amount.",
      "source": "ucp:docs/specification/discount.md#L117",
      "covered_by": [
@@ -3972,9 +3973,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
-     "source": "ucp:docs/specification/discount.md#L205",
+     "source": "ucp:docs/specification/discount.md#L205-L206",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -3988,9 +3989,9 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
-     "source": "ucp:docs/specification/discount.md#L199",
+     "source": "ucp:docs/specification/discount.md#L199-L200",
      "covered_by": [
       "merchant_checks_01_23.py"
      ],
@@ -4004,9 +4005,9 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
-     "source": "ucp:docs/specification/buyer-consent.md#L29",
+     "source": "ucp:docs/specification/buyer-consent.md#L29-L30",
      "covered_by": [
       "merchant_checks_01_11_01_23.py"
      ],
@@ -4052,7 +4053,7 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "Consent is declarative: the protocol communicates consent but does not enforce it, and legal compliance remains the business's responsibility.",
      "source": "ucp:docs/specification/buyer-consent.md#L132",
      "covered_by": [],
@@ -4257,7 +4258,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].title is the required primary label that distinguishes the option from its siblings",
      "source": "ucp:docs/specification/fulfillment.md#L170",
      "covered_by": [
@@ -4312,7 +4313,7 @@
      "testability": "manual",
      "status": "gap",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "table",
      "requirement": "options[].total is the required price in minor units and may be null if not yet available",
      "source": "ucp:docs/specification/fulfillment.md#L172",
      "covered_by": []
@@ -4533,9 +4534,9 @@
      "testability": "needs-oauth",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
-     "source": "ucp:docs/specification/identity-linking.md#L129",
+     "source": "ucp:docs/specification/identity-linking.md#L129-L130",
      "covered_by": [
       "merchant_checks_01_11_01_23_oauth.py"
      ],
@@ -4549,7 +4550,7 @@
      "testability": "needs-receiver",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST store the key with the operation result for at least 24 hours",
      "source": "ucp:docs/specification/checkout-rest.md#L1217",
      "covered_by": [
@@ -4565,7 +4566,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return the cached result for duplicate keys",
      "source": "ucp:docs/specification/checkout-rest.md#L1218",
      "covered_by": [
@@ -4581,7 +4582,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "bullet",
      "requirement": "When an Idempotency-Key is provided, the server MUST return 409 Conflict if the key is reused with different parameters",
      "source": "ucp:docs/specification/checkout-rest.md#L1219",
      "covered_by": [
@@ -4598,7 +4599,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "409 Conflict indicates the request could not be completed due to a conflict (e.g., idempotent key reuse)",
      "source": "ucp:docs/specification/checkout-rest.md#L1236",
      "covered_by": [
@@ -4935,7 +4936,7 @@
      "role": "business",
      "normative_basis": null,
      "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
-     "source": "ucp:docs/specification/order.md#L24",
+     "source": "ucp:docs/specification/order.md#L25-L26",
      "covered_by": [
       "area_order.py",
       "merchant_checks.py"
@@ -5197,11 +5198,11 @@
      "testability": "manual",
      "status": "exempt",
      "role": "business",
-     "normative_basis": null,
+     "normative_basis": "inferred",
      "requirement": "On webhook verification: the platform extracts Request-Signature, parses the JWT header for kid, fetches the business UCP profile, locates the matching key in signing_keys, and verifies the signature against the request body; if verification fails, it MUST reject the webhook with an appropriate error response",
      "source": "ucp:docs/specification/order.md#L314",
      "covered_by": [],
-     "exempt_reason": "'On webhook verification ... if verification fails, it MUST reject the webhook with an appropriate error response' (order.md L314, Verification (Platform)) is the PLATFORM receiver's verification/rejection procedure \u2014 receiver-side conduct, not a business obligation observable on the merchant. The business-side signing-key publication is checked elsewhere; the 04-08 twin is ORD-033. [Scoped: at 2026-04-08 this id is a different, already-covered requirement.]"
+     "exempt_reason": "order.md 'Verification (Platform)' step 6, at L310 at 806a5b74 and L314 at dcf7eac7: 'If verification fails, reject the webhook with an appropriate error response.' The step is the procedure of the PLATFORM receiver for a business-signed webhook; the merchant under test never observes whether a third-party receiver rejected it. The sentence carries no RFC 2119 keyword: the row sits in the 2026-01-23 normative_basis review queue with a null normative_basis, so the MUST on the register row is an inference awaiting adjudication, and the earlier wording of this exemption quoted an 'it MUST reject' the pinned text does not contain. The business half (signing_keys publication, Request-Signature) is checked elsewhere; the 2026-04-08 twin is the exempt ORD-033. Scoped: at 2026-04-08 and 2026-08-25 this id is the fulfillment_event required-fields row, covered by a schema check. RE-READ 2026-11-17."
     },
     {
      "id": "OVR-001",
@@ -5353,7 +5354,7 @@
      "testability": "testable",
      "status": "check",
      "role": "both",
-     "normative_basis": null,
+     "normative_basis": "definition",
      "requirement": "The handler_id in the payload ensures the business knows which payment credential provider key to use, preventing key confusion attacks (Handler ID Routing).",
      "source": "ucp:docs/specification/overview.md#L602",
      "covered_by": [
@@ -5958,22 +5959,22 @@
   "2026-04-08": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 386,
-   "check": 278,
-   "exempt": 100,
+   "musts": 390,
+   "check": 279,
+   "exempt": 103,
    "gap": 8,
    "accounted_pct": 98,
    "roles": {
     "summary": {
-     "merchant": 313,
-     "agent": 135,
-     "both": 66,
+     "merchant": 316,
+     "agent": 137,
+     "both": 67,
      "other": 4
     },
     "merchant": {
-     "musts": 313,
-     "check": 278,
-     "exempt": 28,
+     "musts": 316,
+     "check": 279,
+     "exempt": 30,
      "gap": 7,
      "gap_by_testability": {
       "manual": 6,
@@ -5981,10 +5982,10 @@
      }
     },
     "agent": {
-     "musts": 135,
+     "musts": 137,
      "check": 55,
      "exempt": 3,
-     "gap": 77
+     "gap": 79
     },
     "other": {
      "musts": 4,
@@ -5999,15 +6000,15 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 362,
+     "musts": 364,
      "check": 272,
-     "exempt": 82,
+     "exempt": 84,
      "gap": 8
     },
     "mcp": {
-     "musts": 6,
-     "check": 5,
-     "exempt": 1,
+     "musts": 8,
+     "check": 6,
+     "exempt": 2,
      "gap": 0
     },
     "a2a": {
@@ -6033,12 +6034,13 @@
     "prose": {
      "pin": "a25a4a24",
      "mandatory_hits": 495,
-     "covered_by_rows": 253,
+     "covered_by_rows": 257,
      "scope_excluded": 173,
      "waived": {
       "duplicate": 40,
-      "non-normative": 28,
-      "schema-enforced": 1
+      "non-normative": 18,
+      "schema-enforced": 1,
+      "spec-authoring": 6
      },
      "missed": 0,
      "census_mode": "gate"
@@ -6080,12 +6082,12 @@
     "discovery-live": 0,
     "fixture-schema": 68,
     "fixture-crypto": 4,
-    "self-referenced": 138,
+    "self-referenced": 139,
     "register-selfcheck": 0,
     "reference-impl": 0
    },
    "integrity": {
-    "target_facing": 278,
+    "target_facing": 279,
     "corpus": 0,
     "algorithm": 0
    },
@@ -6163,11 +6165,11 @@
     },
     {
      "area": "overview",
-     "check": 11,
-     "exempt": 2,
+     "check": 12,
+     "exempt": 5,
      "gap": 2,
      "gap_manual": 2,
-     "musts": 15
+     "musts": 19
     },
     {
      "area": "payment",
@@ -9779,7 +9781,7 @@
      "requirement": "MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` parameter",
      "source": "ucp:docs/specification/checkout-mcp.md#L120",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: MCP request payloads MUST NOT carry an `id` inside the `checkout` object; the target resource is identified by a top-level `id` pa \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "'The checkout object in the request payload MUST NOT contain an id field' (checkout-mcp.md L120-121; the target resource is identified by the top-level id parameter) constrains the author of the MCP REQUEST, which is the platform. The spec places no rejection duty on the endpoint, so no business response proves or refutes it. Request-author-bound, the same subject-binding as CHK-037. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
     },
     {
      "id": "MCP-003",
@@ -10576,6 +10578,32 @@
      "covered_by": []
     },
     {
+     "id": "OVR-037",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "role": "both",
+     "normative_basis": "sentence",
+     "requirement": "If an extension schema declares `requires`, platforms and businesses MUST verify that the negotiated protocol version and capability versions satisfy its declared constraints during schema resolution; incompatible extensions are excluded from the active capability set.",
+     "source": "ucp:docs/specification/overview.md#L306-L309",
+     "covered_by": [],
+     "exempt_reason": "party: platforms AND businesses (overview.md L306-L309 'If `requires` is present, platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution'). observable on the merchant axis: only against a target that declares an extension whose `requires` constraints are NOT satisfied at the negotiated ucp.version, so that the active capability set of the response provably excludes it; no golden or reference target at 2026-04-08 declares such an extension, which is the same gap OVR-011 records for version-incompatible capabilities. why-not-now: rowed 2026-11-19 in place of a false `duplicate` waiver that pointed at OVR-011, a different obligation (2026-08-25 rows OVR-011 and OVR-037 separately). The platform half is the business of the agent lane and is not exempted here."
+    },
+    {
+     "id": "OVR-057",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "manual",
+     "status": "exempt",
+     "role": "platform",
+     "normative_basis": "sentence",
+     "requirement": "Negotiation Protocol, Platform Requirements item 4 (Schema Resolution): platforms MUST fetch and compose schemas for negotiated capabilities before making requests.",
+     "source": "ucp:docs/specification/overview.md#L629-L630",
+     "covered_by": [],
+     "exempt_reason": "Binds the platform (overview.md L629-L630, Negotiation Protocol, Platform Requirements item 4): fetching and composing schemas happens BEFORE requests are made; the business only sees the resulting traffic, which is identical whether or not the platform resolved schemas. The same adjudication NEG-008 carries for the identical sentence at 2026-01-11 and 2026-01-23. Rowed 2026-11-19 in place of a false `non-normative` waiver, which claimed the sentence is internal platform behaviour while the identical sentence is a register row at three other versions."
+    },
+    {
      "id": "OVR-058",
      "area": "overview",
      "keyword": "MUST",
@@ -10593,6 +10621,35 @@
       "flower-shop-official-sample",
       "nodejs-reference-sample"
      ]
+    },
+    {
+     "id": "OVR-060",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "exempt",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "When using Streamable HTTP transport for MCP, servers MUST return the corresponding HTTP status code (for example 429 for rate limit) alongside the JSON-RPC error; the HTTP status code is the primary signal for error type.",
+     "source": "ucp:docs/specification/overview.md#L915-L917",
+     "covered_by": [],
+     "exempt_reason": "party: the MCP server of the Business (overview.md L915-L917 'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error'). observable: only against a 2026-04-08 target that serves a JSON-RPC error under its corresponding HTTP status. No such target exists today: the pinned flower shop golden advertises no mcp transport at 2026-04-08, and the /ucp/mcp endpoint of the controlled fixture returns every JSON-RPC error under HTTP 200 (conformance/fixtures/merchant/server.py sends 200 around mcp_dispatch, which maps all failures to -32602), so a check here would deviate on our own fixture rather than grade a merchant. why-not-now: the 2026-08-25 twin IS checked, by mcp.error_http_status against golden-0825; bringing that to 2026-04-08 is fixture work plus a new MCheck with its kill set, coverage lock, sign-off and expected_skips populations, which is its own lane. Rowed 2026-11-19 in place of a false `duplicate` waiver that claimed MCP is outside the 2026-04-08 surface, while MCP-001 to MCP-006 are rows at that version."
+    },
+    {
+     "id": "OVR-067",
+     "area": "overview",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "check",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "UCP MCP servers MUST return the UCP response payload in structuredContent; MCP tool responses use a dual-output pattern for backward compatibility.",
+     "source": "ucp:docs/specification/overview.md#L1620",
+     "covered_by": [
+      "merchant_checks.py"
+     ],
+     "evidence": "self-referenced",
+     "reach": []
     },
     {
      "id": "PAY-001",
@@ -11045,7 +11102,7 @@
      "requirement": "Platforms must provide cryptographically signed mandates during the complete operation proving user authorization.",
      "source": "ucp:docs/specification/ap2-mandates.md#L31",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: Platforms must provide cryptographically signed mandates during the complete operation proving user authorization. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "'Platforms MUST provide cryptographically signed proofs (Mandates) during the complete operation, proving the user explicitly authorized the specific checkout state and funds transfer' (ap2-mandates.md L31-33) binds the PLATFORM as author of the complete request. The business-side counterpart, that the business MUST NOT accept a complete_checkout lacking ap2.checkout_mandate (ap2-mandates.md L108-109), is registered and accounted separately. No merchant response evidences whether a platform produced a mandate. Scoped: at 01-era this id is a different, needs-receiver requirement. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-033",
@@ -11103,7 +11160,7 @@
      "requirement": "The platform must verify the business's signature before presenting the checkout to the user.",
      "source": "ucp:docs/specification/ap2-mandates.md#L110",
      "covered_by": [],
-     "exempt_reason": "Client/platform-bound obligation surfaced by the register-completeness pass: The platform must verify the business's signature before presenting the checkout to the user. \u2014 binds the platform/agent (or is a spec-authoring rule), not the merchant server under test; a merchant check would be fake coverage. Same treatment as the existing client-bound PAY exemptions. Version-scoped so it never collides with a version where this id names a checked requirement."
+     "exempt_reason": "Two platform-bound AP2 duties share this id, and this exemption covers both. At 2026-01-11, ap2-mandates.md L96-98: under the trusted platform provider model the platform MUST provide at least one key in the top-level signing_keys array of its own profile; the merchant suite never fetches a platform profile. At 2026-04-08, ap2-mandates.md L110-111: the platform MUST verify the signature of the business before presenting the checkout to the user, which happens after the response has left the business. Neither surfaces in any message the suite can elicit from the merchant. Same subject-binding as PAY-032 and the other client-bound PAY rows. Scoped: at 2026-01-23 this id is the checkout_mandate-required schema rule, covered by schema_check_01_23. RE-READ 2026-11-17."
     },
     {
      "id": "PAY-037",
@@ -12288,28 +12345,28 @@
   "2026-08-25": {
    "state": "converting",
    "no_further_work": false,
-   "musts": 780,
+   "musts": 781,
    "check": 106,
    "exempt": 0,
-   "gap": 674,
+   "gap": 675,
    "accounted_pct": 14,
    "roles": {
     "summary": {
-     "merchant": 526,
+     "merchant": 527,
      "agent": 305,
      "both": 70,
      "other": 19
     },
     "merchant": {
-     "musts": 526,
+     "musts": 527,
      "check": 106,
      "exempt": 0,
-     "gap": 420,
+     "gap": 421,
      "gap_by_testability": {
       "manual": 52,
       "needs-oauth": 12,
       "needs-receiver": 98,
-      "testable": 258
+      "testable": 259
      }
     },
     "agent": {
@@ -12335,10 +12392,10 @@
    },
    "by_transport": {
     "rest": {
-     "musts": 522,
+     "musts": 523,
      "check": 83,
      "exempt": 0,
-     "gap": 439
+     "gap": 440
     },
     "mcp": {
      "musts": 19,
@@ -12369,13 +12426,14 @@
     "prose": {
      "pin": "cd78fb38",
      "mandatory_hits": 922,
-     "covered_by_rows": 717,
-     "scope_excluded": 142,
+     "covered_by_rows": 718,
+     "scope_excluded": 79,
      "waived": {
       "duplicate": 27,
-      "non-normative": 8,
-      "out-of-scope-transport": 27,
-      "schema-enforced": 1
+      "non-normative": 7,
+      "out-of-scope-transport": 89,
+      "schema-enforced": 1,
+      "spec-authoring": 1
      },
      "missed": 0,
      "census_mode": "gate"
@@ -12430,7 +12488,7 @@
     "manual": 131,
     "needs-oauth": 15,
     "needs-receiver": 165,
-    "testable": 363
+    "testable": 364
    },
    "areas": [
     {
@@ -12480,11 +12538,11 @@
     {
      "area": "checkout-lifecycle",
      "check": 11,
-     "gap": 42,
+     "gap": 43,
      "gap_manual": 3,
      "gap_needs-receiver": 8,
-     "gap_testable": 31,
-     "musts": 53
+     "gap_testable": 32,
+     "musts": 54
     },
     {
      "area": "discounts-consent",
@@ -14465,6 +14523,18 @@
      "normative_basis": "sentence",
      "requirement": "When HTTP Message Signatures are used, checkout REST requests MUST include valid Signature-Input and Signature headers (and Content-Digest when a body is present) per RFC 9421.",
      "source": "ucp:docs/specification/shopping/checkout/rest.md#L1419-L1421",
+     "covered_by": []
+    },
+    {
+     "id": "CHK-081",
+     "area": "checkout-lifecycle",
+     "keyword": "MUST",
+     "testability": "testable",
+     "status": "gap",
+     "role": "business",
+     "normative_basis": "sentence",
+     "requirement": "Businesses MUST include an embedded service binding with config.delegate in checkout responses, to indicate ECP (Embedded Checkout Protocol) availability and the allowed delegations for a specific session.",
+     "source": "ucp:docs/specification/shopping/checkout/embedded.md#L125-L127",
      "covered_by": []
     },
     {

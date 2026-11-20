@@ -315,6 +315,67 @@ def check_duplicate_of_resolves():
                         f"unresolvable duplicate_of: {real[:6]}")
     return failures
 
+def check_tombstones_are_inert():
+    """A retired waiver is replaced IN PLACE by a note-only object (every key
+    `_`-prefixed), never deleted, because review_signoffs.json sample ids name this
+    register BY LIST INDEX. dd84fb4 (2026-10-27) deleted waivers[38] and silently
+    re-pointed 13 sampled ids at entries no human had read; the gate stayed green
+    because an index always resolves to something.
+
+    So a tombstone must be INERT to the completeness gate exactly as it already is to
+    validate_expiry_clocks.iter_entries: skipped, carrying no obligation, occupying its
+    index. And the skip must be narrow — an object that smuggles ONE live key is not
+    commentary and must not be waved through."""
+    import json as _json, tempfile, pathlib as _pl
+    failures = []
+    real_w = {"version": "2026-08-25", "file": "docs/specification/shopping/cart/embedded.md",
+              "line": 137, "class": "out-of-scope-transport", "transport": "embedded",
+              "reason": "x" * 40}
+    real_sx = {"file": "docs/specification/embedded-protocol.md", "versions": ["2026-08-25"],
+               "class": "out-of-scope", "reason": "y" * 40}
+    tomb = {"_retired": "2026-04-08 docs/specification/overview.md:307", "_on": "2026-11-19",
+            "_replaced_by": "register row OVR-037 at 2026-04-08", "_why": "z" * 40}
+    doc = {"waivers": [tomb, real_w], "scope_exclusions": [tomb, real_sx]}
+    tmp = _pl.Path(tempfile.mkdtemp()) / "w.json"
+    tmp.write_text(_json.dumps(doc, indent=2))
+    try:
+        idx, wlist, scope_idx, sxlist = load_waivers(tmp)
+    except Exception as e:                                              # noqa: BLE001
+        return [f"tombstones_are_inert: load_waivers raised {type(e).__name__}: {e} — a "
+                f"note-only tombstone must be SKIPPED, not parsed as a waiver"]
+    if len(wlist) != 1 or len(sxlist) != 1:
+        failures.append(f"tombstones_are_inert: tombstone not skipped — waivers {len(wlist)} "
+                        f"(want 1), scope_exclusions {len(sxlist)} (want 1)")
+    if any("_retired" in w for w in wlist) or any("_retired" in x for x in sxlist):
+        failures.append("tombstones_are_inert: a `_retired` object survived into the entry list")
+    if ("2026-08-25", "docs/specification/shopping/cart/embedded.md", 137) not in idx:
+        failures.append("tombstones_are_inert: the real waiver beside the tombstone was lost")
+    if ("2026-08-25", "docs/specification/embedded-protocol.md") not in scope_idx:
+        failures.append("tombstones_are_inert: the real scope exclusion beside the tombstone was lost")
+
+    # the skip must be NARROW: one live key and it is not commentary any more
+    smuggler = {"_retired": "x", "line": 5}
+    tmp2 = _pl.Path(tempfile.mkdtemp()) / "w2.json"
+    tmp2.write_text(_json.dumps({"waivers": [smuggler], "scope_exclusions": []}, indent=2))
+    try:
+        _, wl2, _, _ = load_waivers(tmp2)
+        if not wl2:
+            failures.append("tombstones_are_inert: an object carrying a live `line` key was "
+                            "skipped as commentary — the skip must require EVERY key to be "
+                            "`_`-prefixed, or a half-retired entry silently loses its obligation")
+    except (KeyError, ValueError, TypeError):
+        pass                      # surfacing loudly is the correct alternative
+
+    # and the committed register must hold no half-retired entry
+    cidx, cw, cscope, csx = load_waivers()
+    for w in cw:
+        if any(k.startswith("_") for k in w) and not all(k.startswith("_") for k in w):
+            if "_retired" in w:
+                failures.append(f"tombstones_are_inert: committed waiver is half-retired: "
+                                f"{ {k: str(v)[:40] for k, v in w.items()} }")
+    return failures
+
+
 def main():
     failures = []
     failures += check_known_cases()
@@ -323,6 +384,7 @@ def main():
     failures += check_waiver_class_transport()
     failures += check_waiver_class_spec_authoring()
     failures += check_duplicate_of_resolves()
+    failures += check_tombstones_are_inert()
     if failures:
         print("COMPLETENESS-MATCHER GATE: FAIL")
         for f in failures:
@@ -340,6 +402,8 @@ def main():
           "known `authored_doc`")
     print("  duplicate_of_resolves: duplicate_of resolves to a register row at the "
           "waiver's own version; every committed waiver resolves")
+    print("  tombstones_are_inert: a note-only retired entry is skipped and keeps its "
+          "index; an object with one live key is not")
     return 0
 
 

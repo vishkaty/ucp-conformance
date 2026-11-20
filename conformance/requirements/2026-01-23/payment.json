@@ -209,7 +209,9 @@
       "schema_enforced": false,
       "notes": "handler_id routing/validation. Stated as descriptive rule (no bold MUST); enforced via required handler_id in payment_instrument and exercised by test_card_credential_payment with handler_id=mock_payment_handler.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] overview.md L602: item 3 of the Credential Flow & PCI Scope list under the lead in at L598, To minimize compliance overhead (PCI-DSS), Handler ID Routing: The handler_id in the payload ensures the business knows exactly which payment credential provider key to use for decryption/charging, preventing key confusion attacks. NOT `bullet`: the lead in carries no keyword; item 1 (L600) carries its own MUST NOT, which shows the author keyworded items one by one and left this one descriptive. `definition`: the item defines the purpose of handler_id; the conduct it points at, validating handler_id against the advertised handler set, is stated only as item 1 of Security Best Practices (L955, under the label For Businesses at L953) without a keyword, and the register carries no row for it at the 01 versions. Presence of handler_id is PAY-008 (schema). Kept MUST (decision 29) as the routing rule that PAY-008 presence serves; the downgrade flag of the class is live, the official test that grades this id sends a valid handler_id and succeeds, which exercises presence and not routing, and the owner decides whether the row stays or is replaced by the L955 item."
     },
     {
       "id": "PAY-011",

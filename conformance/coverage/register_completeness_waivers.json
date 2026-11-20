@@ -1,5 +1,5 @@
 {
-  "_about": "Reconciliation ledger for the register-completeness gate (verify_register_completeness.py). Every mandatory RFC-2119 keyword (MUST/MUST NOT/SHALL/SHALL NOT/REQUIRED) in the pinned prose spec must be a register row, OR listed here. This file is how we PROVE the coverage denominator is complete rather than assumed. Two kinds of entry: (1) scope_exclusions \u2014 a whole spec file whose obligations are structurally outside what a server-endpoint conformance checker can observe, or are non-normative documents (narrative/examples/templates/guides). (2) waivers \u2014 a single keyword line in an IN-SCOPE file that is a duplicate restatement, non-normative prose, or a prose MUST enforced by a schema row. A missed keyword that is neither covered by a row nor listed here FAILS the build. Reasons must be spec-grounded; a thin or bogus reason is itself rejected.",
+  "_about": "Reconciliation ledger for the register-completeness gate (verify_register_completeness.py). Every mandatory RFC-2119 keyword (MUST/MUST NOT/SHALL/SHALL NOT/REQUIRED) in the pinned prose spec must be a register row, OR listed here. This file is how we PROVE the coverage denominator is complete rather than assumed. Two kinds of entry: (1) scope_exclusions \u2014 a whole spec file whose obligations are structurally outside what a server-endpoint conformance checker can observe, or are non-normative documents (narrative/examples/templates/guides). (2) waivers \u2014 a single keyword line in an IN-SCOPE file that is a duplicate restatement, non-normative prose, or a prose MUST enforced by a schema row. A missed keyword that is neither covered by a row nor listed here FAILS the build. Reasons must be spec-grounded; a thin or bogus reason is itself rejected. A RETIRED entry is replaced IN PLACE by a note-only object, every key underscore prefixed: list indexes are the identity review_signoffs.json sample ids use, so an entry is never deleted (dd84fb4 proved why on 2026-10-27).",
   "scope_exclusions": [
     {
       "file": "docs/specification/embedded-checkout.md",
@@ -19,15 +19,10 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/shopping/checkout/embedded.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "out-of-scope",
-      "reason": "The #723 hierarchy reorg relocated embedded-checkout.md to shopping/checkout/embedded.md (verified present in the 2026-08-25 vendor tree; content and MUST count unchanged at 63). Same Embedded-Protocol (EP) binding as before: a browser host-page <-> iframe integration built on window.postMessage / MessagePort, not observable from a server endpoint.",
-      "review_by": "2026-11-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "2026-08-25 docs/specification/shopping/checkout/embedded.md (whole file)",
+      "_on": "2026-11-19",
+      "_replaced_by": "register row CHK-081 at 2026-08-25 (L125-L127) plus 61 per-line out-of-scope-transport waivers",
+      "_why": "The whole-file exclusion claimed no server observable obligation in the file. L125-L127 binds the checkout response body itself, the embedded service binding under ucp.services with config.delegate, and its cart twin is already rowed as CART-034. The other 61 keyword lines are genuinely Embedded Protocol duties and are now waived per line with transport embedded, the treatment shopping/cart/embedded.md already receives. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
     },
     {
       "file": "docs/specification/embedded-protocol.md",
@@ -64,7 +59,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "A fill-in-the-blank TEMPLATE ('# {Handler Name} Payment Handler', '{reverse-dns.name}') for authors WRITING a payment-handler specification. Its MUST/REQUIRED clauses bind the author of a handler spec (e.g. 'Specifications MUST document these field mappings'), not the merchant server under test. No server-observable obligation lives here.",
-      "review_by": "2026-11-06",
+      "review_by": "2027-02-08",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -109,7 +104,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "A worked, illustrative example of one payment-handler configuration. Keywords describe what this specific example scenario does; they are not independent normative obligations on a UCP server. Examples are non-normative by spec convention.",
-      "review_by": "2026-11-06",
+      "review_by": "2027-02-08",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -152,7 +147,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "A worked, illustrative example of an encrypted-credential payment handler. Non-normative by spec convention; keywords narrate the example scenario, not independent server obligations.",
-      "review_by": "2026-11-06",
+      "review_by": "2027-02-08",
       "spec_pin": {
         "2026-01-11": "806a5b74",
         "2026-01-23": "dcf7eac7",
@@ -189,7 +184,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "2026-08-25 successor of docs/specification/payment-handler-template.md (already scope-excluded for 04-08/01-23/01-11 as versions:\"*\", now stale for this path since the file moved). Still a fill-in-the-blank TEMPLATE ('{Handler Name} Payment Handler', '{participants} MUST complete', '{If using tokens: Tokens MUST expire after {duration}}') for authors WRITING a new payment-handler specification. Its MUST clauses bind the future handler being templated, not the merchant server under test; the literal '{...}' placeholder syntax on 4 of its 9 keyword lines confirms none of this is live, checkable text. Verified by reading all 9 keyword lines (L91,168,186,243,349,373,375,376,377) individually before excluding, not by filename match alone.",
-      "review_by": "2026-11-06",
+      "review_by": "2027-02-08",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -222,7 +217,7 @@
       ],
       "class": "non-normative-doc",
       "reason": "2026-08-25 successor of docs/specification/examples/encrypted-credential-handler.md (RENAMED, not just moved -> encrypted-credential-payment-handler.md; already scope-excluded for 04-08/01-23/01-11 as versions:\"*\", now stale for the old path). A worked, illustrative example of an encryption-instead-of-tokenizing pattern; its 5 MUST/MUST NOT lines are the same per-example compliance-table narration as its siblings above. Non-normative by spec convention, matching the prior versions' treatment.",
-      "review_by": "2026-11-06",
+      "review_by": "2027-02-08",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     }
@@ -246,7 +241,7 @@
       "class": "duplicate",
       "reason": "'When the user confirms the purchase, the platform MUST facilitate the generation of ... mandates' restates the platform-provides-mandates obligation captured by the L31 new_row ('Platforms MUST provide cryptographically signed proofs (Mandates)'). Consistent with 2026-01-11/23 where the equivalent line waives to PAY-020. [2026-09-30 F5-G2] duplicate_of was the pre-row placeholder 'new_row@ucp:docs/specification/ap2-mandates.md#L31'; the row it anticipated now exists as PAY-032 at 2026-04-08 with that exact source, so the pointer is resolved to the row id. The completeness gate now resolves duplicate_of against the register at the waiver's own version.",
       "duplicate_of": "PAY-032",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -279,7 +274,7 @@
       "class": "duplicate",
       "reason": "'The platform MUST verify the signature:' (Step-1 verify_merchant_authorization pseudocode intro) is the same platform-verifies-merchant-signature obligation already captured by PAY-023 ('The platform MUST verify the business's signature before presenting the checkout to the user').",
       "duplicate_of": "PAY-023",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "806a5b74",
       "clock_tier": "pin-only"
     },
@@ -311,7 +306,7 @@
       "class": "duplicate",
       "reason": "Same obligation as the OpenRPC->tools/call transformation MUST at L804 (this line just introduces the worked complete_checkout example of that transformation). [2026-09-30 F5-G2] duplicate_of was the pre-row placeholder 'ucp:docs/specification/checkout-mcp.md#L804'; the row it anticipated now exists as MCP-004 at 2026-04-08 with that exact source, so the pointer is resolved to the row id. The completeness gate now resolves duplicate_of against the register at the waiver's own version.",
       "duplicate_of": "MCP-004",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -340,11 +335,12 @@
       "version": "2026-01-11",
       "file": "docs/specification/checkout-mcp.md",
       "line": 62,
-      "class": "non-normative",
-      "reason": "Client-side profile-advertisement obligation ('MCP clients MUST include the UCP platform profile URI with every request'). Already captured transport-agnostically by NEG-004 ('Profile Advertisement: Platforms MUST include their profile URI in ...').",
-      "review_by": "2026-11-07",
+      "class": "duplicate",
+      "reason": "MCP-binding restatement of NEG-004 (overview.md#L446, profile URI in every request via the transport-appropriate mechanism); the MCP mechanism is the _meta.ucp profile. Platform-bound, in register scope.",
+      "review_by": "2027-02-12",
       "spec_pin": "806a5b74",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "duplicate_of": "NEG-004"
     },
     {
       "version": "2026-01-11",
@@ -370,11 +366,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/order-mcp.md",
       "line": 277,
-      "class": "non-normative",
-      "reason": "Client obligation ('Platforms MUST check messages before accessing order fields'). Duplicate of ORD-023 (MUST check the messages array in responses before accessing order data).",
-      "review_by": "2026-11-07",
+      "class": "duplicate",
+      "reason": "MCP-binding restatement of ORD-023 (order-rest.md#L253): Platforms MUST check the messages array before accessing order data. Same platform obligation, transport-neutral.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "duplicate_of": "ORD-023"
     },
     {
       "version": "2026-04-08",
@@ -400,11 +397,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/cart-mcp.md",
       "line": 66,
-      "class": "non-normative",
-      "reason": "Client-side meta obligation. Duplicate of DISC-006 (transport-appropriate profile mechanism).",
-      "review_by": "2026-11-07",
+      "class": "duplicate",
+      "reason": "MCP-binding instance of DISC-006: the meta object carries meta['ucp-agent'].profile, the transport-appropriate profile mechanism. Platform-bound.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "duplicate_of": "DISC-006"
     },
     {
       "version": "2026-04-08",
@@ -432,11 +430,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/catalog/mcp.md",
       "line": 62,
-      "class": "non-normative",
-      "reason": "Client-side meta obligation. Duplicate of DISC-006.",
-      "review_by": "2026-11-07",
+      "class": "duplicate",
+      "reason": "MCP-binding instance of DISC-006 in the catalog binding: the meta object carries the transport-appropriate profile mechanism. Platform-bound.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "duplicate_of": "DISC-006"
     },
     {
       "version": "2026-04-08",
@@ -464,11 +463,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/overview.md",
       "line": 120,
-      "class": "non-normative",
-      "reason": "'Transport definitions MUST be thin: they declare method names and reference base schemas only' is an authoring rule for the OpenAPI/OpenRPC transport-definition documents themselves, not a runtime obligation on a conforming business/platform. Restated normatively at L215. Not server-observable via the conformance HTTP surface. (Older versions rowed the analog as DISC-006.)",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Binds the authors of a capability transport-definition document, the same party as the exemptions.json DISC-009 entry: a transport definition MUST be thin and reference base schemas only. Restated normatively at L215. Not a runtime obligation on a business or a platform; 2026-08-25 rows it as OVR-029 with role spec-author.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "transport-definition"
     },
     {
       "version": "2026-04-08",
@@ -494,11 +494,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/overview.md",
       "line": 217,
-      "class": "non-normative",
-      "reason": "Second keyword occurrence on the same line 217 ('Each extension schema MUST declare...'); same extension-schema authoring convention as the first L217 occurrence. Not a runtime server obligation.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Binds extension-schema authors, the same party as the exemptions.json DISC-010 entry: an extension MUST be self-describing and declare the types it introduces. Second keyword on the line. 2026-08-25 rows the sentence as OVR-031.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "extension-schema"
     },
     {
       "version": "2026-04-08",
@@ -524,11 +525,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/overview.md",
       "line": 253,
-      "class": "non-normative",
-      "reason": "'Extension schemas MUST have a $defs entry for each parent declared in extends' is an extension-schema authoring rule (build-time check per the spec's own 'Verifiable' note). Not runtime server behavior.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Extension-schema authoring rule, build-time verifiable per the specification note: an extension schema MUST carry a $defs entry for each parent it extends. Binds the schema author. 2026-08-25 rows it as OVR-034.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "extension-schema"
     },
     {
       "version": "2026-04-08",
@@ -551,15 +553,10 @@
       "clock_tier": "pin-only"
     },
     {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
-      "line": 307,
-      "class": "duplicate",
-      "reason": "'Platforms and businesses MUST verify the negotiated protocol version and capability versions satisfy the declared constraints during schema resolution' is the extension-`requires` refinement of version-compatibility verification. Its server-observable effect (incompatible extensions excluded from the active capability set) is captured by the new L1974 row (version-compatible capabilities only) and NEG-002 (capabilities_incompatible). [2026-09-30 F5-G2] duplicate_of was the pre-row placeholder 'NEW:overview.md#L1974'; the row it anticipated now exists as OVR-011 at 2026-04-08 with that exact source, so the pointer is resolved to the row id. The completeness gate now resolves duplicate_of against the register at the waiver's own version.",
-      "duplicate_of": "OVR-011",
-      "review_by": "2026-11-07",
-      "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "_retired": "2026-04-08 docs/specification/overview.md:307",
+      "_on": "2026-11-19",
+      "_replaced_by": "register row OVR-037 at 2026-04-08, EXEMPT needs-target-capability",
+      "_why": "The waiver called L307 a duplicate of OVR-011. It is not: at 2026-08-25 the register carries OVR-011 and OVR-037 as separate rows with different sources, roles and quotes, so by its own judgement these are distinct obligations. L306-L309 is a verification duty on platforms AND businesses during schema resolution; OVR-011 is a construction duty on businesses about which capabilities a response may include. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
     },
     {
       "version": "2026-04-08",
@@ -589,7 +586,7 @@
       "class": "duplicate",
       "reason": "'HTTP Transport: Platforms MUST use Dictionary Structured Field syntax (RFC 8941) in the UCP-Agent header' is the concrete header-syntax detail already captured per-transport by CHK-046 (UCP-Agent header, RFC 8941 dictionary syntax) and at the overview level by DISC-006.",
       "duplicate_of": "CHK-046",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -616,14 +613,10 @@
       "clock_tier": "pin-only"
     },
     {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
-      "line": 629,
-      "class": "non-normative",
-      "reason": "'Schema Resolution: Platforms MUST fetch and compose schemas for negotiated capabilities before making requests' restates the client-side schema-resolution process (L220/L330). Internal platform behavior, not server-observable.",
-      "review_by": "2026-11-07",
-      "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "_retired": "2026-04-08 docs/specification/overview.md:629",
+      "_on": "2026-11-19",
+      "_replaced_by": "register row OVR-057 at 2026-04-08, EXEMPT client-bound",
+      "_why": "The waiver called L629 non-normative, internal platform behaviour. The identical sentence is a register row at three other versions: NEG-008 at 2026-01-11 and at 2026-01-23, and OVR-057 at 2026-08-25. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
     },
     {
       "version": "2026-04-08",
@@ -637,15 +630,10 @@
       "clock_tier": "pin-only"
     },
     {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
-      "line": 915,
-      "class": "duplicate",
-      "reason": "'When using Streamable HTTP transport, servers MUST return the corresponding HTTP status code alongside the JSON-RPC error' is the MCP/Streamable-HTTP variant of the standard-HTTP-status-code obligation (captured for REST at L1587 and concretely by CHK-050 and the NEG/SIG status-code rows). MCP transport is out of the REST conformance surface.",
-      "duplicate_of": "CHK-050",
-      "review_by": "2026-11-07",
-      "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "_retired": "2026-04-08 docs/specification/overview.md:915",
+      "_on": "2026-11-19",
+      "_replaced_by": "register row OVR-060 at 2026-04-08, EXEMPT needs-target-capability",
+      "_why": "The waiver said MCP transport is outside the REST conformance surface at 2026-04-08 while MCP-001 to MCP-006 are rows at that version with transport mcp, five of them checked; and its duplicate_of CHK-050 is a REST status-code row, not this JSON-RPC sentence. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
     },
     {
       "version": "2026-04-08",
@@ -670,15 +658,10 @@
       "clock_tier": "pin-only"
     },
     {
-      "version": "2026-04-08",
-      "file": "docs/specification/overview.md",
-      "line": 1620,
-      "class": "duplicate",
-      "reason": "'MUST return the UCP response payload in structuredContent' is the MCP dual-output response requirement. MCP transport is out of the REST conformance surface (transport: rest); the equivalent REST obligation to return the UCP envelope is captured per-capability (e.g., CHK-034).",
-      "duplicate_of": "CHK-034",
-      "review_by": "2026-11-07",
-      "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "_retired": "2026-04-08 docs/specification/overview.md:1620",
+      "_on": "2026-11-19",
+      "_replaced_by": "register row OVR-067 at 2026-04-08, CHECK via mcp.checkout_via_tools_call",
+      "_why": "Same false premise as waivers[39], that MCP is outside the 2026-04-08 surface; and its duplicate_of CHK-034 is a checkout.json required[] row with nothing to do with structuredContent. The sentence was in fact already graded at this version by mcp.checkout_via_tools_call, whose predicate requires result.structuredContent.ucp and whose kill set drops that field; only the attribution was missing. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
     },
     {
       "version": "2026-04-08",
@@ -709,7 +692,7 @@
       "class": "duplicate",
       "reason": "'Businesses MUST validate the platform's protocol version on every request' is the obligation whose server-observable outcome (version_unsupported when incompatible) is rowed as NEG-001.",
       "duplicate_of": "NEG-001",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -740,7 +723,7 @@
       "class": "duplicate",
       "reason": "'Businesses MUST validate capability version compatibility using the same logic as ... above' is realized through the intersection version-selection and its error outcome capabilities_incompatible (NEG-002), and the version-compatible-capabilities selection (new L1974 row).",
       "duplicate_of": "NEG-002",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -769,11 +752,12 @@
       "version": "2026-01-23",
       "file": "docs/specification/overview.md",
       "line": 854,
-      "class": "non-normative",
-      "reason": "'The platform MUST now open continue_url in a WebView/Window...' is an italicized narrative step inside a worked payment-flow example (3DS/SCA soft-decline), illustrating a platform (client) action. The normative continue_url obligations are rowed separately (CHK-025/CHK-032/CHK-038).",
-      "review_by": "2026-11-07",
+      "class": "duplicate",
+      "reason": "Narrative restatement inside the 3DS and SCA worked example of the platform continue_url obligation rowed as CHK-032 (checkout.md#L258). 2026-08-25 rows the same sentence as PAY-017.",
+      "review_by": "2027-02-12",
       "spec_pin": "dcf7eac7",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "duplicate_of": "CHK-032"
     },
     {
       "version": "2026-01-23",
@@ -802,7 +786,7 @@
       "line": 1221,
       "class": "non-normative",
       "reason": "'Capabilities MUST follow the same backwards compatibility rules as the protocol' is versioning governance for capability authors, not a runtime server obligation.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-13",
       "spec_pin": "dcf7eac7",
       "clock_tier": "pin-only"
     },
@@ -834,7 +818,7 @@
       "class": "duplicate",
       "reason": "'Platforms MUST resolve schemas following this sequence' is the client-side schema-resolution flow already rowed as DISC-011.",
       "duplicate_of": "DISC-011",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "806a5b74",
       "clock_tier": "pin-only"
     },
@@ -866,7 +850,7 @@
       "class": "duplicate",
       "reason": "'Business to Platform (Webhooks): Webhooks MUST be signed using a shared secret or asymmetric key' is already rowed as ORD-014 and ORD-015.",
       "duplicate_of": "ORD-014",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "806a5b74",
       "clock_tier": "pin-only"
     },
@@ -897,7 +881,7 @@
       "class": "duplicate",
       "reason": "'Businesses MUST validate capability version compatibility using the same logic' is realized through version validation and the negotiation-failure error outcome rowed as NEG-014 and NEG-013.",
       "duplicate_of": "NEG-014",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "806a5b74",
       "clock_tier": "pin-only"
     },
@@ -928,7 +912,7 @@
       "line": 354,
       "class": "non-normative",
       "reason": "Subject=platform. Section lead-in: 'Warnings with presentation: \"disclosure\" carry notices ... that MUST follow the prescribed rendering contract below.' Narrative pointer to the disclosure rendering-contract bullets that immediately follow, each already rowed (ERR-014 display content, ERR-015 proximity, ERR-016 must-not-hide, ERR-017 image_url). Not a distinct obligation.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-13",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -961,7 +945,7 @@
       "class": "schema-enforced",
       "reason": "Subject=business. 'Unknown types MUST include display_text (schema-enforced).' The parenthetical explicitly flags schema enforcement and TOT-004 already captures 'unknown types MUST include display_text' with schema_enforced=true (totals.json if/then: type not in well-known enum -> require display_text).",
       "row_id": "TOT-004",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-13",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -991,11 +975,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/payment-handler-guide.md",
       "line": 92,
-      "class": "non-normative",
-      "reason": "Subject is 'Specifications' (payment-handler spec authors), not the merchant server: 'Specifications **MUST** explicitly document these field mappings.' Binds document authors of downstream handler specs, not a runtime server obligation; not testable via HTTP/MCP.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Binds the author of a payment-handler specification document, the same party as exemptions.json PAY-004 at 2026-01-11 and 2026-01-23 and PAY-028 and PAY-029 at 2026-04-08: the handler specification MUST document the merchant field mappings. Not a runtime server obligation.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "handler-spec"
     },
     {
       "version": "2026-04-08",
@@ -1021,11 +1006,12 @@
       "version": "2026-04-08",
       "file": "docs/specification/payment-handler-guide.md",
       "line": 774,
-      "class": "non-normative",
-      "reason": "Bullet under '## Conformance Checklist for Spec Authors' \u2192 'Before publishing a payment handler specification, verify: ... [ ] All [REQUIRED] sections are present'. Explicit spec-author checklist item, not a server obligation.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Spec-author checklist item under Conformance Checklist for Spec Authors: the handler specification document MUST contain every REQUIRED template section. Binds the document author only.",
+      "review_by": "2027-02-12",
       "spec_pin": "a25a4a24",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "handler-spec"
     },
     {
       "version": "2026-01-23",
@@ -1051,11 +1037,12 @@
       "version": "2026-01-11",
       "file": "docs/specification/payment-handler-guide.md",
       "line": 359,
-      "class": "non-normative",
-      "reason": "Same L359 sentence under '## Specification Template' (2026-01-11); the MUST binds spec-author document structure, not the merchant server.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Template-structure rule for the handler specification document under Specification Template: sections marked REQUIRED MUST be present. Binds the document author only.",
+      "review_by": "2027-02-12",
       "spec_pin": "806a5b74",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "handler-spec"
     },
     {
       "version": "2026-01-11",
@@ -1085,7 +1072,7 @@
       "class": "duplicate",
       "duplicate_of": "ERR-016",
       "reason": "Contract-table cell 'Dismissible | MUST NOT' (disclosure column) summarizes the disclosure prose bullet at L363 that ERR-016 already captures: platforms MUST NOT hide, collapse, or auto-dismiss the disclosure warning.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -1118,7 +1105,7 @@
       "class": "duplicate",
       "duplicate_of": "TOT-001",
       "reason": "'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half is TOT-018.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -1151,7 +1138,7 @@
       "class": "duplicate",
       "duplicate_of": "IDL-020",
       "reason": "'Businesses MUST enforce exact string matching for redirect_uri' is exactly IDL-020 (businesses MUST enforce exact string matching for the redirect_uri parameter during authorization).",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -1184,7 +1171,7 @@
       "class": "duplicate",
       "duplicate_of": "DISC-002",
       "reason": "'Implementations MUST NOT follow redirects (3xx) on profile fetches' duplicates DISC-002 (profile endpoints MUST NOT use 3xx redirects; verifiers MUST NOT follow them). Same no-redirect-on-profile-fetch obligation; the adjacent DISC-004 only covers the HTTPS-rejection item.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -1217,7 +1204,7 @@
       "class": "duplicate",
       "duplicate_of": "DISC-009",
       "reason": "'Transport definitions (OpenAPI/OpenRPC) MUST reference base schemas only' is the affirmative half of the same single rule DISC-009 captures from its negative half (L198): transport definitions MUST NOT enumerate fields or define payload shapes inline.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "dcf7eac7",
       "clock_tier": "pin-only"
     },
@@ -1246,11 +1233,12 @@
       "version": "2026-08-25",
       "file": "docs/specification/payment/guide.md",
       "line": 851,
-      "class": "non-normative",
-      "reason": "Subject is 'The specification' (payment-handler spec authors): 'The specification MUST define a mapping for common failures...' Identical pattern to the already-waived 2026-04-08 payment-handler-guide.md#L746 (same sentence, file moved). Documentation obligation on handler-spec authors, not runtime-observable.",
-      "review_by": "2026-11-07",
+      "class": "spec-authoring",
+      "reason": "Binds the author of a payment-handler specification, the obligation rowed as PAY-007 at 2026-01-11 and 2026-01-23: the handler specification MUST map common failures to UCP Error definitions. A documentation obligation, not runtime observable.",
+      "review_by": "2027-02-12",
       "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "clock_tier": "pin-only",
+      "authored_doc": "handler-spec"
     },
     {
       "version": "2026-08-25",
@@ -1279,7 +1267,7 @@
       "class": "duplicate",
       "reason": "Security-Requirements table cell 'Credentials MUST be bound to a binding resource (type and id) and issued to exactly one participant to prevent reuse' restates the binding-required half already covered by TOK-001..004 and the participant-issuance half already covered by TOK-005, in one summary-table sentence.",
       "duplicate_of": "TOK-005",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1312,7 +1300,7 @@
       "class": "duplicate",
       "reason": "'UCP tightens the JWT authorization grant beyond what the base RFCs mandate: aud MUST be a single-valued URI plus a unique jti' is a preview sentence restating the formal JWT Authorization Grant constraints given their own row at L572-579 (new row IDL-074).",
       "duplicate_of": "IDL-074",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1345,7 +1333,7 @@
       "class": "duplicate",
       "reason": "'Authentication challenges. Businesses MUST emit WWW-Authenticate: Bearer challenges...' (Security Considerations summary) restates IDL-026 (L241-244). Same class as the 2026-04-08 precedent (old L593 duplicate_of IDL-026).",
       "duplicate_of": "IDL-026",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1378,7 +1366,7 @@
       "class": "duplicate",
       "reason": "'Businesses MUST return `iss` in every authorization response' (L588-590, Mix-Up Attack prevention bullet in the Security Considerations recap) restates IDL-018 verbatim (MUST return the iss parameter in the authorization response, L168-169). Sibling restatements in the SAME bullet are already waived this way (L586 duplicate_of IDL-012, L593 duplicate_of IDL-026) -- L589 was the one line in the bullet the pre-R13 per-physical-line matcher accidentally marked covered via a false-positive short-phrase match ('businesses must' against six unrelated far-away rows), so it was never flagged for its own waiver until the R13 line-boundary-agnostic fix (conformance/selfcheck/verify_register_completeness.py) removed that false positive and surfaced the genuine, pre-existing gap. R13-WAIVER-CLEANUP.md has the full before/after accounting.",
       "duplicate_of": "IDL-018",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-10",
       "spec_pin": "a25a4a24",
       "clock_tier": "pin-only"
     },
@@ -1409,7 +1397,7 @@
       "class": "duplicate",
       "duplicate_of": "ERR-015",
       "reason": "Stale-waiver reorg re-point. Contract-table cell 'Proximity to path | MUST' (disclosure column) summarizes the disclosure prose bullet at L838 that ERR-015 already captures verbatim: platforms MUST display the warning in proximity to the component referenced by path. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:338 (duplicate_of ERR-015, same target row id, unchanged across versions).",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1442,7 +1430,7 @@
       "class": "duplicate",
       "duplicate_of": "ERR-018",
       "reason": "Stale-waiver reorg re-point. Table cell '| Escalate if cannot honor | -- | MUST via continue_url |' is the tabular restatement of the disclosure-escalation prose at L850, already captured verbatim by ERR-018 ('Platforms that cannot honor the disclosure rendering contract MUST escalate to merchant UI via continue_url...'). Identical prose was waived at 2026-04-08 docs/specification/checkout.md:342 (duplicate_of ERR-018, same target row id, unchanged across versions).",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1474,7 +1462,7 @@
       "class": "duplicate",
       "duplicate_of": "SAE-001",
       "reason": "Stale-waiver reorg re-point. 'signal values MUST NOT be buyer-asserted claims -- platforms provide signals based on direct observation or by relaying independently verifiable third-party attestations.' Already captured by SAE-001 (quotes the fuller overview/index.md#Signals statement of the same platform-bound MUST NOT). Platform-provenance obligation, not a business-response wire shape. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:649 (duplicate_of SAE-001, same target row id, unchanged across versions).",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1507,7 +1495,7 @@
       "class": "duplicate",
       "duplicate_of": "TOT-001",
       "reason": "Stale-waiver reorg re-point. 'The business controls what MUST be rendered (top-level entries)' restates TOT-001 (platforms MUST render all top-level totals entries in the order provided); the contrasting 'MAY optionally surface sub-lines' half of the same sentence is TOT-018. Identical prose was waived at 2026-04-08 docs/specification/checkout.md:850 (duplicate_of TOT-001, same target row id, unchanged across versions).",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1539,7 +1527,7 @@
       "line": 162,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. 'in all responses' here means the ECaP JSON-RPC responses exchanged over the postMessage/MessagePort channel during the embedded session, not the original Cart REST/MCP response -- browser-transport session state, not server-observable. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1572,7 +1560,7 @@
       "line": 200,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. The ep.cart.ready handshake broadcast is sent over postMessage by the embedded iframe's own code; no server endpoint emits or receives it. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1605,7 +1593,7 @@
       "line": 237,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's obligation to respond to the ep.cart.ready postMessage request -- host-side browser behavior. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1638,7 +1626,7 @@
       "line": 248,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. credential/upgrade mutual-exclusion rule on the same ep.cart.ready postMessage response. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1671,7 +1659,7 @@
       "line": 272,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. port MUST be a MessagePort object -- literally a browser API type, the clearest possible marker of browser-transport-only content. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1704,7 +1692,7 @@
       "line": 299,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Host's error_response behavior on a failed postMessage handshake -- host-side browser behavior. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1737,7 +1725,7 @@
       "line": 316,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Error-escalation notification (ep.cart.error) issued by the Embedded Cart over the postMessage channel -- browser transport, not a server endpoint. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1770,7 +1758,7 @@
       "line": 405,
       "class": "out-of-scope-transport",
       "reason": "Part of the Embedded Cart Protocol (ECaP) browser host<->iframe postMessage/MessageChannel transport layer (shopping/cart/embedded.md), which -- apart from the one Cart-response requirement extracted as CART-034 -- binds the host application and the embedded iframe's own JS/webview code, not the server's REST/MCP API; not observable by a server-endpoint conformance checker without a headless-browser harness driving the actual postMessage/MessagePort handshake. Same rationale as the existing embedded-protocol.md and embedded-cart.md (now this path) scope exclusions, applied per-line here because this one file also carries CART-034's genuine server-observable row. Same REQUIRED-payload pattern as L334, for the ep.cart.line_items.change postMessage notification. [2026-09-10 D2-05/A13] re-classed out-of-scope-transport (transport: embedded); D2-12 extracts these rows under decision 2a in W2.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-09",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only",
       "transport": "embedded"
@@ -1804,7 +1792,7 @@
       "class": "duplicate",
       "duplicate_of": "CAP-004",
       "reason": "'For the `schema` URL of an entity whose name is `name`, a platform **MUST** apply the following:' is the lead-in sentence for the numbered Derivation Algorithm list (items 1-4) that CAP-004 (L881, URL parsing), CAP-005 (L886, registered-domain host), CAP-006 (L889, authority_prefix derivation), and CAP-007 (L893, exact/prefixed match) already register individually, one row per list item. This sentence states no obligation beyond 'apply the following steps' -- the steps themselves carry the substance and are each already a row. duplicate_of names CAP-004 as the first/representative item; the full itemization is CAP-004..CAP-007.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1837,7 +1825,7 @@
       "class": "duplicate",
       "duplicate_of": "CHK-067",
       "reason": "'**MUST NOT** start a new Update Checkout operation while the Checkout is `complete_in_progress`.' restates CHK-067 (checkout/index.md#L451, operation-contract table): 'The Platform **MUST NOT** start a new Update Checkout operation.' verbatim in substance -- the REST section's prose intro to the same complete_in_progress freeze rule the table already states.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1870,7 +1858,7 @@
       "class": "duplicate",
       "duplicate_of": "CHK-067",
       "reason": "'new `update_checkout` request in that state, it **MUST** leave the Checkout unchanged and return the current Checkout with a recoverable error Message.' restates the same clause CHK-067 already quotes verbatim, in the MCP binding's own prose paragraph.",
-      "review_by": "2026-11-07",
+      "review_by": "2027-02-11",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     },
@@ -1893,6 +1881,677 @@
       "duplicate_of": "MCP-012",
       "reason": "'* **MUST** check the `messages` array in responses before accessing order data' (Conformance list, bullet 2) restates the exact same obligation MCP-012 already registers from this same file's Error Handling section (L284-285): 'Platforms **MUST** check `messages` before accessing order fields.' Same actor (platform), same rule (check messages before touching order fields), restated as a Conformance-checklist bullet rather than a second rule.",
       "review_by": "2027-01-06",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 187,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 195,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 197,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 215,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Binds the business, but on the ECP side: the ec_auth token travels on the iframe URL the host loads and is validated by the embedded page of the business when it loads, not by the REST or MCP endpoint. L215 is a documentation duty about that token format with no runtime message at all. Neither non-normative (it is a requirement) nor spec-authoring (the closed authored_doc vocabulary has no business documentation class) is true, so this entry carries the transport class with this explicit reading. Re-read these two first when the clock comes due.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 233,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Binds the business, but on the ECP side: the ec_auth token travels on the iframe URL the host loads and is validated by the embedded page of the business when it loads, not by the REST or MCP endpoint. L215 is a documentation duty about that token format with no runtime message at all. Neither non-normative (it is a requirement) nor spec-authoring (the closed authored_doc vocabulary has no business documentation class) is true, so this entry carries the transport class with this explicit reading. Re-read these two first when the clock comes due.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 293,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 323,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 339,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 341,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 350,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 352,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 353,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 357,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 358,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 409,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 411,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 432,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 446,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 465,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 475,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 476,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-14",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 520,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 526,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 527,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 529,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 533,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 537,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 538,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 563,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 583,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 586,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Session or channel rule of the EP transport itself: the negotiated session version, the core message set, the MessagePort transfer, or the upgraded channel. Where the text says in all responses it means the ECP JSON-RPC responses exchanged over the postMessage channel during the embedded session, not the original checkout REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 631,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe. [2026-11-19] Re-grouped from the embedded page clause to the host clause: L630-L631 reads 'If the host cannot complete the handshake ... it MUST respond' and L652-L653 reads 'The host MUST tear down the embedded context', so both name the host as the actor. The class and transport were right; only the stated subject was wrong.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 653,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe. [2026-11-19] Re-grouped from the embedded page clause to the host clause: L630-L631 reads 'If the host cannot complete the handshake ... it MUST respond' and L652-L653 reads 'The host MUST tear down the embedded context', so both name the host as the actor. The class and transport were right; only the stated subject was wrong.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 654,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 668,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 686,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 725,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 762,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 790,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 818,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 854,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-15",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 859,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 865,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 914,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1026,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1027,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1028,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1132,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1133,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1136,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1208,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1324,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1325,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1328,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1404,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1425,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1430,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1433,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1435,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Host side duty on the EP channel: what the host application must send, answer, validate or withhold. Browser and host behaviour, with no server endpoint to probe.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1441,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. Duty of the Embedded Checkout, the page of the business running inside the iframe, on the EP channel: firing or awaiting a message, confirming delegations, tearing down the context, or replacing state PUT style. A postMessage message or a UI behaviour, never an HTTP response the suite can elicit. Where the text says Businesses MUST send this message, the sender named is that embedded page, not the REST or MCP server.",
+      "review_by": "2027-02-16",
+      "spec_pin": "cd78fb38",
+      "clock_tier": "pin-only"
+    },
+    {
+      "version": "2026-08-25",
+      "file": "docs/specification/shopping/checkout/embedded.md",
+      "line": 1458,
+      "class": "out-of-scope-transport",
+      "transport": "embedded",
+      "reason": "Part of the Embedded Checkout Protocol (ECP) browser host page to iframe postMessage and MessageChannel transport layer in shopping/checkout/embedded.md. Apart from the one checkout response requirement extracted as CHK-081 (L125-L127), this document binds the host application and the embedded checkout page of the business, which is its own browser side code, not the REST or MCP API of the server; it is not observable by a server endpoint checker without a headless browser harness driving the postMessage and MessagePort handshake. Same treatment as shopping/cart/embedded.md, which carries CART-034 plus per-line waivers. [2026-11-19] replaces the whole-file scope exclusion that hid CHK-081. REQUIRED member of an ECP message payload, the checkout object in an ec.*.change message or the url in ec.window.open_request, exchanged over the MessagePort channel. Not a field of any REST or MCP response.",
+      "review_by": "2027-02-16",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     }

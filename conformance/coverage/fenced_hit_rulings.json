@@ -22,7 +22,7 @@
       "keyword": "MUST",
       "class": "non-normative",
       "reason": "'// No method/idempotency to bind, but the body still MUST be covered.' is an explanatory comment inside a fenced worked-example script, describing why the example's signature-base construction includes content-digest even though the example operation has no bindable method/idempotency-key. It restates the general Content-Digest body-coverage convention shown throughout the same doc's signature-base tables (e.g. the 'content-digest | Cond.' rows) rather than introducing an independent obligation; no exact single-sentence prose antecedent to cite as duplicate_of, hence non-normative rather than duplicate.",
-      "review_by": "2026-11-04",
+      "review_by": "2027-02-05",
       "spec_pin": "cd78fb38",
       "clock_tier": "pin-only"
     }

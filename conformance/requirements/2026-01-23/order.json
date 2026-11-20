@@ -6,7 +6,7 @@
       "id": "ORD-001",
       "requirement": "Get Order MUST return the full order entity as a current-state snapshot (complete record of what was purchased, how it will be delivered, and what has happened since placement), reflecting line items, fulfillment, and event logs",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/order.md#L24",
+      "source": "ucp:docs/specification/order.md#L25-L26",
       "quote": "It provides a complete record of what was purchased, how\nit will be delivered, and what has happened since order placement.",
       "versions": [
         "2026-01-23"
@@ -111,7 +111,7 @@
       "requirement": "Line items reflect what was purchased at checkout and MUST be retained as the immutable source of truth for what was ordered",
       "keyword": "MUST",
       "source": "ucp:source/schemas/shopping/order.json#L57",
-      "quote": "Immutable line items \u2014 source of truth for what was ordered.",
+      "quote": "Immutable line items — source of truth for what was ordered.",
       "versions": [
         "2026-01-23"
       ],
@@ -308,7 +308,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "docs L335-337. NOTE the version difference: 2026-01-23 specifies signing via a detached JWT (RFC 7797) in the 'Request-Signature' header and key selection by 'kid' from signing_keys (docs L300-314) \u2014 it does NOT use Standard-Webhooks headers (Webhook-Id/Webhook-Timestamp/Webhook-Signature) nor RFC 9421; no such headers appear anywhere in the 2026-01-23 order.md or schemas. Receiver-dependent.",
+      "notes": "docs L335-337. NOTE the version difference: 2026-01-23 specifies signing via a detached JWT (RFC 7797) in the 'Request-Signature' header and key selection by 'kid' from signing_keys (docs L300-314) — it does NOT use Standard-Webhooks headers (Webhook-Id/Webhook-Timestamp/Webhook-Signature) nor RFC 9421; no such headers appear anywhere in the 2026-01-23 order.md or schemas. Receiver-dependent.",
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11",
       "normative_basis": "sentence"
@@ -371,7 +371,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform Guidelines (docs L328-331). 'Process events asynchronously after responding' (L331). The mock webhook server in webhook_test.py returns 2xx, but the test asserts event receipt/content, not the platform's 2xx/async obligation per se, so official_oracle=false. Receiver-dependent. Reclassified 2026-07-03 (webhook/events area): the MUST binds the PLATFORM (order.md Guidelines 'Platform:' block) \u2014 the webhook RECEIVER's acknowledgement behavior, not the business under test. Candidate for a documented client/platform-side exemption in Phase 4.",
+      "notes": "Platform Guidelines (docs L328-331). 'Process events asynchronously after responding' (L331). The mock webhook server in webhook_test.py returns 2xx, but the test asserts event receipt/content, not the platform's 2xx/async obligation per se, so official_oracle=false. Receiver-dependent. Reclassified 2026-07-03 (webhook/events area): the MUST binds the PLATFORM (order.md Guidelines 'Platform:' block) — the webhook RECEIVER's acknowledgement behavior, not the business under test. Candidate for a documented client/platform-side exemption in Phase 4.",
       "role": "business",
       "role_provenance": "not-agent-bound",
       "normative_basis": "sentence"
@@ -392,17 +392,19 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Verification (Platform) steps, docs L307-314. The signer key is selected by 'kid' from the business's signing_keys published at /.well-known/ucp; rejecting on signature mismatch is the anti-spoof control. Receiver-dependent; not asserted by webhook_test.py. Reclassified 2026-07-03 (webhook/events area): the quoted step is the PLATFORM's verification procedure (order.md 'Verification (Platform)' step 6: the receiver rejects a bad webhook) \u2014 receiver-side conduct, not a business obligation observable on the merchant under test. Candidate for a documented client/platform-side exemption in Phase 4.",
+      "notes": "Verification (Platform) steps, docs L307-314. The signer key is selected by 'kid' from the business's signing_keys published at /.well-known/ucp; rejecting on signature mismatch is the anti-spoof control. Receiver-dependent; not asserted by webhook_test.py. Reclassified 2026-07-03 (webhook/events area): the quoted step is the PLATFORM's verification procedure (order.md 'Verification (Platform)' step 6: the receiver rejects a bad webhook) — receiver-side conduct, not a business obligation observable on the merchant under test. Candidate for a documented client/platform-side exemption in Phase 4.",
       "role": "business",
-      "role_provenance": "not-agent-bound"
+      "role_provenance": "not-agent-bound",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] order.md L314: step 6 of the Verification (Platform) procedure, If verification fails, reject the webhook with an appropriate error response. NOT `bullet`: the lead in is the bare label Verification (Platform) at L307 with no keyword. `inferred`: the procedure implements the MUST at L296 to L297, Webhook payloads MUST be signed by the business and verified by the platform to ensure authenticity and integrity, and a verifier that accepts a payload whose signature failed has not verified it, so the rejection step is the content of that MUST. The subject is the platform, as the row notes record, while the row role reads business; that is a lane question for the role register, not a basis question. Kept MUST (decision 29)."
     }
   ],
   "notes": [
     "Spec commit dcf7eac71fc370dcc8768fcdbc5aa737037cca05, version 2026-01-23. Sources: docs/specification/order.md and source/schemas/shopping/order.json + types/{order_line_item,adjustment,fulfillment_event,expectation}.json. Note: the order capability files internally carry version label '2026-01-11' (docs L20, order.json L5) although they live in the 2026-01-23 spec tree.",
     "Get Order returns a full current-state snapshot / full order entity, not deltas (ORD-001); the same full-entity contract is reused on webhook delivery (ORD-012/013).",
-    "Order top-level required[] in the 2026-01-23 order.json = ucp, id, checkout_id, permalink_url, line_items, fulfillment, totals (verified verbatim, ORD-002). 'currency' is NOT required here \u2014 it was only added to required[] in the 2026-04-08 order.json (ORD-003 captures this version delta). 'adjustments' is optional.",
+    "Order top-level required[] in the 2026-01-23 order.json = ucp, id, checkout_id, permalink_url, line_items, fulfillment, totals (verified verbatim, ORD-002). 'currency' is NOT required here — it was only added to required[] in the 2026-04-08 order.json (ORD-003 captures this version delta). 'adjustments' is optional.",
     "Line-item retention/immutability (ORD-006) and the adjustment append-only ledger (ORD-008) are data-state requirements not expressible in JSON Schema; schema_enforced=false on those.",
-    "Webhook rows (ORD-011..019) marked testability=needs-receiver: they require a controllable platform receiver to observe POSTs, signatures, retries, and 2xx acknowledgement. IMPORTANT version delta: 2026-01-23 signs webhooks with a detached JWT (RFC 7797) in the 'Request-Signature' header, key-selected by 'kid' from signing_keys at /.well-known/ucp \u2014 it does NOT use Standard-Webhooks headers (Webhook-Id/Webhook-Timestamp) or RFC 9421; those appear in later spec versions, not here (grep confirms zero occurrences in the 2026-01-23 tree).",
+    "Webhook rows (ORD-011..019) marked testability=needs-receiver: they require a controllable platform receiver to observe POSTs, signatures, retries, and 2xx acknowledgement. IMPORTANT version delta: 2026-01-23 signs webhooks with a detached JWT (RFC 7797) in the 'Request-Signature' header, key-selected by 'kid' from signing_keys at /.well-known/ucp — it does NOT use Standard-Webhooks headers (Webhook-Id/Webhook-Timestamp) or RFC 9421; those appear in later spec versions, not here (grep confirms zero occurrences in the 2026-01-23 tree).",
     "official_oracle=true where the vendored suite asserts the condition: ORD-001 (order_test.py OrderTest.test_order_retrieval), ORD-007/ORD-008 (OrderTest.test_order_adjustments asserts refund type+amount), ORD-009 (OrderTest.test_order_update asserts retained fulfillment event tracking_number), ORD-010 (OrderTest.test_order_fulfillment_retrieval asserts retained expectation), ORD-012/ORD-013 (webhook_test.py WebhookTest.test_webhook_event_stream asserts placed/shipped events carry the full order entity). The vendored conformance suite at .vendor/conformance targets spec-2026-01-23, so oracles are version-aligned for this register."
   ]
 }

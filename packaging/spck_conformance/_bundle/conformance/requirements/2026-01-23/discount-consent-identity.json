@@ -20,7 +20,9 @@
       "schema_enforced": false,
       "notes": "Stated as a request behavior bullet, not an RFC2119 keyword; treated as normative MUST. Schema description echoes 'Replaces previously submitted codes'.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L125: item 1 of the Request behavior list (lead in L123), Replacement semantics: Submitting discounts.codes replaces any previously submitted codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Replaces previously submitted codes, so a business that merges a new submission into earlier codes prices a cart the platform did not submit. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-002",
@@ -40,7 +42,9 @@
       "schema_enforced": false,
       "notes": "Schema description: 'Send empty array to clear.'",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L126: item 2 of the Request behavior list (lead in L123), Clear codes: Send empty array codes: [] to remove all discount codes. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Send empty array to clear, so a business that leaves codes applied after an empty submission prices a cart the platform cleared. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-003",
@@ -60,7 +64,9 @@
       "schema_enforced": false,
       "notes": "Schema description: 'Case-insensitive.'",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L127: item 3 of the Request behavior list (lead in L123), Case-insensitive: Codes are matched case-insensitively by business. NOT `bullet`: neither the lead in Request behavior nor any item of the list carries an RFC 2119 keyword, the ruling the 2026-09-22 human review gave the sibling Response behavior list at 2026-08-25 (DSC-006 there, relabelled from bullet to inferred, owner approved). `inferred`: the item states the request contract in the indicative and the schema description of discounts.codes (discount.json L74) repeats it, Case-insensitive, so a business that rejects a valid code on letter case alone contradicts the match rule the schema repeats. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-004",
@@ -80,7 +86,9 @@
       "schema_enforced": false,
       "notes": "Asserted by BusinessLogicTest.test_discount_flow (applied[0].code present after applying '10OFF').",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L131: the first item of the Response behavior list (lead in L129), discounts.applied contains all active discounts (code-based + automatic). The same sentence in the same list is DSC-006 at 2026-08-25, which the 2026-09-22 human review relabelled from bullet to inferred (owner approved) because no RFC 2119 keyword appears in the lead in or in any item; this entry follows that ruling. `inferred`: the item states the response contract in the indicative and the schema description of applied (discount.json L80) repeats it, Discounts successfully applied (code-based and automatic), so a response that omits an active discount from applied misreports the priced cart. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-005",
@@ -106,7 +114,7 @@
       "id": "DSC-006",
       "requirement": "When a submitted discount code cannot be applied, the business communicates this via the messages[] array.",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/discount.md#L137",
+      "source": "ucp:docs/specification/discount.md#L137-L138",
       "quote": "When a submitted discount code cannot be applied, businesses communicate this\nvia the `messages[]` array:",
       "versions": [
         "2026-01-23"
@@ -120,13 +128,15 @@
       "schema_enforced": false,
       "notes": "Accept-one-reject-one asserted by BusinessLogicTest.test_multiple_discounts_one_rejected (['10OFF','INVALID_CODE'] -> len(applied)==1, applied[0].code=='10OFF').",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L137 to L138 (the register cited L137 alone; corrected to the span the quote occupies): When a submitted discount code cannot be applied, businesses communicate this via the messages[] array, the lead in sentence of the Rejected Codes section that introduces the JSON example. `inferred`: the sentence states business conduct in the indicative; the Response behavior item at L132, Rejected codes communicated via messages[] (see below), and the Overview bullet at L31 say the same, and the section then defines the error codes the message carries (L159 to L168), so a business that drops a code silently gives the platform no way to tell the user a discount was not honoured. Kept MUST (decision 29). The 2026-04-08 twin is DSC-007 there."
     },
     {
       "id": "DSC-007",
       "requirement": "A rejected discount code still appears in discounts.codes (echoed back) but not in discounts.applied.",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/discount.md#L314",
+      "source": "ucp:docs/specification/discount.md#L314-L315",
       "quote": "The code still appears in `discounts.codes` (echoed back)\nbut not in `discounts.applied`.",
       "versions": [
         "2026-01-23"
@@ -140,7 +150,9 @@
       "schema_enforced": false,
       "notes": "Asserted indirectly by BusinessLogicTest.test_multiple_discounts_one_rejected (rejected code absent from applied).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L314 to L315 (the register cited L314 alone; corrected to the span the quote occupies): The code still appears in discounts.codes (echoed back) but not in discounts.applied. The sentence sits in the Examples section (L209, under Rejected discount code at L311) as the general statement the example illustrates. `inferred`: the second clause follows from DSC-004, applied holds active discounts and a rejected code is not one, and that is the clause the official oracle grades (test_multiple_discounts_one_rejected asserts the rejected code absent from applied). The first clause, the echo of the code in discounts.codes, rests on this example narrative alone: discount.json L71 to L75 describes codes as input and nothing requires a business to echo it, so the echo is not graded and the requirement text must not be read as requiring it. Kept MUST (decision 29) for the clause that is graded."
     },
     {
       "id": "DSC-008",
@@ -198,13 +210,15 @@
       "schema_enforced": false,
       "notes": "Schema: applied_discount.automatic boolean default false; code 'Omitted for automatic discounts.'",
       "role": "both",
-      "role_provenance": "agent-lock"
+      "role_provenance": "agent-lock",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L175: the first item of the Automatic Discounts list under the lead in at L172 to L173, Businesses may apply discounts automatically based on cart contents, customer segment, or promotional rules (lower case may, no keyword), Appear in discounts.applied with automatic: true and no code field. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the shape of an automatic discount in the indicative and the schema fixes both halves, automatic is a boolean defaulting to false and code is Omitted for automatic discounts (discount.json L31 to L33 and L44 to L47); the obligation is conditional, a business need not apply automatic discounts, but one it applies must be reported this way or the platform cannot tell it from a code it never submitted. The requirement text also carries items 2 and 3 of the list (L176 to L177, applied without platform action, cannot be removed by the platform), which the quote does not cover; they are platform facing and not graded. Kept MUST (decision 29) for the quoted item."
     },
     {
       "id": "DSC-011",
       "requirement": "A fixed-amount discount code decreases the total correctly and surfaces applied discount details (code and amount).",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/discount.md#L131",
+      "source": "ucp:docs/specification/discount.md#L133",
       "quote": "Discount amounts reflected in `totals[]` and `line_items[].discount`",
       "versions": [
         "2026-01-23"
@@ -218,7 +232,9 @@
       "schema_enforced": false,
       "notes": "Asserted by BusinessLogicTest.test_fixed_amount_discount ('FIXED500' -> applied[0].code and applied[0].amount present, total reduced).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L133 (the register cited L131; corrected to the line the quote occupies): the third item of the Response behavior list, Discount amounts reflected in totals[] and line_items[].discount. NOT `bullet`: no keyword in the lead in or in any item. `inferred`: the item states the response contract in the indicative and the Impact on Line Items and Totals section (L182 to L183, table L194 to L197) fixes where each discount type is reflected, so an applied discount that leaves totals unchanged misprices the cart. The requirement text reads as the test the row is graded by (a fixed amount code lowers the total and surfaces code and amount); the quoted sentence is the requirement and the test is its instance. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-012",
@@ -299,7 +315,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "ucp_request annotation (create optional, update optional, complete omit) \u2014 convention metadata, not a standard JSON-Schema validation keyword.",
+      "notes": "ucp_request annotation (create optional, update optional, complete omit) — convention metadata, not a standard JSON-Schema validation keyword.",
       "role": "both",
       "role_provenance": "agent-lock",
       "normative_basis": "schema"
@@ -322,13 +338,15 @@
       "schema_enforced": false,
       "notes": "Stated invariant; not expressible in JSON Schema.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L117: Invariant: Sum of allocations[].amount equals applied_discount.amount. `inferred`: the sentence carries no keyword but is labelled Invariant, a condition the author states must always hold, and the schema description of allocations repeats it (discount.json L62, Sum of allocation amounts equals total amount); a response that breaks it misstates where a discount went. The relation is not expressible in JSON Schema, so this prose is its only home. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-017",
       "requirement": "All discount amounts are positive integers in minor currency units; when presenting totals, discount types are displayed as subtractive.",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/discount.md#L205",
+      "source": "ucp:docs/specification/discount.md#L205-L206",
       "quote": "**Amount convention:** All discount amounts are positive integers in minor\ncurrency units.",
       "versions": [
         "2026-01-23"
@@ -342,13 +360,15 @@
       "schema_enforced": true,
       "notes": "Integer/minimum 0 enforced in schema; subtractive display is a presentation convention.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L205 to L206 (the register cited L205 alone; corrected to the span the quote occupies): Amount convention: All discount amounts are positive integers in minor currency units. `definition`: the sentence defines the encoding of every discount amount; the schema already enforces integer with minimum 0 on applied_discount.amount and allocation.amount (discount.json L39 to L41 and L18 to L20), so the prose adds only that zero is not a discount amount. The next sentence of the paragraph (L206 to L207, display discount types as subtractive) is presentation guidance to platforms, not business conduct, and is carried in the requirement text without being graded. Kept MUST (decision 29) for the quoted sentence; the downgrade flag of the class points at the display clause, which should leave the requirement text."
     },
     {
       "id": "DSC-018",
       "requirement": "totals[type=items_discount].amount must equal sum(line_items[].discount).",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/discount.md#L199",
+      "source": "ucp:docs/specification/discount.md#L199-L200",
       "quote": "**Invariant:** `totals[type=items_discount].amount` equals\n`sum(line_items[].discount)`.",
       "versions": [
         "2026-01-23"
@@ -362,13 +382,15 @@
       "schema_enforced": false,
       "notes": "Cross-field invariant; not expressible in JSON Schema.",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] discount.md L199 to L200 (the register cited L199 alone; corrected to the span the quote occupies): Invariant: totals[type=items_discount].amount equals sum(line_items[].discount). `inferred`: labelled Invariant, a condition the author states must always hold, and the table at L194 to L197 fixes that a line item discount is reflected in both line_items[].discount and items_discount, so a response that breaks the sum misstates what was discounted. Cross field, not expressible in JSON Schema. Kept MUST (decision 29)."
     },
     {
       "id": "DSC-019",
       "requirement": "Buyer consent is communicated as boolean states within the buyer.consent object (analytics, preferences, marketing, sale_of_data) on create_checkout and update_checkout.",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/buyer-consent.md#L29",
+      "source": "ucp:docs/specification/buyer-consent.md#L29-L30",
       "quote": "the `buyer` object in checkout is extended\nwith a `consent` field containing boolean consent states.",
       "versions": [
         "2026-01-23"
@@ -382,7 +404,9 @@
       "schema_enforced": true,
       "notes": "Asserted by BusinessLogicTest.test_buyer_consent (marketing=True/analytics=False persisted at checkout.buyer.consent). consent fields are typed boolean in buyer_consent.json.",
       "role": "both",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] buyer-consent.md L29 to L30 (the register cited L29 alone; corrected to the span the quote occupies): When this extension is supported, the buyer object in checkout is extended with a consent field containing boolean consent states. `definition`: the sentence defines the shape the extension adds, conditional on the extension being supported; buyer_consent.json types each of the four consent states boolean, so the shape is schema enforced once the extension is advertised, and L32 to L33 (This extension can be included in create_checkout and update_checkout operations) is permissive, so the operations named in the requirement text are where the shape may appear, not an obligation to appear. Kept MUST (decision 29) as the conditional shape rule the official test_buyer_consent grades."
     },
     {
       "id": "DSC-020",
@@ -444,7 +468,9 @@
       "schema_enforced": false,
       "notes": "Security & Privacy consideration; non-enforcement is a property, manually reviewable.",
       "role": "business",
-      "role_provenance": "subject"
+      "role_provenance": "subject",
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] buyer-consent.md L132: item 1 of the Security & Privacy Considerations list, Consent is declarative, The protocol communicates consent, it does not enforce it; the requirement text also folds in item 2 (L133, Legal compliance remains the responsibility of the business). `definition`: both items state a property of the protocol and an allocation of legal responsibility; neither names conduct a message could exhibit, and the id is already accounted EXEMPT at both 01 versions as out-of-band-legal for exactly that reason, so no coverage claim rests on it. The row stays at MUST pending the owner decision on retirement because the register keyword vocabulary has no class for a statement that binds nobody; the downgrade flag of the class is live and retirement is the honest end state."
     },
     {
       "id": "DSC-023",
@@ -482,7 +508,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate.",
+      "notes": "RFC 6749 2.3.1 + RFC 7617 Basic Auth at token exchange (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). HTTP Basic client authentication is the platform's request authoring; the business-side enforcement is IDL-007 (checked). Platform-conformance exemption candidate.",
       "role": "platform",
       "role_provenance": "agent-lock",
       "normative_basis": "sentence"
@@ -503,7 +529,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
+      "notes": "2026-01-23 version: classic Authorization Code flow per RFC 6749 4.1 as primary mechanism (04-08 later reworked to capability-driven scopes/RFC 8414 discovery). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The authorization-code flow choice is the platform's client implementation. Platform-conformance exemption candidate.",
       "role": "platform",
       "role_provenance": "agent-lock",
       "normative_basis": "sentence"
@@ -524,7 +550,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate.",
+      "notes": "RFC 6749 10.12 / OAuth 2.1 draft CSRF protection (platform side). Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). The state parameter is authored by the platform. Platform-conformance exemption candidate.",
       "role": "platform",
       "role_provenance": "subject"
     },
@@ -544,7 +570,7 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business \u2014 no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate.",
+      "notes": "Platform-side revocation behavior, RFC 7009. Reclassified manual 2026-07-03: binds the PLATFORM (request author), not the business — no merchant check can grade it (suite requester-bound policy; CAT-034 precedent). Calling the revocation endpoint on unlink is the platform's action; the business-side endpoint is IDL-010/012 (checked). Platform-conformance exemption candidate.",
       "role": "platform",
       "role_provenance": "client-bound-exemption"
     },
@@ -720,7 +746,7 @@
       "id": "IDL-013",
       "requirement": "A scope covering a capability must grant access to all operations associated with that capability (e.g., ucp:scopes:checkout_session must grant Get, Create, Update, Delete, Cancel, Complete).",
       "keyword": "MUST",
-      "source": "ucp:docs/specification/identity-linking.md#L129",
+      "source": "ucp:docs/specification/identity-linking.md#L129-L130",
       "quote": "A scope covering a capability must grant access to all operations associated to\nthe capability.",
       "versions": [
         "2026-01-23"
@@ -732,9 +758,11 @@
       "official_oracle": false,
       "browser_capable": true,
       "schema_enforced": false,
-      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token \u2014 a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded \u2014 Complete needs the full payment flow).",
+      "notes": "Scope-to-operation mapping rule from the Scopes section. Still needs-oauth 2026-07-03: observing that a capability scope grants ALL of its operations needs a scope-GATED 01-era operation; gating the 01-era checkout lifecycle would contradict every existing unauthenticated check against the golden. Coverage note (wave-3 review F4): the check drives 3 representative ops (Create/Get/Cancel) under one checkout_session token — a black-box proxy for 'one scope grants all ops', not an exhaustive per-op enumeration (Update/Complete excluded — Complete needs the full payment flow).",
       "role": "business",
-      "role_provenance": "review:role-adjudication-2026-09-11"
+      "role_provenance": "review:role-adjudication-2026-09-11",
+      "normative_basis": "inferred",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-18] identity-linking.md L129 to L130 (the register cited L129 alone; corrected to the span the quote occupies): A scope covering a capability must grant access to all operations associated to the capability. The must is lower case, outside the all caps keyword class, so the mechanical classifier queued the row. `inferred`: the sentence is directive and the next sentence (L130 to L131) enumerates what it requires of ucp:scopes:checkout_session, Get, Create, Update, Delete, Cancel, Complete, matching the scope table at L120 to L127; an authorization server that grants the capability scope but refuses one of its operations contradicts the mapping. Kept MUST (decision 29)."
     }
   ],
   "notes": [
