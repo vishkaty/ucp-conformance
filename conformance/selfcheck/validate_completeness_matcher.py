@@ -376,6 +376,59 @@ def check_tombstones_are_inert():
     return failures
 
 
+def check_scope_exclusions_are_unique():
+    """load_waivers indexes scope exclusions as scope_idx[(version, file)] = entry, so
+    two entries naming the SAME (version, file) silently shadow each other: the later one
+    wins the index and the earlier one is a clock policing nothing. Three such pairs sat
+    in the register, each with the shadowed member dated 2026-12-06, so on that date
+    somebody would have dutifully re-read an entry the completeness gate never consults.
+
+    A duplicate must therefore be an ERROR, not a last-write-wins. The check is on the
+    COMMITTED register, because that is where the defect was, plus a hermetic pair to
+    prove the rule can fire at all."""
+    import json as _json, tempfile, pathlib as _pl, collections as _c
+    failures = []
+
+    def dupes(entries):
+        seen = _c.defaultdict(list)
+        for i, x in enumerate(entries):
+            if not isinstance(x, dict):
+                continue
+            vers = x.get("versions")
+            vlist = list(VERSION_TREE) if vers in ("*", None) else vers
+            for v in vlist:
+                seen[(v, x.get("file"))].append(i)
+        return {k: v for k, v in seen.items() if len(v) > 1}
+
+    # hermetic: the rule must fire on a planted pair
+    pair = [{"file": "docs/specification/x.md", "versions": ["2026-08-25"],
+             "class": "out-of-scope", "reason": "a" * 40, "review_by": "2027-01-01"},
+            {"file": "docs/specification/x.md", "versions": ["2026-08-25"],
+             "class": "out-of-scope", "reason": "b" * 40, "review_by": "2027-02-01"}]
+    tmp = _pl.Path(tempfile.mkdtemp()) / "w.json"
+    tmp.write_text(_json.dumps({"waivers": [], "scope_exclusions": pair}, indent=2))
+    _, _, scope_idx, sxl = load_waivers(tmp)
+    if not dupes(sxl):
+        failures.append("scope_exclusions_unique: a planted same-(version, file) pair was "
+                        "not detected as a duplicate — the rule cannot fire")
+    if len(scope_idx) != 1:
+        failures.append(f"scope_exclusions_unique: the planted pair collapsed to "
+                        f"{len(scope_idx)} index entries, so one silently shadowed the "
+                        f"other; that is the defect this check exists for")
+
+    # the committed register must hold no shadowed entry
+    _, _, _, committed = load_waivers()
+    bad = dupes(committed)
+    if bad:
+        for (v, f), idxs in sorted(bad.items(), key=lambda kv: str(kv[0])):
+            kept = idxs[-1]
+            failures.append(f"scope_exclusions_unique: {v} {f} is excluded {len(idxs)} times "
+                            f"(list positions {idxs}); position {kept} wins scope_idx and the "
+                            f"others are clocks the completeness gate never reads — retire the "
+                            f"shadowed ones in place")
+    return failures
+
+
 def main():
     failures = []
     failures += check_known_cases()
@@ -385,6 +438,7 @@ def main():
     failures += check_waiver_class_spec_authoring()
     failures += check_duplicate_of_resolves()
     failures += check_tombstones_are_inert()
+    failures += check_scope_exclusions_are_unique()
     if failures:
         print("COMPLETENESS-MATCHER GATE: FAIL")
         for f in failures:
@@ -404,6 +458,8 @@ def main():
           "waiver's own version; every committed waiver resolves")
     print("  tombstones_are_inert: a note-only retired entry is skipped and keeps its "
           "index; an object with one live key is not")
+    print("  scope_exclusions_unique: no (version, file) is excluded twice, so no entry "
+          "is a clock the completeness gate never reads")
     return 0
 
 

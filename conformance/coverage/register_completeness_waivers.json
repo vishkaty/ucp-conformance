@@ -68,15 +68,12 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/template.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated payment-handler-template.md to payment/template.md (verified present in the 2026-08-25 vendor tree; still the same fill-in-the-blank TEMPLATE for authors WRITING a payment-handler specification, MUST count unchanged at 9). Its MUST/REQUIRED clauses bind the handler-spec author, not the merchant server under test.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "2026-08-25 docs/specification/payment/template.md",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[13], the entry that already WON scope_idx for this (version, file) and carries review_by 2027-02-08",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated payment-handler-template.md to payment/template.md (verified present in the 2026-08-25 vendor tree; still the same fill-in-the-blank TEMPLATE for authors WRITING a payment-handler specification, MUST count unchanged at 9). Its MUST/REQUIRED clauses bind the handler-spec author, not the merchant server under test.",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06"
     },
     {
       "file": "docs/specification/tokenization-guide.md",
@@ -113,15 +110,12 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/examples/platform-tokenizer-payment-handler.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated examples/platform-tokenizer-payment-handler.md to payment/examples/platform-tokenizer-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 12, credential schemas renamed CardCredential/TokenCredential -> PanCredential/NetworkTokenCredential/TokenCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "2026-08-25 docs/specification/payment/examples/platform-tokenizer-payment-handler.md",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[15], the entry that already WON scope_idx for this (version, file) and carries review_by 2026-12-26",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated examples/platform-tokenizer-payment-handler.md to payment/examples/platform-tokenizer-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 12, credential schemas renamed CardCredential/TokenCredential -> PanCredential/NetworkTokenCredential/TokenCredential under common/types). Still the same kind",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06"
     },
     {
       "file": "docs/specification/examples/processor-tokenizer-payment-handler.md",
@@ -156,15 +150,12 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/examples/encrypted-credential-payment-handler.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated AND renamed examples/encrypted-credential-handler.md to payment/examples/encrypted-credential-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 5, credential schema renamed CardCredential -> PanCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "2026-08-25 docs/specification/payment/examples/encrypted-credential-payment-handler.md",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[16], the entry that already WON scope_idx for this (version, file) and carries review_by 2027-02-08",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated AND renamed examples/encrypted-credential-handler.md to payment/examples/encrypted-credential-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 5, credential schema renamed CardCredential -> PanCredential under common/types). Still the same kind of worked, illustrative example; not independent",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06"
     },
     {
       "file": "docs/specification/examples/business-tokenizer-payment-handler.md",
