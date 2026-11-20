@@ -73,6 +73,31 @@ def note_only(e, need=None):
     return bool(need) and need not in e
 
 
+def entry_identity(reg, path, entry):
+    """A position-INDEPENDENT identity for one entry of a list-shaped register, or None
+    when the register declares no `identity` or the entry is not a dict.
+
+    An entry path like `waivers[38]` is an ORDINAL, and an ordinal is not an identity:
+    dd84fb4 deleted waivers[38] on 2026-10-27 and shifted every later index, so 13
+    recorded review_signoffs sample ids silently resolved to entries no human had read.
+    No gate could see it, because an index always resolves to SOMETHING. A register that
+    declares `identity` (a list of field names) can instead be addressed by what the
+    entry IS, and verify_review_signoffs then refuses a bare ordinal for it.
+
+    The fields chosen name WHICH obligation an entry is about, never what it says about
+    it, so correcting a reason does not invalidate a recorded sample while a shift does.
+    List values join with `+`; the rendered identity must be unique within its list,
+    which validate_completeness_matcher asserts for the waiver register."""
+    fields = (reg or {}).get("identity")
+    if not fields or not isinstance(entry, dict):
+        return None
+    parts = []
+    for f in fields:
+        v = entry.get(f)
+        parts.append("+".join(map(str, v)) if isinstance(v, list) else str(v))
+    return " ".join(parts)
+
+
 def iter_entries(reg, doc):
     """Yield (path, entry) for one register's entry-path over its loaded document.
     Paths:  `$.*`        every value of an id-keyed dict, `_`-prefixed keys skipped;
@@ -522,6 +547,42 @@ def selftest():
                 real += [f"{s.get('batch')}: {m}" for m in sample_resolution_errors(s, None)]
         case("(g10) every sampled entry of every committed sign-off batch resolves against "
              "its register", real == [], real[:6])
+
+        # (g11) An ORDINAL sample id is not an identity. dd84fb4 deleted waivers[38] on
+        # 2026-10-27 and shifted every later index, so 13 recorded sample ids resolved to
+        # entries no human had read, and no gate could see it because an index always
+        # resolves to SOMETHING. A register that declares `identity` therefore refuses a
+        # bare ordinal and resolves a content addressed id instead.
+        try:
+            from verify_review_signoffs import default_sample_resolver as _dsr
+        except ImportError as e:                                          # noqa: BLE001
+            print(f"  ✗ (g11) default_sample_resolver not importable: {e}")
+            bad += 1
+        else:
+            _r = _dsr()
+            W = "register_completeness_waivers.json"
+            _regs = json.load(open(_os.path.join(ROOT, "conformance", "coverage",
+                                                 "expiry_registers.json")))["registers"]
+            _wspec = [x for x in _regs if x.get("file", "").endswith("register_completeness_waivers.json")
+                      and x.get("entries") == "$.waivers[*]"]
+            case("(g11) the waiver register declares an `identity`",
+                 bool(_wspec) and bool(_wspec[0].get("identity")),
+                 _wspec[0] if _wspec else None)
+            _doc = json.load(open(_os.path.join(ROOT, "conformance", "coverage",
+                                                "register_completeness_waivers.json")))
+            _live = [(i, e) for i, e in enumerate(_doc["waivers"]) if not note_only(e)]
+            _i, _e = _live[0]
+            _fields = (_wspec[0].get("identity") or []) if _wspec else []
+            _key = " ".join("+".join(map(str, _e[f])) if isinstance(_e.get(f), list) else str(_e.get(f))
+                            for f in _fields)
+            case("(g11) a bare ordinal id is REFUSED for a register that declares an identity",
+                 _r(f"{W} waivers[{_i}]") is False, f"waivers[{_i}]")
+            case("(g11) the content addressed id for the same entry RESOLVES",
+                 _r(f"{W} waivers[{_key}]") is True, f"waivers[{_key}]")
+            case("(g11) a content addressed id for an entry that does not exist does NOT resolve",
+                 _r(f"{W} waivers[2026-04-08 docs/specification/nope.md 1]") is False)
+            case("(g11) an id-keyed register entry still resolves (unchanged)",
+                 _r("exemptions.json OVR-011") is True)
 
     # ---- D2-19: two-tier horizon (decision 23) + cliff detection
     regs2 = [{"name": "ki", "file": "k.json", "entries": "$.rows[*]", "scope": "version",
