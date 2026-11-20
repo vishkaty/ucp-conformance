@@ -140,11 +140,11 @@ def _expiry_register_entry_paths():
     try:
         from validate_expiry_clocks import iter_entries            # the gate's own walker
     except Exception:                                              # noqa: BLE001
-        return {}
+        return {}, {}, set()
     try:
         regs = json.load(open(EXPIRY_REGISTERS)).get("registers", [])
     except Exception:                                              # noqa: BLE001
-        return {}
+        return {}, {}, set()
     try:
         from validate_expiry_clocks import entry_identity           # one identity rule
     except Exception:                                              # noqa: BLE001
