@@ -1,5 +1,5 @@
 {
- "_about": "Registry of every register whose entries carry an expiry clock (PLAN-v3 §2.4, D2-04/D2-19). validate_expiry_clocks.py walks each register's `entries` path and requires `review_by` (ISO date; FAIL when past, warn within 14 d) and `spec_pin` (8-hex lock commit per version in scope; FAIL on drift) on every entry — unless `clock` is `none` (retirements: a sanctioned retirement is a permanent fact about a pinned spec). `scope` says which spec version(s) an entry's truth depends on: `versions` (entry.versions list), `version` (entry.version), `all` (every registered version), `none` (no spec pin — the entry is about the site, not a pin). `clock_tier` (D2-19, decision 23): `moving` = truth depends on upstream pins/goldens/external tools (30 d); `pin-only` = truth depends only on the spec pin (90 d). Later additions per plan: expected_skips_* (D1-10), known_issues.json (D5-07), known_tag_moves.json (D2-17), official_crosscheck_allowlist.json, known_sdk_drops.json, known_external_agent_divergences.json. add_expiry_clocks.py stamps missing hands; the seed batch is recorded in review_signoffs.json as `expiry-clock-seed-2026-09`. agent_lane_overrides.json (two registers) RETIRED 2026-09-11 by D2-08: the agent denominator is the register's role field; the overrides' reasons live on the rows as role_provenance. B6 (W1 review V4, 2026-09-11): the four requirements/<version>/normative_basis_review_queue.json files are now registered (root clocks, pin-only) — they were the only expiry-contract breach in the W1 data; 216 rows previously carried a null normative_basis with no clock forcing the question.",
+ "_about": "Registry of every register whose entries carry an expiry clock (PLAN-v3 \u00a72.4, D2-04/D2-19). validate_expiry_clocks.py walks each register's `entries` path and requires `review_by` (ISO date; FAIL when past, warn within 14 d) and `spec_pin` (8-hex lock commit per version in scope; FAIL on drift) on every entry \u2014 unless `clock` is `none` (retirements: a sanctioned retirement is a permanent fact about a pinned spec). `scope` says which spec version(s) an entry's truth depends on: `versions` (entry.versions list), `version` (entry.version), `all` (every registered version), `none` (no spec pin \u2014 the entry is about the site, not a pin). `clock_tier` (D2-19, decision 23): `moving` = truth depends on upstream pins/goldens/external tools (30 d); `pin-only` = truth depends only on the spec pin (90 d). Later additions per plan: expected_skips_* (D1-10), known_issues.json (D5-07), known_tag_moves.json (D2-17), official_crosscheck_allowlist.json, known_sdk_drops.json, known_external_agent_divergences.json. add_expiry_clocks.py stamps missing hands; the seed batch is recorded in review_signoffs.json as `expiry-clock-seed-2026-09`. agent_lane_overrides.json (two registers) RETIRED 2026-09-11 by D2-08: the agent denominator is the register's role field; the overrides' reasons live on the rows as role_provenance. B6 (W1 review V4, 2026-09-11): the four requirements/<version>/normative_basis_review_queue.json files are now registered (root clocks, pin-only) \u2014 they were the only expiry-contract breach in the W1 data; 216 rows previously carried a null normative_basis with no clock forcing the question.",
  "seed": {
   "batch": "expiry-clock-seed-2026-09",
   "date": "2026-09-10"
@@ -20,7 +20,10 @@
    "entries": "$.*",
    "scope": "versions",
    "clock": "review_by",
-   "clock_tier": "pin-only"
+   "clock_tier": "pin-only",
+   "identity": [
+    "versions"
+   ]
   },
   {
    "name": "agent_exemptions",
@@ -36,7 +39,12 @@
    "entries": "$.waivers[*]",
    "scope": "version",
    "clock": "review_by",
-   "clock_tier": "pin-only"
+   "clock_tier": "pin-only",
+   "identity": [
+    "version",
+    "file",
+    "line"
+   ]
   },
   {
    "name": "scope_exclusions",
@@ -44,7 +52,11 @@
    "entries": "$.scope_exclusions[*]",
    "scope": "versions",
    "clock": "review_by",
-   "clock_tier": "pin-only"
+   "clock_tier": "pin-only",
+   "identity": [
+    "file",
+    "versions"
+   ]
   },
   {
    "name": "schema_census_rulings",
@@ -166,7 +178,7 @@
    "scope": "version",
    "clock": "review_by",
    "clock_tier": "moving",
-   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned at D1-11; 4 run / 245 pinned after D3-10's MCP harness landed — W1 integration re-review). This clock forces the next re-review."
+   "_note": "D1-11: the MCP-only 08-25 fixture's near-empty pinned population (2 run / 226 pinned at D1-11; 4 run / 245 pinned after D3-10's MCP harness landed \u2014 W1 integration re-review). This clock forces the next re-review."
   },
   {
    "name": "expected_skips.golden_0825_mcp",

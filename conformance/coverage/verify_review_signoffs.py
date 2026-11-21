@@ -22,7 +22,7 @@ RESOLVES against its register, or carries a documented `sample.substitutions` re
 frozen list of ids that a retirement has hollowed out is not a sample. Exit 0 = every locked check is reviewed; 1 = an unreviewed
 check id is in the lock (the message names it).
 """
-import json, math, os, re, sys
+import json, re, math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -129,28 +129,46 @@ def _expiry_register_entry_paths():
     the `<file basename> <entry path>` form the seed batch records (e.g.
     "exemptions.json CART-024", "register_completeness_waivers.json waivers[100]").
     A retired register is simply absent from the registry, so its entries stop resolving —
-    which is exactly the signal this gate was missing."""
+    which is exactly the signal this gate was missing.
+
+    Returns (paths, identities, ordinal_banned). `identities` holds the CONTENT addressed
+    form `<listkey>[<identity>]` for every register that declares an `identity`, and
+    `ordinal_banned` names those registers: for them a bare `<listkey>[<N>]` is refused,
+    because an ordinal is not an identity (dd84fb4 re-pointed 13 sampled ids by deleting
+    one entry, and no gate could see it)."""
     sys.path.insert(0, os.path.join(ROOT, "conformance", "selfcheck"))
     try:
         from validate_expiry_clocks import iter_entries            # the gate's own walker
     except Exception:                                              # noqa: BLE001
-        return {}
+        return {}, {}, set()
     try:
         regs = json.load(open(EXPIRY_REGISTERS)).get("registers", [])
     except Exception:                                              # noqa: BLE001
-        return {}
-    out = {}
+        return {}, {}, set()
+    try:
+        from validate_expiry_clocks import entry_identity           # one identity rule
+    except Exception:                                              # noqa: BLE001
+        entry_identity = lambda *a, **k: None                       # noqa: E731
+    out, ident, ordinal_banned = {}, {}, set()
     for reg in regs:
         fp = os.path.join(ROOT, reg.get("file", ""))
         if not os.path.exists(fp):
             continue
+        base = os.path.basename(reg["file"])
         try:
             doc = json.load(open(fp))
-            paths = {path for path, _e in iter_entries(reg, doc)}
+            entries = list(iter_entries(reg, doc))
         except Exception:                                          # noqa: BLE001
             continue
-        out.setdefault(os.path.basename(reg["file"]), set()).update(paths)
-    return out
+        out.setdefault(base, set()).update(p for p, _e in entries)
+        if reg.get("identity"):
+            for path, e in entries:
+                key = entry_identity(reg, path, e)
+                if key is None or "[" not in path:
+                    continue
+                ident.setdefault(base, set()).add(f"{path.split('[')[0]}[{key}]")
+                ordinal_banned.add(base)
+    return out, ident, ordinal_banned
 
 
 def _register_row_ids():
@@ -177,10 +195,13 @@ def _register_row_ids():
     return out
 
 
+ORDINAL_PATH_RE = re.compile(r"^[^\[\]]+\[\d+\]$")
+
+
 def default_sample_resolver(signoff=None):
     """A `resolver(entry) -> bool` over the committed registers. `signoff` supplies the
     versions a bare row id may resolve at (the batch's own `ids` keys)."""
-    reg_paths = _expiry_register_entry_paths()
+    reg_paths, reg_idents, ordinal_banned = _expiry_register_entry_paths()
     row_ids = _register_row_ids()
     batch_versions = list((signoff or {}).get("ids") or {}) or list(row_ids)
 
@@ -190,7 +211,14 @@ def default_sample_resolver(signoff=None):
             return False
         head = toks[0]
         if head.endswith(".json"):
-            return len(toks) == 2 and toks[1] in reg_paths.get(head, set())
+            if len(toks) != 2:
+                return False
+            tail = toks[1]
+            if head in ordinal_banned and ORDINAL_PATH_RE.match(tail):
+                return False      # an ordinal is not an identity; content-address it
+            if tail in reg_idents.get(head, set()):
+                return True
+            return tail in reg_paths.get(head, set())
         if VERSION_RE.match(head):
             return len(toks) == 2 and toks[1] in row_ids.get(head, set())
         if ROW_ID_RE.match(head) and len(toks) == 1:

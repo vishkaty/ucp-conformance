@@ -49,8 +49,14 @@ from verify_register_completeness import (   # noqa: E402
     covered_lines_for, scan_keywords, norm, parse_source, validate_waiver,
     load_waivers,
 )
+sys.path.insert(0, str(ROOT / "conformance"))
+from common.spec_versions import VERSION_TREE  # noqa: E402  (`versions: "*"`)
+from validate_expiry_clocks import note_only  # noqa: E402  (one tombstone rule)
 
 VENDOR = ROOT / "conformance" / ".vendor" / "ucp-2026-08-25"
+WAIVERS_PATH = (ROOT / "conformance" / "coverage"
+                / "register_completeness_waivers.json")
+REGISTERS_PATH = ROOT / "conformance" / "coverage" / "expiry_registers.json"
 REGISTER_FILE = (ROOT / "conformance" / "requirements" / "2026-08-25"
                   / "identity-linking.json")
 SPEC_REL = "docs/specification/common/identity-linking/index.md"
@@ -376,6 +382,151 @@ def check_tombstones_are_inert():
     return failures
 
 
+def check_scope_exclusions_are_unique():
+    """load_waivers indexes scope exclusions as scope_idx[(version, file)] = entry, so
+    two entries naming the SAME (version, file) silently shadow each other: the later one
+    wins the index and the earlier one is a clock policing nothing. Three such pairs sat
+    in the register, each with the shadowed member dated 2026-12-06, so on that date
+    somebody would have dutifully re-read an entry the completeness gate never consults.
+
+    A duplicate must therefore be an ERROR, not a last-write-wins. The check is on the
+    COMMITTED register, because that is where the defect was, plus a hermetic pair to
+    prove the rule can fire at all."""
+    import json as _json, tempfile, pathlib as _pl, collections as _c
+    failures = []
+
+    def dupes(entries):
+        """{(version, file): [JSON list positions]} for every pair named twice.
+
+        Positions are indexes into the RAW list, because that is what a reader
+        opens the file and counts, and what a tombstone's `_replaced_by` names.
+        Enumerating the tombstone-filtered list instead reports a position one
+        short for every tombstone that precedes the pair.
+        """
+        seen = _c.defaultdict(list)
+        for i, x in enumerate(entries):
+            if not isinstance(x, dict) or note_only(x):
+                continue
+            vers = x.get("versions")
+            vlist = list(VERSION_TREE) if vers in ("*", None) else vers
+            if isinstance(vlist, str):
+                vlist = [vlist]
+            for v in vlist:
+                seen[(v, x.get("file"))].append(i)
+        return {k: v for k, v in seen.items() if len(v) > 1}
+
+    # hermetic: the rule must fire on a planted pair, and `versions: "*"` must
+    # expand through VERSION_TREE rather than raise. A lone star entry is NOT a
+    # duplicate; a star entry beside an explicit version for the same file IS.
+    pair = [{"file": "docs/specification/x.md", "versions": ["2026-08-25"],
+             "class": "out-of-scope", "reason": "a" * 40, "review_by": "2027-01-01"},
+            {"file": "docs/specification/x.md", "versions": ["2026-08-25"],
+             "class": "out-of-scope", "reason": "b" * 40, "review_by": "2027-02-01"}]
+    lone_star = [{"file": "docs/specification/star.md", "versions": "*",
+                  "class": "out-of-scope", "reason": "s" * 40,
+                  "review_by": "2027-01-01"}]
+    star_clash = lone_star + [{"file": "docs/specification/star.md",
+                               "versions": ["2026-08-25"], "class": "out-of-scope",
+                               "reason": "t" * 40, "review_by": "2027-01-01"}]
+    for label, entries, want in (("a lone `versions: \"*\"` entry", lone_star, False),
+                                 ("a `*` entry beside an explicit version", star_clash, True)):
+        st = _pl.Path(tempfile.mkdtemp()) / "s.json"
+        st.write_text(_json.dumps({"waivers": [], "scope_exclusions": entries}, indent=2))
+        try:
+            got = bool(dupes(_json.loads(st.read_text())["scope_exclusions"]))
+        except Exception as e:                                          # noqa: BLE001
+            failures.append(f"scope_exclusions_unique: {label} raised "
+                            f"{type(e).__name__}: {e} — `*` must expand through "
+                            f"VERSION_TREE, not crash the gate")
+            continue
+        if got is not want:
+            failures.append(f"scope_exclusions_unique: {label} -> duplicate={got}, "
+                            f"want {want}")
+    tmp = _pl.Path(tempfile.mkdtemp()) / "w.json"
+    tmp.write_text(_json.dumps({"waivers": [], "scope_exclusions": pair}, indent=2))
+    _, _, scope_idx, _ = load_waivers(tmp)
+    if not dupes(_json.loads(tmp.read_text())["scope_exclusions"]):
+        failures.append("scope_exclusions_unique: a planted same-(version, file) pair was "
+                        "not detected as a duplicate — the rule cannot fire")
+    if len(scope_idx) != 1:
+        failures.append(f"scope_exclusions_unique: the planted pair collapsed to "
+                        f"{len(scope_idx)} index entries, so one silently shadowed the "
+                        f"other; that is the defect this check exists for")
+
+    # the committed register must hold no shadowed entry, read RAW so the
+    # positions reported are the JSON ones
+    committed = _json.loads(WAIVERS_PATH.read_text(encoding="utf-8"))
+    bad = dupes(committed.get("scope_exclusions") or [])
+    if bad:
+        for (v, f), idxs in sorted(bad.items(), key=lambda kv: str(kv[0])):
+            kept = idxs[-1]
+            failures.append(f"scope_exclusions_unique: {v} {f} is excluded {len(idxs)} times "
+                            f"(list positions {idxs}); position {kept} wins scope_idx and the "
+                            f"others are clocks the completeness gate never reads — retire the "
+                            f"shadowed ones in place")
+    return failures
+
+
+def check_waiver_identities_are_unique():
+    """A waiver's declared identity must be unique within its list.
+
+    load_waivers indexes waivers as idx[(version, file, line)] = w, last write
+    wins, so two entries naming the same triple shadow each other exactly as
+    the three scope exclusions did. And since the sample ids in
+    review_signoffs.json are content addressed on that same triple (the
+    `identity` the waiver register declares in expiry_registers.json), a
+    collision means a sampled id resolves without being able to say WHICH copy
+    a human read. entry_identity's docstring promises this file asserts it, so
+    this is that assertion.
+    """
+    import json as _json, collections as _c
+    failures = []
+
+    def collisions(entries, fields):
+        seen = _c.defaultdict(list)
+        for i, x in enumerate(entries):
+            if not isinstance(x, dict) or note_only(x):
+                continue
+            key = tuple(
+                "+".join(map(str, x.get(f))) if isinstance(x.get(f), list)
+                else str(x.get(f))
+                for f in fields
+            )
+            seen[key].append(i)
+        return {k: v for k, v in seen.items() if len(v) > 1}
+
+    doc = _json.loads(WAIVERS_PATH.read_text(encoding="utf-8"))
+    regs = _json.loads(REGISTERS_PATH.read_text(encoding="utf-8"))["registers"]
+    for reg in regs:
+        if not reg.get("file", "").endswith("register_completeness_waivers.json"):
+            continue
+        fields = reg.get("identity")
+        if not fields:
+            failures.append(f"waiver_identities_unique: the register "
+                            f"{reg.get('entries')} declares no `identity`, so its "
+                            f"sample ids are ordinals again")
+            continue
+        listkey = reg["entries"][2:-3]
+        bad = collisions(doc.get(listkey) or [], fields)
+        for key, idxs in sorted(bad.items()):
+            failures.append(f"waiver_identities_unique: {listkey} identity "
+                            f"{' '.join(key)!r} is carried by {len(idxs)} entries "
+                            f"(JSON positions {idxs}); one shadows the other in "
+                            f"load_waivers and a sampled id cannot say which was read")
+
+    # the rule must be able to fire: two entries with the same triple
+    twin = {"version": "2026-08-25", "file": "docs/specification/x.md", "line": 7,
+            "class": "non-normative", "reason": "z" * 40}
+    if not collisions([twin, {**twin, "reason": "y" * 40}],
+                      ["version", "file", "line"]):
+        failures.append("waiver_identities_unique: a planted identical triple was "
+                        "not reported — the rule cannot fire")
+    if collisions([twin, {**twin, "line": 8}], ["version", "file", "line"]):
+        failures.append("waiver_identities_unique: two entries differing only in "
+                        "`line` were called a collision")
+    return failures
+
+
 def main():
     failures = []
     failures += check_known_cases()
@@ -385,6 +536,8 @@ def main():
     failures += check_waiver_class_spec_authoring()
     failures += check_duplicate_of_resolves()
     failures += check_tombstones_are_inert()
+    failures += check_scope_exclusions_are_unique()
+    failures += check_waiver_identities_are_unique()
     if failures:
         print("COMPLETENESS-MATCHER GATE: FAIL")
         for f in failures:
@@ -404,6 +557,10 @@ def main():
           "waiver's own version; every committed waiver resolves")
     print("  tombstones_are_inert: a note-only retired entry is skipped and keeps its "
           "index; an object with one live key is not")
+    print("  scope_exclusions_unique: no (version, file) is excluded twice, so no entry "
+          "is a clock the completeness gate never reads")
+    print("  waiver_identities_unique: every waiver identity is unique within its "
+          "list, so a content addressed sample id names exactly one entry")
     return 0
 
 

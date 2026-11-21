@@ -19,10 +19,11 @@
       "clock_tier": "pin-only"
     },
     {
-      "_retired": "2026-08-25 docs/specification/shopping/checkout/embedded.md (whole file)",
+      "_retired": "docs/specification/shopping/checkout/embedded.md 2026-08-25",
       "_on": "2026-11-19",
       "_replaced_by": "register row CHK-081 at 2026-08-25 (L125-L127) plus 61 per-line out-of-scope-transport waivers",
-      "_why": "The whole-file exclusion claimed no server observable obligation in the file. L125-L127 binds the checkout response body itself, the embedded service binding under ucp.services with config.delegate, and its cart twin is already rowed as CART-034. The other 61 keyword lines are genuinely Embedded Protocol duties and are now waived per line with transport embedded, the treatment shopping/cart/embedded.md already receives. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
+      "_why": "The whole-file exclusion claimed no server observable obligation in the file. L125-L127 binds the checkout response body itself, the embedded service binding under ucp.services with config.delegate, and its cart twin is already rowed as CART-034. The other 61 keyword lines are genuinely Embedded Protocol duties and are now waived per line with transport embedded, the treatment shopping/cart/embedded.md already receives. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution.",
+      "_retired_as_written": "2026-08-25 docs/specification/shopping/checkout/embedded.md (whole file)"
     },
     {
       "file": "docs/specification/embedded-protocol.md",
@@ -68,15 +69,13 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/template.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated payment-handler-template.md to payment/template.md (verified present in the 2026-08-25 vendor tree; still the same fill-in-the-blank TEMPLATE for authors WRITING a payment-handler specification, MUST count unchanged at 9). Its MUST/REQUIRED clauses bind the handler-spec author, not the merchant server under test.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "docs/specification/payment/template.md 2026-08-25",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[13], the entry that already WON scope_idx for this (version, file) and carries review_by 2027-02-08",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated payment-handler-template.md to payment/template.md (verified present in the 2026-08-25 vendor tree; still the same fill-in-the-blank TEMPLATE for authors WRITING a payment-handler specification, MUST count unchanged at 9). Its MUST/REQUIRED clauses bind the handler-spec author, not the merchant server under test.",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06",
+      "_retired_as_written": "2026-08-25 docs/specification/payment/template.md"
     },
     {
       "file": "docs/specification/tokenization-guide.md",
@@ -113,15 +112,13 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/examples/platform-tokenizer-payment-handler.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated examples/platform-tokenizer-payment-handler.md to payment/examples/platform-tokenizer-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 12, credential schemas renamed CardCredential/TokenCredential -> PanCredential/NetworkTokenCredential/TokenCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "docs/specification/payment/examples/platform-tokenizer-payment-handler.md 2026-08-25",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[15], the entry that already WON scope_idx for this (version, file) and carries review_by 2026-12-26",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated examples/platform-tokenizer-payment-handler.md to payment/examples/platform-tokenizer-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 12, credential schemas renamed CardCredential/TokenCredential -> PanCredential/NetworkTokenCredential/TokenCredential under common/types). Still the same kind",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06",
+      "_retired_as_written": "2026-08-25 docs/specification/payment/examples/platform-tokenizer-payment-handler.md"
     },
     {
       "file": "docs/specification/examples/processor-tokenizer-payment-handler.md",
@@ -156,15 +153,13 @@
       "clock_tier": "pin-only"
     },
     {
-      "file": "docs/specification/payment/examples/encrypted-credential-payment-handler.md",
-      "versions": [
-        "2026-08-25"
-      ],
-      "class": "non-normative-doc",
-      "reason": "The #723 hierarchy reorg + #736/#741 payment refactor relocated AND renamed examples/encrypted-credential-handler.md to payment/examples/encrypted-credential-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 5, credential schema renamed CardCredential -> PanCredential under common/types). Still the same kind of worked, illustrative example; not independent normative obligations on a UCP server.",
-      "review_by": "2026-12-06",
-      "spec_pin": "cd78fb38",
-      "clock_tier": "pin-only"
+      "_retired": "docs/specification/payment/examples/encrypted-credential-payment-handler.md 2026-08-25",
+      "_on": "2026-11-20",
+      "_replaced_by": "scope_exclusions[16], the entry that already WON scope_idx for this (version, file) and carries review_by 2027-02-08",
+      "_why": "Duplicate scope exclusion. load_waivers indexes these as scope_idx[(version, file)] = entry, so of two entries naming the same pair the LATER one wins and this one was a clock policing nothing: the completeness gate never read it, yet its review_by 2026-12-06 would have sent somebody to re-read it. Both members said the same thing in different words, one describing the #723 relocation and the other naming the 2026-08-25 successor path. Retired in place, never deleted, because sample ids name this list by index. Its text is kept here so nothing is lost: The #723 hierarchy reorg + #736/#741 payment refactor relocated AND renamed examples/encrypted-credential-handler.md to payment/examples/encrypted-credential-payment-handler.md (verified present in the 2026-08-25 vendor tree; MUST count unchanged at 5, credential schema renamed CardCredential -> PanCredential under common/types). Still the same kind of worked, illustrative example; not independent",
+      "_retired_class": "non-normative-doc",
+      "_retired_review_by": "2026-12-06",
+      "_retired_as_written": "2026-08-25 docs/specification/payment/examples/encrypted-credential-payment-handler.md"
     },
     {
       "file": "docs/specification/examples/business-tokenizer-payment-handler.md",
@@ -553,10 +548,11 @@
       "clock_tier": "pin-only"
     },
     {
-      "_retired": "2026-04-08 docs/specification/overview.md:307",
+      "_retired": "2026-04-08 docs/specification/overview.md 307",
       "_on": "2026-11-19",
       "_replaced_by": "register row OVR-037 at 2026-04-08, EXEMPT needs-target-capability",
-      "_why": "The waiver called L307 a duplicate of OVR-011. It is not: at 2026-08-25 the register carries OVR-011 and OVR-037 as separate rows with different sources, roles and quotes, so by its own judgement these are distinct obligations. L306-L309 is a verification duty on platforms AND businesses during schema resolution; OVR-011 is a construction duty on businesses about which capabilities a response may include. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
+      "_why": "The waiver called L307 a duplicate of OVR-011. It is not: at 2026-08-25 the register carries OVR-011 and OVR-037 as separate rows with different sources, roles and quotes, so by its own judgement these are distinct obligations. L306-L309 is a verification duty on platforms AND businesses during schema resolution; OVR-011 is a construction duty on businesses about which capabilities a response may include. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution.",
+      "_retired_as_written": "2026-04-08 docs/specification/overview.md:307"
     },
     {
       "version": "2026-04-08",
@@ -613,10 +609,11 @@
       "clock_tier": "pin-only"
     },
     {
-      "_retired": "2026-04-08 docs/specification/overview.md:629",
+      "_retired": "2026-04-08 docs/specification/overview.md 629",
       "_on": "2026-11-19",
       "_replaced_by": "register row OVR-057 at 2026-04-08, EXEMPT client-bound",
-      "_why": "The waiver called L629 non-normative, internal platform behaviour. The identical sentence is a register row at three other versions: NEG-008 at 2026-01-11 and at 2026-01-23, and OVR-057 at 2026-08-25. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
+      "_why": "The waiver called L629 non-normative, internal platform behaviour. The identical sentence is a register row at three other versions: NEG-008 at 2026-01-11 and at 2026-01-23, and OVR-057 at 2026-08-25. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution.",
+      "_retired_as_written": "2026-04-08 docs/specification/overview.md:629"
     },
     {
       "version": "2026-04-08",
@@ -630,10 +627,11 @@
       "clock_tier": "pin-only"
     },
     {
-      "_retired": "2026-04-08 docs/specification/overview.md:915",
+      "_retired": "2026-04-08 docs/specification/overview.md 915",
       "_on": "2026-11-19",
       "_replaced_by": "register row OVR-060 at 2026-04-08, EXEMPT needs-target-capability",
-      "_why": "The waiver said MCP transport is outside the REST conformance surface at 2026-04-08 while MCP-001 to MCP-006 are rows at that version with transport mcp, five of them checked; and its duplicate_of CHK-050 is a REST status-code row, not this JSON-RPC sentence. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
+      "_why": "The waiver said MCP transport is outside the REST conformance surface at 2026-04-08 while MCP-001 to MCP-006 are rows at that version with transport mcp, five of them checked; and its duplicate_of CHK-050 is a REST status-code row, not this JSON-RPC sentence. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution.",
+      "_retired_as_written": "2026-04-08 docs/specification/overview.md:915"
     },
     {
       "version": "2026-04-08",
@@ -658,10 +656,11 @@
       "clock_tier": "pin-only"
     },
     {
-      "_retired": "2026-04-08 docs/specification/overview.md:1620",
+      "_retired": "2026-04-08 docs/specification/overview.md 1620",
       "_on": "2026-11-19",
       "_replaced_by": "register row OVR-067 at 2026-04-08, CHECK via mcp.checkout_via_tools_call",
-      "_why": "Same false premise as waivers[39], that MCP is outside the 2026-04-08 surface; and its duplicate_of CHK-034 is a checkout.json required[] row with nothing to do with structuredContent. The sentence was in fact already graded at this version by mcp.checkout_via_tools_call, whose predicate requires result.structuredContent.ucp and whose kill set drops that field; only the attribution was missing. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution."
+      "_why": "Same false premise as waivers[39], that MCP is outside the 2026-04-08 surface; and its duplicate_of CHK-034 is a checkout.json required[] row with nothing to do with structuredContent. The sentence was in fact already graded at this version by mcp.checkout_via_tools_call, whose predicate requires result.structuredContent.ucp and whose kill set drops that field; only the attribution was missing. Retired IN PLACE rather than deleted: review_signoffs.json sample ids name this list by index, and a deletion re-points every later sampled entry, which is what happened on 2026-10-27 in dd84fb4 and is repaired in 2a04f51. Every key here is underscore prefixed, so note_only skips it, the entry keeps its index, and the sampled id stops resolving, which is what forces a recorded substitution.",
+      "_retired_as_written": "2026-04-08 docs/specification/overview.md:1620"
     },
     {
       "version": "2026-04-08",
