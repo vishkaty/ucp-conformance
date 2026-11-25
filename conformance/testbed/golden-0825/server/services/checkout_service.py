@@ -79,6 +79,7 @@ from ucp_sdk.models.schemas.common.types.payment_create_request import (
   PaymentCreateRequest,
 )
 from ucp_sdk.models.schemas.common.types.payment import Payment as PaymentResponse
+from ucp_sdk.models.schemas.common.types import payment_instrument as _payment_instrument
 from ucp_sdk.models.schemas.shopping.types import order_line_item
 from ucp_sdk.models.schemas.shopping.types.expectation import Expectation
 from ucp_sdk.models.schemas.shopping.types.expectation import (
@@ -118,6 +119,30 @@ from ucp_sdk.models.schemas.common.types.total import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _as_response_instruments(instruments):
+  """Re-validate request-side payment instruments through the RESPONSE model.
+
+  The request and response `SelectedPaymentInstrument` schemas are byte identical
+  apart from their `$id`, so the SDK generates two distinct pydantic models of the
+  same shape. Handing the request-side instances straight to the response
+  `Payment` field raised "Input should be a valid dictionary or instance of
+  SelectedPaymentInstrument" and refused a conforming platform with 422 (KI-011).
+  Re-validating by value crosses the model boundary and preserves every member.
+  A first version dumped with `exclude_none=True` to keep an omitted optional
+  omitted; it was removed because no test could tell the two apart, the response
+  serializer already dropping nulls, and a line that cannot be shown to matter is
+  decoration.
+  """
+  if not instruments:
+    return instruments
+  return [
+    _payment_instrument.SelectedPaymentInstrument.model_validate(
+      i.model_dump() if hasattr(i, "model_dump") else i
+    )
+    for i in instruments
+  ]
 
 
 class CheckoutService:
@@ -416,7 +441,7 @@ class CheckoutService:
       ],
       links=[],
       payment=PaymentResponse(
-        instruments=checkout_req.payment.instruments
+        instruments=_as_response_instruments(checkout_req.payment.instruments)
         if checkout_req.payment
         else None,
       )
@@ -555,7 +580,7 @@ class CheckoutService:
 
     if checkout_req.payment:
       existing.payment = PaymentResponse(
-        instruments=checkout_req.payment.instruments,
+        instruments=_as_response_instruments(checkout_req.payment.instruments),
       )
 
     if checkout_req.buyer:
