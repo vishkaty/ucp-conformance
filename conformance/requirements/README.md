@@ -77,15 +77,15 @@ inline, so they are `sentence` there; CHK-002, CHK-003 and CHK-005 are reused fo
 text and carry no basis at all, since only mandatory rows get one; and IDM-005 does not
 exist at those pins.
 
-And `bullet` does NOT mean "the quote is a list item". Counting the quotes that BEGIN
-with a list marker, 172 rows qualify and 107 of them carry a basis: 98 are `sentence`, 6
-are `bullet` and 3 are `definition`. The six `bullet` rows are IDM-002, IDM-003 and
-IDM-004 at each of the two 2026-01 pins. What matters is whether the lead-in carries the
-keyword, not whether the quote is a bullet. The counts name their detector because a
-count with an unstated one is not reproducible, and the six are enumerated as well
-because a bare count goes stale on the next relabel, as one did here when CHK-017 left
-this class. Widening either class to key on construct would move rows into a class that
-needs no sign-off, routing them around decision 29.
+And `bullet` does NOT mean "the quote is a list item". Counting the quotes that BEGIN,
+after optional indent, with a list marker, 172 rows qualify and 107 of them carry a
+basis: 98 are `sentence`, 6 are `bullet` and 3 are `definition`. The six `bullet` rows
+are IDM-002, IDM-003 and IDM-004 at each of the two 2026-01 pins. What matters is
+whether the lead-in carries the keyword, not whether the quote is a bullet. The counts
+name their detector because a count with an unstated one is not reproducible, and the
+six are enumerated as well because a bare count goes stale on the next relabel, as one
+did here when CHK-017 left this class. Widening either class to key on construct would
+move rows into a class that needs no sign-off, routing them around decision 29.
 
 ## Verdict rule reminder
 A MUST row → `deviation` when violated (blocks aggregate green). SHOULD → `advisory`.
