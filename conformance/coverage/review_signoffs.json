@@ -1602,13 +1602,27 @@
     "normative_basis"
    ],
    "date": "2026-11-24",
-   "reviewer": "machine assisted adversarial re read, 2026-11-24, of the one row this batch rules. The anchor was read in full at pin cd78fb38 rather than sampled, because the batch is a single row, and an independent adversarial pass over the 2026-11-18 sample is what surfaced the relabel.",
+   "kind": "sample",
+   "reviewer": "machine assisted adversarial re read, 2026-11-24, of the one row this batch rules. The anchor was read in full at pin cd78fb38, and an independent adversarial pass over the 2026-11-18 sample is what surfaced the relabel. The human sample below is the review of the owner and is PENDING.",
    "spec_reverified": true,
-   "notes": "Relabels CHK-017 at 2026-08-25 from bullet to definition. The 2026-09-11 batch had already recorded this justification as NOT signed off, because it does not survive a reading of its anchor, and it has been tracked since: it named an Availability list, while the heading at shopping/checkout/index.md L1017 is Business. Read at pin cd78fb38, the lead in is a bare heading carrying no keyword, every sibling at L1019 to L1027 carries its own MUST or SHOULD inline, and this item at L1028 to L1029 carries none and stands in the indicative. The taxonomy defines bullet as a list item under a keyword bearing lead in, so bullet does not hold here: the keyword is in the siblings, not in the lead in. definition is what the same sentence carries as CHK-012 at both 01 pins, and it is a value that needs a sign off, which is the point: bullet needs none, so one version of this requirement sat under decision 29 while the other sat around it. Deliberately not a kind sample batch, because one row read in full is a complete review rather than a sample, and arming a second human review would add a deadline without adding a check. The 2026-11-18 batch and its 2026-12-02 human sample are untouched.",
+   "notes": "Relabels CHK-017 at 2026-08-25 from bullet to definition. The 2026-09-11 batch had already recorded this justification as NOT signed off, giving no row specific reason beyond that it does not survive a reading of its anchor. The defect a fresh reading finds is that it named an Availability list while the heading at shopping/checkout/index.md L1017 is Business, which is consistent with that record rather than stated by it. Read at pin cd78fb38, the lead in is a bare heading carrying no keyword, every sibling at L1019 to L1027 carries its own MUST or SHOULD inline, and this item at L1028 to L1029 carries none and stands in the indicative. The taxonomy defines bullet as a list item under a keyword bearing lead in, so bullet does not hold here: the keyword is in the siblings, not in the lead in. definition is what the same sentence carries as CHK-012 at both 01 pins, and it is a value that needs a sign off, which is the point: bullet needs none, so one version of this requirement sat under decision 29 while the other sat around it. A kind sample batch at 100 percent, one row of one, which is the shape decision 13 takes on a small batch: the 2026-09-11 normative basis batch sampled 8 of 8 and its human review is what caught DSC-006 and SPL-004 under wrong labels, so a full sample on a small batch demonstrably adds a check. An earlier draft of this note argued the opposite, that one row read in full is a complete review and needs no sample. That was wrong twice over. The sample is the review of the owner OVER the machine, which the machine cannot discharge by reading more carefully, and a batch with no sample prints no line in verify_review_signoffs, so the owner is never prompted and no due date exists. Left that way, any machine authored one row batch could move a row to definition or inferred on a self certifying note with the gate green and silent, which is the route around decision 29 this relabel exists to close. The due date is set to 2026-12-02, the date the 2026-11-18 sample already carries, so this adds a row to that sitting rather than a second deadline. The same sentence at 2026-04-08 is NOT ruled here and is still queued in requirements/2026-04-08/normative_basis_review_queue.json with review_by 2026-12-04, so after this change the sentence is definition at the two 01 pins and at 2026-08-25 and unruled at 2026-04-08. The 2026-11-18 batch is otherwise untouched.",
    "ids": {
     "2026-08-25": [
      "CHK-017"
     ]
+   },
+   "sample": {
+    "seed": 20261124,
+    "of": 1,
+    "size": 1,
+    "ids": [
+     "2026-08-25 CHK-017"
+    ],
+    "human_review": {
+     "status": "pending",
+     "by": "Vishal Katyal",
+     "due": "2026-12-02"
+    }
    }
   }
  ]
