@@ -7,7 +7,7 @@ CI gate, not by good intentions.
 ## The principle: pinned specs are immutable, so tests are permanent
 
 Every spec version this suite targets is **pinned by commit SHA**
-(`conformance/SOURCES.lock.json`) — `2026-04-08`, `2026-01-23`, `2026-01-11` are frozen
+(`conformance/SOURCES.lock.json`) — `2026-08-25`, `2026-04-08`, `2026-01-23`, `2026-01-11` are frozen
 documents that will never change. It follows that:
 
 > **A check that correctly tests a normative MUST of a pinned spec version is correct
@@ -55,7 +55,7 @@ If relaxing a predicate would let a genuinely non-conformant server pass, it is 
 - **The ratchet, citation-soundness, register-quote, and copy-freshness gates** stop the
   accounted count regressing, an id being graded against the wrong spec version, a quote
   drifting from the pinned text, and the advertised numbers going stale.
-- **`verify_register_completeness.py`** (the `register-completeness` gate) proves the
+- **`verify_register_completeness.py`** (the `register-complete` gate) proves the
   *denominator* is complete: every mandatory RFC-2119 keyword in the pinned prose spec is
   either a register row or a documented reconciliation entry (a scope exclusion for
   structurally-unobservable files like the browser-embedded MessagePort UI, or a per-line

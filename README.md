@@ -71,7 +71,7 @@ check is validated three ways, each anchored to something we didn't write:
    100% of its mutations *and* passes cleanly on a known-good server.
 2. **The official `ucp-schema` validator as the oracle** — no hand-rolled schema logic.
 3. **Verbatim spec citations** — every check traces to a specific normative clause, and a
-   `register-completeness` gate proves the citation set is *complete*: every mandatory
+   `register-complete` gate proves the citation set is *complete*: every mandatory
    keyword in the pinned prose is a tracked requirement, so nothing normative is silently
    missed from the denominator.
 4. **Differential testing against an implementation we didn't write.** The suite is run
@@ -93,8 +93,11 @@ cart-to-checkout conversion, fulfillment, eligibility signals, totals invariants
 **order-event webhooks**, and **HTTPS/TLS transport**. Unsupported capabilities are
 `not-applicable`; missing config is `not-tested` — never a silent pass.
 
-Supports spec versions **2026-04-08**, **2026-01-23**, and **2026-01-11**, each with its
-own reference-validated controlled golden. See
+Bundles four spec versions: **2026-04-08**, **2026-01-23** and **2026-01-11**, each with its
+own reference-validated controlled golden, and **2026-08-25**, which is `converting` (14% of
+its MUSTs accounted; its checks are validated on our own golden-0825, and no independently
+authored 2026-08-25 server has been graded at write level). The per version state is on
+[spck.dev/coverage](https://spck.dev/coverage). See
 [docs/merchant-conformance.md](docs/merchant-conformance.md) and the machine-enforced
 [coverage matrix](docs/spec-coverage-matrix.md).
 
@@ -109,12 +112,13 @@ regression (ratchet), or a wrong check-count claim on the site fails the build.
 
 Currently **256 kill-rate-validated checks** account for **98% of 2026-04-08**, **89% of
 2026-01-23**, and **89% of 2026-01-11** normative MUSTs (check + documented exemption).
-The denominator itself is now gated: a `register-completeness` CI gate reconciles **every**
+The denominator itself is now gated: a `register-complete` CI gate reconciles **every**
 mandatory keyword in the pinned prose against the register, so the percentage is a fraction
 of a *proven-complete* set of requirements, not an assumed one. The remaining gap is a
 categorized residue — documented spec bugs we won't fake, client/platform-bound obligations,
 and a needs-receiver / MCP-A2A-transport tail we haven't built a harness for yet (see
-[WORKSTREAMS.md](WORKSTREAMS.md)).
+[WORKSTREAMS.md](WORKSTREAMS.md)). Every limitation of the suite, each with the file that
+proves it, is listed in [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ## How it stays honest
 

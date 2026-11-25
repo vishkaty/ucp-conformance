@@ -12,8 +12,9 @@ project guide for anyone working in the tree; a private companion,
   clones the suite runs against; it is ignored by git and rebuilt by the tooling.
   The pins are deliberate and changed only together with a revalidation.
 - `packaging/` build and release tooling. `public/` the published site and coverage
-  data. `docs/` and `api/` documentation and the API surface. `tests/` includes the
-  browser smoke tests for the public pages.
+  data. `docs/` and `api/` documentation and the API surface; `docs/LIMITATIONS.md` is
+  the one list of every limitation of the suite, each row naming the file that proves
+  it. `tests/` includes the browser smoke tests for the public pages.
 - `ops/` is a separate, private repository and is ignored here.
 
 ## How to run things
