@@ -1,4 +1,4 @@
-<!-- last-reviewed: 2026-09-11 -->
+<!-- last-reviewed: 2026-11-25 -->
 > **ARCHIVED 2026-09-11 (D5-14).** Historical roadmap kept for the record; every count below is a
 > dated snapshot of its own heading, not a live number. The live plan is [WORKSTREAMS.md](../../WORKSTREAMS.md);
 > live coverage is https://spck.dev/coverage; the gates that keep the numbers honest are listed in
