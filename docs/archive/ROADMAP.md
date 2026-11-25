@@ -80,7 +80,7 @@ review-signoff, and a differential harness vs the independent Flower Shop). The 
 GAP is the categorized residue, honestly:
 - **Documented spec bugs (won't fake):** ERR-008 / CHK-039 (`severity: escalation`
   not in the enum — fixed on upstream main #216) and FUL-017 (prose `total` vs
-  schema `totals`). Drafts in `ops/upstream-reports.md`.
+  schema `totals`). Drafts in `ops/archive/2026-07/upstream-reports.md`.
 - **Genuinely impossible black-box:** IDL-025 (opaque-token aud/azp claims),
   SIG-009/023 (rotation-grace / retention time windows), SIG-024 (fail-closed on
   storage fault), SIG-022 (client key entropy) — no single observed response can

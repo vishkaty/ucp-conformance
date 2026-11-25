@@ -1,6 +1,6 @@
 # WAVES: the W0 to W3 plan, ARCHIVED 2026-11-25
 
-ARCHIVED 2026-11-25. Reason: W0 and W1 closed on 2026-09-11 (ops/PROGRAM-STATE-2026-10-02.md
+ARCHIVED 2026-11-25. Reason: W0 and W1 closed on 2026-09-11 (ops/archive/2026-10/PROGRAM-STATE-2026-10-02.md
 line 44; memory ucp-wave-state), and the program moved to the posture of 2026-11-24 (serve the
 open upstream PRs, keep the honesty gates green, aim at the maintainers tier) without a recorded
 decision; DECISIONS.md row 40 records it now. W2 and W3 are PARKED, not closed: their exits are
