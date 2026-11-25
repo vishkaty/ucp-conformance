@@ -6,7 +6,7 @@ open upstream PRs, keep the honesty gates green, aim at the maintainers tier) wi
 decision; DECISIONS.md row 40 records it now. W2 and W3 are PARKED, not closed: their exits are
 still the right shape for the 08-25 agent sandbox, the signed golden and `1.0.0`. Where the
 ideas went: `WORKSTREAMS.md` carries the live registry; the parked rows name this file as the
-resume point. The text below is the table as it stood in WORKSTREAMS.md on 2026-09-23, verbatim,
+resume point. The text below is the wave table and the exit section as they stood in WORKSTREAMS.md on 2026-09-23, verbatim,
 including its own staleness note, so the W1 row reads as it did then and not as it is.
 
 The goal this plan served is unchanged and is restated at the top of WORKSTREAMS.md.
