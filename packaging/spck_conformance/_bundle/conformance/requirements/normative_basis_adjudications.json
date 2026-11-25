@@ -1,7 +1,7 @@
 {
  "_about": "normative_basis adjudications (D2-11a / PLAN-v3 §2.4 A6, decision 29; batch normative-basis-adjudication-2026-09-11): the nokw rows the W1/W2 converters need ruled before they convert (D1-15, D1-18, D3-17, D3-20, D3-23, D5-11 — RV1 #12). assign_normative_basis.py applies these as normative_basis + normative_basis_justification; definition|inferred rows are named in the review_signoffs.json batch of the same name (>=10% human sample PENDING for the owner, decision 13). The remaining queued rows are D2-11b's. [2026-11-18, batch normative-basis-adjudication-2026-11-18, D2-11b] The 33 rows queued at 2026-01-11 and at 2026-01-23 (identical ids) are ruled below, one entry per version, each anchor re read at 806a5b74 and at dcf7eac7 with the exact span recomputed by verify_register.quote_line_span. The first eight entries were applied under the 2026-09-11 batch (reviewer: Wave 1 lane D2, each anchor re read in the vendored 2026-08-25 tree at cd78fb38) and keep that stamp on their rows, because assign_normative_basis.py skips a row whose basis already matches; the top level batch, date and reviewer now name the 2026-11-18 batch, which is the stamp the new entries receive and the batch review_signoffs.json names for their definition and inferred rows. DSC-005 and ORD-001 carry NO entry in this file and no label anywhere: see the SUBSET note below. No requirement text was rewritten in this change either, which an earlier draft of this note claimed; the `requirement` and `quote` of both rows are byte identical to feae769e at both 01 versions and only their `source` anchors moved. 2026-11-18 SUBSET: the DSC-005 and ORD-001 rulings from this batch are deliberately NOT applied, because each needs the register requirement rewritten first and that is a decision for the owner; both rows stay queued at both 01 versions.",
- "batch": "normative-basis-adjudication-2026-11-18",
- "date": "2026-11-18",
+ "batch": "normative-basis-adjudication-2026-11-24",
+ "date": "2026-11-24",
  "reviewer": "machine assisted adversarial re read, 2026-11-18, each anchor re read in the vendored 2026-01-11 tree at 806a5b74 and the vendored 2026-01-23 tree at dcf7eac7; the human sample is recorded in the review_signoffs.json batch of the same name",
  "adjudications": [
   {
@@ -43,8 +43,8 @@
   {
    "version": "2026-08-25",
    "id": "CHK-017",
-   "basis": "bullet",
-   "justification": "shopping/checkout/index.md L1028-L1029: '* After a checkout session reaches the state \"completed\", it is considered immutable.' — a bullet in the Availability list whose sibling items carry MUST / SHOULD (L1022-L1027: MUST provide continue_url…, MUST include at least one message…). Bullet in a keyword-bearing list; kept MUST (decision 29): immutability after completion is the stated contract the sibling MUSTs rely on."
+   "basis": "definition",
+   "justification": "shopping/checkout/index.md L1028 to L1029 at pin cd78fb38. The list sits under the bare heading ### Business at L1017, which carries no keyword, and every sibling carries its own MUST or SHOULD inline at L1019 to L1027. This item carries none and stands in the indicative. The taxonomy defines bullet as a list item under a keyword bearing lead in, so bullet does not hold: the keyword is in the siblings, not in the lead in. Ruled definition, which is what the same sentence carries as CHK-012 at both 01 pins, and definition is the value that needs a sign off so the row comes under decision 29 rather than around it. This corrects the 2026-09-11 justification, which named an Availability list when the heading is Business; that misreading is why the 2026-09-11 batch recorded this justification as NOT signed off, and it has been tracked since. Kept MUST: immutability after completion is the stated contract the sibling MUSTs rely on."
   },
   {
    "version": "2026-08-25",
