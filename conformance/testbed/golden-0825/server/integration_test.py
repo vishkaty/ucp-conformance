@@ -1467,6 +1467,79 @@ class IntegrationTest(absltest.TestCase):
       )
       self.assertEqual(updated.status_code, 200, f"Response: {updated.text}")
 
+  def test_update_echoes_a_conforming_payment_instrument(self) -> None:
+    """A conforming 2026-08-25 payment instrument must survive an update (KI-011).
+
+    `checkout_service.py` built the response `Payment` straight from
+    `checkout_req.payment.instruments`, which are
+    `payment_instrument_update_request.SelectedPaymentInstrument` instances,
+    against a field annotated with the response-side
+    `payment_instrument.SelectedPaymentInstrument`. pydantic rejects the one for
+    the other as a different model, so a conforming platform sending a minimal
+    instrument got 422 on both the update and the create path, and the create
+    path was latent only because the official suite sends an empty list. The two
+    schemas are byte identical apart from their `$id`, so there is no shape
+    delta to justify the refusal. Found 2026-11-25; it is the cause of two of the
+    four report-only failures the nightly crosscheck carries.
+    """
+    with self.client:
+      created = self.client.post(
+        "/checkout-sessions",
+        headers=self._get_headers(idempotency_key="ki11a", request_id="ki11a"),
+        json={"line_items": [{"item": {"id": "rose"}, "quantity": 1}]},
+      )
+      self.assertEqual(created.status_code, 201, f"Response: {created.text}")
+      checkout_id = self.get_resource_id(created.json()["id"])
+
+      # Only the three required members, so nothing but the model mismatch can
+      # explain a refusal.
+      instrument = {"id": "instr_ki11", "handler_id": "mock_payment_handler", "type": "card"}
+      updated = self.client.put(
+        f"/checkout-sessions/{checkout_id}",
+        headers=self._get_headers(idempotency_key="ki11b", request_id="ki11b"),
+        json={
+          "line_items": [{"item": {"id": "rose"}, "quantity": 1}],
+          "payment": {"instruments": [instrument]},
+        },
+      )
+      self.assertEqual(updated.status_code, 200, f"Response: {updated.text}")
+      echoed = updated.json().get("payment", {}).get("instruments") or []
+      self.assertEqual(
+        [{k: i.get(k) for k in ("id", "handler_id", "type")} for i in echoed],
+        [instrument],
+        "the instrument the platform sent is not echoed unchanged",
+      )
+      # An optional the platform omitted must stay omitted, not come back null:
+      # the round trip dumps with exclude_none for exactly this reason.
+      self.assertEqual(
+        [k for k, v in echoed[0].items() if v is None],
+        [],
+        "an optional member the platform omitted is echoed as null",
+      )
+
+      # The create path takes the same code path and was latent only because the
+      # official suite sends an empty instruments list, so it is driven here too.
+      created2 = self.client.post(
+        "/checkout-sessions",
+        headers=self._get_headers(idempotency_key="ki11c", request_id="ki11c"),
+        json={
+          "line_items": [{"item": {"id": "rose"}, "quantity": 1}],
+          "payment": {"instruments": [instrument]},
+        },
+      )
+      self.assertEqual(created2.status_code, 201, f"Response: {created2.text}")
+      on_create = created2.json().get("payment", {}).get("instruments") or []
+      self.assertEqual(
+        [{k: i.get(k) for k in ("id", "handler_id", "type")} for i in on_create],
+        [instrument],
+        "the create path does not echo the instrument the platform sent",
+      )
+      self.assertEqual(
+        [k for k, v in on_create[0].items() if v is None],
+        [],
+        "the create path echoes an omitted optional as null",
+      )
+
   def test_create_assigns_id_server_side(self) -> None:
     """A create carrying a non-string top-level `id` must not 500.
 

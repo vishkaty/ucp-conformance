@@ -8,8 +8,8 @@
     "rows": 11,
     "refuted": 0,
     "open_on_some_cut": 11,
-    "fixed_on_some_cut": 7,
-    "unfixed_everywhere": 4,
+    "fixed_on_some_cut": 8,
+    "unfixed_everywhere": 3,
     "by_artifact": {
       "golden-0825": 2,
       "js-sdk": 2,
@@ -450,6 +450,11 @@
           "cut": "golden-0825 at df95a40 (2026-11-17, the pinned cut)",
           "status": "open",
           "evidence": "Found by the 2026-11-25 verification pass; no earlier cut was probed for it, so the first open cut is the one measured."
+        },
+        {
+          "cut": "golden-0825 with the payment instrument round trip fix (2026-11-25)",
+          "status": "fixed",
+          "evidence": "checkout_service.py re-validates request-side instruments through the response model at both the create and the update site; a failing test was watched red for the right reason (422 `Input should be a valid dictionary or instance of SelectedPaymentInstrument at instruments[0]`, after a first draft failed for the wrong reason on a missing line_items), the golden unit suite is 302 passed, and unwrapping either site reds the new test. The second site in the symptom, the consent `description` demand, is NOT fixed here and keeps the row open at the pinned cut."
         }
       ],
       "origin": "ours",
