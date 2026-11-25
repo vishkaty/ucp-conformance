@@ -34,7 +34,7 @@ a single per-version register. One file per area keeps extraction reviewable.
 `role` is REQUIRED on every mandatory (MUST / MUST NOT / SHALL / SHALL NOT / REQUIRED)
 row and is the single field both lanes read: the merchant lane counts `business | both |
 handler`, the agent lane `platform | both | host`, `spec-author` rows are speclint's
-(`register-selfcheck`). Seeded by `requirements/tools/assign_roles.py` (idempotent: only
+(`speclint`). Seeded by `requirements/tools/assign_roles.py` (idempotent: only
 rows without a role are touched); rows it cannot resolve go to
 `requirements/<v>/role_review_queue.json`, and the `register` gate is red until that
 queue is empty — a reviewer sets `role` + `role_provenance: review:<batch>` (the batch

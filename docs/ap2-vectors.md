@@ -16,7 +16,7 @@ verified against; that key is the point of this page.
 | --- | --- |
 | Delegate SD-JWT chain draft | `draft-gco-oauth-delegate-sd-jwt-00` |
 | AP2 reference implementation | `google-agentic-commerce/AP2` @ `e1ea56d` |
-| UCP spec | `2026-04-08` @ `a2d8bf0b` |
+| UCP spec | `2026-04-08` @ `a25a4a24` (the suite pin since the 2026-09-11 re-pin, decision 3; the vectors were generated at `a2d8bf0b`, and the single commit between the two pins touches only the loyalty and discount documents, no AP2 or payment file, so the vector set is keyed to the pin it was verified against) |
 | Frozen standards under the chain | RFC 9901 (SD-JWT), RFC 8785 (JCS), RFC 7515 (JWS) |
 
 The vectors are cross-verified **two-way** in CI: our independent

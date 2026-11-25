@@ -15,10 +15,10 @@ This is the contract. If you change anything, keep it true.
 | Golden | controlled merchant fixture (`conformance/fixtures/merchant/`) | reference agent (`conformance/agent/reference_agent.py`) |
 | Defect injection | mutate captured responses | mutation agents (`defect=` on the reference agent) |
 | Kill-rate | check must fail its mutated response | check must fail its `kill_mutation` agent |
-| Checks | `conformance/checks/*.py` (193) | `conformance/agent/agent_checks.py` |
-| Coverage axis | `coverage/matrix.py` → 87/87/87 | `agent/agent_matrix.py` → separate % |
+| Checks | `conformance/checks/*.py` | `conformance/agent/agent_checks.py` |
+| Coverage axis | `coverage/matrix.py` → the per version accounting on [spck.dev/coverage](https://spck.dev/coverage) | `agent/agent_matrix.py` → separate % |
 | Governance | coverage-lock, review-signoff, completeness, ratchet | `agent/agent_governance.py` (same four) |
-| Runner/lane | the 30 merchant gates in `run_suite.py` | `agent/run_agent.py` (the `agent-lane` gate) |
+| Runner/lane | the merchant gates in `run_suite.py` (the table in `conformance/ci/README.md`) | `agent/run_agent.py` (the `agent-lane` gate) |
 
 Both loops enforce the **same TDD discipline**: trace to a verbatim spec clause →
 independent adversarial review → reference-gate (clean-pass on the golden + kill-safe on
@@ -31,7 +31,7 @@ ratchet (no regression).
 merchant coverage engine globs `conformance/checks/*.py` **non-recursively**, and the
 merchant collectors glob `area_*.py` — so the agent tree is **invisible** to all merchant
 machinery. Adding/removing agent checks *cannot* move the merchant coverage numbers.
-(Proven: merchant scans 69 modules, zero from `agent/`; merchant stays 87/87/87.)
+(Proven: the merchant scan sees zero modules from `agent/`; the merchant numbers on the coverage page do not move.)
 
 **2. Both lanes always run (the primary cross-side catch).** CI triggers on
 `conformance/**`, and `run_suite` runs **every** gate on **every** change — both lanes,
@@ -50,9 +50,9 @@ red. Neither can regress silently.
 ## Requirements are tracked on both axes
 
 - Merchant: the register (`requirements/`) + `coverage/matrix.py` + `coverage-lock` +
-  `register-completeness` → every merchant MUST is check / exempt / gap.
+  `register-complete` → every merchant MUST is check / exempt / gap.
 - Agent: the SAME register, filtered to platform/agent-subject rows, accounted by
-  `agent/agent_matrix.py` (denominator 48/51/95 @ the three versions) →
+  `agent/agent_matrix.py` (denominator per version in `public/agent-coverage.json`, shown on the coverage page) →
   `agent_coverage.json` + `agent_ratchet.json` + `agent_coverage_lock.json` +
   `agent_review_signoffs.json`, all enforced by the `agent-governance` gate.
 
@@ -97,8 +97,9 @@ Messaging rules (set 2026-07-04):
 Public assets added 2026-07-04: `public/agent.html`, `public/sandbox.html`,
 `public/agent-demo.json` (6 real recorded harness runs powering the demo),
 `functions/api/track.js` (anonymous engagement beacon). All additive — no `conformance/`
-code touched, so merchant 87/87/87 and the agent lane are unchanged.
+code touched, so the merchant numbers on the coverage page and the agent lane are unchanged.
 
 See also: `TEST-INTEGRITY.md` (the immutability/retirement policy, both lanes),
-`ROADMAP.md` (the agent workstream phases), `ops/agent-conformance-plan.md` (the full plan),
-`ops/plan-engagement-2026-07.md` (the 6-week engagement-first GTM plan this site serves).
+`archive/ROADMAP.md` (the agent workstream phases), `ops/archive/2026-09/agent-conformance-plan.md`
+(the full plan), `ops/archive/2026-07/plan-engagement-2026-07.md` (the 6-week engagement-first GTM
+plan this site serves).
