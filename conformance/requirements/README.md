@@ -67,13 +67,19 @@ easy to get backwards, so it is written out here rather than left in the tool:
 | `definition` | a definitional sentence; a downgrade candidate | review outcome, needs a sign-off |
 | `inferred` | a MUST inferred from context, kept only with a written justification | review outcome, needs a sign-off |
 
-Two consequences worth stating, because both have been got wrong in review. `table`
-does NOT mean "the quote is a table row": a row of an operations table with no Required
-column is a `definition`, which is why CHK-001 to CHK-005 and IDM-005 carry that value.
-And `bullet` does NOT mean "the quote is a list item": of the rows whose quote is a list
-item, 98 are `sentence` and only 7 are `bullet`, because what matters is whether the
-lead-in carries the keyword. Widening either one to key on construct would move rows
-into a class that needs no sign-off, routing them around decision 29.
+Two consequences worth stating, because both have been got wrong in review. `table` does
+NOT mean "the quote is a table row": a row of an operations table with no Required
+column is a `definition`, which is why CHK-001 to CHK-005 and IDM-005 all carry that
+value at the two 2026-01 pins. The same ids are not a fixed answer across versions:
+CHK-001 and CHK-004 are `sentence` at 2026-04-08 and 2026-08-25, where the text carries
+a keyword, and the other four do not exist there at all. And `bullet` does NOT mean "the
+quote is a list item": the great majority of list-item quotes are `sentence`, and
+exactly six rows are `bullet`, namely IDM-002, IDM-003 and IDM-004 at each of the two
+2026-01 pins. What matters is whether the lead-in carries the keyword, not whether the
+quote is a bullet. The six are enumerated rather than counted because a bare count goes
+stale on the next relabel, as one did here: CHK-017 left this class in the same change
+that added this table. Widening either one to key on construct would move rows into a
+class that needs no sign-off, routing them around decision 29.
 
 ## Verdict rule reminder
 A MUST row → `deviation` when violated (blocks aggregate green). SHOULD → `advisory`.
