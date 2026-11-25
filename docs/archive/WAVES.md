@@ -3,7 +3,7 @@
 ARCHIVED 2026-11-25. Reason: W0 and W1 closed on 2026-09-11 (ops/archive/2026-10/PROGRAM-STATE-2026-10-02.md
 line 44; memory ucp-wave-state), and the program moved to the posture of 2026-11-24 (serve the
 open upstream PRs, keep the honesty gates green, aim at the maintainers tier) without a recorded
-decision; DECISIONS.md row 40 records it now. W2 and W3 are PARKED, not closed: their exits are
+decision; DECISIONS.md row 48 records it now. W2 and W3 are PARKED, not closed: their exits are
 still the right shape for the 08-25 agent sandbox, the signed golden and `1.0.0`. Where the
 ideas went: `WORKSTREAMS.md` carries the live registry; the parked rows name this file as the
 resume point. The text below is the wave table and the exit section as they stood in WORKSTREAMS.md on 2026-09-23, verbatim,

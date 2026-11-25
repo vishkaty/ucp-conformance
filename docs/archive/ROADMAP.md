@@ -217,7 +217,7 @@ merchant coverage_map (non-recursive glob) → merchant numbers cannot move; a
 - **Phase E (demand-gated):** cross-protocol (ACP/AP2); revenue products if pull.
 
 Positioning: *"the conformance layer for agentic commerce"* — both sides, proven. Full
-plan + DD: `ops/agent-conformance-plan.md`, `ops/agent-conformance-dd.md`.
+plan + DD: `ops/archive/2026-09/agent-conformance-plan.md`, `ops/archive/2026-09/agent-conformance-dd.md`.
 
 ## Maintenance invariants (standing)
 - Every change: full local `conformance/ci/selftest.sh` GREEN before commit; CI GREEN

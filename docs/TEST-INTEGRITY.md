@@ -60,7 +60,7 @@ If relaxing a predicate would let a genuinely non-conformant server pass, it is 
   either a register row or a documented reconciliation entry (a scope exclusion for
   structurally-unobservable files like the browser-embedded MessagePort UI, or a per-line
   waiver that is a duplicate / non-normative / schema-enforced). A missed normative clause
-  fails the build, a coverage percentage can't be a fraction of an assumed denominator.
+  fails the build, a coverage percentage cannot be a fraction of an assumed denominator.
 - **`verify_review_signoffs.py`** (the `review-signoff` gate) makes coverage *expansion*
   as governed as removal: every locked CHECK id must carry an adversarial-review sign-off
   (an independent reviewer re-read the pinned clause and confirmed subject / citation /
