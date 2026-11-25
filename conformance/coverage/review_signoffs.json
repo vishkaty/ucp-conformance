@@ -1595,6 +1595,21 @@
      "OVR-067"
     ]
    }
+  },
+  {
+   "batch": "normative-basis-adjudication-2026-11-24",
+   "covers": [
+    "normative_basis"
+   ],
+   "date": "2026-11-24",
+   "reviewer": "machine assisted adversarial re read, 2026-11-24, of the one row this batch rules. The anchor was read in full at pin cd78fb38 rather than sampled, because the batch is a single row, and an independent adversarial pass over the 2026-11-18 sample is what surfaced the relabel.",
+   "spec_reverified": true,
+   "notes": "Relabels CHK-017 at 2026-08-25 from bullet to definition. The 2026-09-11 batch had already recorded this justification as NOT signed off, because it does not survive a reading of its anchor, and it has been tracked since: it named an Availability list, while the heading at shopping/checkout/index.md L1017 is Business. Read at pin cd78fb38, the lead in is a bare heading carrying no keyword, every sibling at L1019 to L1027 carries its own MUST or SHOULD inline, and this item at L1028 to L1029 carries none and stands in the indicative. The taxonomy defines bullet as a list item under a keyword bearing lead in, so bullet does not hold here: the keyword is in the siblings, not in the lead in. definition is what the same sentence carries as CHK-012 at both 01 pins, and it is a value that needs a sign off, which is the point: bullet needs none, so one version of this requirement sat under decision 29 while the other sat around it. Deliberately not a kind sample batch, because one row read in full is a complete review rather than a sample, and arming a second human review would add a deadline without adding a check. The 2026-11-18 batch and its 2026-12-02 human sample are untouched.",
+   "ids": {
+    "2026-08-25": [
+     "CHK-017"
+    ]
+   }
   }
  ]
 }
