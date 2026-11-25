@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Known issues in the UCP reference stack — reproducible, per cut | spck.dev</title>
-<meta name="description" content="10 reproduced defects in the published UCP SDKs, samples, conformance suite and reference servers, with the command to reproduce each and its status per released cut.">
+<meta name="description" content="11 reproduced defects in the published UCP SDKs, samples, conformance suite and reference servers, with the command to reproduce each and its status per released cut.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><text x='16' y='22' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='16'>S</text></svg>">
 <link rel="stylesheet" href="/site.css">
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "3bebef55335e4229a5c7807ce207fa13"}'></script>
@@ -54,13 +54,13 @@ labeled. Source of truth: <code>conformance/ci/known_issues.json</code> in the
 <a href="https://github.com/vishkaty/ucp-conformance" rel="noopener">repository</a>, validated in CI.</p>
 </header>
 <div class="stats">
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">10</div><div class="l">issues tracked</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">10</div><div class="l">open on a published cut</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.rows">11</div><div class="l">issues tracked</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.open_on_some_cut">11</div><div class="l">open on a published cut</div></div>
   <div class="stat"><div class="n" data-live="known-issues.json:$.summary.fixed_on_some_cut">7</div><div class="l">have a fix on some cut</div></div>
-  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">3</div><div class="l">no fix anywhere yet</div></div>
+  <div class="stat"><div class="n" data-live="known-issues.json:$.summary.unfixed_everywhere">4</div><div class="l">no fix anywhere yet</div></div>
 </div>
-<p class="note">By artifact: golden-0825 1 · js-sdk 2 · official-conformance 1 · python-sdk 1 · samples-node 1 · samples-python 1 · ucp-schema 1 · ucp-spec 2. Spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>
-(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-11-19</span>.
+<p class="note">By artifact: golden-0825 2 · js-sdk 2 · official-conformance 1 · python-sdk 1 · samples-node 1 · samples-python 1 · ucp-schema 1 · ucp-spec 2. Spec pin <code data-live="known-issues.json:$.spec_pin_short">cd78fb38</code>
+(2026-08-25). Latest re-verification <span data-live="known-issues.json:$.summary.latest_re_verified">2026-11-25</span>.
 Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <article class="ki" id="KI-001">
 <h2><a class="rid" href="#KI-001">KI-001</a> <span class="chip">python-sdk</span> <span class="comp">generated pydantic models (schema constraints)</span></h2>
@@ -160,6 +160,16 @@ Machine-readable: <a href="/known-issues.json">known-issues.json</a>.</p>
 <dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">golden-0825 @ f9cc470</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">golden-0825 @ faedb2b</span> <span class="ev">— re-probed 2026-10-11: GET /nope returns 404 with the UCP envelope {ucp:{version 2026-08-25, status error}, messages:[{type error, code not_found, severity unrecoverable}]}, not FastAPI detail Not Found. Fixed by C3 (D3-04) in Wave 0 as the symptom records</span></li><li><span class="st st-fixed">fixed</span> <span class="cut">golden-0825 at df95a40 (2026-11-17)</span> <span class="ev">— Unknown route answers the UCP error envelope with http 404.</span></li></ul></dd>
 <dt>Filed</dt><dd>not yet filed</dd>
 <dt>Provenance</dt><dd>origin ours · confidence high · re-verified 2026-11-17 · review by 2026-12-08 · ledger row R23</dd>
+</dl>
+</article>
+<article class="ki" id="KI-011">
+<h2><a class="rid" href="#KI-011">KI-011</a> <span class="chip">golden-0825</span> <span class="comp">checkout_service payment instruments round trip</span></h2>
+<p class="symptom">golden-0825 refuses a CONFORMING 2026-08-25 payment instrument with http 422: checkout_service.py hands request-side SelectedPaymentInstrument instances to a response field annotated with the other model, which pydantic rejects. OUR defect; the cause of 2 of the 4 nightly report-only failures.</p>
+<dl class="meta">
+<dt>Reproduce</dt><dd><code class="cmd">bash conformance/ci/serve_golden.sh then PUT a minimal 2026-08-25 checkout carrying one payment instrument with only its three required fields and `ucp.version: 2026-08-25`</code><div class="eo"><span class="k">expected</span> 200 or 201, the instrument echoed in the response</div><div class="eo"><span class="k">observed</span> Measured 2026-11-25: http 422 on both the update and the create path, `Input should be a valid dictionary or instance of SelectedPaymentInstrument at instruments[0]`. Sites: `checkout_service.py:557-558` builds `PaymentResponse(instruments=checkout_req.payment.instruments)` with `payment_instrument_update_request.SelectedPaymentInstrument` instances against a field annotated `payment_instrument.SelectedPaymentInstrument`; `:418-420` does the same on create, latent only because the official suite sends `instruments: []` there. The 08-25 and 04-08 instrument schemas are byte identical apart from `$id`, so no shape delta explains it. The same run reproduced the four nightly failures exactly (73 pass, 4 fail, rc 0, report-only) and isolated two of them to this cause; the other two are KI-007. A second site in the same probe: the golden requires `description` on a request-side consent purpose although the schema marks it `ucp_request: omit`, so a conforming platform that omits it is refused.</div></dd>
+<dt>Status by cut</dt><dd><ul class="cuts"><li><span class="st st-open">open</span> <span class="cut">golden-0825 at df95a40 (2026-11-17, the pinned cut)</span> <span class="ev">— Found by the 2026-11-25 verification pass; no earlier cut was probed for it, so the first open cut is the one measured.</span></li></ul></dd>
+<dt>Filed</dt><dd>not yet filed</dd>
+<dt>Provenance</dt><dd>origin ours · confidence high · re-verified 2026-11-25 · review by 2026-12-08 · ledger row R24</dd>
 </dl>
 </article>
 
