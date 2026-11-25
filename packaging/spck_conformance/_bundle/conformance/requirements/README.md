@@ -53,7 +53,41 @@ line inside a fence) mechanically and queues the rest; reviewed outcomes (`table
 `definition|inferred` rows must be named by a `coverage/review_signoffs.json` batch
 (decision 29: an inferred MUST is kept only with a written, signed-off justification).
 
+The seven values, which partition by WHERE THE MANDATORY FORCE LIVES rather than by
+what construct the quote sits in. That distinction is the whole taxonomy and it is
+easy to get backwards, so it is written out here rather than left in the tool:
+
+| value | what carries the MUST | assigned |
+| --- | --- | --- |
+| `sentence` | a mandatory keyword (MUST / MUST NOT / SHALL / SHALL NOT / REQUIRED) in the quote itself | mechanically |
+| `schema` | the quote is a schema constraint, source under `source/` | mechanically |
+| `pseudocode` | every cited line sits inside a code fence, an algorithm the prose specifies | mechanically |
+| `table` | a `Yes` or `MUST` cell in a column headed Required or Cond. | review outcome |
+| `bullet` | a list item under a keyword bearing lead-in | review outcome |
+| `definition` | a definitional sentence; a downgrade candidate | review outcome, needs a sign-off |
+| `inferred` | a MUST inferred from context, kept only with a written justification | review outcome, needs a sign-off |
+
+Two consequences worth stating, because both have been got wrong in review. `table` does
+NOT mean "the quote is a table row": a row of an operations table with no Required
+column is a `definition`, which is why CHK-001 to CHK-005 carry that value at the two
+2026-01 pins, and IDM-005 carries it as a row of the HTTP status code table, which has
+no Required column either. The same ids are not a fixed answer across versions. At
+2026-04-08 and 2026-08-25 the ids CHK-001 and CHK-004 are reused for text carrying MUST
+inline, so they are `sentence` there; CHK-002, CHK-003 and CHK-005 are reused for SHOULD
+text and carry no basis at all, since only mandatory rows get one; and IDM-005 does not
+exist at those pins.
+
+And `bullet` does NOT mean "the quote is a list item". Counting the quotes that BEGIN,
+after optional indent, with a list marker, 172 rows qualify and 107 of them carry a
+basis: 98 are `sentence`, 6 are `bullet` and 3 are `definition`. The six `bullet` rows
+are IDM-002, IDM-003 and IDM-004 at each of the two 2026-01 pins. What matters is
+whether the lead-in carries the keyword, not whether the quote is a bullet. The counts
+name their detector because a count with an unstated one is not reproducible, and the
+six are enumerated as well because a bare count goes stale on the next relabel, as one
+did here when CHK-017 left this class. Widening either class to key on construct would
+move rows into a class that needs no sign-off, routing them around decision 29.
+
 ## Verdict rule reminder
 A MUST row → `deviation` when violated (blocks aggregate green). SHOULD → `advisory`.
 MAY → `informational`. A row not exercised → `not-tested` (also blocks aggregate green).
-Never collapse a transient/timeout into pass or fail — that is `inconclusive`.
+Never collapse a transient/timeout into pass or fail; that is `inconclusive`.

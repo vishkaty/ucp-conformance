@@ -414,8 +414,8 @@
       },
       "role": "business",
       "role_provenance": "review:role-adjudication-2026-09-11",
-      "normative_basis": "bullet",
-      "normative_basis_justification": "[normative-basis-adjudication-2026-09-11] shopping/checkout/index.md L1028-L1029: '* After a checkout session reaches the state \"completed\", it is considered immutable.' — a bullet in the Availability list whose sibling items carry MUST / SHOULD (L1022-L1027: MUST provide continue_url…, MUST include at least one message…). Bullet in a keyword-bearing list; kept MUST (decision 29): immutability after completion is the stated contract the sibling MUSTs rely on."
+      "normative_basis": "definition",
+      "normative_basis_justification": "[normative-basis-adjudication-2026-11-24] shopping/checkout/index.md L1028 to L1029 at pin cd78fb38. The list sits under the bare heading ### Business at L1017, which carries no keyword, and every sibling carries its own MUST or SHOULD inline at L1019 to L1027. This item carries none and stands in the indicative. The taxonomy defines bullet as a list item under a keyword bearing lead in, so bullet does not hold: the keyword is in the siblings, not in the lead in. Ruled definition, which is what the same sentence carries as CHK-012 at both 01 pins, and definition is the value that needs a sign off so the row comes under decision 29 rather than around it. This corrects the 2026-09-11 justification, which named an Availability list when the heading is Business. That batch recorded this justification as NOT signed off, giving no row specific reason beyond that it does not survive a reading of its anchor, so the misnaming is consistent with the record rather than stated by it. Kept MUST: immutability after completion is the stated contract the sibling MUSTs rely on."
     },
     {
       "id": "CHK-018",

@@ -13934,7 +13934,7 @@
      "testability": "testable",
      "status": "check",
      "role": "business",
-     "normative_basis": "bullet",
+     "normative_basis": "definition",
      "requirement": "After a checkout session reaches state completed it is considered immutable",
      "source": "ucp:docs/specification/shopping/checkout/index.md#L1028-L1029",
      "covered_by": [
